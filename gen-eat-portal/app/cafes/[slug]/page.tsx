@@ -8,6 +8,64 @@ import { ChatWidget } from "@/components/ChatWidget";
 import { MenuItemThumb } from "@/components/MenuItemThumb";
 import { QuickOrderPrompts } from "@/components/QuickOrderPrompts";
 import { formatKES, whatsappLink } from "@/lib/format";
+import type { Cafe, MenuItem, MenuSection } from "@/lib/cafes";
+
+const BACKEND_BASE =
+  process.env.BACKEND_URL ||
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  (process.env.VERCEL ? "https://api.lesnarai.co.ke" : "http://localhost:8000");
+
+function normalizePhotoKey(value: string) {
+  return (value || "").toLowerCase().replace(/[^a-z0-9 ]+/g, " ").trim();
+}
+
+function matchPhoto(itemName: string, photos: Record<string, string>) {
+  const normalized = normalizePhotoKey(itemName);
+  if (!normalized) return null;
+  if (photos[normalized]) return photos[normalized];
+  const tokens = new Set(normalized.split(/\s+/).filter(Boolean));
+  const keys = Object.keys(photos).sort((a, b) => b.length - a.length);
+  for (const key of keys) {
+    const normalizedKey = normalizePhotoKey(key);
+    if (!normalizedKey) continue;
+    const keyTokens = new Set(normalizedKey.split(/\s+/).filter(Boolean));
+    if (normalized.includes(normalizedKey)) return photos[key];
+    for (const token of keyTokens) {
+      if (tokens.has(token)) return photos[key];
+    }
+  }
+  return null;
+}
+
+function applyMenuPhotoOverrides(cafe: Cafe, photos: Record<string, string>): Cafe {
+  if (!photos || Object.keys(photos).length === 0) return cafe;
+  const overrideItem = (item: MenuItem): MenuItem => {
+    const matched = matchPhoto(item.name, photos);
+    return matched ? { ...item, image: matched } : item;
+  };
+  const overrideSection = (section: MenuSection): MenuSection => ({
+    ...section,
+    items: section.items.map(overrideItem),
+  });
+  return {
+    ...cafe,
+    menuPreview: cafe.menuPreview.map(overrideItem),
+    menuFull: cafe.menuFull.map(overrideSection),
+  };
+}
+
+async function loadMenuPhotoOverrides(slug: string): Promise<Record<string, string>> {
+  try {
+    const res = await fetch(`${BACKEND_BASE}/catalog/businesses/${slug}/menu-photos`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return {};
+    const body = await res.json();
+    return typeof body?.photos === "object" && body?.photos ? body.photos : {};
+  } catch {
+    return {};
+  }
+}
 
 export function generateStaticParams() {
   return CAFES.map((c) => ({ slug: c.slug }));
@@ -19,9 +77,11 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
   return { title: `${c.name} · Gen-Eat`, description: c.tagline };
 }
 
-export default function CafePage({ params }: { params: { slug: string } }) {
-  const cafe = getCafe(params.slug);
-  if (!cafe) return notFound();
+export default async function CafePage({ params }: { params: { slug: string } }) {
+  const baseCafe = getCafe(params.slug);
+  if (!baseCafe) return notFound();
+  const photoOverrides = await loadMenuPhotoOverrides(params.slug);
+  const cafe = applyMenuPhotoOverrides(baseCafe, photoOverrides);
 
   const isLilyPondDemo = cafe.slug === "lily-pond-cafe";
   const waText = isLilyPondDemo

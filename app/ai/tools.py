@@ -483,7 +483,13 @@ def build_tools(
             await _audit("send_menu_photo", args.model_dump(), result, False, t0)
             return result
 
-        matched, url = find_photo(biz_slug, args.item)
+        profile_menu_photos = None
+        if biz is not None and isinstance(biz.profile, dict):
+            raw_menu_photos = biz.profile.get("menu_photos")
+            if isinstance(raw_menu_photos, dict):
+                profile_menu_photos = raw_menu_photos
+
+        matched, url = find_photo(biz_slug, args.item, profile_menu_photos)
         if not url:
             result = {"ok": False, "error": "no_photo",
                       "item": args.item,

@@ -15,6 +15,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from app.api.admin import router as admin_router
 from app.api.admin_auth import router as admin_auth_router
+from app.api.catalog import router as catalog_router
 from app.api.admin_console import router as admin_console_router
 from app.api.health import router as health_router
 from app.api.metrics import MetricsMiddleware, router as metrics_router
@@ -159,6 +160,7 @@ async def rate_limit_handler(_: Request, exc: RateLimitExceeded):
 
 app.include_router(health_router)
 app.include_router(metrics_router)
+app.include_router(catalog_router)
 app.include_router(mock_router)
 app.include_router(whatsapp_router)
 app.include_router(whatsapp_twilio_router)

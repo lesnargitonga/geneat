@@ -21,18 +21,29 @@ export function MenuItemThumb({
   size?: number;
 }) {
   if (item.image) {
+    const isRemote = /^https?:\/\//i.test(item.image);
     return (
       <div
         className="relative shrink-0 overflow-hidden rounded-xl bg-ink/5"
         style={{ width: size, height: size }}
       >
-        <Image
-          src={item.image}
-          alt={item.name}
-          fill
-          sizes={`${size}px`}
-          className="object-cover"
-        />
+        {isRemote ? (
+          <img
+            src={item.image}
+            alt={item.name}
+            width={size}
+            height={size}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <Image
+            src={item.image}
+            alt={item.name}
+            fill
+            sizes={`${size}px`}
+            className="object-cover"
+          />
+        )}
       </div>
     );
   }

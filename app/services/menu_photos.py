@@ -11,6 +11,7 @@ Mirror this file with `gen-eat-portal/lib/cafes.ts` menu images.
 """
 from __future__ import annotations
 
+from collections.abc import Mapping
 import re
 
 # slug -> { item_keyword: public_image_url }
@@ -92,14 +93,20 @@ def _normalize(s: str) -> str:
     return _NORMALIZE_RE.sub(" ", (s or "").lower()).strip()
 
 
-def find_photo(business_slug: str, item_query: str) -> tuple[str | None, str | None]:
-    """Resolve a public image URL for the given item query within this business.
+def _normalize_photo_map(raw: Mapping[str, str] | None) -> dict[str, str]:
+    if not raw:
+        return {}
+    normalized: dict[str, str] = {}
+    for key, value in raw.items():
+        norm_key = _normalize(str(key))
+        url = str(value or "").strip()
+        if not norm_key or not url:
+            continue
+        normalized[norm_key] = url
+    return normalized
 
-    Returns (matched_keyword, image_url). Falls back to the business 'menu'
-    hero image if no item keyword matched. Returns (None, None) if nothing
-    is registered for the business.
-    """
-    table = MENU_PHOTOS.get(business_slug)
+
+def _lookup_photo(table: Mapping[str, str] | None, item_query: str) -> tuple[str | None, str | None]:
     if not table:
         return None, None
     q = _normalize(item_query)
@@ -121,3 +128,25 @@ def find_photo(business_slug: str, item_query: str) -> tuple[str | None, str | N
     # Any image is better than none.
     first_key = next(iter(table))
     return first_key, table[first_key]
+
+
+def find_photo(
+    business_slug: str,
+    item_query: str,
+    custom_photos: Mapping[str, str] | None = None,
+) -> tuple[str | None, str | None]:
+    """Resolve a public image URL for the given item query within this business.
+
+    Resolution order:
+      1. Tenant-owned photos stored in `Business.profile["menu_photos"]`
+      2. Static demo fallback images in `MENU_PHOTOS`
+
+    Returns (matched_keyword, image_url). Falls back to the business `menu`
+    hero image if no item keyword matched. Returns (None, None) if nothing
+    is registered for the business.
+    """
+    custom = _normalize_photo_map(custom_photos)
+    matched, url = _lookup_photo(custom, item_query)
+    if url:
+        return matched, url
+    return _lookup_photo(MENU_PHOTOS.get(business_slug), item_query)

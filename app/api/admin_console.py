@@ -27,7 +27,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
 from fastapi import (
-    APIRouter, Body, Depends, HTTPException, Query, Request, Response, status,
+    APIRouter, Body, Depends, File, Form, HTTPException, Query, Request, Response, UploadFile, status,
 )
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, HttpUrl
@@ -698,6 +698,36 @@ class PromptPatchIn(BaseModel):
     greeting_template: Optional[str] = Field(None, max_length=2000)
 
 
+class MenuPhotoEntryIn(BaseModel):
+    item: str = Field(..., min_length=1, max_length=120)
+    url: HttpUrl
+
+
+class MenuPhotoCatalogOut(BaseModel):
+    slug: str
+    photos: dict[str, str]
+
+
+class MenuPhotoUploadOut(BaseModel):
+    slug: str
+    item: str
+    url: str
+    photos: dict[str, str]
+
+
+def _menu_photo_map(profile: dict | None) -> dict[str, str]:
+    raw = (profile or {}).get("menu_photos")
+    if not isinstance(raw, dict):
+        return {}
+    cleaned: dict[str, str] = {}
+    for key, value in raw.items():
+        key_text = str(key or "").strip()
+        url = str(value or "").strip()
+        if key_text and url:
+            cleaned[key_text] = url
+    return cleaned
+
+
 @router.get("/businesses/{slug}/profile", response_model=ProfileOut)
 async def get_profile(
     slug: str,
@@ -754,6 +784,98 @@ async def patch_prompt(
         greeting_template=ctx.business.greeting_template,
         language_primary=ctx.business.language_primary,
         language_secondary=ctx.business.language_secondary,
+    )
+
+
+@router.get("/businesses/{slug}/menu-photos", response_model=MenuPhotoCatalogOut)
+async def get_menu_photos(
+    slug: str,
+    ctx=Depends(require_tenant_access(AdminRole.viewer)),
+) -> MenuPhotoCatalogOut:
+    return MenuPhotoCatalogOut(
+        slug=ctx.business.slug,
+        photos=_menu_photo_map(ctx.business.profile),
+    )
+
+
+@router.post("/businesses/{slug}/menu-photos", response_model=MenuPhotoUploadOut)
+async def register_menu_photo(
+    slug: str,
+    payload: MenuPhotoEntryIn,
+    db: AsyncSession = Depends(db_session),
+    ctx=Depends(require_tenant_access(AdminRole.owner)),
+) -> MenuPhotoUploadOut:
+    profile = dict(ctx.business.profile or {})
+    photos = _menu_photo_map(profile)
+    item_key = payload.item.strip().lower()
+    photos[item_key] = str(payload.url)
+    profile["menu_photos"] = photos
+    ctx.business.profile = profile
+    await _audit(
+        db,
+        actor=ctx.principal.actor_label,
+        action="menu_photo_register",
+        target=slug,
+        data={"item": item_key},
+    )
+    await db.commit()
+    await db.refresh(ctx.business)
+    return MenuPhotoUploadOut(
+        slug=ctx.business.slug,
+        item=item_key,
+        url=str(payload.url),
+        photos=_menu_photo_map(ctx.business.profile),
+    )
+
+
+@router.post("/businesses/{slug}/menu-photos/upload", response_model=MenuPhotoUploadOut)
+async def upload_menu_photo(
+    slug: str,
+    item: str = Form(..., min_length=1, max_length=120),
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(db_session),
+    ctx=Depends(require_tenant_access(AdminRole.owner)),
+) -> MenuPhotoUploadOut:
+    mime = (file.content_type or "").strip().lower()
+    if not mime.startswith("image/"):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "file must be an image")
+
+    binary = await file.read()
+    if not binary:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "empty file")
+    if len(binary) > 8 * 1024 * 1024:
+        raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, "image must be <= 8MB")
+
+    from app.services import media as media_svc
+
+    item_key = item.strip().lower()
+    prefix = f"menu-photos/{ctx.business.slug}"
+    uploaded = await media_svc.upload_to_r2(binary, mime, prefix=prefix, presign_seconds=7 * 24 * 3600)
+    if not uploaded or not uploaded.startswith(("http://", "https://")):
+        raise HTTPException(
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+            "photo upload unavailable — configure R2 or use the URL registration endpoint",
+        )
+
+    profile = dict(ctx.business.profile or {})
+    photos = _menu_photo_map(profile)
+    photos[item_key] = uploaded
+    profile["menu_photos"] = photos
+    ctx.business.profile = profile
+    await _audit(
+        db,
+        actor=ctx.principal.actor_label,
+        action="menu_photo_upload",
+        target=slug,
+        data={"item": item_key, "filename": file.filename},
+    )
+    await db.commit()
+    await db.refresh(ctx.business)
+    return MenuPhotoUploadOut(
+        slug=ctx.business.slug,
+        item=item_key,
+        url=uploaded,
+        photos=_menu_photo_map(ctx.business.profile),
     )
 
 
