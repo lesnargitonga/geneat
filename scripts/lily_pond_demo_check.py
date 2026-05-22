@@ -150,6 +150,24 @@ async def run(*, backend: str, portal: str, admin: str, chat: bool, photo: bool)
 
     deep_ok, deep_body = await _http_json(f"{backend}/health/deep", timeout=12.0)
     checks.append(Check("backend /health/deep", deep_ok and isinstance(deep_body, dict) and deep_body.get("status") in {"ok", "degraded"}, str(deep_body)[:220]))
+    if isinstance(deep_body, dict):
+        llm_body = ((deep_body.get("checks") or {}).get("llm") or {})
+        breakers = deep_body.get("breakers") or []
+        openai_breaker = next((b for b in breakers if isinstance(b, dict) and b.get("name") == "llm:openai"), None)
+        checks.append(
+            Check(
+                "LLM provider health",
+                bool(llm_body.get("ok")),
+                str(llm_body)[:180],
+            )
+        )
+        checks.append(
+            Check(
+                "OpenAI breaker closed",
+                not openai_breaker or openai_breaker.get("state") == "closed",
+                str(openai_breaker or {"state": "unknown"})[:180],
+            )
+        )
 
     try:
         challenge = "lily-demo-check"
