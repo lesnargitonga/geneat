@@ -137,6 +137,12 @@ class KBIngestResult(BaseModel):
     business_slug: str
 
 
+class DemoSeedResult(BaseModel):
+    businesses: int
+    kb_chunks: dict[str, int]
+    conversations: dict[str, int]
+
+
 # ── Helpers ──────────────────────────────────────────────────────────────
 async def _get_business_or_404(db: AsyncSession, slug: str) -> Business:
     res = await db.execute(select(Business).where(Business.slug == slug))
@@ -206,6 +212,59 @@ async def list_businesses(db: AsyncSession = Depends(db_session)) -> list[Busine
     for b in rows:
         out.append(BusinessOut.from_orm_row(b, await _kb_row_count(db, b.id)))
     return out
+
+
+@router.post(
+    "/bootstrap/geneat-demo",
+    response_model=DemoSeedResult,
+    dependencies=[Depends(require_admin)],
+)
+async def bootstrap_geneat_demo(
+    db: AsyncSession = Depends(db_session),
+) -> DemoSeedResult:
+    """Seed the hosted demo tenants and KB without needing shell access.
+
+    This mirrors `scripts/seed_geneat_demo.py` but is callable over HTTPS
+    using the existing ADMIN_API_TOKEN bearer auth.
+    """
+    from scripts.seed_geneat_demo import (
+        CAFES,
+        DEMO_CONVERSATIONS,
+        reset_kb,
+        seed_conversation,
+        upsert_business,
+    )
+
+    slug_to_id: dict[str, uuid.UUID] = {}
+    kb_chunks: dict[str, int] = {}
+    conversations: dict[str, int] = {spec["slug"]: 0 for spec in CAFES}
+
+    for spec in CAFES:
+        biz = await upsert_business(db, spec)
+        await db.commit()
+        await db.refresh(biz)
+        slug_to_id[spec["slug"]] = biz.id
+
+    for slug, business_id in slug_to_id.items():
+        kb_chunks[slug] = await reset_kb(db, business_id, slug)
+        await db.commit()
+
+    for spec in DEMO_CONVERSATIONS:
+        await seed_conversation(db, slug_to_id[spec["cafe"]], spec)
+        conversations[spec["cafe"]] += 1
+    await db.commit()
+
+    log.info(
+        "demo_bootstrap_completed",
+        businesses=len(slug_to_id),
+        kb_chunks=kb_chunks,
+        conversations=conversations,
+    )
+    return DemoSeedResult(
+        businesses=len(slug_to_id),
+        kb_chunks=kb_chunks,
+        conversations=conversations,
+    )
 
 
 @router.get(
