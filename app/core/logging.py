@@ -66,6 +66,7 @@ def configure_logging(level: str = "INFO", log_format: str | None = None) -> Non
             structlog.processors.format_exc_info,
             renderer,
         ],
+        logger_factory=structlog.stdlib.LoggerFactory(),
         wrapper_class=structlog.make_filtering_bound_logger(
             getattr(logging, level.upper(), logging.INFO)
         ),
