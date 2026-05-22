@@ -178,29 +178,31 @@ def get_chat_chain(
             continue
         fb_order.append(p)
 
-    fallback_models: list[BaseChatModel] = []
+    fallback_specs: list[tuple[str, BaseChatModel]] = []
     for p in fb_order:
         m = _build_provider(p, s, temperature=temperature, streaming=streaming, is_fallback=True)
         if m is not None:
-            fallback_models.append(m)
+            fallback_specs.append((p, m))
 
     # If primary failed to build entirely, promote the first available fallback.
     if primary is None:
-        if not fallback_models:
+        if not fallback_specs:
             raise RuntimeError(
                 "No chat LLM available — primary and all fallbacks failed to build. "
                 "Check API keys in .env."
             )
-        primary = fallback_models.pop(0)
+        _, primary = fallback_specs.pop(0)
         log.warning("primary_unbuildable_promoting_fallback")
 
     # Bind tools to every model in the chain (each must be able to call tools).
     if tools:
         primary_bound: Runnable = primary.bind_tools(tools)
-        fallback_bound: list[Runnable] = [m.bind_tools(tools) for m in fallback_models]
+        fallback_bound: list[tuple[str, Runnable]] = [
+            (provider_name, model.bind_tools(tools)) for provider_name, model in fallback_specs
+        ]
     else:
         primary_bound = primary
-        fallback_bound = list(fallback_models)
+        fallback_bound = list(fallback_specs)
 
     if not fallback_bound:
         return primary_bound
@@ -210,7 +212,7 @@ def get_chat_chain(
     log.info(
         "llm_chain_assembled",
         primary=primary_provider,
-        fallbacks=[type(m).__name__ for m in fallback_models],
+        fallbacks=[provider_name for provider_name, _ in fallback_bound],
     )
 
     # Wrap each model with a circuit breaker so a dead provider opens out
@@ -258,8 +260,8 @@ def get_chat_chain(
 
     primary_wrapped = _wrap_with_breaker(primary_bound, primary_provider, is_primary=True)
     fallback_wrapped = [
-        _wrap_with_breaker(m, fb_order[i], is_primary=False)
-        for i, m in enumerate(fallback_bound)
+        _wrap_with_breaker(model, provider_name, is_primary=False)
+        for provider_name, model in fallback_bound
     ]
 
     return primary_wrapped.with_fallbacks(fallback_wrapped)
