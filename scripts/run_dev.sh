@@ -13,6 +13,7 @@ cd "$(dirname "$0")/.."
 
 export PYTHONPATH="${PYTHONPATH:-.}"
 export PYTHONDONTWRITEBYTECODE=1
+export LOG_FORMAT="${LOG_FORMAT:-console}"
 
 VENV="./.venv/bin/uvicorn"
 if [[ ! -x "$VENV" ]]; then

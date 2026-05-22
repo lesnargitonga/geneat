@@ -13,10 +13,16 @@ import argparse
 import asyncio
 import os
 from dataclasses import dataclass
+from pathlib import Path
+import sys
 from typing import Any
 
 import httpx
 from sqlalchemy import func, select, text
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from app.core.config import get_settings
 from app.db.models import AdminUser, Business, KnowledgeChunk
@@ -30,8 +36,14 @@ class Check:
     detail: str = ""
 
 
+def _color(text: str, code: str) -> str:
+    if not os.getenv("NO_COLOR") and os.getenv("TERM") != "dumb":
+        return f"\033[{code}m{text}\033[0m"
+    return text
+
+
 def _line(check: Check) -> str:
-    mark = "OK " if check.ok else "BAD"
+    mark = _color("OK ", "32") if check.ok else _color("BAD", "31")
     suffix = f" - {check.detail}" if check.detail else ""
     return f"{mark} {check.name}{suffix}"
 
@@ -73,7 +85,7 @@ async def _post_json(url: str, payload: dict[str, Any], *, timeout: float = 45.0
         return False, f"{type(exc).__name__}: {exc}"
 
 
-async def run(*, backend: str, portal: str, admin: str, chat: bool) -> list[Check]:
+async def run(*, backend: str, portal: str, admin: str, chat: bool, photo: bool) -> list[Check]:
     s = get_settings()
     expected_phone = os.getenv("LILY_POND_CONTACT_PHONE", "+15556578220")
     checks: list[Check] = [
@@ -173,6 +185,26 @@ async def run(*, backend: str, portal: str, admin: str, chat: bool) -> list[Chec
         reply = body.get("reply", "") if isinstance(body, dict) else str(body)
         checks.append(Check("non-charging chat price check", ok and "KES 10" in reply, reply[:180]))
 
+    if photo:
+        ok, body = await _post_json(
+            f"{portal}/api/chat",
+            {
+                "phone": "+254799000011",
+                "text": "show me a photo of the flat white",
+                "business_slug": "lily-pond-cafe",
+                "language": "en",
+            },
+        )
+        image_url = body.get("image_url") if isinstance(body, dict) else None
+        photo_item = body.get("photo_item") if isinstance(body, dict) else None
+        checks.append(
+            Check(
+                "photo request returns image",
+                ok and bool(image_url),
+                f"item={photo_item or '-'} image={'yes' if image_url else 'no'}",
+            )
+        )
+
     return checks
 
 
@@ -181,17 +213,31 @@ async def amain() -> int:
     parser.add_argument("--backend", default="http://127.0.0.1:8000")
     parser.add_argument("--portal", default="http://127.0.0.1:3000")
     parser.add_argument("--admin", default="http://127.0.0.1:5173")
+    parser.add_argument("--live", action="store_true", help="use hosted production-like URLs")
     parser.add_argument("--chat", action="store_true", help="run a safe no-order chat price check")
+    parser.add_argument("--photo", action="store_true", help="run a safe photo-request chat check")
     args = parser.parse_args()
 
-    checks = await run(backend=args.backend.rstrip("/"), portal=args.portal.rstrip("/"), admin=args.admin.rstrip("/"), chat=args.chat)
+    if args.live:
+        args.backend = "https://api.lesnarai.co.ke"
+        args.portal = "https://geneat.lesnarai.co.ke"
+        args.admin = os.getenv("GENEAT_ADMIN_URL", args.admin)
+
+    checks = await run(
+        backend=args.backend.rstrip("/"),
+        portal=args.portal.rstrip("/"),
+        admin=args.admin.rstrip("/"),
+        chat=args.chat,
+        photo=args.photo,
+    )
     for check in checks:
         print(_line(check))
     failed = [c for c in checks if not c.ok]
     print()
-    print(f"summary: {len(checks) - len(failed)}/{len(checks)} checks passed")
+    summary = f"summary: {len(checks) - len(failed)}/{len(checks)} checks passed"
+    print(_color(summary, "32" if not failed else "33"))
     if failed:
-        print("failed:", ", ".join(c.name for c in failed))
+        print(_color("failed:", "31"), ", ".join(c.name for c in failed))
         return 1
     return 0
 

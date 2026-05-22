@@ -33,7 +33,7 @@ from app.core.rate_limit import limiter
 from app.core.redis_client import close_redis, get_redis
 
 settings = get_settings()
-configure_logging(settings.log_level)
+configure_logging(settings.log_level, settings.log_format)
 log = get_logger("app")
 
 # Sentry — no-op when SENTRY_DSN is unset. Initialised before app creation so

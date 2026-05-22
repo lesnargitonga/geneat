@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime, timezone, timedelta
+import re
 from typing import Sequence
 
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage, ToolMessage
@@ -31,6 +32,12 @@ settings = get_settings()
 
 MAX_TOOL_HOPS = 4
 RAG_TURN_CHUNKS = 3
+_PHOTO_REQUEST_RE = re.compile(
+    r"\b("
+    r"photo|picture|pic|image|picha|show me|send me|let me see|lemme see|how does .* look"
+    r")\b",
+    re.IGNORECASE,
+)
 
 
 def _looks_like_name_only(text: str) -> bool:
@@ -60,6 +67,23 @@ def _looks_like_short_followup(text: str) -> bool:
     if not (1 <= len(parts) <= 3):
         return False
     return all(part.isalpha() for part in parts)
+
+
+def _looks_like_photo_request(text: str) -> bool:
+    candidate = (text or "").strip()
+    if not candidate:
+        return False
+    return bool(_PHOTO_REQUEST_RE.search(candidate))
+
+
+def _photo_item_query(text: str) -> str:
+    candidate = (text or "").strip()
+    if not candidate:
+        return "menu"
+    lowered = candidate.lower()
+    if any(token in lowered for token in ("whole menu", "full menu", "entire menu", "menu pictures", "menu photo")):
+        return "menu"
+    return candidate
 
 
 def _build_system_instruction(
@@ -138,7 +162,6 @@ async def _agent_node(state: AgentState, *, db: AsyncSession) -> dict:
         db, state.get("conversation_id"), biz_id,
         msisdn=state.get("msisdn"), channel=state.get("channel"),
     )
-    llm = get_chat_chain(tools)
 
     # Detect whether this is the very first AI turn for this conversation.
     # If the customer has ANY prior AI message in history, the agent should
@@ -150,6 +173,19 @@ async def _agent_node(state: AgentState, *, db: AsyncSession) -> dict:
         (m.content for m in reversed(state["messages"]) if isinstance(m, HumanMessage)),
         "",
     )
+    if _looks_like_photo_request(last_user_text):
+        photo_tool = next((tool for tool in tools if getattr(tool, "name", "") == "send_menu_photo"), None)
+        if photo_tool is not None:
+            try:
+                photo_result = await photo_tool.ainvoke({"item": _photo_item_query(last_user_text)})
+            except Exception as exc:
+                log.warning("photo_fast_path_failed", error=str(exc))
+            else:
+                if isinstance(photo_result, dict) and photo_result.get("ok"):
+                    matched = str(photo_result.get("item") or "that").strip()
+                    return {"messages": [AIMessage(content=f"Here you go for {matched}.")]}
+
+    llm = get_chat_chain(tools)
     system = _build_system_instruction(
         state,
         profile=profile,

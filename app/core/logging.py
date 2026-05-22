@@ -1,4 +1,8 @@
-"""Structured JSON logging with request_id / conversation_id correlation."""
+"""Structured logging with request_id / conversation_id correlation.
+
+Production keeps JSON logs for machines.
+Local development can use a colorized console renderer for human eyes.
+"""
 from __future__ import annotations
 
 import logging
@@ -29,7 +33,25 @@ def _add_context(_, __, event_dict):
     return event_dict
 
 
-def configure_logging(level: str = "INFO") -> None:
+def _pick_renderer(*, level: str, log_format: str | None) -> object:
+    fmt = (log_format or "auto").strip().lower()
+    if fmt not in {"auto", "json", "console"}:
+        fmt = "auto"
+
+    if fmt == "json":
+        return structlog.processors.JSONRenderer()
+
+    if fmt == "console" or (fmt == "auto" and sys.stdout.isatty()):
+        return structlog.dev.ConsoleRenderer(
+            colors=sys.stdout.isatty(),
+            sort_keys=False,
+        )
+
+    return structlog.processors.JSONRenderer()
+
+
+def configure_logging(level: str = "INFO", log_format: str | None = None) -> None:
+    renderer = _pick_renderer(level=level, log_format=log_format)
     logging.basicConfig(
         format="%(message)s", stream=sys.stdout, level=getattr(logging, level.upper(), logging.INFO)
     )
@@ -37,11 +59,12 @@ def configure_logging(level: str = "INFO") -> None:
         processors=[
             structlog.contextvars.merge_contextvars,
             _add_context,
+            structlog.stdlib.add_logger_name,
             structlog.processors.add_log_level,
             structlog.processors.TimeStamper(fmt="iso"),
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
-            structlog.processors.JSONRenderer(),
+            renderer,
         ],
         wrapper_class=structlog.make_filtering_bound_logger(
             getattr(logging, level.upper(), logging.INFO)

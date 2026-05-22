@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     app_host: str = "0.0.0.0"
     app_port: int = 8000
     log_level: str = "INFO"
+    log_format: Literal["auto", "json", "console"] = "auto"
     secret_key: SecretStr = Field(default=SecretStr("change-me"))
     phone_hash_pepper: SecretStr = Field(default=SecretStr("change-me"))
 
