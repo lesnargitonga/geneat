@@ -88,7 +88,10 @@ async def post_message(
         business_slug=payload.business_slug,
     )
     res = await handle_inbound(db, turn)
-    image_url, photo_item = await _latest_photo_result(db, str(res.conversation_id))
+    image_url = res.image_url
+    photo_item = res.photo_item
+    if image_url is None and photo_item is None:
+        image_url, photo_item = await _latest_photo_result(db, str(res.conversation_id))
     return MockMessageOut(
         reply=_clean_reply(res.reply, image_url, photo_item),
         conversation_id=str(res.conversation_id),
@@ -154,7 +157,10 @@ async def post_image(
         business_slug=payload.business_slug,
     )
     res = await handle_inbound(db, turn)
-    image_url, photo_item = await _latest_photo_result(db, str(res.conversation_id))
+    image_url = res.image_url
+    photo_item = res.photo_item
+    if image_url is None and photo_item is None:
+        image_url, photo_item = await _latest_photo_result(db, str(res.conversation_id))
     return MockMessageOut(
         reply=_clean_reply(res.reply, image_url, photo_item),
         conversation_id=str(res.conversation_id),

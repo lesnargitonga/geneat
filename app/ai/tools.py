@@ -497,6 +497,16 @@ def build_tools(
             await _audit("send_menu_photo", args.model_dump(), result, False, t0)
             return result
 
+        from app.core.redis_client import claim_with_result, store_result
+
+        dedupe_key = f"photo:{conversation_id}:{channel}:{msisdn}:{matched}"
+        fresh, cached = await claim_with_result(dedupe_key, ttl_seconds=45)
+        if not fresh and cached is not None:
+            result = dict(cached)
+            result["deduped"] = True
+            await _audit("send_menu_photo", args.model_dump(), result, result.get("ok", False), t0)
+            return result
+
         if channel != "whatsapp" or not msisdn:
             # Other channels: return the URL structurally so the UI can render
             # it inline, but keep the tool message URL-free so the model
@@ -504,6 +514,7 @@ def build_tools(
             result = {"ok": True, "sent": False, "channel": channel,
                       "item": matched, "image_url": url,
                       "message": f"Photo ready for {matched}."}
+            await store_result(dedupe_key, result, ttl_seconds=45)
             await _audit("send_menu_photo", args.model_dump(), result, True, t0)
             return result
 
@@ -513,11 +524,13 @@ def build_tools(
             ok = bool(send_res.get("ok"))
             result = {"ok": ok, "sent": ok, "channel": "whatsapp",
                       "item": matched,
+                      "image_url": url,
                       "provider_sid": send_res.get("sid"),
                       "media_id": send_res.get("id"),
                       "error": send_res.get("error")}
         except Exception as e:
             result = {"ok": False, "error": "upstream", "message": str(e)}
+        await store_result(dedupe_key, result, ttl_seconds=45)
         await _audit("send_menu_photo", args.model_dump(), result,
                      result.get("ok", False), t0)
         return result

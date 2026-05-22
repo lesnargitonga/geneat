@@ -19,8 +19,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.llm import get_chat_chain
 from app.ai.prompts import RAG_PREAMBLE, render_system_prompt
+from app.ai.quick_replies import (
+    looks_like_photo_request,
+    maybe_build_quick_reply,
+    photo_item_query,
+)
 from app.ai.rag import format_context, retrieve
-from app.ai.safety import extract_kes_amounts
 from app.ai.state import AgentState
 from app.ai.tools import build_tools
 from app.core.config import get_settings
@@ -33,23 +37,7 @@ settings = get_settings()
 
 MAX_TOOL_HOPS = 4
 RAG_TURN_CHUNKS = 3
-_PHOTO_REQUEST_RE = re.compile(
-    r"\b("
-    r"photo|picture|pic|image|picha|show me|send me|let me see|lemme see|how does .* look"
-    r")\b",
-    re.IGNORECASE,
-)
-_PRICE_REQUEST_RE = re.compile(
-    r"\b("
-    r"how much|price|cost|bei|kes ngapi|ni how much|how much is|how much for|price of|price for"
-    r")\b",
-    re.IGNORECASE,
-)
 _NORMALIZE_RE = re.compile(r"[^a-z0-9 ]+")
-_PRICE_STOPWORDS = {
-    "how", "much", "is", "for", "the", "a", "an", "of", "price", "cost", "bei",
-    "ni", "kes", "ksh", "bob", "please", "me", "show", "tell", "what", "whats",
-}
 
 
 def _looks_like_name_only(text: str) -> bool:
@@ -81,87 +69,8 @@ def _looks_like_short_followup(text: str) -> bool:
     return all(part.isalpha() for part in parts)
 
 
-def _looks_like_photo_request(text: str) -> bool:
-    candidate = (text or "").strip()
-    if not candidate:
-        return False
-    return bool(_PHOTO_REQUEST_RE.search(candidate))
-
-
-def _looks_like_price_request(text: str) -> bool:
-    candidate = (text or "").strip()
-    if not candidate:
-        return False
-    return bool(_PRICE_REQUEST_RE.search(candidate))
-
-
-def _photo_item_query(text: str) -> str:
-    candidate = (text or "").strip()
-    if not candidate:
-        return "menu"
-    lowered = candidate.lower()
-    if any(token in lowered for token in ("whole menu", "full menu", "entire menu", "menu pictures", "menu photo")):
-        return "menu"
-    return candidate
-
-
 def _normalize_lookup_text(text: str) -> str:
     return _NORMALIZE_RE.sub(" ", (text or "").lower()).strip()
-
-
-def _price_item_query(text: str) -> str:
-    lowered = _normalize_lookup_text(text)
-    for phrase in (
-        "how much is", "how much for", "how much", "price of", "price for", "price", "cost of", "cost",
-        "bei ya", "bei", "kes ngapi", "ni how much",
-    ):
-        lowered = lowered.replace(phrase, " ")
-    lowered = re.sub(r"\s+", " ", lowered).strip()
-    return lowered or text.strip()
-
-
-def _price_reply_from_chunks(query: str, chunks) -> str | None:
-    item_query = _price_item_query(query)
-    query_norm = _normalize_lookup_text(item_query)
-    query_tokens = {
-        token for token in query_norm.split()
-        if token and token not in _PRICE_STOPWORDS and len(token) >= 3
-    }
-    if not query_tokens and query_norm:
-        query_tokens = {query_norm}
-
-    best_segment: str | None = None
-    best_score = -1
-    best_price: int | None = None
-    for chunk in chunks:
-        for raw_segment in re.split(r"[\n•]+", chunk.content or ""):
-            segment = raw_segment.strip(" -:\t")
-            if not segment:
-                continue
-            seg_norm = _normalize_lookup_text(segment)
-            score = 0
-            if query_norm and query_norm in seg_norm:
-                score += 3
-            score += sum(1 for token in query_tokens if token in seg_norm)
-            if score <= 0:
-                continue
-            amounts = sorted(extract_kes_amounts(segment))
-            if not amounts:
-                continue
-            if score > best_score:
-                best_score = score
-                best_segment = segment
-                best_price = amounts[0]
-
-    if best_price is None:
-        return None
-
-    label = item_query.strip(" ?.!").title() if item_query.strip() else "That item"
-    if "demo espresso" in query_norm or "demo order" in query_norm or "10 bob" in query_norm or "ten bob" in query_norm:
-        return "Demo Espresso is KES 10. Want me to set one up for pickup?"
-    if best_segment and "/" in best_segment and best_score < 4:
-        return f"The listed price there is KES {best_price}. Want me to pull the exact item for you?"
-    return f"{label} is KES {best_price}. Want me to sort one for pickup?"
 
 
 def _build_system_instruction(
@@ -251,23 +160,32 @@ async def _agent_node(state: AgentState, *, db: AsyncSession) -> dict:
         (m.content for m in reversed(state["messages"]) if isinstance(m, HumanMessage)),
         "",
     )
-    if _looks_like_photo_request(last_user_text):
+    if looks_like_photo_request(last_user_text):
         photo_tool = next((tool for tool in tools if getattr(tool, "name", "") == "send_menu_photo"), None)
         if photo_tool is not None:
             try:
-                photo_result = await photo_tool.ainvoke({"item": _photo_item_query(last_user_text)})
+                photo_result = await photo_tool.ainvoke({"item": photo_item_query(last_user_text)})
             except Exception as exc:
                 log.warning("photo_fast_path_failed", error=str(exc))
             else:
                 if isinstance(photo_result, dict) and photo_result.get("ok"):
                     matched = str(photo_result.get("item") or "that").strip()
-                    return {"messages": [AIMessage(content=f"Here you go for {matched}.")]}
+                    return {
+                        "messages": [AIMessage(content=f"Here you go for {matched}.")],
+                        "photo_result": {
+                            "item": matched,
+                            "image_url": photo_result.get("image_url"),
+                        },
+                    }
 
-    if _looks_like_price_request(last_user_text):
-        price_chunks = await retrieve(db, last_user_text, business_id=biz_id, k=3)
-        price_reply = _price_reply_from_chunks(last_user_text, price_chunks)
-        if price_reply:
-            return {"messages": [AIMessage(content=price_reply)]}
+    quick_reply = await maybe_build_quick_reply(
+        db,
+        business_id=biz_id,
+        profile=profile,
+        text=last_user_text,
+    )
+    if quick_reply:
+        return {"messages": [AIMessage(content=quick_reply)]}
 
     llm = get_chat_chain(tools)
     system = _build_system_instruction(
@@ -385,6 +303,12 @@ async def run_turn(
         {"name": m.name, "content": m.content[:500]}
         for m in final["messages"] if isinstance(m, ToolMessage)
     ]
+    photo_result = final.get("photo_result") if isinstance(final.get("photo_result"), dict) else None
     escalated = any(t["name"] == "escalate_to_human" for t in tool_calls)
-    return {"reply": reply, "tool_calls": tool_calls, "escalated": escalated,
-            "rag_hits": final.get("rag_hits", 0)}
+    return {
+        "reply": reply,
+        "tool_calls": tool_calls,
+        "escalated": escalated,
+        "rag_hits": final.get("rag_hits", 0),
+        "photo_result": photo_result,
+    }

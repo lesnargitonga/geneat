@@ -11,13 +11,15 @@ import uuid
 from dataclasses import dataclass
 
 from langchain_core.messages import AIMessage, HumanMessage
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.graph import run_turn
+from app.ai.quick_replies import maybe_build_quick_reply
 from app.core.logging import business_id_ctx, conversation_id_ctx, get_logger, tenant_slug_ctx
 from app.core.redis_client import claim_idempotency
 from app.core.security import hash_msisdn, normalize_msisdn
-from app.db.models import Channel, Sender
+from app.db.models import Channel, Sender, ToolInvocation
 from app.services.business_service import (
     get_business_by_slug, get_business_for_turn,
 )
@@ -53,6 +55,8 @@ class TurnResult:
     conversation_id: uuid.UUID
     escalated: bool
     duplicate: bool = False
+    image_url: str | None = None
+    photo_item: str | None = None
 
 
 async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
@@ -250,7 +254,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
 
         # Persist the inbound user message with safety flags either way.
         _user_flags = [verdict.reason] if verdict.verdict != Verdict.ALLOW else None
-        await append_message(
+        user_msg = await append_message(
             db, conversation=conv, sender=Sender.user, content=turn.text,
             language=effective_lang, media_url=turn.media_url,
             provider_message_id=turn.provider_message_id,
@@ -372,26 +376,46 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 log.exception("ai_turn_failed_final", error=str(e2))
                 escalated = await bump_failed_turn(db, conv)
 
+                fallback_profile = None
+                try:
+                    fallback_profile = await get_business_for_turn(db, business_id=business_id)
+                except Exception:
+                    fallback_profile = None
+
+                quick_reply = None
+                try:
+                    quick_reply = await maybe_build_quick_reply(
+                        db,
+                        business_id=business_id,
+                        profile=fallback_profile,
+                        text=turn.text,
+                    )
+                except Exception as qr_err:
+                    log.warning("quick_reply_fallback_failed", error=str(qr_err))
+
                 # Before showing the generic fallback, try a KB keyword search.
                 # If all LLMs are down but the KB has a literal match for the
                 # customer's question, deliver THAT instead of a useless ack.
                 kb_reply: str | None = None
-                try:
-                    from app.ai.rag import keyword_search
-                    hits = await keyword_search(db, turn.text, business_id=business_id, k=1)
-                    if hits:
-                        snippet = hits[0].content.strip()
-                        # Trim to a reasonable WhatsApp-sized reply
-                        if len(snippet) > 800:
-                            snippet = snippet[:800].rsplit(" ", 1)[0] + "…"
-                        kb_reply = snippet
-                        log.info("kb_keyword_fallback_used", source=hits[0].source)
-                except Exception as kb_err:
-                    log.warning("kb_keyword_fallback_failed", error=str(kb_err))
+                if quick_reply is None:
+                    try:
+                        from app.ai.rag import keyword_search
+                        hits = await keyword_search(db, turn.text, business_id=business_id, k=1)
+                        if hits:
+                            snippet = hits[0].content.strip()
+                            # Trim to a reasonable WhatsApp-sized reply
+                            if len(snippet) > 800:
+                                snippet = snippet[:800].rsplit(" ", 1)[0] + "…"
+                            kb_reply = snippet
+                            log.info("kb_keyword_fallback_used", source=hits[0].source)
+                    except Exception as kb_err:
+                        log.warning("kb_keyword_fallback_failed", error=str(kb_err))
 
                 is_sw = (effective_lang or "").startswith(("sw", "she")) or \
                         (customer.preferred_language or "").startswith(("sw", "she"))
-                if kb_reply:
+                if quick_reply:
+                    reply = quick_reply
+                elif kb_reply:
                     prefix = "Habari, hapa kuna jibu la haraka kutoka kwa kumbukumbu zetu:\n\n" if is_sw \
                              else "Here's a quick answer from our records:\n\n"
                     suffix = "\n\nNitakurudia hivi karibuni kwa maelezo zaidi." if is_sw \
@@ -411,6 +435,28 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 await append_message(db, conversation=conv, sender=Sender.ai, content=reply)
                 await db.commit()
                 return TurnResult(reply=reply, conversation_id=conv.id, escalated=escalated)
+
+        image_url = None
+        photo_item = None
+        if isinstance(result.get("photo_result"), dict):
+            image_url = result["photo_result"].get("image_url")
+            photo_item = result["photo_result"].get("item")
+        if image_url is None and getattr(user_msg, "timestamp", None) is not None:
+            try:
+                photo_inv = (await db.execute(
+                    select(ToolInvocation)
+                    .where(ToolInvocation.conversation_id == conv.id)
+                    .where(ToolInvocation.tool_name == "send_menu_photo")
+                    .where(ToolInvocation.success.is_(True))
+                    .where(ToolInvocation.created_at >= user_msg.timestamp)
+                    .order_by(ToolInvocation.created_at.desc())
+                    .limit(1)
+                )).scalar_one_or_none()
+                if photo_inv is not None and isinstance(photo_inv.result, dict):
+                    image_url = photo_inv.result.get("image_url")
+                    photo_item = photo_inv.result.get("item")
+            except Exception as photo_err:
+                log.warning("photo_turn_result_lookup_failed", error=str(photo_err))
 
         # Final sanitiser: strip CoT/tool-call/markdown leakage. Voice channel
         # gets a plain-prose variant (no asterisks, no URLs).
@@ -462,7 +508,13 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             tool_calls=[t["name"] for t in result["tool_calls"]],
             escalated=result["escalated"],
         )
-        return TurnResult(reply=reply, conversation_id=conv.id, escalated=result["escalated"])
+        return TurnResult(
+            reply=reply,
+            conversation_id=conv.id,
+            escalated=result["escalated"],
+            image_url=image_url,
+            photo_item=photo_item,
+        )
 
 
 @dataclass
