@@ -187,8 +187,11 @@ async def run(*, backend: str, portal: str, admin: str, chat: bool, photo: bool)
     portal_ok, portal_text = await _http_text(f"{portal}/cafes/lily-pond-cafe")
     checks.append(Check("portal Lily Pond page", portal_ok and "Order KES 10 on WhatsApp" in portal_text, "contains live CTA"))
 
-    admin_ok, _ = await _http_json(admin)
-    checks.append(Check("admin UI reachable", admin_ok, admin))
+    if admin:
+        admin_ok, _ = await _http_json(admin)
+        checks.append(Check("admin UI reachable", admin_ok, admin))
+    else:
+        checks.append(Check("admin UI reachable", True, "skipped (GENEAT_ADMIN_URL not set)"))
 
     if chat:
         ok, body = await _post_json(
@@ -239,7 +242,7 @@ async def amain() -> int:
     if args.live:
         args.backend = "https://api.lesnarai.co.ke"
         args.portal = "https://geneat.lesnarai.co.ke"
-        args.admin = os.getenv("GENEAT_ADMIN_URL", args.admin)
+        args.admin = os.getenv("GENEAT_ADMIN_URL", "").strip()
 
     checks = await run(
         backend=args.backend.rstrip("/"),

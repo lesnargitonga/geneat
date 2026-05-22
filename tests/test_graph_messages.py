@@ -4,7 +4,12 @@ import pytest
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.tools import StructuredTool
 
-from app.ai.graph import _build_system_instruction, _looks_like_photo_request, run_turn
+from app.ai.graph import (
+    _build_system_instruction,
+    _looks_like_photo_request,
+    _looks_like_price_request,
+    run_turn,
+)
 
 
 def test_build_system_instruction_collapses_hints_into_one_message() -> None:
@@ -34,6 +39,13 @@ def test_photo_request_detector_matches_obvious_prompts() -> None:
     assert _looks_like_photo_request("send me a picture of the croissant")
     assert _looks_like_photo_request("picha ya avocado toast")
     assert not _looks_like_photo_request("what time do you open?")
+
+
+def test_price_request_detector_matches_obvious_prompts() -> None:
+    assert _looks_like_price_request("How much is the demo espresso?")
+    assert _looks_like_price_request("price of flat white")
+    assert _looks_like_price_request("bei ya mandazi ni ngapi")
+    assert not _looks_like_price_request("What's good for breakfast under KES 300?")
 
 
 @pytest.mark.asyncio
@@ -90,3 +102,34 @@ async def test_run_turn_short_circuits_explicit_photo_requests(db, stub_rag, mon
     )
 
     assert out["reply"] == "Here you go for flat white."
+
+
+@pytest.mark.asyncio
+async def test_run_turn_short_circuits_obvious_price_requests(db, stub_rag, monkeypatch):
+    monkeypatch.setattr("app.ai.graph.build_tools", lambda *a, **kw: [])
+
+    async def fake_retrieve(*_args, **_kwargs):
+        from app.ai.rag import RetrievedChunk
+
+        return [
+            RetrievedChunk(
+                content="LIVE DEMO - Demo Espresso KES 10. Use this for live demos.",
+                source="menu",
+                score=0.9,
+            )
+        ]
+
+    monkeypatch.setattr("app.ai.graph.retrieve", fake_retrieve)
+    monkeypatch.setattr(
+        "app.ai.graph.get_chat_chain",
+        lambda *a, **kw: (_ for _ in ()).throw(AssertionError("LLM should not be called for explicit price requests")),
+    )
+
+    out = await run_turn(
+        db,
+        msisdn="+254700000001",
+        user_text="How much is the demo espresso?",
+        channel="whatsapp",
+    )
+
+    assert out["reply"] == "Demo Espresso is KES 10. Want me to set one up for pickup?"
