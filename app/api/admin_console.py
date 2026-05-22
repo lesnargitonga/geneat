@@ -708,6 +708,10 @@ class MenuPhotoCatalogOut(BaseModel):
     photos: dict[str, str]
 
 
+class MenuPhotoCatalogIn(BaseModel):
+    photos: dict[str, HttpUrl]
+
+
 class MenuPhotoUploadOut(BaseModel):
     slug: str
     item: str
@@ -792,6 +796,36 @@ async def get_menu_photos(
     slug: str,
     ctx=Depends(require_tenant_access(AdminRole.viewer)),
 ) -> MenuPhotoCatalogOut:
+    return MenuPhotoCatalogOut(
+        slug=ctx.business.slug,
+        photos=_menu_photo_map(ctx.business.profile),
+    )
+
+
+@router.put("/businesses/{slug}/menu-photos", response_model=MenuPhotoCatalogOut)
+async def replace_menu_photos(
+    slug: str,
+    payload: MenuPhotoCatalogIn,
+    db: AsyncSession = Depends(db_session),
+    ctx=Depends(require_tenant_access(AdminRole.owner)),
+) -> MenuPhotoCatalogOut:
+    profile = dict(ctx.business.profile or {})
+    photos = {
+        str(key).strip().lower(): str(value)
+        for key, value in payload.photos.items()
+        if str(key).strip() and str(value).strip()
+    }
+    profile["menu_photos"] = photos
+    ctx.business.profile = profile
+    await _audit(
+        db,
+        actor=ctx.principal.actor_label,
+        action="menu_photo_replace_all",
+        target=slug,
+        data={"count": len(photos)},
+    )
+    await db.commit()
+    await db.refresh(ctx.business)
     return MenuPhotoCatalogOut(
         slug=ctx.business.slug,
         photos=_menu_photo_map(ctx.business.profile),
