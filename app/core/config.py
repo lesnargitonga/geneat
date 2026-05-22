@@ -205,9 +205,11 @@ class Settings(BaseSettings):
     def _normalize_render_urls(self) -> "Settings":
         """Accept plain Postgres URLs from hosts like Render and normalize
         them into the explicit SQLAlchemy driver URLs the app expects.
+        Also accept Redis hosts that are missing an explicit scheme.
         """
         async_url = (self.database_url or "").strip()
         sync_url = (self.database_url_sync or "").strip()
+        redis_url = (self.redis_url or "").strip()
 
         def _to_async(url: str) -> str:
             if url.startswith("postgresql+asyncpg://") or url.startswith("sqlite"):
@@ -229,6 +231,8 @@ class Settings(BaseSettings):
 
         self.database_url = _to_async(async_url)
         self.database_url_sync = _to_sync(sync_url or async_url)
+        if redis_url and "://" not in redis_url:
+            self.redis_url = f"redis://{redis_url}"
         return self
 
     @property
