@@ -1,0 +1,11 @@
+tunnel: 81fbd285-69b0-4509-83c3-ea7171a80532
+credentials-file: /etc/cloudflared/81fbd285-69b0-4509-83c3-ea7171a80532.json
+
+ingress:
+  - hostname: api.lesnarai.co.ke
+    service: http://api:8000
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  - service: http_status:404
+

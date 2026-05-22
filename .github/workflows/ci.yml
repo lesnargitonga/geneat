@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+# Cancel in-progress runs on a new push to the same ref. Saves minutes on
+# rapid pushes during a PR review cycle.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: pytest (py3.12)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      # The codebase has a `pg` pytest marker for Postgres+pgvector tests;
+      # we ship a service container so those tests can run if invoked.
+      # Unit-only mode (default below) does NOT connect to this, but
+      # having it available keeps the door open for `pytest -m pg`.
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: omni
+          POSTGRES_PASSWORD: omni
+          POSTGRES_DB: omni_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U omni"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # Minimum env so settings load. Real values are dummies — tests
+      # mock external services.
+      APP_ENV: test
+      DATABASE_URL: postgresql+asyncpg://omni:omni@localhost:5432/omni_test
+      REDIS_URL: redis://localhost:6379/0
+      JWT_SECRET: ci-only-not-a-real-secret-do-not-reuse
+      ADMIN_CORS_ORIGINS: "*"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Lint (ruff)
+        run: |
+          pip install 'ruff>=0.6,<0.9'
+          # Pragmatic ruleset — pyflakes (F) and obvious bugs (B), plus
+          # import order (I). We do NOT enforce style here; that's a
+          # separate concern.
+          ruff check --select F,B,I --ignore F401,F841,B008 app/ tests/ scripts/
+
+      - name: Pytest (unit)
+        run: |
+          # Skip Postgres-marked tests by default; CI is fast that way.
+          # Run them with `-m pg` if/when needed.
+          pytest -q -m "not pg" --maxfail=5

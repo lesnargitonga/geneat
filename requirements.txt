@@ -1,0 +1,56 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.2
+pydantic-settings==2.5.2
+sqlalchemy==2.0.35
+asyncpg==0.29.0
+psycopg[binary]==3.2.3
+aiosqlite==0.20.0
+alembic==1.13.3
+pgvector==0.3.4
+redis==5.0.8
+slowapi==0.1.9
+httpx==0.27.2
+websockets==13.0.1
+tenacity==8.5.0
+python-multipart==0.0.12
+python-dotenv==1.0.1
+structlog==24.4.0
+orjson==3.10.7
+langchain==0.3.1
+langchain-core==0.3.7
+langchain-openai==0.2.1
+langchain-community==0.3.1
+langgraph==0.2.28
+langgraph-checkpoint==1.0.12
+openai==1.50.0
+tiktoken==0.7.0
+# Phase 3+ (kept here so containers don't churn later)
+twilio==9.3.2
+africastalking==1.2.9
+google-api-python-client==2.146.0
+google-auth==2.35.0
+google-auth-oauthlib==1.2.1
+# Phase 3 hardening
+langchain-ollama==0.2.0
+langchain-google-genai==2.0.1
+langchain-groq==0.2.0
+email-validator==2.2.0
+aioboto3==13.1.1
+# Observability
+sentry-sdk[fastapi]==2.18.0
+# Voice: WebRTC VAD (lightweight C ext, ships wheels). Far more reliable
+# than amplitude heuristics on μ-law audio from noisy mobile networks.
+webrtcvad-wheels==2.0.14
+# Admin console: password hashing + JWT sessions for the Phase 8 admin UI
+# (multi-user, roles, per-tenant memberships). bcrypt pinned for reproducible
+# hashes across workers; PyJWT chosen over Authlib for zero extra deps.
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.0
+PyJWT==2.9.0
+# tests
+pytest==8.3.3
+pytest-asyncio==0.24.0
+pytest-mock==3.14.0
+respx==0.21.1
+prometheus-client>=0.20,<1.0

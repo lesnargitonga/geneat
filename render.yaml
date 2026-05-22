@@ -1,0 +1,113 @@
+services:
+  - name: geneat-api
+    type: web
+    runtime: docker
+    plan: starter
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeployTrigger: commit
+    healthCheckPath: /readyz
+    preDeployCommand: alembic upgrade head
+    domains:
+      - api.lesnarai.co.ke
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: LOG_LEVEL
+        value: INFO
+      - key: UVICORN_WORKERS
+        value: "1"
+      - key: DEFAULT_BUSINESS_SLUG
+        value: lily-pond-cafe
+      - key: LLM_PROVIDER
+        value: openai
+      - key: LLM_FALLBACK_PROVIDERS
+        value: groq
+      - key: EMBED_PROVIDER
+        value: openai
+      - key: OPENAI_MODEL
+        value: gpt-5.4-mini
+      - key: OPENAI_REASONING_EFFORT
+        value: low
+      - key: OPENAI_USE_RESPONSES_API
+        value: "true"
+      - key: OPENAI_STORE_RESPONSES
+        value: "true"
+      - key: OPENAI_EMBED_MODEL
+        value: text-embedding-3-large
+      - key: OPENAI_EMBED_DIMENSIONS
+        value: "768"
+      - key: WHATSAPP_PROVIDER
+        value: meta
+      - key: PAYMENT_PROVIDER
+        value: intasend
+      - key: PAYMENT_SIMULATOR
+        value: "false"
+      - key: DEMO_PAY_ON_PICKUP
+        value: "false"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: geneat-postgres
+          property: connectionString
+      - key: DATABASE_URL_SYNC
+        fromDatabase:
+          name: geneat-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: geneat-redis
+          property: connectionString
+      - key: SECRET_KEY
+        sync: false
+      - key: PHONE_HASH_PEPPER
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: META_WA_PHONE_NUMBER_ID
+        sync: false
+      - key: META_WA_ACCESS_TOKEN
+        sync: false
+      - key: META_WA_VERIFY_TOKEN
+        sync: false
+      - key: META_WA_APP_SECRET
+        sync: false
+      - key: INTASEND_API_TOKEN
+        sync: false
+      - key: INTASEND_PUBLISHABLE_KEY
+        sync: false
+      - key: INTASEND_WEBHOOK_SECRET
+        sync: false
+      - key: ADMIN_API_TOKEN
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ADMIN_CORS_ORIGINS
+        sync: false
+      - key: R2_ACCOUNT_ID
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET
+        sync: false
+      - key: R2_PUBLIC_URL_BASE
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+
+  - name: geneat-redis
+    type: keyvalue
+    plan: starter
+    region: frankfurt
+
+databases:
+  - name: geneat-postgres
+    plan: basic-256mb
+    region: frankfurt
+    databaseName: omni
+    diskSizeGB: 15

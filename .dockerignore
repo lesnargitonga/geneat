@@ -1,0 +1,59 @@
+# VCS
+.git
+.gitignore
+.github
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv
+venv
+env
+*.egg-info
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov
+
+# Editor / OS
+.vscode
+.idea
+.DS_Store
+*.swp
+
+# Local data / secrets — NEVER ship these
+.env
+.env.*
+!.env.example
+*.log
+logs
+local_data
+tmp
+data
+backups
+
+# Dev tooling
+tests
+docs
+scripts/*.log
+Makefile
+docker-compose*.yml
+*.md
+!README.md
+
+# Build outputs
+dist
+build
+*.tar.gz
+
+# Frontend dependency/build directories
+gen-eat-portal/node_modules
+gen-eat-portal/.next
+admin-ui/node_modules
+admin-ui/dist
+lesnarai-landing/node_modules
+lesnarai-landing/.next

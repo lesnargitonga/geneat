@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-cream text-ink font-sans;
+    background-image:
+      radial-gradient(800px 400px at 100% -10%, rgba(255,106,61,0.10), transparent 60%),
+      radial-gradient(700px 360px at -10% 80%, rgba(184,230,0,0.10), transparent 55%);
+    background-attachment: fixed;
+  }
+  ::selection { background: #FF6A3D33; }
+}
+
+@layer components {
+  .container-page { @apply max-w-page mx-auto px-5 md:px-8; }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full
+           text-sm font-semibold transition active:scale-[0.98] disabled:opacity-50;
+  }
+  .btn-primary { @apply btn bg-brand text-white hover:bg-brand-dark shadow-pop; }
+  .btn-ghost   { @apply btn bg-white/70 border border-ink/10 hover:bg-white text-ink; }
+  .btn-dark    { @apply btn bg-ink text-cream hover:bg-ink-soft; }
+
+  .card {
+    @apply bg-white/85 backdrop-blur border border-ink/5 rounded-3xl shadow-soft;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+  .chip-ok   { @apply chip bg-lime-soft text-emerald-800; }
+  .chip-warn { @apply chip bg-amber-100 text-amber-800; }
+  .chip-mute { @apply chip bg-ink/5 text-ink-mute; }
+
+  .h-display { @apply font-display tracking-tight; }
+}

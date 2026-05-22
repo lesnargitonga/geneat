@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    background: radial-gradient(
+        1200px 600px at 80% -10%,
+        rgba(139, 92, 246, 0.08),
+        transparent 60%
+      ),
+      radial-gradient(
+        900px 500px at -10% 110%,
+        rgba(91, 140, 255, 0.06),
+        transparent 60%
+      ),
+      #0a0b10;
+  }
+  ::selection {
+    background: rgba(91, 140, 255, 0.35);
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface border border-border rounded-xl;
+  }
+  .card-pad {
+    @apply card p-5;
+  }
+  .input {
+    @apply w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-brand focus:shadow-glow transition;
+  }
+  .label {
+    @apply block text-xs uppercase tracking-wider text-muted mb-1.5;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-brand text-white hover:bg-brand/90 active:bg-brand/80;
+  }
+  .btn-ghost {
+    @apply btn bg-surface2 text-text border border-border hover:border-brand/60;
+  }
+  .btn-danger {
+    @apply btn bg-err/15 text-err border border-err/40 hover:bg-err/25;
+  }
+  .chip {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border;
+  }
+  .chip-ok {
+    @apply chip bg-ok/10 text-ok border-ok/30;
+  }
+  .chip-warn {
+    @apply chip bg-warn/10 text-warn border-warn/30;
+  }
+  .chip-err {
+    @apply chip bg-err/10 text-err border-err/30;
+  }
+  .chip-muted {
+    @apply chip bg-surface2 text-muted border-border;
+  }
+  .nav-link {
+    @apply flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted hover:text-text hover:bg-surface2 transition;
+  }
+  .nav-link-active {
+    @apply nav-link text-text bg-surface2 border border-border;
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #262a3a transparent;
+  }
+}

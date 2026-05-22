@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Onboarding — Sovereign AI Concierge</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  :root { --ink:#0e1116; --muted:#5b6470; --line:#e6e8ec; --bg:#fafbfc;
+          --gold:#b08a3a; --gold-d:#8d6c25; }
+  * { box-sizing:border-box }
+  body { font:15px/1.5 system-ui,Segoe UI,Helvetica,Arial; color:var(--ink);
+         background:var(--bg); margin:0; padding:32px; }
+  .wrap { max-width:780px; margin:0 auto; }
+  h1 { font-size:24px; margin:0 0 4px; letter-spacing:-.01em; }
+  .lede { color:var(--muted); margin:0 0 28px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px;
+          padding:24px; margin-bottom:20px; }
+  .card h2 { font-size:16px; margin:0 0 16px; }
+  label { display:block; font-size:13px; color:var(--muted); margin:10px 0 4px; }
+  input, textarea, select { width:100%; padding:10px 12px; border:1px solid var(--line);
+                            border-radius:8px; font:inherit; background:#fff; }
+  textarea { min-height:84px; resize:vertical; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  button { background:var(--gold); color:#fff; border:0; padding:11px 18px;
+           border-radius:8px; font:600 14px/1 inherit; cursor:pointer;
+           margin-top:16px; }
+  button:hover { background:var(--gold-d); }
+  button.ghost { background:transparent; color:var(--ink);
+                 border:1px solid var(--line); }
+  .ok  { background:#e9f6ee; border:1px solid #b9dec6; color:#175c2e;
+         padding:10px 12px; border-radius:8px; margin-top:14px; font-size:13px; }
+  .err { background:#fcebeb; border:1px solid #f1c0c0; color:#7c1f1f;
+         padding:10px 12px; border-radius:8px; margin-top:14px; font-size:13px;
+         white-space:pre-wrap; }
+  .pill { display:inline-block; padding:2px 8px; border-radius:999px;
+          font-size:11px; background:#eef0f2; color:var(--muted);
+          margin-left:6px; vertical-align:middle; }
+  small.help { color:var(--muted); font-size:12px; }
+  .token-row { display:flex; gap:10px; align-items:flex-end; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Concierge Onboarding</h1>
+  <p class="lede">Create a tenant and load its knowledge base. Each upload is
+     embedded automatically via nomic-embed-text. <span class="pill">admin</span></p>
+
+  <div class="card">
+    <h2>Admin token</h2>
+    <div class="token-row">
+      <div style="flex:1">
+        <label>Bearer token</label>
+        <input id="tok" type="password" placeholder="Paste ADMIN_API_TOKEN" autocomplete="off">
+        <small class="help">Stored in browser session only. Required for every action below.</small>
+      </div>
+      <button class="ghost" onclick="rememberToken()">Save</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>1 · Create business</h2>
+    <form id="biz-form" onsubmit="return createBiz(event)">
+      <div class="row">
+        <div><label>Slug</label><input name="slug" required pattern="[a-z0-9][a-z0-9-]{1,62}[a-z0-9]" placeholder="palm-cafe"></div>
+        <div><label>Name</label><input name="name" required placeholder="Palm Café"></div>
+      </div>
+      <div class="row">
+        <div><label>Industry</label><input name="industry" required placeholder="restaurant"></div>
+        <div><label>Location</label><input name="location" placeholder="Kilimani, Nairobi"></div>
+      </div>
+      <div class="row">
+        <div><label>Contact phone</label><input name="contact_phone" placeholder="+254712000000"></div>
+        <div><label>Contact email</label><input name="contact_email" type="email" placeholder="hello@palmcafe.co.ke"></div>
+      </div>
+      <label>Brand voice <small class="help">(How should the AI sound? 1-2 sentences.)</small></label>
+      <textarea name="brand_voice" placeholder="You are warm, witty, and decisive..."></textarea>
+      <label>WhatsApp Business phone_number_id <small class="help">(optional — leave blank for mock testing)</small></label>
+      <input name="meta_wa_phone_number_id" placeholder="111…">
+      <button type="submit">Create tenant</button>
+      <div id="biz-out"></div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>2 · Upload knowledge base</h2>
+    <label>Business slug</label>
+    <input id="kb-slug" placeholder="palm-cafe">
+
+    <label style="margin-top:18px">Option A — paste rows (one per line, format: <code>source: content</code>)</label>
+    <textarea id="kb-text" placeholder="menu: Cappuccino KES 350, Latte KES 400, Espresso KES 250.
+hours: Open 7am to 9pm daily.
+location: Kilimani, opposite Yaya Centre."></textarea>
+    <button onclick="uploadItems()">Embed lines</button>
+
+    <hr style="margin:22px 0; border:0; border-top:1px solid var(--line)">
+
+    <label>Option B — upload CSV <small class="help">(header row: <code>source,content</code>)</small></label>
+    <input id="kb-csv" type="file" accept=".csv,text/csv">
+    <button onclick="uploadCsv()">Embed CSV</button>
+    <div id="kb-out"></div>
+  </div>
+
+  <div class="card">
+    <h2>3 · Verify</h2>
+    <label>Business slug</label>
+    <input id="ls-slug" placeholder="palm-cafe">
+    <button onclick="listKB()">List KB rows</button>
+    <button class="ghost" onclick="listBiz()">List all tenants</button>
+    <div id="ls-out"></div>
+  </div>
+</div>
+
+<script>
+const TOK_KEY = "concierge_admin_token";
+function token() { return sessionStorage.getItem(TOK_KEY) || document.getElementById("tok").value.trim(); }
+function rememberToken() {
+  const t = document.getElementById("tok").value.trim();
+  if (t) { sessionStorage.setItem(TOK_KEY, t); flash("biz-out","Token saved for this tab",true); }
+}
+(function restoreTok(){ const t = sessionStorage.getItem(TOK_KEY); if (t) document.getElementById("tok").value = t; })();
+
+function headers(extra={}) {
+  return Object.assign({ "Authorization": "Bearer " + token() }, extra);
+}
+function flash(id, msg, ok) {
+  const el = document.getElementById(id);
+  el.innerHTML = `<div class="${ok?"ok":"err"}">${msg}</div>`;
+}
+function showJSON(id, obj, ok=true) {
+  flash(id, "<pre style='margin:0;font:12px/1.4 ui-monospace,monospace;white-space:pre-wrap'>"+JSON.stringify(obj,null,2)+"</pre>", ok);
+}
+
+async function createBiz(ev) {
+  ev.preventDefault();
+  const fd = new FormData(ev.target);
+  const body = {};
+  fd.forEach((v,k) => { if (v) body[k] = v; });
+  try {
+    const r = await fetch("/admin/businesses", { method:"POST", headers: headers({"Content-Type":"application/json"}), body: JSON.stringify(body) });
+    const j = await r.json();
+    showJSON("biz-out", j, r.ok);
+    if (r.ok) {
+      document.getElementById("kb-slug").value = body.slug;
+      document.getElementById("ls-slug").value = body.slug;
+    }
+  } catch (e) { flash("biz-out", e.message, false); }
+  return false;
+}
+
+async function uploadItems() {
+  const slug = document.getElementById("kb-slug").value.trim();
+  if (!slug) return flash("kb-out","Set a slug first", false);
+  const raw = document.getElementById("kb-text").value;
+  const items = [];
+  for (const line of raw.split("\n")) {
+    const s = line.trim();
+    if (!s) continue;
+    const m = s.match(/^([a-z0-9_\-]+)\s*:\s*(.+)$/i);
+    if (m) items.push({ source: m[1].toLowerCase(), content: m[2].trim() });
+    else   items.push({ source: "manual", content: s });
+  }
+  if (!items.length) return flash("kb-out","No lines provided", false);
+  try {
+    const r = await fetch(`/admin/businesses/${encodeURIComponent(slug)}/kb/items`,
+      { method:"POST", headers: headers({"Content-Type":"application/json"}), body: JSON.stringify({items}) });
+    const j = await r.json();
+    showJSON("kb-out", j, r.ok);
+  } catch (e) { flash("kb-out", e.message, false); }
+}
+
+async function uploadCsv() {
+  const slug = document.getElementById("kb-slug").value.trim();
+  if (!slug) return flash("kb-out","Set a slug first", false);
+  const f = document.getElementById("kb-csv").files[0];
+  if (!f) return flash("kb-out","Choose a CSV file", false);
+  const fd = new FormData(); fd.append("file", f);
+  try {
+    const r = await fetch(`/admin/businesses/${encodeURIComponent(slug)}/kb/csv`,
+      { method:"POST", headers: headers(), body: fd });
+    const j = await r.json();
+    showJSON("kb-out", j, r.ok);
+  } catch (e) { flash("kb-out", e.message, false); }
+}
+
+async function listKB() {
+  const slug = document.getElementById("ls-slug").value.trim();
+  if (!slug) return flash("ls-out","Set a slug first", false);
+  try {
+    const r = await fetch(`/admin/businesses/${encodeURIComponent(slug)}/kb?limit=50`, { headers: headers() });
+    const j = await r.json();
+    showJSON("ls-out", j, r.ok);
+  } catch (e) { flash("ls-out", e.message, false); }
+}
+
+async function listBiz() {
+  try {
+    const r = await fetch("/admin/businesses", { headers: headers() });
+    const j = await r.json();
+    showJSON("ls-out", j, r.ok);
+  } catch (e) { flash("ls-out", e.message, false); }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lesnar AI — products that work in Kenya</title>
+  <meta name="description" content="AI products built for African businesses. Started in Nairobi." />
+  <style>
+    :root {
+      --bg: #0b0b0d;
+      --ink: #f7f5ef;
+      --mute: #9a958a;
+      --brand: #f59e0b;
+      --line: rgba(255,255,255,0.08);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:780px;margin:0 auto;padding:64px 24px 96px}
+    header{display:flex;align-items:center;gap:12px;margin-bottom:80px}
+    .logo{width:36px;height:36px;border-radius:10px;background:var(--brand);display:grid;place-items:center;font-weight:800;color:#0b0b0d}
+    .brand{font-weight:600;letter-spacing:-0.01em}
+    h1{font-family:Georgia,'Times New Roman',serif;font-size:clamp(38px,6vw,64px);line-height:1.05;letter-spacing:-0.02em;margin-bottom:24px}
+    h1 em{color:var(--brand);font-style:normal}
+    .lede{color:var(--mute);font-size:18px;max-width:560px;margin-bottom:64px}
+    section{padding:28px 0;border-top:1px solid var(--line)}
+    .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--mute);margin-bottom:24px}
+    .product{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start;padding:24px 0}
+    .product + .product{border-top:1px solid var(--line)}
+    .product h3{font-family:Georgia,serif;font-size:24px;letter-spacing:-0.01em;margin-bottom:6px}
+    .product p{color:var(--mute);max-width:480px}
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;background:rgba(245,158,11,0.12);color:var(--brand)}
+    .pill.muted{background:rgba(255,255,255,0.06);color:var(--mute)}
+    .cta{padding:8px 14px;border:1px solid var(--line);border-radius:10px;font-size:14px;white-space:nowrap;transition:.15s}
+    .cta:hover{background:var(--ink);color:#0b0b0d;border-color:var(--ink)}
+    .cta.primary{background:var(--brand);color:#0b0b0d;border-color:var(--brand)}
+    footer{margin-top:96px;color:var(--mute);font-size:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">L</div>
+      <div class="brand">Lesnar AI</div>
+    </header>
+
+    <h1>AI products that <em>actually work</em> in Kenya.</h1>
+    <p class="lede">
+      We build software the way Nairobi builds matatus — for real conditions, real people, real money.
+      M-Pesa, WhatsApp, Swahili, patchy networks. No mockups.
+    </p>
+
+    <section>
+      <div class="eyebrow">Live products</div>
+
+      <div class="product">
+        <div>
+          <h3>Gen-Eat <span class="pill">Pilot · USIU</span></h3>
+          <p>
+            The AI front-of-house for cafés. Customers chat on WhatsApp, the bot takes the order,
+            M-Pesa collects the money, the café receives a clean ticket. Four cafés on board.
+          </p>
+        </div>
+        <a class="cta primary" href="https://geneat.lesnarai.co.ke">Visit →</a>
+      </div>
+    </section>
+
+    <section>
+      <div class="eyebrow">Coming next</div>
+      <div class="product">
+        <div>
+          <h3>— <span class="pill muted">drafting</span></h3>
+          <p>More AI for more African businesses. We'll announce when it's ready, not before.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span>© 2026 Lesnar AI · Nairobi</span>
+      <span><a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a></span>
+    </footer>
+  </div>
+</body>
+</html>

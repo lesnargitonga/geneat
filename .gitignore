@@ -1,0 +1,36 @@
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.coverage
+htmlcov/
+.idea/
+.vscode/
+.qodo/
+.start_sh_pid
+
+# Logs / local output
+logs/
+*.log
+seed_output.log
+
+# Frontend build/deps
+node_modules/
+gen-eat-portal/node_modules/
+gen-eat-portal/.next/
+admin-ui/node_modules/
+admin-ui/dist/
+lesnarai-landing/node_modules/
+lesnarai-landing/.next/
+
+# OS / misc
+.DS_Store
+*.swp
+*.swo
