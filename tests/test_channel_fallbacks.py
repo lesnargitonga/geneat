@@ -1,5 +1,7 @@
 from app.channels.base import (
+    _customer_safe_kb_snippet,
     _is_degraded_fallback_text,
+    _looks_like_payment_cancel,
     _payment_tool_recovery_reply,
     _promises_ready_before_payment,
 )
@@ -39,3 +41,12 @@ def test_premature_ready_detector_allows_payment_qualified_copy() -> None:
     assert not _promises_ready_before_payment(
         "I'll confirm pickup timing once payment lands."
     )
+
+
+def test_payment_cancel_intent_and_internal_kb_filter() -> None:
+    assert _looks_like_payment_cancel("Cancel the payment for 10 please")
+    assert not _looks_like_payment_cancel("I will stop by later")
+    assert _customer_safe_kb_snippet(
+        "DEMO FLOW - call create_order then trigger M-Pesa immediately"
+    ) is None
+    assert _customer_safe_kb_snippet("PASTRIES - Butter Croissant KES 180.")

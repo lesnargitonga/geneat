@@ -188,12 +188,19 @@ async def run_unpaid_payment_followup(job: JobSnapshot) -> None:
         if order is None or order.payment_status != PaymentStatus.pending:
             return
         customer = await db.get(Customer, order.customer_id)
+        language = customer.preferred_language if customer is not None else None
 
     if customer is not None:
         from app.integrations import whatsapp_client
+        is_sw = (language or "").lower().startswith(("sw", "she"))
+        body = (
+            "Bado hatujaona malipo ya oda yako. Ikiwa STK iliisha muda, andika 'resend STK'. Ikiwa hutaki kuendelea, andika 'cancel payment'."
+            if is_sw else
+            "I have not seen payment for your order yet. If the STK expired, type 'resend STK'. If you do not want to continue, type 'cancel payment'."
+        )
         await whatsapp_client.send_text(
             customer.phone_number,
-            "Habari! Hatujapokea malipo yako bado. Je, ungependa nijaribu kukutumia STK push tena?",
+            body,
         )
     async with SessionLocal() as db:
         order = await db.get(Order, order_id)
@@ -213,6 +220,16 @@ async def run_intasend_payment_poll(job: JobSnapshot) -> None:
 
     parsed = await IntaSendAdapter().fetch_status(checkout_id)
     if parsed.status == "pending":
+        async with SessionLocal() as db:
+            order = await db.get(Order, order_id)
+            if order is None or order.payment_status != PaymentStatus.pending:
+                log.info(
+                    "intasend_poll_stopped_terminal_order",
+                    order=str(order_id),
+                    checkout_id=checkout_id,
+                    payment_status=order.payment_status.value if order is not None else "missing",
+                )
+                return
         if poll_count >= 12:
             log.info("intasend_poll_gave_up_pending", order=str(order_id), checkout_id=checkout_id)
             return

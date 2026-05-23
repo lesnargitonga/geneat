@@ -163,7 +163,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `54 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `57 passed, 1 warning` via `make test-fast` |
 | Admin UI production build | passed |
 | Gen-Eat portal production build | passed |
 | Logging crash regression test | passed |
@@ -632,11 +632,20 @@ Current order/payment hardening:
   of creating a second order,
 - duplicate STK requests for the same pending order are treated as
   `in_flight` instead of pushing the customer twice,
+- repeated customer order messages while an STK is pending get a status reply
+  instead of re-running the whole order flow,
+- customer messages like `cancel payment` deterministically cancel the local
+  pending order, stop queued payment/ready jobs, and tell the customer to
+  ignore any old STK prompt,
+- customer messages like `resend STK` deterministically try a fresh STK for
+  the pending order,
 - the assistant must not say `pickup ready`, `ready by`, `paid`, or
   `confirmed` until a payment callback or payment poll confirms money landed,
 - ready notifications are scheduled only after paid payment state,
 - payment failure/cancel messages use the customer's language instead of
   forcing Swahili into English conversations,
+- failed callbacks after a customer-cancelled order are ignored so old payment
+  provider events do not keep interrupting the chat,
 - if the model or output sanitizer produces malformed payment copy after a
   successful tool call, the channel layer replaces it with a safe payment
   status message.
@@ -648,7 +657,10 @@ Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Docume
   retries use a smaller window so stuck turns do not drag on,
 - deterministic quick replies can answer obvious price, hours, or menu
   recommendation questions only after the model path fails,
-- keyword KB fallback is tried before generic handoff,
+- deterministic quick replies can answer item-availability questions such as
+  `Do you have croissants?` from menu chunks,
+- keyword KB fallback is tried before generic handoff, but internal/demo
+  operator notes such as `DEMO FLOW` are filtered out of customer replies,
 - degraded fallback replies are marked and filtered out of future model
   history so the assistant does not imitate old emergency copy,
 - the generic handoff text is now a last resort, not the normal café voice.
@@ -1724,7 +1736,7 @@ make test-fast
 Current result:
 
 ```text
-54 passed, 1 warning
+57 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -1783,6 +1795,10 @@ This is the honest list, not the flattering list.
 - order/payment turns now guard against duplicate pending orders, duplicate
   STK pushes, premature pickup-ready promises, and wrong-language payment
   failure messages
+- customer cancel/resend payment intents bypass the model and update pending
+  order/payment job state directly
+- raw KB fallback no longer exposes internal demo/operator policy chunks to
+  customers
 - durable jobs survive restarts
 - payment callbacks scope through `orders.business_id`
 - tenant photo catalogs can now be managed and published centrally
@@ -1792,7 +1808,7 @@ This is the honest list, not the flattering list.
 
 | Gap | Impact | Likely fix |
 | --- | --- | --- |
-| WhatsApp conversation quality is not client-ready yet | late replies, generic fallback copy, duplicate payment attempts, or premature readiness promises can break trust during a demo | expand real WhatsApp conversation scripts, keep fallbacks behind true timeout/failure, and rehearse the full order/payment/receipt loop |
+| WhatsApp conversation quality still needs live rehearsal after each deploy | late replies, provider lag, or stale deployed code can still break trust during a demo even when local tests pass | run a real WhatsApp order/payment/cancel/photo script after every deploy before a client meeting |
 | Render live stack is still beta-grade | free-tier spin-down / manual service drift can make operations annoying | move to paid Render or another always-on managed host |
 | Event bus is not durable | SSE / outbound webhooks can miss events during Redis/listener gaps | add outbox table or Redis Streams |
 | Public admin deployment is optional, not standardized | ops may still depend on local admin in some workflows | deploy and document a stable public admin URL |
@@ -1811,14 +1827,16 @@ Technically live right now:
 
 First-client demo-ready right now:
 
-- not yet
+- not until the current hardening commit is deployed and a fresh real
+  WhatsApp rehearsal passes
 
 Reason:
 
 - WhatsApp, STK, photos, hosted API, hosted DB, and hosted Redis are live.
-- The remaining blocker is response quality: the assistant must sustain longer
-  natural menu/order/payment conversations without late generic fallback copy,
-  duplicate STK prompts, or premature pickup promises.
+- The remaining blocker is no longer basic wiring; it is deployment discipline
+  and live rehearsal. The required script is: ask menu availability, request a
+  photo, place the KES 10 Demo Espresso order, handle STK pending, cancel once,
+  resend STK once, pay once, and confirm receipt/ready behavior.
 
 Production-ready in the “don’t stress me at all” sense:
 

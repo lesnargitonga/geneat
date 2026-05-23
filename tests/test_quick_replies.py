@@ -5,6 +5,8 @@ import uuid
 import pytest
 
 from app.ai.quick_replies import (
+    availability_reply_from_chunks,
+    looks_like_availability_request,
     looks_like_hours_request,
     looks_like_recommendation_request,
     maybe_build_quick_reply,
@@ -26,6 +28,25 @@ def test_hours_detector_matches_opening_questions() -> None:
     assert looks_like_hours_request("What time do you open?")
     assert looks_like_hours_request("closing time today?")
     assert not looks_like_hours_request("How much is the latte?")
+
+
+def test_availability_reply_handles_plural_item_questions() -> None:
+    chunks = [
+        RetrievedChunk(
+            content=(
+                "PASTRIES - Butter Croissant KES 180. "
+                "Pain au Chocolat KES 220. Almond Croissant KES 250."
+            ),
+            source="menu",
+            score=0.9,
+        )
+    ]
+
+    assert looks_like_availability_request("Do you have croissants?")
+    reply = availability_reply_from_chunks("Do you have croissants?", chunks)
+    assert reply is not None
+    assert "Butter Croissant - KES 180" in reply
+    assert "Almond Croissant - KES 250" in reply
 
 
 def test_price_reply_from_chunks_handles_demo_espresso() -> None:

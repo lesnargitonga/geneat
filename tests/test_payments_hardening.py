@@ -8,7 +8,7 @@ import uuid
 import pytest
 
 from app.core.config import get_settings
-from app.db.models import Order
+from app.db.models import Order, PaymentStatus
 from app.integrations.payments.intasend import IntaSendAdapter
 from app.integrations.payments.stripe import StripeAdapter
 
@@ -159,6 +159,32 @@ def test_payment_failed_message_uses_customer_language():
     assert "order is not confirmed yet" in english
     assert "Malipo hayajapita" in swahili
     assert "haijathibitishwa" in swahili
+
+
+@pytest.mark.asyncio
+async def test_provider_failed_callback_ignored_after_customer_cancel():
+    from app.api.payments import _apply_provider_payment_result
+
+    order = Order(
+        customer_id=uuid.uuid4(),
+        business_id=uuid.uuid4(),
+        amount=10,
+        payment_status=PaymentStatus.cancelled,
+        mpesa_checkout_id="CHECKOUT-1",
+    )
+
+    handled, msg, business_id = await _apply_provider_payment_result(
+        None,
+        order=order,
+        provider="intasend",
+        status="failed",
+        raw={},
+    )
+
+    assert handled is False
+    assert msg is None
+    assert business_id == order.business_id
+    assert order.payment_status == PaymentStatus.cancelled
 
 
 @pytest.mark.asyncio

@@ -32,6 +32,13 @@ _RECOMMENDATION_REQUEST_RE = re.compile(
     r")\b",
     re.IGNORECASE,
 )
+_AVAILABILITY_REQUEST_RE = re.compile(
+    r"\b("
+    r"do you have|have you got|is there|are there|available|"
+    r"can i have|can i get|i'?ll have|i want|i need"
+    r")\b",
+    re.IGNORECASE,
+)
 _NORMALIZE_RE = re.compile(r"[^a-z0-9 ]+")
 _PRICE_SEGMENT_RE = re.compile(
     r"(?:KES|KSh|Ksh|ksh|kes)\s?(\d[\d,]{1,7})|(\d[\d,]{1,7})\s?(?:KES|KSh|Ksh|/=|/-|bob|shillings?)",
@@ -40,6 +47,11 @@ _PRICE_SEGMENT_RE = re.compile(
 _PRICE_STOPWORDS = {
     "how", "much", "is", "for", "the", "a", "an", "of", "price", "cost", "bei",
     "ni", "kes", "ksh", "bob", "please", "me", "show", "tell", "what", "whats",
+}
+_AVAILABILITY_STOPWORDS = {
+    "do", "you", "have", "got", "is", "there", "are", "available", "can", "i",
+    "get", "have", "ill", "i'll", "want", "need", "the", "a", "an", "please",
+    "menu", "options", "anything", "something", "food", "drink", "drinks",
 }
 _CATEGORY_HINTS: dict[str, set[str]] = {
     "breakfast": {"breakfast", "morning", "chai", "mandazi", "toast", "pancake", "granola", "egg", "croissant"},
@@ -88,6 +100,15 @@ def looks_like_recommendation_request(text: str) -> bool:
     if any(token in lowered for token in ("breakfast", "lunch", "dinner", "coffee", "pastr", "snack", "drink", "menu")):
         return True
     return bool(_RECOMMENDATION_REQUEST_RE.search(candidate))
+
+
+def looks_like_availability_request(text: str) -> bool:
+    candidate = (text or "").strip()
+    if not candidate:
+        return False
+    if looks_like_photo_request(candidate) or looks_like_price_request(candidate):
+        return False
+    return bool(_AVAILABILITY_REQUEST_RE.search(candidate))
 
 
 def photo_item_query(text: str) -> str:
@@ -306,6 +327,43 @@ def recommendation_reply_from_chunks(query: str, chunks: Sequence[RetrievedChunk
     return f"{intro} {body}.{closing}"
 
 
+def _availability_tokens(query: str) -> set[str]:
+    normalized = _normalize(query)
+    tokens: set[str] = set()
+    for token in normalized.split():
+        if token in _AVAILABILITY_STOPWORDS or len(token) < 3:
+            continue
+        tokens.add(token)
+        if token.endswith("s") and len(token) > 4:
+            tokens.add(token[:-1])
+    return tokens
+
+
+def availability_reply_from_chunks(query: str, chunks: Sequence[RetrievedChunk]) -> str | None:
+    tokens = _availability_tokens(query)
+    if not tokens:
+        return None
+    options = _extract_options(chunks)
+    if not options:
+        return None
+
+    matches: list[MenuOption] = []
+    for option in options:
+        option_words = set(option.normalized.split())
+        if tokens & option_words or any(token in option.normalized for token in tokens):
+            matches.append(option)
+
+    if not matches:
+        return None
+    matches = sorted(matches, key=lambda option: option.price)[:3]
+    body = ", ".join(f"{option.label} - KES {option.price}" for option in matches)
+    if len(matches) == 1:
+        closing = f" Want me to sort {matches[0].label} for you?"
+    else:
+        closing = " Want one of those?"
+    return f"Yes — {body}.{closing}"
+
+
 async def maybe_build_quick_reply(
     db,
     *,
@@ -322,6 +380,10 @@ async def maybe_build_quick_reply(
     if looks_like_price_request(text):
         chunks = await retrieve(db, text, business_id=business_id, k=3)
         return price_reply_from_chunks(text, chunks)
+
+    if looks_like_availability_request(text):
+        chunks = await retrieve(db, text, business_id=business_id, k=5)
+        return availability_reply_from_chunks(text, chunks)
 
     if looks_like_recommendation_request(text):
         chunks = await retrieve(db, text, business_id=business_id, k=5)

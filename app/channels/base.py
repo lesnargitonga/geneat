@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import ast
 import json
+import re
 import uuid
 from dataclasses import dataclass
 
@@ -52,11 +53,111 @@ _DEGRADED_FALLBACK_MARKERS = (
     "mfumo umechelewa",
     "mfumo umekwama",
 )
+_PAYMENT_CANCEL_RE = re.compile(
+    r"\b(cancel|stop|abort|sitisha)\b.{0,50}\b(payment|pay|stk|order|malipo|oda)\b|"
+    r"\b(payment|pay|stk|order|malipo|oda)\b.{0,50}\b(cancel|stop|abort|sitisha)\b",
+    re.IGNORECASE,
+)
+_PAYMENT_RESEND_RE = re.compile(
+    r"\b(resend|send again|retry|try again|tuma tena)\b.*\b(stk|payment|pay|malipo)\b|"
+    r"\b(stk|payment|pay|malipo)\b.*\b(resend|send again|retry|try again|tuma tena)\b",
+    re.IGNORECASE,
+)
+_ORDER_REPEAT_RE = re.compile(
+    r"\b(i want|i need|i'?ll have|can i have|can i get|order|sort|get me)\b",
+    re.IGNORECASE,
+)
+_INTERNAL_KB_MARKERS = (
+    "demo flow",
+    "create_order",
+    "trigger m-pesa",
+    "trigger mpesa",
+    "whatsapp -> ai",
+    "whatsapp → ai",
+    "context:",
+    "tools",
+    "system prompt",
+    "playbook",
+)
 
 
 def _is_degraded_fallback_text(content: str | None) -> bool:
     lowered = (content or "").lower()
     return any(marker in lowered for marker in _DEGRADED_FALLBACK_MARKERS)
+
+
+def _looks_like_payment_cancel(text: str) -> bool:
+    return bool(_PAYMENT_CANCEL_RE.search(text or ""))
+
+
+def _looks_like_payment_resend(text: str) -> bool:
+    return bool(_PAYMENT_RESEND_RE.search(text or ""))
+
+
+def _looks_like_order_repeat(text: str) -> bool:
+    candidate = (text or "").strip().lower()
+    if not candidate or _looks_like_payment_cancel(candidate):
+        return False
+    if "demo espresso" in candidate or "demo order" in candidate or "10 bob" in candidate or "ten bob" in candidate:
+        return True
+    return bool(_ORDER_REPEAT_RE.search(candidate))
+
+
+def _customer_prefers_swahili(language: str | None) -> bool:
+    return (language or "").lower().startswith(("sw", "she"))
+
+
+def _order_items_summary_from_details(details: object) -> str:
+    if not isinstance(details, dict):
+        return "your order"
+    items = details.get("items")
+    if not isinstance(items, list) or not items:
+        return "your order"
+    pieces: list[str] = []
+    for row in items:
+        if not isinstance(row, dict):
+            continue
+        name = str(row.get("sku_or_name") or row.get("name") or "item").strip() or "item"
+        qty = int(row.get("qty") or 1)
+        pieces.append(f"{qty} x {name}")
+    return ", ".join(pieces) or "your order"
+
+
+def _order_matches_text(order: object, text: str) -> bool:
+    candidate = (text or "").lower()
+    try:
+        from app.ai.safety import extract_kes_amounts
+        amounts = extract_kes_amounts(candidate)
+    except Exception:
+        amounts = set()
+    try:
+        order_amount = int(float(getattr(order, "amount", 0) or 0))
+    except Exception:
+        order_amount = 0
+    if amounts and order_amount in amounts:
+        return True
+    details = getattr(order, "details", None)
+    summary = _order_items_summary_from_details(details).lower()
+    if "demo espresso" in candidate and "demo espresso" in summary:
+        return True
+    tokens = {
+        token[:-1] if token.endswith("s") and len(token) > 4 else token
+        for token in re.findall(r"[a-z0-9]+", candidate)
+        if len(token) >= 4 and token not in {"please", "order", "want", "need", "have", "sort"}
+    }
+    return any(token in summary for token in tokens)
+
+
+def _customer_safe_kb_snippet(content: str | None) -> str | None:
+    snippet = (content or "").strip()
+    if not snippet:
+        return None
+    lowered = snippet.lower()
+    if any(marker in lowered for marker in _INTERNAL_KB_MARKERS):
+        return None
+    if len(snippet) > 700:
+        snippet = snippet[:700].rsplit(" ", 1)[0] + "..."
+    return snippet
 
 
 def _parse_tool_payload(content: object) -> dict:
@@ -136,6 +237,212 @@ def _promises_ready_before_payment(reply: str) -> bool:
     return not any(
         guard in lowered
         for guard in ("after payment", "once payment", "payment lands", "payment is confirmed")
+    )
+
+
+async def _latest_pending_order_for_turn(
+    db: AsyncSession,
+    *,
+    customer_id: uuid.UUID,
+    business_id: uuid.UUID | None,
+    conversation_id: uuid.UUID,
+    text: str,
+):
+    from app.db.models import Order, PaymentStatus
+
+    stmt = (
+        select(Order)
+        .where(Order.customer_id == customer_id)
+        .where(Order.conversation_id == conversation_id)
+        .where(Order.payment_status == PaymentStatus.pending)
+        .where(Order.business_id == business_id if business_id is not None else Order.business_id.is_(None))
+        .order_by(Order.created_at.desc())
+        .limit(10)
+    )
+    orders = (await db.execute(stmt)).scalars().all()
+    if not orders:
+        return None
+    for order in orders:
+        if _order_matches_text(order, text):
+            return order
+    return orders[0]
+
+
+async def _cancel_jobs_for_order(db: AsyncSession, *, order_id: uuid.UUID, business_id: uuid.UUID | None) -> int:
+    from app.db.models import BackgroundJob, JobStatus
+
+    stmt = (
+        select(BackgroundJob)
+        .where(BackgroundJob.kind.in_(("order.ready", "payment.unpaid_followup", "payment.intasend_poll")))
+        .where(BackgroundJob.status == JobStatus.queued)
+        .order_by(BackgroundJob.created_at.desc())
+        .limit(100)
+    )
+    if business_id is not None:
+        stmt = stmt.where(BackgroundJob.business_id == business_id)
+    jobs = (await db.execute(stmt)).scalars().all()
+    cancelled = 0
+    for job in jobs:
+        payload = job.payload if isinstance(job.payload, dict) else {}
+        if str(payload.get("order_id") or "") != str(order_id):
+            continue
+        job.status = JobStatus.cancelled
+        cancelled += 1
+    return cancelled
+
+
+async def _cancel_pending_order_reply(
+    db: AsyncSession,
+    *,
+    customer,
+    conversation_id: uuid.UUID,
+    business_id: uuid.UUID | None,
+    text: str,
+    language: str | None,
+) -> str:
+    from datetime import datetime, timezone
+    from app.db.models import PaymentStatus
+
+    order = await _latest_pending_order_for_turn(
+        db,
+        customer_id=customer.id,
+        business_id=business_id,
+        conversation_id=conversation_id,
+        text=text,
+    )
+    is_sw = _customer_prefers_swahili(language or getattr(customer, "preferred_language", None))
+    if order is None:
+        return (
+            "Sioni oda au STK ambayo bado inasubiri malipo. Ukiwa unataka kuagiza upya, niambie item unayotaka."
+            if is_sw else
+            "I do not see an unpaid order or STK prompt waiting right now. If you want to order again, tell me the item."
+        )
+
+    details = dict(order.details or {})
+    details["customer_cancelled_at"] = datetime.now(timezone.utc).isoformat()
+    order.details = details
+    order.payment_status = PaymentStatus.cancelled
+    cancelled_jobs = await _cancel_jobs_for_order(db, order_id=order.id, business_id=business_id)
+    log.info("customer_cancelled_pending_order", order=str(order.id), cancelled_jobs=cancelled_jobs)
+    amount = int(float(order.amount or 0))
+    summary = _order_items_summary_from_details(order.details)
+    return (
+        f"Nimecancel oda ya {summary} ya KES {amount}. Ukiona STK ya zamani kwa simu, ipuuze; hakuna oda imethibitishwa bila PIN na risiti."
+        if is_sw else
+        f"Cancelled the pending {summary} order for KES {amount}. If an old STK prompt is still on your phone, ignore it; nothing is confirmed unless you enter your PIN and payment lands."
+    )
+
+
+async def _resend_pending_payment_reply(
+    db: AsyncSession,
+    *,
+    customer,
+    conversation_id: uuid.UUID,
+    business_id: uuid.UUID | None,
+    text: str,
+    language: str | None,
+) -> str:
+    from datetime import datetime, timedelta, timezone
+    from app.core.exceptions import RateLimited, UpstreamError
+    from app.integrations.payments import get_payment_service
+    from app.jobs.runner import enqueue_job
+
+    order = await _latest_pending_order_for_turn(
+        db,
+        customer_id=customer.id,
+        business_id=business_id,
+        conversation_id=conversation_id,
+        text=text,
+    )
+    is_sw = _customer_prefers_swahili(language or getattr(customer, "preferred_language", None))
+    if order is None:
+        return (
+            "Sioni oda inayosubiri malipo ya kutumiwa STK upya. Niambie item unayotaka kuagiza."
+            if is_sw else
+            "I do not see an unpaid order to resend an STK for. Tell me the item you want to order."
+        )
+
+    try:
+        await _cancel_jobs_for_order(db, order_id=order.id, business_id=business_id)
+        svc = get_payment_service()
+        result = await svc.request_payment(
+            msisdn=customer.phone_number,
+            amount=float(order.amount or 0),
+            reference=str(order.id)[:8],
+            description="Order Payment",
+        )
+        order.mpesa_checkout_id = result.reference
+        if svc.name == "intasend":
+            await enqueue_job(
+                db,
+                kind="payment.intasend_poll",
+                business_id=business_id,
+                run_at=datetime.now(timezone.utc) + timedelta(seconds=20),
+                max_attempts=1,
+                payload={
+                    "order_id": str(order.id),
+                    "checkout_id": result.reference,
+                    "poll_count": 1,
+                },
+            )
+    except RateLimited as exc:
+        reason = exc.message
+    except UpstreamError as exc:
+        reason = exc.message
+    except Exception as exc:  # noqa: BLE001
+        reason = str(exc)
+    else:
+        amount = int(float(order.amount or 0))
+        summary = _order_items_summary_from_details(order.details)
+        return (
+            f"Nimetuma STK mpya ya {summary} ya KES {amount}. Weka PIN; nitathibitisha malipo yakifika."
+            if is_sw else
+            f"Sent a fresh STK for {summary} at KES {amount}. Enter your PIN; I will confirm once payment lands."
+        )
+
+    return (
+        f"Sijaweza kutuma STK mpya bado: {reason}. Jaribu tena baada ya muda mfupi."
+        if is_sw else
+        f"I could not resend the STK yet: {reason}. Please try again in a moment."
+    )
+
+
+async def _pending_order_repeat_reply(
+    db: AsyncSession,
+    *,
+    customer,
+    conversation_id: uuid.UUID,
+    business_id: uuid.UUID | None,
+    text: str,
+    language: str | None,
+) -> str | None:
+    if not _looks_like_order_repeat(text) and not _looks_like_payment_resend(text):
+        return None
+    order = await _latest_pending_order_for_turn(
+        db,
+        customer_id=customer.id,
+        business_id=business_id,
+        conversation_id=conversation_id,
+        text=text,
+    )
+    if order is None:
+        return None
+    if not _order_matches_text(order, text) and not _looks_like_payment_resend(text):
+        return None
+
+    is_sw = _customer_prefers_swahili(language or getattr(customer, "preferred_language", None))
+    amount = int(float(order.amount or 0))
+    summary = _order_items_summary_from_details(order.details)
+    if order.mpesa_checkout_id:
+        return (
+            f"Tayari nina {summary} ya KES {amount} ikisubiri malipo. Angalia STK kwa simu na uweke PIN; nitathibitisha ikifika. Ikiisha muda, andika 'resend STK'."
+            if is_sw else
+            f"I already have {summary} for KES {amount} waiting on payment. Check the STK prompt on your phone and enter your PIN; I will confirm once it lands. If it expired, type 'resend STK'."
+        )
+    return (
+        f"Nimehifadhi {summary} ya KES {amount}, lakini STK haijatumwa bado. Andika 'send STK' na nitajaribu tena."
+        if is_sw else
+        f"I have {summary} for KES {amount} saved, but no STK prompt is active yet. Type 'send STK' and I will try again."
     )
 
 
@@ -409,6 +716,54 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 reply=canned, conversation_id=conv.id, escalated=_escalated,
             )
 
+        # ── Deterministic order/payment controls ─────────────────────
+        # These are customer operations, not creative chat. Handle them
+        # before the model so "cancel payment" never leaks raw KB policy text
+        # and repeated order messages do not create duplicate STK pushes.
+        control_reply: str | None = None
+        control_flag: str | None = None
+        if _looks_like_payment_resend(turn.text):
+            control_reply = await _resend_pending_payment_reply(
+                db,
+                customer=customer,
+                conversation_id=conv.id,
+                business_id=business_id,
+                text=turn.text,
+                language=effective_lang,
+            )
+            control_flag = "deterministic:resend_payment"
+        elif _looks_like_payment_cancel(turn.text):
+            control_reply = await _cancel_pending_order_reply(
+                db,
+                customer=customer,
+                conversation_id=conv.id,
+                business_id=business_id,
+                text=turn.text,
+                language=effective_lang,
+            )
+            control_flag = "deterministic:cancel_payment"
+        else:
+            control_reply = await _pending_order_repeat_reply(
+                db,
+                customer=customer,
+                conversation_id=conv.id,
+                business_id=business_id,
+                text=turn.text,
+                language=effective_lang,
+            )
+            control_flag = "deterministic:pending_order_status" if control_reply else None
+
+        if control_reply:
+            await append_message(
+                db,
+                conversation=conv,
+                sender=Sender.ai,
+                content=control_reply,
+                safety_flags=[control_flag] if control_flag else None,
+            )
+            await db.commit()
+            return TurnResult(reply=control_reply, conversation_id=conv.id, escalated=False)
+
         # ── If conversation is already human-escalated, do nothing.
         if conv.status.value == "human_escalated":
             await db.commit()
@@ -512,17 +867,21 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 # If all LLMs are down but the KB has a literal match for the
                 # customer's question, deliver THAT instead of a useless ack.
                 kb_reply: str | None = None
-                if quick_reply is None:
+                if (
+                    quick_reply is None
+                    and not _looks_like_payment_cancel(turn.text)
+                    and not _looks_like_payment_resend(turn.text)
+                ):
                     try:
                         from app.ai.rag import keyword_search
-                        hits = await keyword_search(db, turn.text, business_id=business_id, k=1)
+                        hits = await keyword_search(db, turn.text, business_id=business_id, k=3)
                         if hits:
-                            snippet = hits[0].content.strip()
-                            # Trim to a reasonable WhatsApp-sized reply
-                            if len(snippet) > 800:
-                                snippet = snippet[:800].rsplit(" ", 1)[0] + "…"
-                            kb_reply = snippet
-                            log.info("kb_keyword_fallback_used", source=hits[0].source)
+                            for hit in hits:
+                                snippet = _customer_safe_kb_snippet(hit.content)
+                                if snippet:
+                                    kb_reply = snippet
+                                    log.info("kb_keyword_fallback_used", source=hit.source)
+                                    break
                     except Exception as kb_err:
                         log.warning("kb_keyword_fallback_failed", error=str(kb_err))
 
@@ -531,11 +890,8 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 if quick_reply:
                     reply = quick_reply
                 elif kb_reply:
-                    prefix = "Habari, hapa kuna jibu la haraka kutoka kwa kumbukumbu zetu:\n\n" if is_sw \
-                             else "Here's a quick answer from our records:\n\n"
-                    suffix = "\n\nNitakurudia hivi karibuni kwa maelezo zaidi." if is_sw \
-                             else "\n\nI'll follow up shortly with more details."
-                    reply = prefix + kb_reply + suffix
+                    prefix = "Kutoka kwa menu:\n\n" if is_sw else "From the menu:\n\n"
+                    reply = prefix + kb_reply
                 elif escalated:
                     reply = (
                         "Samahani, mfumo umekwama kabla sijamaliza hilo. "

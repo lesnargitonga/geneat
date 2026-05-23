@@ -214,12 +214,21 @@ async def _apply_provider_payment_result(
     raw: dict | None = None,
 ) -> tuple[bool, str | None, uuid.UUID | None]:
     business_id = await _business_id_for_order(db, order)
-    if order.payment_status == PaymentStatus.paid and status != "paid":
+    if order.payment_status == PaymentStatus.paid:
         log.info(
-            "payment_callback_ignored_paid_order",
+            "payment_callback_ignored_already_paid",
             provider=provider,
             ref=order.mpesa_checkout_id,
             status=status,
+        )
+        return False, None, business_id
+    if order.payment_status in {PaymentStatus.cancelled, PaymentStatus.failed, PaymentStatus.timeout} and status != "paid":
+        log.info(
+            "payment_callback_ignored_terminal_unpaid_order",
+            provider=provider,
+            ref=order.mpesa_checkout_id,
+            current_status=order.payment_status.value,
+            provider_status=status,
         )
         return False, None, business_id
 
@@ -319,6 +328,22 @@ async def mpesa_callback(request: Request):
             return {"ResultCode": 0, "ResultDesc": "unknown order ignored"}
 
         business_id = await _business_id_for_order(db, order)
+        if order.payment_status == PaymentStatus.paid:
+            log.info("mpesa_callback_duplicate_paid_order", checkout_id=checkout_id, order_id=str(order.id))
+            return {"ResultCode": 0, "ResultDesc": "duplicate paid order ignored"}
+        if order.payment_status in {
+            PaymentStatus.cancelled,
+            PaymentStatus.failed,
+            PaymentStatus.timeout,
+        } and result_code != 0:
+            log.info(
+                "mpesa_callback_ignored_terminal_unpaid_order",
+                checkout_id=checkout_id,
+                order_id=str(order.id),
+                current_status=order.payment_status.value,
+                result_code=result_code,
+            )
+            return {"ResultCode": 0, "ResultDesc": "terminal unpaid order ignored"}
 
         # Bind tenant scope for the rest of this turn: every log line emitted
         # from here carries the tenant id so cross-tenant bleed is traceable.
