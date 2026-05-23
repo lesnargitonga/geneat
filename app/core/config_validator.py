@@ -28,6 +28,7 @@ def validate_settings(s: Settings) -> tuple[list[str], list[str]]:
     """Return (errors, warnings). Errors should abort startup; warnings just log."""
     errors: list[str] = []
     warnings: list[str] = []
+    is_prod = bool(getattr(s, "is_prod", False))
 
     # ── LLM provider ──────────────────────────────────────────────
     provider = (getattr(s, "llm_provider", "") or "").lower()
@@ -43,6 +44,20 @@ def validate_settings(s: Settings) -> tuple[list[str], list[str]]:
         attr, env_name = provider_key_map[provider]
         if attr and not _secret(getattr(s, attr, "")):
             errors.append(f"LLM_PROVIDER='{provider}' but {env_name} is missing.")
+        if provider == "openai":
+            model = (getattr(s, "openai_model", "") or "").lower()
+            use_responses = bool(getattr(s, "openai_use_responses_api", False))
+            store_responses = bool(getattr(s, "openai_store_responses", False))
+            if model.startswith("gpt-5") and use_responses and not store_responses:
+                msg = (
+                    "OPENAI_STORE_RESPONSES must be true when using GPT-5 with "
+                    "OPENAI_USE_RESPONSES_API=true; otherwise tool turns can fail "
+                    "or lose context."
+                )
+                if is_prod:
+                    errors.append(msg)
+                else:
+                    warnings.append(msg)
 
     # Fallback providers — warn (not error) if any fallback is missing a key
     fb_raw = (getattr(s, "llm_fallback_providers", "") or "").strip()
@@ -65,10 +80,14 @@ def validate_settings(s: Settings) -> tuple[list[str], list[str]]:
             errors.append("EMBED_PROVIDER=openai but OPENAI_API_KEY is missing.")
         dims = int(getattr(s, "openai_embed_dimensions", 0) or 0)
         if dims != 768:
-            warnings.append(
-                "OPENAI_EMBED_DIMENSIONS should remain 768 until "
+            msg = (
+                "OPENAI_EMBED_DIMENSIONS must remain 768 until "
                 "knowledge_base.embedding is migrated."
             )
+            if is_prod:
+                errors.append(msg)
+            else:
+                warnings.append(msg)
 
     # ── WhatsApp ──────────────────────────────────────────────────
     wa_provider = (getattr(s, "whatsapp_provider", "meta") or "meta").lower()
@@ -78,26 +97,34 @@ def validate_settings(s: Settings) -> tuple[list[str], list[str]]:
         if not _secret(getattr(s, "meta_wa_access_token", "")):
             errors.append("META_WA_ACCESS_TOKEN is required when WHATSAPP_PROVIDER=meta.")
         if not _secret(getattr(s, "meta_wa_app_secret", "")):
-            errors.append(
+            msg = (
                 "META_WA_APP_SECRET is required when WHATSAPP_PROVIDER=meta "
                 "(needed for webhook signature verification)."
             )
+            if is_prod:
+                errors.append(msg)
+            else:
+                warnings.append(msg)
         if not (getattr(s, "meta_wa_verify_token", "") or ""):
             warnings.append("META_WA_VERIFY_TOKEN not set; webhook subscription handshake will fail.")
 
     # ── Payments ──────────────────────────────────────────────────
     pay = (getattr(s, "payment_provider", "daraja") or "daraja").lower()
     if bool(getattr(s, "payment_simulator", False)):
-        if getattr(s, "is_prod", False):
-            warnings.append("PAYMENT_SIMULATOR=true in production — real payment provider checks are skipped.")
+        if is_prod:
+            errors.append("PAYMENT_SIMULATOR=true is forbidden in production — real payment provider checks are skipped.")
     elif pay == "intasend":
         if not _secret(getattr(s, "intasend_api_token", "")):
             errors.append("PAYMENT_PROVIDER=intasend but INTASEND_API_TOKEN is missing.")
         if not _secret(getattr(s, "intasend_webhook_secret", "")):
-            warnings.append(
+            msg = (
                 "PAYMENT_PROVIDER=intasend but INTASEND_WEBHOOK_SECRET is empty — "
                 "webhook signature verification will be skipped (INSECURE for production)."
             )
+            if is_prod:
+                errors.append(msg)
+            else:
+                warnings.append(msg)
     elif pay == "daraja":
         # daraja sandbox is fine without keys; warn only if prod env
         if getattr(s, "is_prod", False):

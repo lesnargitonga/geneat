@@ -28,7 +28,7 @@ from typing import Iterable
 # ── Configuration knobs ────────────────────────────────────────────────
 
 MAX_USER_MSG_CHARS = 800          # WhatsApp soft cap; longer → reject
-MAX_CONV_TURNS = 30               # hard ceiling — escalate after this
+MAX_CONV_TURNS = 50               # hard ceiling — escalate after this
 ABUSE_SCORE_BLOCK_THRESHOLD = 5   # auto-flag at this score
 ABUSE_SCORE_HARD_BLOCK = 10       # auto-block at this score (no LLM call)
 
@@ -58,13 +58,13 @@ _JAILBREAK_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
         r"disregard (?:previous|prior|all|the) (?:instruction|rule|prompt)",
         r"forget (?:everything|the rules|all instructions|your training)",
         r"\b(?:reveal|show|print|leak|dump) (?:your |the )?(?:system|hidden|secret) ?prompt",
-        r"\byou are (?:now|actually) (?:a |an )?\w+",
-        r"\bact as (?:a |an |if you (?:are|were))",
+        r"\byou are (?:now|actually) (?:a |an )?(?:chatgpt|developer|system|admin|root|jailbreak|dan|debugger|python interpreter|pirate)\b",
+        r"\bact as (?:a |an )?(?:chatgpt|developer|system|admin|root|jailbreak|dan|debugger|python interpreter)\b",
         r"\bdeveloper mode\b|\bdebug mode\b|\bgod mode\b",
         r"\bjailbreak\b|\bDAN\b(?:\s+mode)?",
         r"\bsudo\b\s+(?:make|do|tell|give)",
         r"\brepeat (?:after me|the words?) ['\"]",
-        r"\bpretend (?:you (?:are|have)|to be)",
+        r"\bpretend (?:you (?:are|have)|to be) (?:chatgpt|developer|system|admin|root|jailbreak|dan|unfiltered)",
         r"\bnew (?:instructions?|rules?|system message)",
         r"\boverride (?:your |the |all )?(?:instruction|rule|safety)",
         r"</?\s*(?:system|admin|prompt|instruction)\s*>",   # tag injection
@@ -81,7 +81,7 @@ _OFFTOPIC_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
         r"\bdo my (?:homework|assignment|essay|paper|project)\b",
         r"\b(?:translate|summari[sz]e) (?:this|the following) (?:paragraph|article|essay|text|book)",
         r"\bwhat is the (?:capital|population|gdp|history) of\b",
-        r"\bgenerate (?:an? )?(?:image|picture|photo|drawing)",
+        r"\b(?:generate|create|draw) (?:me )?(?:an? )?(?:ai )?(?:logo|poster|meme|wallpaper|illustration|cartoon|avatar|anime|drawing)",
     )
 )
 

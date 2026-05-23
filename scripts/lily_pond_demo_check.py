@@ -48,41 +48,79 @@ def _line(check: Check) -> str:
     return f"{mark} {check.name}{suffix}"
 
 
-async def _http_json(url: str, *, timeout: float = 8.0) -> tuple[bool, dict[str, Any] | str]:
-    try:
-        async with httpx.AsyncClient(timeout=timeout) as client:
-            r = await client.get(url)
-        body: dict[str, Any] | str
+async def _http_json(
+    url: str,
+    *,
+    timeout: float = 8.0,
+    attempts: int = 1,
+    backoff: float = 1.5,
+) -> tuple[bool, dict[str, Any] | str]:
+    last: dict[str, Any] | str = ""
+    for attempt in range(max(1, attempts)):
         try:
-            body = r.json()
-        except Exception:
-            body = r.text[:200]
-        return r.status_code < 500, body
-    except Exception as exc:
-        return False, f"{type(exc).__name__}: {exc}"
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                r = await client.get(url)
+            try:
+                body: dict[str, Any] | str = r.json()
+            except Exception:
+                body = r.text[:200]
+            if r.status_code < 500:
+                return True, body
+            last = f"HTTP {r.status_code}: {str(body)[:180]}"
+        except Exception as exc:
+            last = f"{type(exc).__name__}: {exc}"
+        if attempt < attempts - 1:
+            await asyncio.sleep(backoff * (attempt + 1))
+    return False, last
 
 
-async def _http_text(url: str, *, timeout: float = 8.0) -> tuple[bool, str]:
-    try:
-        async with httpx.AsyncClient(timeout=timeout) as client:
-            r = await client.get(url)
-        return r.status_code < 500, r.text
-    except Exception as exc:
-        return False, f"{type(exc).__name__}: {exc}"
-
-
-async def _post_json(url: str, payload: dict[str, Any], *, timeout: float = 45.0) -> tuple[bool, dict[str, Any] | str]:
-    try:
-        async with httpx.AsyncClient(timeout=timeout) as client:
-            r = await client.post(url, json=payload)
-        body: dict[str, Any] | str
+async def _http_text(
+    url: str,
+    *,
+    timeout: float = 8.0,
+    attempts: int = 1,
+    backoff: float = 1.5,
+) -> tuple[bool, str]:
+    last = ""
+    for attempt in range(max(1, attempts)):
         try:
-            body = r.json()
-        except Exception:
-            body = r.text[:200]
-        return r.status_code < 500, body
-    except Exception as exc:
-        return False, f"{type(exc).__name__}: {exc}"
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                r = await client.get(url)
+            if r.status_code < 500:
+                return True, r.text
+            last = f"HTTP {r.status_code}: {r.text[:180]}"
+        except Exception as exc:
+            last = f"{type(exc).__name__}: {exc}"
+        if attempt < attempts - 1:
+            await asyncio.sleep(backoff * (attempt + 1))
+    return False, last
+
+
+async def _post_json(
+    url: str,
+    payload: dict[str, Any],
+    *,
+    timeout: float = 45.0,
+    attempts: int = 1,
+    backoff: float = 1.5,
+) -> tuple[bool, dict[str, Any] | str]:
+    last: dict[str, Any] | str = ""
+    for attempt in range(max(1, attempts)):
+        try:
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                r = await client.post(url, json=payload)
+            try:
+                body: dict[str, Any] | str = r.json()
+            except Exception:
+                body = r.text[:200]
+            if r.status_code < 500:
+                return True, body
+            last = f"HTTP {r.status_code}: {str(body)[:180]}"
+        except Exception as exc:
+            last = f"{type(exc).__name__}: {exc}"
+        if attempt < attempts - 1:
+            await asyncio.sleep(backoff * (attempt + 1))
+    return False, last
 
 
 async def run(
@@ -171,10 +209,10 @@ async def run(
             )
         )
 
-    ready_ok, ready_body = await _http_json(f"{backend}/readyz")
+    ready_ok, ready_body = await _http_json(f"{backend}/readyz", timeout=12.0, attempts=3)
     checks.append(Check("backend /readyz", ready_ok and isinstance(ready_body, dict) and ready_body.get("status") == "ok", str(ready_body)[:180]))
 
-    deep_ok, deep_body = await _http_json(f"{backend}/health/deep", timeout=12.0)
+    deep_ok, deep_body = await _http_json(f"{backend}/health/deep", timeout=20.0, attempts=3)
     checks.append(Check("backend /health/deep", deep_ok and isinstance(deep_body, dict) and deep_body.get("status") in {"ok", "degraded"}, str(deep_body)[:220]))
     if isinstance(deep_body, dict):
         llm_body = ((deep_body.get("checks") or {}).get("llm") or {})
@@ -197,24 +235,40 @@ async def run(
 
     try:
         challenge = "lily-demo-check"
-        async with httpx.AsyncClient(timeout=5) as client:
-            r = await client.get(
-                f"{backend}/webhooks/whatsapp",
-                params={
-                    "hub.mode": "subscribe",
-                    "hub.challenge": challenge,
-                    "hub.verify_token": s.meta_wa_verify_token,
-                },
-            )
-        checks.append(Check("Meta webhook verify handshake", r.status_code == 200 and r.text == challenge, f"status={r.status_code}"))
+        status = 0
+        text = ""
+        error = ""
+        for attempt in range(3):
+            try:
+                async with httpx.AsyncClient(timeout=12.0) as client:
+                    r = await client.get(
+                        f"{backend}/webhooks/whatsapp",
+                        params={
+                            "hub.mode": "subscribe",
+                            "hub.challenge": challenge,
+                            "hub.verify_token": s.meta_wa_verify_token,
+                        },
+                    )
+                status = r.status_code
+                text = r.text
+                error = ""
+            except Exception as exc:
+                status = 0
+                text = ""
+                error = f"{type(exc).__name__}: {exc}"
+            if status and status < 500:
+                break
+            await asyncio.sleep(1.5 * (attempt + 1))
+        detail = f"status={status}" if not error else error
+        checks.append(Check("Meta webhook verify handshake", status == 200 and text == challenge, detail))
     except Exception as exc:
         checks.append(Check("Meta webhook verify handshake", False, f"{type(exc).__name__}: {exc}"))
 
-    portal_ok, portal_text = await _http_text(f"{portal}/cafes/lily-pond-cafe")
+    portal_ok, portal_text = await _http_text(f"{portal}/cafes/lily-pond-cafe", attempts=2)
     checks.append(Check("portal Lily Pond page", portal_ok and "Order KES 10 on WhatsApp" in portal_text, "contains live CTA"))
 
     if admin:
-        admin_ok, _ = await _http_json(admin)
+        admin_ok, _ = await _http_json(admin, attempts=2)
         checks.append(Check("admin UI reachable", admin_ok, admin))
     else:
         checks.append(Check("admin UI reachable", True, "skipped (GENEAT_ADMIN_URL not set)"))
@@ -228,6 +282,7 @@ async def run(
                 "business_slug": "lily-pond-cafe",
                 "language": "en",
             },
+            attempts=2,
         )
         reply = body.get("reply", "") if isinstance(body, dict) else str(body)
         checks.append(Check("non-charging chat price check", ok and "KES 10" in reply, reply[:180]))
@@ -241,6 +296,7 @@ async def run(
                 "business_slug": "lily-pond-cafe",
                 "language": "en",
             },
+            attempts=2,
         )
         image_url = body.get("image_url") if isinstance(body, dict) else None
         photo_item = body.get("photo_item") if isinstance(body, dict) else None

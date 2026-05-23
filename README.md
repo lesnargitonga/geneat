@@ -163,7 +163,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `57 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `68 passed, 1 warning` via `make test-fast` |
 | Admin UI production build | passed |
 | Gen-Eat portal production build | passed |
 | Logging crash regression test | passed |
@@ -665,6 +665,17 @@ Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Docume
   history so the assistant does not imitate old emergency copy,
 - the generic handoff text is now a last resort, not the normal café voice.
 
+Current safety calibration:
+
+- normal café language is allowed through to the model, including phrases like
+  `you are open now`, `can you act fast and send the STK`, and menu-photo
+  requests,
+- the deterministic jailbreak guard now targets actual role/instruction
+  hijacks instead of broad everyday wording,
+- menu-photo language is not treated as off-topic image generation,
+- the conversation turn cap was raised to give real ordering threads more
+  room before human escalation.
+
 ### 8.4 Tool surface
 
 | Tool | Purpose |
@@ -1160,6 +1171,17 @@ enforces startup checks such as:
 - admin token and warning paths,
 - worker vs Postgres connection warnings.
 
+Current production fail-fast rules include:
+
+- `PAYMENT_SIMULATOR=true` is forbidden in `APP_ENV=prod`,
+- `PAYMENT_PROVIDER=intasend` requires `INTASEND_WEBHOOK_SECRET` in prod,
+- `WHATSAPP_PROVIDER=meta` requires `META_WA_APP_SECRET` in prod and only
+  warns outside prod,
+- GPT-5 with the OpenAI Responses API requires `OPENAI_STORE_RESPONSES=true`
+  in prod,
+- OpenAI embeddings must remain `768` dimensions in prod until the pgvector
+  schema is migrated.
+
 ### 16.3 PII handling
 
 - phones are normalized before use,
@@ -1267,7 +1289,9 @@ make smoke-providers
 Meaning:
 
 - `doctor-local` checks local stack and safe chat/photo flows
-- `doctor-live` checks hosted stack and safe chat/photo flows
+- `doctor-live` checks hosted stack and safe chat/photo flows; hosted HTTP
+  probes retry briefly so Render warm-up or one-off edge timeouts do not
+  create false alarms
 - `smoke-providers` probes provider credential/path sanity
 
 ### 17.6 Operational watch points
@@ -1736,7 +1760,7 @@ make test-fast
 Current result:
 
 ```text
-57 passed, 1 warning
+68 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -1792,9 +1816,15 @@ This is the honest list, not the flattering list.
 - photo requests send real media through a deterministic action path
 - normal WhatsApp text is model-led first, with deterministic quick replies
   reserved for timeout/failure rescue
+- safety rules now let normal café wording and photo requests reach the model
+  while still blocking real prompt-injection attempts
 - order/payment turns now guard against duplicate pending orders, duplicate
   STK pushes, premature pickup-ready promises, and wrong-language payment
   failure messages
+- production startup validation now fails fast on live-payment, Meta webhook,
+  GPT-5 Responses, and embedding-dimension misconfigurations
+- `doctor-live` now retries transient hosted health/webhook/chat/photo probes
+  before failing, so the operator signal is less brittle
 - customer cancel/resend payment intents bypass the model and update pending
   order/payment job state directly
 - raw KB fallback no longer exposes internal demo/operator policy chunks to
