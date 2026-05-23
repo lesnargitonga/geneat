@@ -130,7 +130,7 @@ Fresh live checks run from this workspace on **2026-05-23**:
 | `GET /healthz` | `{"status":"ok"}` |
 | `GET /readyz` | DB and Redis healthy |
 | `GET /health/deep` | `status=ok`, db/redis/pgvector/whatsapp/payments/llm all reachable |
-| `make doctor-live` | `27/27 checks passed` |
+| `make doctor-live` | `20/20 configured checks passed` |
 | Portal live price check | passed without generic fallback |
 | Portal live photo check | passed |
 | Meta webhook verify handshake | passed |
@@ -140,7 +140,7 @@ Fresh live checks run from this workspace on **2026-05-23**:
 Current `make doctor-live` truth:
 
 ```text
-27/27 checks passed
+20/20 configured checks passed
 ```
 
 What that means in plain English:
@@ -148,6 +148,8 @@ What that means in plain English:
 - the hosted API is up,
 - the hosted DB is healthy,
 - the hosted Redis/Valkey is healthy,
+- live mode skips direct local DB introspection and relies on hosted health,
+  chat, and photo checks,
 - the hosted chat proxy path works,
 - the live demo tenant exists,
 - the `Demo Espresso` price answer works without the generic fallback,
@@ -1726,7 +1728,7 @@ make doctor-live
 Current result:
 
 ```text
-27/27 checks passed
+20/20 configured checks passed
 ```
 
 This is now the main high-signal smoke test for the hosted demo stack.

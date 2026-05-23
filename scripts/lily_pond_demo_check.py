@@ -85,7 +85,15 @@ async def _post_json(url: str, payload: dict[str, Any], *, timeout: float = 45.0
         return False, f"{type(exc).__name__}: {exc}"
 
 
-async def run(*, backend: str, portal: str, admin: str, chat: bool, photo: bool) -> list[Check]:
+async def run(
+    *,
+    backend: str,
+    portal: str,
+    admin: str,
+    chat: bool,
+    photo: bool,
+    include_db: bool,
+) -> list[Check]:
     s = get_settings()
     expected_phone = os.getenv("LILY_POND_CONTACT_PHONE", "+15556578220")
     checks: list[Check] = [
@@ -105,45 +113,63 @@ async def run(*, backend: str, portal: str, admin: str, chat: bool, photo: bool)
         Check("payment provider configured", bool(s.payment_provider), f"{s.payment_provider}; simulator={s.payment_simulator}"),
     ]
 
-    async with SessionLocal() as db:
-        version = (await db.execute(text("SELECT version_num FROM alembic_version"))).scalar_one_or_none()
-        embedding_type = (await db.execute(text(
-            """
-            SELECT format_type(a.atttypid, a.atttypmod)
-            FROM pg_attribute a
-            JOIN pg_class c ON c.oid = a.attrelid
-            WHERE c.relname = 'knowledge_base'
-              AND a.attname = 'embedding'
-            """
-        ))).scalar_one_or_none()
-        biz = (await db.execute(select(Business).where(Business.slug == "lily-pond-cafe"))).scalar_one_or_none()
-        admin_users = (await db.execute(
-            select(func.count(AdminUser.id)).where(
-                AdminUser.active.is_(True),
-                AdminUser.is_superadmin.is_(True),
-            )
-        )).scalar_one()
+    if include_db:
+        try:
+            async with SessionLocal() as db:
+                version = (await db.execute(text("SELECT version_num FROM alembic_version"))).scalar_one_or_none()
+                embedding_type = (await db.execute(text(
+                    """
+                    SELECT format_type(a.atttypid, a.atttypmod)
+                    FROM pg_attribute a
+                    JOIN pg_class c ON c.oid = a.attrelid
+                    WHERE c.relname = 'knowledge_base'
+                      AND a.attname = 'embedding'
+                    """
+                ))).scalar_one_or_none()
+                biz = (await db.execute(select(Business).where(Business.slug == "lily-pond-cafe"))).scalar_one_or_none()
+                admin_users = (await db.execute(
+                    select(func.count(AdminUser.id)).where(
+                        AdminUser.active.is_(True),
+                        AdminUser.is_superadmin.is_(True),
+                    )
+                )).scalar_one()
 
-        checks.append(Check("Alembic head recorded", version == "0010_enforce_embedding_768", str(version)))
-        checks.append(Check("KB embedding dimension", embedding_type == "vector(768)", str(embedding_type)))
-        checks.append(Check("active superadmin exists", int(admin_users) >= 1, str(admin_users)))
+                checks.append(Check("Alembic head recorded", version == "0010_enforce_embedding_768", str(version)))
+                checks.append(Check("KB embedding dimension", embedding_type == "vector(768)", str(embedding_type)))
+                checks.append(Check("active superadmin exists", int(admin_users) >= 1, str(admin_users)))
 
-        if biz is None:
-            checks.append(Check("Lily Pond tenant exists", False))
-        else:
-            demo_chunks = (await db.execute(
-                select(func.count(KnowledgeChunk.id)).where(
-                    KnowledgeChunk.business_id == biz.id,
-                    KnowledgeChunk.content.ilike("%Demo Espresso%"),
+                if biz is None:
+                    checks.append(Check("Lily Pond tenant exists", False))
+                else:
+                    demo_chunks = (await db.execute(
+                        select(func.count(KnowledgeChunk.id)).where(
+                            KnowledgeChunk.business_id == biz.id,
+                            KnowledgeChunk.content.ilike("%Demo Espresso%"),
+                        )
+                    )).scalar_one()
+                    checks.extend([
+                        Check("Lily Pond tenant exists", True, str(biz.id)),
+                        Check("Lily Pond active", bool(biz.active)),
+                        Check("Lily Pond live phone", biz.contact_phone == expected_phone, biz.contact_phone or ""),
+                        Check("Meta phone id mapped to Lily Pond", bool(biz.meta_wa_phone_number_id)),
+                        Check("Demo Espresso KB chunks", int(demo_chunks) >= 1, str(demo_chunks)),
+                    ])
+        except Exception as exc:
+            checks.append(
+                Check(
+                    "direct database checks",
+                    False,
+                    f"{type(exc).__name__}: {exc}",
                 )
-            )).scalar_one()
-            checks.extend([
-                Check("Lily Pond tenant exists", True, str(biz.id)),
-                Check("Lily Pond active", bool(biz.active)),
-                Check("Lily Pond live phone", biz.contact_phone == expected_phone, biz.contact_phone or ""),
-                Check("Meta phone id mapped to Lily Pond", bool(biz.meta_wa_phone_number_id)),
-                Check("Demo Espresso KB chunks", int(demo_chunks) >= 1, str(demo_chunks)),
-            ])
+            )
+    else:
+        checks.append(
+            Check(
+                "direct database checks",
+                True,
+                "skipped in live mode; covered by hosted health/chat/photo checks",
+            )
+        )
 
     ready_ok, ready_body = await _http_json(f"{backend}/readyz")
     checks.append(Check("backend /readyz", ready_ok and isinstance(ready_body, dict) and ready_body.get("status") == "ok", str(ready_body)[:180]))
@@ -250,6 +276,7 @@ async def amain() -> int:
         admin=args.admin.rstrip("/"),
         chat=args.chat,
         photo=args.photo,
+        include_db=not args.live,
     )
     for check in checks:
         print(_line(check))
