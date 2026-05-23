@@ -163,7 +163,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `41 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `54 passed, 1 warning` via `make test-fast` |
 | Admin UI production build | passed |
 | Gen-Eat portal production build | passed |
 | Logging crash regression test | passed |
@@ -626,10 +626,26 @@ Current model-led happy path:
 - clarification turns,
 - payment turns.
 
+Current order/payment hardening:
+
+- duplicate pending orders in the same tenant conversation are reused instead
+  of creating a second order,
+- duplicate STK requests for the same pending order are treated as
+  `in_flight` instead of pushing the customer twice,
+- the assistant must not say `pickup ready`, `ready by`, `paid`, or
+  `confirmed` until a payment callback or payment poll confirms money landed,
+- ready notifications are scheduled only after paid payment state,
+- payment failure/cancel messages use the customer's language instead of
+  forcing Swahili into English conversations,
+- if the model or output sanitizer produces malformed payment copy after a
+  successful tool call, the channel layer replaces it with a safe payment
+  status message.
+
 Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Documents/ai model/app/channels/base.py):
 
 - each AI turn is bounded by `AI_TURN_TIMEOUT_SECONDS`,
-- one quiet retry is attempted for transient provider/tool failures,
+- one quiet retry is attempted for transient provider/tool failures; timeout
+  retries use a smaller window so stuck turns do not drag on,
 - deterministic quick replies can answer obvious price, hours, or menu
   recommendation questions only after the model path fails,
 - keyword KB fallback is tried before generic handoff,
@@ -1084,12 +1100,16 @@ Current “real enough for a pilot” truth:
 - the AI can answer a price question,
 - the AI can send a picture,
 - the order/payment path is wired,
-- the whole thing is good enough for a pilot demo conversation tomorrow.
+- the current blocker is conversation polish: the assistant must handle a
+  longer WhatsApp order/payment thread without late fallback copy, duplicate
+  payment prompts, or premature pickup promises.
 
 Still not yet “merchant-perfect”:
 
 - images are still demo media unless replaced per tenant,
 - the WhatsApp number is still the currently configured Meta number,
+- the café flow still needs repeated real WhatsApp rehearsal before a first
+  client meeting,
 - infrastructure is still beta-grade, not SLA-grade.
 
 Original budget / business-plan assumptions retained from the pilot concept:
@@ -1704,7 +1724,7 @@ make test-fast
 Current result:
 
 ```text
-41 passed, 1 warning
+54 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -1760,6 +1780,9 @@ This is the honest list, not the flattering list.
 - photo requests send real media through a deterministic action path
 - normal WhatsApp text is model-led first, with deterministic quick replies
   reserved for timeout/failure rescue
+- order/payment turns now guard against duplicate pending orders, duplicate
+  STK pushes, premature pickup-ready promises, and wrong-language payment
+  failure messages
 - durable jobs survive restarts
 - payment callbacks scope through `orders.business_id`
 - tenant photo catalogs can now be managed and published centrally
@@ -1769,7 +1792,7 @@ This is the honest list, not the flattering list.
 
 | Gap | Impact | Likely fix |
 | --- | --- | --- |
-| WhatsApp conversation quality is not client-ready yet | too many generic fallback replies make the assistant feel robotic | expand manual conversation scripts and keep fallbacks only behind real timeout/failure |
+| WhatsApp conversation quality is not client-ready yet | late replies, generic fallback copy, duplicate payment attempts, or premature readiness promises can break trust during a demo | expand real WhatsApp conversation scripts, keep fallbacks behind true timeout/failure, and rehearse the full order/payment/receipt loop |
 | Render live stack is still beta-grade | free-tier spin-down / manual service drift can make operations annoying | move to paid Render or another always-on managed host |
 | Event bus is not durable | SSE / outbound webhooks can miss events during Redis/listener gaps | add outbox table or Redis Streams |
 | Public admin deployment is optional, not standardized | ops may still depend on local admin in some workflows | deploy and document a stable public admin URL |
@@ -1794,8 +1817,8 @@ Reason:
 
 - WhatsApp, STK, photos, hosted API, hosted DB, and hosted Redis are live.
 - The remaining blocker is response quality: the assistant must sustain longer
-  natural menu/order/payment conversations without falling back to generic
-  handoff copy.
+  natural menu/order/payment conversations without late generic fallback copy,
+  duplicate STK prompts, or premature pickup promises.
 
 Production-ready in the “don’t stress me at all” sense:
 

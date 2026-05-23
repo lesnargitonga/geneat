@@ -99,6 +99,38 @@ class CustomerNameArgs(BaseModel):
     )
 
 
+def _normalise_items(items: list[OrderItem]) -> list[dict[str, object]]:
+    normalised: list[dict[str, object]] = []
+    for item in items:
+        normalised.append({
+            "name": item.sku_or_name.strip().lower(),
+            "qty": int(item.qty or 1),
+            "unit_price": round(float(item.unit_price or 0), 2),
+        })
+    return sorted(normalised, key=lambda row: (str(row["name"]), int(row["qty"]), float(row["unit_price"])))
+
+
+def _stored_items_match(details: Any, items: list[OrderItem]) -> bool:
+    if not isinstance(details, dict):
+        return False
+    stored = details.get("items")
+    if not isinstance(stored, list):
+        return False
+    try:
+        stored_items = [
+            OrderItem(
+                sku_or_name=str(row.get("sku_or_name") or row.get("name") or ""),
+                qty=int(row.get("qty") or 1),
+                unit_price=float(row.get("unit_price") or 0),
+            )
+            for row in stored
+            if isinstance(row, dict)
+        ]
+    except Exception:
+        return False
+    return _normalise_items(stored_items) == _normalise_items(items)
+
+
 # ── Tool factory: binds tools to an AsyncSession + conversation_id ────
 
 def build_tools(
@@ -171,6 +203,27 @@ def build_tools(
             return result
 
         amount = sum((i.unit_price or 0) * i.qty for i in args.items)
+        existing_orders = (await db.execute(
+            select(Order)
+            .where(Order.conversation_id == conversation_id)
+            .where(Order.customer_id == conv.customer_id)
+            .where(Order.payment_status == PaymentStatus.pending)
+            .where(Order.business_id == tenant_id if tenant_id is not None else Order.business_id.is_(None))
+            .order_by(Order.created_at.desc())
+            .limit(5)
+        )).scalars().all()
+        for existing in existing_orders:
+            if abs(float(existing.amount or 0) - float(amount or 0)) <= 0.01 and _stored_items_match(existing.details, args.items):
+                result = {
+                    "ok": True,
+                    "order_id": str(existing.id),
+                    "amount_kes": float(existing.amount or 0),
+                    "deduped": True,
+                    "message": "Existing pending order reused; do not create a duplicate order.",
+                }
+                await _audit("create_order", args.model_dump(), result, True, t0)
+                return result
+
         appt = datetime.fromisoformat(args.appointment_time_iso) if args.appointment_time_iso else None
         order = Order(
             customer_id=conv.customer_id, business_id=tenant_id, conversation_id=conv.id,
@@ -179,31 +232,13 @@ def build_tools(
         )
         db.add(order); await db.flush()
 
-        # Schedule the "your order is ready" WhatsApp follow-up.
-        # avg_prep_minutes is per-business config; fall back to 8 min.
-        try:
-            from sqlalchemy import select as _select
-            from app.db.models import Business as _Business
-            biz = (await db.execute(_select(_Business).where(_Business.id == tenant_id))).scalar_one_or_none() if tenant_id else None
-            prep_min = 8
-            biz_name = "the café"
-            if biz is not None:
-                prep_min = int((biz.profile or {}).get("avg_prep_minutes", 8) or 8)
-                biz_name = biz.name
-            if msisdn and channel == "whatsapp":
-                from app.jobs.order_ready_notifier import schedule_ready_notification
-                await schedule_ready_notification(
-                    db,
-                    business_id=tenant_id,
-                    business_name=biz_name,
-                    items_summary=", ".join(f"{i.qty}× {i.sku_or_name}" for i in args.items),
-                    delay_seconds=prep_min * 60,
-                    order_id=str(order.id),
-                )
-        except Exception as _e:  # pragma: no cover
-            log.warning("ready_notify_schedule_failed", error=str(_e))
-
-        result = {"ok": True, "order_id": str(order.id), "amount_kes": float(amount)}
+        result = {
+            "ok": True,
+            "order_id": str(order.id),
+            "amount_kes": float(amount),
+            "payment_status": "pending",
+            "message": "Order recorded; payment must be confirmed before ready notifications are sent.",
+        }
         await _audit("create_order", args.model_dump(), result, True, t0)
         return result
 
@@ -258,14 +293,11 @@ def build_tools(
 
         try:
             svc = get_payment_service()
-            res = await svc.request_payment(
-                msisdn=msisdn, amount=args.amount_kes,
-                reference=args.order_reference, description="Order Payment",
-            )
-            checkout_id = res.reference
             # Attach to the most recent pending order in this exact tenant
             # conversation. A customer can chat with several businesses using
             # one phone number, so customer-only matching is unsafe.
+            latest = None
+            tenant_id = business_id
             if conversation_id:
                 from app.db.models import Conversation
                 conv = (await db.execute(select(Conversation).where(Conversation.id == conversation_id))).scalar_one()
@@ -278,28 +310,49 @@ def build_tools(
                     .where(Order.business_id == tenant_id if tenant_id is not None else Order.business_id.is_(None))
                     .order_by(Order.created_at.desc()).limit(1)
                 )).scalar_one_or_none()
-                if latest:
-                    latest.mpesa_checkout_id = checkout_id
-                    await db.flush()
-                    if svc.name == "intasend":
-                        from app.jobs.runner import enqueue_job
-                        await enqueue_job(
-                            db,
-                            kind="payment.intasend_poll",
-                            business_id=tenant_id,
-                            run_at=datetime.now(timezone.utc) + timedelta(seconds=20),
-                            max_attempts=1,
-                            payload={
-                                "order_id": str(latest.id),
-                                "checkout_id": checkout_id,
-                                "poll_count": 1,
-                            },
-                        )
+                if (
+                    latest is not None
+                    and latest.mpesa_checkout_id
+                    and str(latest.id).startswith(args.order_reference)
+                ):
+                    result = {
+                        "ok": False,
+                        "error": "in_flight",
+                        "checkout_request_id": latest.mpesa_checkout_id,
+                        "message": "An STK push is already pending for this order. Ask the customer to check their phone or wait before retrying.",
+                    }
+                    await store_result(idem_key, result, ttl_seconds=600)
+                    await _audit("request_mpesa_payment", args.model_dump(), result, False, t0)
+                    return result
+
+            res = await svc.request_payment(
+                msisdn=msisdn, amount=args.amount_kes,
+                reference=args.order_reference, description="Order Payment",
+            )
+            checkout_id = res.reference
+            if latest is not None:
+                latest.mpesa_checkout_id = checkout_id
+                await db.flush()
+                if svc.name == "intasend":
+                    from app.jobs.runner import enqueue_job
+                    await enqueue_job(
+                        db,
+                        kind="payment.intasend_poll",
+                        business_id=tenant_id,
+                        run_at=datetime.now(timezone.utc) + timedelta(seconds=20),
+                        max_attempts=1,
+                        payload={
+                            "order_id": str(latest.id),
+                            "checkout_id": checkout_id,
+                            "poll_count": 1,
+                        },
+                    )
             msg = f"STK push sent to {msisdn} via {svc.name}."
             if res.redirect_url:
                 msg += f" Pay link: {res.redirect_url}"
             result = {"ok": True, "checkout_request_id": checkout_id,
                       "provider": svc.name, "redirect_url": res.redirect_url,
+                      "amount_kes": float(args.amount_kes),
                       "message": msg}
             # Demo: auto-confirm simulated payments after a short delay so
             # WhatsApp demos can show the 'payment received' path end-to-end.

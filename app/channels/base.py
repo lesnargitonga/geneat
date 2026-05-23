@@ -8,6 +8,8 @@ responsible for delivering it back over the channel's transport).
 from __future__ import annotations
 
 import asyncio
+import ast
+import json
 import uuid
 from dataclasses import dataclass
 
@@ -36,9 +38,11 @@ from app.services.slash_commands import parse_slash
 log = get_logger("channel")
 
 # WhatsApp users notice silence quickly. Give the model enough time to reason
-# and call tools, then fall back to a deterministic rescue only if the turn is
-# genuinely stuck or failing.
-AI_TURN_TIMEOUT_SECONDS = 24.0
+# and call tools, then allow only a short retry window before deterministic
+# rescue. This keeps model-first behavior without making customers wait nearly
+# a minute for a fallback.
+AI_TURN_TIMEOUT_SECONDS = 18.0
+AI_TURN_RETRY_TIMEOUT_SECONDS = 6.0
 _DEGRADED_FALLBACK_MARKERS = (
     "pulling our team",
     "system took too long",
@@ -53,6 +57,86 @@ _DEGRADED_FALLBACK_MARKERS = (
 def _is_degraded_fallback_text(content: str | None) -> bool:
     lowered = (content or "").lower()
     return any(marker in lowered for marker in _DEGRADED_FALLBACK_MARKERS)
+
+
+def _parse_tool_payload(content: object) -> dict:
+    if isinstance(content, dict):
+        return content
+    if not isinstance(content, str) or not content.strip():
+        return {}
+    text = content.strip()
+    for parser in (json.loads, ast.literal_eval):
+        try:
+            parsed = parser(text)
+        except Exception:
+            continue
+        if isinstance(parsed, dict):
+            return parsed
+    return {}
+
+
+def _latest_tool_result(result: dict, name: str) -> dict:
+    for call in reversed(result.get("tool_calls") or []):
+        if call.get("name") == name:
+            return _parse_tool_payload(call.get("content"))
+    return {}
+
+
+def _payment_tool_recovery_reply(result: dict, *, msisdn: str) -> str | None:
+    payment = _latest_tool_result(result, "request_mpesa_payment")
+    order = _latest_tool_result(result, "create_order")
+    if not payment and not order:
+        return None
+    amount = payment.get("amount_kes") or order.get("amount_kes")
+    amount_text = ""
+    if amount is not None:
+        try:
+            value = float(amount)
+            amount_text = f" for KES {value:.0f}" if value.is_integer() else f" for KES {value:.2f}"
+        except Exception:
+            amount_text = f" for KES {amount}"
+    phone_tail = msisdn[-4:] if msisdn else "your phone"
+
+    if payment.get("ok"):
+        return (
+            f"Order received{amount_text}. I sent the M-Pesa STK prompt to the phone ending "
+            f"{phone_tail}. Enter your PIN to pay; I'll send the receipt once it lands."
+        )
+
+    if payment.get("error") == "in_flight":
+        return (
+            "I already sent the M-Pesa STK prompt for this order. Check your phone and enter "
+            "your PIN; I'll confirm once payment lands."
+        )
+
+    if payment:
+        reason = str(payment.get("message") or payment.get("error") or "the payment provider did not accept it")
+        return (
+            f"I recorded the order{amount_text}, but the STK push did not start: "
+            f"{reason}. Please try again in a moment."
+        )
+
+    if order.get("ok"):
+        return (
+            f"I recorded the order{amount_text}, but I could not start payment yet. "
+            "Tell me to send the STK prompt and I'll try again."
+        )
+    return None
+
+
+def _looks_like_sanitizer_fallback(reply: str) -> bool:
+    lowered = (reply or "").lower()
+    return "formatting hiccup" in lowered or ("one moment" in lowered and "right answer" in lowered)
+
+
+def _promises_ready_before_payment(reply: str) -> bool:
+    lowered = (reply or "").lower()
+    if "ready by" not in lowered and "pickup ready" not in lowered:
+        return False
+    return not any(
+        guard in lowered
+        for guard in ("after payment", "once payment", "payment lands", "payment is confirmed")
+    )
 
 
 @dataclass
@@ -363,7 +447,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             if not (r.sender == Sender.ai and _is_degraded_fallback_text(r.content))
         ]
 
-        async def _run_ai_once() -> dict:
+        async def _run_ai_once(timeout_seconds: float = AI_TURN_TIMEOUT_SECONDS) -> dict:
             return await asyncio.wait_for(
                 run_turn(
                     db,
@@ -377,25 +461,31 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     history=history,
                     customer_language=effective_lang,
                 ),
-                timeout=AI_TURN_TIMEOUT_SECONDS,
+                timeout=timeout_seconds,
             )
 
         try:
             result = await _run_ai_once()
         except Exception as e:
             if isinstance(e, asyncio.TimeoutError):
-                log.warning("ai_turn_timed_out_retrying", timeout_seconds=AI_TURN_TIMEOUT_SECONDS)
+                retry_timeout = AI_TURN_RETRY_TIMEOUT_SECONDS
+                log.warning(
+                    "ai_turn_timed_out_retrying",
+                    timeout_seconds=AI_TURN_TIMEOUT_SECONDS,
+                    retry_timeout_seconds=retry_timeout,
+                )
             else:
+                retry_timeout = AI_TURN_TIMEOUT_SECONDS
                 log.warning("ai_turn_failed_retrying", error=str(e), error_type=type(e).__name__)
             # One quiet retry — covers transient Ollama/DB hiccups before we
             # ever show the customer a fallback string.
             try:
-                result = await _run_ai_once()
+                result = await _run_ai_once(retry_timeout)
             except Exception as e2:
                 if isinstance(e2, asyncio.TimeoutError):
                     log.exception(
                         "ai_turn_timed_out_final",
-                        timeout_seconds=AI_TURN_TIMEOUT_SECONDS,
+                        timeout_seconds=retry_timeout,
                     )
                 else:
                     log.exception("ai_turn_failed_final", error=str(e2), error_type=type(e2).__name__)
@@ -502,6 +592,10 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         from app.services.output_sanitizer import sanitize_reply
         sanitiser_channel = "voice" if turn.channel == Channel.voice else "whatsapp"
         reply = sanitize_reply(result["reply"], channel=sanitiser_channel)
+        recovered = _payment_tool_recovery_reply(result, msisdn=msisdn)
+        if recovered and (_looks_like_sanitizer_fallback(reply) or _promises_ready_before_payment(reply)):
+            log.info("payment_tool_reply_recovered", reason="fallback_or_premature_ready")
+            reply = recovered
 
         # ── Output safety: redact unauthorised prices, strip forbidden
         # phrases ("order confirmed" without payment proof, identity claims).

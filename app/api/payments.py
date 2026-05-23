@@ -138,6 +138,64 @@ async def _business_name(db: AsyncSession, business_id: uuid.UUID | None) -> str
     )).scalar_one_or_none()
 
 
+def _is_swahili_language(language: str | None) -> bool:
+    return (language or "").lower().startswith(("sw", "she"))
+
+
+async def _customer_language(db: AsyncSession, order: Order) -> str | None:
+    customer = await db.get(Customer, order.customer_id)
+    return customer.preferred_language if customer is not None else None
+
+
+def _payment_failed_message(*, language: str | None, cancelled: bool = False) -> str:
+    is_sw = _is_swahili_language(language)
+    if cancelled:
+        return (
+            "Umesitisha malipo, kwa hivyo oda haijathibitishwa. "
+            "Ukitaka nijaribu tena, niambie nitume STK nyingine."
+            if is_sw else
+            "Payment was cancelled, so the order is not confirmed yet. "
+            "If you want to try again, tell me to resend the STK prompt."
+        )
+    return (
+        "Malipo hayajapita, kwa hivyo oda haijathibitishwa bado. "
+        "Ukitaka nijaribu tena, niambie nitume STK nyingine."
+        if is_sw else
+        "Payment did not go through, so the order is not confirmed yet. "
+        "If you want to try again, tell me to resend the STK prompt."
+    )
+
+
+async def _schedule_ready_after_payment(
+    db: AsyncSession,
+    order: Order,
+    business_id: uuid.UUID | None,
+) -> None:
+    if business_id is None:
+        return
+    biz = await db.get(Business, business_id)
+    prep_min = 8
+    business_name = "the cafe"
+    if biz is not None:
+        business_name = biz.name
+        try:
+            prep_min = int((biz.profile or {}).get("avg_prep_minutes", 8) or 8)
+        except Exception:
+            prep_min = 8
+    try:
+        from app.jobs.order_ready_notifier import schedule_ready_notification
+        await schedule_ready_notification(
+            db,
+            business_id=business_id,
+            business_name=business_name,
+            items_summary=_order_items_summary(order).replace("\n", ", "),
+            delay_seconds=prep_min * 60,
+            order_id=str(order.id),
+        )
+    except Exception as exc:  # pragma: no cover
+        log.warning("ready_notify_schedule_after_payment_failed", error=str(exc), order=str(order.id))
+
+
 async def _notify_order_customer(order: Order, msg: str) -> None:
     try:
         async with SessionLocal() as db:
@@ -182,9 +240,10 @@ async def _apply_provider_payment_result(
             amount_paid=order.amount,
             business_name=await _business_name(db, business_id),
         )
+        await _schedule_ready_after_payment(db, order, business_id)
     elif status == "failed":
         order.payment_status = PaymentStatus.failed
-        msg = "Samahani, malipo hayajafaulu. Jaribu tena tafadhali."
+        msg = _payment_failed_message(language=await _customer_language(db, order))
     else:
         return False, None, business_id
 
@@ -308,12 +367,16 @@ async def mpesa_callback(request: Request):
                 amount_paid=cb_amount,
                 business_name=await _business_name(db, business_id),
             )
+            await _schedule_ready_after_payment(db, order, business_id)
         elif result_code == 1032:  # User cancelled
             order.payment_status = PaymentStatus.cancelled
-            msg = "Tumeona umesitisha malipo. Je, ungependa kujaribu tena?"
+            msg = _payment_failed_message(
+                language=await _customer_language(db, order),
+                cancelled=True,
+            )
         else:
             order.payment_status = PaymentStatus.failed
-            msg = "Samahani, malipo hayajafaulu. Jaribu tena au wasiliana nasi."
+            msg = _payment_failed_message(language=await _customer_language(db, order))
 
         db.add(AuditEvent(
             actor="mpesa", action=f"callback_{order.payment_status.value}",

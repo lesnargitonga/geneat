@@ -120,10 +120,10 @@ _UNCLOSED_FENCE = re.compile(r"```[\s\S]*$")
 
 # Final fallback reply per channel when sanitising removes everything.
 _FALLBACK = {
-    "whatsapp": "One moment — let me get the right answer for you.",
-    "voice":    "One moment, let me get the right answer for you.",
-    "mock":     "One moment — let me get the right answer for you.",
-    "sms":      "One moment — let me get the right answer for you.",
+    "whatsapp": "I hit a formatting hiccup before I could finish that. Please resend that last message once.",
+    "voice":    "I hit a formatting hiccup before I could finish that. Please say that once more.",
+    "mock":     "I hit a formatting hiccup before I could finish that. Please resend that last message once.",
+    "sms":      "I hit a formatting hiccup before I could finish that. Please resend that last message once.",
 }
 
 

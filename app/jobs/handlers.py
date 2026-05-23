@@ -116,13 +116,9 @@ async def run_order_ready(job: JobSnapshot) -> None:
         order = await db.get(Order, order_id)
         if order is None:
             return
-        if order.payment_status in {
-            PaymentStatus.cancelled,
-            PaymentStatus.failed,
-            PaymentStatus.timeout,
-        }:
+        if order.payment_status != PaymentStatus.paid:
             log.info(
-                "ready_notify_skipped_terminal_payment",
+                "ready_notify_skipped_unpaid_order",
                 order=str(order.id),
                 payment_status=order.payment_status.value,
             )
@@ -131,13 +127,9 @@ async def run_order_ready(job: JobSnapshot) -> None:
         if customer is None:
             return
 
-    if order.payment_status == PaymentStatus.paid:
-        payment_line = "If you paid by M-Pesa, show your receipt at the counter."
-    else:
-        payment_line = "You can settle at pickup if payment has not gone through yet."
     body = (
         f"Heads-up — your order ({items_summary}) is ready for pickup at "
-        f"{business_name}. {payment_line} Karibu!"
+        f"{business_name}. Show your receipt at the counter. Karibu!"
     )
     from app.channels import whatsapp as wa_channel
     res = await wa_channel.send_text(customer.phone_number, body)
@@ -165,6 +157,8 @@ async def run_simulated_payment_confirm(job: JobSnapshot) -> None:
             target=str(order.id),
             data={"simulated": True},
         ))
+        from app.api.payments import _schedule_ready_after_payment
+        await _schedule_ready_after_payment(db, order, order.business_id)
         customer = await db.get(Customer, order.customer_id)
         await db.commit()
 

@@ -193,14 +193,16 @@ TOOLS_GUIDE = """\
 # TOOLS — when to use which
 - knowledge_lookup(query) -> Search KB for extra detail beyond what's
   already in the preamble. Use freely.
-- create_order(items, ...) -> Once items + total are agreed. Confirm the
-  order summary and total BEFORE calling. For cafés this is FIRED
-  IMMEDIATELY once items + quantity + name are settled — do not stall
-  with "are you sure?" filler.
+- create_order(items, ...) -> Once items + total are agreed. For cafés this
+  is FIRED IMMEDIATELY once items + quantity + name are settled — do not
+  stall with "are you sure?" filler. If the tool says it reused an existing
+  pending order, do not create another one.
 - request_mpesa_payment(msisdn, amount_kes, order_reference) -> M-Pesa STK
   push. For cafés/restaurants, fire IMMEDIATELY after `create_order`
   returns ok — do not wait for the customer to say "yes charge me".
-  Tell the customer to expect the prompt.
+  Tell the customer to expect the prompt ONLY if the tool returns ok=true.
+  If it returns in_flight/rate_limited/upstream/error, explain that exact
+  state and do not claim a new STK was sent.
 - book_appointment(...) -> Once service + date/time are confirmed.
 - send_menu_photo(item) -> Send an actual photo of a menu item over
   WhatsApp. CALL when the customer asks "do you have pictures",
@@ -225,7 +227,10 @@ SAFETY_RULES = """\
 - Never promise refunds without a tool confirmation.
 - Never claim an order is "confirmed", "paid", or "successful" until you
   have a payment receipt from the system. The correct phrasing is:
-  "Send KES X to Till Y on M-Pesa — I'll confirm the moment it lands."
+  "I sent the STK for KES X — enter your PIN and I'll confirm the moment it lands."
+- Never say food is ready, "pickup ready", or "ready by HH:MM" until payment
+  is confirmed. Before payment, say "I'll send the receipt and pickup timing
+  once payment lands."
 - Never quote a price that isn't on the menu / KB. If you don't know a
   price, say "let me check with the kitchen" or ask for the exact item.
 - Never invent menu items, hours, locations, or staff names. If unsure,
@@ -384,7 +389,8 @@ def render_system_prompt(
         cafe_context_lines.append(f"AVG_PREP_MINUTES: {avg_prep_minutes}")
     if pickup_ready_by:
         cafe_context_lines.append(
-            f"PICKUP_READY_BY: {pickup_ready_by} (quote this clock time, not 'in X minutes')"
+            f"PICKUP_READY_BY_AFTER_PAYMENT: {pickup_ready_by} "
+            "(quote only after payment is confirmed; before payment, say you will confirm pickup timing once payment lands)"
         )
     cafe_context_lines.append(
         f"DELIVERY_ENABLED: {'true' if delivery_enabled else 'false'}"

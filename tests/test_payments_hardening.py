@@ -149,6 +149,18 @@ def test_receipt_message_includes_items_amount_and_reference():
     assert "Reference: INV-123" in msg
 
 
+def test_payment_failed_message_uses_customer_language():
+    from app.api.payments import _payment_failed_message
+
+    english = _payment_failed_message(language="en")
+    swahili = _payment_failed_message(language="sw")
+
+    assert "Payment did not go through" in english
+    assert "order is not confirmed yet" in english
+    assert "Malipo hayajapita" in swahili
+    assert "haijathibitishwa" in swahili
+
+
 @pytest.mark.asyncio
 async def test_order_business_id_backfills_from_conversation():
     from app.api.payments import _business_id_for_order
