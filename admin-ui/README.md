@@ -18,3 +18,9 @@ npm run preview
 
 Keep detailed architecture, route, auth, and deployment notes in
 `../README.md`, not here.
+
+Important current truth:
+
+- the admin SPA is fully buildable locally,
+- a public admin deployment is optional and not assumed by the live doctor
+  unless `GENEAT_ADMIN_URL` is configured.

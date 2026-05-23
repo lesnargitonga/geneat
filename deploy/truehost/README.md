@@ -1,5 +1,19 @@
 # Truehost API Cutover
 
+This file documents the backup / alternative server-side path, not the current
+live production truth.
+
+Current single source of truth:
+
+- [Production Deployment Runbook](../../README.md#19-production-deployment-runbook)
+- [Current Truth And Verification](../../README.md#2-current-truth-and-verification)
+
+Important current truth:
+
+- the active hosted beta backend is on Render,
+- this Truehost bundle remains useful if the project later moves off Render
+  or wants a more VM-style deployment path.
+
 This folder is the server-side bundle for moving `api.lesnarai.co.ke` off the
 local laptop and onto the Truehost host while keeping Cloudflare in front.
 

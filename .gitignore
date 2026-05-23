@@ -27,10 +27,21 @@ gen-eat-portal/node_modules/
 gen-eat-portal/.next/
 admin-ui/node_modules/
 admin-ui/dist/
+admin-ui/tsconfig.tsbuildinfo
 lesnarai-landing/node_modules/
 lesnarai-landing/.next/
+gen-eat-portal/tsconfig.tsbuildinfo
 
 # OS / misc
 .DS_Store
 *.swp
 *.swo
+
+# Local scratch utilities
+drop_table.py
+test_keys.py
+
+# Render local export bundles
+deploy/render/*.local
+deploy/render/*.local.env
+deploy/render/*.secrets.env

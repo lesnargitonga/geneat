@@ -19,3 +19,10 @@ npm run start
 The chat widget posts to `/api/chat`, and the Next route handler forwards to
 `BACKEND_URL/mock/message`. Keep detailed portal data, deployment, and menu
 photography notes in `../README.md`, not here.
+
+Important current truth:
+
+- café pages now also fetch backend photo overrides from
+  `/catalog/businesses/{slug}/menu-photos`,
+- so the portal can show tenant-managed menu imagery without hardcoding every
+  image into `lib/cafes.ts`.

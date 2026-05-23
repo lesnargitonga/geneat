@@ -2,12 +2,19 @@
 
 This file is the single source of truth for the whole repository.
 
-All project Markdown files now point back here. If the code changes, update
-this README first. The code is the final authority, but this document is the
-canonical human map of how the system works, how it is supposed to work, how
-to run it, how to deploy it, and where the current risks are.
+All other Markdown files in this repo should stay short and point back here.
+If the code or hosted setup changes, update this README first. The code is the
+final authority, but this document is the canonical human map of:
 
-Last reconciled with the codebase: 2026-05-21.
+- what the system is,
+- how it works,
+- what is live right now,
+- how to run it locally,
+- how it is currently deployed,
+- what is still demo-only,
+- and what still needs hardening before anyone promises enterprise-grade uptime.
+
+Last reconciled with the codebase and live checks: **2026-05-23**.
 
 ## Table Of Contents
 
@@ -38,82 +45,167 @@ Last reconciled with the codebase: 2026-05-21.
 
 ## 1. Product In One Page
 
-The repository contains a production-oriented, multi-tenant AI platform for
-small businesses. One backend receives customer messages from WhatsApp, voice,
-SMS-style channels, and mock/web clients, resolves the business tenant, runs a
-LangGraph assistant with business-specific RAG and tools, persists the
-conversation, and sends the response back through the correct channel.
+This repository contains a multi-tenant AI operations platform for small
+businesses, with Gen-Eat as the flagship live demo.
 
-The flagship demo is Gen-Eat at USIU-Africa:
+The platform receives inbound customer traffic from WhatsApp, voice, and mock
+/ web channels, resolves the correct tenant, runs a tenant-scoped AI assistant
+with retrieval and tools, persists the conversation and business objects, and
+then responds through the correct outbound transport.
 
-- Student-facing Next.js portal in `gen-eat-portal/`.
-- Four cafe tenants seeded by `scripts/seed_geneat_demo.py`.
-- Students browse cafes, open a chat widget, and talk to the same backend
-  through `/mock/message` via the portal's `/api/chat` proxy.
-- The real platform also supports WhatsApp Business, Twilio voice streams,
-  Africa's Talking voice callbacks, M-Pesa-style payments, admin takeover,
-  broadcasts, outbound merchant webhooks, usage metrics, and privacy exports.
+The current demo story is food ordering for USIU-Africa cafés:
 
-Live/demo values currently documented in the repo:
+- students browse a café page,
+- click through to WhatsApp or chat on the web,
+- ask questions about the menu,
+- request pictures,
+- place an order,
+- receive an IntaSend-backed M-Pesa STK push,
+- pay,
+- and receive a follow-up confirmation message.
 
-| Thing | Value |
+Current important public endpoints:
+
+| Thing | Current truth |
 | --- | --- |
-| Portal | `https://gen-eat-portal.vercel.app` |
+| Customer portal | `https://geneat.lesnarai.co.ke` |
+| Lily Pond page | `https://geneat.lesnarai.co.ke/cafes/lily-pond-cafe` |
 | API | `https://api.lesnarai.co.ke` |
-| API health | `https://api.lesnarai.co.ke/healthz` |
-| Gen-Eat cafes | Lily Pond Cafe, Library Bites, Pavilion Grill, Block A Express |
-| Portal backend env | `BACKEND_URL=https://api.lesnarai.co.ke` in `gen-eat-portal/vercel.json` |
+| API liveness | `https://api.lesnarai.co.ke/healthz` |
+| API readiness | `https://api.lesnarai.co.ke/readyz` |
+| Deep health | `https://api.lesnarai.co.ke/health/deep` |
+| GitHub repo | `https://github.com/lesnargitonga/geneat` |
 
-Core promise:
+Current demo tenants:
 
-- No new customer app.
-- Businesses manage knowledge, conversations, broadcasts, webhooks, members,
-  prompts, profile JSON, safety state, and usage through the admin console.
-- The same customer can move across channels while conversation state remains
-  tied to the customer and tenant.
+| Business | Slug | Role in demo |
+| --- | --- | --- |
+| Lily Pond Café | `lily-pond-cafe` | flagship live café |
+| Library Bites | `library-bites` | snacks / study fuel |
+| Pavilion Grill | `pavilion-grill` | heavier lunch / group orders |
+| Block A Express | `block-a-express` | quick bites / delivery vibe |
+
+Current Lily Pond live-demo path:
+
+- default tenant slug is `lily-pond-cafe`,
+- current Meta Cloud API test number maps to Lily Pond,
+- the public WhatsApp CTA points to `+1 555-657-8220`,
+- the demo proof item is `Demo Espresso` at `KES 10`,
+- the doctor check now passes end-to-end on the hosted stack.
+
+The most important product truths:
+
+- There is no separate customer app.
+- The same backend supports multiple business tenants.
+- The same assistant infrastructure supports multiple channels.
+- The same tenant data powers portal content, AI replies, payment routing,
+  admin operations, and outbound events.
 
 ## 2. Current Truth And Verification
 
-The codebase is not a git repository in this workspace, so there is no commit
-history available from local `git`.
+This section is the operational truth as of the latest local and hosted
+verification pass.
 
-Latest local verification run:
+### 2.1 Repository truth
+
+| Check | Current truth |
+| --- | --- |
+| Git repository | present |
+| Tracked remote | `origin -> https://github.com/lesnargitonga/geneat.git` |
+| Deployment branch | `main`, auto-deployed by Render |
+| Root README role | single source of truth |
+
+Notes:
+
+- Use `git log --oneline -1` for the exact current commit.
+- Do not treat screenshots, old local terminals, or stale `.env` values as
+  canonical if they disagree with code + hosted checks.
+
+### 2.2 Hosted live verification
+
+Fresh live checks run from this workspace on **2026-05-23**:
 
 | Check | Result |
 | --- | --- |
-| Python compile | `./.venv/bin/python -m compileall -q app scripts tests` passed |
-| Backend tests | `./.venv/bin/python -m pytest -q -m "not pg" --maxfail=5` -> `70 passed, 4 deselected` |
-| Focused durable job tests | `tests/test_job_runner.py` -> `2 passed` |
-| Admin UI build | `cd admin-ui && npm run build` passed |
-| Gen-Eat portal build | `cd gen-eat-portal && npm run build` passed |
-| Alembic head | single head: `0010_enforce_embedding_768` |
-| Requirements dry-run | previously resolved after dependency pin correction |
+| `GET /healthz` | `{"status":"ok"}` |
+| `GET /readyz` | DB and Redis healthy |
+| `GET /health/deep` | `status=ok`, db/redis/pgvector/whatsapp/payments/llm all reachable |
+| `make doctor-live` | `27/27 checks passed` |
+| Portal live price check | passed without generic fallback |
+| Portal live photo check | passed |
+| Meta webhook verify handshake | passed |
+| OpenAI provider health | passed |
+| OpenAI breaker state | closed |
 
-The four deselected tests are marked `pg` and need a real Postgres plus
-pgvector service. They were not run locally in the latest verification pass.
+Current `make doctor-live` truth:
 
-Current important migrations:
+```text
+27/27 checks passed
+```
 
-| Migration | Purpose |
+What that means in plain English:
+
+- the hosted API is up,
+- the hosted DB is healthy,
+- the hosted Redis/Valkey is healthy,
+- the hosted chat proxy path works,
+- the live demo tenant exists,
+- the `Demo Espresso` price answer works without the generic fallback,
+- a photo request returns an image,
+- Meta webhook verification works,
+- the primary OpenAI provider is reachable and not tripped open.
+
+### 2.3 Local verification
+
+Fresh local checks run during this reconciliation:
+
+| Check | Result |
 | --- | --- |
-| `0001_init` | customers, conversations, messages, orders, KB, audit/tool tables, base enums |
-| `0002_embed_768` | aligns vector dimension with local Ollama embeddings |
-| `0003_businesses` | tenant/business table |
-| `0004_conversations_business_id` | tenant-scoped conversations |
-| `0005_business_geo` | business geolocation fields |
-| `0006_admin_console` | admin users, memberships, broadcasts, webhooks, takeover columns |
-| `0007_customer_safety` | customer abuse/blocking fields |
-| `0008_orders_business_id` | direct tenant scope on orders |
-| `0009_background_jobs` | durable in-app job queue |
-| `0010_enforce_embedding_768` | idempotently repairs long-lived DBs still on `vector(1536)` |
+| Fast focused backend suite | `41 passed, 1 warning` via `make test-fast` |
+| Admin UI production build | passed |
+| Gen-Eat portal production build | passed |
+| Logging crash regression test | passed |
+| Local explicit price path smoke | passed |
 
-Deploy rule: run `alembic upgrade head` before restarting the backend after
-pulling this version. The `background_jobs` table is required for broadcasts,
-order-ready follow-ups, simulator confirmation, and unpaid-payment reminders.
+Command results:
+
+```bash
+make test-fast
+cd admin-ui && npm run build
+cd gen-eat-portal && npm run build
+```
+
+### 2.4 Current demo-vs-real split
+
+This is important and should stay honest.
+
+Currently real:
+
+- hosted API,
+- hosted Postgres,
+- hosted Redis/Valkey,
+- PC-independent WhatsApp handling through the hosted backend,
+- portal -> backend chat,
+- Meta webhook verification,
+- WhatsApp message handling,
+- photo replies over the web-chat path,
+- IntaSend-backed STK path,
+- durable job framework,
+- live doctor tooling.
+
+Still demo-oriented:
+
+- most menu photos are representative demo images, not merchant-owned photos,
+- the WhatsApp assistant is live but still undergoing response-quality tuning,
+- the Meta number is still the test/display number unless changed in Meta,
+- Render is currently used in a pilot/beta way rather than a fully hardened
+  production plan,
+- public admin UI deployment is optional and not assumed by the doctor unless
+  `GENEAT_ADMIN_URL` is set.
 
 ## 3. Repository Map
 
-Top-level shape:
+Top-level structure:
 
 ```text
 ai model/
@@ -123,15 +215,16 @@ ai model/
   alembic.ini
   docker-compose.yml
   Dockerfile
+  render.yaml
+  Makefile
   start.sh
   app/
-  alembic/versions/
   admin-ui/
   gen-eat-portal/
   docs/
+  deploy/
   scripts/
   tests/
-  logs/
 ```
 
 Backend:
@@ -143,6 +236,7 @@ app/
     admin.py
     admin_auth.py
     admin_console.py
+    catalog.py
     deps.py
     health.py
     metrics.py
@@ -223,26 +317,36 @@ app/
     admin.html
 ```
 
-Frontend and docs:
+Consumer and operator frontends:
 
 ```text
 admin-ui/
   Vite + React + TypeScript + Tailwind admin SPA
 
 gen-eat-portal/
-  Next.js 14 customer-facing Gen-Eat portal
-  app/api/chat/route.ts proxies chat to backend /mock/message
-  lib/cafes.ts is the portal data source mirrored from the seed script
-  public/menu/ can hold local menu photography
+  Next.js 14 customer-facing café portal
+  app/api/chat/route.ts -> backend /mock/message proxy
+  lib/cafes.ts -> portal-side canonical demo café data
+  public/menu/ -> optional local menu photography
+```
 
-docs/
-  thin compatibility pointers back to this README
+Deployment and ops:
+
+```text
+deploy/
+  render/
+    README.md
+  truehost/
+    README.md
+    docker-compose.api.yml
+    cloudflared/
 
 scripts/
-  seeders, provider smoke tests, backup scripts, local dev helper, admin user tool
-
-tests/
-  unit/integration tests plus provider mocks
+  seeders
+  health / doctor tools
+  provider smoke tests
+  backup utilities
+  photo publishing utilities
 ```
 
 ## 4. System Architecture
@@ -250,132 +354,107 @@ tests/
 High-level architecture:
 
 ```text
-Customer channel
-  WhatsApp Meta / Twilio WA / Twilio voice / Africa's Talking voice / mock UI / portal
-        |
-        v
-FastAPI route
-        |
-        v
-Tenant and customer resolution
-        |
-        v
-Session lock and channel-presence guard
-        |
-        v
-Safety pre-filter
-        |
-        v
-Conversation persistence
-        |
-        v
-LangGraph AI turn
-  - prompt composed with tenant profile and playbook
-  - LLM selected through provider/failover layer
-  - tools can read KB, create orders, request payment, book calendar,
-    escalate, send location, send menu photo, update customer name
-        |
-        v
-Safety post-filter and output sanitization
-        |
-        v
-Message persistence, event publish, channel response
+Customer traffic
+  -> Meta WhatsApp / Twilio WA / Twilio voice / Africa's Talking voice / portal / mock
+  -> FastAPI route
+  -> tenant resolution
+  -> customer resolution
+  -> redis lock + idempotency + channel guard
+  -> deterministic safety checks
+  -> conversation persistence
+  -> LangGraph AI turn
+  -> tools / retrieval / payments / media / escalation
+  -> output safety + sanitization
+  -> message persistence
+  -> event publish
+  -> channel-specific outbound response
 ```
 
-Stateful services:
+Stateful dependencies:
 
-| Service | Role |
+| Component | Role |
 | --- | --- |
-| Postgres | system of record for tenants, customers, conversations, messages, orders, KB chunks, admin users, broadcasts, jobs, webhooks, audit |
+| Postgres | source of truth for tenants, customers, conversations, messages, orders, knowledge, admin users, memberships, webhooks, broadcasts, audit, background jobs |
 | pgvector | vector search on `knowledge_base.embedding` |
-| Redis | locks, idempotency, cached results, rate limits, token cache, Pub/Sub event bus |
-| Durable job runner | DB-backed worker inside FastAPI workers for request-detached work |
-| Event bus | Redis Pub/Sub for cross-worker notifications and SSE/webhook fan-out |
+| Redis / Valkey | locks, idempotency, rate limits, cache, event bus, token bucket, session coordination |
+| Durable job runner | request-detached internal work that survives process restarts |
+| Redis Pub/Sub event bus | cross-worker notifications, SSE fan-out, webhook triggers |
 
 External providers:
 
-| Provider | Use |
+| Provider | Purpose |
 | --- | --- |
-| Meta WhatsApp Cloud API | WhatsApp webhook and outbound messages |
-| Twilio | WhatsApp fallback route and voice Media Streams |
-| Africa's Talking | voice callback support |
-| Safaricom Daraja | M-Pesa STK push and callbacks |
-| IntaSend | hosted/M-Pesa payment provider |
-| Paystack | hosted checkout callback support |
-| Stripe | hosted checkout callback support |
-| OpenAI | primary chat and primary 768-d embeddings |
-| Groq | chat fallback/provider |
-| Gemini | chat fallback/provider |
-| Ollama | local chat and zero-cost 768-d embedding fallback |
-| Google Calendar | booking tool |
-| Cloudflare R2 | media and database backups |
-| Sentry | error reporting with PII scrubber |
+| Meta WhatsApp Cloud API | live WhatsApp ingress and outbound |
+| Twilio | voice media streams and optional WhatsApp path |
+| Africa's Talking | voice callback integration |
+| IntaSend | current live payment provider for M-Pesa/STK demos |
+| Daraja | direct Safaricom adapter still supported in code |
+| Paystack | hosted payment callback support |
+| Stripe | hosted payment callback support |
+| OpenAI | primary chat and embeddings |
+| Gemini | fallback/provider supported by code |
+| Groq | fallback/provider supported by code and used for vision |
+| Ollama | local fallback chat / local embeddings |
+| Google Calendar | appointment booking tool |
+| Cloudflare R2 | media storage and backups |
+| Sentry | optional error reporting |
 
 ## 5. Runtime Request Flow
 
-Inbound text path:
+### 5.1 Inbound text flow
 
 1. A route receives a provider payload:
-   - `app/api/whatsapp.py` for Meta WhatsApp.
-   - `app/api/whatsapp_twilio.py` for Twilio WhatsApp.
-   - `app/api/mock.py` for local/portal mock messages.
-   - `app/api/voice.py` for Twilio voice.
-   - `app/api/voice_at.py` for Africa's Talking voice.
-2. Provider signature or verification is applied where available.
-3. The route creates a normalized channel turn and hands it to
-   `app/channels/base.py`.
-4. Tenant resolution runs:
-   - explicit `business_id`
-   - explicit `business_slug`
-   - Meta phone number id
-   - sticky active conversation
-   - default business slug
-   - oldest active business fallback
-5. Customer is resolved by normalized MSISDN.
-6. Redis locking prevents concurrent turns for the same phone hash.
-7. Channel-presence guard detects interleaving across channels and publishes
-   a `conversation.interleaved` event with a hashed phone target.
-8. Deterministic safety checks can block, score, or short-circuit harmful
-   input before any LLM call.
-9. User message is appended to the conversation.
-10. LangGraph runs the assistant and tools.
-11. Output is checked for forbidden phrases and unsupported prices.
-12. AI/staff/system message is saved.
-13. `message.created` and related events are published for SSE/webhooks.
-14. The provider-specific channel sends the response.
+   - `app/api/whatsapp.py`
+   - `app/api/whatsapp_twilio.py`
+   - `app/api/mock.py`
+2. Signature or verification runs where supported.
+3. The route converts provider payload into a normalized `InboundTurn`.
+4. `app/channels/base.py` resolves:
+   - business,
+   - customer,
+   - channel presence,
+   - idempotency,
+   - session lock,
+   - safety state.
+5. The user message is persisted.
+6. `app/ai/graph.py` runs the turn.
+7. The AI reply is sanitized and checked.
+8. The AI/system/staff reply is persisted.
+9. Events are emitted for SSE and webhooks.
+10. The channel transport sends the reply back.
 
-Voice path:
+### 5.2 Voice flow
 
-1. Twilio calls `POST /webhooks/voice/inbound`.
-2. The app returns TwiML that connects a Media Stream websocket at
-   `/webhooks/voice/stream`.
-3. The websocket receives 8 kHz mu-law frames.
-4. The code converts mu-law audio to WAV before transcription.
-5. WebRTC VAD and utterance serialization avoid overlapping STT/LLM/TTS
-   work.
-6. Voice sessions are registered in `app/channels/voice_registry.py`; aliases
-   map temporary stream IDs to real conversation IDs.
-7. Cross-worker `voice.say` and `voice.hangup` events can reach the worker
-   holding the websocket.
+Twilio voice:
 
-Payment callback path:
+1. `POST /webhooks/voice/inbound`
+2. TwiML response connects a websocket:
+   - `WS /webhooks/voice/stream`
+3. 8 kHz mu-law audio frames arrive.
+4. Audio is converted to WAV.
+5. VAD and utterance serialization prevent overlapping turns.
+6. STT -> AI -> TTS cycle runs.
+7. Voice session commands can be injected cross-worker through the event bus.
 
-1. Provider callback route receives a payload.
-2. Signature/source checks run:
-   - Daraja source-IP check in production.
-   - IntaSend HMAC verification.
-   - Paystack callback verification.
-   - Stripe `Stripe-Signature` HMAC verification with timestamp tolerance.
-3. Callback is parsed into checkout reference, status, amount, and receipt.
-4. The matching order is found by checkout ID.
-5. `orders.business_id` is used directly; older rows are backfilled from
-   conversation where possible.
-6. Paid callbacks publish `payment.completed` with tenant context.
-7. Customer notification is best effort.
+Africa's Talking voice:
+
+1. `POST /webhooks/at/voice`
+2. `POST /webhooks/at/voice/events`
+3. Provider-specific callbacks feed into the same general orchestration model.
+
+### 5.3 Payment callback flow
+
+1. Provider callback hits the appropriate route.
+2. Signature/source validation runs.
+3. Checkout reference and status are normalized.
+4. Matching `Order` row is found.
+5. `payment_status` and receipts are updated.
+6. `payment.completed` may be published.
+7. Customer confirmation / receipt-style follow-up is attempted.
 
 ## 6. Data Model And Migrations
 
-Core SQLAlchemy models live in `app/db/models.py`.
+Core ORM models live in [app/db/models.py](/home/lesnar/Documents/ai model/app/db/models.py).
 
 Important enums:
 
@@ -389,189 +468,234 @@ Important enums:
 | `BroadcastStatus` | `draft`, `sending`, `done`, `failed`, `cancelled` |
 | `JobStatus` | `queued`, `running`, `done`, `failed`, `cancelled` |
 
-Tables:
+Important tables:
 
-| Table/model | Purpose |
+| Table | Purpose |
 | --- | --- |
-| `businesses` / `Business` | tenant record, WhatsApp phone id, profile JSON, location, brand voice |
-| `customers` / `Customer` | customer phone, name, language, safety/block state |
-| `conversations` / `Conversation` | channel thread, tenant scope, status, takeover state |
-| `messages` / `Message` | persisted user/AI/system/staff messages with safety flags |
-| `orders` / `Order` | order/payment/booking row, direct `business_id`, checkout id, receipt |
-| `knowledge_base` / `KnowledgeChunk` | RAG chunks and vector embeddings |
-| `tool_invocations` / `ToolInvocation` | audit trail for AI tool calls |
-| `audit_events` / `AuditEvent` | security/compliance/admin audit stream |
-| `admin_users` / `AdminUser` | local admin identity, bcrypt hash, token version |
-| `tenant_memberships` / `TenantMembership` | user-to-business membership and role |
-| `broadcasts` / `Broadcast` | outbound broadcast campaign metadata/progress |
-| `webhook_endpoints` / `WebhookEndpoint` | tenant outbound webhook destinations and secrets |
-| `background_jobs` / `BackgroundJob` | durable queue for delayed/retryable internal jobs |
+| `businesses` | tenant record, voice/brand/profile JSON, Meta phone mapping |
+| `customers` | normalized customer identity, language, safety score, block state |
+| `conversations` | per-channel, per-tenant conversation state |
+| `messages` | persisted thread history |
+| `orders` | order/payment rows, direct `business_id`, checkout references |
+| `knowledge_base` | tenant-scoped RAG chunks with embeddings |
+| `tool_invocations` | tool audit trail including `send_menu_photo` |
+| `audit_events` | admin/security audit stream |
+| `admin_users` | local operators |
+| `tenant_memberships` | operator access per tenant |
+| `broadcasts` | outbound campaign records |
+| `webhook_endpoints` | tenant outbound integration endpoints |
+| `background_jobs` | durable in-app queue |
 
-Embedding truth:
+Current Alembic head:
 
-- `EMBED_DIM = 768`.
-- The default embedding path is OpenAI `text-embedding-3-large` with
-  `OPENAI_EMBED_DIMENSIONS=768`.
-- The zero-cost fallback embedding path is Ollama `nomic-embed-text`.
-- The database migration and model now agree on `vector(768)`.
-- OpenAI's v3 embedding models support the `dimensions` parameter, so the app
-  can use OpenAI embeddings without migrating the vector column as long as the
-  configured dimension remains 768.
+| Revision | Purpose |
+| --- | --- |
+| `0001_init` | initial schema |
+| `0002_embed_768` | vector dimension alignment |
+| `0003_businesses` | tenant table |
+| `0004_conversations_business_id` | tenant-scoped conversations |
+| `0005_business_geo` | business latitude/longitude |
+| `0006_admin_console` | admin users, memberships, broadcasts, webhooks |
+| `0007_customer_safety` | abuse/blocking fields |
+| `0008_orders_business_id` | direct tenant scope on orders |
+| `0009_background_jobs` | durable jobs |
+| `0010_enforce_embedding_768` | enforces `vector(768)` |
 
-Order tenant truth:
+Current schema truth:
 
-- Orders now carry direct nullable `business_id`.
-- New orders created by the AI set `Order.business_id`.
-- Payment callbacks use `orders.business_id`.
-- Older rows can be backfilled from `conversations.business_id` by migration
-  `0008_orders_business_id`.
-
-Background job truth:
-
-- `background_jobs.payload` uses generic JSON for SQLite compatibility in
-  tests and Postgres compatibility in production.
-- Claiming uses `FOR UPDATE SKIP LOCKED` on Postgres.
-- Stale `running` jobs are reclaimable after their lease expires.
+- `knowledge_base.embedding` is `vector(768)`,
+- `orders.business_id` exists and is part of payment callback scoping,
+- `background_jobs` exists and is required for delayed internal work,
+- the hosted doctor confirms the current Alembic head is recorded.
 
 ## 7. Tenant Model And Routing
 
-The system is multi-tenant from the data model upward.
+The app is multi-tenant all the way down.
 
-Tenant record:
+Tenant identity:
 
-- `Business.slug` is the human/API stable identifier.
-- `Business.meta_wa_phone_number_id` maps a Meta WABA phone number to a tenant.
-- `Business.profile` stores operational JSON like hours, menu policy,
-  currency, average prep minutes, timezone, and other tenant-specific details.
-- `Business.brand_voice` and `Business.greeting_template` tune the assistant.
-- Latitude/longitude support location-pin features and portal maps.
+- `Business.slug` is the human-stable identifier,
+- `Business.meta_wa_phone_number_id` maps a Meta number to a tenant,
+- `Business.profile` carries operational JSON such as hours, menu photos,
+  timezone, prep-time hints, and other tenant-level settings.
 
-Tenant resolution order for inbound turns:
+Current routing order:
 
-1. Explicit `business_id`.
-2. Explicit `business_slug`.
-3. Meta phone number id from provider payload.
-4. Existing active conversation for that customer.
-5. `DEFAULT_BUSINESS_SLUG`.
-6. Oldest active business fallback.
+1. explicit `business_id`
+2. explicit `business_slug`
+3. Meta phone number ID
+4. sticky active conversation
+5. `DEFAULT_BUSINESS_SLUG`
+6. oldest active business fallback
 
 Isolation rules:
 
-- Conversations are scoped by `business_id`.
-- Orders are scoped by `business_id`.
-- KB retrieval is scoped by `business_id`.
-- Admin console routes require membership or superadmin/machine access.
-- SSE tenant filtering drops events without tenant context for tenant users.
-- Safety customer blocking is per customer row, but operational actions expose
-  masked phone plus hash rather than raw phone in sensitive views.
+- KB retrieval is tenant-scoped,
+- orders are tenant-scoped,
+- conversations are tenant-scoped,
+- admin access is membership-checked,
+- SSE is tenant-filtered,
+- outbound webhook rows are tenant-specific.
+
+Current default tenant truth:
+
+- `DEFAULT_BUSINESS_SLUG=lily-pond-cafe`
+- so manual/unscoped demo traffic lands on Lily Pond unless another tenant is
+  resolved explicitly.
 
 ## 8. AI Brain, RAG, Tools, And Playbooks
 
-Primary AI modules:
+Primary files:
 
 | File | Role |
 | --- | --- |
-| `app/ai/graph.py` | LangGraph orchestration |
-| `app/ai/llm.py` | provider selection and failover chain |
-| `app/ai/prompts.py` | system prompt construction |
-| `app/ai/rag.py` | vector and keyword retrieval |
-| `app/ai/tools.py` | tool definitions exposed to the assistant |
-| `app/ai/safety.py` | deterministic pre/post safety filters |
-| `app/ai/ollama_embed.py` | local embedding client |
-| `app/ai/playbooks/` | industry-specific response rules |
+| [app/ai/graph.py](/home/lesnar/Documents/ai model/app/ai/graph.py) | turn orchestration |
+| [app/ai/llm.py](/home/lesnar/Documents/ai model/app/ai/llm.py) | provider construction and failover |
+| [app/ai/prompts.py](/home/lesnar/Documents/ai model/app/ai/prompts.py) | system prompt assembly |
+| [app/ai/rag.py](/home/lesnar/Documents/ai model/app/ai/rag.py) | vector retrieval, keyword fallback, KB price extraction |
+| [app/ai/tools.py](/home/lesnar/Documents/ai model/app/ai/tools.py) | tools exposed to the assistant |
+| [app/ai/safety.py](/home/lesnar/Documents/ai model/app/ai/safety.py) | deterministic safety layer |
+| `app/ai/playbooks/` | vertical-specific rules |
 
-LLM provider truth:
+### 8.1 Provider truth
 
-- `LLM_PROVIDER` can be `groq`, `gemini`, `openai`, or `local`.
-- The best-provider default is `LLM_PROVIDER=openai`.
-- The practical OpenAI default is `OPENAI_MODEL=gpt-5.4-mini`; set
-  `OPENAI_MODEL=gpt-5.5` when maximum intelligence is worth the higher latency
-  and cost.
-- OpenAI runs through the Responses API via `OPENAI_USE_RESPONSES_API=true`.
-- `OPENAI_STORE_RESPONSES=true` is required for Responses API tool loops such
-  as "send photo, then reply"; if this must be disabled for policy reasons,
-  use `OPENAI_USE_RESPONSES_API=false` instead.
-- `LLM_FALLBACK_PROVIDERS` is a comma-separated ordered fallback list.
-- Recommended fallback order is `gemini,local`.
-- Circuit breakers prevent repeated calls to unhealthy providers.
-- Local LLM mode uses an OpenAI-compatible Ollama base URL.
+Settings-layer defaults:
 
-Embedding provider truth:
+| Setting | Current code default |
+| --- | --- |
+| `LLM_PROVIDER` | `openai` |
+| `OPENAI_MODEL` | `gpt-5.4-mini` |
+| `OPENAI_USE_RESPONSES_API` | `true` |
+| `OPENAI_STORE_RESPONSES` | `true` |
+| `EMBED_PROVIDER` | `openai` |
+| `OPENAI_EMBED_MODEL` | `text-embedding-3-large` |
+| `OPENAI_EMBED_DIMENSIONS` | `768` |
+| `llm_fallback_providers` in `Settings` | `gemini,local` |
 
-- `EMBED_PROVIDER=openai` is the quality default.
-- `OPENAI_EMBED_MODEL=text-embedding-3-large`.
-- `OPENAI_EMBED_DIMENSIONS=768` must stay aligned with `vector(768)`.
-- `EMBED_PROVIDER=local` remains the no-cost fallback path.
+Important nuance:
 
-Tools exposed to the assistant:
+- The repository default fallback order is `gemini,local`.
+- The checked-in [render.yaml](/home/lesnar/Documents/ai model/render.yaml)
+  overrides that to `groq` in the desired Render blueprint.
+- The live Render service can still differ because it is environment-driven.
+- Therefore the **environment is the final runtime truth**, not just the code
+  default.
+
+### 8.2 Current turn logic
+
+The assistant is not a single raw LLM call. It is a layered system:
+
+1. deterministic safety pre-check,
+2. tenant profile load,
+3. recent conversation history load,
+4. RAG retrieve step,
+5. tool-capable model turn,
+6. tool loop when necessary,
+7. output sanitizer,
+8. output safety filter,
+9. persistence and events.
+
+### 8.3 Current happy path and rescue path
+
+The assistant must feel like a real café operator, not a pile of canned
+messages. The current rule is:
+
+- normal text goes to the model first,
+- deterministic replies are reserved for explicit media handling or degraded
+  fallback,
+- the generic human-handoff fallback should be rare.
+
+Current explicit happy-path fast-path in [app/ai/graph.py](/home/lesnar/Documents/ai model/app/ai/graph.py):
+
+- **Photo requests only**, such as:
+  - `show me a photo of the flat white`
+  - `send me a picture of the croissant`
+  - `picha ya avocado toast`
+  short-circuit directly into `send_menu_photo` without waiting for the LLM
+  to decide whether to use a tool.
+
+Current model-led happy path:
+
+- prices,
+- menu questions,
+- budget recommendations,
+- opening-hours questions,
+- order-building turns,
+- clarification turns,
+- payment turns.
+
+Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Documents/ai model/app/channels/base.py):
+
+- each AI turn is bounded by `AI_TURN_TIMEOUT_SECONDS`,
+- one quiet retry is attempted for transient provider/tool failures,
+- deterministic quick replies can answer obvious price, hours, or menu
+  recommendation questions only after the model path fails,
+- keyword KB fallback is tried before generic handoff,
+- degraded fallback replies are marked and filtered out of future model
+  history so the assistant does not imitate old emergency copy,
+- the generic handoff text is now a last resort, not the normal café voice.
+
+### 8.4 Tool surface
 
 | Tool | Purpose |
 | --- | --- |
-| `knowledge_lookup` | tenant-scoped RAG lookup |
-| `create_order` | creates an order linked to customer, conversation, business |
-| `request_mpesa_payment` | asks the active payment adapter to request payment |
-| `book_appointment` | creates calendar bookings |
-| `escalate_to_human` | pauses AI and escalates to staff/owner |
-| `send_location_pin` | sends a business location pin |
-| `send_menu_photo` | sends menu item image/media |
-| `update_customer_name` | stores customer name |
+| `knowledge_lookup` | tenant-scoped KB search |
+| `create_order` | create order row linked to customer/conversation/tenant |
+| `request_mpesa_payment` | payment adapter request |
+| `book_appointment` | calendar booking |
+| `escalate_to_human` | pause AI and hand over |
+| `send_location_pin` | send location |
+| `send_menu_photo` | send actual photo/media reference |
+| `update_customer_name` | persist customer name |
 
-Order tool safeguards:
+### 8.5 RAG truth
 
-- Per-customer, per-business velocity bucket prevents order spam.
-- New orders set tenant context.
-- Order-ready follow-up is scheduled through durable jobs, not an in-memory
-  task.
+Current retrieval behavior:
 
-Payment tool safeguards:
+- vector search uses pgvector when embeddings are available,
+- keyword fallback exists for degraded conditions,
+- tenant scoping is enforced by `business_id`,
+- price redaction uses KB-derived allowed prices,
+- the doctor confirms live KB rows for Lily Pond.
 
-- Normalizes MSISDNs.
-- Uses a Redis idempotency key based on conversation, MSISDN, order reference,
-  and amount.
-- Attaches checkout ID only to the latest pending order in the same
-  conversation/business.
-- Simulator auto-confirmation is scheduled through durable jobs.
+### 8.6 Known current nuance
 
-RAG behavior:
-
-- Vector search uses pgvector when available.
-- Keyword fallback exists for graceful degradation.
-- Post-LLM price checks can redact unsupported prices unless the price is in
-  tenant knowledge.
+Photo delivery works, but the fuzzy matched `photo_item` label can still come
+back a little strangely in some demo-photo cases because the catalog includes
+caption-derived aliases. The image delivery itself works; the label polish is
+still a cleanup item.
 
 ## 9. Channels
 
-### Mock Channel
+### Mock channel
 
 Routes:
 
 - `POST /mock/message`
 - `POST /mock/image`
 
-The mock channel is the easiest end-to-end path for local tests, portal chat,
-and demos without provider credentials.
+Uses:
+
+- portal chat,
+- local testing,
+- scripted doctor checks,
+- seed/demo rehearsals without provider ingress.
 
 ### WhatsApp - Meta Cloud API
 
 Routes:
 
-- `GET /webhooks/whatsapp` for verification.
-- `POST /webhooks/whatsapp` for inbound messages.
+- `GET /webhooks/whatsapp`
+- `POST /webhooks/whatsapp`
 
 Capabilities:
 
-- Signature verification via `META_WA_APP_SECRET`.
-- Text, image, voice-note/media handling.
-- Meta outbound text, image, location, and template paths.
-- Rate limiting through Redis token bucket.
-
-Important env:
-
-- `WHATSAPP_PROVIDER=meta`
-- `META_WA_PHONE_NUMBER_ID`
-- `META_WA_ACCESS_TOKEN`
-- `META_WA_VERIFY_TOKEN`
-- `META_WA_APP_SECRET`
+- webhook verification,
+- signature verification when `META_WA_APP_SECRET` is set,
+- inbound text/media handling,
+- outbound text/image/location/template sends,
+- status callback logging,
+- live mapping of current Meta phone number to tenant.
 
 ### WhatsApp - Twilio
 
@@ -580,7 +704,7 @@ Routes:
 - `POST /webhooks/whatsapp/twilio/inbound`
 - `POST /webhooks/whatsapp/twilio/status`
 
-Used as a Twilio-backed WhatsApp path where configured.
+Supported in code as an alternate WhatsApp ingress/outbound path.
 
 ### Voice - Twilio Media Streams
 
@@ -589,20 +713,19 @@ Routes:
 - `POST /webhooks/voice/inbound`
 - `WS /webhooks/voice/stream`
 
-Capabilities:
+Current truth:
 
-- Twilio signature verification when `TWILIO_AUTH_TOKEN` is configured.
-- Mu-law audio conversion to WAV before transcription.
-- WebRTC VAD.
-- Serialized utterance handling to avoid overlapping AI turns.
-- ElevenLabs streaming TTS.
-- Cross-worker voice session commands through Redis Pub/Sub.
+- Twilio signature verification is supported,
+- audio is received as mu-law and converted to WAV,
+- VAD is in place,
+- cross-worker voice control exists,
+- current codec path still relies on `audioop`.
 
 Python caveat:
 
-- The current mu-law conversion uses `audioop`, which works on Python 3.12
-  but is deprecated for Python 3.13. Replace it before upgrading runtime to
-  Python 3.13.
+- `audioop` works on Python 3.12,
+- it is deprecated for Python 3.13,
+- do not upgrade this runtime to Python 3.13 without replacing that path.
 
 ### Voice - Africa's Talking
 
@@ -611,36 +734,47 @@ Routes:
 - `POST /webhooks/at/voice`
 - `POST /webhooks/at/voice/events`
 
-Used for Africa's Talking voice callbacks and status events.
-
 ### SMS
 
-The enum and some architecture refer to SMS. The primary shipped customer
-paths in this repository are WhatsApp, voice, mock, and portal. Treat SMS as
-a channel type prepared in the model rather than a fully documented provider
-flow here.
+The model and enums mention SMS, but the primary shipped customer paths in
+this repository are:
+
+- Meta WhatsApp,
+- Twilio voice,
+- Africa's Talking voice,
+- portal/mock chat.
+
+Treat SMS as prepared model vocabulary, not the main shipped surface here.
 
 ## 10. Payments
 
-Payment modules live under `app/integrations/payments/`.
+Payment adapters live under [app/integrations/payments](/home/lesnar/Documents/ai model/app/integrations/payments).
 
-Adapters:
+Current adapters:
 
-| Adapter | File | Notes |
+| Adapter | File | Truth |
 | --- | --- | --- |
-| Daraja | `daraja.py` and legacy `app/integrations/mpesa_client.py` | M-Pesa STK push and callback |
-| IntaSend | `intasend.py` | M-Pesa/hosted style callback with HMAC |
-| Paystack | `paystack.py` | hosted checkout callback support |
-| Stripe | `stripe.py` | Stripe-signature webhook verification |
-| Simulator | `simulator.py` | local/demo fake payment provider |
+| Daraja | `daraja.py` | supported in code |
+| IntaSend | `intasend.py` | current live payment path |
+| Paystack | `paystack.py` | callback support present |
+| Stripe | `stripe.py` | callback support present |
+| Simulator | `simulator.py` | local/demo fallback |
 
-Provider selection:
+Current live truth:
 
-- `PAYMENT_PROVIDER` supports `daraja`, `intasend`, `paystack`, `stripe`.
-- `PAYMENT_SIMULATOR=true` makes the factory use the internal simulator and
-  skips real provider credential validation.
+- `PAYMENT_PROVIDER=intasend`
+- `PAYMENT_SIMULATOR=false`
+- STK push has already been proven in the WhatsApp demo path
+- `make doctor-live` confirms payment provider reachability
 
-Routes:
+Important nuance on `/health/deep`:
+
+- the payment check is a lightweight provider reachability probe,
+- it currently treats any non-5xx provider response as “reachable,”
+- so a `403` from the provider root still means “network path is alive,” not
+  “we just proved a transaction.”
+
+Current callback routes:
 
 - `POST /payments/stk-push`
 - `POST /payments/callback`
@@ -648,222 +782,160 @@ Routes:
 - `POST /payments/paystack/callback`
 - `POST /payments/stripe/callback`
 
-Callback behavior:
+Callback safeguards:
 
-- Daraja callback checks source IP in production.
-- Daraja validates amount and receipt before marking paid.
-- Receipt idempotency prevents duplicate replay.
-- IntaSend verifies callback HMAC; empty secret is allowed only outside prod.
-- Paystack rejects missing/empty secret key for callback verification.
-- Stripe verifies `Stripe-Signature` using HMAC SHA-256 and timestamp
-  tolerance.
-- Stripe parser prefers checkout session `id` so it can match
-  `Order.mpesa_checkout_id`.
-- Hosted callbacks do not mark pending callback states as terminal
-  idempotency wins.
-- Already-paid orders are not downgraded to failed.
-
-Order lifecycle:
-
-```text
-create_order tool
-  -> Order(payment_status=pending, business_id set)
-  -> optional order.ready durable job
-
-request_mpesa_payment tool or /payments/stk-push
-  -> adapter request
-  -> checkout id attached to matching pending order
-  -> unpaid follow-up job scheduled where applicable
-
-provider callback
-  -> verify
-  -> match order by checkout id
-  -> mark paid/failed/cancelled/timeout
-  -> publish payment.completed if paid
-  -> notify customer best effort
-```
+- signature/source verification where supported,
+- idempotency protections,
+- orders matched by checkout reference,
+- direct `orders.business_id` tenant scope,
+- no already-paid order downgrade.
 
 ## 11. Durable Jobs
 
-Durable jobs are implemented in:
+Durable jobs live in:
 
-- `app/jobs/runner.py`
-- `app/jobs/handlers.py`
-- `app/jobs/order_ready_notifier.py`
-- `BackgroundJob` model in `app/db/models.py`
+- [app/jobs/runner.py](/home/lesnar/Documents/ai model/app/jobs/runner.py)
+- [app/jobs/handlers.py](/home/lesnar/Documents/ai model/app/jobs/handlers.py)
+- `BackgroundJob` model
 - migration `0009_background_jobs`
 
-Why it exists:
+Why they exist:
 
-- Request-local `asyncio.create_task` work is lost on process restart.
-- Broadcasts, delayed reminders, order-ready nudges, and simulator callbacks
-  need to survive request completion and worker churn.
-- A full Celery/RQ stack is not necessary for the current beta footprint.
-
-How it works:
-
-1. Code calls `enqueue_job(db, kind=..., payload=..., run_at=...)`.
-2. The row is committed with the surrounding transaction.
-3. FastAPI lifespan imports `app.jobs.handlers` to register handlers.
-4. FastAPI lifespan starts the runner.
-5. Runner polls due queued jobs.
-6. Runner claims jobs with row locks and a lease.
-7. Handler runs.
-8. Success marks `done`.
-9. Failure marks `queued` with exponential backoff or `failed` after
-   `max_attempts`.
-10. Jobs stuck in `running` past `locked_until` can be reclaimed.
+- request-local background tasks die on restart,
+- broadcasts and delayed follow-ups need durability,
+- payment simulator confirm and unpaid follow-up need retryable state.
 
 Current job kinds:
 
-| Kind | Handler | Purpose |
-| --- | --- | --- |
-| `broadcast.send` | `run_broadcast_send` | sends tenant broadcast recipients |
-| `order.ready` | `run_order_ready` | sends pickup-ready WhatsApp follow-up |
-| `payment.simulator_confirm` | `run_simulated_payment_confirm` | auto-confirms simulator payments |
-| `payment.unpaid_followup` | `run_unpaid_payment_followup` | reminds customer if payment still pending |
+| Kind | Purpose |
+| --- | --- |
+| `broadcast.send` | tenant broadcast send loop |
+| `order.ready` | order-ready notification |
+| `payment.simulator_confirm` | simulator auto-confirm |
+| `payment.unpaid_followup` | pending-payment reminder |
 
-Operational note:
+Operational truth:
 
-- For very large campaigns, this table-runner can be replaced or augmented
-  with external workers. The job table gives a clean migration path because
-  work is already durable and typed by `kind`.
+- jobs are durable in DB,
+- claim/retry/lease logic exists,
+- huge campaign scale would still outgrow the in-process runner before too
+  long.
 
 ## 12. Event Bus, SSE, And Webhooks
 
-Event bus:
+Current event bus:
 
-- File: `app/core/event_bus.py`.
-- Redis channel: `omni:events`.
-- Each FastAPI worker starts one listener.
-- Handlers register through `@on_event(...)`.
-- Pub/Sub is fire-and-forget. If Redis is down or a subscriber is offline,
-  events during that gap can be missed.
+- file: [app/core/event_bus.py](/home/lesnar/Documents/ai model/app/core/event_bus.py)
+- transport: Redis Pub/Sub
+- channel: `omni:events`
 
-Known event types:
+Known event types include:
 
-| Event | Purpose |
-| --- | --- |
-| `payment.completed` | an order became paid |
-| `voice.hangup` | close active voice websocket |
-| `voice.say` | inject speech into active voice stream |
-| `escalation.opened` | user was escalated to human |
-| `conversation.interleaved` | second channel arrived while another channel is active |
-| `message.created` | message persisted |
-| `conversation.takeover` | staff took over conversation |
-| `conversation.released` | staff released conversation back to AI |
-| `broadcast.progress` | broadcast progress changed |
+- `payment.completed`
+- `voice.hangup`
+- `voice.say`
+- `escalation.opened`
+- `conversation.interleaved`
+- `message.created`
+- `conversation.takeover`
+- `conversation.released`
+- `broadcast.progress`
 
-SSE:
+Current SSE route:
 
-- Route: `GET /admin/stream`.
-- Used by admin UI live stream.
-- Supports named event listeners in the React UI.
-- Tenant users only receive events with allowed tenant context.
-- Events are enriched with `business_slug` and `conversation_id` where
-  possible.
+- `GET /admin/stream`
 
-Outbound webhooks:
+Current outbound webhook truth:
 
-- File: `app/services/webhook_dispatcher.py`.
-- Driven by event bus events.
-- Tenant endpoint model: `WebhookEndpoint`.
-- Body is HMAC-SHA256 signed with endpoint secret.
-- Header: `X-Omni-Signature: sha256=<hex>`.
-- Extra headers: `X-Omni-Event-Id`, `Content-Type`, `User-Agent`.
-- Retries: 3 attempts with backoff.
-- Permanent 4xx responses other than 408/429 are not retried.
-- Cross-worker dedup uses Redis `SET NX EX`.
-- Per-worker concurrency cap: `asyncio.Semaphore(16)`.
-- Endpoints auto-disable after `failure_count >= 20`.
+- tenant-configured,
+- HMAC-signed with `X-Omni-Signature`,
+- deduped through Redis,
+- limited concurrency,
+- retry logic exists once a worker receives the event.
 
-Important truth:
+Important limitation:
 
-- Webhook delivery has bounded HTTP retries after the event reaches a worker.
-- The source event bus is Redis Pub/Sub, not a durable stream. If guaranteed
-  webhook delivery becomes a hard requirement, add an outbox table or Redis
-  Streams layer.
+- the event bus itself is **not durable**,
+- so SSE and outbound webhooks can miss events during Redis or listener gaps,
+- the correct future fix is an outbox table or Redis Streams layer.
 
 ## 13. Admin Console
 
-Backend files:
+Backend routes live in:
 
-- `app/api/admin_auth.py`
-- `app/api/admin_console.py`
-- `app/api/admin.py` legacy/admin-token routes
-- `app/api/deps.py`
-- `app/services/staff_dispatch.py`
+- [app/api/admin_auth.py](/home/lesnar/Documents/ai model/app/api/admin_auth.py)
+- [app/api/admin_console.py](/home/lesnar/Documents/ai model/app/api/admin_console.py)
+- [app/api/admin.py](/home/lesnar/Documents/ai model/app/api/admin.py)
 
-Frontend:
+Frontend lives in:
 
-- `admin-ui/`
-- Vite + React + TypeScript + Tailwind
-- React Query for data fetching
-- React Router for navigation
+- [admin-ui/](/home/lesnar/Documents/ai model/admin-ui)
 
-Auth model:
+Current auth model:
 
-- Local admin users with bcrypt password hashes.
-- Access and refresh JWTs.
-- Token version invalidates all sessions on password change/logout-all.
-- Machine/legacy token routes still exist where supported.
+- local admin users,
+- bcrypt password hashes,
+- JWT access/refresh tokens,
+- token-version invalidation,
+- legacy machine/admin token routes still exist.
 
 Roles:
 
-| Role | Scope |
+| Role | Meaning |
 | --- | --- |
 | `superadmin` | cross-tenant control |
-| `owner` | full control inside tenant |
-| `staff` | takeover, staff messages, operational work |
-| `viewer` | read-only tenant access |
+| `owner` | full tenant control |
+| `staff` | operational interaction / takeover |
+| `viewer` | read-only |
 
-Admin features:
+Current admin capabilities:
 
-- Login, refresh, logout-all, password change.
-- User management.
-- Tenant membership management.
-- Business create/list/detail.
-- Conversation list/detail/resolve.
-- Staff takeover/release.
-- Staff-authored messages.
-- Escalation queue.
-- KB list/add/edit/delete/re-embed.
-- Business profile JSON editor.
-- Prompt/brand voice editor.
-- Outbound webhook CRUD and secret rotation.
-- Usage dashboard.
-- Broadcast campaign create/list/send/cancel.
-- Safety flagged queue, block, unblock.
-- Audit log.
-- SSE live event feed.
+- login / refresh / me / password change / logout-all,
+- admin user CRUD,
+- tenant membership CRUD,
+- business CRUD,
+- conversation list/detail/resolve,
+- takeover / release / staff send,
+- escalations queue,
+- KB CRUD / re-embed,
+- business profile and prompt editing,
+- menu-photo catalog inspection / replacement / upload,
+- webhook CRUD / rotation,
+- usage and analytics views,
+- broadcast create / send / cancel,
+- safety flagged customer queue,
+- audit search,
+- SSE live stream,
+- HTTPS demo bootstrap endpoint.
 
-Admin UI routes:
+Important newer admin routes:
 
-| UI route | Purpose |
-| --- | --- |
-| `/login` | JWT login |
-| `/` | dashboard |
-| `/live` | SSE live event feed |
-| `/businesses` | tenant list |
-| `/businesses/:slug` | tenant detail shell |
-| `/businesses/:slug/conversations` | tenant conversations |
-| `/businesses/:slug/profile` | profile JSON |
-| `/businesses/:slug/prompt` | prompt/brand voice |
-| `/businesses/:slug/kb` | knowledge base |
-| `/businesses/:slug/broadcasts` | broadcasts |
-| `/businesses/:slug/webhooks` | webhooks |
-| `/businesses/:slug/usage` | usage |
-| `/businesses/:slug/members` | members |
-| `/conversations/:id` | live thread/takeover |
-| `/audit` | audit log |
+- `POST /admin/bootstrap/geneat-demo`
+- `GET /admin/businesses/{slug}/menu-photos`
+- `PUT /admin/businesses/{slug}/menu-photos`
+- `POST /admin/businesses/{slug}/menu-photos`
+- `POST /admin/businesses/{slug}/menu-photos/upload`
 
-Token storage:
+Current public-admin truth:
 
-- Access token: `localStorage["omni.access"]`.
-- Refresh token: `localStorage["omni.refresh"]`.
-- API helper auto-refreshes on 401 and deduplicates concurrent refreshes.
+- a public admin URL is optional,
+- the live doctor only checks it if `GENEAT_ADMIN_URL` is set,
+- local admin operation remains a valid workflow.
 
-Admin UI local commands:
+## 14. Frontends
+
+### 14.1 Admin UI
+
+Location: [admin-ui/](/home/lesnar/Documents/ai model/admin-ui)
+
+Stack:
+
+- Vite
+- React
+- TypeScript
+- Tailwind
+
+Current local commands:
 
 ```bash
 cd admin-ui
@@ -873,283 +945,317 @@ npm run build
 npm run preview
 ```
 
-## 14. Frontends
+Latest local build: passed.
 
-### Admin UI
+### 14.2 Gen-Eat portal
 
-Location: `admin-ui/`.
+Location: [gen-eat-portal/](/home/lesnar/Documents/ai model/gen-eat-portal)
 
-Purpose:
+Stack:
 
-- Operational staff/admin control plane.
-- Talks directly to FastAPI `/admin/*`.
-- Dev server defaults to Vite on `http://localhost:5173`.
-
-Build truth:
-
-```bash
-cd admin-ui
-npm run build
-```
-
-Latest local build passed.
-
-### Gen-Eat Portal
-
-Location: `gen-eat-portal/`.
-
-Purpose:
-
-- Student-facing cafe directory.
-- Cafe detail pages with menus, story, map, and chat.
-- Owner/school sales page.
-- Server-side chat proxy to backend.
-
-Runtime:
-
-- Next.js 14.
-- Dev server: `npm run dev` on port 3000.
-- Production build: `npm run build`.
-- Start: `npm run start`.
+- Next.js 14
+- app router
+- server-side proxy route for chat
 
 Important files:
 
 | File | Purpose |
 | --- | --- |
 | `app/page.tsx` | home |
-| `app/cafes/page.tsx` | cafe list |
-| `app/cafes/[slug]/page.tsx` | cafe detail |
+| `app/cafes/page.tsx` | café directory |
+| `app/cafes/[slug]/page.tsx` | café detail page |
 | `app/map/page.tsx` | campus map |
-| `app/owners/page.tsx` | owner/school sales page |
+| `app/owners/page.tsx` | owner-facing sales page |
 | `app/api/chat/route.ts` | server-side proxy to backend `/mock/message` |
-| `components/ChatWidget.tsx` | floating chat UI |
-| `lib/cafes.ts` | portal cafe/menu data |
-| `vercel.json` | Vercel config and `BACKEND_URL` |
+| `components/ChatWidget.tsx` | embedded web chat |
+| `components/MenuItemThumb.tsx` | menu image rendering |
+| `lib/cafes.ts` | portal-side demo café content |
 
-Chat flow:
+Current chat flow:
 
 ```text
 ChatWidget
   -> POST /api/chat
-  -> Next route handler
+  -> Next server route
   -> POST {BACKEND_URL}/mock/message
-  -> FastAPI handle_inbound
+  -> FastAPI
   -> AI reply
-  -> portal renders assistant response
+  -> portal renders reply / image_url
 ```
 
-Portal env:
+Current photo flow:
 
-| Var | Purpose |
+1. Portal page loads static café/menu content from `lib/cafes.ts`.
+2. It fetches live overrides from:
+   - `GET /catalog/businesses/{slug}/menu-photos`
+3. It overlays tenant photo URLs onto menu items.
+4. The same backend photo catalog is used by the AI `send_menu_photo` tool.
+
+That means the portal and AI now share one photo truth path.
+
+### 14.3 Menu photography truth
+
+There are now three layers of image truth:
+
+1. **Portal static/demo images**
+   - fallback images and hardcoded showcase media
+2. **Backend static fallback map**
+   - [app/services/menu_photos.py](/home/lesnar/Documents/ai model/app/services/menu_photos.py)
+3. **Tenant-owned photo map**
+   - `Business.profile["menu_photos"]`
+
+Resolution order:
+
+- tenant-owned `menu_photos`
+- backend static fallback map
+
+Current live demo truth:
+
+- the image reply path works,
+- the published demo photo catalog is live,
+- many images are still representative Unsplash-style demo media,
+- real merchant-owned photos can now be uploaded later without changing code.
+
+Current photo publishing utility:
+
+```bash
+./.venv/bin/python scripts/publish_demo_menu_photos.py --dry-run
+./.venv/bin/python scripts/publish_demo_menu_photos.py
+```
+
+Most recent dry-run coverage that informed this setup:
+
+| Tenant | Coverage |
 | --- | --- |
-| `BACKEND_URL` | server-side backend target for `/api/chat` |
-| `NEXT_PUBLIC_BACKEND_URL` | optional fallback, not preferred for browser exposure |
-
-Menu photography:
-
-- Put local images in `gen-eat-portal/public/menu/<cafe-slug>/`.
-- Reference them from `gen-eat-portal/lib/cafes.ts` as
-  `/menu/<cafe-slug>/<file>.jpg`.
-- When no image exists, the portal falls back to a styled emoji/brand color
-  card.
-- Recommended image size: around 1200 x 1200 JPEG, quality 80, below 200 KB.
-
-Latest local build passed.
+| Lily Pond | `51/51` |
+| Library Bites | `23/23` |
+| Pavilion Grill | `28/28` |
+| Block A Express | `27/27` |
 
 ## 15. Gen-Eat USIU Pilot
 
-Gen-Eat is the campus food-ordering pilot built on top of the platform.
+Gen-Eat is the campus café ordering pilot built on top of the platform.
 
-One-paragraph pitch:
+Pitch in one paragraph:
 
-Students at USIU lose time in cafe queues during peak meal windows. Gen-Eat
-lets a student message a cafe from their phone, ask about the menu, place an
-order, pay or prepare for pickup, and walk to the counter when the order is
-ready. For cafes, it captures demand that is currently lost when students
-avoid the queue.
+Students at USIU-Africa lose time in lunch and coffee queues. Gen-Eat lets a
+student browse a café, ask the menu assistant questions, request pictures,
+place a small order, pay on M-Pesa, and arrive when the item is ready. For the
+merchant, it is a queue-compression and lost-demand capture tool.
 
 Pilot scope:
 
-| Item | Truth |
+| Item | Current truth |
 | --- | --- |
 | Campus | USIU-Africa |
 | Pilot length | 90 days |
-| Initial cafes | 4 |
-| Customer app | none; web/WhatsApp-style chat |
+| Initial cafés | 4 |
 | Merchant cost during pilot | KES 0 |
-| Target proof | usage, fulfillment, repeat orders, cafe conversion |
+| Customer app | none |
+| Core proof target | live usage + fulfillment + reduced queue friction |
 
-The four seeded/demo cafes:
+Current flagship demo: Lily Pond
 
-| Cafe | Slug | Theme |
-| --- | --- | --- |
-| Lily Pond Cafe | `lily-pond-cafe` | coffee, brunch, outdoor seating |
-| Library Bites | `library-bites` | grab-and-go, snacks, exam fuel |
-| Pavilion Grill | `pavilion-grill` | grill, lunch, group orders |
-| Block A Express | `block-a-express` | quick bites, delivery to dorms |
+| Item | Current truth |
+| --- | --- |
+| Slug | `lily-pond-cafe` |
+| Default tenant | yes |
+| Live demo item | `Demo Espresso` |
+| Demo price | `KES 10` |
+| Current Meta display number | `+1 555-657-8220` |
+| Live doctor status | passes |
 
-Current live Lily Pond demo truth:
+Current Lily Pond demo rules in the system:
 
-- Lily Pond is the flagship live demo tenant.
-- The portal WhatsApp CTA for Lily Pond points at the configured Meta test
-  display number: `+1 555-657-8220`.
-- `DEFAULT_BUSINESS_SLUG` defaults to `lily-pond-cafe`, so unscoped local
-  WhatsApp/demo traffic lands on Lily Pond unless the webhook resolves a more
-  specific tenant.
-- `scripts/seed_geneat_demo.py` maps the configured
-  `META_WA_PHONE_NUMBER_ID` onto Lily Pond when the env value exists. This is
-  the preferred Meta Cloud API routing path.
-- The Lily Pond menu/KB includes `Demo Espresso` at `KES 10`. The AI is
-  instructed to treat "10 bob", "ten bob", "demo espresso", and "demo order"
-  as this item, then trigger the normal order + M-Pesa STK flow after name
-  capture.
-- For a real WhatsApp Cloud API test, the student's handset must be allowed by
-  the Meta app/test-number setup, and the Meta webhook must point to
-  `/webhooks/whatsapp`.
+- `10 bob`
+- `ten bob`
+- `demo espresso`
+- `demo order`
 
-Budget from the original pilot plan:
+all resolve to the `Demo Espresso KES 10` flow.
+
+Current “real enough for a pilot” truth:
+
+- the hosted stack is live,
+- the student can browse the portal,
+- the student can click through to WhatsApp,
+- the AI can answer a price question,
+- the AI can send a picture,
+- the order/payment path is wired,
+- the whole thing is good enough for a pilot demo conversation tomorrow.
+
+Still not yet “merchant-perfect”:
+
+- images are still demo media unless replaced per tenant,
+- the WhatsApp number is still the currently configured Meta number,
+- infrastructure is still beta-grade, not SLA-grade.
+
+Original budget / business-plan assumptions retained from the pilot concept:
 
 | Bucket | KES | Purpose |
 | --- | ---: | --- |
-| WhatsApp Business API | 4,500 | student-facing number/conversations |
-| AI model usage | 5,200 | model tokens for real conversations |
-| Cloud server for 3 months | 2,400 | platform hosting |
-| Domain | 1,600 | professional pilot domain |
-| Printed table tents / QR posters | 3,300 | cafe activation |
+| WhatsApp API / messaging | 4,500 | customer conversations |
+| AI usage | 5,200 | token cost |
+| Server / hosting | 2,400 | pilot runtime |
+| Domain | 1,600 | branded domain |
+| Printed QR collateral | 3,300 | table tents / posters |
 | Buffer | 3,000 | contingency |
-| Total | 20,000 | pilot launch cost |
-
-90-day plan:
-
-1. Days 1-14: sign 4 cafes, upload menus, print/place table tents.
-2. Days 15-60: launch one cafe at a time, track orders/fulfillment/complaints.
-3. Days 61-90: show cafes their numbers and convert at least 2 of 4.
-
-Post-pilot revenue assumptions from the original plan:
-
-- Cafe subscription: KES 5,000/month per cafe.
-- Optional per-order fee: 1.5% capped at KES 10.
-- Conservative subscription-only target:
-  - Month 3: 2 cafes, KES 10,000/month.
-  - Month 6: 6 cafes, KES 30,000/month.
-  - Month 9: 10 cafes, KES 50,000/month.
-  - Month 12: 15 cafes, KES 75,000/month.
-
-Original investor ask from the plan:
-
-- Total ask: KES 20,000.
-- KES 13,000 as stake: 8% of net profit.
-- KES 7,000 as loan: repaid from first profits, no interest.
-- Monthly reporting and shared expense visibility.
+| Total | 20,000 | pilot budget |
 
 ## 16. Security, Privacy, And Safety
 
-### Secrets
+### 16.1 Secrets
 
-Real secrets exist in local `.env`-style files in this workspace. Do not paste
-or commit them. Documentation must refer to variable names, not values.
+Rules:
 
-### Startup validation
+- never commit real secrets,
+- documentation only references env variable names,
+- if a secret is pasted into chat, logs, or a screenshot, treat it as exposed
+  and rotate it.
 
-`app/core/config_validator.py` validates important settings at boot.
+### 16.2 Startup validation
 
-Examples:
+[app/core/config_validator.py](/home/lesnar/Documents/ai model/app/core/config_validator.py)
+enforces startup checks such as:
 
-- LLM provider must match available credentials or local mode.
-- Meta WhatsApp values must exist when `WHATSAPP_PROVIDER=meta`.
-- Daraja production values must exist when Daraja is used in production.
-- Real payment credential checks are skipped when `PAYMENT_SIMULATOR=true`.
-- Local LLM/STT/TTS settings are guarded for production.
+- provider/key coherence,
+- payment/provider coherence,
+- required production safety rails,
+- database presence,
+- phone hash pepper presence,
+- admin token and warning paths,
+- worker vs Postgres connection warnings.
 
-### Phone and PII handling
+### 16.3 PII handling
 
-- MSISDNs are normalized before use.
-- Redis lock keys use hashed MSISDNs rather than raw phones.
-- Interleaving events use `msisdn_hash`, not raw phone numbers.
-- Safety/admin outputs expose masked phone plus hash where appropriate.
-- Privacy forget audits store phone hash, not raw phone.
-- Sentry scrubber redacts phone-like substrings before sending events.
+- phones are normalized before use,
+- Redis/session keys use hashes instead of raw phones,
+- interleaving and safety flows use `msisdn_hash`,
+- privacy forget audits use hashed phone references,
+- Sentry scrubber redacts phone-like values.
 
-### Customer safety
+### 16.4 Customer safety
 
-The safety layer includes:
+Current safety layers:
 
-- Pre-LLM deterministic filter for jailbreak, abuse, off-topic patterns, PII
-  fishing, and brand-safety categories.
-- Post-LLM filter for forbidden phrasing and unsupported prices.
-- Per-customer abuse score and block state.
-- Admin safety routes to review flagged customers and block/unblock.
+- deterministic pre-LLM filter,
+- brand-safety hard refuse,
+- jailbreak detection,
+- PII-fishing detection,
+- off-topic exploitation detection,
+- post-LLM forbidden phrase stripping,
+- unsupported price redaction,
+- customer abuse score,
+- admin block/unblock controls.
 
-### Provider verification
+### 16.5 Provider verification
 
-- Meta WhatsApp verifies signatures when app secret is set.
-- Twilio voice verifies `X-Twilio-Signature` when auth token is configured.
-- Daraja production callback checks source IP.
-- IntaSend/Paystack/Stripe callbacks verify signatures/secrets.
+- Meta webhook signature verification when configured,
+- Twilio signature verification when configured,
+- IntaSend HMAC verification,
+- Stripe webhook signature verification,
+- Paystack secret verification,
+- Daraja source/IP production guard.
 
-### Admin security
+### 16.6 Admin security
 
-- JWT access/refresh tokens.
-- Token version invalidates existing tokens.
-- Superadmin routes are protected.
-- Tenant routes enforce role membership.
-- Audit events are written for sensitive operations.
+- JWT access/refresh,
+- token version invalidation,
+- tenant role checks,
+- superadmin-only actions,
+- audit events for sensitive actions.
 
 ## 17. Observability And Operations
 
-Logging:
+### 17.1 Logging
 
-- `app/core/logging.py` uses structured logging.
-- Context variables add request, tenant, and conversation context.
-- Important contexts: `request_id`, `conversation_id`, `business_id`,
-  `tenant_slug`.
+Logging lives in [app/core/logging.py](/home/lesnar/Documents/ai model/app/core/logging.py).
 
-Sentry:
+Current truth:
 
-- Initialized in `app/core/sentry_setup.py`.
-- No-op if `SENTRY_DSN` is empty.
-- PII scrubber is enabled.
+- local development can use a color console renderer,
+- production defaults to structured logs,
+- logger names, levels, timestamps, and request/business/conversation context
+  are included,
+- startup logging crash caused by logger-factory mismatch was fixed on
+  2026-05-22.
 
-Metrics:
+Important context keys:
 
-- Route: `GET /metrics`.
-- Prometheus text format.
-- Metrics include request counts/latency, events, tools, safety verdicts, and
-  webhook delivery records.
+- `request_id`
+- `conversation_id`
+- `business_id`
+- `tenant`
 
-Health:
+### 17.2 Sentry
+
+- initialized during app import,
+- no-op when `SENTRY_DSN` is empty,
+- PII scrubbing is built in.
+
+### 17.3 Metrics
+
+Route:
+
+- `GET /metrics`
+
+Current metrics include:
+
+- request counts and latency,
+- webhook delivery metrics,
+- safety counters,
+- event/tool metrics.
+
+### 17.4 Health endpoints
 
 | Route | Purpose |
 | --- | --- |
 | `/healthz` | process liveness |
-| `/readyz` | DB and Redis readiness |
-| `/health/deep` | deeper dependency/config/provider checks |
+| `/readyz` | DB + Redis readiness |
+| `/health/deep` | DB + Redis + pgvector + WhatsApp + payment-provider reachability + LLM reachability + breaker snapshot |
 
-Backups:
+Current `/health/deep` truth:
 
-- `scripts/backup_to_r2.py` and `scripts/backup_to_r2.sh`.
-- Intended for Cloudflare R2.
+- includes `checks.llm`,
+- includes breaker snapshots,
+- is now part of the live doctor story.
 
-Operational watch points:
+### 17.5 Doctor and smoke tooling
 
-- Redis health matters for locks, idempotency, rate limits, event bus, and
-  token/cache behavior.
-- Postgres health matters for all persistent state and durable jobs.
-- If job rows pile up in `queued` or `running`, inspect `last_error`,
-  `locked_until`, and worker logs.
-- If outbound webhooks stop, inspect Redis Pub/Sub, endpoint failure counts,
-  and `webhook_dispatcher` logs.
+Current developer/operator commands:
+
+```bash
+make doctor-local
+make doctor-live
+make smoke-providers
+```
+
+Meaning:
+
+- `doctor-local` checks local stack and safe chat/photo flows
+- `doctor-live` checks hosted stack and safe chat/photo flows
+- `smoke-providers` probes provider credential/path sanity
+
+### 17.6 Operational watch points
+
+- Redis health affects locks, idempotency, rate limits, event bus, and some
+  caching.
+- Postgres health affects everything persistent.
+- Job backlogs mean `background_jobs` and runner state need inspection.
+- Webhook issues need Redis event-bus plus webhook dispatcher review.
+- OpenAI breaker state in `/health/deep` is now worth checking when the chat
+  path feels weird.
 
 ## 18. Local Development
 
-Prerequisites:
+### 18.1 Prerequisites
 
-- Python 3.12.
-- Docker with Postgres/pgvector and Redis.
-- Node/npm for frontends.
-- Optional Ollama for local LLM/embedding.
+- Python 3.12
+- Docker for Postgres + Redis
+- Node/npm
+- optional Ollama for local fallback
 
-Common backend setup:
+### 18.2 Common setup
 
 ```bash
 python -m venv .venv
@@ -1159,302 +1265,279 @@ docker-compose up -d postgres redis
 alembic upgrade head
 ```
 
-Run backend:
+### 18.3 Recommended backend run path
 
-```bash
-PYTHONPATH=. ./.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
-```
-
-The helper script:
+Use:
 
 ```bash
 ./scripts/run_dev.sh
 ```
 
-`start.sh` is a heavier local launcher that:
+Why:
 
-- starts Docker services,
-- checks Ollama models,
-- runs migrations,
-- seeds alpha data,
-- pre-warms Ollama,
-- validates Meta WA token,
-- starts uvicorn.
+- single worker,
+- no reload weirdness,
+- proper `PYTHONPATH`,
+- default `LOG_FORMAT=console`,
+- less memory pain than random uvicorn invocations.
 
-Use it only when that full local stack is desired.
-
-Admin user:
+Direct run still works:
 
 ```bash
-PYTHONPATH=. ./.venv/bin/python scripts/create_admin.py \
-  --email admin@example.com \
-  --password 'change-me' \
-  --name 'Ops Lead' \
-  --role superadmin
+PYTHONPATH=. ./.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-Seed Gen-Eat demo:
+### 18.4 Make targets
+
+Current root Makefile commands:
+
+```bash
+make dev
+make test-fast
+make doctor-local
+make doctor-live
+make smoke-providers
+make bootstrap-demo
+make publish-demo-photos
+```
+
+### 18.5 Demo seed and bootstrap
+
+Local seed:
 
 ```bash
 PYTHONPATH=. ./.venv/bin/python scripts/seed_geneat_demo.py
 ```
 
-Lily Pond live demo path:
-
-1. Apply migrations: `alembic upgrade head`.
-2. Seed the four cafes: `PYTHONPATH=. ./.venv/bin/python scripts/seed_geneat_demo.py`.
-3. Start the backend: `PYTHONPATH=. ./.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000`.
-   The default provider stack is OpenAI primary with Gemini/local fallback.
-   For a lower-cost local rehearsal, override with `LLM_PROVIDER=gemini
-   LLM_FALLBACK_PROVIDERS=local`.
-4. Start the portal: `cd gen-eat-portal && npm run dev`.
-5. Open `/cafes/lily-pond-cafe`.
-6. Click `Order KES 10 on WhatsApp`.
-7. Send the prefilled "KES 10 demo espresso" message, or type "10 bob".
-8. Give the AI a cup name when asked.
-9. Accept the M-Pesa STK push on the phone being charged.
-10. Verify the admin console shows the conversation, order, payment state, and
-    any ready-notification job.
-
-For simulator-only local rehearsals, use `PAYMENT_PROVIDER=daraja` with
-`PAYMENT_SIMULATOR=true` and `PAYMENT_SIMULATOR_AUTOCONFIRM=true`. For a real
-pitch payment, use the production provider credentials and keep the amount at
-`KES 10` until the live path has been proven.
-
-Before walking into the cafe, run:
+Hosted bootstrap over HTTPS:
 
 ```bash
-PYTHONPATH=. ./.venv/bin/python scripts/lily_pond_demo_check.py --chat
+set -a
+. ./.env
+curl -X POST https://api.lesnarai.co.ke/admin/bootstrap/geneat-demo \
+  -H "Authorization: Bearer $ADMIN_API_TOKEN"
 ```
 
-The check is no-secrets and non-charging. It verifies the Lily Pond tenant,
-Meta routing, admin availability, portal CTA, backend health, webhook verify
-handshake, and a safe "how much is the demo espresso?" chat turn.
+### 18.6 Lily Pond local rehearsal
 
-Run admin UI:
+1. run migrations
+2. seed Gen-Eat demo
+3. start backend
+4. start portal
+5. open `/cafes/lily-pond-cafe`
+6. test web chat
+7. test WhatsApp CTA
+8. test `KES 10` path
+9. test a photo request
+10. optionally test payment
+
+### 18.7 Demo photo publishing
+
+To publish the full demo photo catalog to the hosted tenant:
 
 ```bash
-cd admin-ui
-npm install
-npm run dev
+./.venv/bin/python scripts/publish_demo_menu_photos.py --dry-run
+./.venv/bin/python scripts/publish_demo_menu_photos.py
 ```
 
-Run portal:
+### 18.8 Public admin URL behavior
 
-```bash
-cd gen-eat-portal
-npm install
-npm run dev
-```
+If `GENEAT_ADMIN_URL` is unset:
+
+- `make doctor-live` skips the public admin reachability check,
+- this is intentional,
+- it prevents false failures when admin remains local/private.
 
 ## 19. Production Deployment Runbook
 
-This section replaces the old standalone beta deploy document.
+This section covers both:
 
-### 19.1 Infrastructure
+1. the **current live beta path**, and
+2. the **desired codified target path**.
 
-Reference server bundle:
+They are not the same thing right now.
 
-- `deploy/truehost/README.md`
-- `deploy/truehost/docker-compose.api.yml`
-- `deploy/truehost/cloudflared/config.yml.example`
-- `deploy/render/README.md`
-- `render.yaml`
+### 19.1 Current live beta path
+
+Current hosted shape:
+
+| Layer | Current truth |
+| --- | --- |
+| Domain registrar | Truehost |
+| DNS / edge TLS | Cloudflare |
+| Customer portal | Vercel |
+| Backend API | Render |
+| Live API domain | `api.lesnarai.co.ke` |
+| Live portal domain | `geneat.lesnarai.co.ke` |
+
+Current operational nuance:
+
+- the live Render deployment was finalized manually,
+- the current service naming in Render may not match `render.yaml`,
+- the live beta path should be treated as **working operational truth**,
+  while `render.yaml` expresses the cleaner desired managed target.
+
+### 19.2 Desired codified Render target
+
+Checked-in desired deployment config:
+
+- [render.yaml](/home/lesnar/Documents/ai model/render.yaml)
+- [deploy/render/README.md](/home/lesnar/Documents/ai model/deploy/render/README.md)
+
+That target declares:
+
+- `geneat-api`
+- `geneat-redis`
+- `geneat-postgres`
+
+with a cleaner managed setup than the manual beta cutover.
+
+### 19.3 Alternative server path
+
+Truehost server-side bundle exists here:
+
+- [deploy/truehost/README.md](/home/lesnar/Documents/ai model/deploy/truehost/README.md)
+- [deploy/truehost/docker-compose.api.yml](/home/lesnar/Documents/ai model/deploy/truehost/docker-compose.api.yml)
+
+That path is currently a prepared alternative, not the current live path.
+
+### 19.4 Production-ish infrastructure requirements
 
 Postgres:
 
-- Use Postgres 16 or compatible.
-- Enable pgvector.
-- Use a `postgresql+asyncpg://...` URL for the app.
-- Check `max_connections`.
-- With 2 Uvicorn workers and pool sizing 10 + overflow 20, budget up to
-  60 connections.
+- Postgres 16 or compatible
+- pgvector enabled
+- enough connection headroom for worker count
 
-Redis:
+Redis / Valkey:
 
-- Redis 7+.
-- Prefer TLS/`rediss://` if hosted.
-- Required for idempotency, locks, rate limits, event bus, and cache.
+- Redis 7+ compatible
+- TLS preferred if hosted
+- required for locks, idempotency, rate limits, event bus, and caches
 
 Object storage:
 
-- Cloudflare R2 bucket for media.
-- Separate bucket for backups if using backup scripts.
+- Cloudflare R2 for media and/or backups
 
-Sentry:
+### 19.5 Required environment categories
 
-- Configure `SENTRY_DSN` for production/beta.
-- Set environment tags outside this app if the deployment platform supports it.
-
-DNS/TLS:
-
-- Point API domain to host.
-- Ensure websocket pass-through for Twilio voice streams.
-- If using Cloudflare, avoid features that break websocket handshakes.
-
-### 19.2 Required environment categories
-
-Never commit env values. Configure them in the host secret manager.
+Never commit values. Use secret managers or host env config.
 
 Core:
 
-| Variable | Notes |
+| Variable | Purpose |
 | --- | --- |
-| `APP_ENV` | `prod` for production |
+| `APP_ENV` | `prod` for hosted deployment |
 | `LOG_LEVEL` | usually `INFO` |
-| `DATABASE_URL` | async SQLAlchemy URL |
-| `DATABASE_URL_SYNC` | sync URL for tools/migrations if needed |
-| `REDIS_URL` | Redis connection |
+| `LOG_FORMAT` | `json`, `console`, or `auto` |
+| `DATABASE_URL` | async DB URL or Render plain Postgres URL |
+| `DATABASE_URL_SYNC` | sync DB URL or same Render URL |
+| `REDIS_URL` | Redis / Valkey URL |
 | `SECRET_KEY` | app secret |
-| `PHONE_HASH_PEPPER` | never rotate casually; used for stable phone hashes |
-| `ADMIN_API_TOKEN` | legacy/machine admin token |
+| `PHONE_HASH_PEPPER` | stable phone-hash secret |
+| `ADMIN_API_TOKEN` | machine/legacy admin token |
 | `JWT_SECRET` | admin JWT signing |
-| `ADMIN_CORS_ORIGINS` | comma-separated admin origins or `*` |
+| `ADMIN_CORS_ORIGINS` | admin origins |
+| `DEFAULT_BUSINESS_SLUG` | default tenant |
 
-LLM:
+LLM / embeddings:
 
-| Variable | Notes |
+| Variable | Purpose |
 | --- | --- |
-| `LLM_PROVIDER` | `groq`, `gemini`, `openai`, or `local` |
-| `LLM_FALLBACK_PROVIDERS` | comma-separated fallback order |
-| `OPENAI_API_KEY` | required for OpenAI provider |
-| `OPENAI_MODEL` | default `gpt-5.4-mini`; use `gpt-5.5` for highest quality |
-| `OPENAI_REASONING_EFFORT` | default `low`; raise only for complex workflows |
-| `OPENAI_USE_RESPONSES_API` | keep `true` for GPT-5 class models and tools |
-| `OPENAI_STORE_RESPONSES` | keep `true` when Responses API tool loops are enabled |
-| `GROQ_API_KEY` | required for Groq provider |
-| `GEMINI_API_KEY` | required for Gemini provider |
-| `USE_LOCAL_LLM` | keep false in production unless intentionally self-hosting |
+| `LLM_PROVIDER` | `openai`, `groq`, `gemini`, or `local` |
+| `LLM_FALLBACK_PROVIDERS` | ordered fallback list |
+| `OPENAI_API_KEY` | OpenAI auth |
+| `OPENAI_MODEL` | current preferred live model is `gpt-5.4-mini` |
+| `OPENAI_REASONING_EFFORT` | usually `low` |
+| `OPENAI_USE_RESPONSES_API` | keep `true` for current GPT-5 tool loops |
+| `OPENAI_STORE_RESPONSES` | keep `true` with Responses API tool loops |
+| `OPENAI_EMBED_MODEL` | `text-embedding-3-large` |
+| `OPENAI_EMBED_DIMENSIONS` | must remain `768` |
+| `GROQ_API_KEY` | Groq provider / vision |
+| `GEMINI_API_KEY` | Gemini fallback |
 
-Embeddings:
+Channels:
 
-| Variable | Notes |
+| Variable | Purpose |
 | --- | --- |
-| `EMBED_PROVIDER` | default `openai`; use `local` for zero-cost rehearsals |
-| `OPENAI_EMBED_MODEL` | default `text-embedding-3-large` |
-| `OPENAI_EMBED_DIMENSIONS` | must be `768` while DB column is `vector(768)` |
-| `LOCAL_LLM_BASE_URL` | Ollama/OpenAI-compatible URL |
-
-WhatsApp/voice:
-
-| Variable | Notes |
-| --- | --- |
-| `WHATSAPP_PROVIDER` | `meta`, `twilio`, `africastalking`, or `mock` |
-| `META_WA_PHONE_NUMBER_ID` | Meta WABA phone id |
-| `META_WA_ACCESS_TOKEN` | long-lived token |
-| `META_WA_VERIFY_TOKEN` | verification token |
-| `META_WA_APP_SECRET` | signature verification |
-| `TWILIO_ACCOUNT_SID` | Twilio |
-| `TWILIO_AUTH_TOKEN` | Twilio signature verification |
-| `TWILIO_PHONE_NUMBER` | Twilio sender |
+| `WHATSAPP_PROVIDER` | current live path is `meta` |
+| `META_WA_PHONE_NUMBER_ID` | live Meta number ID |
+| `META_WA_ACCESS_TOKEN` | Meta token |
+| `META_WA_VERIFY_TOKEN` | webhook verify token |
+| `META_WA_APP_SECRET` | webhook signature verification |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER` | Twilio |
 | `AT_USERNAME`, `AT_API_KEY`, `AT_SHORTCODE`, `AT_VOICE_PHONE` | Africa's Talking |
 
 Payments:
 
-| Variable | Notes |
+| Variable | Purpose |
 | --- | --- |
-| `PAYMENT_PROVIDER` | `daraja`, `intasend`, `paystack`, or `stripe` |
-| `PAYMENT_SIMULATOR` | use true only for dev/demo |
-| `PAYMENT_SIMULATOR_AUTOCONFIRM` | demo convenience |
-| `MPESA_ENV` | `sandbox` or `production` |
-| `MPESA_CONSUMER_KEY`, `MPESA_CONSUMER_SECRET`, `MPESA_SHORTCODE`, `MPESA_PASSKEY`, `MPESA_CALLBACK_URL` | Daraja |
-| `INTASEND_API_TOKEN`, `INTASEND_PUBLISHABLE_KEY`, `INTASEND_WEBHOOK_SECRET` | IntaSend |
-| `PAYSTACK_SECRET_KEY`, `PAYSTACK_PUBLIC_KEY` | Paystack |
-| `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` | Stripe |
+| `PAYMENT_PROVIDER` | current live path is `intasend` |
+| `PAYMENT_SIMULATOR` | keep `false` on live path |
+| `INTASEND_API_TOKEN` | IntaSend auth |
+| `INTASEND_PUBLISHABLE_KEY` | IntaSend frontend/public key where needed |
+| `INTASEND_WEBHOOK_SECRET` | IntaSend callback verification |
+| `MPESA_*` | Daraja path |
+| `PAYSTACK_*` | Paystack path |
+| `STRIPE_*` | Stripe path |
 
-Storage and backup:
+Storage / telemetry:
 
-| Variable | Notes |
+| Variable | Purpose |
 | --- | --- |
 | `R2_ACCOUNT_ID` | Cloudflare R2 |
 | `R2_ACCESS_KEY_ID` | R2 key |
 | `R2_SECRET_ACCESS_KEY` | R2 secret |
 | `R2_BUCKET` | media bucket |
-| `R2_PUBLIC_URL_BASE` | public object base URL if used |
-| `BACKUP_BUCKET` | backup bucket used by scripts |
-| `BACKUP_RETENTION_DAYS` | backup retention |
+| `R2_PUBLIC_URL_BASE` | public object base URL |
+| `SENTRY_DSN` | telemetry |
 
-### 19.3 Migration and seed
-
-From a production shell:
-
-```bash
-alembic upgrade head
-```
-
-Expected:
-
-- Alembic applies through `0010_enforce_embedding_768`.
-- `knowledge_base.embedding` is `vector(768)`.
-- `orders.business_id` exists.
-- `background_jobs` exists.
-
-Create a business through admin API or seed script. For Gen-Eat:
-
-```bash
-PYTHONPATH=. ./.venv/bin/python scripts/seed_geneat_demo.py
-```
-
-### 19.4 Provider callback URLs
+### 19.6 Required callback URLs
 
 Meta WhatsApp:
 
-- Verify: `GET https://<api-domain>/webhooks/whatsapp`
-- Inbound: `POST https://<api-domain>/webhooks/whatsapp`
+- `GET https://api.lesnarai.co.ke/webhooks/whatsapp`
+- `POST https://api.lesnarai.co.ke/webhooks/whatsapp`
 
 Twilio voice:
 
-- Incoming call webhook:
-  `POST https://<api-domain>/webhooks/voice/inbound`
-- Media stream URL:
-  `wss://<api-domain>/webhooks/voice/stream`
+- `POST https://api.lesnarai.co.ke/webhooks/voice/inbound`
+- `wss://api.lesnarai.co.ke/webhooks/voice/stream`
 
 Africa's Talking:
 
-- Voice webhook: `POST https://<api-domain>/webhooks/at/voice`
-- Events webhook: `POST https://<api-domain>/webhooks/at/voice/events`
+- `POST https://api.lesnarai.co.ke/webhooks/at/voice`
+- `POST https://api.lesnarai.co.ke/webhooks/at/voice/events`
 
 Payments:
 
-- Daraja: `POST https://<api-domain>/payments/callback`
-- IntaSend: `POST https://<api-domain>/payments/intasend/callback`
-- Paystack: `POST https://<api-domain>/payments/paystack/callback`
-- Stripe: `POST https://<api-domain>/payments/stripe/callback`
+- `POST https://api.lesnarai.co.ke/payments/callback`
+- `POST https://api.lesnarai.co.ke/payments/intasend/callback`
+- `POST https://api.lesnarai.co.ke/payments/paystack/callback`
+- `POST https://api.lesnarai.co.ke/payments/stripe/callback`
 
-### 19.5 Smoke tests
+### 19.7 Current live cutover truth
 
-```bash
-BASE=https://<api-domain>
+As of 2026-05-23:
 
-curl -sf "$BASE/healthz"
-curl -sf "$BASE/readyz"
-curl -sf "$BASE/health/deep"
-curl -i "$BASE/admin/businesses"
-curl -sf "$BASE/metrics" | head
-```
+- Cloudflare DNS points the API domain at Render,
+- Meta webhook points at the hosted API,
+- the live doctor passes,
+- the laptop-backed API tunnel is no longer the intended live path.
 
-Expected:
+### 19.8 Recommended post-cutover hardening
 
-- `/healthz` returns process OK.
-- `/readyz` returns DB/Redis readiness.
-- `/health/deep` reports critical dependencies.
-- `/admin/businesses` without auth returns 401.
-- `/metrics` returns Prometheus text.
-
-After provider setup:
-
-- Send a WhatsApp test message.
-- Place a mock/portal order.
-- Trigger a test payment callback.
-- Confirm `payment.completed` logs/events.
-- Confirm admin SSE receives events.
-- Confirm outbound webhooks receive signed events if configured.
+- move off Render free before promising uptime,
+- rotate any exposed keys,
+- add real alerting,
+- add migration CI,
+- add durable event delivery for webhooks.
 
 ## 20. API Surface
 
-This list is generated from the current FastAPI app and grouped for humans.
+This is a human-grouped route map based on the current FastAPI app.
 
-Health/observability:
+### Health and observability
 
 | Method | Path |
 | --- | --- |
@@ -1463,7 +1546,13 @@ Health/observability:
 | GET | `/health/deep` |
 | GET | `/metrics` |
 
-Mock and channel ingress:
+### Public catalog
+
+| Method | Path |
+| --- | --- |
+| GET | `/catalog/businesses/{slug}/menu-photos` |
+
+### Mock and channel ingress
 
 | Method | Path |
 | --- | --- |
@@ -1478,7 +1567,7 @@ Mock and channel ingress:
 | POST | `/webhooks/at/voice` |
 | POST | `/webhooks/at/voice/events` |
 
-Payments:
+### Payments
 
 | Method | Path |
 | --- | --- |
@@ -1488,7 +1577,7 @@ Payments:
 | POST | `/payments/paystack/callback` |
 | POST | `/payments/stripe/callback` |
 
-Admin auth:
+### Admin auth and users
 
 | Method | Path |
 | --- | --- |
@@ -1497,20 +1586,20 @@ Admin auth:
 | GET | `/admin/auth/me` |
 | POST | `/admin/auth/logout-all` |
 | POST | `/admin/auth/password` |
-
-Admin users and memberships:
-
-| Method | Path |
-| --- | --- |
 | POST | `/admin/users` |
 | GET | `/admin/users` |
 | PATCH | `/admin/users/{user_id}` |
 | DELETE | `/admin/users/{user_id}` |
+
+### Admin memberships
+
+| Method | Path |
+| --- | --- |
 | POST | `/admin/businesses/{slug}/members` |
 | GET | `/admin/businesses/{slug}/members` |
 | DELETE | `/admin/businesses/{slug}/members/{user_id}` |
 
-Admin business/conversations:
+### Admin business and conversation operations
 
 | Method | Path |
 | --- | --- |
@@ -1526,7 +1615,7 @@ Admin business/conversations:
 | POST | `/admin/conversations/{conv_id}/release` |
 | POST | `/admin/conversations/{conv_id}/messages` |
 
-Admin KB/profile/prompt:
+### Admin KB, profile, prompt, media
 
 | Method | Path |
 | --- | --- |
@@ -1540,8 +1629,12 @@ Admin KB/profile/prompt:
 | GET | `/admin/businesses/{slug}/profile` |
 | PUT | `/admin/businesses/{slug}/profile` |
 | PATCH | `/admin/businesses/{slug}/prompt` |
+| GET | `/admin/businesses/{slug}/menu-photos` |
+| PUT | `/admin/businesses/{slug}/menu-photos` |
+| POST | `/admin/businesses/{slug}/menu-photos` |
+| POST | `/admin/businesses/{slug}/menu-photos/upload` |
 
-Admin webhooks/usage/broadcasts/safety/audit:
+### Admin webhooks, broadcasts, usage, safety, audit
 
 | Method | Path |
 | --- | --- |
@@ -1561,146 +1654,173 @@ Admin webhooks/usage/broadcasts/safety/audit:
 | GET | `/admin/audit` |
 | GET | `/admin/stream` |
 
-Privacy:
+### Demo bootstrap and privacy
 
 | Method | Path |
 | --- | --- |
+| POST | `/admin/bootstrap/geneat-demo` |
 | GET | `/privacy/customers/{phone}/export` |
 | POST | `/privacy/customers/{phone}/forget` |
 | GET | `/privacy` |
 | GET | `/privacy/` |
 
-Static/root:
-
-| Method | Path |
-| --- | --- |
-| GET | `/admin` |
-| GET | `/` |
-
-Note: some admin business/KB/conversation routes exist twice because
-`admin_console_router` is registered before the legacy `admin_router`. FastAPI
-first-match ordering gives the JWT console routes priority where paths overlap.
-
 ## 21. Scripts, Seeds, And Utilities
 
-Scripts:
+Current tracked scripts:
 
 | Script | Purpose |
 | --- | --- |
 | `scripts/create_admin.py` | create/update admin user |
 | `scripts/seed_alpha.py` | alpha seed data |
-| `scripts/seed_demo.py` | demo seed |
+| `scripts/seed_demo.py` | generic demo seed |
 | `scripts/seed_demo_tenant.py` | tenant demo seed |
-| `scripts/seed_geneat_demo.py` | Gen-Eat four-cafe seed |
-| `scripts/seed_palm_cafe.py` | Palm cafe seed |
-| `scripts/backup_to_r2.py` | Python backup utility |
-| `scripts/backup_to_r2.sh` | shell wrapper for backup |
-| `scripts/run_dev.sh` | local dev runner |
-| `scripts/smoke_providers.py` | provider smoke checks |
-| `scripts/audit_battery.sh` | audit/test battery helper |
+| `scripts/seed_geneat_demo.py` | Gen-Eat four-café seed |
+| `scripts/seed_palm_cafe.py` | Palm café seed |
+| `scripts/backup_to_r2.py` | backup utility |
+| `scripts/backup_to_r2.sh` | shell wrapper for backups |
+| `scripts/run_dev.sh` | recommended dev launcher |
+| `scripts/lily_pond_demo_check.py` | local/live doctor |
+| `scripts/smoke_providers.py` | provider sanity check |
+| `scripts/publish_demo_menu_photos.py` | bulk demo photo publisher |
+| `scripts/build_render_env.py` | local helper that writes an ignored Render env bundle from `.env` |
+| `scripts/audit_battery.sh` | audit helper |
 
-Test mocks:
+Current high-value scripts:
 
-| Mock | Purpose |
-| --- | --- |
-| `tests/mocks/mpesa_mock.py` | M-Pesa mock service |
-| `tests/mocks/africastalking_mock.py` | Africa's Talking mock |
-| `tests/mocks/run_all.py` | run mocks together |
+- `lily_pond_demo_check.py` is the single best “is the demo alive?” script
+- `publish_demo_menu_photos.py` is the current bulk image hydration tool
+- `smoke_providers.py` is the credential sanity probe
 
 ## 22. Testing
 
-Primary command:
+### 22.1 Current fast suite
 
 ```bash
-./.venv/bin/python -m pytest -q -m "not pg" --maxfail=5
+make test-fast
 ```
 
-Latest result:
+Current result:
 
 ```text
-70 passed, 4 deselected, 1 warning
+41 passed, 1 warning
 ```
 
-Focused commands:
-
-```bash
-./.venv/bin/python -m pytest tests/test_job_runner.py -q
-./.venv/bin/python -m pytest tests/test_payments_hardening.py -q
-./.venv/bin/python -m pytest tests/test_llm_failover.py -q
-```
-
-Compile:
-
-```bash
-./.venv/bin/python -m compileall -q app scripts tests
-```
-
-Frontend builds:
+### 22.2 Builds
 
 ```bash
 cd admin-ui && npm run build
 cd gen-eat-portal && npm run build
 ```
 
-PG tests:
+Current result:
 
-- Tests marked `pg` require real Postgres plus pgvector.
-- They are intentionally deselected by the default local command above.
+- admin build passed
+- portal build passed
 
-Known warning:
+### 22.3 Live system doctor
 
-- LangGraph/LangChain emits a pending deprecation warning about
-  `allowed_objects`.
+```bash
+make doctor-live
+```
+
+Current result:
+
+```text
+27/27 checks passed
+```
+
+This is now the main high-signal smoke test for the hosted demo stack.
+
+### 22.4 Other useful tests
+
+```bash
+./.venv/bin/python -m pytest tests/test_job_runner.py -q
+./.venv/bin/python -m pytest tests/test_payments_hardening.py -q
+./.venv/bin/python -m pytest tests/test_llm_failover.py -q
+./.venv/bin/python -m pytest tests/test_logging.py -q
+```
+
+### 22.5 Known warning
+
+LangGraph / LangChain still emits a pending deprecation warning around
+`allowed_objects`. It is not currently a release blocker.
 
 ## 23. Scaling Notes And Known Gaps
 
-Things already improved:
+This is the honest list, not the flattering list.
 
-- Tenant leakage risks in payment callbacks were reduced by adding
-  `orders.business_id`.
-- Checkout ID attachment is conversation/business scoped.
-- Payment hosted callbacks are implemented for IntaSend, Paystack, Stripe.
-- Order-ready, unpaid-payment, simulator-confirm, and broadcast work is now
-  durable through `background_jobs`.
-- Admin UI/backend contract gaps were patched.
-- Voice inbound has Twilio signature verification and proper mu-law to WAV
-  conversion.
-- Sensitive Redis/event keys use phone hashes instead of raw MSISDNs.
+### 23.1 Things that are now in much better shape
 
-Current honest gaps:
+- hosted API is live on Render
+- live doctor passes end to end
+- DB and Redis health checks are real
+- OpenAI health is visible in `/health/deep`
+- photo requests send real media through a deterministic action path
+- normal WhatsApp text is model-led first, with deterministic quick replies
+  reserved for timeout/failure rescue
+- durable jobs survive restarts
+- payment callbacks scope through `orders.business_id`
+- tenant photo catalogs can now be managed and published centrally
+- developer UX is better via `make`, `run_dev.sh`, and color console logs
+
+### 23.2 Current honest gaps
 
 | Gap | Impact | Likely fix |
 | --- | --- | --- |
-| Pub/Sub event bus is not durable | outbound webhooks/SSE can miss events during Redis/listener outage | add outbox table or Redis Streams |
-| PG migration tests not run locally | migrations are not continuously verified against real Postgres in this workspace | add CI service with Postgres + pgvector |
-| `audioop` deprecation | Python 3.13 will need different mu-law decoder | replace with maintained audio codec path |
-| Built-in job runner is modest | very large campaigns may need more throughput/isolation | add external worker pool reading `background_jobs` or move to queue |
-| RAG embedding dimension is fixed | OpenAI embedding dimensions must match DB | keep `OPENAI_EMBED_DIMENSIONS=768` or migrate vector column |
-| No local git repo | cannot provide commit diff/history locally | initialize/use git in project workspace |
-| Ruff not installed locally | lint was not run in latest verification | add ruff/dev tooling to requirements or CI |
+| WhatsApp conversation quality is not client-ready yet | too many generic fallback replies make the assistant feel robotic | expand manual conversation scripts and keep fallbacks only behind real timeout/failure |
+| Render live stack is still beta-grade | free-tier spin-down / manual service drift can make operations annoying | move to paid Render or another always-on managed host |
+| Event bus is not durable | SSE / outbound webhooks can miss events during Redis/listener gaps | add outbox table or Redis Streams |
+| Public admin deployment is optional, not standardized | ops may still depend on local admin in some workflows | deploy and document a stable public admin URL |
+| Demo menu photos are mostly representative, not merchant-owned | looks real enough for pilot, not final merchant polish | upload tenant-owned photos per client |
+| Photo fuzzy matching can produce odd alias labels | image still arrives, but metadata can look slightly odd | tighten photo alias ranking |
+| PG migration CI is still missing | migration regressions can reach deploy time | add Postgres + pgvector CI step |
+| Alerting is still missing | failures may stay silent until someone notices | wire health / webhook / payment alerts |
+| `audioop` deprecation remains | Python 3.13 upgrade risk for voice | replace mu-law decoder path |
+| Secrets still live in `.env` workflows too often | higher chance of accidental exposure | move fully to host secret managers and rotate exposed values |
 
-Scaling path:
+### 23.3 What is live, demo-ready, and production-ready
 
-1. Add Postgres/pgvector CI and run `pytest -m pg`.
-2. Add a durable event outbox for webhooks and merchant integrations.
-3. Move heavy background work to dedicated workers if broadcast volume grows.
-4. Add per-tenant outbound rate buckets, not only global provider buckets.
-5. Add OpenTelemetry traces if debugging multi-provider latency becomes hard.
-6. Add k6/load tests for high-concurrency campus traffic.
-7. Store production secrets only in a secret manager, never `.env` files.
+Technically live right now:
+
+- yes
+
+First-client demo-ready right now:
+
+- not yet
+
+Reason:
+
+- WhatsApp, STK, photos, hosted API, hosted DB, and hosted Redis are live.
+- The remaining blocker is response quality: the assistant must sustain longer
+  natural menu/order/payment conversations without falling back to generic
+  handoff copy.
+
+Production-ready in the “don’t stress me at all” sense:
+
+- not fully yet
+
+The delta is now conversation polish plus operational hardening, not basic
+connectivity.
 
 ## 24. Documentation Policy
 
 This README is the canonical system document.
 
-Other project Markdown files are intentionally small pointers:
+All other Markdown files should stay small and point back here:
 
-- `docs/BETA_DEPLOY.md`
-- `docs/business_plan_geneat_usiu_pilot.md`
-- `admin-ui/README.md`
-- `gen-eat-portal/README.md`
-- `gen-eat-portal/public/menu/README.md`
+- [docs/BETA_DEPLOY.md](/home/lesnar/Documents/ai model/docs/BETA_DEPLOY.md)
+- [docs/business_plan_geneat_usiu_pilot.md](/home/lesnar/Documents/ai model/docs/business_plan_geneat_usiu_pilot.md)
+- [admin-ui/README.md](/home/lesnar/Documents/ai model/admin-ui/README.md)
+- [gen-eat-portal/README.md](/home/lesnar/Documents/ai model/gen-eat-portal/README.md)
+- [gen-eat-portal/public/menu/README.md](/home/lesnar/Documents/ai model/gen-eat-portal/public/menu/README.md)
+- [deploy/render/README.md](/home/lesnar/Documents/ai model/deploy/render/README.md)
+- [deploy/truehost/README.md](/home/lesnar/Documents/ai model/deploy/truehost/README.md)
 
-Do not reintroduce duplicated long-form docs in those files. Add or correct
-truth here, then link to the relevant section from any local README that needs
-orientation.
+Rules:
+
+1. If the system changes, update this README first.
+2. Keep package-local READMEs thin.
+3. Do not reintroduce a second long-form architecture or deploy guide unless
+   there is a compelling, isolated reason.
+4. When reality and aspiration differ, document both clearly and label which
+   one is live truth.

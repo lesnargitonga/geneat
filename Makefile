@@ -6,7 +6,7 @@ dev:
 	./scripts/run_dev.sh
 
 test-fast:
-	$(PYTHON) -m pytest -q tests/test_menu_photos.py tests/test_config.py tests/test_graph_messages.py tests/test_safety.py
+	$(PYTHON) -m pytest -q tests/test_menu_photos.py tests/test_config.py tests/test_graph_messages.py tests/test_safety.py tests/test_quick_replies.py tests/test_channel_fallbacks.py
 
 doctor-local:
 	$(PYTHON) scripts/lily_pond_demo_check.py --chat --photo

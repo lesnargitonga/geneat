@@ -21,7 +21,6 @@ from app.ai.llm import get_chat_chain
 from app.ai.prompts import RAG_PREAMBLE, render_system_prompt
 from app.ai.quick_replies import (
     looks_like_photo_request,
-    maybe_build_quick_reply,
     photo_item_query,
 )
 from app.ai.rag import format_context, retrieve
@@ -177,15 +176,6 @@ async def _agent_node(state: AgentState, *, db: AsyncSession) -> dict:
                             "image_url": photo_result.get("image_url"),
                         },
                     }
-
-    quick_reply = await maybe_build_quick_reply(
-        db,
-        business_id=biz_id,
-        profile=profile,
-        text=last_user_text,
-    )
-    if quick_reply:
-        return {"messages": [AIMessage(content=quick_reply)]}
 
     llm = get_chat_chain(tools)
     system = _build_system_instruction(

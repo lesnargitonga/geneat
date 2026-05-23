@@ -1,5 +1,20 @@
 # Render Go-Live
 
+This file is a deployment pointer, not the canonical system document.
+
+Current single source of truth:
+
+- [Production Deployment Runbook](../../README.md#19-production-deployment-runbook)
+- [Current Truth And Verification](../../README.md#2-current-truth-and-verification)
+- [Scaling Notes And Known Gaps](../../README.md#23-scaling-notes-and-known-gaps)
+
+Important current truth:
+
+- the live beta stack is already running on Render,
+- the live beta cutover was finalized manually,
+- `render.yaml` expresses the cleaner desired target shape,
+- so do not assume the current live service names exactly match the blueprint.
+
 This deployment path replaces the laptop-hosted backend with a managed Render
 stack while keeping:
 
@@ -36,6 +51,16 @@ Render supports:
 ## 2. Fill the required secrets
 
 Render will prompt for all `sync: false` variables on first creation.
+
+Local helper:
+
+```bash
+python scripts/build_render_env.py
+```
+
+That writes `deploy/render/render.local.env`, which is intentionally ignored
+by git. Use it only as a copy/paste checklist for Render environment variables;
+replace the database and Redis placeholders with Render-managed values.
 
 Minimum required for your live setup:
 

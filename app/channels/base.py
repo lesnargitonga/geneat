@@ -7,6 +7,7 @@ responsible for delivering it back over the channel's transport).
 """
 from __future__ import annotations
 
+import asyncio
 import uuid
 from dataclasses import dataclass
 
@@ -33,6 +34,25 @@ from app.services.session_manager import acquire_session
 from app.services.slash_commands import parse_slash
 
 log = get_logger("channel")
+
+# WhatsApp users notice silence quickly. Give the model enough time to reason
+# and call tools, then fall back to a deterministic rescue only if the turn is
+# genuinely stuck or failing.
+AI_TURN_TIMEOUT_SECONDS = 24.0
+_DEGRADED_FALLBACK_MARKERS = (
+    "pulling our team",
+    "system took too long",
+    "system got stuck",
+    "system got stuck before",
+    "niko pamoja na timu",
+    "mfumo umechelewa",
+    "mfumo umekwama",
+)
+
+
+def _is_degraded_fallback_text(content: str | None) -> bool:
+    lowered = (content or "").lower()
+    return any(marker in lowered for marker in _DEGRADED_FALLBACK_MARKERS)
 
 
 @dataclass
@@ -340,27 +360,12 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         history = [
             (HumanMessage if r.sender == Sender.user else AIMessage)(content=r.content)
             for r in history_rows[:-1]  # exclude the just-saved user msg (graph adds it)
+            if not (r.sender == Sender.ai and _is_degraded_fallback_text(r.content))
         ]
 
-        try:
-            result = await run_turn(
-                db,
-                msisdn=msisdn,
-                user_text=turn.text,
-                channel=turn.channel.value,
-                conversation_id=conv.id,
-                customer_id=customer.id,
-                customer_name=customer.name,
-                business_id=business_id,
-                history=history,
-                customer_language=effective_lang,
-            )
-        except Exception as e:
-            log.warning("ai_turn_failed_retrying", error=str(e))
-            # One quiet retry — covers transient Ollama/DB hiccups before we
-            # ever show the customer a fallback string.
-            try:
-                result = await run_turn(
+        async def _run_ai_once() -> dict:
+            return await asyncio.wait_for(
+                run_turn(
                     db,
                     msisdn=msisdn,
                     user_text=turn.text,
@@ -371,9 +376,29 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     business_id=business_id,
                     history=history,
                     customer_language=effective_lang,
-                )
+                ),
+                timeout=AI_TURN_TIMEOUT_SECONDS,
+            )
+
+        try:
+            result = await _run_ai_once()
+        except Exception as e:
+            if isinstance(e, asyncio.TimeoutError):
+                log.warning("ai_turn_timed_out_retrying", timeout_seconds=AI_TURN_TIMEOUT_SECONDS)
+            else:
+                log.warning("ai_turn_failed_retrying", error=str(e), error_type=type(e).__name__)
+            # One quiet retry — covers transient Ollama/DB hiccups before we
+            # ever show the customer a fallback string.
+            try:
+                result = await _run_ai_once()
             except Exception as e2:
-                log.exception("ai_turn_failed_final", error=str(e2))
+                if isinstance(e2, asyncio.TimeoutError):
+                    log.exception(
+                        "ai_turn_timed_out_final",
+                        timeout_seconds=AI_TURN_TIMEOUT_SECONDS,
+                    )
+                else:
+                    log.exception("ai_turn_failed_final", error=str(e2), error_type=type(e2).__name__)
                 escalated = await bump_failed_turn(db, conv)
 
                 fallback_profile = None
@@ -421,18 +446,32 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     suffix = "\n\nNitakurudia hivi karibuni kwa maelezo zaidi." if is_sw \
                              else "\n\nI'll follow up shortly with more details."
                     reply = prefix + kb_reply + suffix
+                elif escalated:
+                    reply = (
+                        "Samahani, mfumo umekwama kabla sijamaliza hilo. "
+                        "Nimeweka mazungumzo haya yakaguliwe na mtu. "
+                        "Kama ni ya haraka, piga simu +254 715 540 653."
+                        if is_sw else
+                        "Sorry, the system got stuck before I could finish that. "
+                        "I've flagged this chat for a person to check. "
+                        "If it's urgent, call +254 715 540 653."
+                    )
                 else:
                     reply = (
-                        "Karibu! Niko pamoja na timu yetu sasa hivi — "
-                        "nitakurudia ndani ya dakika chache. Kwa haraka, "
-                        "piga simu +254 715 540 653."
+                        "Samahani, mfumo umechelewa kabla sijamaliza hilo. "
+                        "Tafadhali tuma tena ujumbe huo mara moja; nitajaribu tena."
                         if is_sw else
-                        "Thanks for your message — I'm pulling our team in now "
-                        "and will get back to you in a few minutes. For anything "
-                        "urgent, call +254 715 540 653."
+                        "Sorry, the system took too long before I could finish that. "
+                        "Please send that message once more and I'll try again."
                     )
                 # Persist the fallback so conversation history stays complete
-                await append_message(db, conversation=conv, sender=Sender.ai, content=reply)
+                await append_message(
+                    db,
+                    conversation=conv,
+                    sender=Sender.ai,
+                    content=reply,
+                    safety_flags=["degraded_ai_fallback"],
+                )
                 await db.commit()
                 return TurnResult(reply=reply, conversation_id=conv.id, escalated=escalated)
 

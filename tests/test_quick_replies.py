@@ -1,0 +1,85 @@
+from __future__ import annotations
+
+import uuid
+
+import pytest
+
+from app.ai.quick_replies import (
+    looks_like_hours_request,
+    looks_like_recommendation_request,
+    maybe_build_quick_reply,
+    price_reply_from_chunks,
+    recommendation_reply_from_chunks,
+)
+from app.ai.rag import RetrievedChunk
+from app.services.business_service import BusinessProfile
+
+
+def test_recommendation_detector_catches_budget_and_menu_questions() -> None:
+    assert looks_like_recommendation_request("What's good for breakfast under KES 300?")
+    assert looks_like_recommendation_request("What do you have for pastries?")
+    assert not looks_like_recommendation_request("How much is the demo espresso?")
+    assert not looks_like_recommendation_request("show me a photo of the flat white")
+
+
+def test_hours_detector_matches_opening_questions() -> None:
+    assert looks_like_hours_request("What time do you open?")
+    assert looks_like_hours_request("closing time today?")
+    assert not looks_like_hours_request("How much is the latte?")
+
+
+def test_price_reply_from_chunks_handles_demo_espresso() -> None:
+    chunks = [
+        RetrievedChunk(
+            content="LIVE DEMO - Demo Espresso KES 10. Use this for live demos.",
+            source="menu",
+            score=0.9,
+        )
+    ]
+    assert price_reply_from_chunks("How much is the demo espresso?", chunks) == (
+        "Demo Espresso is KES 10. Want me to set one up for pickup?"
+    )
+
+
+def test_recommendation_reply_from_chunks_respects_budget() -> None:
+    chunks = [
+        RetrievedChunk(
+            content=(
+                "BREAKFAST - Served 07:00-11:30.\n"
+                "- Mandazi & Masala Chai KES 230 - three light mandazi + spiced milk tea.\n"
+                "- Big Pond Plate KES 620 - two eggs, bacon, beans, toast.\n"
+                "- Butter Croissant KES 180.\n"
+            ),
+            source="menu",
+            score=0.9,
+        )
+    ]
+    reply = recommendation_reply_from_chunks("What's good for breakfast under KES 300?", chunks)
+    assert reply is not None
+    assert "KES 230" in reply
+    assert "KES 180" in reply
+    assert "KES 620" not in reply
+
+
+@pytest.mark.asyncio
+async def test_maybe_build_quick_reply_uses_profile_hours(db, monkeypatch) -> None:
+    profile = BusinessProfile(
+        id=uuid.uuid4(),
+        slug="lily-pond-cafe",
+        name="Lily Pond Cafe",
+        industry="campus-cafe",
+        profile={"hours_summary": "Mon-Fri 07:00-21:00 | Sat 09:00-18:00 | Closed Sun"},
+    )
+
+    async def no_retrieve(*_args, **_kwargs):
+        return []
+
+    monkeypatch.setattr("app.ai.quick_replies.retrieve", no_retrieve)
+    reply = await maybe_build_quick_reply(
+        db,
+        business_id=profile.id,
+        profile=profile,
+        text="What time do you open?",
+    )
+
+    assert reply == "We\u2019re open Mon-Fri 07:00-21:00 | Sat 09:00-18:00 | Closed Sun."

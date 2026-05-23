@@ -3,8 +3,8 @@
 Provider switch via `LLM_PROVIDER` env (primary). Fallback chain via
 `LLM_FALLBACK_PROVIDERS` (comma-separated). When the primary raises a rate
 limit / quota / transient error mid-turn, LangChain's RunnableWithFallbacks
-automatically retries with the next provider — the customer never sees the
-"I'm pulling our team in now" fallback unless ALL providers fail.
+automatically retries with the next provider. The channel layer only shows a
+degraded fallback if all available model attempts fail or time out.
 
     openai → ChatOpenAI         (paid GPT-5 class models; primary path)
     gemini → ChatGoogleGenerativeAI (fallback)
