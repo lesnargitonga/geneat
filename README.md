@@ -130,7 +130,7 @@ Fresh live checks run from this workspace on **2026-05-24**:
 | `GET /healthz` | `{"status":"ok"}` |
 | `GET /readyz` | DB and Redis healthy |
 | `GET /health/deep` | `status=ok`, db/redis/pgvector/whatsapp/payments/llm all reachable |
-| `make doctor-live` | `21/21 configured checks passed` |
+| `make doctor-live` | `22/22 configured checks passed` |
 | Portal live price check | passed without generic fallback |
 | Portal live photo check | passed |
 | Meta webhook verify handshake | passed |
@@ -140,7 +140,7 @@ Fresh live checks run from this workspace on **2026-05-24**:
 Current `make doctor-live` truth:
 
 ```text
-21/21 configured checks passed
+22/22 configured checks passed
 ```
 
 What that means in plain English:
@@ -1829,7 +1829,7 @@ make doctor-live
 Current result:
 
 ```text
-21/21 configured checks passed
+22/22 configured checks passed
 ```
 
 This is now the main high-signal smoke test for the hosted demo stack.
