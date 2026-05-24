@@ -1,7 +1,10 @@
 from app.channels.base import (
     _customer_safe_kb_snippet,
+    _extract_inline_customer_name,
     _is_degraded_fallback_text,
+    _looks_like_demo_espresso_order,
     _looks_like_payment_cancel,
+    _looks_like_payment_resend,
     _payment_tool_recovery_reply,
     _promises_ready_before_payment,
 )
@@ -46,7 +49,20 @@ def test_premature_ready_detector_allows_payment_qualified_copy() -> None:
 def test_payment_cancel_intent_and_internal_kb_filter() -> None:
     assert _looks_like_payment_cancel("Cancel the payment for 10 please")
     assert not _looks_like_payment_cancel("I will stop by later")
+    assert _looks_like_payment_resend("send STK")
+    assert _looks_like_payment_resend("please resend the M-Pesa prompt")
+    assert _looks_like_payment_resend("tuma stk tena")
+    assert not _looks_like_payment_resend("send me a croissant photo")
+    assert not _looks_like_payment_resend("send payment receipt")
     assert _customer_safe_kb_snippet(
         "DEMO FLOW - call create_order then trigger M-Pesa immediately"
     ) is None
     assert _customer_safe_kb_snippet("PASTRIES - Butter Croissant KES 180.")
+
+
+def test_demo_espresso_fast_path_detects_order_with_name() -> None:
+    text = "Hi Lily Pond, I want the KES 10 demo espresso. My name is Lesnar."
+
+    assert _looks_like_demo_espresso_order(text)
+    assert _extract_inline_customer_name(text) == "Lesnar"
+    assert not _looks_like_demo_espresso_order("How much is the demo espresso?")

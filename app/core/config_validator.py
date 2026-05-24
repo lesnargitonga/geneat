@@ -116,6 +116,15 @@ def validate_settings(s: Settings) -> tuple[list[str], list[str]]:
     elif pay == "intasend":
         if not _secret(getattr(s, "intasend_api_token", "")):
             errors.append("PAYMENT_PROVIDER=intasend but INTASEND_API_TOKEN is missing.")
+        if bool(getattr(s, "intasend_test_mode", True)):
+            msg = (
+                "PAYMENT_PROVIDER=intasend but INTASEND_TEST_MODE=true — "
+                "real customer phones will not receive live STK prompts."
+            )
+            if is_prod:
+                errors.append(msg)
+            else:
+                warnings.append(msg)
         if not _secret(getattr(s, "intasend_webhook_secret", "")):
             msg = (
                 "PAYMENT_PROVIDER=intasend but INTASEND_WEBHOOK_SECRET is empty — "

@@ -42,8 +42,9 @@ log = get_logger("channel")
 # and call tools, then allow only a short retry window before deterministic
 # rescue. This keeps model-first behavior without making customers wait nearly
 # a minute for a fallback.
-AI_TURN_TIMEOUT_SECONDS = 18.0
-AI_TURN_RETRY_TIMEOUT_SECONDS = 6.0
+AI_TURN_TIMEOUT_SECONDS = 12.0
+AI_TURN_RETRY_TIMEOUT_SECONDS = 4.0
+PAYMENT_AUTO_RESEND_AFTER_SECONDS = 90.0
 _DEGRADED_FALLBACK_MARKERS = (
     "pulling our team",
     "system took too long",
@@ -59,12 +60,23 @@ _PAYMENT_CANCEL_RE = re.compile(
     re.IGNORECASE,
 )
 _PAYMENT_RESEND_RE = re.compile(
-    r"\b(resend|send again|retry|try again|tuma tena)\b.*\b(stk|payment|pay|malipo)\b|"
-    r"\b(stk|payment|pay|malipo)\b.*\b(resend|send again|retry|try again|tuma tena)\b",
+    r"\b(resend|send again|retry|try again|tuma tena)\b.*\b(stk|payment|pay|malipo|mpesa|m-pesa)\b|"
+    r"\b(send|tuma)\b.*\b(stk|mpesa|m-pesa)\b|"
+    r"\b(stk|payment|pay|malipo|mpesa|m-pesa)\b.*\b(resend|send again|retry|try again|tuma tena)\b|"
+    r"\b(stk|mpesa|m-pesa)\b.*\b(send|tuma)\b",
     re.IGNORECASE,
 )
 _ORDER_REPEAT_RE = re.compile(
     r"\b(i want|i need|i'?ll have|can i have|can i get|order|sort|get me)\b",
+    re.IGNORECASE,
+)
+_DEMO_ESPRESSO_RE = re.compile(r"\b(demo espresso|demo order|10 bob|ten bob)\b", re.IGNORECASE)
+_ORDER_INTENT_RE = re.compile(
+    r"\b(i want|i need|i'?ll have|can i have|can i get|order|sort|get me|nipe|nataka|leta)\b",
+    re.IGNORECASE,
+)
+_INLINE_NAME_RE = re.compile(
+    r"\b(?:my name is|name is|i am|i'm|naitwa|jina langu ni)\s+([A-Za-z][A-Za-z' -]{0,60})",
     re.IGNORECASE,
 )
 _INTERNAL_KB_MARKERS = (
@@ -101,6 +113,33 @@ def _looks_like_order_repeat(text: str) -> bool:
     if "demo espresso" in candidate or "demo order" in candidate or "10 bob" in candidate or "ten bob" in candidate:
         return True
     return bool(_ORDER_REPEAT_RE.search(candidate))
+
+
+def _looks_like_demo_espresso_order(text: str) -> bool:
+    candidate = (text or "").strip()
+    return bool(_DEMO_ESPRESSO_RE.search(candidate) and _ORDER_INTENT_RE.search(candidate))
+
+
+def _extract_inline_customer_name(text: str) -> str | None:
+    match = _INLINE_NAME_RE.search(text or "")
+    if not match:
+        return None
+    raw = match.group(1).strip(" .,!?:;\"'")
+    if not raw:
+        return None
+    first = re.split(r"\s+", raw, maxsplit=1)[0].strip(" .,!?:;\"'")
+    if not first or first.lower() in {"lily", "pond", "cafe", "caf"}:
+        return None
+    return first[:40]
+
+
+def _ai_timeout_seconds(attr: str, default: float) -> float:
+    try:
+        from app.core.config import get_settings
+        value = float(getattr(get_settings(), attr, default) or default)
+    except Exception:
+        return default
+    return max(1.0, value)
 
 
 def _customer_prefers_swahili(language: str | None) -> bool:
@@ -266,6 +305,144 @@ async def _latest_pending_order_for_turn(
         if _order_matches_text(order, text):
             return order
     return orders[0]
+
+
+def _payment_prompt_age_seconds(order: object) -> float | None:
+    from datetime import datetime, timezone
+
+    stamp = getattr(order, "updated_at", None) or getattr(order, "created_at", None)
+    if stamp is None:
+        return None
+    try:
+        if stamp.tzinfo is None:
+            stamp = stamp.replace(tzinfo=timezone.utc)
+        return max(0.0, (datetime.now(timezone.utc) - stamp).total_seconds())
+    except Exception:
+        return None
+
+
+async def _auto_resend_stale_payment_reply(
+    db: AsyncSession,
+    *,
+    customer,
+    conversation_id: uuid.UUID,
+    business_id: uuid.UUID | None,
+    text: str,
+    language: str | None,
+) -> str | None:
+    if not _looks_like_order_repeat(text):
+        return None
+    order = await _latest_pending_order_for_turn(
+        db,
+        customer_id=customer.id,
+        business_id=business_id,
+        conversation_id=conversation_id,
+        text=text,
+    )
+    if order is None or not getattr(order, "mpesa_checkout_id", None):
+        return None
+    if not _order_matches_text(order, text):
+        return None
+    age_seconds = _payment_prompt_age_seconds(order)
+    if age_seconds is None or age_seconds < PAYMENT_AUTO_RESEND_AFTER_SECONDS:
+        return None
+    log.info(
+        "auto_resending_stale_stk",
+        order=str(getattr(order, "id", "")),
+        age_seconds=round(age_seconds, 1),
+    )
+    return await _resend_pending_payment_reply(
+        db,
+        customer=customer,
+        conversation_id=conversation_id,
+        business_id=business_id,
+        text=text,
+        language=language,
+    )
+
+
+async def _demo_espresso_fast_order_reply(
+    db: AsyncSession,
+    *,
+    customer,
+    conversation_id: uuid.UUID,
+    business_id: uuid.UUID | None,
+    text: str,
+    language: str | None,
+) -> str | None:
+    if not _looks_like_demo_espresso_order(text):
+        return None
+
+    from app.db.models import Order, PaymentStatus
+
+    is_sw = _customer_prefers_swahili(language or getattr(customer, "preferred_language", None))
+    name = _extract_inline_customer_name(text) or getattr(customer, "name", None)
+    if not name:
+        return (
+            "Sawa - niandikie jina la kuweka kwa oda ya Demo Espresso ya KES 10."
+            if is_sw else
+            "Sure - what name should I put on the KES 10 Demo Espresso order?"
+        )
+    if getattr(customer, "name", None) != name:
+        customer.name = name
+
+    existing = await _latest_pending_order_for_turn(
+        db,
+        customer_id=customer.id,
+        business_id=business_id,
+        conversation_id=conversation_id,
+        text="Demo Espresso KES 10",
+    )
+    if existing is not None and not _order_matches_text(existing, "Demo Espresso KES 10"):
+        existing = None
+    if existing is not None:
+        if getattr(existing, "mpesa_checkout_id", None):
+            age_seconds = _payment_prompt_age_seconds(existing)
+            if age_seconds is None or age_seconds < PAYMENT_AUTO_RESEND_AFTER_SECONDS:
+                amount = int(float(existing.amount or 0))
+                summary = _order_items_summary_from_details(existing.details)
+                return (
+                    f"Tayari nina {summary} ya KES {amount} ikisubiri malipo. Angalia STK kwa simu; ikiisha muda, andika 'resend STK'."
+                    if is_sw else
+                    f"I already have {summary} for KES {amount} waiting on payment. Check your phone for the STK; if it expired, type 'resend STK'."
+                )
+        return await _resend_pending_payment_reply(
+            db,
+            customer=customer,
+            conversation_id=conversation_id,
+            business_id=business_id,
+            text="Demo Espresso KES 10",
+            language=language,
+        )
+
+    order = Order(
+        customer_id=customer.id,
+        business_id=business_id,
+        conversation_id=conversation_id,
+        details={
+            "items": [{"sku_or_name": "Demo Espresso", "qty": 1, "unit_price": 10.0}],
+            "delivery_notes": "Live Lily Pond demo order",
+            "fast_path": "demo_espresso",
+        },
+        amount=10.0,
+        payment_status=PaymentStatus.pending,
+    )
+    db.add(order)
+    await db.flush()
+
+    payment_reply = await _resend_pending_payment_reply(
+        db,
+        customer=customer,
+        conversation_id=conversation_id,
+        business_id=business_id,
+        text="Demo Espresso KES 10",
+        language=language,
+    )
+    if is_sw:
+        return payment_reply
+    if payment_reply.startswith("Sent a fresh STK"):
+        return f"Nailed it, {name} - {payment_reply[0].lower()}{payment_reply[1:]}"
+    return payment_reply
 
 
 async def _cancel_jobs_for_order(db: AsyncSession, *, order_id: uuid.UUID, business_id: uuid.UUID | None) -> int:
@@ -743,7 +920,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             )
             control_flag = "deterministic:cancel_payment"
         else:
-            control_reply = await _pending_order_repeat_reply(
+            control_reply = await _demo_espresso_fast_order_reply(
                 db,
                 customer=customer,
                 conversation_id=conv.id,
@@ -751,7 +928,29 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 text=turn.text,
                 language=effective_lang,
             )
-            control_flag = "deterministic:pending_order_status" if control_reply else None
+            if control_reply:
+                control_flag = "deterministic:demo_espresso_fast_order"
+            else:
+                control_reply = await _auto_resend_stale_payment_reply(
+                    db,
+                    customer=customer,
+                    conversation_id=conv.id,
+                    business_id=business_id,
+                    text=turn.text,
+                    language=effective_lang,
+                )
+                if control_reply:
+                    control_flag = "deterministic:auto_resend_payment"
+                else:
+                    control_reply = await _pending_order_repeat_reply(
+                        db,
+                        customer=customer,
+                        conversation_id=conv.id,
+                        business_id=business_id,
+                        text=turn.text,
+                        language=effective_lang,
+                    )
+                    control_flag = "deterministic:pending_order_status" if control_reply else None
 
         if control_reply:
             await append_message(
@@ -802,7 +1001,10 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             if not (r.sender == Sender.ai and _is_degraded_fallback_text(r.content))
         ]
 
-        async def _run_ai_once(timeout_seconds: float = AI_TURN_TIMEOUT_SECONDS) -> dict:
+        turn_timeout = _ai_timeout_seconds("ai_turn_timeout_seconds", AI_TURN_TIMEOUT_SECONDS)
+        turn_retry_timeout = _ai_timeout_seconds("ai_turn_retry_timeout_seconds", AI_TURN_RETRY_TIMEOUT_SECONDS)
+
+        async def _run_ai_once(timeout_seconds: float = turn_timeout) -> dict:
             return await asyncio.wait_for(
                 run_turn(
                     db,
@@ -823,14 +1025,14 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             result = await _run_ai_once()
         except Exception as e:
             if isinstance(e, asyncio.TimeoutError):
-                retry_timeout = AI_TURN_RETRY_TIMEOUT_SECONDS
+                retry_timeout = turn_retry_timeout
                 log.warning(
                     "ai_turn_timed_out_retrying",
-                    timeout_seconds=AI_TURN_TIMEOUT_SECONDS,
+                    timeout_seconds=turn_timeout,
                     retry_timeout_seconds=retry_timeout,
                 )
             else:
-                retry_timeout = AI_TURN_TIMEOUT_SECONDS
+                retry_timeout = turn_timeout
                 log.warning("ai_turn_failed_retrying", error=str(e), error_type=type(e).__name__)
             # One quiet retry — covers transient Ollama/DB hiccups before we
             # ever show the customer a fallback string.

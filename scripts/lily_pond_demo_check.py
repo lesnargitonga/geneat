@@ -150,6 +150,8 @@ async def run(
         Check("Meta phone number id configured", bool(s.meta_wa_phone_number_id)),
         Check("payment provider configured", bool(s.payment_provider), f"{s.payment_provider}; simulator={s.payment_simulator}"),
     ]
+    if s.payment_provider == "intasend" and not s.payment_simulator:
+        checks.append(Check("IntaSend live mode", not s.intasend_test_mode, f"test_mode={s.intasend_test_mode}"))
 
     if include_db:
         try:

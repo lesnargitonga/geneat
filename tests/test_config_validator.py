@@ -12,6 +12,7 @@ def _base_settings(**overrides) -> Settings:
         "whatsapp_provider": "mock",
         "payment_provider": "intasend",
         "payment_simulator": False,
+        "intasend_test_mode": False,
         "intasend_api_token": "intasend-token",
         "intasend_webhook_secret": "intasend-webhook-secret",
         "phone_hash_pepper": "pepper",
@@ -36,6 +37,14 @@ def test_prod_rejects_payment_simulator() -> None:
 
     assert any("PAYMENT_SIMULATOR=true" in err for err in errors)
     assert not any("INTASEND_API_TOKEN" in err for err in errors)
+
+
+def test_prod_intasend_rejects_test_mode() -> None:
+    errors, _warnings = validate_settings(
+        _base_settings(intasend_test_mode=True)
+    )
+
+    assert any("INTASEND_TEST_MODE=true" in err for err in errors)
 
 
 def test_prod_gpt5_responses_requires_stored_responses() -> None:

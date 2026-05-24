@@ -75,6 +75,11 @@ class Settings(BaseSettings):
     # model, not the same expensive 70B that just hit TPD.
     groq_fallback_model: str = "llama-3.1-8b-instant"
 
+    # AI turn timing. Normal turns should feel conversational on WhatsApp,
+    # but still leave a short rescue window for transient provider hiccups.
+    ai_turn_timeout_seconds: float = 12.0
+    ai_turn_retry_timeout_seconds: float = 4.0
+
     # ElevenLabs
     elevenlabs_api_key: SecretStr = Field(default=SecretStr(""))
     elevenlabs_voice_id: str = "21m00Tcm4TlvDq8ikWAM"

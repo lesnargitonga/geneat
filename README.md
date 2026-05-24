@@ -14,7 +14,7 @@ final authority, but this document is the canonical human map of:
 - what is still demo-only,
 - and what still needs hardening before anyone promises enterprise-grade uptime.
 
-Last reconciled with the codebase and live checks: **2026-05-23**.
+Last reconciled with the codebase and live checks: **2026-05-24**.
 
 ## Table Of Contents
 
@@ -123,14 +123,14 @@ Notes:
 
 ### 2.2 Hosted live verification
 
-Fresh live checks run from this workspace on **2026-05-23**:
+Fresh live checks run from this workspace on **2026-05-24**:
 
 | Check | Result |
 | --- | --- |
 | `GET /healthz` | `{"status":"ok"}` |
 | `GET /readyz` | DB and Redis healthy |
 | `GET /health/deep` | `status=ok`, db/redis/pgvector/whatsapp/payments/llm all reachable |
-| `make doctor-live` | `20/20 configured checks passed` |
+| `make doctor-live` | `21/21 configured checks passed` |
 | Portal live price check | passed without generic fallback |
 | Portal live photo check | passed |
 | Meta webhook verify handshake | passed |
@@ -140,7 +140,7 @@ Fresh live checks run from this workspace on **2026-05-23**:
 Current `make doctor-live` truth:
 
 ```text
-20/20 configured checks passed
+21/21 configured checks passed
 ```
 
 What that means in plain English:
@@ -155,6 +155,7 @@ What that means in plain English:
 - the `Demo Espresso` price answer works without the generic fallback,
 - a photo request returns an image,
 - Meta webhook verification works,
+- IntaSend is configured for live mode, not test mode,
 - the primary OpenAI provider is reachable and not tripped open.
 
 ### 2.3 Local verification
@@ -163,7 +164,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `71 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `73 passed, 1 warning` via `make test-fast` |
 | Admin UI production build | passed |
 | Gen-Eat portal production build | passed |
 | Logging crash regression test | passed |
@@ -573,6 +574,8 @@ Settings-layer defaults:
 | `OPENAI_EMBED_MODEL` | `text-embedding-3-large` |
 | `OPENAI_EMBED_DIMENSIONS` | `768` |
 | `llm_fallback_providers` in `Settings` | `gemini,local` |
+| `AI_TURN_TIMEOUT_SECONDS` / `ai_turn_timeout_seconds` | `12.0` |
+| `AI_TURN_RETRY_TIMEOUT_SECONDS` / `ai_turn_retry_timeout_seconds` | `4.0` |
 
 Important nuance:
 
@@ -607,7 +610,7 @@ messages. The current rule is:
   fallback,
 - the generic human-handoff fallback should be rare.
 
-Current explicit happy-path fast-path in [app/ai/graph.py](/home/lesnar/Documents/ai model/app/ai/graph.py):
+Current explicit happy-path fast-paths:
 
 - **Photo requests only**, such as:
   - `show me a photo of the flat white`
@@ -615,6 +618,10 @@ Current explicit happy-path fast-path in [app/ai/graph.py](/home/lesnar/Document
   - `picha ya avocado toast`
   short-circuit directly into `send_menu_photo` without waiting for the LLM
   to decide whether to use a tool.
+- **The live KES 10 Demo Espresso order**, such as
+  `I want the KES 10 demo espresso. My name is Lesnar`, is handled in the
+  channel layer before the model. It captures the customer name, creates or
+  reuses the pending order, and starts the IntaSend STK path immediately.
 
 Current model-led happy path:
 
@@ -639,6 +646,10 @@ Current order/payment hardening:
   ignore any old STK prompt,
 - customer messages like `resend STK` deterministically try a fresh STK for
   the pending order,
+- customer messages like `send STK`, `send M-Pesa`, or `tuma stk` are also
+  treated as STK resend intents,
+- repeated matching order messages with an old pending STK automatically send
+  a fresh STK after 90 seconds instead of silently pointing at a stale prompt,
 - the assistant must not say `pickup ready`, `ready by`, `paid`, or
   `confirmed` until a payment callback or payment poll confirms money landed,
 - ready notifications are scheduled only after paid payment state,
@@ -652,9 +663,11 @@ Current order/payment hardening:
 
 Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Documents/ai model/app/channels/base.py):
 
-- each AI turn is bounded by `AI_TURN_TIMEOUT_SECONDS`,
+- each AI turn is bounded by `AI_TURN_TIMEOUT_SECONDS`, currently 12 seconds
+  unless overridden by env,
 - one quiet retry is attempted for transient provider/tool failures; timeout
-  retries use a smaller window so stuck turns do not drag on,
+  retries use `AI_TURN_RETRY_TIMEOUT_SECONDS`, currently 4 seconds, so stuck
+  turns do not drag on,
 - deterministic quick replies can answer obvious price, hours, or menu
   recommendation questions only after the model path fails,
 - deterministic quick replies can answer item-availability questions such as
@@ -1512,6 +1525,8 @@ LLM / embeddings:
 | `OPENAI_STORE_RESPONSES` | keep `true` with Responses API tool loops |
 | `OPENAI_EMBED_MODEL` | `text-embedding-3-large` |
 | `OPENAI_EMBED_DIMENSIONS` | must remain `768` |
+| `AI_TURN_TIMEOUT_SECONDS` | normal model-turn timeout; current default `12` |
+| `AI_TURN_RETRY_TIMEOUT_SECONDS` | shorter quiet retry timeout; current default `4` |
 | `GROQ_API_KEY` | Groq provider / vision |
 | `GEMINI_API_KEY` | Gemini fallback |
 
@@ -1533,6 +1548,7 @@ Payments:
 | --- | --- |
 | `PAYMENT_PROVIDER` | current live path is `intasend` |
 | `PAYMENT_SIMULATOR` | keep `false` on live path |
+| `INTASEND_TEST_MODE` | must be `false` for real customer STK prompts |
 | `INTASEND_API_TOKEN` | IntaSend auth |
 | `INTASEND_PUBLISHABLE_KEY` | IntaSend frontend/public key where needed |
 | `INTASEND_WEBHOOK_SECRET` | IntaSend callback verification |
@@ -1577,7 +1593,7 @@ Payments:
 
 ### 19.7 Current live cutover truth
 
-As of 2026-05-23:
+As of 2026-05-24:
 
 - Cloudflare DNS points the API domain at Render,
 - Meta webhook points at the hosted API,
@@ -1787,7 +1803,7 @@ make test-fast
 Current result:
 
 ```text
-71 passed, 1 warning
+73 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -1811,7 +1827,7 @@ make doctor-live
 Current result:
 
 ```text
-20/20 configured checks passed
+21/21 configured checks passed
 ```
 
 This is now the main high-signal smoke test for the hosted demo stack.
@@ -1843,11 +1859,15 @@ This is the honest list, not the flattering list.
 - photo requests send real media through a deterministic action path
 - normal WhatsApp text is model-led first, with deterministic quick replies
   reserved for timeout/failure rescue
+- the flagship KES 10 Demo Espresso order path now bypasses the model and
+  goes straight to order creation + STK so the live proof feels fast
 - safety rules now let normal café wording and photo requests reach the model
   while still blocking real prompt-injection attempts
 - order/payment turns now guard against duplicate pending orders, duplicate
   STK pushes, premature pickup-ready promises, and wrong-language payment
   failure messages
+- stale pending STKs can be resent explicitly with `send STK` / `resend STK`,
+  and repeated matching orders auto-resend after 90 seconds
 - production startup validation now fails fast on live-payment, Meta webhook,
   GPT-5 Responses, and embedding-dimension misconfigurations
 - `doctor-live` now retries transient hosted health/webhook/chat/photo probes
