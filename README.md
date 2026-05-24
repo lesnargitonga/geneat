@@ -163,7 +163,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `68 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `71 passed, 1 warning` via `make test-fast` |
 | Admin UI production build | passed |
 | Gen-Eat portal production build | passed |
 | Logging crash regression test | passed |
@@ -1357,6 +1357,7 @@ make doctor-live
 make smoke-providers
 make bootstrap-demo
 make publish-demo-photos
+make generate-lily-training
 ```
 
 ### 18.5 Demo seed and bootstrap
@@ -1740,6 +1741,7 @@ Current tracked scripts:
 | `scripts/lily_pond_demo_check.py` | local/live doctor |
 | `scripts/smoke_providers.py` | provider sanity check |
 | `scripts/publish_demo_menu_photos.py` | bulk demo photo publisher |
+| `scripts/generate_lily_pond_training.py` | synthetic Lily Pond SFT golden-path JSONL generator |
 | `scripts/build_render_env.py` | local helper that writes an ignored Render env bundle from `.env` |
 | `scripts/audit_battery.sh` | audit helper |
 
@@ -1748,6 +1750,31 @@ Current high-value scripts:
 - `lily_pond_demo_check.py` is the single best “is the demo alive?” script
 - `publish_demo_menu_photos.py` is the current bulk image hydration tool
 - `smoke_providers.py` is the credential sanity probe
+- `generate_lily_pond_training.py` creates OpenAI-style chat fine-tuning JSONL
+  examples for Lily Pond, including tool schemas and tool-call turns
+
+### 21.1 Lily Pond training data generator
+
+The Lily Pond training generator is for synthetic golden paths:
+
+```bash
+make generate-lily-training
+./.venv/bin/python scripts/generate_lily_pond_training.py --examples 100 --seed 42
+./.venv/bin/python scripts/generate_lily_pond_training.py --examples 50 --sample 2
+```
+
+Current behavior:
+
+- writes `lily_pond_training_v1.jsonl` by default,
+- uses JSONL with one complete chat-training object per line,
+- includes `tools` and `parallel_tool_calls=false`,
+- uses only real tool names from the current assistant tool surface,
+- avoids the non-existent `cancel_pending_order` tool because cancellation is
+  handled deterministically by the channel layer,
+- uses the actual Lily Pond seed prices from `scripts/seed_geneat_demo.py`,
+- avoids teaching bad payment copy such as `paid`, `confirmed`, `pickup ready`,
+  or `ready by` before payment lands,
+- generated `lily_pond_training_*.jsonl` files are ignored by git.
 
 ## 22. Testing
 
@@ -1760,7 +1787,7 @@ make test-fast
 Current result:
 
 ```text
-68 passed, 1 warning
+71 passed, 1 warning
 ```
 
 ### 22.2 Builds
