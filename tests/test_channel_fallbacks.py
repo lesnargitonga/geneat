@@ -4,7 +4,9 @@ from app.channels.base import (
     _is_degraded_fallback_text,
     _looks_like_demo_espresso_order,
     _looks_like_payment_cancel,
+    _looks_like_payment_claim,
     _looks_like_payment_resend,
+    _looks_like_pickup_status_request,
     _payment_tool_recovery_reply,
     _promises_ready_before_payment,
 )
@@ -66,3 +68,11 @@ def test_demo_espresso_fast_path_detects_order_with_name() -> None:
     assert _looks_like_demo_espresso_order(text)
     assert _extract_inline_customer_name(text) == "Lesnar"
     assert not _looks_like_demo_espresso_order("How much is the demo espresso?")
+
+
+def test_payment_claim_and_pickup_intents_are_deterministic() -> None:
+    assert _looks_like_payment_claim("Paid")
+    assert _looks_like_payment_claim("nimeshalipa")
+    assert not _looks_like_payment_claim("not paid yet")
+    assert _looks_like_pickup_status_request("Can I skip line and pick up at 12:30?")
+    assert _looks_like_pickup_status_request("is it ready?")

@@ -13,7 +13,7 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import db_session
@@ -48,6 +48,8 @@ async def _business_id_for_order(db: AsyncSession, order: Order) -> uuid.UUID | 
     """Return the tenant for an order and opportunistically backfill it."""
     if order.business_id is not None:
         return order.business_id
+    if db is None:
+        return None
     if order.conversation_id is None:
         return None
     bid = (await db.execute(
@@ -56,6 +58,71 @@ async def _business_id_for_order(db: AsyncSession, order: Order) -> uuid.UUID | 
     if bid is not None:
         order.business_id = bid
     return bid
+
+
+async def _transition_payment_status(
+    db: AsyncSession | None,
+    order: Order,
+    *,
+    from_statuses: set[PaymentStatus],
+    to_status: PaymentStatus,
+    receipt: str | None = None,
+) -> bool:
+    """Optimistically transition an order's payment state.
+
+    Provider callbacks can arrive late, duplicated, or concurrently. This
+    compare-and-set keeps terminal states from being overwritten by stale
+    events while still allowing a real paid callback to win over an earlier
+    pending/failed/timeout state.
+    """
+    if order.payment_status not in from_statuses:
+        log.info(
+            "payment_status_transition_skipped",
+            order=str(getattr(order, "id", "")),
+            current_status=getattr(order.payment_status, "value", str(order.payment_status)),
+            target_status=to_status.value,
+        )
+        return False
+
+    current_version = int(getattr(order, "payment_version", 0) or 0)
+    if db is None:
+        order.payment_status = to_status
+        order.payment_version = current_version + 1
+        if receipt is not None:
+            order.mpesa_receipt = receipt
+        return True
+
+    values = {
+        "payment_status": to_status,
+        "payment_version": Order.payment_version + 1,
+    }
+    if receipt is not None:
+        values["mpesa_receipt"] = receipt
+    result = await db.execute(
+        update(Order)
+        .where(Order.id == order.id)
+        .where(Order.payment_status.in_(list(from_statuses)))
+        .where(Order.payment_version == current_version)
+        .values(**values)
+        .returning(Order.payment_status, Order.payment_version, Order.mpesa_receipt)
+    )
+    row = result.first()
+    if row is None:
+        log.warning(
+            "payment_status_transition_conflict",
+            order=str(order.id),
+            from_version=current_version,
+            target_status=to_status.value,
+        )
+        try:
+            await db.refresh(order)
+        except Exception as exc:  # pragma: no cover
+            log.warning("payment_status_refresh_after_conflict_failed", error=str(exc), order=str(order.id))
+        return False
+    order.payment_status = row.payment_status
+    order.payment_version = row.payment_version
+    order.mpesa_receipt = row.mpesa_receipt
+    return True
 
 
 async def _publish_paid_event(order: Order, business_id: uuid.UUID | None, provider: str) -> None:
@@ -130,8 +197,8 @@ def _receipt_message(
     )
 
 
-async def _business_name(db: AsyncSession, business_id: uuid.UUID | None) -> str | None:
-    if business_id is None:
+async def _business_name(db: AsyncSession | None, business_id: uuid.UUID | None) -> str | None:
+    if db is None or business_id is None:
         return None
     return (await db.execute(
         select(Business.name).where(Business.id == business_id)
@@ -142,7 +209,9 @@ def _is_swahili_language(language: str | None) -> bool:
     return (language or "").lower().startswith(("sw", "she"))
 
 
-async def _customer_language(db: AsyncSession, order: Order) -> str | None:
+async def _customer_language(db: AsyncSession | None, order: Order) -> str | None:
+    if db is None:
+        return None
     customer = await db.get(Customer, order.customer_id)
     return customer.preferred_language if customer is not None else None
 
@@ -171,7 +240,7 @@ async def _schedule_ready_after_payment(
     order: Order,
     business_id: uuid.UUID | None,
 ) -> None:
-    if business_id is None:
+    if db is None or business_id is None:
         return
     biz = await db.get(Business, business_id)
     prep_min = 8
@@ -180,7 +249,7 @@ async def _schedule_ready_after_payment(
         business_name = biz.name
         try:
             prep_min = int((biz.profile or {}).get("avg_prep_minutes", 8) or 8)
-        except Exception:
+        except (TypeError, ValueError):
             prep_min = 8
     try:
         from app.jobs.order_ready_notifier import schedule_ready_notification
@@ -233,7 +302,6 @@ async def _apply_provider_payment_result(
         return False, None, business_id
 
     if status == "paid":
-        order.payment_status = PaymentStatus.paid
         receipt = str(
             (raw or {}).get("mpesa_reference")
             or (raw or {}).get("api_ref")
@@ -241,7 +309,15 @@ async def _apply_provider_payment_result(
             or order.mpesa_checkout_id
             or ""
         )
-        order.mpesa_receipt = receipt
+        transitioned = await _transition_payment_status(
+            db,
+            order,
+            from_statuses={PaymentStatus.pending, PaymentStatus.failed, PaymentStatus.cancelled, PaymentStatus.timeout},
+            to_status=PaymentStatus.paid,
+            receipt=receipt,
+        )
+        if not transitioned:
+            return False, None, business_id
         msg = _receipt_message(
             order,
             provider=provider,
@@ -251,19 +327,27 @@ async def _apply_provider_payment_result(
         )
         await _schedule_ready_after_payment(db, order, business_id)
     elif status == "failed":
-        order.payment_status = PaymentStatus.failed
+        transitioned = await _transition_payment_status(
+            db,
+            order,
+            from_statuses={PaymentStatus.pending},
+            to_status=PaymentStatus.failed,
+        )
+        if not transitioned:
+            return False, None, business_id
         msg = _payment_failed_message(language=await _customer_language(db, order))
     else:
         return False, None, business_id
 
-    db.add(AuditEvent(
-        actor=provider,
-        action=f"callback_{order.payment_status.value}",
-        target=str(order.id),
-        data={"state": status},
-    ))
-    await db.commit()
-    if order.payment_status == PaymentStatus.paid:
+    if db is not None:
+        db.add(AuditEvent(
+            actor=provider,
+            action=f"callback_{order.payment_status.value}",
+            target=str(order.id),
+            data={"state": status},
+        ))
+        await db.commit()
+    if db is not None and order.payment_status == PaymentStatus.paid:
         await _publish_paid_event(order, business_id, provider)
     return True, msg, business_id
 
@@ -274,6 +358,8 @@ async def stk_push_endpoint(payload: STKIn, db: AsyncSession = Depends(db_sessio
     order = (await db.execute(select(Order).where(Order.id == uuid.UUID(payload.order_id)))).scalar_one_or_none()
     if not order:
         raise HTTPException(404, "order not found")
+    if order.payment_status == PaymentStatus.paid:
+        raise HTTPException(409, "order already paid")
     try:
         result = await mpesa_client.stk_push(
             msisdn=msisdn, amount=payload.amount, reference=payload.reference,
@@ -286,14 +372,22 @@ async def stk_push_endpoint(payload: STKIn, db: AsyncSession = Depends(db_sessio
 
     checkout_id = result["CheckoutRequestID"]
     business_id = await _business_id_for_order(db, order)
+    transitioned = await _transition_payment_status(
+        db,
+        order,
+        from_statuses={PaymentStatus.pending, PaymentStatus.failed, PaymentStatus.cancelled, PaymentStatus.timeout},
+        to_status=PaymentStatus.pending,
+    )
+    if not transitioned:
+        raise HTTPException(409, "order payment state changed")
     order.mpesa_checkout_id = checkout_id
-    order.payment_status = PaymentStatus.pending
     await enqueue_job(
         db,
         kind="payment.unpaid_followup",
         business_id=business_id,
         run_at=datetime.now(timezone.utc) + timedelta(seconds=300),
         max_attempts=5,
+        ttl_seconds=20 * 60,
         payload={"order_id": str(order.id), "checkout_id": checkout_id},
     )
     await db.commit()
@@ -383,8 +477,15 @@ async def mpesa_callback(request: Request):
                 log.info("mpesa_callback_duplicate_receipt", receipt=receipt)
                 return {"ResultCode": 0, "ResultDesc": "duplicate receipt ignored"}
 
-            order.payment_status = PaymentStatus.paid
-            order.mpesa_receipt = receipt
+            transitioned = await _transition_payment_status(
+                db,
+                order,
+                from_statuses={PaymentStatus.pending, PaymentStatus.failed, PaymentStatus.cancelled, PaymentStatus.timeout},
+                to_status=PaymentStatus.paid,
+                receipt=receipt,
+            )
+            if not transitioned:
+                return {"ResultCode": 0, "ResultDesc": "state transition ignored"}
             msg = _receipt_message(
                 order,
                 provider="daraja",
@@ -394,13 +495,27 @@ async def mpesa_callback(request: Request):
             )
             await _schedule_ready_after_payment(db, order, business_id)
         elif result_code == 1032:  # User cancelled
-            order.payment_status = PaymentStatus.cancelled
+            transitioned = await _transition_payment_status(
+                db,
+                order,
+                from_statuses={PaymentStatus.pending},
+                to_status=PaymentStatus.cancelled,
+            )
+            if not transitioned:
+                return {"ResultCode": 0, "ResultDesc": "state transition ignored"}
             msg = _payment_failed_message(
                 language=await _customer_language(db, order),
                 cancelled=True,
             )
         else:
-            order.payment_status = PaymentStatus.failed
+            transitioned = await _transition_payment_status(
+                db,
+                order,
+                from_statuses={PaymentStatus.pending},
+                to_status=PaymentStatus.failed,
+            )
+            if not transitioned:
+                return {"ResultCode": 0, "ResultDesc": "state transition ignored"}
             msg = _payment_failed_message(language=await _customer_language(db, order))
 
         db.add(AuditEvent(
@@ -454,7 +569,7 @@ async def _generic_provider_callback(request: Request, *, expected_provider: str
         raise HTTPException(401, "bad signature")
     try:
         payload = await request.json()
-    except Exception:
+    except ValueError:
         raise HTTPException(400, "invalid json")
     parsed = svc.parse_callback(payload)
     if not parsed.reference:

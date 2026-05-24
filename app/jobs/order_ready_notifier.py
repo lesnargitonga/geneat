@@ -34,6 +34,7 @@ async def schedule_ready_notification(
         business_id=business_id,
         run_at=run_at,
         max_attempts=5,
+        ttl_seconds=max(60 * 60, int(delay_seconds) + 60 * 60),
         payload={
             "order_id": order_id,
             "business_name": business_name,

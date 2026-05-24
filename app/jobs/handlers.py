@@ -36,8 +36,8 @@ async def _publish_broadcast_progress(bc: Broadcast) -> None:
                 "status": bc.status.value,
             },
         )
-    except Exception:
-        pass
+    except Exception as exc:  # pragma: no cover
+        log.warning("broadcast_progress_publish_failed", broadcast_id=str(bc.id), error=str(exc))
 
 
 @job_handler("broadcast.send")
@@ -149,15 +149,22 @@ async def run_simulated_payment_confirm(job: JobSnapshot) -> None:
             return
         if order.payment_status == PaymentStatus.paid:
             return
-        order.payment_status = PaymentStatus.paid
-        order.mpesa_receipt = f"SIM-{checkout_id}"
+        from app.api.payments import _schedule_ready_after_payment, _transition_payment_status
+        transitioned = await _transition_payment_status(
+            db,
+            order,
+            from_statuses={PaymentStatus.pending, PaymentStatus.failed, PaymentStatus.cancelled, PaymentStatus.timeout},
+            to_status=PaymentStatus.paid,
+            receipt=f"SIM-{checkout_id}",
+        )
+        if not transitioned:
+            return
         db.add(AuditEvent(
             actor="sim",
             action="callback_paid",
             target=str(order.id),
             data={"simulated": True},
         ))
-        from app.api.payments import _schedule_ready_after_payment
         await _schedule_ready_after_payment(db, order, order.business_id)
         customer = await db.get(Customer, order.customer_id)
         await db.commit()
@@ -170,8 +177,8 @@ async def run_simulated_payment_confirm(job: JobSnapshot) -> None:
             "receipt": order.mpesa_receipt or "",
             "provider": "simulator",
         })
-    except Exception:
-        pass
+    except Exception as exc:  # pragma: no cover
+        log.warning("simulated_payment_publish_failed", order=str(order.id), error=str(exc))
     if customer is not None:
         from app.integrations import whatsapp_client
         await whatsapp_client.send_text(
@@ -205,7 +212,13 @@ async def run_unpaid_payment_followup(job: JobSnapshot) -> None:
     async with SessionLocal() as db:
         order = await db.get(Order, order_id)
         if order is not None and order.payment_status == PaymentStatus.pending:
-            order.payment_status = PaymentStatus.timeout
+            from app.api.payments import _transition_payment_status
+            await _transition_payment_status(
+                db,
+                order,
+                from_statuses={PaymentStatus.pending},
+                to_status=PaymentStatus.timeout,
+            )
             await db.commit()
 
 
@@ -240,6 +253,7 @@ async def run_intasend_payment_poll(job: JobSnapshot) -> None:
                 business_id=job.business_id,
                 run_at=datetime.now(timezone.utc) + timedelta(seconds=20),
                 max_attempts=1,
+                ttl_seconds=10 * 60,
                 payload={
                     "order_id": str(order_id),
                     "checkout_id": checkout_id,

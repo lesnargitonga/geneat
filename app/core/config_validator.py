@@ -24,6 +24,32 @@ def _secret(value) -> str:
         return ""
 
 
+_WEAK_SECRET_VALUES = {
+    "change-me",
+    "changeme",
+    "secret",
+    "password",
+    "admin",
+    "token",
+    "test",
+    "dev",
+    "default",
+    "please-change-me",
+}
+
+
+def _weak_secret(value, *, min_len: int = 32) -> bool:
+    raw = _secret(value).strip()
+    if len(raw) < min_len:
+        return True
+    lowered = raw.lower()
+    if lowered in _WEAK_SECRET_VALUES or lowered.startswith(("change-me", "changeme", "replace-me")):
+        return True
+    if len(set(raw)) <= 2:
+        return True
+    return False
+
+
 def validate_settings(s: Settings) -> tuple[list[str], list[str]]:
     """Return (errors, warnings). Errors should abort startup; warnings just log."""
     errors: list[str] = []
@@ -149,8 +175,30 @@ def validate_settings(s: Settings) -> tuple[list[str], list[str]]:
     # ── Security ──────────────────────────────────────────────────
     if not _secret(getattr(s, "phone_hash_pepper", "")):
         errors.append("PHONE_HASH_PEPPER is required (used for PII hashing in logs).")
-    if not _secret(getattr(s, "admin_api_token", "")):
+    admin_token = _secret(getattr(s, "admin_api_token", ""))
+    if not admin_token:
         warnings.append("ADMIN_API_TOKEN is empty — /admin/* endpoints will reject all requests.")
+    if is_prod:
+        for attr, env_name, min_len in (
+            ("secret_key", "SECRET_KEY", 32),
+            ("phone_hash_pepper", "PHONE_HASH_PEPPER", 32),
+        ):
+            value = getattr(s, attr, "")
+            if _weak_secret(value, min_len=min_len):
+                errors.append(
+                    f"{env_name} is too weak for production. Use at least {min_len} unpredictable characters."
+                )
+        jwt_secret = _secret(getattr(s, "jwt_secret", ""))
+        if not jwt_secret:
+            errors.append("JWT_SECRET is required in production.")
+        elif _weak_secret(jwt_secret, min_len=32):
+            warnings.append(
+                "JWT_SECRET is weak for production. Use at least 32 unpredictable characters."
+            )
+        if admin_token and _weak_secret(admin_token, min_len=24):
+            warnings.append(
+                "ADMIN_API_TOKEN is weak for production. Use at least 24 unpredictable characters."
+            )
 
     # ── Database ──────────────────────────────────────────────────
     if not (getattr(s, "database_url", "") or ""):

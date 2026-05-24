@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Awaitable, Callable
 
-from sqlalchemy import and_, or_, select
+from sqlalchemy import and_, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
@@ -30,6 +30,7 @@ _runner_task: asyncio.Task | None = None
 _worker_id = f"job-pid-{os.getpid()}"
 _poll_interval = 2.0
 _lease_seconds = 10 * 60
+_default_job_ttl_seconds = 24 * 60 * 60
 
 
 @dataclass(frozen=True)
@@ -40,6 +41,7 @@ class JobSnapshot:
     business_id: uuid.UUID | None
     attempts: int
     max_attempts: int
+    expires_at: datetime | None = None
 
 
 def register_job_handler(kind: str, fn: Handler) -> Handler:
@@ -62,13 +64,19 @@ async def enqueue_job(
     business_id: uuid.UUID | None = None,
     run_at: datetime | None = None,
     max_attempts: int = 3,
+    ttl_seconds: int | None = _default_job_ttl_seconds,
 ) -> BackgroundJob:
+    scheduled_at = run_at or datetime.now(timezone.utc)
+    expires_at = None
+    if ttl_seconds is not None:
+        expires_at = scheduled_at + timedelta(seconds=max(1, int(ttl_seconds or 1)))
     job = BackgroundJob(
         business_id=business_id,
         kind=kind,
         payload=payload or {},
         status=JobStatus.queued,
-        run_at=run_at or datetime.now(timezone.utc),
+        run_at=scheduled_at,
+        expires_at=expires_at,
         max_attempts=max(1, int(max_attempts or 1)),
     )
     db.add(job)
@@ -84,6 +92,7 @@ def _snapshot(job: BackgroundJob) -> JobSnapshot:
         business_id=job.business_id,
         attempts=job.attempts,
         max_attempts=job.max_attempts,
+        expires_at=job.expires_at,
     )
 
 
@@ -91,6 +100,22 @@ async def _claim_due_jobs(limit: int) -> list[JobSnapshot]:
     now = datetime.now(timezone.utc)
     locked_until = now + timedelta(seconds=_lease_seconds)
     async with SessionLocal() as db:
+        expired = await db.execute(
+            update(BackgroundJob)
+            .where(BackgroundJob.status.in_([JobStatus.queued, JobStatus.running]))
+            .where(BackgroundJob.expires_at.is_not(None))
+            .where(BackgroundJob.expires_at <= now)
+            .values(
+                status=JobStatus.failed,
+                locked_by=None,
+                locked_until=None,
+                last_error="job expired before completion",
+                finished_at=now,
+            )
+        )
+        expired_count = int(expired.rowcount or 0)
+        if expired_count:
+            log.warning("jobs_expired", count=expired_count)
         stmt = (
             select(BackgroundJob)
             .where(
@@ -106,6 +131,7 @@ async def _claim_due_jobs(limit: int) -> list[JobSnapshot]:
                     ),
                 )
             )
+            .where(or_(BackgroundJob.expires_at.is_(None), BackgroundJob.expires_at > now))
             .order_by(BackgroundJob.run_at.asc(), BackgroundJob.created_at.asc())
             .limit(limit)
             .with_for_update(skip_locked=True)
@@ -119,7 +145,7 @@ async def _claim_due_jobs(limit: int) -> list[JobSnapshot]:
             job.attempts = (job.attempts or 0) + 1
             job.last_error = None
             snapshots.append(_snapshot(job))
-        if snapshots:
+        if snapshots or expired_count:
             await db.commit()
         return snapshots
 
@@ -146,7 +172,12 @@ async def _mark_failed_or_retry(job: JobSnapshot, error: Exception) -> None:
         row.locked_by = None
         row.locked_until = None
         row.last_error = f"{type(error).__name__}: {error}"[:1000]
-        if row.attempts >= row.max_attempts:
+        expires_at = row.expires_at
+        if expires_at is not None and expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        expired = expires_at is not None and expires_at <= now
+        would_expire_before_retry = expires_at is not None and now + timedelta(seconds=delay) >= expires_at
+        if row.attempts >= row.max_attempts or expired or would_expire_before_retry:
             row.status = JobStatus.failed
             row.finished_at = now
         else:

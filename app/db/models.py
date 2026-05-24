@@ -201,6 +201,7 @@ class Order(Base):
     payment_status: Mapped[PaymentStatus] = mapped_column(
         Enum(PaymentStatus, name="payment_status_enum"), default=PaymentStatus.pending, index=True,
     )
+    payment_version: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     appointment_time: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     calendar_event_id: Mapped[str | None] = mapped_column(String(128))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -388,6 +389,7 @@ class BackgroundJob(Base):
     attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     max_attempts: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
     run_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
     locked_by: Mapped[str | None] = mapped_column(String(128), nullable=True)
     locked_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
     last_error: Mapped[str | None] = mapped_column(Text, nullable=True)

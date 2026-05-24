@@ -15,7 +15,10 @@ def _base_settings(**overrides) -> Settings:
         "intasend_test_mode": False,
         "intasend_api_token": "intasend-token",
         "intasend_webhook_secret": "intasend-webhook-secret",
-        "phone_hash_pepper": "pepper",
+        "secret_key": "prod-secret-key-1234567890abcdef-XYZ",
+        "phone_hash_pepper": "prod-phone-pepper-1234567890abcdef-XYZ",
+        "jwt_secret": "prod-jwt-secret-1234567890abcdef-XYZ",
+        "admin_api_token": "admin-token-1234567890abcdef",
         "database_url": "sqlite+aiosqlite:///:memory:",
     }
     values.update(overrides)
@@ -86,3 +89,28 @@ def test_dev_meta_app_secret_is_warning_not_boot_blocker() -> None:
 
     assert not any("META_WA_APP_SECRET" in err for err in errors)
     assert any("META_WA_APP_SECRET" in warning for warning in warnings)
+
+
+def test_prod_rejects_weak_core_secrets_and_warns_for_admin_tokens() -> None:
+    errors, warnings = validate_settings(
+        _base_settings(
+            secret_key="change-me",
+            phone_hash_pepper="pepper",
+            jwt_secret="secret",
+            admin_api_token="token",
+        )
+    )
+
+    assert any("SECRET_KEY is too weak" in err for err in errors)
+    assert any("PHONE_HASH_PEPPER is too weak" in err for err in errors)
+    assert not any("JWT_SECRET is too weak" in err for err in errors)
+    assert any("JWT_SECRET is weak" in warning for warning in warnings)
+    assert any("ADMIN_API_TOKEN is weak" in warning for warning in warnings)
+
+
+def test_prod_requires_jwt_secret() -> None:
+    errors, _warnings = validate_settings(
+        _base_settings(jwt_secret="")
+    )
+
+    assert any("JWT_SECRET is required" in err for err in errors)

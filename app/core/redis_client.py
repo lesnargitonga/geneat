@@ -1,7 +1,8 @@
 """Async Redis client singleton + helpers for locking, idempotency, rate limiting.
 
-Provides graceful degradation: if Redis is unreachable, callers can still
-proceed; locks fall back to Postgres advisory locks (see services/session_manager).
+Provides graceful degradation for local/dev paths. In production, idempotency
+claims fail closed if Redis is unreachable because provider retries and payment
+side effects must not be treated as fresh work without a dedupe store.
 """
 from __future__ import annotations
 
@@ -17,6 +18,12 @@ from app.core.logging import get_logger
 log = get_logger("redis")
 
 _client: aioredis.Redis | None = None
+
+
+def _idempotency_fail_closed(error: Exception, *, key: str) -> None:
+    if bool(getattr(get_settings(), "is_prod", False)):
+        log.error("idempotency_redis_required", key=key, error=str(error))
+        raise RuntimeError("Redis is required for idempotency in production") from error
 
 
 async def get_redis() -> aioredis.Redis:
@@ -44,6 +51,7 @@ async def claim_idempotency(key: str, ttl_seconds: int = 86_400) -> bool:
         r = await get_redis()
         return bool(await r.set(f"idem:{key}", "1", nx=True, ex=ttl_seconds))
     except Exception as e:  # pragma: no cover
+        _idempotency_fail_closed(e, key=key)
         log.warning("idempotency_redis_unavailable", error=str(e))
         return True  # fail-open; caller should also dedupe at DB layer
 
@@ -74,6 +82,7 @@ async def claim_with_result(
                 return False, None
         return False, None
     except Exception as e:  # pragma: no cover
+        _idempotency_fail_closed(e, key=key)
         log.warning("idempotency_redis_unavailable", error=str(e))
         return True, None
 

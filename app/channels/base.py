@@ -19,7 +19,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.graph import run_turn
-from app.ai.quick_replies import maybe_build_quick_reply
+from app.ai.quick_replies import looks_like_full_menu_request, maybe_build_quick_reply
 from app.core.logging import business_id_ctx, conversation_id_ctx, get_logger, tenant_slug_ctx
 from app.core.redis_client import claim_idempotency
 from app.core.security import hash_msisdn, normalize_msisdn
@@ -66,6 +66,14 @@ _PAYMENT_RESEND_RE = re.compile(
     r"\b(stk|mpesa|m-pesa)\b.*\b(send|tuma)\b",
     re.IGNORECASE,
 )
+_PAYMENT_CLAIM_RE = re.compile(
+    r"\b(paid|nimepay|nimelipa|paid now|done paying|sent money|malipo yametumwa|nimeshalipa)\b",
+    re.IGNORECASE,
+)
+_PICKUP_STATUS_RE = re.compile(
+    r"\b(skip (?:the )?(?:line|queue)|pickup|pick up|collect|ready|come at|arrive at|queue|line)\b",
+    re.IGNORECASE,
+)
 _ORDER_REPEAT_RE = re.compile(
     r"\b(i want|i need|i'?ll have|can i have|can i get|order|sort|get me)\b",
     re.IGNORECASE,
@@ -104,6 +112,19 @@ def _looks_like_payment_cancel(text: str) -> bool:
 
 def _looks_like_payment_resend(text: str) -> bool:
     return bool(_PAYMENT_RESEND_RE.search(text or ""))
+
+
+def _looks_like_payment_claim(text: str) -> bool:
+    lowered = (text or "").strip().lower()
+    if not lowered:
+        return False
+    if any(token in lowered for token in ("not paid", "not yet paid", "did not pay", "haven't paid", "hasn't paid")):
+        return False
+    return bool(_PAYMENT_CLAIM_RE.search(lowered))
+
+
+def _looks_like_pickup_status_request(text: str) -> bool:
+    return bool(_PICKUP_STATUS_RE.search(text or ""))
 
 
 def _looks_like_order_repeat(text: str) -> bool:
@@ -307,6 +328,129 @@ async def _latest_pending_order_for_turn(
     return orders[0]
 
 
+async def _latest_order_for_turn(
+    db: AsyncSession,
+    *,
+    customer_id: uuid.UUID,
+    business_id: uuid.UUID | None,
+    conversation_id: uuid.UUID,
+    text: str,
+    statuses: set | None = None,
+):
+    from app.db.models import Order
+
+    stmt = (
+        select(Order)
+        .where(Order.customer_id == customer_id)
+        .where(Order.conversation_id == conversation_id)
+        .where(Order.business_id == business_id if business_id is not None else Order.business_id.is_(None))
+        .order_by(Order.created_at.desc())
+        .limit(10)
+    )
+    if statuses:
+        stmt = stmt.where(Order.payment_status.in_(list(statuses)))
+    orders = (await db.execute(stmt)).scalars().all()
+    if not orders:
+        return None
+    for order in orders:
+        if _order_matches_text(order, text):
+            return order
+    return orders[0]
+
+
+async def _payment_claim_status_reply(
+    db: AsyncSession,
+    *,
+    customer,
+    conversation_id: uuid.UUID,
+    business_id: uuid.UUID | None,
+    text: str,
+    language: str | None,
+) -> str:
+    from app.db.models import PaymentStatus
+
+    order = await _latest_order_for_turn(
+        db,
+        customer_id=customer.id,
+        business_id=business_id,
+        conversation_id=conversation_id,
+        text=text,
+        statuses={
+            PaymentStatus.pending,
+            PaymentStatus.paid,
+            PaymentStatus.failed,
+            PaymentStatus.cancelled,
+            PaymentStatus.timeout,
+        },
+    )
+    is_sw = _customer_prefers_swahili(language or getattr(customer, "preferred_language", None))
+    if order is None:
+        return (
+            "Sioni oda ya kuoanisha na malipo hayo bado. Niambie item unayotaka kuagiza au tuma risiti kwa mhudumu."
+            if is_sw else
+            "I do not see an order to match that payment yet. Tell me the item you ordered, or show the receipt to the counter team."
+        )
+
+    amount = int(float(order.amount or 0))
+    summary = _order_items_summary_from_details(order.details)
+    status = order.payment_status
+    if status == PaymentStatus.paid:
+        receipt = f" Receipt: {order.mpesa_receipt}." if getattr(order, "mpesa_receipt", None) else ""
+        return (
+            f"Malipo ya {summary} ya KES {amount} yamethibitishwa.{receipt} Onyesha risiti kwa pickup."
+            if is_sw else
+            f"Payment for {summary} at KES {amount} is confirmed.{receipt} Show the receipt at pickup."
+        )
+    if status == PaymentStatus.pending:
+        return (
+            f"Bado sijapokea confirmation ya provider kwa {summary} ya KES {amount}, kwa hivyo siwezi kuiweka paid. Ikiwa STK iliisha, andika 'resend STK'."
+            if is_sw else
+            f"I have not received provider confirmation for {summary} at KES {amount} yet, so I cannot mark it paid. If the STK expired, type 'resend STK'."
+        )
+    return (
+        f"Oda ya {summary} ya KES {amount} iko {status.value}, si paid. Ukiwa bado unataka kuendelea, andika 'resend STK' au agiza upya."
+        if is_sw else
+        f"The {summary} order at KES {amount} is {status.value}, not paid. If you still want to continue, type 'resend STK' or order again."
+    )
+
+
+async def _pickup_status_reply(
+    db: AsyncSession,
+    *,
+    customer,
+    conversation_id: uuid.UUID,
+    business_id: uuid.UUID | None,
+    text: str,
+    language: str | None,
+) -> str | None:
+    from app.db.models import PaymentStatus
+
+    order = await _latest_order_for_turn(
+        db,
+        customer_id=customer.id,
+        business_id=business_id,
+        conversation_id=conversation_id,
+        text=text,
+        statuses={PaymentStatus.pending, PaymentStatus.paid},
+    )
+    if order is None:
+        return None
+    is_sw = _customer_prefers_swahili(language or getattr(customer, "preferred_language", None))
+    amount = int(float(order.amount or 0))
+    summary = _order_items_summary_from_details(order.details)
+    if order.payment_status == PaymentStatus.pending:
+        return (
+            f"Bado nasubiri confirmation ya malipo ya {summary} ya KES {amount}. Siwezi kuahidi pickup au kuruka queue mpaka malipo yathibitishwe."
+            if is_sw else
+            f"I am still waiting for payment confirmation for {summary} at KES {amount}. I cannot promise pickup or queue-skip timing until payment is confirmed."
+        )
+    return (
+        f"Malipo ya {summary} yamethibitishwa. Onyesha risiti kwa pickup; nitakutumia ready message order ikiwa tayari."
+        if is_sw else
+        f"Payment for {summary} is confirmed. Show the receipt at pickup; I will send the ready message when the order is ready."
+    )
+
+
 def _payment_prompt_age_seconds(order: object) -> float | None:
     from datetime import datetime, timezone
 
@@ -498,7 +642,22 @@ async def _cancel_pending_order_reply(
     details = dict(order.details or {})
     details["customer_cancelled_at"] = datetime.now(timezone.utc).isoformat()
     order.details = details
-    order.payment_status = PaymentStatus.cancelled
+    from app.api.payments import _transition_payment_status
+    transitioned = await _transition_payment_status(
+        db,
+        order,
+        from_statuses={PaymentStatus.pending},
+        to_status=PaymentStatus.cancelled,
+    )
+    if not transitioned:
+        return await _payment_claim_status_reply(
+            db,
+            customer=customer,
+            conversation_id=conversation_id,
+            business_id=business_id,
+            text=text,
+            language=language,
+        )
     cancelled_jobs = await _cancel_jobs_for_order(db, order_id=order.id, business_id=business_id)
     log.info("customer_cancelled_pending_order", order=str(order.id), cancelled_jobs=cancelled_jobs)
     amount = int(float(order.amount or 0))
@@ -556,6 +715,7 @@ async def _resend_pending_payment_reply(
                 business_id=business_id,
                 run_at=datetime.now(timezone.utc) + timedelta(seconds=20),
                 max_attempts=1,
+                ttl_seconds=10 * 60,
                 payload={
                     "order_id": str(order.id),
                     "checkout_id": result.reference,
@@ -919,6 +1079,43 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 language=effective_lang,
             )
             control_flag = "deterministic:cancel_payment"
+        elif _looks_like_payment_claim(turn.text):
+            control_reply = await _payment_claim_status_reply(
+                db,
+                customer=customer,
+                conversation_id=conv.id,
+                business_id=business_id,
+                text=turn.text,
+                language=effective_lang,
+            )
+            control_flag = "deterministic:payment_claim_status"
+        elif _looks_like_pickup_status_request(turn.text):
+            control_reply = await _pickup_status_reply(
+                db,
+                customer=customer,
+                conversation_id=conv.id,
+                business_id=business_id,
+                text=turn.text,
+                language=effective_lang,
+            )
+            control_flag = "deterministic:pickup_status" if control_reply else None
+        elif looks_like_full_menu_request(turn.text):
+            fallback_profile = None
+            try:
+                fallback_profile = await get_business_for_turn(db, business_id=business_id)
+            except Exception as exc:
+                log.warning("full_menu_profile_lookup_failed", error=str(exc))
+            try:
+                control_reply = await maybe_build_quick_reply(
+                    db,
+                    business_id=business_id,
+                    profile=fallback_profile,
+                    text=turn.text,
+                )
+            except Exception as exc:
+                log.warning("full_menu_quick_reply_failed", error=str(exc))
+                control_reply = None
+            control_flag = "deterministic:full_menu" if control_reply else None
         else:
             control_reply = await _demo_espresso_fast_order_reply(
                 db,

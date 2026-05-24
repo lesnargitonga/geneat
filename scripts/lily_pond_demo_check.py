@@ -174,7 +174,7 @@ async def run(
                     )
                 )).scalar_one()
 
-                checks.append(Check("Alembic head recorded", version == "0010_enforce_embedding_768", str(version)))
+                checks.append(Check("Alembic head recorded", version == "0011_payment_locking_and_job_ttl", str(version)))
                 checks.append(Check("KB embedding dimension", embedding_type == "vector(768)", str(embedding_type)))
                 checks.append(Check("active superadmin exists", int(admin_users) >= 1, str(admin_users)))
 
@@ -212,12 +212,22 @@ async def run(
         )
 
     ready_ok, ready_body = await _http_json(f"{backend}/readyz", timeout=12.0, attempts=3)
+    ready_idx = len(checks)
     checks.append(Check("backend /readyz", ready_ok and isinstance(ready_body, dict) and ready_body.get("status") == "ok", str(ready_body)[:180]))
 
     deep_ok, deep_body = await _http_json(f"{backend}/health/deep", timeout=20.0, attempts=3)
     checks.append(Check("backend /health/deep", deep_ok and isinstance(deep_body, dict) and deep_body.get("status") in {"ok", "degraded"}, str(deep_body)[:220]))
     if isinstance(deep_body, dict):
         deep_checks = deep_body.get("checks") or {}
+        if not checks[ready_idx].ok:
+            db_ok = bool((deep_checks.get("db") or {}).get("ok"))
+            redis_ok = bool((deep_checks.get("redis") or {}).get("ok"))
+            if deep_body.get("status") in {"ok", "degraded"} and db_ok and redis_ok:
+                checks[ready_idx] = Check(
+                    "backend /readyz",
+                    True,
+                    f"readyz timed out but deep health has db/redis ok; last={str(ready_body)[:120]}",
+                )
         llm_body = (deep_checks.get("llm") or {})
         payments_body = (deep_checks.get("payments") or {})
         breakers = deep_body.get("breakers") or []

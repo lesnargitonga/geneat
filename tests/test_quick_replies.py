@@ -5,11 +5,15 @@ import uuid
 import pytest
 
 from app.ai.quick_replies import (
+    GENERIC_PHOTO_QUERY,
     availability_reply_from_chunks,
+    full_menu_reply_from_chunks,
+    looks_like_full_menu_request,
     looks_like_availability_request,
     looks_like_hours_request,
     looks_like_recommendation_request,
     maybe_build_quick_reply,
+    photo_item_query,
     price_reply_from_chunks,
     recommendation_reply_from_chunks,
 )
@@ -28,6 +32,33 @@ def test_hours_detector_matches_opening_questions() -> None:
     assert looks_like_hours_request("What time do you open?")
     assert looks_like_hours_request("closing time today?")
     assert not looks_like_hours_request("How much is the latte?")
+
+
+def test_generic_photo_request_requires_specific_item() -> None:
+    assert photo_item_query("Yes please, send a picture") == GENERIC_PHOTO_QUERY
+    assert photo_item_query("send me a pic of the flat white") != GENERIC_PHOTO_QUERY
+
+
+def test_full_menu_request_and_reply() -> None:
+    chunks = [
+        RetrievedChunk(
+            content=(
+                "LIVE DEMO - Demo Espresso KES 10.\n"
+                "COFFEE - Flat White KES 250. Cappuccino KES 240.\n"
+                "PASTRIES - Butter Croissant KES 180. Almond Croissant KES 250."
+            ),
+            source="menu",
+            score=0.9,
+        )
+    ]
+
+    assert looks_like_full_menu_request("I need the full menu, now!")
+    assert looks_like_full_menu_request("That's not the menu")
+    reply = full_menu_reply_from_chunks(chunks)
+    assert reply is not None
+    assert "Demo Espresso - KES 10" in reply
+    assert "Flat White - KES 250" in reply
+    assert "specific item" in reply
 
 
 def test_availability_reply_handles_plural_item_questions() -> None:

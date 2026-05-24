@@ -39,6 +39,22 @@ _AVAILABILITY_REQUEST_RE = re.compile(
     r")\b",
     re.IGNORECASE,
 )
+_FULL_MENU_REQUEST_RE = re.compile(
+    r"\b("
+    r"full menu|whole menu|entire menu|complete menu|menu list|show menu|send menu|"
+    r"what'?s on (?:the )?menu|what do you sell|what else do you sell|"
+    r"that'?s not (?:the )?menu|not the menu"
+    r")\b",
+    re.IGNORECASE,
+)
+_GENERIC_PHOTO_RE = re.compile(
+    r"^(?:yes|yeah|yep|sure|sawa|okay|ok|please|pls|kindly|hi|hello|hey|"
+    r"send|show|share|tuma|nitumie|send me|show me|share me|"
+    r"yes please|please send|send over|send it|show it|"
+    r"yes please send|yes send)\s*(?:a|the|one|some)?\s*"
+    r"(?:photo|picture|pic|image|picha)\s*(?:please|pls)?[.!? ]*$",
+    re.IGNORECASE,
+)
 _NORMALIZE_RE = re.compile(r"[^a-z0-9 ]+")
 _PRICE_SEGMENT_RE = re.compile(
     r"(?:KES|KSh|Ksh|ksh|kes)\s?(\d[\d,]{1,7})|(\d[\d,]{1,7})\s?(?:KES|KSh|Ksh|/=|/-|bob|shillings?)",
@@ -53,6 +69,16 @@ _AVAILABILITY_STOPWORDS = {
     "get", "have", "ill", "i'll", "want", "need", "the", "a", "an", "please",
     "menu", "options", "anything", "something", "food", "drink", "drinks",
 }
+_INTERNAL_MENU_MARKERS = (
+    "demo flow",
+    "create_order",
+    "trigger m-pesa",
+    "trigger mpesa",
+    "whatsapp -> ai",
+    "whatsapp → ai",
+    "system prompt",
+    "playbook",
+)
 _CATEGORY_HINTS: dict[str, set[str]] = {
     "breakfast": {"breakfast", "morning", "chai", "mandazi", "toast", "pancake", "granola", "egg", "croissant"},
     "lunch": {"lunch", "wrap", "bowl", "curry", "caesar", "plate", "burger", "grill"},
@@ -61,6 +87,7 @@ _CATEGORY_HINTS: dict[str, set[str]] = {
     "snack": {"snack", "snacks", "bites", "cookie", "cookies", "samosa", "fries"},
     "drink": {"drink", "drinks", "juice", "soda", "water", "tea", "chai", "coffee"},
 }
+GENERIC_PHOTO_QUERY = "__clarify_photo__"
 
 
 @dataclass(frozen=True)
@@ -111,13 +138,29 @@ def looks_like_availability_request(text: str) -> bool:
     return bool(_AVAILABILITY_REQUEST_RE.search(candidate))
 
 
+def looks_like_full_menu_request(text: str) -> bool:
+    candidate = (text or "").strip()
+    if not candidate:
+        return False
+    lowered = candidate.lower()
+    if _FULL_MENU_REQUEST_RE.search(candidate):
+        return True
+    return "menu" in lowered and any(
+        token in lowered
+        for token in ("now", "please", "pls", "send", "show", "need", "want", "give", "list", "all")
+    )
+
+
 def photo_item_query(text: str) -> str:
     candidate = (text or "").strip()
     if not candidate:
-        return "menu"
+        return GENERIC_PHOTO_QUERY
     lowered = candidate.lower()
     if any(token in lowered for token in ("whole menu", "full menu", "entire menu", "menu pictures", "menu photo")):
         return "menu"
+    cleaned_candidate = re.sub(r"\s+", " ", re.sub(r"[,;:]+", " ", candidate)).strip()
+    if _GENERIC_PHOTO_RE.match(cleaned_candidate):
+        return GENERIC_PHOTO_QUERY
     return candidate
 
 
@@ -183,6 +226,8 @@ def _segments(chunks: Sequence[RetrievedChunk]) -> list[str]:
             segment = piece.strip(" \t-•")
             if not segment or "KES" not in segment.upper():
                 continue
+            if any(marker in segment.lower() for marker in _INTERNAL_MENU_MARKERS):
+                continue
             items.append(segment)
     return items
 
@@ -193,7 +238,7 @@ def _segment_label(segment: str) -> str | None:
     if not match:
         return None
     label = segment[:match.start()].strip(" :-—–/\t")
-    label = re.sub(r"^[A-Z ]+—\s*", "", label)
+    label = re.sub(r"^[A-Z0-9 &/]+(?:—|–|-)\s*", "", label)
     label = re.sub(r"\s{2,}", " ", label).strip(" .")
     if not label:
         return None
@@ -364,6 +409,30 @@ def availability_reply_from_chunks(query: str, chunks: Sequence[RetrievedChunk])
     return f"Yes — {body}.{closing}"
 
 
+def full_menu_reply_from_chunks(chunks: Sequence[RetrievedChunk], *, limit: int = 18) -> str | None:
+    options = _extract_options(chunks)
+    if not options:
+        return None
+
+    # Keep the menu compact enough for WhatsApp while still being useful.
+    seen_labels: set[str] = set()
+    picked: list[MenuOption] = []
+    for option in options:
+        label_key = _normalize(option.label)
+        if label_key in seen_labels:
+            continue
+        seen_labels.add(label_key)
+        picked.append(option)
+        if len(picked) >= limit:
+            break
+
+    lines = [f"- {option.label} - KES {option.price}" for option in picked]
+    suffix = "\n\nAsk for a photo of any specific item and I'll send that one."
+    if len(options) > len(picked):
+        suffix = "\n\nThere is more on the cafe board too. Ask for a category or a specific item's photo."
+    return "Here is the menu I have:\n" + "\n".join(lines) + suffix
+
+
 async def maybe_build_quick_reply(
     db,
     *,
@@ -371,7 +440,14 @@ async def maybe_build_quick_reply(
     profile: BusinessProfile | None,
     text: str,
 ) -> str | None:
-    if not text or looks_like_photo_request(text):
+    if not text:
+        return None
+
+    if looks_like_full_menu_request(text):
+        chunks = await retrieve(db, text, business_id=business_id, k=8)
+        return full_menu_reply_from_chunks(chunks)
+
+    if looks_like_photo_request(text):
         return None
 
     if looks_like_hours_request(text):

@@ -164,7 +164,8 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `73 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `80 passed, 1 warning` via `make test-fast` |
+| Durable job TTL regression | `3 passed` via `pytest tests/test_job_runner.py -q` |
 | Admin UI production build | passed |
 | Gen-Eat portal production build | passed |
 | Logging crash regression test | passed |
@@ -174,6 +175,7 @@ Command results:
 
 ```bash
 make test-fast
+./.venv/bin/python -m pytest tests/test_job_runner.py -q
 cd admin-ui && npm run build
 cd gen-eat-portal && npm run build
 ```
@@ -503,13 +505,19 @@ Current Alembic head:
 | `0008_orders_business_id` | direct tenant scope on orders |
 | `0009_background_jobs` | durable jobs |
 | `0010_enforce_embedding_768` | enforces `vector(768)` |
+| `0011_payment_locking_and_job_ttl` | optimistic payment status versioning and background job TTL |
 
 Current schema truth:
 
 - `knowledge_base.embedding` is `vector(768)`,
 - `orders.business_id` exists and is part of payment callback scoping,
+- `orders.payment_version` guards payment-status transitions against stale or
+  racing provider callbacks,
 - `background_jobs` exists and is required for delayed internal work,
-- the hosted doctor confirms the current Alembic head is recorded.
+- `background_jobs.expires_at` lets stale jobs fail closed instead of retrying
+  forever,
+- doctor DB introspection expects the current Alembic head when local DB checks
+  are enabled.
 
 ## 7. Tenant Model And Routing
 
@@ -650,6 +658,12 @@ Current order/payment hardening:
   treated as STK resend intents,
 - repeated matching order messages with an old pending STK automatically send
   a fresh STK after 90 seconds instead of silently pointing at a stale prompt,
+- customer claims like `Paid` or `nimelipa` are treated as status checks only;
+  they cannot mark an order paid without a provider callback/poll,
+- pickup / queue-skip timing questions are gated behind provider-confirmed
+  payment state,
+- payment callbacks use optimistic status transitions via `orders.payment_version`
+  so late failed/cancelled callbacks cannot overwrite paid money,
 - the assistant must not say `pickup ready`, `ready by`, `paid`, or
   `confirmed` until a payment callback or payment poll confirms money landed,
 - ready notifications are scheduled only after paid payment state,
@@ -672,6 +686,10 @@ Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Docume
   recommendation questions only after the model path fails,
 - deterministic quick replies can answer item-availability questions such as
   `Do you have croissants?` from menu chunks,
+- full-menu requests such as `I need the full menu` are answered
+  deterministically from menu chunks instead of waiting on the model,
+- generic photo follow-ups such as `send a picture` ask which item to send
+  instead of guessing and returning the wrong café/menu image,
 - keyword KB fallback is tried before generic handoff, but internal/demo
   operator notes such as `DEMO FLOW` are filtered out of customer replies,
 - degraded fallback replies are marked and filtered out of future model
@@ -842,6 +860,7 @@ Callback safeguards:
 - idempotency protections,
 - orders matched by checkout reference,
 - direct `orders.business_id` tenant scope,
+- optimistic `orders.payment_version` checks on status changes,
 - no already-paid order downgrade.
 
 ## 11. Durable Jobs
@@ -852,6 +871,7 @@ Durable jobs live in:
 - [app/jobs/handlers.py](/home/lesnar/Documents/ai model/app/jobs/handlers.py)
 - `BackgroundJob` model
 - migration `0009_background_jobs`
+- migration `0011_payment_locking_and_job_ttl`
 
 Why they exist:
 
@@ -872,6 +892,8 @@ Operational truth:
 
 - jobs are durable in DB,
 - claim/retry/lease logic exists,
+- jobs now carry an optional `expires_at` TTL and stale queued/running jobs are
+  failed instead of retrying indefinitely,
 - huge campaign scale would still outgrow the in-process runner before too
   long.
 
@@ -1194,6 +1216,13 @@ Current production fail-fast rules include:
   in prod,
 - OpenAI embeddings must remain `768` dimensions in prod until the pgvector
   schema is migrated.
+- production `SECRET_KEY` and `PHONE_HASH_PEPPER` must be non-placeholder,
+  high-entropy values,
+- production `JWT_SECRET` is required; weak `JWT_SECRET` and
+  `ADMIN_API_TOKEN` values are logged as warnings so beta deploys are not
+  silently misconfigured,
+- Redis idempotency claims fail closed in production if Redis is unavailable,
+  instead of treating provider/webhook work as fresh.
 
 ### 16.3 PII handling
 
@@ -1260,6 +1289,7 @@ Important context keys:
 
 - initialized during app import,
 - no-op when `SENTRY_DSN` is empty,
+- init start/disabled/enabled events are logged without exposing the DSN,
 - PII scrubbing is built in.
 
 ### 17.3 Metrics
@@ -1306,7 +1336,8 @@ Meaning:
 - `doctor-local` checks local stack and safe chat/photo flows
 - `doctor-live` checks hosted stack and safe chat/photo flows; hosted HTTP
   probes retry briefly so Render warm-up or one-off edge timeouts do not
-  create false alarms
+  create false alarms, and a slow `/readyz` response is tolerated when
+  `/health/deep` proves DB and Redis are healthy
 - `smoke-providers` probes provider credential/path sanity
 
 ### 17.6 Operational watch points
@@ -1805,7 +1836,7 @@ make test-fast
 Current result:
 
 ```text
-73 passed, 1 warning
+80 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -1843,6 +1874,12 @@ This is now the main high-signal smoke test for the hosted demo stack.
 ./.venv/bin/python -m pytest tests/test_logging.py -q
 ```
 
+Most recent focused job-runner result:
+
+```text
+3 passed
+```
+
 ### 22.5 Known warning
 
 LangGraph / LangChain still emits a pending deprecation warning around
@@ -1868,10 +1905,22 @@ This is the honest list, not the flattering list.
 - order/payment turns now guard against duplicate pending orders, duplicate
   STK pushes, premature pickup-ready promises, and wrong-language payment
   failure messages
+- customer `Paid` messages no longer count as proof of payment; only provider
+  callbacks/polls can mark money landed
+- pickup and queue-skip promises are now blocked until payment is confirmed
+- full-menu and vague photo follow-ups are handled deterministically so the
+  assistant does not send a random café image as "the menu"
+- payment callbacks now use optimistic status versioning to prevent stale
+  provider events from downgrading paid orders
 - stale pending STKs can be resent explicitly with `send STK` / `resend STK`,
   and repeated matching orders auto-resend after 90 seconds
 - production startup validation now fails fast on live-payment, Meta webhook,
-  GPT-5 Responses, and embedding-dimension misconfigurations
+  GPT-5 Responses, embedding-dimension, and core-secret misconfigurations
+- weak `JWT_SECRET` / `ADMIN_API_TOKEN` values are now logged as explicit
+  production warnings
+- production idempotency fails closed when Redis is unavailable
+- durable jobs now have TTLs to avoid infinite retry loops
+- Sentry initialization emits clear enabled/disabled startup logs
 - `doctor-live` now retries transient hosted health/webhook/chat/photo probes
   before failing, so the operator signal is less brittle
 - customer cancel/resend payment intents bypass the model and update pending

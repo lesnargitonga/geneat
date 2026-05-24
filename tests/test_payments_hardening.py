@@ -188,6 +188,61 @@ async def test_provider_failed_callback_ignored_after_customer_cancel():
 
 
 @pytest.mark.asyncio
+async def test_payment_transition_blocks_terminal_overwrite_without_db():
+    from app.api.payments import _transition_payment_status
+
+    order = Order(
+        customer_id=uuid.uuid4(),
+        business_id=uuid.uuid4(),
+        amount=10,
+        payment_status=PaymentStatus.paid,
+        payment_version=2,
+        mpesa_receipt="PAID-1",
+    )
+
+    changed = await _transition_payment_status(
+        None,
+        order,
+        from_statuses={PaymentStatus.pending},
+        to_status=PaymentStatus.failed,
+    )
+
+    assert changed is False
+    assert order.payment_status == PaymentStatus.paid
+    assert order.payment_version == 2
+    assert order.mpesa_receipt == "PAID-1"
+
+
+@pytest.mark.asyncio
+async def test_provider_paid_callback_can_win_over_prior_timeout_without_db():
+    from app.api.payments import _apply_provider_payment_result
+
+    order = Order(
+        customer_id=uuid.uuid4(),
+        business_id=uuid.uuid4(),
+        amount=10,
+        payment_status=PaymentStatus.timeout,
+        payment_version=1,
+        mpesa_checkout_id="CHECKOUT-2",
+    )
+
+    handled, msg, business_id = await _apply_provider_payment_result(
+        None,
+        order=order,
+        provider="intasend",
+        status="paid",
+        raw={"mpesa_reference": "RCP-2"},
+    )
+
+    assert handled is True
+    assert msg is not None
+    assert business_id == order.business_id
+    assert order.payment_status == PaymentStatus.paid
+    assert order.payment_version == 2
+    assert order.mpesa_receipt == "RCP-2"
+
+
+@pytest.mark.asyncio
 async def test_order_business_id_backfills_from_conversation():
     from app.api.payments import _business_id_for_order
 

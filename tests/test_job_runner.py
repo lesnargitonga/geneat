@@ -78,3 +78,34 @@ async def test_runner_retries_then_marks_failed(job_session):
         assert row.status == JobStatus.failed
         assert row.attempts == 1
         assert "RuntimeError: nope" in (row.last_error or "")
+
+
+@pytest.mark.asyncio
+async def test_runner_expires_stale_jobs_without_running_handler(job_session):
+    seen: list[dict] = []
+    kind = "unit.expired"
+
+    @runner.job_handler(kind)
+    async def _handle(job):
+        seen.append(job.payload)
+
+    async with job_session() as db:
+        job = await runner.enqueue_job(
+            db,
+            kind=kind,
+            payload={"too_late": True},
+            run_at=datetime.now(timezone.utc) - timedelta(seconds=10),
+            ttl_seconds=1,
+        )
+        job_id = job.id
+        await db.commit()
+
+    assert await runner.run_due_jobs_once() == 0
+    assert seen == []
+
+    async with job_session() as db:
+        row = await db.get(BackgroundJob, job_id)
+        assert row is not None
+        assert row.status == JobStatus.failed
+        assert row.finished_at is not None
+        assert row.last_error == "job expired before completion"

@@ -341,6 +341,7 @@ def build_tools(
                         business_id=tenant_id,
                         run_at=datetime.now(timezone.utc) + timedelta(seconds=20),
                         max_attempts=1,
+                        ttl_seconds=10 * 60,
                         payload={
                             "order_id": str(latest.id),
                             "checkout_id": checkout_id,
@@ -368,10 +369,11 @@ def build_tools(
                         business_id=tenant_id if "tenant_id" in locals() else business_id,
                         run_at=datetime.now(timezone.utc) + timedelta(seconds=delay),
                         max_attempts=5,
+                        ttl_seconds=15 * 60,
                         payload={"checkout_id": checkout_id},
                     )
-            except Exception:
-                pass
+            except Exception as exc:  # pragma: no cover
+                log.warning("payment_simulator_autoconfirm_enqueue_failed", error=str(exc))
         except RateLimited as e:
             result = {"ok": False, "error": "rate_limited", "message": e.message}
         except UpstreamError as e:
