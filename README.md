@@ -130,10 +130,10 @@ Fresh live checks run from this workspace on **2026-05-24**:
 | `GET /healthz` | `{"status":"ok"}` |
 | `GET /readyz` | DB and Redis healthy |
 | `GET /health/deep` | `status=ok`, db/redis/pgvector/whatsapp/payments/llm all reachable |
-| `make doctor-live` | `22/22 configured checks passed` |
+| `make doctor-live` | `21/22 configured checks passed` from this workspace |
 | Portal live price check | passed without generic fallback |
 | Portal live photo check | passed |
-| Meta webhook verify handshake | passed |
+| Meta webhook verify handshake | `403` with this workspace's local verify token |
 | OpenAI provider health | passed |
 | Live LLM provider/model | `/health/deep` reports `provider=openai`, `model=gpt-5.4-mini` |
 | OpenAI breaker state | not stuck open |
@@ -141,7 +141,7 @@ Fresh live checks run from this workspace on **2026-05-24**:
 Current `make doctor-live` truth:
 
 ```text
-22/22 configured checks passed
+21/22 configured checks passed
 ```
 
 What that means in plain English:
@@ -155,7 +155,9 @@ What that means in plain English:
 - the live demo tenant exists,
 - the `Demo Espresso` price answer works without the generic fallback,
 - a photo request returns an image,
-- Meta webhook verification works,
+- the local `.env` `META_WA_VERIFY_TOKEN` does not currently match the hosted
+  API verify token; webhook POST traffic can still work, but the workspace
+  doctor handshake will fail until the token is reconciled,
 - IntaSend is configured for live mode, not test mode,
 - the primary OpenAI provider is reachable as `gpt-5.4-mini` and not tripped
   open.
@@ -2023,10 +2025,12 @@ make doctor-live
 Current result:
 
 ```text
-22/22 configured checks passed
+21/22 configured checks passed
 ```
 
-This is now the main high-signal smoke test for the hosted demo stack.
+This is still the main high-signal smoke test for the hosted demo stack. A
+`403` on the Meta verify handshake means this workspace's
+`META_WA_VERIFY_TOKEN` is stale or differs from the hosted Render/Meta value.
 
 ### 22.4 Other useful tests
 

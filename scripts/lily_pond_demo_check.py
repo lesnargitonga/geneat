@@ -289,7 +289,13 @@ async def run(
             if status and status < 500:
                 break
             await asyncio.sleep(1.5 * (attempt + 1))
-        detail = f"status={status}" if not error else error
+        if status == 403:
+            detail = (
+                "status=403; local META_WA_VERIFY_TOKEN does not match the "
+                "hosted API verify token"
+            )
+        else:
+            detail = f"status={status}" if not error else error
         checks.append(Check("Meta webhook verify handshake", status == 200 and text == challenge, detail))
     except Exception as exc:
         checks.append(Check("Meta webhook verify handshake", False, f"{type(exc).__name__}: {exc}"))
