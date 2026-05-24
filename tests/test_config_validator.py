@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import yaml
+
 from app.core.config import Settings
 from app.core.config_validator import validate_settings
 
@@ -113,3 +115,22 @@ def test_prod_requires_jwt_secret() -> None:
     )
 
     assert any("JWT_SECRET is required" in err for err in errors)
+
+
+def test_render_blueprint_sets_live_intasend_mode() -> None:
+    with open("render.yaml", "r", encoding="utf-8") as fh:
+        blueprint = yaml.safe_load(fh)
+
+    api_service = next(
+        service for service in blueprint["services"]
+        if service.get("name") == "geneat-api"
+    )
+    env = {
+        item["key"]: item.get("value")
+        for item in api_service.get("envVars", [])
+        if "key" in item
+    }
+
+    assert env["PAYMENT_PROVIDER"] == "intasend"
+    assert env["PAYMENT_SIMULATOR"] == "false"
+    assert env["INTASEND_TEST_MODE"] == "false"

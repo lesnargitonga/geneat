@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.llm import get_embedder
 from app.core.logging import get_logger
+from app.api.metrics import record_embed_cache_hit, record_embed_remote
 from app.db.models import KnowledgeChunk
 
 log = get_logger("rag")
@@ -57,10 +58,28 @@ async def embed_query(q: str) -> list[float]:
             expires_at, vec = cached
             if expires_at > now:
                 _EMBED_QUERY_CACHE.move_to_end(key)
+                try:
+                    log.info("embed_query_cache_hit", key=key)
+                except Exception:
+                    pass
+                try:
+                    record_embed_cache_hit()
+                except Exception:
+                    pass
                 return list(vec)
             _EMBED_QUERY_CACHE.pop(key, None)
 
+    t0 = time.perf_counter()
     vec = await get_embedder().aembed_query(q)
+    took_ms = int((time.perf_counter() - t0) * 1000)
+    try:
+        log.info("embed_query_remote", latency_ms=took_ms)
+    except Exception:
+        pass
+    try:
+        record_embed_remote(took_ms / 1000.0)
+    except Exception:
+        pass
     if key:
         _EMBED_QUERY_CACHE[key] = (now + _EMBED_QUERY_CACHE_TTL_SECONDS, list(vec))
         _EMBED_QUERY_CACHE.move_to_end(key)

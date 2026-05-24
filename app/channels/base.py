@@ -42,8 +42,8 @@ log = get_logger("channel")
 # and call tools, then allow only a short retry window before deterministic
 # rescue. This keeps model-first behavior without making customers wait nearly
 # a minute for a fallback.
-AI_TURN_TIMEOUT_SECONDS = 12.0
-AI_TURN_RETRY_TIMEOUT_SECONDS = 4.0
+AI_TURN_TIMEOUT_SECONDS = 30.0
+AI_TURN_RETRY_TIMEOUT_SECONDS = 10.0
 PAYMENT_AUTO_RESEND_AFTER_SECONDS = 90.0
 _DEGRADED_FALLBACK_MARKERS = (
     "pulling our team",
@@ -856,7 +856,18 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 duplicate=False,
             )
 
-    async with acquire_session(msisdn, db):
+    async with acquire_session(msisdn, db) as session_acquired:
+        if not session_acquired:
+            log.info("turn_deferred_session_busy", msisdn_hash=hash_msisdn(msisdn))
+            return TurnResult(
+                reply=(
+                    "I am still processing your previous message. "
+                    "Give me a few seconds, then send the next one."
+                ),
+                conversation_id=uuid.uuid4(),
+                escalated=False,
+            )
+
         # ── Resolve which business this turn belongs to ───────────────
         # Resolution order: explicit business_id → mock-payload slug →
         # Meta phone_number_id → customer's existing active tenant (sticky
@@ -1198,6 +1209,18 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             if not (r.sender == Sender.ai and _is_degraded_fallback_text(r.content))
         ]
 
+        # Persist the user turn and release the checked-out DB connection
+        # before the potentially slow LLM/RAG/tool loop. The same
+        # AsyncSession will transparently check out a fresh connection when
+        # the graph needs the database again.
+        try:
+            if db.in_transaction():
+                await db.commit()
+                log.debug("db_transaction_released_before_ai", conv=str(conv.id))
+        except Exception:
+            await db.rollback()
+            raise
+
         turn_timeout = _ai_timeout_seconds("ai_turn_timeout_seconds", AI_TURN_TIMEOUT_SECONDS)
         turn_retry_timeout = _ai_timeout_seconds("ai_turn_retry_timeout_seconds", AI_TURN_RETRY_TIMEOUT_SECONDS)
 
@@ -1217,6 +1240,17 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 ),
                 timeout=timeout_seconds,
             )
+
+        # Notify listeners (UI / dashboards) that the agent has started
+        # processing so frontends can show a typing indicator. Fire-and-forget
+        # via create_task so we don't delay the turn start.
+        try:
+            from app.core.event_bus import publish
+            asyncio.create_task(
+                publish("agent.typing", target=str(conv.id), payload={"msisdn_hash": hash_msisdn(msisdn) if msisdn else None})
+            )
+        except Exception:
+            pass
 
         try:
             result = await _run_ai_once()

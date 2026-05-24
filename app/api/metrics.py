@@ -68,6 +68,26 @@ _WEBHOOK_COUNT = Counter(
     "Outbound webhook deliveries by event + outcome.",
     labelnames=("event", "outcome"),
 )
+_LLM_LATENCY = Histogram(
+    "omni_llm_invoke_duration_seconds",
+    "LLM invocation latency by provider.",
+    labelnames=("provider",),
+    buckets=(0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0, 60.0),
+)
+_RAG_LATENCY = Histogram(
+    "omni_rag_retrieval_duration_seconds",
+    "RAG retrieval latency (embed + DB) in seconds.",
+    buckets=(0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0),
+)
+_EMBED_CACHE_HITS = Counter(
+    "omni_embed_query_cache_hits_total",
+    "Embed query cache hits.",
+)
+_EMBED_REMOTE = Histogram(
+    "omni_embed_query_remote_duration_seconds",
+    "Remote embedder call latency in seconds.",
+    buckets=(0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0),
+)
 _DB_POOL_SIZE = Gauge("omni_db_pool_size", "Configured SQLAlchemy DB pool size.")
 _DB_POOL_CHECKED_OUT = Gauge("omni_db_pool_checked_out", "Currently checked-out DB connections.")
 _DB_POOL_CHECKED_IN = Gauge("omni_db_pool_checked_in", "Currently idle DB connections in the pool.")
@@ -80,6 +100,34 @@ def record_event(event: str) -> None:
         _EVT_COUNT.labels(event=event).inc()
     except Exception as exc:
         log.debug("event_metric_record_failed", error=str(exc))
+
+
+def record_llm_latency(provider: str, seconds: float) -> None:
+    try:
+        _LLM_LATENCY.labels(provider=provider or "unknown").observe(float(seconds))
+    except Exception as exc:
+        log.debug("llm_latency_metric_failed", error=str(exc))
+
+
+def record_rag_latency(seconds: float) -> None:
+    try:
+        _RAG_LATENCY.observe(float(seconds))
+    except Exception as exc:
+        log.debug("rag_latency_metric_failed", error=str(exc))
+
+
+def record_embed_cache_hit() -> None:
+    try:
+        _EMBED_CACHE_HITS.inc()
+    except Exception as exc:
+        log.debug("embed_cache_metric_failed", error=str(exc))
+
+
+def record_embed_remote(seconds: float) -> None:
+    try:
+        _EMBED_REMOTE.observe(float(seconds))
+    except Exception as exc:
+        log.debug("embed_remote_metric_failed", error=str(exc))
 
 
 def record_tool(tool: str, ok: bool) -> None:

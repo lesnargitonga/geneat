@@ -241,7 +241,9 @@ def validate_settings(s: Settings) -> tuple[list[str], list[str]]:
         _workers = int(_os.getenv("UVICORN_WORKERS", "1") or "1")
     except ValueError:
         _workers = 1
-    _per_worker = 10 + 20  # matches app/db/session.py pool_size + max_overflow
+    _pool_size = int(getattr(s, "db_pool_size", 10) or 10)
+    _max_overflow = int(getattr(s, "db_max_overflow", 20) or 20)
+    _per_worker = _pool_size + _max_overflow
     _total_conns = _workers * _per_worker
     # Default PG max_connections is 100. Allow tuning via PG_MAX_CONNECTIONS env.
     try:

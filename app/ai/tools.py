@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import time
 import uuid
+import asyncio
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -419,7 +420,11 @@ def build_tools(
         t0 = time.perf_counter()
         try:
             start = datetime.fromisoformat(args.start_time_iso)
-            res = calendar_client.create_event(
+            # `calendar_client.create_event` uses the blocking googleapiclient
+            # client (.execute()). Offload to a thread so the agent's event
+            # loop isn't blocked and the AI timeout can still be enforced.
+            res = await asyncio.to_thread(
+                calendar_client.create_event,
                 title=args.title, start=start, duration_minutes=args.duration_minutes,
                 description=args.notes,
             )

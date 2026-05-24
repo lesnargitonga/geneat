@@ -44,6 +44,8 @@ services:
         value: intasend
       - key: PAYMENT_SIMULATOR
         value: "false"
+      - key: INTASEND_TEST_MODE
+        value: "false"
       - key: DEMO_PAY_ON_PICKUP
         value: "false"
       - key: DATABASE_URL

@@ -135,6 +135,7 @@ Fresh live checks run from this workspace on **2026-05-24**:
 | Portal live photo check | passed |
 | Meta webhook verify handshake | passed |
 | OpenAI provider health | passed |
+| Live LLM provider/model | `/health/deep` reports `provider=openai`, `model=gpt-5.4-mini` |
 | OpenAI breaker state | not stuck open |
 
 Current `make doctor-live` truth:
@@ -156,7 +157,8 @@ What that means in plain English:
 - a photo request returns an image,
 - Meta webhook verification works,
 - IntaSend is configured for live mode, not test mode,
-- the primary OpenAI provider is reachable and not tripped open.
+- the primary OpenAI provider is reachable as `gpt-5.4-mini` and not tripped
+  open.
 
 ### 2.3 Local verification
 
@@ -164,7 +166,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `92 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `94 passed, 1 warning` via `make test-fast` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -628,8 +630,8 @@ Settings-layer defaults:
 | `OPENAI_EMBED_MODEL` | `text-embedding-3-large` |
 | `OPENAI_EMBED_DIMENSIONS` | `768` |
 | `llm_fallback_providers` in `Settings` | `gemini,local` |
-| `AI_TURN_TIMEOUT_SECONDS` / `ai_turn_timeout_seconds` | `12.0` |
-| `AI_TURN_RETRY_TIMEOUT_SECONDS` / `ai_turn_retry_timeout_seconds` | `4.0` |
+| `AI_TURN_TIMEOUT_SECONDS` / `ai_turn_timeout_seconds` | `30.0` |
+| `AI_TURN_RETRY_TIMEOUT_SECONDS` / `ai_turn_retry_timeout_seconds` | `10.0` |
 
 Important nuance:
 
@@ -723,10 +725,10 @@ Current order/payment hardening:
 
 Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Documents/ai model/app/channels/base.py):
 
-- each AI turn is bounded by `AI_TURN_TIMEOUT_SECONDS`, currently 12 seconds
+- each AI turn is bounded by `AI_TURN_TIMEOUT_SECONDS`, currently 30 seconds
   unless overridden by env,
 - one quiet retry is attempted for transient provider/tool failures; timeout
-  retries use `AI_TURN_RETRY_TIMEOUT_SECONDS`, currently 4 seconds, so stuck
+  retries use `AI_TURN_RETRY_TIMEOUT_SECONDS`, currently 10 seconds, so stuck
   turns do not drag on,
 - deterministic quick replies can answer obvious price, hours, or menu
   recommendation questions only after the model path fails,
@@ -743,6 +745,28 @@ Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Docume
 - degraded fallback replies are marked and filtered out of future model
   history so the assistant does not imitate old emergency copy,
 - the generic handoff text is now a last resort, not the normal café voice.
+
+Current load/connection-pool behavior:
+
+- the channel layer commits the saved customer turn and loaded history before
+  entering the slower RAG / LLM / tool loop, so a checked-out DB connection is
+  not pinned while waiting on a provider;
+- the graph releases read transactions after tenant-profile and RAG lookups,
+  and commits tool writes before the next model follow-up turn;
+- Redis session-lock contention now returns a short "still processing" reply
+  instead of falling through to Postgres advisory locks; PG advisory fallback
+  is reserved for Redis-unavailable cases.
+
+Monitoring and UX improvements
+--------------------------------
+
+- New Prometheus metrics: `omni_llm_invoke_duration_seconds`,
+  `omni_rag_retrieval_duration_seconds`, `omni_embed_query_remote_duration_seconds`,
+  and `omni_embed_query_cache_hits_total` record LLM/RAG/embed latencies and
+  cache behaviour. Scrape `/metrics` as normal.
+- The app now publishes an `agent.typing` event on the cross-worker event bus
+  at the start of AI processing so dashboards/UIs can show a typing indicator
+  while the turn is being composed.
 
 Current safety calibration:
 
@@ -1419,6 +1443,11 @@ Meaning:
 - Redis health affects locks, idempotency, rate limits, event bus, and some
   caching.
 - Postgres health affects everything persistent.
+- If DB pool gauges show checked-out connections near
+  `DB_POOL_SIZE + DB_MAX_OVERFLOW`, check for long LLM latency and
+  `redis_lock_timeout_busy` logs before increasing pool size.
+- `scripts/load_test_mock.py` uses unique phone numbers by default; pass
+  `--same-phone` only when intentionally testing per-customer serialization.
 - Admin routes are rate-limited by Redis; in production, Redis failure returns
   a 503 instead of silently allowing unlimited admin traffic.
 - Requests larger than `REQUEST_MAX_BODY_BYTES` are rejected before route
@@ -1578,6 +1607,7 @@ That target declares:
 - `geneat-api`
 - `geneat-redis`
 - `geneat-postgres`
+- live IntaSend mode through `INTASEND_TEST_MODE=false`
 
 with a cleaner managed setup than the manual beta cutover.
 
@@ -1666,8 +1696,8 @@ LLM / embeddings:
 | `OPENAI_STORE_RESPONSES` | keep `true` with Responses API tool loops |
 | `OPENAI_EMBED_MODEL` | `text-embedding-3-large` |
 | `OPENAI_EMBED_DIMENSIONS` | must remain `768` |
-| `AI_TURN_TIMEOUT_SECONDS` | normal model-turn timeout; current default `12` |
-| `AI_TURN_RETRY_TIMEOUT_SECONDS` | shorter quiet retry timeout; current default `4` |
+| `AI_TURN_TIMEOUT_SECONDS` | normal model-turn timeout; current default `30` |
+| `AI_TURN_RETRY_TIMEOUT_SECONDS` | shorter quiet retry timeout; current default `10` |
 | `REQUEST_MAX_BODY_BYTES` | maximum inbound HTTP request body; default `10485760` |
 | `RL_ADMIN_PER_MIN` | per-IP admin route rate limit; default `30` |
 | `GROQ_API_KEY` | Groq provider / vision |
@@ -1911,6 +1941,8 @@ Current scripts and helpers:
 | `scripts/check_webhook_handshake.py` | webhook secret/handshake env sanity check |
 | `scripts/ci_prepare.sh` | CI prep helper |
 | `scripts/flush_outbox.py` | one-shot outbox row processor |
+| `scripts/list_tables.py` | lists public Postgres tables using `DATABASE_URL_SYNC` or `DATABASE_URL` |
+| `scripts/load_test_mock.py` | concurrent `/mock/message` load test helper |
 | `scripts/load_test_sample.py` | small local load-test helper |
 | `scripts/post_deploy_smoke.py` | post-deploy smoke wrapper |
 | `scripts/run_smoke_tests.py` | runs pgvector, pgbouncer, metrics, and Sentry checks |
@@ -1926,6 +1958,9 @@ Current high-value scripts:
 - `run_smoke_tests.py` is the compact post-deploy ops check bundle
 - `flush_outbox.py` is the manual escape hatch for draining pending outbox
   rows during maintenance
+- `load_test_mock.py` is the quickest local latency sanity check for the
+  mock/web-chat path after tuning LLM and RAG timeouts; it uses unique phones
+  by default and has `--same-phone` for session-lock stress tests
 
 ### 21.1 Lily Pond training data generator
 
@@ -1964,7 +1999,7 @@ make test-fast
 Current result:
 
 ```text
-92 passed, 1 warning
+94 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -2059,6 +2094,12 @@ This is the honest list, not the flattering list.
   assistant does not send a random café image as "the menu"
 - explicit photo and full-menu turns now avoid unnecessary RAG embedding calls,
   and repeated RAG query embeddings are cached briefly per worker
+- long AI waits no longer keep the initial request transaction checked out;
+  channel, RAG, and tool phases release DB connections between provider waits
+- Redis session-lock contention no longer falls through to Postgres advisory
+  locks, which prevents same-phone bursts from exhausting the DB pool
+- `load_test_mock.py` now uses unique phone numbers by default and handles
+  client-side failures without crashing its summary output
 - payment callbacks now use optimistic status versioning to prevent stale
   provider events from downgrading paid orders
 - stale pending STKs can be resent explicitly with `send STK` / `resend STK`,

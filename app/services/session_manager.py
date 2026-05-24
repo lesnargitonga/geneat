@@ -2,7 +2,8 @@
 
 Serializes concurrent processing for a given MSISDN across all channels so
 two webhooks for the same phone don't race. Tries Redis first (fast,
-distributed) and falls back to a Postgres advisory lock if Redis is down.
+distributed), returns "busy" when Redis is merely contended, and falls back
+to a Postgres advisory lock only if Redis itself is unavailable.
 """
 from __future__ import annotations
 
@@ -20,7 +21,7 @@ log = get_logger("session")
 
 
 @asynccontextmanager
-async def acquire_session(msisdn: str, db: AsyncSession) -> AsyncIterator[None]:
+async def acquire_session(msisdn: str, db: AsyncSession) -> AsyncIterator[bool]:
     """Serialize concurrent processing for one MSISDN.
 
     CRITICAL: this is wrapped by @asynccontextmanager — it must yield exactly
@@ -33,11 +34,16 @@ async def acquire_session(msisdn: str, db: AsyncSession) -> AsyncIterator[None]:
         async with msisdn_lock(msisdn, timeout=5.0) as acquired:
             if acquired:
                 yielded = True
-                yield
+                yield True
                 return
-            # Redis is up but couldn't get the lock within timeout — fall
-            # through to PG advisory which will block until available.
-            log.warning("redis_lock_timeout_using_pg", msisdn_hash=_h(msisdn))
+            # Redis is up, but this customer already has a turn in-flight.
+            # Do not fall through to Postgres advisory locks here: under load,
+            # queued PG locks hold scarce DB connections while the first turn
+            # waits on an LLM/provider call.
+            yielded = True
+            log.warning("redis_lock_timeout_busy", msisdn_hash=_h(msisdn))
+            yield False
+            return
     except Exception as e:
         if yielded:
             # Exception came from the caller's body, not from Redis.
@@ -52,7 +58,7 @@ async def acquire_session(msisdn: str, db: AsyncSession) -> AsyncIterator[None]:
     )
     await db.execute(text("SELECT pg_advisory_lock(:k)"), {"k": key})
     try:
-        yield
+        yield True
     finally:
         await db.execute(text("SELECT pg_advisory_unlock(:k)"), {"k": key})
 

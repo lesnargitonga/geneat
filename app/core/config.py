@@ -82,8 +82,9 @@ class Settings(BaseSettings):
 
     # AI turn timing. Normal turns should feel conversational on WhatsApp,
     # but still leave a short rescue window for transient provider hiccups.
-    ai_turn_timeout_seconds: float = 12.0
-    ai_turn_retry_timeout_seconds: float = 4.0
+    # Increased from 12s to 30s to reduce spurious degraded fallbacks.
+    ai_turn_timeout_seconds: float = 30.0
+    ai_turn_retry_timeout_seconds: float = 10.0
 
     # ElevenLabs
     elevenlabs_api_key: SecretStr = Field(default=SecretStr(""))

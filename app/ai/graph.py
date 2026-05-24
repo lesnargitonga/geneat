@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime, timezone, timedelta
+import time
 import re
 from typing import Sequence
 
@@ -29,6 +30,7 @@ from app.ai.state import AgentState
 from app.ai.tools import build_tools
 from app.core.config import get_settings
 from app.core.logging import get_logger
+from app.api.metrics import record_llm_latency, record_rag_latency
 from app.services.business_service import BusinessProfile, get_business_for_turn
 from app.services.language import language_instruction
 
@@ -38,6 +40,19 @@ settings = get_settings()
 MAX_TOOL_HOPS = 4
 RAG_TURN_CHUNKS = 3
 _NORMALIZE_RE = re.compile(r"[^a-z0-9 ]+")
+
+
+async def _release_db_connection(db: AsyncSession, *, stage: str) -> None:
+    """End the current transaction so slow provider waits do not pin a pool slot."""
+    if not db.in_transaction():
+        return
+    try:
+        await db.commit()
+        log.debug("db_transaction_released", stage=stage)
+    except Exception:
+        await db.rollback()
+        log.warning("db_transaction_release_failed", stage=stage)
+        raise
 
 
 def _looks_like_name_only(text: str) -> bool:
@@ -126,18 +141,32 @@ async def _retrieve_node(state: AgentState, *, db: AsyncSession) -> dict:
     profile: BusinessProfile | None = state.get("business_profile")
     if profile is None:
         profile = await get_business_for_turn(db, business_id=state.get("business_id"))
+        await _release_db_connection(db, stage="after_profile_lookup")
 
     last_user = next(
         (m for m in reversed(state["messages"]) if isinstance(m, HumanMessage)), None,
     )
     if not last_user:
+        await _release_db_connection(db, stage="rag_no_user")
         return {"rag_context": "", "rag_hits": 0, "business_profile": profile}
     last_user_text = last_user.content if isinstance(last_user.content, str) else str(last_user.content)
     if looks_like_photo_request(last_user_text):
+        await _release_db_connection(db, stage="rag_photo_fast_path")
         return {"rag_context": "", "rag_hits": 0, "business_profile": profile}
 
     biz_id = profile.id if profile else state.get("business_id")
+    t0 = time.perf_counter()
     chunks = await retrieve(db, last_user_text, business_id=biz_id, k=RAG_TURN_CHUNKS)
+    took_ms = int((time.perf_counter() - t0) * 1000)
+    try:
+        log.info("rag_retrieved", rag_hits=len(chunks), latency_ms=took_ms)
+    except Exception:
+        pass
+    try:
+        record_rag_latency(took_ms / 1000.0)
+    except Exception:
+        pass
+    await _release_db_connection(db, stage="after_rag")
     return {
         "rag_context": format_context(chunks),
         "rag_hits": len(chunks),
@@ -183,9 +212,11 @@ async def _agent_node(state: AgentState, *, db: AsyncSession) -> dict:
                 photo_result = await photo_tool.ainvoke({"item": item_query})
             except Exception as exc:
                 log.warning("photo_fast_path_failed", error=str(exc))
+                await _release_db_connection(db, stage="after_photo_tool_failure")
             else:
                 if isinstance(photo_result, dict) and photo_result.get("ok"):
                     matched = str(photo_result.get("item") or "that").strip()
+                    await _release_db_connection(db, stage="after_photo_tool")
                     return {
                         "messages": [AIMessage(content=f"Here you go for {matched}.")],
                         "photo_result": {
@@ -202,7 +233,17 @@ async def _agent_node(state: AgentState, *, db: AsyncSession) -> dict:
         last_user_text=last_user_text,
     )
     msgs: list[BaseMessage] = [system, *state["messages"]]
+    t0 = time.perf_counter()
     response: AIMessage = await llm.ainvoke(msgs)
+    took_ms = int((time.perf_counter() - t0) * 1000)
+    try:
+        log.info("llm_invoke_completed", provider=settings.llm_provider, latency_ms=took_ms)
+    except Exception:
+        pass
+    try:
+        record_llm_latency(settings.llm_provider or "unknown", took_ms / 1000.0)
+    except Exception:
+        pass
     return {"messages": [response]}
 
 
@@ -246,10 +287,20 @@ def build_graph(
     async def agent_step(s: AgentState) -> dict:
         return await _agent_node(s, db=db)
 
+    async def tools_step(s: AgentState) -> dict:
+        try:
+            out = await tool_node.ainvoke(s)
+        except Exception:
+            if db.in_transaction():
+                await db.rollback()
+            raise
+        await _release_db_connection(db, stage="after_tools")
+        return out
+
     g = StateGraph(AgentState)
     g.add_node("retrieve", retrieve_step)
     g.add_node("agent",    agent_step)
-    g.add_node("tools",    tool_node)
+    g.add_node("tools",    tools_step)
 
     g.set_entry_point("retrieve")
     g.add_edge("retrieve", "agent")
