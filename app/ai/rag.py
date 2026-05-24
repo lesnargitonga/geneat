@@ -6,7 +6,9 @@ Document loaders (PDF, DOCX) and a chunking pipeline land in Phase 3.
 from __future__ import annotations
 
 import re
+import time
 import uuid
+from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Sequence
 
@@ -18,6 +20,10 @@ from app.core.logging import get_logger
 from app.db.models import KnowledgeChunk
 
 log = get_logger("rag")
+
+_EMBED_QUERY_CACHE_TTL_SECONDS = 300.0
+_EMBED_QUERY_CACHE_MAX = 256
+_EMBED_QUERY_CACHE: OrderedDict[str, tuple[float, list[float]]] = OrderedDict()
 
 
 @dataclass
@@ -34,8 +40,33 @@ async def embed_texts(texts: Sequence[str]) -> list[list[float]]:
     return await emb.aembed_documents(list(texts))
 
 
+def clear_embed_query_cache() -> None:
+    _EMBED_QUERY_CACHE.clear()
+
+
+def _embed_query_cache_key(q: str) -> str:
+    return re.sub(r"\s+", " ", (q or "").strip().lower())[:500]
+
+
 async def embed_query(q: str) -> list[float]:
-    return await get_embedder().aembed_query(q)
+    key = _embed_query_cache_key(q)
+    now = time.monotonic()
+    if key:
+        cached = _EMBED_QUERY_CACHE.get(key)
+        if cached is not None:
+            expires_at, vec = cached
+            if expires_at > now:
+                _EMBED_QUERY_CACHE.move_to_end(key)
+                return list(vec)
+            _EMBED_QUERY_CACHE.pop(key, None)
+
+    vec = await get_embedder().aembed_query(q)
+    if key:
+        _EMBED_QUERY_CACHE[key] = (now + _EMBED_QUERY_CACHE_TTL_SECONDS, list(vec))
+        _EMBED_QUERY_CACHE.move_to_end(key)
+        while len(_EMBED_QUERY_CACHE) > _EMBED_QUERY_CACHE_MAX:
+            _EMBED_QUERY_CACHE.popitem(last=False)
+    return vec
 
 
 async def ingest_text(
@@ -166,6 +197,51 @@ async def keyword_search(
     except Exception as e:
         log.warning("rag_keyword_like_failed", error=str(e))
         return []
+
+
+async def fetch_menu_chunks(
+    db: AsyncSession,
+    *,
+    business_id: uuid.UUID | None = None,
+    k: int = 8,
+) -> list[RetrievedChunk]:
+    """Fetch likely menu chunks without embedding the customer's query.
+
+    Full-menu requests are operational lookups, not semantic search. Keeping
+    this path embedding-free makes "send the menu" replies much faster and
+    avoids falling back just because the embedding provider is slow.
+    """
+    sql = text(
+        """
+        SELECT content, source
+        FROM knowledge_base
+        WHERE (CAST(:bid AS uuid) IS NULL OR business_id = CAST(:bid AS uuid))
+          AND (
+            LOWER(COALESCE(source, '')) LIKE '%menu%'
+            OR LOWER(content) LIKE '%coffee%'
+            OR LOWER(content) LIKE '%breakfast%'
+            OR LOWER(content) LIKE '%pastr%'
+            OR LOWER(content) LIKE '%snack%'
+            OR LOWER(content) LIKE '%lunch%'
+            OR LOWER(content) LIKE '%drink%'
+            OR LOWER(content) LIKE '%demo espresso%'
+          )
+        ORDER BY created_at ASC
+        LIMIT :k
+        """
+    )
+    try:
+        rows = (await db.execute(
+            sql,
+            {"bid": str(business_id) if business_id else None, "k": k},
+        )).all()
+    except Exception as e:
+        log.warning("rag_menu_fetch_failed", error=str(e))
+        return []
+    return [
+        RetrievedChunk(content=r.content, source=r.source, score=1.0)
+        for r in rows
+    ]
 
 
 # ── Price discovery (used by output safety filter) ─────────────────────

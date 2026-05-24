@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     # App
     app_env: Literal["dev", "staging", "prod", "test"] = "dev"
     app_name: str = "omnichannel-ai"
-    app_host: str = "0.0.0.0"
+    app_host: str = "127.0.0.1"
     app_port: int = 8000
     log_level: str = "INFO"
     log_format: Literal["auto", "json", "console"] = "auto"
@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     # Database
     database_url: str = "postgresql+asyncpg://omni:omni@localhost:5432/omni"
     database_url_sync: str = "postgresql+psycopg://omni:omni@localhost:5432/omni"
+    # Connection pool tuning (overridable per-deployment)
+    db_pool_size: int = 10
+    db_max_overflow: int = 20
+    db_pool_pre_ping: bool = True
+    request_max_body_bytes: int = 10 * 1024 * 1024
 
     # Redis
     redis_url: str = "redis://localhost:6379/0"
@@ -91,7 +96,7 @@ class Settings(BaseSettings):
     whatsapp_reengagement_template_lang: str = "en_US"
     meta_wa_phone_number_id: str = ""
     meta_wa_access_token: SecretStr = Field(default=SecretStr(""))
-    meta_wa_verify_token: str = "verify-me"
+    meta_wa_verify_token: str = ""
     meta_wa_app_secret: SecretStr = Field(default=SecretStr(""))
 
     # Africa's Talking
@@ -158,6 +163,7 @@ class Settings(BaseSettings):
 
     # Rate limits
     rl_inbound_per_min: int = 120
+    rl_admin_per_min: int = 30
     rl_wa_outbound_per_sec: int = 50
     rl_mpesa_stk_per_msisdn_sec: int = 30
 

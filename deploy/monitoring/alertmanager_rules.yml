@@ -1,0 +1,38 @@
+groups:
+  - name: pgbouncer.rules
+    rules:
+      - alert: AppDown
+        expr: up{job="omni_app"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Omni app is down"
+          description: "Prometheus cannot reach the backend /metrics endpoint."
+
+      - alert: PGBouncerDown
+        expr: up{job="pgbouncer"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "pgbouncer exporter down"
+          description: "Pgbouncer exporter is not responding on the configured target."
+
+      - alert: HighJobBacklog
+        expr: increase(background_jobs_enqueued_total[5m]) > 50
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Background job backlog rising"
+          description: "Background job enqueue rate is high; investigate runner capacity."
+
+      - alert: OutboxDeliveryFailures
+        expr: increase(omni_webhook_deliveries_total{outcome="failed"}[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Outbound webhook failures increasing"
+          description: "A rise in failed outbound webhook deliveries may indicate network issues or broken receiver endpoints."

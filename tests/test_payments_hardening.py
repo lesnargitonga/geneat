@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import time
 import uuid
+import asyncio
 
 import pytest
 
@@ -240,6 +241,79 @@ async def test_provider_paid_callback_can_win_over_prior_timeout_without_db():
     assert order.payment_status == PaymentStatus.paid
     assert order.payment_version == 2
     assert order.mpesa_receipt == "RCP-2"
+
+
+@pytest.mark.asyncio
+async def test_concurrent_payment_transitions_only_one_wins():
+    from app.api.payments import _transition_payment_status
+
+    order_id = uuid.uuid4()
+
+    class _Row:
+        payment_status = PaymentStatus.paid
+        payment_version = 1
+        mpesa_receipt = "RACE-1"
+
+    class _Result:
+        def __init__(self, row):
+            self._row = row
+
+        def first(self):
+            return self._row
+
+    class _RaceDB:
+        def __init__(self):
+            self._won = False
+            self._lock = asyncio.Lock()
+
+        async def execute(self, _stmt):
+            async with self._lock:
+                await asyncio.sleep(0)
+                if self._won:
+                    return _Result(None)
+                self._won = True
+                return _Result(_Row())
+
+        async def refresh(self, order):
+            order.payment_status = PaymentStatus.paid
+            order.payment_version = 1
+            order.mpesa_receipt = "RACE-1"
+
+    db = _RaceDB()
+    order_a = Order(
+        id=order_id,
+        customer_id=uuid.uuid4(),
+        amount=10,
+        payment_status=PaymentStatus.pending,
+        payment_version=0,
+    )
+    order_b = Order(
+        id=order_id,
+        customer_id=order_a.customer_id,
+        amount=10,
+        payment_status=PaymentStatus.pending,
+        payment_version=0,
+    )
+
+    results = await asyncio.gather(
+        _transition_payment_status(
+            db,
+            order_a,
+            from_statuses={PaymentStatus.pending},
+            to_status=PaymentStatus.paid,
+            receipt="RACE-1",
+        ),
+        _transition_payment_status(
+            db,
+            order_b,
+            from_statuses={PaymentStatus.pending},
+            to_status=PaymentStatus.paid,
+            receipt="RACE-1",
+        ),
+    )
+
+    assert sorted(results) == [False, True]
+    assert order_a.payment_status == PaymentStatus.paid or order_b.payment_status == PaymentStatus.paid
 
 
 @pytest.mark.asyncio

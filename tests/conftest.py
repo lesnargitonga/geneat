@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import secrets
 from typing import AsyncIterator
 from unittest.mock import AsyncMock
 
@@ -15,8 +16,8 @@ os.environ.setdefault("APP_ENV", "test")
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/15")
 os.environ.setdefault("OPENAI_API_KEY", "sk-test")
-os.environ.setdefault("META_WA_APP_SECRET", "secret-shh")
-os.environ.setdefault("META_WA_VERIFY_TOKEN", "verify-me")
+os.environ.setdefault("META_WA_APP_SECRET", secrets.token_urlsafe(48))
+os.environ.setdefault("META_WA_VERIFY_TOKEN", secrets.token_urlsafe(32))
 
 
 @pytest.fixture(scope="session")

@@ -4,7 +4,7 @@ import re
 from dataclasses import dataclass
 from typing import Sequence
 
-from app.ai.rag import RetrievedChunk, retrieve
+from app.ai.rag import RetrievedChunk, fetch_menu_chunks, retrieve
 from app.ai.safety import extract_kes_amounts
 from app.services.business_service import BusinessProfile
 
@@ -444,6 +444,10 @@ async def maybe_build_quick_reply(
         return None
 
     if looks_like_full_menu_request(text):
+        chunks = await fetch_menu_chunks(db, business_id=business_id, k=8)
+        reply = full_menu_reply_from_chunks(chunks)
+        if reply:
+            return reply
         chunks = await retrieve(db, text, business_id=business_id, k=8)
         return full_menu_reply_from_chunks(chunks)
 

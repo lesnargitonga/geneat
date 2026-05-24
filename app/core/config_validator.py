@@ -180,8 +180,8 @@ def validate_settings(s: Settings) -> tuple[list[str], list[str]]:
         warnings.append("ADMIN_API_TOKEN is empty — /admin/* endpoints will reject all requests.")
     if is_prod:
         for attr, env_name, min_len in (
-            ("secret_key", "SECRET_KEY", 32),
-            ("phone_hash_pepper", "PHONE_HASH_PEPPER", 32),
+            ("secret_key", "SECRET_KEY", 64),
+            ("phone_hash_pepper", "PHONE_HASH_PEPPER", 64),
         ):
             value = getattr(s, attr, "")
             if _weak_secret(value, min_len=min_len):
@@ -191,13 +191,13 @@ def validate_settings(s: Settings) -> tuple[list[str], list[str]]:
         jwt_secret = _secret(getattr(s, "jwt_secret", ""))
         if not jwt_secret:
             errors.append("JWT_SECRET is required in production.")
-        elif _weak_secret(jwt_secret, min_len=32):
-            warnings.append(
-                "JWT_SECRET is weak for production. Use at least 32 unpredictable characters."
+        elif _weak_secret(jwt_secret, min_len=64):
+            errors.append(
+                "JWT_SECRET is too weak for production. Use at least 64 unpredictable characters."
             )
-        if admin_token and _weak_secret(admin_token, min_len=24):
+        if admin_token and _weak_secret(admin_token, min_len=32):
             warnings.append(
-                "ADMIN_API_TOKEN is weak for production. Use at least 24 unpredictable characters."
+                "ADMIN_API_TOKEN is weak for production. Use at least 32 unpredictable characters."
             )
 
     # ── Database ──────────────────────────────────────────────────

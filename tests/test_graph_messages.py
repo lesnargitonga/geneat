@@ -89,6 +89,10 @@ async def test_run_turn_short_circuits_explicit_photo_requests(db, stub_rag, mon
 
     monkeypatch.setattr("app.ai.graph.build_tools", lambda *a, **kw: [tool])
     monkeypatch.setattr(
+        "app.ai.graph.retrieve",
+        lambda *a, **kw: (_ for _ in ()).throw(AssertionError("RAG should not be called for explicit photo requests")),
+    )
+    monkeypatch.setattr(
         "app.ai.graph.get_chat_chain",
         lambda *a, **kw: (_ for _ in ()).throw(AssertionError("LLM should not be called for explicit photo requests")),
     )

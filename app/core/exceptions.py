@@ -36,3 +36,8 @@ class HumanEscalation(AppError):
 class UpstreamError(AppError):
     status_code = 502
     code = "upstream_error"
+
+
+class ServiceUnavailable(AppError):
+    status_code = 503
+    code = "service_unavailable"

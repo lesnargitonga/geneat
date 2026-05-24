@@ -52,13 +52,9 @@ def _build_provider(
             # When acting as a fallback, prefer the cheaper/larger-quota model.
             model = s.groq_fallback_model if is_fallback else s.groq_model
             log.info("llm_built", provider="groq", model=model, fallback=is_fallback)
-            # max_retries=0 is critical: Groq SDK retries 429 internally with
-            # 20-40s back-offs, which masks the rate-limit from
-            # `with_fallbacks` and makes the user wait 40s+ instead of
-            # instantly failing over to the next provider.
             return ChatGroq(
                 model=model, api_key=key, temperature=temperature,
-                streaming=streaming, timeout=30, max_retries=0,
+                streaming=streaming, timeout=30, max_retries=1,
                 max_tokens=600,
             )
 
@@ -68,13 +64,9 @@ def _build_provider(
             if not key:
                 return None
             log.info("llm_built", provider="gemini", model=s.gemini_model, fallback=is_fallback)
-            # Gemini free tier returns 503 UNAVAILABLE under load; max_retries=3
-            # with built-in exponential back-off absorbs those before the
-            # `with_fallbacks` chain kicks in (the fallback model — local
-            # llama — emits broken tool-call JSON).
             return ChatGoogleGenerativeAI(
                 model=s.gemini_model, google_api_key=key, temperature=temperature,
-                timeout=30, max_retries=3,
+                timeout=30, max_retries=1,
                 max_output_tokens=600,
             )
 
@@ -120,6 +112,8 @@ def _build_provider(
             return ChatOllama(
                 base_url=base, model=s.local_llm_model,
                 temperature=temperature, num_predict=512,
+                async_client_kwargs={"timeout": 30},
+                sync_client_kwargs={"timeout": 30},
             )
     except Exception as e:
         log.warning("llm_build_failed", provider=provider, error=str(e))

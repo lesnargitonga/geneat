@@ -54,6 +54,7 @@ def test_full_menu_request_and_reply() -> None:
 
     assert looks_like_full_menu_request("I need the full menu, now!")
     assert looks_like_full_menu_request("That's not the menu")
+    assert looks_like_full_menu_request("Thanks, what else do you sell at the cafe?")
     reply = full_menu_reply_from_chunks(chunks)
     assert reply is not None
     assert "Demo Espresso - KES 10" in reply
@@ -135,3 +136,36 @@ async def test_maybe_build_quick_reply_uses_profile_hours(db, monkeypatch) -> No
     )
 
     assert reply == "We\u2019re open Mon-Fri 07:00-21:00 | Sat 09:00-18:00 | Closed Sun."
+
+
+@pytest.mark.asyncio
+async def test_maybe_build_full_menu_reply_does_not_embed_query(db, monkeypatch) -> None:
+    async def fake_menu_chunks(*_args, **_kwargs):
+        return [
+            RetrievedChunk(
+                content=(
+                    "LIVE DEMO - Demo Espresso KES 10.\n"
+                    "COFFEE - Flat White KES 250. Cappuccino KES 240.\n"
+                    "PASTRIES - Butter Croissant KES 180."
+                ),
+                source="menu",
+                score=1.0,
+            )
+        ]
+
+    monkeypatch.setattr("app.ai.quick_replies.fetch_menu_chunks", fake_menu_chunks)
+    monkeypatch.setattr(
+        "app.ai.quick_replies.retrieve",
+        lambda *a, **kw: (_ for _ in ()).throw(AssertionError("Full menu replies should not run vector retrieval")),
+    )
+
+    reply = await maybe_build_quick_reply(
+        db,
+        business_id=uuid.uuid4(),
+        profile=None,
+        text="I need the full menu, now!",
+    )
+
+    assert reply is not None
+    assert "Demo Espresso - KES 10" in reply
+    assert "Flat White - KES 250" in reply

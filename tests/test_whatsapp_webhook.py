@@ -8,13 +8,14 @@ import hashlib
 import hmac
 import json
 import os
+import secrets
 import time
 
 import pytest
 from fastapi.testclient import TestClient
 
-os.environ.setdefault("META_WA_APP_SECRET", "secret-shh")
-os.environ.setdefault("META_WA_VERIFY_TOKEN", "verify-me")
+TEST_META_WA_APP_SECRET = os.environ.setdefault("META_WA_APP_SECRET", secrets.token_urlsafe(48))
+TEST_META_WA_VERIFY_TOKEN = os.environ.setdefault("META_WA_VERIFY_TOKEN", secrets.token_urlsafe(32))
 
 from app.main import app  # noqa: E402
 
@@ -30,7 +31,7 @@ def client(monkeypatch):
 def test_wa_verify_handshake(client):
     r = client.get("/webhooks/whatsapp", params={
         "hub.mode": "subscribe", "hub.challenge": "12345",
-        "hub.verify_token": "verify-me",
+        "hub.verify_token": TEST_META_WA_VERIFY_TOKEN,
     })
     assert r.status_code == 200 and r.text == "12345"
 
@@ -52,7 +53,7 @@ def test_wa_signature_required_when_secret_set(client):
 def test_wa_signature_accepted(client):
     payload = {"entry": []}
     body = json.dumps(payload).encode()
-    sig = "sha256=" + hmac.new(b"secret-shh", body, hashlib.sha256).hexdigest()
+    sig = "sha256=" + hmac.new(TEST_META_WA_APP_SECRET.encode(), body, hashlib.sha256).hexdigest()
     r = client.post("/webhooks/whatsapp", content=body,
                     headers={"content-type": "application/json", "x-hub-signature-256": sig})
     assert r.status_code == 200

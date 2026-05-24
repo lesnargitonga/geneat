@@ -109,3 +109,32 @@ async def test_runner_expires_stale_jobs_without_running_handler(job_session):
         assert row.status == JobStatus.failed
         assert row.finished_at is not None
         assert row.last_error == "job expired before completion"
+
+
+@pytest.mark.asyncio
+async def test_runner_expires_legacy_jobs_by_created_at(job_session):
+    kind = "unit.legacy_expired"
+
+    @runner.job_handler(kind)
+    async def _handle(_job):
+        raise AssertionError("expired legacy job should not run")
+
+    async with job_session() as db:
+        job = await runner.enqueue_job(
+            db,
+            kind=kind,
+            payload={},
+            run_at=datetime.now(timezone.utc) - timedelta(seconds=1),
+            ttl_seconds=None,
+        )
+        job.created_at = datetime.now(timezone.utc) - timedelta(hours=25)
+        job_id = job.id
+        await db.commit()
+
+    assert await runner.run_due_jobs_once() == 0
+
+    async with job_session() as db:
+        row = await db.get(BackgroundJob, job_id)
+        assert row is not None
+        assert row.status == JobStatus.failed
+        assert row.last_error == "job expired before completion"

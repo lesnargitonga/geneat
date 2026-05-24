@@ -226,8 +226,29 @@ async def _handle(evt: dict) -> None:
     )
 
     # Per-endpoint signature (each endpoint has its own secret).
+    # Enqueue durable outbox rows for each endpoint so a single runner
+    # delivers with retries. Falls back to inline delivery if enqueue
+    # isn't available (rare during initialization).
+    try:
+        from app.services.outbox import enqueue as outbox_enqueue  # type: ignore
+    except Exception:
+        await asyncio.gather(
+            *(_deliver_one(ep, body, _sign(ep.secret, body)) for ep in targets),
+            return_exceptions=True,
+        )
+        return
+
     await asyncio.gather(
-        *(_deliver_one(ep, body, _sign(ep.secret, body)) for ep in targets),
+        *(outbox_enqueue(
+            kind="webhook",
+            payload={
+                "endpoint_id": str(ep.id),
+                "body": body.decode("utf-8"),
+                "sig": _sign(ep.secret, body),
+                "event_type": etype,
+            },
+            business_id=business_id,
+        ) for ep in targets),
         return_exceptions=True,
     )
 

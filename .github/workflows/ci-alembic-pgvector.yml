@@ -1,0 +1,68 @@
+name: CI — Alembic + pgvector
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  alembic-pgvector:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        ports: [ 5432:5432 ]
+        env:
+          POSTGRES_USER: omni
+          POSTGRES_PASSWORD: omni
+          POSTGRES_DB: omni
+        options: >-
+          --health-cmd="pg_isready -U omni"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Wait for Postgres
+        run: |
+          for i in {1..30}; do
+            pg_isready -h 127.0.0.1 -p 5432 -U omni && break || sleep 1
+          done
+
+      - name: Run alembic migrations
+        env:
+          DATABASE_URL: postgresql+psycopg://omni:omni@127.0.0.1:5432/omni
+        run: |
+          alembic upgrade head
+
+      - name: Check pgvector embedding dimension
+        env:
+          DATABASE_URL: postgresql+psycopg://omni:omni@127.0.0.1:5432/omni
+          OPENAI_EMBED_DIMENSIONS: 768
+        run: |
+          python scripts/check_pgvector_dim.py
+
+      - name: Optional: Check metrics endpoint
+        env:
+          DATABASE_URL: postgresql+psycopg://omni:omni@127.0.0.1:5432/omni
+          METRICS_URL: ${{ secrets.METRICS_URL }}
+        run: |
+          if [ -n "$METRICS_URL" ]; then
+            python scripts/check_metrics.py
+          else
+            echo "METRICS_URL not set; skipping metrics check"
+          fi

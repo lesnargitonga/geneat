@@ -164,8 +164,12 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `80 passed, 1 warning` via `make test-fast` |
-| Durable job TTL regression | `3 passed` via `pytest tests/test_job_runner.py -q` |
+| Fast focused backend suite | `92 passed, 1 warning` via `make test-fast` |
+| Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
+| Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
+| Payment race regression | covered by `tests/test_payments_hardening.py` |
+| Bandit medium/high scan | passed via `bandit -r app -q --severity-level medium` |
+| Dependency audit | `pip-audit` found 23 vulnerabilities across 12 packages |
 | Admin UI production build | passed |
 | Gen-Eat portal production build | passed |
 | Logging crash regression test | passed |
@@ -176,6 +180,9 @@ Command results:
 ```bash
 make test-fast
 ./.venv/bin/python -m pytest tests/test_job_runner.py -q
+./.venv/bin/python -m pytest tests/test_redis_client.py -q
+./.venv/bin/bandit -r app -q --severity-level medium
+./.venv/bin/pip-audit
 cd admin-ui && npm run build
 cd gen-eat-portal && npm run build
 ```
@@ -197,6 +204,26 @@ Currently real:
 - IntaSend-backed STK path,
 - durable job framework,
 - live doctor tooling.
+
+### 2.5 CI and monitoring
+
+Continuous integration now has two checked-in workflows:
+
+- `.github/workflows/ci.yml` runs ruff plus the default non-Postgres pytest
+  suite with Postgres and Redis service containers available.
+- `.github/workflows/ci-alembic-pgvector.yml` boots pgvector Postgres, runs
+  `alembic upgrade head`, validates `knowledge_base.embedding` dimensions, and
+  can optionally check a configured metrics endpoint.
+
+Monitoring assets live under `deploy/monitoring/`:
+
+- Prometheus scrape example,
+- Alertmanager rules,
+- Grafana dashboard sample.
+
+Use `scripts/check_metrics.py`, `scripts/check_pgbouncer.py`,
+`scripts/check_pgvector_dim.py`, and `scripts/run_smoke_tests.py` for quick
+local or post-deploy validation.
 
 Still demo-oriented:
 
@@ -226,6 +253,7 @@ ai model/
   app/
   admin-ui/
   gen-eat-portal/
+  lesnarai-landing/
   docs/
   deploy/
   scripts/
@@ -258,6 +286,7 @@ app/
     ollama_embed.py
     playbooks/
     prompts.py
+    quick_replies.py
     rag.py
     safety.py
     state.py
@@ -303,6 +332,7 @@ app/
   jobs/
     handlers.py
     order_ready_notifier.py
+    outbox_runner.py
     runner.py
   services/
     admin_seed.py
@@ -313,6 +343,7 @@ app/
     language.py
     media.py
     menu_photos.py
+    outbox.py
     output_sanitizer.py
     session_manager.py
     slash_commands.py
@@ -333,12 +364,23 @@ gen-eat-portal/
   app/api/chat/route.ts -> backend /mock/message proxy
   lib/cafes.ts -> portal-side canonical demo café data
   public/menu/ -> optional local menu photography
+
+lesnarai-landing/
+  static Lesnar AI landing page deployable on Vercel
 ```
 
 Deployment and ops:
 
 ```text
 deploy/
+  monitoring/
+    prometheus.yml
+    alertmanager_rules.yml
+    grafana_dashboard.json
+  pgbouncer/
+    README.md
+    pgbouncer.ini
+    pgbouncer.service
   render/
     README.md
   truehost/
@@ -352,6 +394,7 @@ scripts/
   provider smoke tests
   backup utilities
   photo publishing utilities
+  ops smoke / monitoring / pgbouncer checks
 ```
 
 ## 4. System Architecture
@@ -490,6 +533,7 @@ Important tables:
 | `broadcasts` | outbound campaign records |
 | `webhook_endpoints` | tenant outbound integration endpoints |
 | `background_jobs` | durable in-app queue |
+| `outbox` | durable outbound delivery rows for webhooks and other side effects |
 
 Current Alembic head:
 
@@ -506,6 +550,7 @@ Current Alembic head:
 | `0009_background_jobs` | durable jobs |
 | `0010_enforce_embedding_768` | enforces `vector(768)` |
 | `0011_payment_locking_and_job_ttl` | optimistic payment status versioning and background job TTL |
+| `0012_add_outbox_table` | durable outbox table for outbound webhook delivery |
 
 Current schema truth:
 
@@ -516,6 +561,7 @@ Current schema truth:
 - `background_jobs` exists and is required for delayed internal work,
 - `background_jobs.expires_at` lets stale jobs fail closed instead of retrying
   forever,
+- `outbox` exists for durable outbound webhook delivery attempts,
 - doctor DB introspection expects the current Alembic head when local DB checks
   are enabled.
 
@@ -687,7 +733,9 @@ Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Docume
 - deterministic quick replies can answer item-availability questions such as
   `Do you have croissants?` from menu chunks,
 - full-menu requests such as `I need the full menu` are answered
-  deterministically from menu chunks instead of waiting on the model,
+  deterministically from menu chunks instead of waiting on the model or an
+  embedding call when menu rows are available, with vector retrieval kept as a
+  compatibility fallback,
 - generic photo follow-ups such as `send a picture` ask which item to send
   instead of guessing and returning the wrong café/menu image,
 - keyword KB fallback is tried before generic handoff, but internal/demo
@@ -725,6 +773,13 @@ Current safety calibration:
 Current retrieval behavior:
 
 - vector search uses pgvector when embeddings are available,
+- repeated query embeddings are cached in-process for five minutes, capped at
+  256 normalized queries per worker,
+- explicit photo requests skip retrieval entirely before the deterministic
+  `send_menu_photo` path,
+- full-menu quick replies fetch likely menu chunks directly, without embedding
+  the user query when menu rows are available, and only fall back to vector
+  retrieval if no menu-style chunks are found,
 - keyword fallback exists for degraded conditions,
 - tenant scoping is enforced by `business_id`,
 - price redaction uses KB-derived allowed prices,
@@ -887,6 +942,7 @@ Current job kinds:
 | `order.ready` | order-ready notification |
 | `payment.simulator_confirm` | simulator auto-confirm |
 | `payment.unpaid_followup` | pending-payment reminder |
+| `payment.intasend_poll` | bounded IntaSend status polling after STK request |
 
 Operational truth:
 
@@ -894,6 +950,8 @@ Operational truth:
 - claim/retry/lease logic exists,
 - jobs now carry an optional `expires_at` TTL and stale queued/running jobs are
   failed instead of retrying indefinitely,
+- a separate outbox runner also runs in-process to deliver queued outbound
+  webhook rows from the `outbox` table,
 - huge campaign scale would still outgrow the in-process runner before too
   long.
 
@@ -925,15 +983,24 @@ Current outbound webhook truth:
 
 - tenant-configured,
 - HMAC-signed with `X-Omni-Signature`,
-- deduped through Redis,
-- limited concurrency,
-- retry logic exists once a worker receives the event.
+- event dispatch is deduped through Redis,
+- delivery is queued into the durable `outbox` table by
+  [app/services/outbox.py](/home/lesnar/Documents/ai model/app/services/outbox.py),
+- [app/jobs/outbox_runner.py](/home/lesnar/Documents/ai model/app/jobs/outbox_runner.py)
+  claims pending rows, delivers with bounded retries, updates endpoint health,
+  and marks rows sent or failed,
+- delivery concurrency is bounded,
+- `failure_count >= 20` auto-disables dead endpoints.
 
 Important limitation:
 
 - the event bus itself is **not durable**,
-- so SSE and outbound webhooks can miss events during Redis or listener gaps,
-- the correct future fix is an outbox table or Redis Streams layer.
+- so SSE can still miss events during Redis or listener gaps,
+- outbound webhook delivery is durable after an event has been received and
+  enqueued into `outbox`,
+- if no worker receives the Redis event in the first place, the outbox row is
+  never created; the complete future fix is a transactional event/outbox write
+  at the producer boundary or Redis Streams.
 
 ## 13. Admin Console
 
@@ -1210,17 +1277,18 @@ Current production fail-fast rules include:
 
 - `PAYMENT_SIMULATOR=true` is forbidden in `APP_ENV=prod`,
 - `PAYMENT_PROVIDER=intasend` requires `INTASEND_WEBHOOK_SECRET` in prod,
+- `PAYMENT_PROVIDER=intasend` with `INTASEND_TEST_MODE=true` is forbidden in
+  prod because real phones will not receive live STK prompts,
 - `WHATSAPP_PROVIDER=meta` requires `META_WA_APP_SECRET` in prod and only
   warns outside prod,
 - GPT-5 with the OpenAI Responses API requires `OPENAI_STORE_RESPONSES=true`
   in prod,
 - OpenAI embeddings must remain `768` dimensions in prod until the pgvector
   schema is migrated.
-- production `SECRET_KEY` and `PHONE_HASH_PEPPER` must be non-placeholder,
-  high-entropy values,
-- production `JWT_SECRET` is required; weak `JWT_SECRET` and
-  `ADMIN_API_TOKEN` values are logged as warnings so beta deploys are not
-  silently misconfigured,
+- production `SECRET_KEY`, `PHONE_HASH_PEPPER`, and `JWT_SECRET` must be
+  non-placeholder, high-entropy values of at least 64 characters,
+- weak `ADMIN_API_TOKEN` values are logged as warnings so beta deploys are
+  not silently misconfigured,
 - Redis idempotency claims fail closed in production if Redis is unavailable,
   instead of treating provider/webhook work as fresh.
 
@@ -1303,7 +1371,10 @@ Current metrics include:
 - request counts and latency,
 - webhook delivery metrics,
 - safety counters,
-- event/tool metrics.
+- event/tool metrics,
+- SQLAlchemy DB pool gauges: `omni_db_pool_size`,
+  `omni_db_pool_checked_out`, `omni_db_pool_checked_in`,
+  `omni_db_pool_overflow`.
 
 ### 17.4 Health endpoints
 
@@ -1329,6 +1400,7 @@ Current developer/operator commands:
 make doctor-local
 make doctor-live
 make smoke-providers
+make test-fast
 ```
 
 Meaning:
@@ -1339,13 +1411,24 @@ Meaning:
   create false alarms, and a slow `/readyz` response is tolerated when
   `/health/deep` proves DB and Redis are healthy
 - `smoke-providers` probes provider credential/path sanity
+- `test-fast` includes the focused payment-race, Redis fail-closed, safety,
+  fallback, and webhook-signature regressions that protect the live demo path
 
 ### 17.6 Operational watch points
 
 - Redis health affects locks, idempotency, rate limits, event bus, and some
   caching.
 - Postgres health affects everything persistent.
+- Admin routes are rate-limited by Redis; in production, Redis failure returns
+  a 503 instead of silently allowing unlimited admin traffic.
+- Requests larger than `REQUEST_MAX_BODY_BYTES` are rejected before route
+  handlers read the body; the current default is 10 MB.
+- PgBouncer examples live in `deploy/pgbouncer/`; local `docker-compose.yml`
+  includes a pgbouncer service for pooled-connection testing, but production
+  must use real auth instead of local trust-mode examples.
 - Job backlogs mean `background_jobs` and runner state need inspection.
+- Outbox backlogs mean `outbox` rows, endpoint health, and
+  `app.jobs.outbox_runner` need inspection.
 - Webhook issues need Redis event-bus plus webhook dispatcher review.
 - OpenAI breaker state in `/health/deep` is now worth checking when the chat
   path feels weird.
@@ -1365,7 +1448,8 @@ Meaning:
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-docker-compose up -d postgres redis
+# start Postgres, Redis and pgbouncer for local pooled testing
+docker-compose up -d postgres redis pgbouncer
 alembic upgrade head
 ```
 
@@ -1506,6 +1590,27 @@ Truehost server-side bundle exists here:
 
 That path is currently a prepared alternative, not the current live path.
 
+### 19.3.1 PgBouncer and monitoring assets
+
+Prepared operational assets now exist for the next hardening pass:
+
+- [deploy/pgbouncer/README.md](/home/lesnar/Documents/ai model/deploy/pgbouncer/README.md)
+- [deploy/pgbouncer/pgbouncer.ini](/home/lesnar/Documents/ai model/deploy/pgbouncer/pgbouncer.ini)
+- [deploy/pgbouncer/pgbouncer.service](/home/lesnar/Documents/ai model/deploy/pgbouncer/pgbouncer.service)
+- [deploy/monitoring/prometheus.yml](/home/lesnar/Documents/ai model/deploy/monitoring/prometheus.yml)
+- [deploy/monitoring/alertmanager_rules.yml](/home/lesnar/Documents/ai model/deploy/monitoring/alertmanager_rules.yml)
+- [deploy/monitoring/grafana_dashboard.json](/home/lesnar/Documents/ai model/deploy/monitoring/grafana_dashboard.json)
+
+Current truth:
+
+- local `docker-compose.yml` includes a pgbouncer service for pooled testing,
+- `deploy/pgbouncer/userlist.txt` is a local/dev trust-mode helper and must
+  not be treated as a production secret source,
+- production should use managed secrets, real PgBouncer auth, and tuned pool
+  limits based on worker count and Postgres `max_connections`,
+- monitoring examples are starter assets, not proof that hosted alerting is
+  already wired.
+
 ### 19.4 Production-ish infrastructure requirements
 
 Postgres:
@@ -1537,6 +1642,9 @@ Core:
 | `LOG_FORMAT` | `json`, `console`, or `auto` |
 | `DATABASE_URL` | async DB URL or Render plain Postgres URL |
 | `DATABASE_URL_SYNC` | sync DB URL or same Render URL |
+| `DB_POOL_SIZE` | SQLAlchemy pool size per app process; default `10` |
+| `DB_MAX_OVERFLOW` | extra temporary DB connections per process; default `20` |
+| `DB_POOL_PRE_PING` | validates pooled connections before use; default `true` |
 | `REDIS_URL` | Redis / Valkey URL |
 | `SECRET_KEY` | app secret |
 | `PHONE_HASH_PEPPER` | stable phone-hash secret |
@@ -1560,6 +1668,8 @@ LLM / embeddings:
 | `OPENAI_EMBED_DIMENSIONS` | must remain `768` |
 | `AI_TURN_TIMEOUT_SECONDS` | normal model-turn timeout; current default `12` |
 | `AI_TURN_RETRY_TIMEOUT_SECONDS` | shorter quiet retry timeout; current default `4` |
+| `REQUEST_MAX_BODY_BYTES` | maximum inbound HTTP request body; default `10485760` |
+| `RL_ADMIN_PER_MIN` | per-IP admin route rate limit; default `30` |
 | `GROQ_API_KEY` | Groq provider / vision |
 | `GEMINI_API_KEY` | Gemini fallback |
 
@@ -1774,7 +1884,7 @@ This is a human-grouped route map based on the current FastAPI app.
 
 ## 21. Scripts, Seeds, And Utilities
 
-Current tracked scripts:
+Current scripts and helpers:
 
 | Script | Purpose |
 | --- | --- |
@@ -1793,6 +1903,18 @@ Current tracked scripts:
 | `scripts/generate_lily_pond_training.py` | synthetic Lily Pond SFT golden-path JSONL generator |
 | `scripts/build_render_env.py` | local helper that writes an ignored Render env bundle from `.env` |
 | `scripts/audit_battery.sh` | audit helper |
+| `scripts/check_metrics.py` | checks `/metrics` reachability and non-empty output |
+| `scripts/check_payments.py` | payment webhook secret sanity check |
+| `scripts/check_pgbouncer.py` | DB/PgBouncer connection sanity check |
+| `scripts/check_pgvector_dim.py` | verifies pgvector embedding dimension |
+| `scripts/check_sentry.py` | verifies Sentry initialization when DSN is set |
+| `scripts/check_webhook_handshake.py` | webhook secret/handshake env sanity check |
+| `scripts/ci_prepare.sh` | CI prep helper |
+| `scripts/flush_outbox.py` | one-shot outbox row processor |
+| `scripts/load_test_sample.py` | small local load-test helper |
+| `scripts/post_deploy_smoke.py` | post-deploy smoke wrapper |
+| `scripts/run_smoke_tests.py` | runs pgvector, pgbouncer, metrics, and Sentry checks |
+| `scripts/setup_pgbouncer.sh` | writes local PgBouncer helper config |
 
 Current high-value scripts:
 
@@ -1801,6 +1923,9 @@ Current high-value scripts:
 - `smoke_providers.py` is the credential sanity probe
 - `generate_lily_pond_training.py` creates OpenAI-style chat fine-tuning JSONL
   examples for Lily Pond, including tool schemas and tool-call turns
+- `run_smoke_tests.py` is the compact post-deploy ops check bundle
+- `flush_outbox.py` is the manual escape hatch for draining pending outbox
+  rows during maintenance
 
 ### 21.1 Lily Pond training data generator
 
@@ -1827,6 +1952,9 @@ Current behavior:
 
 ## 22. Testing
 
+CI: A lightweight CI workflow was added at `.github/workflows/ci-alembic-pgvector.yml` which boots a `pgvector` Postgres image, runs `alembic upgrade head`, and validates the `knowledge_base.embedding` column dimension via `scripts/check_pgvector_dim.py`.
+
+
 ### 22.1 Current fast suite
 
 ```bash
@@ -1836,7 +1964,7 @@ make test-fast
 Current result:
 
 ```text
-80 passed, 1 warning
+92 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -1870,15 +1998,34 @@ This is now the main high-signal smoke test for the hosted demo stack.
 ```bash
 ./.venv/bin/python -m pytest tests/test_job_runner.py -q
 ./.venv/bin/python -m pytest tests/test_payments_hardening.py -q
+./.venv/bin/python -m pytest tests/test_redis_client.py -q
+./.venv/bin/python -m pytest tests/test_whatsapp_webhook.py -q
 ./.venv/bin/python -m pytest tests/test_llm_failover.py -q
 ./.venv/bin/python -m pytest tests/test_logging.py -q
+./.venv/bin/python -m pytest tests/test_outbox.py -q
+./.venv/bin/python -m pytest tests/test_db_pooling.py -q
+./.venv/bin/python -m pytest tests/test_pgvector_dim.py -q
+./.venv/bin/python -m pytest tests/test_check_metrics.py tests/test_check_pgbouncer.py -q
 ```
 
 Most recent focused job-runner result:
 
 ```text
-3 passed
+4 passed
 ```
+
+Current security scan truth:
+
+```bash
+./.venv/bin/bandit -r app -q --severity-level medium
+./.venv/bin/pip-audit
+```
+
+Bandit has no current medium/high app findings; the full scan still reports
+36 low-severity findings. `pip-audit` still reports 23 vulnerabilities across
+12 packages, mainly in the LangChain/LangGraph/Starlette stack, request
+parsing dependencies, and local tooling packages, so dependency upgrades remain
+a production blocker before real customer money.
 
 ### 22.5 Known warning
 
@@ -1910,17 +2057,33 @@ This is the honest list, not the flattering list.
 - pickup and queue-skip promises are now blocked until payment is confirmed
 - full-menu and vague photo follow-ups are handled deterministically so the
   assistant does not send a random café image as "the menu"
+- explicit photo and full-menu turns now avoid unnecessary RAG embedding calls,
+  and repeated RAG query embeddings are cached briefly per worker
 - payment callbacks now use optimistic status versioning to prevent stale
   provider events from downgrading paid orders
 - stale pending STKs can be resent explicitly with `send STK` / `resend STK`,
   and repeated matching orders auto-resend after 90 seconds
 - production startup validation now fails fast on live-payment, Meta webhook,
   GPT-5 Responses, embedding-dimension, and core-secret misconfigurations
-- weak `JWT_SECRET` / `ADMIN_API_TOKEN` values are now logged as explicit
-  production warnings
+- weak core production secrets now fail startup, and weak `ADMIN_API_TOKEN`
+  values are logged as explicit production warnings
 - production idempotency fails closed when Redis is unavailable
 - durable jobs now have TTLs to avoid infinite retry loops
+- outbound webhook delivery now has a Postgres outbox and in-process outbox
+  runner, so delivery retries survive worker restarts after enqueue
+- local PgBouncer, monitoring, CI, and smoke-check assets are present for the
+  next operational hardening pass
 - Sentry initialization emits clear enabled/disabled startup logs
+- DB pool gauges are exposed in `/metrics` so connection pressure can be
+  alerted before requests start failing
+- all configured LLM providers use bounded 30-second client timeouts and a
+  single provider retry before failover/rescue behavior
+- admin routes have Redis-backed per-IP throttling, and production fails
+  closed when that limiter is unavailable
+- inbound HTTP request bodies are capped at 10 MB by middleware before route
+  handlers process them
+- committed test webhook secrets are no longer static strings; tests generate
+  per-run Meta webhook secrets/tokens
 - `doctor-live` now retries transient hosted health/webhook/chat/photo probes
   before failing, so the operator signal is less brittle
 - customer cancel/resend payment intents bypass the model and update pending
@@ -1938,11 +2101,13 @@ This is the honest list, not the flattering list.
 | --- | --- | --- |
 | WhatsApp conversation quality still needs live rehearsal after each deploy | late replies, provider lag, or stale deployed code can still break trust during a demo even when local tests pass | run a real WhatsApp order/payment/cancel/photo script after every deploy before a client meeting |
 | Render live stack is still beta-grade | free-tier spin-down / manual service drift can make operations annoying | move to paid Render or another always-on managed host |
-| Event bus is not durable | SSE / outbound webhooks can miss events during Redis/listener gaps | add outbox table or Redis Streams |
+| Event bus is not fully durable | SSE can miss events, and outbound webhook rows are only durable after a worker receives and enqueues the Redis event | move event creation to a transactional outbox or Redis Streams producer path |
 | Public admin deployment is optional, not standardized | ops may still depend on local admin in some workflows | deploy and document a stable public admin URL |
 | Demo menu photos are mostly representative, not merchant-owned | looks real enough for pilot, not final merchant polish | upload tenant-owned photos per client |
 | Photo fuzzy matching can produce odd alias labels | image still arrives, but metadata can look slightly odd | tighten photo alias ranking |
-| PG migration CI is still missing | migration regressions can reach deploy time | add Postgres + pgvector CI step |
+| Dependency audit still has vulnerabilities | vulnerable libraries can become production exposure even if app tests pass | upgrade and retest Starlette/FastAPI-compatible request stack plus LangChain/LangGraph packages |
+| Full Bandit cleanup still has 36 low-severity findings | mostly broad best-effort exception catches and asserts, not current medium/high blockers | keep reducing low findings as nearby files are touched |
+| Migration CI is new and still lightweight | catches Alembic/pgvector dimension regressions but not all DB behavior | add broader Postgres integration cases over time |
 | Alerting is still missing | failures may stay silent until someone notices | wire health / webhook / payment alerts |
 | `audioop` deprecation remains | Python 3.13 upgrade risk for voice | replace mu-law decoder path |
 | Secrets still live in `.env` workflows too often | higher chance of accidental exposure | move fully to host secret managers and rotate exposed values |
@@ -1973,6 +2138,36 @@ Production-ready in the “don’t stress me at all” sense:
 The delta is now conversation polish plus operational hardening, not basic
 connectivity.
 
+### 23.4 Critical production readiness blockers
+
+Status as of 2026-05-24:
+
+Code-level blockers now addressed in this workspace:
+
+- hardcoded Meta webhook test secrets were removed from tests and generated
+  per test run instead,
+- payment status updates use optimistic transitions with `payment_version` and
+  regression coverage for concurrent transition races,
+- Redis idempotency fails closed in production with a 503-style app error
+  instead of allowing duplicate provider work,
+- durable jobs expire by explicit `expires_at`, and legacy rows with no
+  `expires_at` expire after the default 24-hour TTL,
+- Sentry initialization logs enabled/disabled state,
+- `/metrics` exposes DB pool gauges,
+- LLM provider clients are bounded to 30-second timeouts with one retry,
+- inbound request bodies are capped at 10 MB,
+- admin routes have Redis-backed rate limiting.
+
+Still blocking production with real customer money:
+
+- `pip-audit` reports 23 dependency vulnerabilities across 12 packages that
+  need package upgrades and compatibility testing,
+- alerting and runbooks still need to be wired into the deployed environment,
+- secret rotation must be completed in the host secret manager before client
+  traffic,
+- a full WhatsApp order/payment/cancel/photo rehearsal must pass after the
+  hardened commit is deployed.
+
 ## 24. Documentation Policy
 
 This README is the canonical system document.
@@ -1980,10 +2175,18 @@ This README is the canonical system document.
 All other Markdown files should stay small and point back here:
 
 - [docs/BETA_DEPLOY.md](/home/lesnar/Documents/ai model/docs/BETA_DEPLOY.md)
+- [docs/PRODUCTION_RUNBOOK.md](/home/lesnar/Documents/ai model/docs/PRODUCTION_RUNBOOK.md)
+- [docs/RELEASE_CHECKLIST.md](/home/lesnar/Documents/ai model/docs/RELEASE_CHECKLIST.md)
 - [docs/business_plan_geneat_usiu_pilot.md](/home/lesnar/Documents/ai model/docs/business_plan_geneat_usiu_pilot.md)
+- [docs/logging_rotation.md](/home/lesnar/Documents/ai model/docs/logging_rotation.md)
+- [docs/monitoring_RUNBOOK.md](/home/lesnar/Documents/ai model/docs/monitoring_RUNBOOK.md)
+- [docs/outbox_architecture.md](/home/lesnar/Documents/ai model/docs/outbox_architecture.md)
 - [admin-ui/README.md](/home/lesnar/Documents/ai model/admin-ui/README.md)
 - [gen-eat-portal/README.md](/home/lesnar/Documents/ai model/gen-eat-portal/README.md)
 - [gen-eat-portal/public/menu/README.md](/home/lesnar/Documents/ai model/gen-eat-portal/public/menu/README.md)
+- [deploy/load_test_scenarios.md](/home/lesnar/Documents/ai model/deploy/load_test_scenarios.md)
+- [deploy/pgbouncer/PR_SUMMARY.md](/home/lesnar/Documents/ai model/deploy/pgbouncer/PR_SUMMARY.md)
+- [deploy/pgbouncer/README.md](/home/lesnar/Documents/ai model/deploy/pgbouncer/README.md)
 - [deploy/render/README.md](/home/lesnar/Documents/ai model/deploy/render/README.md)
 - [deploy/truehost/README.md](/home/lesnar/Documents/ai model/deploy/truehost/README.md)
 

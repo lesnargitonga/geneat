@@ -21,12 +21,17 @@ from prometheus_client import (
     REGISTRY,
     CollectorRegistry,
     Counter,
+    Gauge,
     Histogram,
     generate_latest,
     multiprocess,
 )
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
+
+from app.core.logging import get_logger
+
+log = get_logger("metrics")
 
 # ── Metric definitions ───────────────────────────────────────────────
 # Histogram buckets chosen for a chat/orders workload — sub-100ms is
@@ -63,36 +68,62 @@ _WEBHOOK_COUNT = Counter(
     "Outbound webhook deliveries by event + outcome.",
     labelnames=("event", "outcome"),
 )
+_DB_POOL_SIZE = Gauge("omni_db_pool_size", "Configured SQLAlchemy DB pool size.")
+_DB_POOL_CHECKED_OUT = Gauge("omni_db_pool_checked_out", "Currently checked-out DB connections.")
+_DB_POOL_CHECKED_IN = Gauge("omni_db_pool_checked_in", "Currently idle DB connections in the pool.")
+_DB_POOL_OVERFLOW = Gauge("omni_db_pool_overflow", "Current SQLAlchemy DB pool overflow connections.")
 
 
 def record_event(event: str) -> None:
     """Public helper for event_bus / handlers to bump the events counter."""
     try:
         _EVT_COUNT.labels(event=event).inc()
-    except Exception:
-        pass
+    except Exception as exc:
+        log.debug("event_metric_record_failed", error=str(exc))
 
 
 def record_tool(tool: str, ok: bool) -> None:
     try:
         _TOOL_COUNT.labels(tool=tool, ok="true" if ok else "false").inc()
-    except Exception:
-        pass
+    except Exception as exc:
+        log.debug("tool_metric_record_failed", error=str(exc))
 
 
 def record_safety(direction: str, verdict: str) -> None:
     try:
         _SAFETY_COUNT.labels(direction=direction, verdict=verdict).inc()
-    except Exception:
-        pass
+    except Exception as exc:
+        log.debug("safety_metric_record_failed", error=str(exc))
 
 
 def record_webhook(event: str, outcome: str) -> None:
     """outcome ∈ {ok, retry, failed, disabled}."""
     try:
         _WEBHOOK_COUNT.labels(event=event, outcome=outcome).inc()
-    except Exception:
-        pass
+    except Exception as exc:
+        log.debug("webhook_metric_record_failed", error=str(exc))
+
+
+def record_db_pool_metrics() -> None:
+    """Best-effort SQLAlchemy pool gauges.
+
+    These methods exist on QueuePool/AsyncAdaptedQueuePool. SQLite/static pools
+    do not expose all of them, so missing methods are treated as "not
+    applicable" rather than a metrics endpoint failure.
+    """
+    try:
+        from app.db.session import engine
+        pool = engine.sync_engine.pool
+        if hasattr(pool, "size"):
+            _DB_POOL_SIZE.set(float(pool.size()))
+        if hasattr(pool, "checkedout"):
+            _DB_POOL_CHECKED_OUT.set(float(pool.checkedout()))
+        if hasattr(pool, "checkedin"):
+            _DB_POOL_CHECKED_IN.set(float(pool.checkedin()))
+        if hasattr(pool, "overflow"):
+            _DB_POOL_OVERFLOW.set(float(pool.overflow()))
+    except Exception as exc:
+        log.debug("db_pool_metric_record_failed", error=str(exc))
 
 
 def _status_bucket(code: int) -> str:
@@ -137,8 +168,8 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             try:
                 _LATENCY.labels(method=method, route=route, status_bucket=bucket).observe(elapsed)
                 _REQ_COUNT.labels(method=method, route=route, status_bucket=bucket).inc()
-            except Exception:
-                pass
+            except Exception as exc:
+                log.debug("http_metric_record_failed", error=str(exc))
 
 
 router = APIRouter(tags=["meta"])
@@ -150,6 +181,7 @@ async def metrics() -> Response:
     # multi-worker setups, set PROMETHEUS_MULTIPROC_DIR and the
     # collector below will aggregate across workers.
     import os
+    record_db_pool_metrics()
     if os.environ.get("PROMETHEUS_MULTIPROC_DIR"):
         registry = CollectorRegistry()
         multiprocess.MultiProcessCollector(registry)

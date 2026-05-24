@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import uuid
 from contextlib import asynccontextmanager
+from hashlib import sha256
 
 from pathlib import Path
 
@@ -35,6 +36,55 @@ from app.core.redis_client import close_redis, get_redis
 settings = get_settings()
 configure_logging(settings.log_level, settings.log_format)
 log = get_logger("app")
+
+
+class RequestBodyTooLarge(Exception):
+    pass
+
+
+class RequestSizeLimitMiddleware:
+    def __init__(self, app, *, max_bytes: int):
+        self.app = app
+        self.max_bytes = int(max_bytes)
+
+    async def __call__(self, scope, receive, send):
+        if scope.get("type") != "http":
+            await self.app(scope, receive, send)
+            return
+
+        headers = {k.lower(): v for k, v in scope.get("headers") or []}
+        content_length = headers.get(b"content-length")
+        if content_length:
+            try:
+                if int(content_length.decode("latin1")) > self.max_bytes:
+                    response = JSONResponse(
+                        status_code=413,
+                        content={"error": "request_too_large", "message": "Request body exceeds 10MB limit."},
+                    )
+                    await response(scope, receive, send)
+                    return
+            except ValueError:
+                pass
+
+        received = 0
+
+        async def limited_receive():
+            nonlocal received
+            message = await receive()
+            if message.get("type") == "http.request":
+                received += len(message.get("body") or b"")
+                if received > self.max_bytes:
+                    raise RequestBodyTooLarge
+            return message
+
+        try:
+            await self.app(scope, limited_receive, send)
+        except RequestBodyTooLarge:
+            response = JSONResponse(
+                status_code=413,
+                content={"error": "request_too_large", "message": "Request body exceeds 10MB limit."},
+            )
+            await response(scope, receive, send)
 
 # Sentry — no-op when SENTRY_DSN is unset. Initialised before app creation so
 # import-time exceptions are captured too.
@@ -78,19 +128,30 @@ async def lifespan(app: FastAPI):
         from app.jobs import handlers  # noqa: F401
         from app.jobs.runner import start_job_runner
         await start_job_runner()
+        # Start the outbox runner for durable outbound delivery.
+        try:
+            from app.jobs.outbox_runner import start_outbox_runner  # noqa: F401
+            await start_outbox_runner()
+        except Exception as e:  # pragma: no cover - non-fatal
+            log.warning("outbox_runner_startup_failed", error=str(e))
     except Exception as e:
         log.warning("job_runner_startup_failed", error=str(e))
     yield
     try:
         from app.jobs.runner import stop_job_runner
         await stop_job_runner()
-    except Exception:
-        pass
+    except Exception as e:
+        log.warning("job_runner_stop_failed", error=str(e))
+    try:
+        from app.jobs.outbox_runner import stop_outbox_runner
+        await stop_outbox_runner()
+    except Exception as e:
+        log.warning("outbox_runner_stop_failed", error=str(e))
     try:
         from app.core.event_bus import stop_event_listener
         await stop_event_listener()
-    except Exception:
-        pass
+    except Exception as e:
+        log.warning("event_listener_stop_failed", error=str(e))
     await close_redis()
     # Cleanly release the Postgres connection pool. Without this the
     # process can exit with connections still in TIME_WAIT, which on
@@ -112,6 +173,7 @@ app = FastAPI(
 
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
+app.add_middleware(RequestSizeLimitMiddleware, max_bytes=settings.request_max_body_bytes)
 # Metrics middleware records every request's latency + status. Added
 # BEFORE CORS so OPTIONS preflight responses are counted too.
 app.add_middleware(MetricsMiddleware)
@@ -134,6 +196,34 @@ else:
         allow_headers=["Authorization", "Content-Type", "X-Request-Id"],
         expose_headers=["X-Request-Id"],
     )
+
+
+@app.middleware("http")
+async def admin_rate_limit_mw(request: Request, call_next):
+    if request.url.path.startswith("/admin"):
+        try:
+            from app.core.rate_limit import try_consume
+            client = request.client.host if request.client else "unknown"
+            digest = sha256(client.encode()).hexdigest()[:16]
+            allowed = await try_consume(
+                f"admin:{digest}",
+                capacity=max(1, settings.rl_admin_per_min),
+                refill_per_sec=max(1, settings.rl_admin_per_min) / 60.0,
+            )
+        except Exception as e:
+            if settings.is_prod:
+                log.error("admin_rate_limit_unavailable", error=str(e))
+                return JSONResponse(
+                    status_code=503,
+                    content={"error": "rate_limit_unavailable", "message": "Admin rate limiter is unavailable."},
+                )
+            allowed = True
+        if not allowed:
+            return JSONResponse(
+                status_code=429,
+                content={"error": "rate_limited", "message": "Too many admin requests. Try again shortly."},
+            )
+    return await call_next(request)
 
 
 @app.middleware("http")

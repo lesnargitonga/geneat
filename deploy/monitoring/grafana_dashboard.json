@@ -1,0 +1,19 @@
+{
+  "dashboard": {
+    "annotations": {"list": []},
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Up / Availability",
+        "targets": [
+          {"expr": "up{job=\"omni_app\"}", "legendFormat": "app up"},
+          {"expr": "up{job=\"pgbouncer\"}", "legendFormat": "pgbouncer up"}
+        ],
+        "id": 1
+      }
+    ],
+    "title": "Omni Overview",
+    "uid": "omni_overview"
+  },
+  "overwrite": false
+}

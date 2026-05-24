@@ -7,12 +7,14 @@ side effects must not be treated as fresh work without a dedupe store.
 from __future__ import annotations
 
 import asyncio
+import json
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
 import redis.asyncio as aioredis
 
 from app.core.config import get_settings
+from app.core.exceptions import ServiceUnavailable
 from app.core.logging import get_logger
 
 log = get_logger("redis")
@@ -23,7 +25,7 @@ _client: aioredis.Redis | None = None
 def _idempotency_fail_closed(error: Exception, *, key: str) -> None:
     if bool(getattr(get_settings(), "is_prod", False)):
         log.error("idempotency_redis_required", key=key, error=str(error))
-        raise RuntimeError("Redis is required for idempotency in production") from error
+        raise ServiceUnavailable("Redis is required for idempotency in production") from error
 
 
 async def get_redis() -> aioredis.Redis:
@@ -68,7 +70,6 @@ async def claim_with_result(
     - is_fresh=False → cached_result_if_any holds the previous JSON result
                        (or None if previous run hasn't stored one yet).
     """
-    import json
     try:
         r = await get_redis()
         ok = await r.set(f"idem:{key}", "PENDING", nx=True, ex=ttl_seconds)
@@ -78,7 +79,7 @@ async def claim_with_result(
         if cached and cached != "PENDING":
             try:
                 return False, json.loads(cached)
-            except Exception:
+            except json.JSONDecodeError:
                 return False, None
         return False, None
     except Exception as e:  # pragma: no cover
@@ -88,7 +89,6 @@ async def claim_with_result(
 
 
 async def store_result(key: str, result: dict, ttl_seconds: int = 600) -> None:
-    import json
     try:
         r = await get_redis()
         await r.set(f"idem:{key}", json.dumps(result, default=str), ex=ttl_seconds)

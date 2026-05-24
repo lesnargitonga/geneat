@@ -98,13 +98,18 @@ def _snapshot(job: BackgroundJob) -> JobSnapshot:
 
 async def _claim_due_jobs(limit: int) -> list[JobSnapshot]:
     now = datetime.now(timezone.utc)
+    ttl_cutoff = now - timedelta(seconds=_default_job_ttl_seconds)
     locked_until = now + timedelta(seconds=_lease_seconds)
     async with SessionLocal() as db:
         expired = await db.execute(
             update(BackgroundJob)
             .where(BackgroundJob.status.in_([JobStatus.queued, JobStatus.running]))
-            .where(BackgroundJob.expires_at.is_not(None))
-            .where(BackgroundJob.expires_at <= now)
+            .where(
+                or_(
+                    and_(BackgroundJob.expires_at.is_not(None), BackgroundJob.expires_at <= now),
+                    and_(BackgroundJob.expires_at.is_(None), BackgroundJob.created_at <= ttl_cutoff),
+                )
+            )
             .values(
                 status=JobStatus.failed,
                 locked_by=None,
@@ -131,7 +136,12 @@ async def _claim_due_jobs(limit: int) -> list[JobSnapshot]:
                     ),
                 )
             )
-            .where(or_(BackgroundJob.expires_at.is_(None), BackgroundJob.expires_at > now))
+            .where(
+                or_(
+                    BackgroundJob.expires_at > now,
+                    and_(BackgroundJob.expires_at.is_(None), BackgroundJob.created_at > ttl_cutoff),
+                )
+            )
             .order_by(BackgroundJob.run_at.asc(), BackgroundJob.created_at.asc())
             .limit(limit)
             .with_for_update(skip_locked=True)
@@ -175,8 +185,14 @@ async def _mark_failed_or_retry(job: JobSnapshot, error: Exception) -> None:
         expires_at = row.expires_at
         if expires_at is not None and expires_at.tzinfo is None:
             expires_at = expires_at.replace(tzinfo=timezone.utc)
+        created_at = row.created_at
+        if created_at is not None and created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=timezone.utc)
+        ttl_deadline = expires_at or ((created_at + timedelta(seconds=_default_job_ttl_seconds)) if created_at else None)
         expired = expires_at is not None and expires_at <= now
-        would_expire_before_retry = expires_at is not None and now + timedelta(seconds=delay) >= expires_at
+        if ttl_deadline is not None:
+            expired = ttl_deadline <= now
+        would_expire_before_retry = ttl_deadline is not None and now + timedelta(seconds=delay) >= ttl_deadline
         if row.attempts >= row.max_attempts or expired or would_expire_before_retry:
             row.status = JobStatus.failed
             row.finished_at = now
@@ -233,6 +249,8 @@ async def stop_job_runner() -> None:
         _runner_task.cancel()
         try:
             await _runner_task
-        except (asyncio.CancelledError, Exception):
+        except asyncio.CancelledError:
             pass
+        except Exception as exc:  # pragma: no cover
+            log.warning("job_runner_stop_failed", error=str(exc))
     _runner_task = None

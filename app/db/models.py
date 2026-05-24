@@ -402,3 +402,21 @@ class BackgroundJob(Base):
     __table_args__ = (
         Index("ix_background_jobs_due", "status", "run_at"),
     )
+
+
+class Outbox(Base):
+    __tablename__ = "outbox"
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    business_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("businesses.id", ondelete="SET NULL"), nullable=True, index=True,
+    )
+    kind: Mapped[str] = mapped_column(String(64), index=True)
+    payload: Mapped[dict] = mapped_column(JSONB, default=dict)
+    attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    max_attempts: Mapped[int] = mapped_column(Integer, default=5, nullable=False)
+    scheduled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
+    locked_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
+    last_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+

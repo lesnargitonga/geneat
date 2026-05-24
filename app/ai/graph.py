@@ -132,8 +132,12 @@ async def _retrieve_node(state: AgentState, *, db: AsyncSession) -> dict:
     )
     if not last_user:
         return {"rag_context": "", "rag_hits": 0, "business_profile": profile}
+    last_user_text = last_user.content if isinstance(last_user.content, str) else str(last_user.content)
+    if looks_like_photo_request(last_user_text):
+        return {"rag_context": "", "rag_hits": 0, "business_profile": profile}
+
     biz_id = profile.id if profile else state.get("business_id")
-    chunks = await retrieve(db, last_user.content, business_id=biz_id, k=RAG_TURN_CHUNKS)
+    chunks = await retrieve(db, last_user_text, business_id=biz_id, k=RAG_TURN_CHUNKS)
     return {
         "rag_context": format_context(chunks),
         "rag_hits": len(chunks),
