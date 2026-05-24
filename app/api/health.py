@@ -87,12 +87,13 @@ async def _check_payment_provider() -> dict:
         "stripe": "https://api.stripe.com",
     }
     url = hosts.get(provider, "https://example.com")
+    safe_details: dict = {"test_mode": bool(getattr(s, "intasend_test_mode", True))} if provider == "intasend" else {}
     try:
         async with httpx.AsyncClient(timeout=5.0) as c:
             resp = await c.get(url)
-        return {"ok": resp.status_code < 500, "provider": provider, "status": resp.status_code}
+        return {"ok": resp.status_code < 500, "provider": provider, "status": resp.status_code, **safe_details}
     except Exception as e:
-        return {"ok": False, "provider": provider, "error": type(e).__name__, "detail": str(e)[:200]}
+        return {"ok": False, "provider": provider, "error": type(e).__name__, "detail": str(e)[:200], **safe_details}
 
 
 async def _check_llm_provider() -> dict:

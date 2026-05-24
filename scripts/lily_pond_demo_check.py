@@ -217,9 +217,19 @@ async def run(
     deep_ok, deep_body = await _http_json(f"{backend}/health/deep", timeout=20.0, attempts=3)
     checks.append(Check("backend /health/deep", deep_ok and isinstance(deep_body, dict) and deep_body.get("status") in {"ok", "degraded"}, str(deep_body)[:220]))
     if isinstance(deep_body, dict):
-        llm_body = ((deep_body.get("checks") or {}).get("llm") or {})
+        deep_checks = deep_body.get("checks") or {}
+        llm_body = (deep_checks.get("llm") or {})
+        payments_body = (deep_checks.get("payments") or {})
         breakers = deep_body.get("breakers") or []
         openai_breaker = next((b for b in breakers if isinstance(b, dict) and b.get("name") == "llm:openai"), None)
+        if payments_body.get("provider") == "intasend" and "test_mode" in payments_body:
+            checks.append(
+                Check(
+                    "hosted IntaSend live mode",
+                    payments_body.get("test_mode") is False,
+                    f"test_mode={payments_body.get('test_mode')}",
+                )
+            )
         checks.append(
             Check(
                 "LLM provider health",

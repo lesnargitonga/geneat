@@ -1286,6 +1286,8 @@ Current metrics include:
 Current `/health/deep` truth:
 
 - includes `checks.llm`,
+- includes `checks.payments.test_mode` for IntaSend so hosted live/test mode
+  is visible without exposing secrets,
 - includes breaker snapshots,
 - is now part of the live doctor story.
 
