@@ -214,6 +214,29 @@ class Settings(BaseSettings):
     sentry_traces_sample_rate: float = 0.0  # set >0 to enable performance tracing
     sentry_send_pii: bool = False
 
+    @model_validator(mode="before")
+    @classmethod
+    def _strip_wrapping_env_quotes(cls, data):
+        """Tolerate env values saved with literal wrapping quotes.
+
+        Hosts and shell snippets occasionally persist values like ``'false'``
+        instead of ``false``. Pydantic treats the quotes as part of the string,
+        which breaks bool/Literal parsing before our startup validator can
+        explain the problem.
+        """
+        if not isinstance(data, dict):
+            return data
+
+        def _clean(value):
+            if isinstance(value, str):
+                stripped = value.strip()
+                if len(stripped) >= 2 and stripped[0] == stripped[-1] and stripped[0] in {"'", '"'}:
+                    return stripped[1:-1].strip()
+                return stripped
+            return value
+
+        return {key: _clean(value) for key, value in data.items()}
+
     @model_validator(mode="after")
     def _normalize_render_urls(self) -> "Settings":
         """Accept plain Postgres URLs from hosts like Render and normalize

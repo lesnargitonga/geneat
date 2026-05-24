@@ -168,7 +168,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `94 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `97 passed, 1 warning` via `make test-fast` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -1291,6 +1291,8 @@ Rules:
 [app/core/config_validator.py](/home/lesnar/Documents/ai model/app/core/config_validator.py)
 enforces startup checks such as:
 
+- quoted env-value normalization, so values accidentally saved as `'false'`
+  or `"false"` do not crash Pydantic before validation can run,
 - provider/key coherence,
 - payment/provider coherence,
 - required production safety rails,
@@ -1311,8 +1313,12 @@ Current production fail-fast rules include:
   in prod,
 - OpenAI embeddings must remain `768` dimensions in prod until the pgvector
   schema is migrated.
-- production `SECRET_KEY`, `PHONE_HASH_PEPPER`, and `JWT_SECRET` must be
-  non-placeholder, high-entropy values of at least 64 characters,
+- production `SECRET_KEY` and `PHONE_HASH_PEPPER` must not be empty or default
+  placeholders; short/non-default pilot values start with explicit warnings so
+  a hardening commit does not brick an otherwise working beta deploy,
+- `JWT_SECRET` should be a separate high-entropy 64+ character value, but if
+  it is missing the admin JWT layer falls back to `SECRET_KEY` with a startup
+  warning,
 - weak `ADMIN_API_TOKEN` values are logged as warnings so beta deploys are
   not silently misconfigured,
 - Redis idempotency claims fail closed in production if Redis is unavailable,
@@ -2001,7 +2007,7 @@ make test-fast
 Current result:
 
 ```text
-94 passed, 1 warning
+97 passed, 1 warning
 ```
 
 ### 22.2 Builds

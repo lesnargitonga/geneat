@@ -103,18 +103,44 @@ def test_prod_rejects_weak_core_secrets_and_warns_for_admin_tokens() -> None:
         )
     )
 
-    assert any("SECRET_KEY is too weak" in err for err in errors)
-    assert any("PHONE_HASH_PEPPER is too weak" in err for err in errors)
-    assert any("JWT_SECRET is too weak" in err for err in errors)
+    assert any("SECRET_KEY is missing or still set to a default" in err for err in errors)
+    assert any("PHONE_HASH_PEPPER is short or low-entropy" in warning for warning in warnings)
+    assert any("JWT_SECRET is missing or still set to a default" in err for err in errors)
     assert any("ADMIN_API_TOKEN is weak" in warning for warning in warnings)
 
 
-def test_prod_requires_jwt_secret() -> None:
-    errors, _warnings = validate_settings(
+def test_prod_warns_for_short_non_default_core_secrets() -> None:
+    errors, warnings = validate_settings(
+        _base_settings(
+            secret_key="short-but-not-default",
+            phone_hash_pepper="short-but-not-default-pepper",
+            jwt_secret="short-but-not-default-jwt",
+        )
+    )
+
+    assert not any("SECRET_KEY" in err for err in errors)
+    assert not any("PHONE_HASH_PEPPER" in err for err in errors)
+    assert not any("JWT_SECRET" in err for err in errors)
+    assert any("SECRET_KEY is short or low-entropy" in warning for warning in warnings)
+    assert any("PHONE_HASH_PEPPER is short or low-entropy" in warning for warning in warnings)
+    assert any("JWT_SECRET is short or low-entropy" in warning for warning in warnings)
+
+
+def test_prod_allows_missing_jwt_secret_when_secret_key_is_strong() -> None:
+    errors, warnings = validate_settings(
         _base_settings(jwt_secret="")
     )
 
-    assert any("JWT_SECRET is required" in err for err in errors)
+    assert not any("JWT_SECRET" in err for err in errors)
+    assert any("JWT_SECRET is missing" in warning for warning in warnings)
+
+
+def test_prod_rejects_missing_jwt_secret_when_secret_key_is_weak() -> None:
+    errors, _warnings = validate_settings(
+        _base_settings(jwt_secret="", secret_key="change-me")
+    )
+
+    assert any("JWT_SECRET is missing" in err for err in errors)
 
 
 def test_render_blueprint_sets_live_intasend_mode() -> None:

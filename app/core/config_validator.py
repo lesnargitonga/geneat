@@ -40,14 +40,21 @@ _WEAK_SECRET_VALUES = {
 
 def _weak_secret(value, *, min_len: int = 32) -> bool:
     raw = _secret(value).strip()
-    if len(raw) < min_len:
+    if _defaultish_secret(raw):
         return True
-    lowered = raw.lower()
-    if lowered in _WEAK_SECRET_VALUES or lowered.startswith(("change-me", "changeme", "replace-me")):
+    if len(raw) < min_len:
         return True
     if len(set(raw)) <= 2:
         return True
     return False
+
+
+def _defaultish_secret(value) -> bool:
+    raw = _secret(value).strip()
+    if not raw:
+        return True
+    lowered = raw.lower()
+    return lowered in _WEAK_SECRET_VALUES or lowered.startswith(("change-me", "changeme", "replace-me"))
 
 
 def validate_settings(s: Settings) -> tuple[list[str], list[str]]:
@@ -184,16 +191,41 @@ def validate_settings(s: Settings) -> tuple[list[str], list[str]]:
             ("phone_hash_pepper", "PHONE_HASH_PEPPER", 64),
         ):
             value = getattr(s, attr, "")
-            if _weak_secret(value, min_len=min_len):
+            if _defaultish_secret(value):
                 errors.append(
-                    f"{env_name} is too weak for production. Use at least {min_len} unpredictable characters."
+                    f"{env_name} is missing or still set to a default placeholder."
+                )
+            elif _weak_secret(value, min_len=min_len):
+                warnings.append(
+                    f"{env_name} is short or low-entropy for production. "
+                    f"Use at least {min_len} unpredictable characters before client launch."
                 )
         jwt_secret = _secret(getattr(s, "jwt_secret", ""))
+        secret_key = getattr(s, "secret_key", "")
         if not jwt_secret:
-            errors.append("JWT_SECRET is required in production.")
-        elif _weak_secret(jwt_secret, min_len=64):
+            if _defaultish_secret(secret_key):
+                errors.append(
+                    "JWT_SECRET is missing and SECRET_KEY is a default placeholder, "
+                    "so it cannot be used as the JWT fallback in production."
+                )
+            else:
+                if _weak_secret(secret_key, min_len=64):
+                    warnings.append(
+                        "JWT_SECRET is missing and SECRET_KEY is short or low-entropy as the "
+                        "JWT fallback. Set a separate 64+ character JWT_SECRET before client use."
+                    )
+                warnings.append(
+                    "JWT_SECRET is missing; admin JWT signing will fall back to SECRET_KEY. "
+                    "Set a separate 64+ character JWT_SECRET before production client use."
+                )
+        elif _defaultish_secret(jwt_secret):
             errors.append(
-                "JWT_SECRET is too weak for production. Use at least 64 unpredictable characters."
+                "JWT_SECRET is missing or still set to a default placeholder."
+            )
+        elif _weak_secret(jwt_secret, min_len=64):
+            warnings.append(
+                "JWT_SECRET is short or low-entropy for production. "
+                "Use at least 64 unpredictable characters before client launch."
             )
         if admin_token and _weak_secret(admin_token, min_len=32):
             warnings.append(
