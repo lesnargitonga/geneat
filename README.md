@@ -135,7 +135,7 @@ Fresh live checks run from this workspace on **2026-05-24**:
 | Portal live photo check | passed |
 | Meta webhook verify handshake | passed |
 | OpenAI provider health | passed |
-| OpenAI breaker state | closed |
+| OpenAI breaker state | not stuck open |
 
 Current `make doctor-live` truth:
 

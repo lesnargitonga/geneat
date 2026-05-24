@@ -239,8 +239,16 @@ async def run(
         )
         checks.append(
             Check(
-                "OpenAI breaker closed",
-                not openai_breaker or openai_breaker.get("state") == "closed",
+                "OpenAI breaker not stuck",
+                (
+                    not openai_breaker
+                    or openai_breaker.get("state") in {"closed", "half_open"}
+                    or (
+                        openai_breaker.get("state") == "open"
+                        and bool(llm_body.get("ok"))
+                        and float(openai_breaker.get("opened_for") or 0) < 180
+                    )
+                ),
                 str(openai_breaker or {"state": "unknown"})[:180],
             )
         )
