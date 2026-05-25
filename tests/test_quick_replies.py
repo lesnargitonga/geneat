@@ -169,3 +169,30 @@ async def test_maybe_build_full_menu_reply_does_not_embed_query(db, monkeypatch)
     assert reply is not None
     assert "Demo Espresso - KES 10" in reply
     assert "Flat White - KES 250" in reply
+
+
+@pytest.mark.asyncio
+async def test_maybe_build_price_reply_uses_menu_fetch_before_vector(db, monkeypatch) -> None:
+    async def fake_menu_chunks(*_args, **_kwargs):
+        return [
+            RetrievedChunk(
+                content="COFFEE - Demo Espresso KES 10. Flat White KES 250.",
+                source="menu",
+                score=1.0,
+            )
+        ]
+
+    monkeypatch.setattr("app.ai.quick_replies.fetch_menu_chunks", fake_menu_chunks)
+    monkeypatch.setattr(
+        "app.ai.quick_replies.retrieve",
+        lambda *a, **kw: (_ for _ in ()).throw(AssertionError("Price replies should use menu rows first")),
+    )
+
+    reply = await maybe_build_quick_reply(
+        db,
+        business_id=uuid.uuid4(),
+        profile=None,
+        text="How much is the demo espresso?",
+    )
+
+    assert reply == "Demo Espresso is KES 10. Want me to set one up for pickup?"

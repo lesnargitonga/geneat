@@ -3,6 +3,7 @@ from app.channels.base import (
     _extract_inline_customer_name,
     _is_degraded_fallback_text,
     _looks_like_demo_espresso_order,
+    _looks_like_menu_info_request,
     _looks_like_payment_cancel,
     _looks_like_payment_claim,
     _looks_like_payment_resend,
@@ -76,3 +77,12 @@ def test_payment_claim_and_pickup_intents_are_deterministic() -> None:
     assert not _looks_like_payment_claim("not paid yet")
     assert _looks_like_pickup_status_request("Can I skip line and pick up at 12:30?")
     assert _looks_like_pickup_status_request("is it ready?")
+
+
+def test_menu_info_fast_path_avoids_order_and_photo_turns() -> None:
+    assert _looks_like_menu_info_request("Do you have croissants?")
+    assert _looks_like_menu_info_request("How much is a flat white?")
+    assert _looks_like_menu_info_request("What do you sell at the cafe?")
+    assert not _looks_like_menu_info_request("I want a flat white")
+    assert not _looks_like_menu_info_request("show me a photo of the flat white")
+    assert not _looks_like_menu_info_request("I want the KES 10 demo espresso")

@@ -15,6 +15,7 @@ Performance: pure regex, runs in O(n) over reply length (typically <1 KB).
 """
 from __future__ import annotations
 
+import json
 import re
 from typing import Literal
 
@@ -76,10 +77,11 @@ _ROLEPLAY_CUTOFF = re.compile(
 # Raw tool-call patterns (XML-like, JSON-like, function-call literal).
 _TOOL_CALL_PATTERNS = (
     re.compile(r"<\s*(?:tool_call|function_call|tool|function)\s*>.*?<\s*/\s*(?:tool_call|function_call|tool|function)\s*>", re.DOTALL | re.IGNORECASE),
-    re.compile(r"<\s*(?:escalate_to_human|knowledge_lookup|create_order|book_appointment|request_mpesa_payment|send_location_pin|send_image)[^>]*>.*?(?:<\s*/[^>]+>|$)", re.DOTALL | re.IGNORECASE),
+    re.compile(r"<\s*(?:escalate_to_human|knowledge_lookup|create_order|book_appointment|request_mpesa_payment|send_location_pin|send_menu_photo|send_image)[^>]*>.*?(?:<\s*/[^>]+>|$)", re.DOTALL | re.IGNORECASE),
     # Llama-style "function=name>{json}</function>" shorthand.
     re.compile(r"function\s*=\s*\w+\s*>\s*\{.*?\}\s*</?\s*function\s*>?", re.DOTALL | re.IGNORECASE),
-    re.compile(r'\{\s*"name"\s*:\s*"(?:escalate_to_human|knowledge_lookup|create_order|book_appointment|request_mpesa_payment|send_location_pin|send_image)".*?\}', re.DOTALL),
+    re.compile(r'\{\s*"name"\s*:\s*"(?:escalate_to_human|knowledge_lookup|create_order|book_appointment|request_mpesa_payment|send_location_pin|send_menu_photo|send_image)".*?\}', re.DOTALL),
+    re.compile(r"\b(?:knowledge_lookup|create_order|request_mpesa_payment|send_menu_photo|send_location_pin|escalate_to_human)\s*\([^)]*\)", re.DOTALL | re.IGNORECASE),
     re.compile(r"```(?:json|tool|python|function)?[^`]*```", re.DOTALL),
 )
 
@@ -106,6 +108,11 @@ _CORRUPT_SIGNALS = (
     re.compile(r"\bin your codebase\b", re.IGNORECASE),
     re.compile(r"\breview the function definition\b", re.IGNORECASE),
     re.compile(r"\bdefine the tools?\b", re.IGNORECASE),
+    re.compile(r'^\s*\{[\s\S]*"(?:tool_calls|function|arguments|role|assistant|action|query|item)"[\s\S]*\}\s*$', re.IGNORECASE),
+    re.compile(r'^\s*\[[\s\S]*"(?:role|tool_calls|function|arguments)"[\s\S]*\]\s*$', re.IGNORECASE),
+    re.compile(r'\b"role"\s*:\s*"(?:assistant|tool|user|system)"', re.IGNORECASE),
+    re.compile(r'\b"tool_calls"\s*:', re.IGNORECASE),
+    re.compile(r'\b"arguments"\s*:\s*"\{', re.IGNORECASE),
     re.compile(r"\bclass\s+\w+\s*[:\(]", re.MULTILINE),
     re.compile(r"^\s*def\s+\w+\s*\(", re.MULTILINE),
     re.compile(r"^\s*import\s+\w+", re.MULTILINE),
@@ -114,6 +121,45 @@ _CORRUPT_SIGNALS = (
     re.compile(r'(?:^|\n)\s*\d+\.\s+"[^"\n]{5,}"\s*\n\s*Response\s*:', re.IGNORECASE),
     re.compile(r"(?:^|\n)\s*Response\s*:\s*\".+?\".*?(?:\n.*?){0,3}\n\s*\d+\.", re.IGNORECASE | re.DOTALL),
 )
+
+_JSON_LEAK_KEYS = {
+    "tool_calls",
+    "function",
+    "arguments",
+    "role",
+    "messages",
+    "action",
+    "query",
+    "item",
+    "reply",
+    "response",
+}
+
+
+def _looks_like_json_leak(text: str) -> bool:
+    candidate = (text or "").strip()
+    if not candidate or candidate[0] not in "[{":
+        return False
+    try:
+        parsed = json.loads(candidate)
+    except Exception:
+        return False
+
+    def keys(obj) -> set[str]:
+        if isinstance(obj, dict):
+            found = {str(k) for k in obj.keys()}
+            for value in obj.values():
+                found |= keys(value)
+            return found
+        if isinstance(obj, list):
+            found: set[str] = set()
+            for value in obj:
+                found |= keys(value)
+            return found
+        return set()
+
+    found_keys = {key.lower() for key in keys(parsed)}
+    return bool(found_keys & _JSON_LEAK_KEYS)
 
 # Unclosed code-fence: cut everything from the first ``` onwards.
 _UNCLOSED_FENCE = re.compile(r"```[\s\S]*$")
@@ -217,6 +263,14 @@ def sanitize_reply(reply: str, *, channel: str = "whatsapp") -> str:
 
     # Catastrophic-leak short-circuit: if the model is clearly emitting code
     # or training-data Q&A simulation, throw the whole thing out.
+    if _looks_like_json_leak(reply):
+        _log.warning(
+            "sanitizer_json_leak",
+            reply_preview=reply[:300],
+            reply_len=len(reply),
+        )
+        return _FALLBACK.get(channel, _FALLBACK["whatsapp"])
+
     for pat in _CORRUPT_SIGNALS:
         if pat.search(reply):
             _log.warning(

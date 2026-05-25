@@ -19,7 +19,14 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.graph import run_turn
-from app.ai.quick_replies import looks_like_full_menu_request, maybe_build_quick_reply
+from app.ai.quick_replies import (
+    looks_like_full_menu_request,
+    looks_like_hours_request,
+    looks_like_photo_request,
+    looks_like_price_request,
+    looks_like_recommendation_request,
+    maybe_build_quick_reply,
+)
 from app.core.logging import business_id_ctx, conversation_id_ctx, get_logger, tenant_slug_ctx
 from app.core.redis_client import claim_idempotency
 from app.core.security import hash_msisdn, normalize_msisdn
@@ -83,6 +90,10 @@ _ORDER_INTENT_RE = re.compile(
     r"\b(i want|i need|i'?ll have|can i have|can i get|order|sort|get me|nipe|nataka|leta)\b",
     re.IGNORECASE,
 )
+_EXPLICIT_AVAILABILITY_RE = re.compile(
+    r"\b(do you have|do u have|have you got|is there|are there|available|in stock|mko na|kuna)\b",
+    re.IGNORECASE,
+)
 _INLINE_NAME_RE = re.compile(
     r"\b(?:my name is|name is|i am|i'm|naitwa|jina langu ni)\s+([A-Za-z][A-Za-z' -]{0,60})",
     re.IGNORECASE,
@@ -125,6 +136,27 @@ def _looks_like_payment_claim(text: str) -> bool:
 
 def _looks_like_pickup_status_request(text: str) -> bool:
     return bool(_PICKUP_STATUS_RE.search(text or ""))
+
+
+def _looks_like_menu_info_request(text: str) -> bool:
+    """Fast-path factual menu questions that do not need a creative model turn."""
+    candidate = (text or "").strip()
+    if not candidate:
+        return False
+    if (
+        looks_like_photo_request(candidate)
+        or _looks_like_payment_cancel(candidate)
+        or _looks_like_payment_resend(candidate)
+        or _looks_like_payment_claim(candidate)
+        or _looks_like_pickup_status_request(candidate)
+        or _looks_like_demo_espresso_order(candidate)
+    ):
+        return False
+    if looks_like_price_request(candidate) or looks_like_hours_request(candidate):
+        return True
+    if looks_like_full_menu_request(candidate) or looks_like_recommendation_request(candidate):
+        return True
+    return bool(_EXPLICIT_AVAILABILITY_RE.search(candidate))
 
 
 def _looks_like_order_repeat(text: str) -> bool:
@@ -1110,12 +1142,12 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 language=effective_lang,
             )
             control_flag = "deterministic:pickup_status" if control_reply else None
-        elif looks_like_full_menu_request(turn.text):
+        elif _looks_like_menu_info_request(turn.text):
             fallback_profile = None
             try:
                 fallback_profile = await get_business_for_turn(db, business_id=business_id)
             except Exception as exc:
-                log.warning("full_menu_profile_lookup_failed", error=str(exc))
+                log.warning("menu_info_profile_lookup_failed", error=str(exc))
             try:
                 control_reply = await maybe_build_quick_reply(
                     db,
@@ -1124,9 +1156,9 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     text=turn.text,
                 )
             except Exception as exc:
-                log.warning("full_menu_quick_reply_failed", error=str(exc))
+                log.warning("menu_info_quick_reply_failed", error=str(exc))
                 control_reply = None
-            control_flag = "deterministic:full_menu" if control_reply else None
+            control_flag = "deterministic:menu_info" if control_reply else None
         else:
             control_reply = await _demo_espresso_fast_order_reply(
                 db,
@@ -1385,6 +1417,30 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         if recovered and (_looks_like_sanitizer_fallback(reply) or _promises_ready_before_payment(reply)):
             log.info("payment_tool_reply_recovered", reason="fallback_or_premature_ready")
             reply = recovered
+        elif _looks_like_sanitizer_fallback(reply):
+            try:
+                fallback_profile = await get_business_for_turn(db, business_id=business_id)
+            except Exception:
+                fallback_profile = None
+            try:
+                quick_reply = await maybe_build_quick_reply(
+                    db,
+                    business_id=business_id,
+                    profile=fallback_profile,
+                    text=turn.text,
+                )
+            except Exception as exc:
+                log.warning("sanitizer_quick_recovery_failed", error=str(exc))
+                quick_reply = None
+            if quick_reply:
+                reply = quick_reply
+                log.info("sanitizer_reply_recovered", source="quick_reply")
+            else:
+                reply = (
+                    "I had trouble formatting that answer. I can help with the menu, prices, "
+                    "photos, or an order. What would you like?"
+                )
+                log.info("sanitizer_reply_recovered", source="generic_menu_prompt")
 
         # ── Output safety: redact unauthorised prices, strip forbidden
         # phrases ("order confirmed" without payment proof, identity claims).

@@ -458,14 +458,26 @@ async def maybe_build_quick_reply(
         return hours_reply_from_profile(profile)
 
     if looks_like_price_request(text):
+        chunks = await fetch_menu_chunks(db, business_id=business_id, k=10)
+        reply = price_reply_from_chunks(text, chunks)
+        if reply:
+            return reply
         chunks = await retrieve(db, text, business_id=business_id, k=3)
         return price_reply_from_chunks(text, chunks)
 
     if looks_like_availability_request(text):
+        chunks = await fetch_menu_chunks(db, business_id=business_id, k=10)
+        reply = availability_reply_from_chunks(text, chunks)
+        if reply:
+            return reply
         chunks = await retrieve(db, text, business_id=business_id, k=5)
         return availability_reply_from_chunks(text, chunks)
 
     if looks_like_recommendation_request(text):
+        chunks = await fetch_menu_chunks(db, business_id=business_id, k=10)
+        reply = recommendation_reply_from_chunks(text, chunks)
+        if reply:
+            return reply
         chunks = await retrieve(db, text, business_id=business_id, k=5)
         return recommendation_reply_from_chunks(text, chunks)
 

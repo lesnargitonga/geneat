@@ -248,9 +248,17 @@ KB: dict[str, dict[str, list[str]]] = {
             "Chocolate Brownie KES 200 (GF). Lemon Tart KES 240.",
         ],
         "policies": [
-            "DEMO FLOW — For live Lily Pond demos, accept Demo Espresso KES 10 as a real "
-            "order. Once the customer gives a name, create the order and trigger M-Pesa "
-            "STK immediately so the pitch can prove WhatsApp → AI → order → payment.",
+            "DEMO ESPRESSO ORDER — Demo Espresso KES 10 is a real tiny proof order for "
+            "Lily Pond demos. If a customer asks for Demo Espresso, 10 bob, ten bob, or "
+            "the demo order, ask for or use their name and send the M-Pesa STK prompt. "
+            "Do not describe internal tools or implementation details to customers.",
+            "CUSTOMER MENU SUMMARY — Coffee options include Espresso, Double Espresso, "
+            "Macchiato, Cortado, Flat White, Cappuccino, Latte, Cold Brew, Pour-over, "
+            "Mocha, and take-home beans. Food options include Avocado Toast, Mandazi "
+            "& Masala Chai, Big Pond Plate, Coconut Granola Bowl, Pancake Stack, "
+            "Chicken Caesar Wrap, Halloumi & Avo Bowl, Sukuma & Coconut Curry, "
+            "Sweet Potato Fries, Soup of the Day, Butter Croissant, Pain au Chocolat, "
+            "Almond Croissant, Banana-Cardamom Loaf, Chocolate Brownie, and Lemon Tart.",
             "PICKUP & QUEUE — Average prep is 8 minutes. Order on WhatsApp 10 min before "
             "you arrive and skip the queue. We'll text 'ready' when your order is at the pickup shelf.",
             "PAYMENT — M-Pesa Till 522001 (Lily Pond Café) or card. Show the M-Pesa SMS at pickup. "

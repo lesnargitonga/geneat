@@ -14,7 +14,8 @@ final authority, but this document is the canonical human map of:
 - what is still demo-only,
 - and what still needs hardening before anyone promises enterprise-grade uptime.
 
-Last reconciled with the codebase and live checks: **2026-05-24**.
+Last reconciled with the codebase and local checks: **2026-05-25**.
+Hosted live checks were last verified on **2026-05-24**.
 
 ## Table Of Contents
 
@@ -168,7 +169,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `97 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `101 passed, 1 warning` via `make test-fast` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -663,13 +664,22 @@ The assistant is not a single raw LLM call. It is a layered system:
 The assistant must feel like a real café operator, not a pile of canned
 messages. The current rule is:
 
-- normal text goes to the model first,
-- deterministic replies are reserved for explicit media handling or degraded
-  fallback,
+- obvious café facts use deterministic tenant data before the model,
+- open-ended or ambiguous customer turns go to the model,
+- deterministic recovery still exists for provider timeout, sanitizer failure,
+  or degraded fallback,
 - the generic human-handoff fallback should be rare.
 
 Current explicit happy-path fast-paths:
 
+- **Factual menu questions**, such as:
+  - `How much is a flat white?`
+  - `Do you have croissants?`
+  - `What else do you sell?`
+  - `I need the full menu`
+  are answered from tenant menu chunks before calling the model or embedding
+  the user query. Vector retrieval remains as a compatibility fallback when
+  menu chunks are unavailable.
 - **Photo requests only**, such as:
   - `show me a photo of the flat white`
   - `send me a picture of the croissant`
@@ -683,11 +693,8 @@ Current explicit happy-path fast-paths:
 
 Current model-led happy path:
 
-- prices,
-- menu questions,
-- budget recommendations,
-- opening-hours questions,
-- order-building turns,
+- ambiguous menu follow-ups after deterministic menu data cannot answer,
+- multi-item order-building turns,
 - clarification turns,
 - payment turns.
 
@@ -732,16 +739,18 @@ Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Docume
 - one quiet retry is attempted for transient provider/tool failures; timeout
   retries use `AI_TURN_RETRY_TIMEOUT_SECONDS`, currently 10 seconds, so stuck
   turns do not drag on,
-- deterministic quick replies can answer obvious price, hours, or menu
-  recommendation questions only after the model path fails,
-- deterministic quick replies can answer item-availability questions such as
-  `Do you have croissants?` from menu chunks,
+- deterministic quick replies answer obvious price, hours, recommendation,
+  item-availability, and full-menu questions before the model when tenant menu
+  chunks are available, and can run again after the model path fails,
 - full-menu requests such as `I need the full menu` are answered
   deterministically from menu chunks instead of waiting on the model or an
   embedding call when menu rows are available, with vector retrieval kept as a
   compatibility fallback,
 - generic photo follow-ups such as `send a picture` ask which item to send
   instead of guessing and returning the wrong café/menu image,
+- JSON/tool-call-looking model output is treated as malformed customer copy;
+  the channel layer first tries to recover with a menu quick reply, then falls
+  back to a short plain-language formatting-error message,
 - keyword KB fallback is tried before generic handoff, but internal/demo
   operator notes such as `DEMO FLOW` are filtered out of customer replies,
 - degraded fallback replies are marked and filtered out of future model
@@ -803,9 +812,10 @@ Current retrieval behavior:
   256 normalized queries per worker,
 - explicit photo requests skip retrieval entirely before the deterministic
   `send_menu_photo` path,
-- full-menu quick replies fetch likely menu chunks directly, without embedding
-  the user query when menu rows are available, and only fall back to vector
-  retrieval if no menu-style chunks are found,
+- price, availability, recommendation, and full-menu quick replies fetch
+  likely menu chunks directly, without embedding the user query when menu rows
+  are available, and only fall back to vector retrieval if no menu-style
+  chunks are found,
 - keyword fallback exists for degraded conditions,
 - tenant scoping is enforced by `business_id`,
 - price redaction uses KB-derived allowed prices,
@@ -2007,7 +2017,7 @@ make test-fast
 Current result:
 
 ```text
-97 passed, 1 warning
+101 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -2088,8 +2098,9 @@ This is the honest list, not the flattering list.
 - DB and Redis health checks are real
 - OpenAI health is visible in `/health/deep`
 - photo requests send real media through a deterministic action path
-- normal WhatsApp text is model-led first, with deterministic quick replies
-  reserved for timeout/failure rescue
+- open-ended WhatsApp text remains model-led, while factual menu, price,
+  availability, hours, photo, and payment-control turns use deterministic
+  tenant data before the model
 - the flagship KES 10 Demo Espresso order path now bypasses the model and
   goes straight to order creation + STK so the live proof feels fast
 - safety rules now let normal café wording and photo requests reach the model
@@ -2100,10 +2111,15 @@ This is the honest list, not the flattering list.
 - customer `Paid` messages no longer count as proof of payment; only provider
   callbacks/polls can mark money landed
 - pickup and queue-skip promises are now blocked until payment is confirmed
-- full-menu and vague photo follow-ups are handled deterministically so the
-  assistant does not send a random café image as "the menu"
-- explicit photo and full-menu turns now avoid unnecessary RAG embedding calls,
-  and repeated RAG query embeddings are cached briefly per worker
+- full-menu, price, availability, recommendation, and vague photo follow-ups
+  are handled deterministically so the assistant does not send random images,
+  code-like copy, or slow generic fallbacks for basic café facts
+- explicit photo and obvious menu-info turns now avoid unnecessary RAG
+  embedding calls, and repeated RAG query embeddings are cached briefly per
+  worker
+- JSON/tool-call-looking model output is sanitized before it reaches WhatsApp,
+  with menu quick-reply recovery when the customer asked a factual menu
+  question
 - long AI waits no longer keep the initial request transaction checked out;
   channel, RAG, and tool phases release DB connections between provider waits
 - Redis session-lock contention no longer falls through to Postgres advisory
@@ -2115,9 +2131,10 @@ This is the honest list, not the flattering list.
 - stale pending STKs can be resent explicitly with `send STK` / `resend STK`,
   and repeated matching orders auto-resend after 90 seconds
 - production startup validation now fails fast on live-payment, Meta webhook,
-  GPT-5 Responses, embedding-dimension, and core-secret misconfigurations
-- weak core production secrets now fail startup, and weak `ADMIN_API_TOKEN`
-  values are logged as explicit production warnings
+  GPT-5 Responses, embedding-dimension, and default/empty core-secret
+  misconfigurations
+- weak non-default pilot secrets are logged as explicit production warnings so
+  operators can rotate them without bricking an otherwise live deploy
 - production idempotency fails closed when Redis is unavailable
 - durable jobs now have TTLs to avoid infinite retry loops
 - outbound webhook delivery now has a Postgres outbox and in-process outbox
@@ -2133,6 +2150,9 @@ This is the honest list, not the flattering list.
   closed when that limiter is unavailable
 - inbound HTTP request bodies are capped at 10 MB by middleware before route
   handlers process them
+- Lily Pond seed data now includes a customer-facing menu summary and no
+  longer stores the old internal `DEMO FLOW` tool instruction as customer
+  retrievable KB
 - committed test webhook secrets are no longer static strings; tests generate
   per-run Meta webhook secrets/tokens
 - `doctor-live` now retries transient hosted health/webhook/chat/photo probes
