@@ -134,6 +134,7 @@ Fresh live checks run from this workspace on **2026-05-25**:
 | `GET /health/deep` | `status=ok`, db/redis/pgvector/whatsapp/payments/llm all reachable |
 | `make doctor-live` | `21/22 configured checks passed` from this workspace |
 | `make eval-whatsapp-live` | `29/29` safe reply scenarios passed across all four demo tenants |
+| `make pre-demo-live` | passed no-money public-demo battery |
 | Portal live price check | passed without generic fallback |
 | Portal live photo check | passed |
 | Meta webhook verify handshake | `403` with this workspace's local verify token |
@@ -164,6 +165,9 @@ What that means in plain English:
 - the no-money WhatsApp reply matrix passes for Lily Pond, Library Bites,
   Pavilion Grill, and Block A Express with deterministic menu/status/photo
   guardrails,
+- the broader no-money pre-demo battery now passes hosted health, provider
+  checks, four-café reply contracts, stateful conversations, and a small
+  deterministic burst-load check,
 - IntaSend is configured for live mode, not test mode,
 - the primary OpenAI provider is reachable as `gpt-5.4-mini` and not tripped
   open.
@@ -1490,6 +1494,9 @@ Meaning:
   internal leaks, wrong prices, random menu photos, fake payment
   confirmations, and slow replies. These scenarios are expected to stay on
   deterministic fast paths, not slow model turns.
+- `make pre-demo-live` is the broader public-demo gate: hosted health,
+  provider deep health, the four-café reply matrix, stateful no-money
+  conversations, and a small deterministic burst load check.
 - Admin routes are rate-limited by Redis; in production, Redis failure returns
   a 503 instead of silently allowing unlimited admin traffic.
 - Requests larger than `REQUEST_MAX_BODY_BYTES` are rejected before route
@@ -1561,6 +1568,8 @@ make publish-demo-photos
 make generate-lily-training
 make eval-whatsapp-local
 make eval-whatsapp-live
+make pre-demo-local
+make pre-demo-live
 ```
 
 ### 18.5 Demo seed and bootstrap
@@ -2003,6 +2012,7 @@ Current scripts and helpers:
 | `scripts/list_tables.py` | lists public Postgres tables using `DATABASE_URL_SYNC` or `DATABASE_URL` |
 | `scripts/load_test_mock.py` | concurrent `/mock/message` load test helper |
 | `scripts/eval_whatsapp_reply_matrix.py` | safe local/live WhatsApp reply regression matrix with shared invariants and per-tenant fixtures |
+| `scripts/pre_demo_battery.py` | no-money pre-demo battery combining health, reply matrix, stateful, and burst-load checks |
 | `scripts/load_test_sample.py` | small local load-test helper |
 | `scripts/post_deploy_smoke.py` | post-deploy smoke wrapper |
 | `scripts/run_smoke_tests.py` | runs pgvector, pgbouncer, metrics, and Sentry checks |
@@ -2027,6 +2037,9 @@ Current high-value scripts:
   menu, payment-status, photo, and policy-leak regressions without triggering
   live money movement; it runs all four demo cafés by default and can be
   narrowed with `--tenant lily-pond-cafe` or inspected with `--list-tenants`
+- `pre_demo_battery.py` is the broader public-demo gate; it runs safe
+  live/local checks only and intentionally does not create orders or trigger
+  STK prompts
 
 ### 21.1 Lily Pond training data generator
 
@@ -2115,6 +2128,31 @@ Current result:
 This matrix covers Lily Pond, Library Bites, Pavilion Grill, and Block A
 Express. It checks fast deterministic replies for menu, price, availability,
 menu-photo wording, payment-status claims, and internal policy leakage.
+
+Broader pre-demo battery:
+
+```bash
+make pre-demo-live
+```
+
+Current result:
+
+```text
+PRE-DEMO BATTERY PASSED.
+```
+
+This is the recommended command before any public demo. It includes:
+
+- hosted health and provider readiness,
+- the full four-café no-money reply matrix,
+- stateful no-money conversations per tenant,
+- a small deterministic load burst against `/mock/message`.
+
+It deliberately does not trigger STK or create real orders. Run a real
+WhatsApp/STK rehearsal separately only when you intentionally want to spend
+the KES 10 demo transaction. The script waits before its burst-load phase so
+the earlier mock-channel checks do not self-trigger the `/mock/message`
+`60/minute` rate limit.
 
 ### 22.4 Other useful tests
 

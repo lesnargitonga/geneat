@@ -1,6 +1,6 @@
 PYTHON ?= ./.venv/bin/python
 
-.PHONY: dev test-fast doctor-local doctor-live smoke-providers publish-demo-photos bootstrap-demo generate-lily-training eval-whatsapp-live eval-whatsapp-local
+.PHONY: dev test-fast doctor-local doctor-live smoke-providers publish-demo-photos bootstrap-demo generate-lily-training eval-whatsapp-live eval-whatsapp-local pre-demo-local pre-demo-live
 
 dev:
 	./scripts/run_dev.sh
@@ -31,3 +31,9 @@ eval-whatsapp-local:
 
 eval-whatsapp-live:
 	$(PYTHON) scripts/eval_whatsapp_reply_matrix.py --live
+
+pre-demo-local:
+	$(PYTHON) scripts/pre_demo_battery.py
+
+pre-demo-live:
+	$(PYTHON) scripts/pre_demo_battery.py --live
