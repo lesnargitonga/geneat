@@ -10,10 +10,11 @@ from app.services.business_service import BusinessProfile
 
 _PHOTO_REQUEST_RE = re.compile(
     r"\b("
-    r"photo|picture|pic|image|picha|show me|send me|let me see|lemme see|how does .* look"
+    r"photos?|pictures?|pics?|images?|picha|show me|send me|let me see|lemme see|how does .* look"
     r")\b",
     re.IGNORECASE,
 )
+_EXPLICIT_PHOTO_WORD_RE = re.compile(r"\b(photos?|pictures?|pics?|images?|picha|menu board)\b", re.IGNORECASE)
 _PRICE_REQUEST_RE = re.compile(
     r"\b("
     r"how much|price|cost|bei|kes ngapi|ni how much|how much is|how much for|price of|price for"
@@ -129,7 +130,12 @@ def _normalize(text: str) -> str:
 
 def looks_like_photo_request(text: str) -> bool:
     candidate = (text or "").strip()
-    return bool(candidate and _PHOTO_REQUEST_RE.search(candidate))
+    if not candidate:
+        return False
+    lowered = candidate.lower()
+    if "menu" in lowered and not _EXPLICIT_PHOTO_WORD_RE.search(candidate):
+        return False
+    return bool(_PHOTO_REQUEST_RE.search(candidate))
 
 
 def looks_like_price_request(text: str) -> bool:

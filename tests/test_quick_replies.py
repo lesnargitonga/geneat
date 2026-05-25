@@ -9,6 +9,7 @@ from app.ai.quick_replies import (
     availability_reply_from_chunks,
     full_menu_reply_from_chunks,
     looks_like_full_menu_request,
+    looks_like_photo_request,
     looks_like_availability_request,
     looks_like_hours_request,
     looks_like_recommendation_request,
@@ -38,6 +39,8 @@ def test_hours_detector_matches_opening_questions() -> None:
 def test_generic_photo_request_requires_specific_item() -> None:
     assert photo_item_query("Yes please, send a picture") == GENERIC_PHOTO_QUERY
     assert photo_item_query("send me a pic of the flat white") != GENERIC_PHOTO_QUERY
+    assert looks_like_photo_request("Got any pictures of the espresso?")
+    assert not looks_like_photo_request("Can you send me the full menu please?")
 
 
 def test_full_menu_request_and_reply() -> None:
