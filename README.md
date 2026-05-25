@@ -1554,11 +1554,19 @@ PYTHONPATH=. ./.venv/bin/python scripts/seed_geneat_demo.py
 Hosted bootstrap over HTTPS:
 
 ```bash
-set -a
-. ./.env
-curl -X POST https://api.lesnarai.co.ke/admin/bootstrap/geneat-demo \
-  -H "Authorization: Bearer $ADMIN_API_TOKEN"
+export GENEAT_LIVE_ADMIN_API_TOKEN="current-token-from-render-or-secret-manager"
+make bootstrap-demo
 ```
+
+Important token nuance:
+
+- `make bootstrap-demo` intentionally does **not** source `.env`.
+- The live admin token is rotated outside the repo, so local `.env` may be
+  stale by design.
+- For hosted bootstrap, export the current hosted `ADMIN_API_TOKEN` as
+  `GENEAT_LIVE_ADMIN_API_TOKEN`.
+- A `401` or `403` from this script means token drift, not a seed/code bug.
+- For non-live targets, the script can still use `ADMIN_API_TOKEN`.
 
 ### 18.6 Lily Pond local rehearsal
 
@@ -1706,6 +1714,12 @@ Core:
 | `JWT_SECRET` | admin JWT signing |
 | `ADMIN_CORS_ORIGINS` | admin origins |
 | `DEFAULT_BUSINESS_SLUG` | default tenant |
+
+Operator-only local variables:
+
+| Variable | Purpose |
+| --- | --- |
+| `GENEAT_LIVE_ADMIN_API_TOKEN` | current hosted admin token used by `make bootstrap-demo`; not a deployed runtime variable |
 
 LLM / embeddings:
 
@@ -1954,6 +1968,7 @@ Current scripts and helpers:
 | `scripts/lily_pond_demo_check.py` | local/live doctor |
 | `scripts/smoke_providers.py` | provider sanity check |
 | `scripts/publish_demo_menu_photos.py` | bulk demo photo publisher |
+| `scripts/bootstrap_geneat_demo_live.py` | HTTPS demo bootstrap helper that uses an explicit live operator token |
 | `scripts/generate_lily_pond_training.py` | synthetic Lily Pond SFT golden-path JSONL generator |
 | `scripts/build_render_env.py` | local helper that writes an ignored Render env bundle from `.env` |
 | `scripts/audit_battery.sh` | audit helper |
@@ -1976,6 +1991,8 @@ Current high-value scripts:
 
 - `lily_pond_demo_check.py` is the single best “is the demo alive?” script
 - `publish_demo_menu_photos.py` is the current bulk image hydration tool
+- `bootstrap_geneat_demo_live.py` is the safe hosted bootstrap path; it uses
+  `GENEAT_LIVE_ADMIN_API_TOKEN` instead of assuming local `.env` is live truth
 - `smoke_providers.py` is the credential sanity probe
 - `generate_lily_pond_training.py` creates OpenAI-style chat fine-tuning JSONL
   examples for Lily Pond, including tool schemas and tool-call turns

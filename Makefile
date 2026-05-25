@@ -18,7 +18,7 @@ smoke-providers:
 	$(PYTHON) scripts/smoke_providers.py
 
 bootstrap-demo:
-	set -a && . ./.env && curl -X POST https://api.lesnarai.co.ke/admin/bootstrap/geneat-demo -H "Authorization: Bearer $$ADMIN_API_TOKEN"
+	$(PYTHON) scripts/bootstrap_geneat_demo_live.py
 
 publish-demo-photos:
 	$(PYTHON) scripts/publish_demo_menu_photos.py
