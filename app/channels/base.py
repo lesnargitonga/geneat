@@ -25,6 +25,7 @@ from app.ai.quick_replies import (
     looks_like_photo_request,
     looks_like_price_request,
     looks_like_recommendation_request,
+    match_order_item_from_chunks,
     maybe_build_quick_reply,
     photo_item_query,
 )
@@ -96,7 +97,8 @@ _ORDER_INTENT_RE = re.compile(
     re.IGNORECASE,
 )
 _EXPLICIT_AVAILABILITY_RE = re.compile(
-    r"\b(do you have|do u have|have you got|is there|are there|available|in stock|mko na|kuna)\b",
+    r"\b(do you have|do u have|have you got|is there|are there|available|in stock|"
+    r"do you sell|you sell|don'?t sell|dont sell|don'?t know|dont know|mko na|kuna)\b",
     re.IGNORECASE,
 )
 _INLINE_NAME_RE = re.compile(
@@ -652,6 +654,98 @@ async def _demo_espresso_fast_order_reply(
     if payment_reply.startswith("Sent a fresh STK"):
         return f"Nailed it, {name} - {payment_reply[0].lower()}{payment_reply[1:]}"
     return payment_reply
+
+
+async def _simple_menu_order_reply(
+    db: AsyncSession,
+    *,
+    customer,
+    conversation_id: uuid.UUID,
+    business_id: uuid.UUID | None,
+    text: str,
+    language: str | None,
+) -> str | None:
+    if not _ORDER_INTENT_RE.search(text or ""):
+        return None
+    if (
+        looks_like_photo_request(text)
+        or looks_like_price_request(text)
+        or looks_like_full_menu_request(text)
+        or looks_like_hours_request(text)
+        or _looks_like_payment_cancel(text)
+        or _looks_like_payment_resend(text)
+        or _looks_like_payment_claim(text)
+        or _looks_like_pickup_status_request(text)
+    ):
+        return None
+
+    from app.ai.rag import fetch_menu_chunks
+    from app.db.models import Order, PaymentStatus
+
+    chunks = await fetch_menu_chunks(db, business_id=business_id, k=12)
+    match = match_order_item_from_chunks(text, chunks)
+    if match is None:
+        return None
+
+    is_sw = _customer_prefers_swahili(language or getattr(customer, "preferred_language", None))
+    name = _extract_inline_customer_name(text) or getattr(customer, "name", None)
+    if not name:
+        return (
+            f"Sawa - niandikie jina la kuweka kwa oda ya {match.label}."
+            if is_sw else
+            f"Sure - what name should I put on the {match.label} order?"
+        )
+    if getattr(customer, "name", None) != name:
+        customer.name = name
+
+    lookup_text = f"{match.label} KES {match.unit_price}"
+    existing = await _latest_pending_order_for_turn(
+        db,
+        customer_id=customer.id,
+        business_id=business_id,
+        conversation_id=conversation_id,
+        text=lookup_text,
+    )
+    if existing is not None and _order_matches_text(existing, lookup_text):
+        return await _pending_order_repeat_reply(
+            db,
+            customer=customer,
+            conversation_id=conversation_id,
+            business_id=business_id,
+            text=lookup_text,
+            language=language,
+        )
+
+    amount = float(match.unit_price * match.quantity)
+    order = Order(
+        customer_id=customer.id,
+        business_id=business_id,
+        conversation_id=conversation_id,
+        details={
+            "items": [
+                {
+                    "sku_or_name": match.label,
+                    "qty": match.quantity,
+                    "unit_price": float(match.unit_price),
+                }
+            ],
+            "delivery_notes": "WhatsApp simple menu order",
+            "fast_path": "simple_menu_order",
+        },
+        amount=amount,
+        payment_status=PaymentStatus.pending,
+    )
+    db.add(order)
+    await db.flush()
+
+    return await _resend_pending_payment_reply(
+        db,
+        customer=customer,
+        conversation_id=conversation_id,
+        business_id=business_id,
+        text=lookup_text,
+        language=language,
+    )
 
 
 async def _cancel_jobs_for_order(db: AsyncSession, *, order_id: uuid.UUID, business_id: uuid.UUID | None) -> int:
@@ -1231,7 +1325,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             if control_reply:
                 control_flag = "deterministic:demo_espresso_fast_order"
             else:
-                control_reply = await _auto_resend_stale_payment_reply(
+                control_reply = await _simple_menu_order_reply(
                     db,
                     customer=customer,
                     conversation_id=conv.id,
@@ -1240,9 +1334,9 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     language=effective_lang,
                 )
                 if control_reply:
-                    control_flag = "deterministic:auto_resend_payment"
+                    control_flag = "deterministic:simple_menu_order"
                 else:
-                    control_reply = await _pending_order_repeat_reply(
+                    control_reply = await _auto_resend_stale_payment_reply(
                         db,
                         customer=customer,
                         conversation_id=conv.id,
@@ -1250,7 +1344,18 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                         text=turn.text,
                         language=effective_lang,
                     )
-                    control_flag = "deterministic:pending_order_status" if control_reply else None
+                    if control_reply:
+                        control_flag = "deterministic:auto_resend_payment"
+                    else:
+                        control_reply = await _pending_order_repeat_reply(
+                            db,
+                            customer=customer,
+                            conversation_id=conv.id,
+                            business_id=business_id,
+                            text=turn.text,
+                            language=effective_lang,
+                        )
+                        control_flag = "deterministic:pending_order_status" if control_reply else None
 
         if control_reply:
             await append_message(

@@ -35,6 +35,7 @@ _RECOMMENDATION_REQUEST_RE = re.compile(
 _AVAILABILITY_REQUEST_RE = re.compile(
     r"\b("
     r"do you have|have you got|is there|are there|available|"
+    r"do you sell|you sell|don'?t sell|dont sell|don'?t know|dont know|"
     r"can i have|can i get|may i have|may i get|let me have|lemme have|"
     r"i'?ll have|i want|i need"
     r")\b",
@@ -69,6 +70,7 @@ _AVAILABILITY_STOPWORDS = {
     "do", "you", "have", "got", "is", "there", "are", "available", "can", "i",
     "get", "have", "ill", "i'll", "may", "let", "lemme", "want", "need", "the", "a", "an", "please",
     "menu", "options", "anything", "something", "food", "drink", "drinks",
+    "mean", "don", "dont", "know", "what", "sell", "sells", "or", "not",
 }
 _INTERNAL_MENU_MARKERS = (
     "demo flow",
@@ -112,6 +114,13 @@ class MenuOption:
     price: int
     segment: str
     normalized: str
+
+
+@dataclass(frozen=True)
+class MenuOrderMatch:
+    label: str
+    unit_price: int
+    quantity: int
 
 
 def _normalize(text: str) -> str:
@@ -222,6 +231,73 @@ def _first_price_after_phrase(segment: str, phrase: str) -> int | None:
 
 def _query_wants_demo(query_norm: str) -> bool:
     return any(token in query_norm for token in ("demo espresso", "demo order", "10 bob", "ten bob"))
+
+
+_ORDER_MATCH_STOPWORDS = {
+    "i", "want", "need", "have", "get", "may", "can", "let", "lemme", "please",
+    "order", "sort", "me", "a", "an", "the", "one", "two", "three", "for",
+    "pickup", "pick", "up", "by", "at", "name", "is", "my",
+}
+_QUANTITY_WORDS = {
+    "one": 1,
+    "a": 1,
+    "an": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+}
+
+
+def _order_quantity(text: str) -> int:
+    lowered = (text or "").lower()
+    digit = re.search(r"\b([1-5])\b|x\s*([1-5])\b", lowered)
+    if digit:
+        return int(digit.group(1) or digit.group(2))
+    for word, value in _QUANTITY_WORDS.items():
+        if re.search(rf"\b{re.escape(word)}\b", lowered):
+            return value
+    return 1
+
+
+def match_order_item_from_chunks(query: str, chunks: Sequence[RetrievedChunk]) -> MenuOrderMatch | None:
+    query_norm = _normalize(query)
+    if not query_norm:
+        return None
+    wants_demo = _query_wants_demo(query_norm)
+    query_tokens = {
+        token[:-1] if token.endswith("s") and len(token) > 4 else token
+        for token in query_norm.split()
+        if len(token) >= 3 and token not in _ORDER_MATCH_STOPWORDS
+    }
+    if not query_tokens:
+        return None
+
+    ranked: list[tuple[int, int, MenuOption]] = []
+    for option in _extract_options(chunks):
+        if not wants_demo and "demo espresso" in option.normalized:
+            continue
+        option_tokens = {
+            token[:-1] if token.endswith("s") and len(token) > 4 else token
+            for token in option.normalized.split()
+        }
+        score = 0
+        if option.normalized in query_norm:
+            score += 8
+        score += 2 * len(query_tokens & option_tokens)
+        if any(token in option.normalized for token in query_tokens):
+            score += 1
+        if wants_demo and "demo espresso" in option.normalized:
+            score += 10
+        if score <= 0:
+            continue
+        ranked.append((score, option.price, option))
+
+    if not ranked:
+        return None
+    ranked.sort(key=lambda row: (-row[0], row[1], row[2].label))
+    _score, _price, option = ranked[0]
+    return MenuOrderMatch(label=option.label, unit_price=option.price, quantity=_order_quantity(query))
 
 
 def price_reply_from_chunks(query: str, chunks: Sequence[RetrievedChunk]) -> str | None:

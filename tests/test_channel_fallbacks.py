@@ -93,6 +93,7 @@ def test_menu_info_fast_path_avoids_order_and_photo_turns() -> None:
     assert _looks_like_menu_info_request("Do you have croissants?")
     assert _looks_like_menu_info_request("How much is a flat white?")
     assert _looks_like_menu_info_request("What do you sell at the cafe?")
+    assert _looks_like_menu_info_request("You mean you don't know what an espresso is or you don't sell?")
     assert not _looks_like_menu_info_request("I want a flat white")
     assert not _looks_like_menu_info_request("show me a photo of the flat white")
     assert not _looks_like_menu_info_request("I want the KES 10 demo espresso")

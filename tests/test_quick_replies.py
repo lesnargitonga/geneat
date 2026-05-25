@@ -12,6 +12,7 @@ from app.ai.quick_replies import (
     looks_like_availability_request,
     looks_like_hours_request,
     looks_like_recommendation_request,
+    match_order_item_from_chunks,
     maybe_build_quick_reply,
     photo_item_query,
     price_reply_from_chunks,
@@ -104,6 +105,24 @@ def test_availability_reply_skips_internal_demo_policy_segments() -> None:
     assert "tiny proof item" not in reply
 
 
+def test_availability_reply_recovers_from_customer_confusion_about_item() -> None:
+    chunks = [
+        RetrievedChunk(
+            content="COFFEE - Espresso KES 120 / Double KES 160. Flat White KES 220.",
+            source="menu",
+            score=1.0,
+        )
+    ]
+
+    assert looks_like_availability_request("You mean you don't know what an espresso is or you don't sell?")
+    reply = availability_reply_from_chunks(
+        "You mean you don't know what an espresso is or you don't sell?",
+        chunks,
+    )
+
+    assert reply == "Yes — Espresso - KES 120. Want me to sort Espresso for you?"
+
+
 def test_price_reply_from_chunks_handles_demo_espresso() -> None:
     chunks = [
         RetrievedChunk(
@@ -152,6 +171,45 @@ def test_plain_espresso_price_does_not_match_demo_espresso() -> None:
     )
 
     assert reply == "Espresso is KES 120. Want me to sort one for pickup?"
+
+
+def test_simple_order_match_prefers_plain_item_over_demo_alias() -> None:
+    match = match_order_item_from_chunks(
+        "May I have the espresso?",
+        [
+            RetrievedChunk(
+                content=(
+                    "LIVE DEMO - Demo Espresso KES 10.\n"
+                    "COFFEE - Espresso KES 120 / Double KES 160. Flat White KES 220."
+                ),
+                source="menu",
+                score=1.0,
+            )
+        ],
+    )
+
+    assert match is not None
+    assert match.label == "Espresso"
+    assert match.unit_price == 120
+    assert match.quantity == 1
+
+
+def test_simple_order_match_parses_quantity_and_plural() -> None:
+    match = match_order_item_from_chunks(
+        "Can I get 2 flat whites please?",
+        [
+            RetrievedChunk(
+                content="COFFEE - Espresso KES 120. Flat White KES 220.",
+                source="menu",
+                score=1.0,
+            )
+        ],
+    )
+
+    assert match is not None
+    assert match.label == "Flat White"
+    assert match.unit_price == 220
+    assert match.quantity == 2
 
 
 def test_recommendation_reply_from_chunks_respects_budget() -> None:
