@@ -82,6 +82,24 @@ def test_availability_reply_handles_plural_item_questions() -> None:
     assert "Almond Croissant - KES 250" in reply
 
 
+def test_availability_reply_handles_es_plural_item_questions() -> None:
+    chunks = [
+        RetrievedChunk(
+            content=(
+                "GRAB-AND-GO MEALS - Chicken Mayo Sandwich KES 280. "
+                "Veggie Wrap KES 240. Tuna Crunch Baguette KES 320."
+            ),
+            source="menu",
+            score=0.9,
+        )
+    ]
+
+    reply = availability_reply_from_chunks("Do you have sandwiches?", chunks)
+
+    assert reply is not None
+    assert "Chicken Mayo Sandwich - KES 280" in reply
+
+
 def test_availability_reply_skips_internal_demo_policy_segments() -> None:
     chunks = [
         RetrievedChunk(
@@ -209,6 +227,24 @@ def test_simple_order_match_parses_quantity_and_plural() -> None:
     assert match is not None
     assert match.label == "Flat White"
     assert match.unit_price == 220
+    assert match.quantity == 2
+
+
+def test_simple_order_match_handles_es_plural() -> None:
+    match = match_order_item_from_chunks(
+        "Can I get two sandwiches?",
+        [
+            RetrievedChunk(
+                content="GRAB-AND-GO - Chicken Mayo Sandwich KES 280. Veggie Wrap KES 240.",
+                source="menu",
+                score=1.0,
+            )
+        ],
+    )
+
+    assert match is not None
+    assert match.label == "Chicken Mayo Sandwich"
+    assert match.unit_price == 280
     assert match.quantity == 2
 
 

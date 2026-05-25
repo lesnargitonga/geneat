@@ -169,7 +169,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `110 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `112 passed, 1 warning` via `make test-fast` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -1481,8 +1481,9 @@ Meaning:
 - `scripts/load_test_mock.py` uses unique phone numbers by default; pass
   `--same-phone` only when intentionally testing per-customer serialization.
 - `make eval-whatsapp-live` runs a safe no-money mock-channel matrix against
-  the hosted API and checks for internal leaks, wrong prices, random menu
-  photos, fake payment confirmations, and slow replies.
+  the hosted API across the configured demo tenant fixtures and checks for
+  internal leaks, wrong prices, random menu photos, fake payment
+  confirmations, and slow replies.
 - Admin routes are rate-limited by Redis; in production, Redis failure returns
   a 503 instead of silently allowing unlimited admin traffic.
 - Requests larger than `REQUEST_MAX_BODY_BYTES` are rejected before route
@@ -1995,7 +1996,7 @@ Current scripts and helpers:
 | `scripts/flush_outbox.py` | one-shot outbox row processor |
 | `scripts/list_tables.py` | lists public Postgres tables using `DATABASE_URL_SYNC` or `DATABASE_URL` |
 | `scripts/load_test_mock.py` | concurrent `/mock/message` load test helper |
-| `scripts/eval_whatsapp_reply_matrix.py` | safe local/live WhatsApp reply regression matrix |
+| `scripts/eval_whatsapp_reply_matrix.py` | safe local/live WhatsApp reply regression matrix with shared invariants and per-tenant fixtures |
 | `scripts/load_test_sample.py` | small local load-test helper |
 | `scripts/post_deploy_smoke.py` | post-deploy smoke wrapper |
 | `scripts/run_smoke_tests.py` | runs pgvector, pgbouncer, metrics, and Sentry checks |
@@ -2018,7 +2019,8 @@ Current high-value scripts:
   by default and has `--same-phone` for session-lock stress tests
 - `eval_whatsapp_reply_matrix.py` is the professional pre-demo reply gate for
   menu, payment-status, photo, and policy-leak regressions without triggering
-  live money movement
+  live money movement; it runs all four demo cafés by default and can be
+  narrowed with `--tenant lily-pond-cafe` or inspected with `--list-tenants`
 
 ### 21.1 Lily Pond training data generator
 
@@ -2061,7 +2063,7 @@ make test-fast
 Current result:
 
 ```text
-110 passed, 1 warning
+112 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -2173,7 +2175,12 @@ This is the honest list, not the flattering list.
 - plain espresso price/availability no longer gets confused with the KES 10
   Demo Espresso unless the customer explicitly asks for the demo item
 - the safe WhatsApp reply matrix can be run locally or live with
-  `make eval-whatsapp-local` / `make eval-whatsapp-live`
+  `make eval-whatsapp-local` / `make eval-whatsapp-live`; it uses shared
+  safety invariants plus small per-tenant menu fixtures, so a new business
+  should add a fixture rather than a bespoke test suite
+- plural menu matching now handles cases like `sandwiches`, `croissants`, and
+  `cinnamon rolls`, and hyphenated category headers such as `GRAB-AND-GO`
+  no longer leak into customer-facing item labels
 - explicit photo and obvious menu-info turns now avoid unnecessary RAG
   embedding calls, and repeated RAG query embeddings are cached briefly per
   worker

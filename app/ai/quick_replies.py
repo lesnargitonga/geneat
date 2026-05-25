@@ -249,6 +249,19 @@ _QUANTITY_WORDS = {
 }
 
 
+def _token_variants(token: str) -> set[str]:
+    variants = {token}
+    if len(token) <= 4:
+        return variants
+    if token.endswith("ies") and len(token) > 5:
+        variants.add(token[:-3] + "y")
+    if token.endswith("es") and len(token) > 5:
+        variants.add(token[:-2])
+    if token.endswith("s"):
+        variants.add(token[:-1])
+    return {variant for variant in variants if len(variant) >= 3}
+
+
 def _order_quantity(text: str) -> int:
     lowered = (text or "").lower()
     digit = re.search(r"\b([1-5])\b|x\s*([1-5])\b", lowered)
@@ -265,11 +278,11 @@ def match_order_item_from_chunks(query: str, chunks: Sequence[RetrievedChunk]) -
     if not query_norm:
         return None
     wants_demo = _query_wants_demo(query_norm)
-    query_tokens = {
-        token[:-1] if token.endswith("s") and len(token) > 4 else token
-        for token in query_norm.split()
-        if len(token) >= 3 and token not in _ORDER_MATCH_STOPWORDS
-    }
+    query_tokens: set[str] = set()
+    for token in query_norm.split():
+        if len(token) < 3 or token in _ORDER_MATCH_STOPWORDS:
+            continue
+        query_tokens.update(_token_variants(token))
     if not query_tokens:
         return None
 
@@ -381,7 +394,7 @@ def _segment_label(segment: str) -> str | None:
     if not match:
         return None
     label = segment[:match.start()].strip(" :-—–/\t")
-    label = re.sub(r"^[A-Z0-9 &/]+(?:—|–|-)\s*", "", label)
+    label = re.sub(r"^[A-Z0-9 &/\-]+(?:—|–|-)\s*", "", label)
     label = re.sub(r"\s{2,}", " ", label).strip(" .")
     if not label:
         return None
@@ -521,9 +534,7 @@ def _availability_tokens(query: str) -> set[str]:
     for token in normalized.split():
         if token in _AVAILABILITY_STOPWORDS or len(token) < 3:
             continue
-        tokens.add(token)
-        if token.endswith("s") and len(token) > 4:
-            tokens.add(token[:-1])
+        tokens.update(_token_variants(token))
     return tokens
 
 

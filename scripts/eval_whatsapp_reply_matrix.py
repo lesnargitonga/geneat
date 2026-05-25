@@ -1,9 +1,8 @@
 """Run safe WhatsApp/mock reply regressions against local or hosted API.
 
-The scenarios here are deliberately "no money movement" checks. They catch
-customer-visible failures such as internal KB leakage, wrong menu prices,
-random menu photos, and fake payment confirmations before a human finds them
-in WhatsApp.
+The matrix is split into shared behavior contracts plus small tenant fixtures.
+That keeps the important rules universal while making each business contribute
+only a few real menu examples.
 """
 from __future__ import annotations
 
@@ -44,59 +43,137 @@ class Scenario:
     notes: str = ""
 
 
-SAFE_SCENARIOS: tuple[Scenario, ...] = (
-    Scenario(
-        name="full_menu_clean",
-        text="I need the full menu, now!",
-        must_include=("Here is the menu I have", "Espresso - KES 120", "Flat White / Cappuccino / Latte - KES 220"),
-        expect_image=False,
+@dataclass(frozen=True)
+class TenantFixture:
+    slug: str
+    label: str
+    menu_expected: tuple[str, ...]
+    price_text: str
+    price_expected: tuple[str, ...]
+    availability_text: str
+    availability_expected: tuple[str, ...]
+    confusion_text: str = ""
+    confusion_expected: tuple[str, ...] = ()
+    extra_scenarios: tuple[Scenario, ...] = ()
+    must_not_include: tuple[str, ...] = ()
+
+
+TENANT_FIXTURES: dict[str, TenantFixture] = {
+    "lily-pond-cafe": TenantFixture(
+        slug="lily-pond-cafe",
+        label="Lily Pond Cafe",
+        menu_expected=("Espresso - KES 120", "Flat White / Cappuccino / Latte - KES 220"),
+        price_text="How much is the espresso?",
+        price_expected=("Espresso is KES 120",),
+        availability_text="Do you have croissants?",
+        availability_expected=("Croissant", "KES"),
+        confusion_text="You mean you don't know what an espresso is or you don't sell?",
+        confusion_expected=("Espresso - KES 120",),
+        extra_scenarios=(
+            Scenario(
+                name="demo_espresso_price",
+                text="How much is the demo espresso?",
+                must_include=("Demo Espresso is KES 10",),
+                expect_image=False,
+            ),
+        ),
+        must_not_include=("Espresso is KES 10",),
     ),
-    Scenario(
-        name="menu_photo_as_text",
-        text="Lemme see a picture of your menu",
-        must_include=("I do not have a clean menu-board photo yet", "Here is the menu I have"),
-        expect_image=False,
+    "library-bites": TenantFixture(
+        slug="library-bites",
+        label="Library Bites",
+        menu_expected=("Chicken Mayo Sandwich - KES 280", "Mandazi (2) - KES 80"),
+        price_text="How much is the latte?",
+        price_expected=("Latte is KES 180",),
+        availability_text="Do you have sandwiches?",
+        availability_expected=("Sandwich", "KES"),
+        confusion_text="You mean you don't sell the latte?",
+        confusion_expected=("Latte - KES 180",),
     ),
-    Scenario(
-        name="plain_espresso_price",
-        text="How much is the espresso?",
-        must_include=("Espresso is KES 120",),
-        must_not_include=BAD_LEAKS + ("Espresso is KES 10",),
-        expect_image=False,
+    "pavilion-grill": TenantFixture(
+        slug="pavilion-grill",
+        label="Pavilion Grill",
+        menu_expected=("Pavilion Classic - KES 580", "Fries - KES 180"),
+        price_text="How much is the Pavilion Classic?",
+        price_expected=("Pavilion Classic is KES 580",),
+        availability_text="Do you have Pavilion Classic?",
+        availability_expected=("Pavilion Classic", "KES 580"),
+        confusion_text="You mean you don't sell the Pavilion Classic?",
+        confusion_expected=("Pavilion Classic - KES 580",),
     ),
-    Scenario(
-        name="demo_espresso_price",
-        text="How much is the demo espresso?",
-        must_include=("Demo Espresso is KES 10",),
-        expect_image=False,
+    "block-a-express": TenantFixture(
+        slug="block-a-express",
+        label="Block A Express",
+        menu_expected=("Espresso - KES 100", "Cinnamon Roll - KES 220"),
+        price_text="How much is the espresso?",
+        price_expected=("Espresso is KES 100",),
+        availability_text="Do you have cinnamon rolls?",
+        availability_expected=("Cinnamon Roll", "KES 220"),
+        confusion_text="You mean you don't sell espresso?",
+        confusion_expected=("Espresso - KES 100",),
     ),
-    Scenario(
-        name="croissant_availability",
-        text="Do you have croissants?",
-        must_include=("Croissant", "KES"),
-        expect_image=False,
-    ),
-    Scenario(
-        name="espresso_confusion_recovery",
-        text="You mean you don't know what an espresso is or you don't sell?",
-        must_include=("Espresso - KES 120",),
-        expect_image=False,
-    ),
-    Scenario(
-        name="paid_without_order_not_confirmed",
-        text="Paid",
-        must_include=("do not see an order",),
-        must_not_include=BAD_LEAKS + ("confirmed", "ready", "paid."),
-        expect_image=False,
-    ),
-    Scenario(
-        name="no_stk_without_order_not_model",
-        text="No stk yet",
-        must_include=("do not see an unpaid order",),
-        must_not_include=BAD_LEAKS + ("sent a fresh STK",),
-        expect_image=False,
-    ),
-)
+}
+
+
+def _shared_scenarios(fixture: TenantFixture) -> tuple[Scenario, ...]:
+    tenant_forbidden = BAD_LEAKS + fixture.must_not_include
+    scenarios = [
+        Scenario(
+            name="full_menu_clean",
+            text="I need the full menu, now!",
+            must_include=("Here is the menu I have",) + fixture.menu_expected,
+            must_not_include=tenant_forbidden,
+            expect_image=False,
+        ),
+        Scenario(
+            name="menu_photo_as_text",
+            text="Lemme see a picture of your menu",
+            must_include=("I do not have a clean menu-board photo yet", "Here is the menu I have")
+            + fixture.menu_expected[:1],
+            must_not_include=tenant_forbidden,
+            expect_image=False,
+        ),
+        Scenario(
+            name="known_price",
+            text=fixture.price_text,
+            must_include=fixture.price_expected,
+            must_not_include=tenant_forbidden,
+            expect_image=False,
+        ),
+        Scenario(
+            name="known_availability",
+            text=fixture.availability_text,
+            must_include=fixture.availability_expected,
+            must_not_include=tenant_forbidden,
+            expect_image=False,
+        ),
+        Scenario(
+            name="paid_without_order_not_confirmed",
+            text="Paid",
+            must_include=("do not see an order",),
+            must_not_include=tenant_forbidden + ("confirmed", "ready", "paid."),
+            expect_image=False,
+        ),
+        Scenario(
+            name="no_stk_without_order_not_model",
+            text="No stk yet",
+            must_include=("do not see an unpaid order",),
+            must_not_include=tenant_forbidden + ("sent a fresh STK",),
+            expect_image=False,
+        ),
+    ]
+    if fixture.confusion_text:
+        scenarios.append(
+            Scenario(
+                name="confusion_recovery",
+                text=fixture.confusion_text,
+                must_include=fixture.confusion_expected,
+                must_not_include=tenant_forbidden,
+                expect_image=False,
+            )
+        )
+    scenarios.extend(fixture.extra_scenarios)
+    return tuple(scenarios)
 
 
 def _norm(text: str) -> str:
@@ -123,46 +200,72 @@ def _check_scenario(scenario: Scenario, payload: dict[str, Any], elapsed: float)
     return failures
 
 
-def run_matrix(*, base_url: str, business_slug: str, phone_prefix: str, timeout: float) -> int:
+def _print_available_tenants() -> None:
+    print("Available tenants:")
+    for slug, fixture in TENANT_FIXTURES.items():
+        print(f"  {slug}: {fixture.label}")
+
+
+def _resolve_fixtures(tenant_args: list[str] | None) -> tuple[TenantFixture, ...]:
+    if not tenant_args:
+        return tuple(TENANT_FIXTURES.values())
+    normalized = [tenant.strip() for tenant in tenant_args if tenant.strip()]
+    if not normalized or "all" in normalized:
+        return tuple(TENANT_FIXTURES.values())
+    unknown = [tenant for tenant in normalized if tenant not in TENANT_FIXTURES]
+    if unknown:
+        raise ValueError(f"unknown tenant fixture(s): {', '.join(unknown)}")
+    return tuple(TENANT_FIXTURES[tenant] for tenant in normalized)
+
+
+def run_matrix(*, base_url: str, fixtures: tuple[TenantFixture, ...], phone_prefix: str, timeout: float) -> int:
     url = f"{base_url.rstrip('/')}/mock/message"
     failures: list[str] = []
+    total = 0
     with httpx.Client(timeout=timeout, follow_redirects=True) as client:
-        for index, scenario in enumerate(SAFE_SCENARIOS, start=1):
-            phone = f"{phone_prefix}{index:04d}"
-            request = {"phone": phone, "business_slug": business_slug, "text": scenario.text}
-            start = time.perf_counter()
-            try:
-                response = client.post(url, json=request)
-                elapsed = time.perf_counter() - start
-            except httpx.HTTPError as exc:
-                failures.append(f"{scenario.name}: request failed: {exc}")
-                print(f"FAIL {scenario.name}: request failed: {exc}")
-                continue
-            if response.status_code >= 400:
-                failures.append(f"{scenario.name}: HTTP {response.status_code}: {response.text[:200]}")
-                print(f"FAIL {scenario.name}: HTTP {response.status_code}")
-                continue
-            try:
-                payload = response.json()
-            except json.JSONDecodeError:
-                failures.append(f"{scenario.name}: non-JSON response: {response.text[:200]}")
-                print(f"FAIL {scenario.name}: non-JSON response")
-                continue
-            scenario_failures = _check_scenario(scenario, payload, elapsed)
-            reply_preview = str(payload.get("reply") or "").replace("\n", " ")[:180]
-            if scenario_failures:
-                failures.append(f"{scenario.name}: {', '.join(scenario_failures)}")
-                print(f"FAIL {scenario.name} ({elapsed:.2f}s): {', '.join(scenario_failures)}")
-                print(f"  reply: {reply_preview}")
-            else:
-                print(f"PASS {scenario.name} ({elapsed:.2f}s): {reply_preview}")
+        for tenant_index, fixture in enumerate(fixtures, start=1):
+            scenarios = _shared_scenarios(fixture)
+            total += len(scenarios)
+            print()
+            print(f"== {fixture.label} ({fixture.slug}) ==")
+            for scenario_index, scenario in enumerate(scenarios, start=1):
+                phone = f"{phone_prefix}{tenant_index:02d}{scenario_index:03d}"
+                request = {"phone": phone, "business_slug": fixture.slug, "text": scenario.text}
+                start = time.perf_counter()
+                try:
+                    response = client.post(url, json=request)
+                    elapsed = time.perf_counter() - start
+                except httpx.HTTPError as exc:
+                    failures.append(f"{fixture.slug}/{scenario.name}: request failed: {exc}")
+                    print(f"FAIL {scenario.name}: request failed: {exc}")
+                    continue
+                if response.status_code >= 400:
+                    failures.append(
+                        f"{fixture.slug}/{scenario.name}: HTTP {response.status_code}: {response.text[:200]}"
+                    )
+                    print(f"FAIL {scenario.name}: HTTP {response.status_code}")
+                    continue
+                try:
+                    payload = response.json()
+                except json.JSONDecodeError:
+                    failures.append(f"{fixture.slug}/{scenario.name}: non-JSON response: {response.text[:200]}")
+                    print(f"FAIL {scenario.name}: non-JSON response")
+                    continue
+                scenario_failures = _check_scenario(scenario, payload, elapsed)
+                reply_preview = str(payload.get("reply") or "").replace("\n", " ")[:180]
+                if scenario_failures:
+                    failures.append(f"{fixture.slug}/{scenario.name}: {', '.join(scenario_failures)}")
+                    print(f"FAIL {scenario.name} ({elapsed:.2f}s): {', '.join(scenario_failures)}")
+                    print(f"  reply: {reply_preview}")
+                else:
+                    print(f"PASS {scenario.name} ({elapsed:.2f}s): {reply_preview}")
 
     if failures:
         print()
-        print(f"{len(failures)}/{len(SAFE_SCENARIOS)} scenarios failed")
+        print(f"{len(failures)}/{total} scenarios failed")
         return 1
     print()
-    print(f"{len(SAFE_SCENARIOS)}/{len(SAFE_SCENARIOS)} scenarios passed")
+    print(f"{total}/{total} scenarios passed")
     return 0
 
 
@@ -170,15 +273,37 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run safe WhatsApp/mock reply evals.")
     parser.add_argument("--base-url", default=LOCAL_BASE_URL)
     parser.add_argument("--live", action="store_true", help=f"use {LIVE_BASE_URL}")
-    parser.add_argument("--business-slug", default="lily-pond-cafe")
+    parser.add_argument(
+        "--tenant",
+        action="append",
+        help="tenant fixture slug to run; may be passed multiple times; default is all",
+    )
+    parser.add_argument(
+        "--business-slug",
+        action="append",
+        help="backward-compatible alias for --tenant",
+    )
+    parser.add_argument("--list-tenants", action="store_true", help="show configured tenant fixtures")
     parser.add_argument("--phone-prefix", default="+1555900")
     parser.add_argument("--timeout", type=float, default=35.0)
     args = parser.parse_args()
 
+    if args.list_tenants:
+        _print_available_tenants()
+        return 0
+
+    tenant_args = (args.tenant or []) + (args.business_slug or [])
+    try:
+        fixtures = _resolve_fixtures(tenant_args)
+    except ValueError as exc:
+        print(exc)
+        _print_available_tenants()
+        return 2
+
     base_url = LIVE_BASE_URL if args.live else args.base_url
     return run_matrix(
         base_url=base_url,
-        business_slug=args.business_slug,
+        fixtures=fixtures,
         phone_prefix=args.phone_prefix,
         timeout=args.timeout,
     )
