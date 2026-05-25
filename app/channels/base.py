@@ -20,6 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.graph import run_turn
 from app.ai.quick_replies import (
+    GENERIC_PHOTO_QUERY,
     looks_like_full_menu_request,
     looks_like_hours_request,
     looks_like_photo_request,
@@ -203,6 +204,9 @@ def _looks_like_demo_espresso_order(text: str) -> bool:
 def _looks_like_menu_photo_request(text: str) -> bool:
     candidate = (text or "").strip()
     if not looks_like_photo_request(candidate):
+        return False
+    lowered = candidate.lower()
+    if "menu" in lowered and not any(word in lowered for word in ("photo", "picture", "pic", "image", "picha", "board")):
         return False
     item_query = photo_item_query(candidate)
     return item_query == "menu"
@@ -753,6 +757,69 @@ async def _simple_menu_order_reply(
     )
 
 
+async def _specific_photo_reply(
+    db: AsyncSession,
+    *,
+    customer,
+    conversation_id: uuid.UUID,
+    business_id: uuid.UUID | None,
+    text: str,
+) -> tuple[str, str | None, str | None]:
+    item_query = photo_item_query(text)
+    if item_query == GENERIC_PHOTO_QUERY:
+        return (
+            "Which item should I send a picture of? I can send photos for items like Demo Espresso, Flat White, or Croissant.",
+            None,
+            None,
+        )
+
+    try:
+        from app.ai.tools import build_tools
+
+        photo_tool = next(
+            (
+                tool
+                for tool in build_tools(
+                    db,
+                    conversation_id,
+                    business_id,
+                    msisdn=getattr(customer, "phone_number", None),
+                    channel="mock",
+                )
+                if getattr(tool, "name", "") == "send_menu_photo"
+            ),
+            None,
+        )
+        if photo_tool is None:
+            return (
+                "I can help with photos, but that photo tool is not available right now. Ask for the menu or a specific item price.",
+                None,
+                None,
+            )
+        result = await photo_tool.ainvoke({"item": item_query})
+    except Exception as exc:  # noqa: BLE001
+        log.warning("deterministic_photo_request_failed", error=str(exc))
+        return (
+            "I could not fetch that photo right now. Ask for the menu or try a specific item again in a moment.",
+            None,
+            None,
+        )
+
+    if isinstance(result, dict) and result.get("ok") and result.get("image_url"):
+        matched = str(result.get("item") or item_query).strip()
+        return f"Here you go for {matched}.", str(result.get("image_url")), matched
+
+    reason = ""
+    if isinstance(result, dict):
+        reason = str(result.get("reason") or result.get("error") or "").strip()
+    suffix = f" ({reason})" if reason else ""
+    return (
+        f"I do not have a clean photo for that item yet{suffix}. Ask for the menu or another specific item.",
+        None,
+        None,
+    )
+
+
 async def _cancel_jobs_for_order(db: AsyncSession, *, order_id: uuid.UUID, business_id: uuid.UUID | None) -> int:
     from app.db.models import BackgroundJob, JobStatus
 
@@ -1234,6 +1301,8 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         # and repeated order messages do not create duplicate STK pushes.
         control_reply: str | None = None
         control_flag: str | None = None
+        control_image_url: str | None = None
+        control_photo_item: str | None = None
         if _looks_like_payment_resend(turn.text):
             control_reply = await _resend_pending_payment_reply(
                 db,
@@ -1301,6 +1370,15 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     "like Demo Espresso, Flat White, or Croissant, and I will send that photo."
                 )
             control_flag = "deterministic:menu_photo_as_text"
+        elif looks_like_photo_request(turn.text):
+            control_reply, control_image_url, control_photo_item = await _specific_photo_reply(
+                db,
+                customer=customer,
+                conversation_id=conv.id,
+                business_id=business_id,
+                text=turn.text,
+            )
+            control_flag = "deterministic:specific_photo"
         elif _looks_like_menu_info_request(turn.text):
             fallback_profile = None
             try:
@@ -1371,7 +1449,13 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 safety_flags=[control_flag] if control_flag else None,
             )
             await db.commit()
-            return TurnResult(reply=control_reply, conversation_id=conv.id, escalated=False)
+            return TurnResult(
+                reply=control_reply,
+                conversation_id=conv.id,
+                escalated=False,
+                image_url=control_image_url,
+                photo_item=control_photo_item,
+            )
 
         # ── If conversation is already human-escalated, do nothing.
         if conv.status.value == "human_escalated":

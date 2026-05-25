@@ -102,4 +102,5 @@ def test_menu_info_fast_path_avoids_order_and_photo_turns() -> None:
 
 def test_menu_photo_request_becomes_menu_text_not_generic_cafe_image() -> None:
     assert _looks_like_menu_photo_request("Lemme see a picture of your menu")
+    assert not _looks_like_menu_photo_request("Can you send me the full menu please?")
     assert not _looks_like_menu_photo_request("Got any pictures of the espresso")
