@@ -131,6 +131,8 @@ async def run(
     chat: bool,
     photo: bool,
     include_db: bool,
+    live: bool,
+    live_meta_verify_token: str,
 ) -> list[Check]:
     s = get_settings()
     expected_phone = os.getenv("LILY_POND_CONTACT_PHONE", "+15556578220")
@@ -263,42 +265,61 @@ async def run(
             )
         )
 
-    try:
-        challenge = "lily-demo-check"
-        status = 0
-        text = ""
-        error = ""
-        for attempt in range(3):
-            try:
-                async with httpx.AsyncClient(timeout=12.0) as client:
-                    r = await client.get(
-                        f"{backend}/webhooks/whatsapp",
-                        params={
-                            "hub.mode": "subscribe",
-                            "hub.challenge": challenge,
-                            "hub.verify_token": s.meta_wa_verify_token,
-                        },
-                    )
-                status = r.status_code
-                text = r.text
-                error = ""
-            except Exception as exc:
-                status = 0
-                text = ""
-                error = f"{type(exc).__name__}: {exc}"
-            if status and status < 500:
-                break
-            await asyncio.sleep(1.5 * (attempt + 1))
-        if status == 403:
-            detail = (
-                "status=403; local META_WA_VERIFY_TOKEN does not match the "
-                "hosted API verify token"
+    verify_token = live_meta_verify_token if live else s.meta_wa_verify_token
+    if live and not verify_token:
+        checks.append(
+            Check(
+                "Meta webhook verify handshake",
+                True,
+                "skipped; set GENEAT_LIVE_META_WA_VERIFY_TOKEN locally to verify the hidden hosted token",
             )
-        else:
-            detail = f"status={status}" if not error else error
-        checks.append(Check("Meta webhook verify handshake", status == 200 and text == challenge, detail))
-    except Exception as exc:
-        checks.append(Check("Meta webhook verify handshake", False, f"{type(exc).__name__}: {exc}"))
+        )
+    elif not verify_token:
+        checks.append(
+            Check(
+                "Meta webhook verify handshake",
+                False,
+                "META_WA_VERIFY_TOKEN is not configured",
+            )
+        )
+    else:
+        try:
+            challenge = "lily-demo-check"
+            status = 0
+            text = ""
+            error = ""
+            for attempt in range(3):
+                try:
+                    async with httpx.AsyncClient(timeout=12.0) as client:
+                        r = await client.get(
+                            f"{backend}/webhooks/whatsapp",
+                            params={
+                                "hub.mode": "subscribe",
+                                "hub.challenge": challenge,
+                                "hub.verify_token": verify_token,
+                            },
+                        )
+                    status = r.status_code
+                    text = r.text
+                    error = ""
+                except Exception as exc:
+                    status = 0
+                    text = ""
+                    error = f"{type(exc).__name__}: {exc}"
+                if status and status < 500:
+                    break
+                await asyncio.sleep(1.5 * (attempt + 1))
+            if status == 403:
+                token_name = "GENEAT_LIVE_META_WA_VERIFY_TOKEN" if live else "META_WA_VERIFY_TOKEN"
+                detail = (
+                    f"status=403; {token_name} does not match the API's configured "
+                    "verify token"
+                )
+            else:
+                detail = f"status={status}" if not error else error
+            checks.append(Check("Meta webhook verify handshake", status == 200 and text == challenge, detail))
+        except Exception as exc:
+            checks.append(Check("Meta webhook verify handshake", False, f"{type(exc).__name__}: {exc}"))
 
     portal_ok, portal_text = await _http_text(f"{portal}/cafes/lily-pond-cafe", attempts=2)
     checks.append(Check("portal Lily Pond page", portal_ok and "Order KES 10 on WhatsApp" in portal_text, "contains live CTA"))
@@ -355,6 +376,11 @@ async def amain() -> int:
     parser.add_argument("--live", action="store_true", help="use hosted production-like URLs")
     parser.add_argument("--chat", action="store_true", help="run a safe no-order chat price check")
     parser.add_argument("--photo", action="store_true", help="run a safe photo-request chat check")
+    parser.add_argument(
+        "--live-meta-verify-token",
+        default=os.getenv("GENEAT_LIVE_META_WA_VERIFY_TOKEN", "").strip(),
+        help="optional local copy of the hosted Meta verify token for live handshake verification",
+    )
     args = parser.parse_args()
 
     if args.live:
@@ -369,6 +395,8 @@ async def amain() -> int:
         chat=args.chat,
         photo=args.photo,
         include_db=not args.live,
+        live=args.live,
+        live_meta_verify_token=args.live_meta_verify_token,
     )
     for check in checks:
         print(_line(check))

@@ -282,6 +282,12 @@ async def main_async() -> int:
     parser.add_argument("--skip-matrix", action="store_true")
     parser.add_argument("--skip-stateful", action="store_true")
     parser.add_argument("--skip-load", action="store_true")
+    parser.add_argument(
+        "--stateful-cooldown-seconds",
+        type=float,
+        default=65.0,
+        help="cooldown before stateful checks when the reply matrix already used most of the /mock rate window",
+    )
     parser.add_argument("--load-requests", type=int, default=16)
     parser.add_argument("--load-concurrency", type=int, default=4)
     parser.add_argument("--load-max-p95-ms", type=float, default=2500.0)
@@ -312,6 +318,13 @@ async def main_async() -> int:
         failures += 1 if matrix_rc else 0
 
     if not args.skip_stateful:
+        if args.stateful_cooldown_seconds > 0 and not args.skip_matrix:
+            print()
+            print(
+                "Cooling down before stateful checks "
+                f"({args.stateful_cooldown_seconds:.0f}s) to avoid self-triggering /mock rate limits..."
+            )
+            await asyncio.sleep(args.stateful_cooldown_seconds)
         failures += _print_results(
             "Stateful No-Money Conversations",
             await stateful_conversation_checks(base_url, timeout=args.timeout),

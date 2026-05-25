@@ -501,7 +501,12 @@ async def _pickup_status_reply(
         statuses={PaymentStatus.pending, PaymentStatus.paid},
     )
     if order is None:
-        return None
+        is_sw = _customer_prefers_swahili(language or getattr(customer, "preferred_language", None))
+        return (
+            "Sioni oda iliyolipwa bado, kwa hivyo siwezi kuahidi pickup au kuruka queue. Niambie item unayotaka kuagiza kwanza."
+            if is_sw else
+            "I do not see a paid order yet, so I cannot promise pickup or queue-skip timing. Tell me the item you want to order first."
+        )
     is_sw = _customer_prefers_swahili(language or getattr(customer, "preferred_language", None))
     amount = int(float(order.amount or 0))
     summary = _order_items_summary_from_details(order.details)

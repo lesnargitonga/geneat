@@ -53,6 +53,7 @@ class TenantFixture:
     price_expected: tuple[str, ...]
     availability_text: str
     availability_expected: tuple[str, ...]
+    photo_text: str
     confusion_text: str = ""
     confusion_expected: tuple[str, ...] = ()
     extra_scenarios: tuple[Scenario, ...] = ()
@@ -68,6 +69,7 @@ TENANT_FIXTURES: dict[str, TenantFixture] = {
         price_expected=("Espresso is KES 120",),
         availability_text="Do you have croissants?",
         availability_expected=("Croissant", "KES"),
+        photo_text="Got any pictures of the espresso?",
         confusion_text="You mean you don't know what an espresso is or you don't sell?",
         confusion_expected=("Espresso - KES 120",),
         extra_scenarios=(
@@ -88,6 +90,7 @@ TENANT_FIXTURES: dict[str, TenantFixture] = {
         price_expected=("Latte is KES 180",),
         availability_text="Do you have sandwiches?",
         availability_expected=("Sandwich", "KES"),
+        photo_text="Send me a picture of the chicken mayo sandwich",
         confusion_text="You mean you don't sell the latte?",
         confusion_expected=("Latte - KES 180",),
     ),
@@ -99,6 +102,7 @@ TENANT_FIXTURES: dict[str, TenantFixture] = {
         price_expected=("Pavilion Classic is KES 580",),
         availability_text="Do you have Pavilion Classic?",
         availability_expected=("Pavilion Classic", "KES 580"),
+        photo_text="Can I see a picture of the Pavilion Classic?",
         confusion_text="You mean you don't sell the Pavilion Classic?",
         confusion_expected=("Pavilion Classic - KES 580",),
     ),
@@ -110,6 +114,7 @@ TENANT_FIXTURES: dict[str, TenantFixture] = {
         price_expected=("Espresso is KES 100",),
         availability_text="Do you have cinnamon rolls?",
         availability_expected=("Cinnamon Roll", "KES 220"),
+        photo_text="Show me a pic of the cinnamon roll",
         confusion_text="You mean you don't sell espresso?",
         confusion_expected=("Espresso - KES 100",),
     ),
@@ -135,6 +140,27 @@ def _shared_scenarios(fixture: TenantFixture) -> tuple[Scenario, ...]:
             expect_image=False,
         ),
         Scenario(
+            name="full_menu_polite",
+            text="Can you send me the full menu please?",
+            must_include=("Here is the menu I have",) + fixture.menu_expected[:1],
+            must_not_include=tenant_forbidden,
+            expect_image=False,
+        ),
+        Scenario(
+            name="menu_correction",
+            text="That's not the menu",
+            must_include=("Here is the menu I have",) + fixture.menu_expected[:1],
+            must_not_include=tenant_forbidden,
+            expect_image=False,
+        ),
+        Scenario(
+            name="sell_more",
+            text="Thanks, what else do you sell at the cafe?",
+            must_include=("Here is the menu I have",) + fixture.menu_expected[:1],
+            must_not_include=tenant_forbidden,
+            expect_image=False,
+        ),
+        Scenario(
             name="known_price",
             text=fixture.price_text,
             must_include=fixture.price_expected,
@@ -149,10 +175,39 @@ def _shared_scenarios(fixture: TenantFixture) -> tuple[Scenario, ...]:
             expect_image=False,
         ),
         Scenario(
+            name="specific_photo",
+            text=fixture.photo_text,
+            must_not_include=tenant_forbidden,
+            expect_image=True,
+            max_latency_seconds=8.0,
+        ),
+        Scenario(
+            name="generic_photo_clarifies",
+            text="Yes please, send a picture",
+            must_include=("Which item should I send a picture of?",),
+            must_not_include=tenant_forbidden,
+            expect_image=False,
+            max_latency_seconds=8.0,
+        ),
+        Scenario(
             name="paid_without_order_not_confirmed",
             text="Paid",
             must_include=("do not see an order",),
             must_not_include=tenant_forbidden + ("confirmed", "ready", "paid."),
+            expect_image=False,
+        ),
+        Scenario(
+            name="cancel_without_order_not_policy",
+            text="Cancel the payment for 10 please",
+            must_include=("do not see an unpaid order",),
+            must_not_include=tenant_forbidden + ("DEMO FLOW", "ready", "confirmed"),
+            expect_image=False,
+        ),
+        Scenario(
+            name="pickup_without_order_not_promised",
+            text="Can I skip line and pick up at 12:30?",
+            must_include=("do not see a paid order",),
+            must_not_include=tenant_forbidden + ("yes", "ready", "confirmed", "skip the queue"),
             expect_image=False,
         ),
         Scenario(
