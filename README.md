@@ -132,10 +132,10 @@ Fresh live checks run from this workspace on **2026-05-25**:
 | `GET /healthz` | `{"status":"ok"}` |
 | `GET /readyz` | DB and Redis healthy |
 | `GET /health/deep` | `status=ok`, db/redis/pgvector/whatsapp/payments/llm all reachable |
-| `GET /version` | safe deploy/build fingerprint endpoint now exists in code |
+| `GET /version` | hosted commit `5326cd0c3d47` on service `geneat-2` |
 | `make doctor-live` | `22/22 configured checks passed` from this workspace when live verify token is intentionally skipped |
-| `make eval-whatsapp-live` | currently configured for `65` safe reply scenarios across all four demo tenants |
-| `make pre-demo-live` | passed no-money public-demo battery |
+| `make eval-whatsapp-live` | `65/65` safe reply scenarios passed across all four demo tenants |
+| `make pre-demo-live` | passed no-money public-demo battery, including deploy-drift check |
 | Portal live price check | passed without generic fallback |
 | Portal live photo check | passed |
 | Meta webhook verify handshake | optional; set `GENEAT_LIVE_META_WA_VERIFY_TOKEN` locally to verify the hidden hosted token |
@@ -157,6 +157,8 @@ What that means in plain English:
 - live mode skips direct local DB introspection and relies on hosted health,
   chat, and photo checks,
 - the hosted chat proxy path works,
+- the hosted API is serving commit `5326cd0c3d47`, matching the local
+  `main` HEAD used for the pre-demo battery,
 - the live demo tenant exists,
 - the `Demo Espresso` price answer works without the generic fallback,
 - a photo request returns an image,
@@ -166,7 +168,7 @@ What that means in plain English:
 - the no-money WhatsApp reply matrix passes for Lily Pond, Library Bites,
   Pavilion Grill, and Block A Express with deterministic menu/status/photo
   guardrails,
-- the broader no-money pre-demo battery checks hosted health, provider checks,
+- the broader no-money pre-demo battery passed hosted health, provider checks,
   deploy drift through `/version`, four-café reply contracts, stateful
   conversations, and a small deterministic burst-load check,
 - IntaSend is configured for live mode, not test mode,
@@ -2133,10 +2135,10 @@ Additional safe no-money WhatsApp reply gate:
 make eval-whatsapp-live
 ```
 
-Current configured coverage:
+Current result:
 
 ```text
-65 configured scenarios
+65/65 scenarios passed
 ```
 
 This matrix covers Lily Pond, Library Bites, Pavilion Grill, and Block A
@@ -2160,10 +2162,12 @@ This is the recommended command before any public demo. It includes:
 
 - hosted health and provider readiness,
 - `/version` deploy-drift checks against local git HEAD when the hosted commit
-  is exposed,
-- the full four-café no-money reply matrix,
-- stateful no-money conversations per tenant,
-- a small deterministic load burst against `/mock/message`.
+  is exposed; latest hosted run matched `5326cd0c3d47`,
+- the full four-café no-money reply matrix, latest `65/65` passed,
+- stateful no-money conversations per tenant, including `yes` after a price
+  offer and bare item fragments like `the espresso`,
+- a small deterministic load burst against `/mock/message`; latest hosted run
+  was `16/16` HTTP 200 with p95 `1111 ms`.
 
 It deliberately does not trigger STK or create real orders. Run a real
 WhatsApp/STK rehearsal separately only when you intentionally want to spend
@@ -2347,16 +2351,17 @@ Technically live right now:
 
 First-client demo-ready right now:
 
-- not until the current hardening commit is deployed and a fresh real
-  WhatsApp rehearsal passes
+- close, but still not until one fresh real WhatsApp/STK rehearsal passes
 
 Reason:
 
 - WhatsApp, STK, photos, hosted API, hosted DB, and hosted Redis are live.
-- The remaining blocker is no longer basic wiring; it is deployment discipline
-  and live rehearsal. The required script is: ask menu availability, request a
-  photo, place the KES 10 Demo Espresso order, handle STK pending, cancel once,
-  resend STK once, pay once, and confirm receipt/ready behavior.
+- The current hardening commit is deployed and the no-money public-demo
+  battery passes. The remaining blocker is the one path the safe battery
+  intentionally avoids: a real WhatsApp/STK rehearsal. The required script is:
+  ask menu availability, request a photo, place the KES 10 Demo Espresso
+  order, handle STK pending, cancel once, resend STK once, pay once, and
+  confirm receipt/ready behavior.
 
 Production-ready in the “don’t stress me at all” sense:
 
