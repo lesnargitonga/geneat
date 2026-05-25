@@ -215,6 +215,26 @@ def test_simple_order_match_prefers_plain_item_over_demo_alias() -> None:
     assert match.quantity == 1
 
 
+def test_simple_order_match_handles_bare_item_fragment() -> None:
+    match = match_order_item_from_chunks(
+        "The espresso",
+        [
+            RetrievedChunk(
+                content=(
+                    "LIVE DEMO - Demo Espresso KES 10.\n"
+                    "COFFEE - Espresso KES 120 / Double KES 160. Flat White KES 220."
+                ),
+                source="menu",
+                score=1.0,
+            )
+        ],
+    )
+
+    assert match is not None
+    assert match.label == "Espresso"
+    assert match.unit_price == 120
+
+
 def test_simple_order_match_parses_quantity_and_plural() -> None:
     match = match_order_item_from_chunks(
         "Can I get 2 flat whites please?",

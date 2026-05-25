@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import subprocess
 import sys
 import time
 from collections import Counter
@@ -53,6 +54,31 @@ def _has_bad_leak(text: str) -> str | None:
         if _norm(forbidden) in normalized:
             return forbidden
     return None
+
+
+def _local_git_commit() -> str:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=REPO_ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=1.0,
+        )
+        return result.stdout.strip()
+    except Exception:
+        return ""
+
+
+def _commits_match(expected: str, actual: str) -> bool:
+    expected = (expected or "").strip().lower()
+    actual = (actual or "").strip().lower()
+    if not expected or not actual or actual == "unknown":
+        return True
+    expected_short = expected[:12]
+    actual_short = actual[:12]
+    return expected_short == actual_short or expected.startswith(actual) or actual.startswith(expected_short)
 
 
 async def _get_json(client: httpx.AsyncClient, url: str, *, attempts: int = 3) -> tuple[int, Any, float]:
@@ -100,9 +126,37 @@ async def _post_mock(
     return response.status_code, body, elapsed
 
 
-async def health_checks(base_url: str, *, timeout: float) -> list[CheckResult]:
+async def health_checks(
+    base_url: str,
+    *,
+    timeout: float,
+    expected_commit: str = "",
+    check_version: bool = True,
+) -> list[CheckResult]:
     results: list[CheckResult] = []
     async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
+        if check_version:
+            status, body, elapsed = await _get_json(client, f"{base_url.rstrip('/')}/version", attempts=2)
+            if isinstance(body, dict):
+                actual_commit = str(body.get("commit") or "unknown")
+                expected_short = (expected_commit or "")[:12] or "unknown"
+                version_ok = status == 200 and _commits_match(expected_commit, actual_commit)
+                note = (
+                    f"status={status} expected={expected_short} actual={actual_commit} "
+                    f"service={body.get('service') or 'unknown'} elapsed={elapsed:.2f}s"
+                )
+                if actual_commit == "unknown" and status == 200:
+                    note += "; hosted commit unknown, but /version exists"
+                results.append(CheckResult("version.deploy_commit", version_ok, note))
+            else:
+                results.append(
+                    CheckResult(
+                        "version.deploy_commit",
+                        False,
+                        f"status={status} body={str(body)[:160]} elapsed={elapsed:.2f}s",
+                    )
+                )
+
         status, body, elapsed = await _get_json(client, f"{base_url.rstrip('/')}/healthz")
         results.append(
             CheckResult(
@@ -159,7 +213,9 @@ async def stateful_conversation_checks(base_url: str, *, timeout: float) -> list
                 ("menu", "I need the full menu, now!", fixture.menu_expected[:1], 2.5),
                 ("photo_menu", "Lemme see a picture of your menu", ("I do not have a clean menu-board photo yet",), 2.5),
                 ("price", fixture.price_text, fixture.price_expected, 2.5),
+                ("yes_after_price", "Yeah", ("what name should I put on",), 2.5),
                 ("availability", fixture.availability_text, fixture.availability_expected[:1], 2.5),
+                ("bare_item", fixture.bare_item_text, fixture.order_expected, 2.5),
                 ("paid_without_order", "Paid", ("do not see an order",), 2.5),
                 ("no_stk_without_order", "No STK yet", ("do not see an unpaid order",), 2.5),
             ]
@@ -169,7 +225,7 @@ async def stateful_conversation_checks(base_url: str, *, timeout: float) -> list
                     status, body, elapsed = await _post_mock(
                         client,
                         base_url,
-                        phone=f"{phone}{turn_index}",
+                        phone=phone,
                         business_slug=fixture.slug,
                         text=text,
                     )
@@ -283,6 +339,16 @@ async def main_async() -> int:
     parser.add_argument("--skip-stateful", action="store_true")
     parser.add_argument("--skip-load", action="store_true")
     parser.add_argument(
+        "--skip-version-check",
+        action="store_true",
+        help="skip /version deploy-drift check",
+    )
+    parser.add_argument(
+        "--expected-commit",
+        default="",
+        help="expected hosted commit SHA; defaults to local git HEAD",
+    )
+    parser.add_argument(
         "--stateful-cooldown-seconds",
         type=float,
         default=65.0,
@@ -300,11 +366,22 @@ async def main_async() -> int:
     args = parser.parse_args()
 
     base_url = LIVE_BASE_URL if args.live else args.base_url
+    expected_commit = args.expected_commit.strip() or _local_git_commit()
     print(f"Pre-demo battery target: {base_url}")
     print("Money movement: disabled. This battery only uses safe mock-channel checks.")
+    if not args.skip_version_check:
+        print(f"Expected deploy commit: {(expected_commit or 'unknown')[:12]}")
 
     failures = 0
-    failures += _print_results("Health", await health_checks(base_url, timeout=args.timeout))
+    failures += _print_results(
+        "Health",
+        await health_checks(
+            base_url,
+            timeout=args.timeout,
+            expected_commit=expected_commit,
+            check_version=not args.skip_version_check,
+        ),
+    )
 
     if not args.skip_matrix:
         print()

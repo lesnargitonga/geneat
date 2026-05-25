@@ -2,6 +2,7 @@ from app.channels.base import (
     _customer_safe_kb_snippet,
     _extract_inline_customer_name,
     _is_degraded_fallback_text,
+    _looks_like_bare_menu_item,
     _looks_like_demo_espresso_order,
     _looks_like_menu_photo_request,
     _looks_like_menu_info_request,
@@ -9,6 +10,8 @@ from app.channels.base import (
     _looks_like_payment_claim,
     _looks_like_payment_resend,
     _looks_like_pickup_status_request,
+    _looks_like_short_affirmative,
+    _offer_options_from_text,
     _payment_tool_recovery_reply,
     _promises_ready_before_payment,
 )
@@ -98,6 +101,29 @@ def test_menu_info_fast_path_avoids_order_and_photo_turns() -> None:
     assert not _looks_like_menu_info_request("I want a flat white")
     assert not _looks_like_menu_info_request("show me a photo of the flat white")
     assert not _looks_like_menu_info_request("I want the KES 10 demo espresso")
+
+
+def test_bare_item_and_affirmative_followups_are_controlled() -> None:
+    assert _looks_like_bare_menu_item("The espresso")
+    assert _looks_like_bare_menu_item("flat white")
+    assert not _looks_like_bare_menu_item("Hey")
+    assert not _looks_like_bare_menu_item("Paid")
+    assert _looks_like_short_affirmative("Yeah")
+    assert _looks_like_short_affirmative("sure")
+    assert not _looks_like_short_affirmative("Sure, send a picture of espresso")
+
+
+def test_offer_option_parser_handles_deterministic_menu_copy() -> None:
+    assert _offer_options_from_text("Espresso is KES 120. Want me to sort one?") == [
+        ("Espresso", 120)
+    ]
+    assert _offer_options_from_text("Yes - Espresso - KES 120. Want one?") == [
+        ("Espresso", 120)
+    ]
+    assert _offer_options_from_text("Good picks: Mandazi - KES 50, Chai - KES 150.") == [
+        ("Mandazi", 50),
+        ("Chai", 150),
+    ]
 
 
 def test_menu_photo_request_becomes_menu_text_not_generic_cafe_image() -> None:

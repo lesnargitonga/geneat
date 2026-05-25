@@ -54,6 +54,9 @@ class TenantFixture:
     availability_text: str
     availability_expected: tuple[str, ...]
     photo_text: str
+    order_text: str
+    bare_item_text: str
+    order_expected: tuple[str, ...]
     confusion_text: str = ""
     confusion_expected: tuple[str, ...] = ()
     extra_scenarios: tuple[Scenario, ...] = ()
@@ -70,6 +73,9 @@ TENANT_FIXTURES: dict[str, TenantFixture] = {
         availability_text="Do you have croissants?",
         availability_expected=("Croissant", "KES"),
         photo_text="Got any pictures of the espresso?",
+        order_text="May I have the espresso?",
+        bare_item_text="The espresso",
+        order_expected=("what name should I put on the Espresso order",),
         confusion_text="You mean you don't know what an espresso is or you don't sell?",
         confusion_expected=("Espresso - KES 120",),
         extra_scenarios=(
@@ -91,6 +97,9 @@ TENANT_FIXTURES: dict[str, TenantFixture] = {
         availability_text="Do you have sandwiches?",
         availability_expected=("Sandwich", "KES"),
         photo_text="Send me a picture of the chicken mayo sandwich",
+        order_text="May I have the latte?",
+        bare_item_text="The latte",
+        order_expected=("what name should I put on the Latte order",),
         confusion_text="You mean you don't sell the latte?",
         confusion_expected=("Latte - KES 180",),
     ),
@@ -103,6 +112,9 @@ TENANT_FIXTURES: dict[str, TenantFixture] = {
         availability_text="Do you have Pavilion Classic?",
         availability_expected=("Pavilion Classic", "KES 580"),
         photo_text="Can I see a picture of the Pavilion Classic?",
+        order_text="May I have the Pavilion Classic?",
+        bare_item_text="The Pavilion Classic",
+        order_expected=("what name should I put on the Pavilion Classic order",),
         confusion_text="You mean you don't sell the Pavilion Classic?",
         confusion_expected=("Pavilion Classic - KES 580",),
     ),
@@ -115,6 +127,9 @@ TENANT_FIXTURES: dict[str, TenantFixture] = {
         availability_text="Do you have cinnamon rolls?",
         availability_expected=("Cinnamon Roll", "KES 220"),
         photo_text="Show me a pic of the cinnamon roll",
+        order_text="May I have the espresso?",
+        bare_item_text="The espresso",
+        order_expected=("what name should I put on the Espresso order",),
         confusion_text="You mean you don't sell espresso?",
         confusion_expected=("Espresso - KES 100",),
     ),
@@ -180,6 +195,20 @@ def _shared_scenarios(fixture: TenantFixture) -> tuple[Scenario, ...]:
             must_not_include=tenant_forbidden,
             expect_image=True,
             max_latency_seconds=8.0,
+        ),
+        Scenario(
+            name="order_needs_name_not_model",
+            text=fixture.order_text,
+            must_include=fixture.order_expected,
+            must_not_include=tenant_forbidden + ("system took too long", "formatting hiccup"),
+            expect_image=False,
+        ),
+        Scenario(
+            name="bare_item_needs_name_not_model",
+            text=fixture.bare_item_text,
+            must_include=fixture.order_expected,
+            must_not_include=tenant_forbidden + ("system took too long", "formatting hiccup"),
+            expect_image=False,
         ),
         Scenario(
             name="generic_photo_clarifies",

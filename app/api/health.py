@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import asyncio
 import os
+import platform
+import subprocess
 import time
+from pathlib import Path
 
 import httpx
 from fastapi import APIRouter, Depends, Response
@@ -17,12 +20,80 @@ from app.core.redis_client import get_redis
 
 log = get_logger("health")
 router = APIRouter(tags=["health"])
+_APP_VERSION = "0.2.0"
+
+
+def _short_sha(value: str | None) -> str:
+    cleaned = (value or "").strip()
+    if not cleaned:
+        return "unknown"
+    return cleaned[:12]
+
+
+def _git_sha_from_worktree() -> str:
+    """Best-effort local/dev fallback.
+
+    Production containers should normally expose a platform commit env var.
+    Render manual deploys can drift, though, so /version still returns a
+    stable shape even when the SHA is unknown.
+    """
+    try:
+        repo_root = Path(__file__).resolve().parents[2]
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=0.5,
+        )
+        return result.stdout.strip()
+    except Exception:
+        return ""
+
+
+def build_info() -> dict:
+    commit = (
+        os.getenv("RENDER_GIT_COMMIT")
+        or os.getenv("APP_BUILD_SHA")
+        or os.getenv("SOURCE_VERSION")
+        or os.getenv("GIT_COMMIT")
+        or os.getenv("COMMIT_SHA")
+        or os.getenv("HEROKU_SLUG_COMMIT")
+        or _git_sha_from_worktree()
+    )
+    service = (
+        os.getenv("RENDER_SERVICE_NAME")
+        or os.getenv("K_SERVICE")
+        or os.getenv("FLY_APP_NAME")
+        or os.getenv("HOSTNAME")
+        or ""
+    )
+    instance = os.getenv("RENDER_INSTANCE_ID") or os.getenv("DYNO") or os.getenv("HOSTNAME") or ""
+    return {
+        "app": get_settings().app_name,
+        "version": _APP_VERSION,
+        "env": get_settings().app_env,
+        "commit": _short_sha(commit),
+        "commit_full": commit.strip() if commit else "",
+        "service": service,
+        "instance": instance,
+        "python": platform.python_version(),
+    }
 
 
 @router.get("/healthz")
 async def liveness() -> dict:
     """Process-up check. Cheap; no I/O. Use for k8s liveness probes."""
     return {"status": "ok"}
+
+
+@router.get("/version")
+async def version() -> dict:
+    """Safe build/runtime fingerprint for deploy-drift checks."""
+    info = build_info()
+    # Do not expose machine identifiers more than needed on the public route.
+    return {key: value for key, value in info.items() if key != "commit_full"}
 
 
 async def _check_db(db: AsyncSession) -> dict:
@@ -188,6 +259,7 @@ async def deep_health(
         status = "ok"
     return {
         "status": status,
+        "version": build_info(),
         "checks": {
             "db": db_res,
             "redis": redis_res,

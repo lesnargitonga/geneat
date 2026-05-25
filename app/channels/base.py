@@ -97,6 +97,14 @@ _ORDER_INTENT_RE = re.compile(
     r"may i have|may i get|let me get|lemme get|order|sort|get me|nipe|nataka|leta)\b",
     re.IGNORECASE,
 )
+_SHORT_AFFIRMATIVE_RE = re.compile(
+    r"^\s*(yes|yeah|yep|sure|sawa|ok|okay|please|pls|do it|go ahead|sort it|send it)\s*[.!]*\s*$",
+    re.IGNORECASE,
+)
+_BARE_ITEM_REJECTS = {
+    "hey", "hi", "hello", "sasa", "niaje", "mambo", "thanks", "thank", "paid",
+    "yes", "yeah", "yep", "sure", "ok", "okay", "please", "pls", "no",
+}
 _EXPLICIT_AVAILABILITY_RE = re.compile(
     r"\b(do you have|do u have|have you got|is there|are there|available|in stock|"
     r"do you sell|you sell|don'?t sell|dont sell|don'?t know|dont know|mko na|kuna)\b",
@@ -199,6 +207,34 @@ def _looks_like_demo_espresso_order(text: str) -> bool:
         return True
     tokens = re.findall(r"[a-z0-9]+", candidate.lower())
     return 1 <= len(tokens) <= 6
+
+
+def _looks_like_short_affirmative(text: str) -> bool:
+    return bool(_SHORT_AFFIRMATIVE_RE.match(text or ""))
+
+
+def _looks_like_bare_menu_item(text: str) -> bool:
+    candidate = (text or "").strip()
+    if not candidate or "?" in candidate:
+        return False
+    lowered = candidate.lower()
+    if lowered in _BARE_ITEM_REJECTS or _looks_like_short_affirmative(lowered):
+        return False
+    if (
+        _looks_like_payment_cancel(candidate)
+        or _looks_like_payment_resend(candidate)
+        or _looks_like_payment_claim(candidate)
+        or _looks_like_pickup_status_request(candidate)
+        or looks_like_photo_request(candidate)
+        or looks_like_full_menu_request(candidate)
+        or looks_like_hours_request(candidate)
+        or looks_like_price_request(candidate)
+    ):
+        return False
+    tokens = re.findall(r"[a-z0-9]+", lowered)
+    if not tokens or len(tokens) > 4:
+        return False
+    return all(token not in _BARE_ITEM_REJECTS for token in tokens)
 
 
 def _looks_like_menu_photo_request(text: str) -> bool:
@@ -674,7 +710,9 @@ async def _simple_menu_order_reply(
     text: str,
     language: str | None,
 ) -> str | None:
-    if not _ORDER_INTENT_RE.search(text or ""):
+    has_order_intent = bool(_ORDER_INTENT_RE.search(text or ""))
+    has_bare_item_shape = _looks_like_bare_menu_item(text)
+    if not has_order_intent and not has_bare_item_shape:
         return None
     if (
         looks_like_photo_request(text)
@@ -753,6 +791,85 @@ async def _simple_menu_order_reply(
         conversation_id=conversation_id,
         business_id=business_id,
         text=lookup_text,
+        language=language,
+    )
+
+
+def _offer_options_from_text(text: str) -> list[tuple[str, int]]:
+    """Extract menu options from our deterministic offer copy.
+
+    This is intentionally narrow: it only supports assistant messages like
+    "Espresso is KES 120" or "Espresso - KES 120" so a short "yes" can
+    continue a clearly offered one-item order without sending ambiguous STKs.
+    """
+    content = (text or "").strip()
+    if not content:
+        return []
+    matches: list[tuple[str, int]] = []
+    pattern = re.compile(
+        r"([A-Z][A-Za-z0-9 &'()/.-]{1,60}?)\s+(?:is|at|-)\s+KES\s*([0-9][0-9,]{0,6})",
+        re.IGNORECASE,
+    )
+    for match in pattern.finditer(content):
+        label = re.sub(r"\s+", " ", match.group(1)).strip(" .:-")
+        label = re.sub(r"^(yes|good picks|for coffee|for pastries|from the menu)\b[: -]*", "", label, flags=re.IGNORECASE).strip()
+        label = label.strip(" .:-—–")
+        if not label or len(label.split()) > 6:
+            continue
+        try:
+            price = int(match.group(2).replace(",", ""))
+        except ValueError:
+            continue
+        if price <= 0:
+            continue
+        if (label, price) not in matches:
+            matches.append((label, price))
+    return matches[:4]
+
+
+async def _affirmative_followup_reply(
+    db: AsyncSession,
+    *,
+    customer,
+    conversation_id: uuid.UUID,
+    business_id: uuid.UUID | None,
+    text: str,
+    language: str | None,
+) -> str | None:
+    if not _looks_like_short_affirmative(text):
+        return None
+    rows = await recent_history(db, conversation_id, limit=8)
+    last_ai = None
+    for row in reversed(rows):
+        if row.sender == Sender.ai:
+            last_ai = row.content or ""
+            break
+    if not last_ai or _is_degraded_fallback_text(last_ai):
+        return None
+    if "which item should i send a picture" in last_ai.lower():
+        return "Which specific item should I send a picture of?"
+    options = _offer_options_from_text(last_ai)
+    if not options:
+        return None
+    is_sw = _customer_prefers_swahili(language or getattr(customer, "preferred_language", None))
+    if len(options) > 1:
+        labels = [label for label, _price in options[:3]]
+        if len(labels) == 2:
+            choice_text = f"{labels[0]} or {labels[1]}"
+        else:
+            choice_text = ", ".join(labels[:-1]) + f", or {labels[-1]}"
+        return (
+            f"Unataka niweke ipi kwa oda: {choice_text}?"
+            if is_sw else
+            f"Which one should I put on the order: {choice_text}?"
+        )
+    label, _price = options[0]
+    return await _simple_menu_order_reply(
+        db,
+        customer=customer,
+        conversation_id=conversation_id,
+        business_id=business_id,
+        text=f"I want {label}",
         language=language,
     )
 
@@ -1397,7 +1514,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 control_reply = None
             control_flag = "deterministic:menu_info" if control_reply else None
         else:
-            control_reply = await _demo_espresso_fast_order_reply(
+            control_reply = await _affirmative_followup_reply(
                 db,
                 customer=customer,
                 conversation_id=conv.id,
@@ -1406,8 +1523,19 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 language=effective_lang,
             )
             if control_reply:
-                control_flag = "deterministic:demo_espresso_fast_order"
+                control_flag = "deterministic:affirmative_followup"
             else:
+                control_reply = await _demo_espresso_fast_order_reply(
+                    db,
+                    customer=customer,
+                    conversation_id=conv.id,
+                    business_id=business_id,
+                    text=turn.text,
+                    language=effective_lang,
+                )
+            if control_reply and control_flag is None:
+                control_flag = "deterministic:demo_espresso_fast_order"
+            elif not control_reply:
                 control_reply = await _simple_menu_order_reply(
                     db,
                     customer=customer,

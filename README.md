@@ -132,12 +132,13 @@ Fresh live checks run from this workspace on **2026-05-25**:
 | `GET /healthz` | `{"status":"ok"}` |
 | `GET /readyz` | DB and Redis healthy |
 | `GET /health/deep` | `status=ok`, db/redis/pgvector/whatsapp/payments/llm all reachable |
-| `make doctor-live` | `21/22 configured checks passed` from this workspace |
-| `make eval-whatsapp-live` | `29/29` safe reply scenarios passed across all four demo tenants |
+| `GET /version` | safe deploy/build fingerprint endpoint now exists in code |
+| `make doctor-live` | `22/22 configured checks passed` from this workspace when live verify token is intentionally skipped |
+| `make eval-whatsapp-live` | currently configured for `65` safe reply scenarios across all four demo tenants |
 | `make pre-demo-live` | passed no-money public-demo battery |
 | Portal live price check | passed without generic fallback |
 | Portal live photo check | passed |
-| Meta webhook verify handshake | `403` with this workspace's local verify token |
+| Meta webhook verify handshake | optional; set `GENEAT_LIVE_META_WA_VERIFY_TOKEN` locally to verify the hidden hosted token |
 | OpenAI provider health | passed |
 | Live LLM provider/model | `/health/deep` reports `provider=openai`, `model=gpt-5.4-mini` |
 | OpenAI breaker state | not stuck open |
@@ -145,7 +146,7 @@ Fresh live checks run from this workspace on **2026-05-25**:
 Current `make doctor-live` truth:
 
 ```text
-21/22 configured checks passed
+22/22 configured checks passed
 ```
 
 What that means in plain English:
@@ -159,15 +160,15 @@ What that means in plain English:
 - the live demo tenant exists,
 - the `Demo Espresso` price answer works without the generic fallback,
 - a photo request returns an image,
-- the local `.env` `META_WA_VERIFY_TOKEN` does not currently match the hosted
-  API verify token; webhook POST traffic can still work, but the workspace
-  doctor handshake will fail until the token is reconciled,
+- hidden hosted tokens are allowed to stay hidden; the live doctor no longer
+  treats local `.env` token drift as a code failure, and exact Meta handshake
+  verification is available through `GENEAT_LIVE_META_WA_VERIFY_TOKEN`,
 - the no-money WhatsApp reply matrix passes for Lily Pond, Library Bites,
   Pavilion Grill, and Block A Express with deterministic menu/status/photo
   guardrails,
-- the broader no-money pre-demo battery now passes hosted health, provider
-  checks, four-café reply contracts, stateful conversations, and a small
-  deterministic burst-load check,
+- the broader no-money pre-demo battery checks hosted health, provider checks,
+  deploy drift through `/version`, four-café reply contracts, stateful
+  conversations, and a small deterministic burst-load check,
 - IntaSend is configured for live mode, not test mode,
 - the primary OpenAI provider is reachable as `gpt-5.4-mini` and not tripped
   open.
@@ -178,7 +179,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `112 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `116 passed, 1 warning` via `make test-fast` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -1447,6 +1448,7 @@ Current metrics include:
 | --- | --- |
 | `/healthz` | process liveness |
 | `/readyz` | DB + Redis readiness |
+| `/version` | safe app/build fingerprint for deploy-drift checks |
 | `/health/deep` | DB + Redis + pgvector + WhatsApp + payment-provider reachability + LLM reachability + breaker snapshot |
 
 Current `/health/deep` truth:
@@ -1454,6 +1456,8 @@ Current `/health/deep` truth:
 - includes `checks.llm`,
 - includes `checks.payments.test_mode` for IntaSend so hosted live/test mode
   is visible without exposing secrets,
+- includes `version` with app version, environment, service, Python version,
+  and a safe short commit when the hosting platform exposes one,
 - includes breaker snapshots,
 - is now part of the live doctor story.
 
@@ -1495,8 +1499,9 @@ Meaning:
   confirmations, and slow replies. These scenarios are expected to stay on
   deterministic fast paths, not slow model turns.
 - `make pre-demo-live` is the broader public-demo gate: hosted health,
-  provider deep health, the four-café reply matrix, stateful no-money
-  conversations, and a small deterministic burst load check.
+  provider deep health, `/version` deploy-drift checks, the four-café reply
+  matrix, stateful no-money conversations, and a small deterministic burst
+  load check.
 - Admin routes are rate-limited by Redis; in production, Redis failure returns
   a 503 instead of silently allowing unlimited admin traffic.
 - Requests larger than `REQUEST_MAX_BODY_BYTES` are rejected before route
@@ -1596,6 +1601,10 @@ Important token nuance:
   `GENEAT_LIVE_ADMIN_API_TOKEN`.
 - A `401` or `403` from this script means token drift, not a seed/code bug.
 - For non-live targets, the script can still use `ADMIN_API_TOKEN`.
+- Do not put hidden Render/Meta/IntaSend secrets back into committed files to
+  make local checks pass. If you want the live Meta webhook handshake checked
+  from this laptop, export `GENEAT_LIVE_META_WA_VERIFY_TOKEN` for that shell;
+  otherwise the doctor treats the hidden hosted token as intentionally hidden.
 
 ### 18.6 Lily Pond local rehearsal
 
@@ -1858,6 +1867,7 @@ This is a human-grouped route map based on the current FastAPI app.
 | --- | --- |
 | GET | `/healthz` |
 | GET | `/readyz` |
+| GET | `/version` |
 | GET | `/health/deep` |
 | GET | `/metrics` |
 
@@ -2038,7 +2048,8 @@ Current high-value scripts:
   live money movement; it runs all four demo cafés by default and can be
   narrowed with `--tenant lily-pond-cafe` or inspected with `--list-tenants`
 - `pre_demo_battery.py` is the broader public-demo gate; it runs safe
-  live/local checks only and intentionally does not create orders or trigger
+  live/local checks only, compares `/version` against local git HEAD when the
+  hosted SHA is exposed, and intentionally does not create orders or trigger
   STK prompts
 
 ### 21.1 Lily Pond training data generator
@@ -2082,7 +2093,7 @@ make test-fast
 Current result:
 
 ```text
-112 passed, 1 warning
+116 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -2106,12 +2117,13 @@ make doctor-live
 Current result:
 
 ```text
-21/22 configured checks passed
+22/22 configured checks passed
 ```
 
-This is still the main high-signal smoke test for the hosted demo stack. A
-`403` on the Meta verify handshake means this workspace's
-`META_WA_VERIFY_TOKEN` is stale or differs from the hosted Render/Meta value.
+This is still the main high-signal smoke test for the hosted demo stack. The
+Meta verify handshake uses `GENEAT_LIVE_META_WA_VERIFY_TOKEN` when you export
+it locally; otherwise the check is skipped because the hosted Render token is
+intentionally hidden.
 
 Additional safe no-money WhatsApp reply gate:
 
@@ -2119,15 +2131,16 @@ Additional safe no-money WhatsApp reply gate:
 make eval-whatsapp-live
 ```
 
-Current result:
+Current configured coverage:
 
 ```text
-29/29 scenarios passed
+65 configured scenarios
 ```
 
 This matrix covers Lily Pond, Library Bites, Pavilion Grill, and Block A
 Express. It checks fast deterministic replies for menu, price, availability,
-menu-photo wording, payment-status claims, and internal policy leakage.
+menu-photo wording, payment-status claims, bare item/order follow-ups,
+affirmative follow-ups, and internal policy leakage.
 
 Broader pre-demo battery:
 
@@ -2144,6 +2157,8 @@ PRE-DEMO BATTERY PASSED.
 This is the recommended command before any public demo. It includes:
 
 - hosted health and provider readiness,
+- `/version` deploy-drift checks against local git HEAD when the hosted commit
+  is exposed,
 - the full four-café no-money reply matrix,
 - stateful no-money conversations per tenant,
 - a small deterministic load burst against `/mock/message`.
@@ -2220,12 +2235,16 @@ This is the honest list, not the flattering list.
 - full-menu, price, availability, recommendation, and vague photo follow-ups
   are handled deterministically so the assistant does not send random images,
   code-like copy, or slow generic fallbacks for basic café facts
+- short affirmatives such as `yes`, `yeah`, and `sure` can continue a recent
+  one-item offer deterministically, while ambiguous multi-item offers ask the
+  customer which item to order
 - demo espresso order language is broader and deterministic, including
   `May I have demo espresso`, `Demo espresso, name is...`, and short
   `Demo espresso` turns
 - simple known menu-item orders such as `May I have the espresso?` or
   `Can I get 2 flat whites?` now parse menu rows deterministically instead of
-  relying on the model to infer the item and price
+  relying on the model to infer the item and price; bare fragments such as
+  `the espresso` are also kept on the controlled order/name path
 - `No STK yet` style messages are treated as payment-resend/status turns
   rather than ordinary chat
 - menu-photo requests return the text menu instead of a generic café/menu hero
@@ -2289,6 +2308,9 @@ This is the honest list, not the flattering list.
   per-run Meta webhook secrets/tokens
 - `doctor-live` now retries transient hosted health/webhook/chat/photo probes
   before failing, so the operator signal is less brittle
+- `/version` now exposes a safe deploy fingerprint, and `pre-demo-live` checks
+  it against local git HEAD when the hosted platform exposes a commit SHA, so
+  stale Render deploys are visible instead of guessed from WhatsApp behavior
 - customer cancel/resend payment intents bypass the model and update pending
   order/payment job state directly
 - raw KB fallback no longer exposes internal demo/operator policy chunks to
@@ -2313,7 +2335,7 @@ This is the honest list, not the flattering list.
 | Migration CI is new and still lightweight | catches Alembic/pgvector dimension regressions but not all DB behavior | add broader Postgres integration cases over time |
 | Alerting is still missing | failures may stay silent until someone notices | wire health / webhook / payment alerts |
 | `audioop` deprecation remains | Python 3.13 upgrade risk for voice | replace mu-law decoder path |
-| Secrets still live in `.env` workflows too often | higher chance of accidental exposure | move fully to host secret managers and rotate exposed values |
+| Secret drift can confuse local operators | hidden Render/provider tokens are correct, but local `.env` may be stale and make old scripts look broken | keep secrets in host secret managers, use explicit `GENEAT_LIVE_*` operator env vars for live checks, and never put hosted secrets back into committed files |
 
 ### 23.3 What is live, demo-ready, and production-ready
 
