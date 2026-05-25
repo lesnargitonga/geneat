@@ -184,6 +184,22 @@ def price_item_query(text: str) -> str:
     return lowered or (text or "").strip()
 
 
+def _first_price_after_phrase(segment: str, phrase: str) -> int | None:
+    if not segment or not phrase:
+        return None
+    idx = segment.lower().find(phrase.lower())
+    if idx < 0:
+        return None
+    match = _PRICE_SEGMENT_RE.search(segment[idx:])
+    if not match:
+        return None
+    raw = (match.group(1) or match.group(2) or "").replace(",", "")
+    try:
+        return int(raw)
+    except ValueError:
+        return None
+
+
 def price_reply_from_chunks(query: str, chunks: Sequence[RetrievedChunk]) -> str | None:
     item_query = price_item_query(query)
     query_norm = _normalize(item_query)
@@ -215,7 +231,7 @@ def price_reply_from_chunks(query: str, chunks: Sequence[RetrievedChunk]) -> str
             score += sum(1 for token in query_tokens if token in seg_norm)
             if score <= 0:
                 continue
-            price = _first_price(segment)
+            price = _first_price_after_phrase(segment, query_phrase) or _first_price(segment)
             if price is None:
                 continue
             if score > best_score:

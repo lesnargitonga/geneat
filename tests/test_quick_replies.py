@@ -99,7 +99,11 @@ def test_price_reply_uses_base_price_before_add_on_price() -> None:
         "How much is the flat white?",
         [
             RetrievedChunk(
-                content="COFFEE - Flat White / Cappuccino / Latte KES 220 (oat/almond +KES 40).",
+                content=(
+                    "COFFEE - Espresso KES 120 / Double KES 160. "
+                    "Macchiato/Cortado KES 170. "
+                    "Flat White / Cappuccino / Latte KES 220 (oat/almond +KES 40)."
+                ),
                 source="menu",
                 score=1.0,
             )

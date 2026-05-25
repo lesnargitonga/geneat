@@ -742,8 +742,9 @@ Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Docume
 - deterministic quick replies answer obvious price, hours, recommendation,
   item-availability, and full-menu questions before the model when tenant menu
   chunks are available, and can run again after the model path fails,
-- price quick replies prefer the base item price before add-on prices, so
-  `Flat White KES 220 (oat/almond +KES 40)` answers `KES 220`, not `KES 40`,
+- price quick replies choose the first price after the matched item phrase, so
+  `Espresso KES 120 ... Flat White KES 220 (oat/almond +KES 40)` answers
+  `Flat White is KES 220`, not `KES 120` or `KES 40`,
 - full-menu requests such as `I need the full menu` are answered
   deterministically from menu chunks instead of waiting on the model or an
   embedding call when menu rows are available, with vector retrieval kept as a
@@ -2119,8 +2120,8 @@ This is the honest list, not the flattering list.
 - full-menu, price, availability, recommendation, and vague photo follow-ups
   are handled deterministically so the assistant does not send random images,
   code-like copy, or slow generic fallbacks for basic café facts
-- price parsing now prefers the first/base item price before add-on prices,
-  preventing answers like `Flat White is KES 40`
+- price parsing now chooses the first price after the matched item phrase,
+  preventing answers like `Flat White is KES 120` or `Flat White is KES 40`
 - explicit photo and obvious menu-info turns now avoid unnecessary RAG
   embedding calls, and repeated RAG query embeddings are cached briefly per
   worker
