@@ -2046,7 +2046,9 @@ Current high-value scripts:
 - `eval_whatsapp_reply_matrix.py` is the professional pre-demo reply gate for
   menu, payment-status, photo, and policy-leak regressions without triggering
   live money movement; it runs all four demo cafés by default and can be
-  narrowed with `--tenant lily-pond-cafe` or inspected with `--list-tenants`
+  narrowed with `--tenant lily-pond-cafe` or inspected with `--list-tenants`;
+  live mode paces requests so the expanded matrix does not trip the
+  `/mock/message` rate limit
 - `pre_demo_battery.py` is the broader public-demo gate; it runs safe
   live/local checks only, compares `/version` against local git HEAD when the
   hosted SHA is exposed, and intentionally does not create orders or trigger

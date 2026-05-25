@@ -304,6 +304,23 @@ def _resolve_fixtures(tenant_args: list[str] | None) -> tuple[TenantFixture, ...
 
 
 def run_matrix(*, base_url: str, fixtures: tuple[TenantFixture, ...], phone_prefix: str, timeout: float) -> int:
+    return run_matrix_paced(
+        base_url=base_url,
+        fixtures=fixtures,
+        phone_prefix=phone_prefix,
+        timeout=timeout,
+        delay_seconds=0.0,
+    )
+
+
+def run_matrix_paced(
+    *,
+    base_url: str,
+    fixtures: tuple[TenantFixture, ...],
+    phone_prefix: str,
+    timeout: float,
+    delay_seconds: float = 0.0,
+) -> int:
     url = f"{base_url.rstrip('/')}/mock/message"
     failures: list[str] = []
     total = 0
@@ -344,6 +361,8 @@ def run_matrix(*, base_url: str, fixtures: tuple[TenantFixture, ...], phone_pref
                     print(f"  reply: {reply_preview}")
                 else:
                     print(f"PASS {scenario.name} ({elapsed:.2f}s): {reply_preview}")
+                if delay_seconds > 0:
+                    time.sleep(delay_seconds)
 
     if failures:
         print()
@@ -386,11 +405,13 @@ def main() -> int:
         return 2
 
     base_url = LIVE_BASE_URL if args.live else args.base_url
-    return run_matrix(
+    delay_seconds = 1.05 if args.live else 0.0
+    return run_matrix_paced(
         base_url=base_url,
         fixtures=fixtures,
         phone_prefix=args.phone_prefix,
         timeout=args.timeout,
+        delay_seconds=delay_seconds,
     )
 
 

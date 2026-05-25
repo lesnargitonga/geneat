@@ -31,7 +31,7 @@ from eval_whatsapp_reply_matrix import (  # noqa: E402
     LOCAL_BASE_URL,
     TENANT_FIXTURES,
     _norm,
-    run_matrix,
+    run_matrix_paced,
 )
 
 
@@ -386,11 +386,12 @@ async def main_async() -> int:
     if not args.skip_matrix:
         print()
         print("== Reply Matrix ==")
-        matrix_rc = run_matrix(
+        matrix_rc = run_matrix_paced(
             base_url=base_url,
             fixtures=tuple(TENANT_FIXTURES.values()),
             phone_prefix="+1555920",
             timeout=args.timeout,
+            delay_seconds=1.05 if args.live else 0.0,
         )
         failures += 1 if matrix_rc else 0
 
