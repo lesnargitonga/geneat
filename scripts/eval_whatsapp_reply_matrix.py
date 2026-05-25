@@ -30,6 +30,7 @@ BAD_LEAKS = (
     "system took too long",
     "formatting hiccup",
 )
+DETERMINISTIC_MAX_LATENCY_SECONDS = 2.5
 
 
 @dataclass(frozen=True)
@@ -39,7 +40,7 @@ class Scenario:
     must_include: tuple[str, ...] = ()
     must_not_include: tuple[str, ...] = BAD_LEAKS
     expect_image: bool | None = None
-    max_latency_seconds: float = 8.0
+    max_latency_seconds: float = DETERMINISTIC_MAX_LATENCY_SECONDS
     notes: str = ""
 
 

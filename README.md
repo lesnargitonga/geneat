@@ -1483,7 +1483,8 @@ Meaning:
 - `make eval-whatsapp-live` runs a safe no-money mock-channel matrix against
   the hosted API across the configured demo tenant fixtures and checks for
   internal leaks, wrong prices, random menu photos, fake payment
-  confirmations, and slow replies.
+  confirmations, and slow replies. These scenarios are expected to stay on
+  deterministic fast paths, not slow model turns.
 - Admin routes are rate-limited by Redis; in production, Redis failure returns
   a 503 instead of silently allowing unlimited admin traffic.
 - Requests larger than `REQUEST_MAX_BODY_BYTES` are rejected before route
