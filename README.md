@@ -15,7 +15,7 @@ final authority, but this document is the canonical human map of:
 - and what still needs hardening before anyone promises enterprise-grade uptime.
 
 Last reconciled with the codebase and local checks: **2026-05-25**.
-Hosted live checks were last verified on **2026-05-24**.
+Hosted live checks were last verified on **2026-05-25**.
 
 ## Table Of Contents
 
@@ -92,7 +92,8 @@ Current Lily Pond live-demo path:
 - current Meta Cloud API test number maps to Lily Pond,
 - the public WhatsApp CTA points to `+1 555-657-8220`,
 - the demo proof item is `Demo Espresso` at `KES 10`,
-- the doctor check now passes end-to-end on the hosted stack.
+- the hosted stack is reachable, while this workspace's Meta verify-token
+  handshake remains blocked by local/hosted token drift.
 
 The most important product truths:
 
@@ -124,7 +125,7 @@ Notes:
 
 ### 2.2 Hosted live verification
 
-Fresh live checks run from this workspace on **2026-05-24**:
+Fresh live checks run from this workspace on **2026-05-25**:
 
 | Check | Result |
 | --- | --- |
@@ -132,6 +133,7 @@ Fresh live checks run from this workspace on **2026-05-24**:
 | `GET /readyz` | DB and Redis healthy |
 | `GET /health/deep` | `status=ok`, db/redis/pgvector/whatsapp/payments/llm all reachable |
 | `make doctor-live` | `21/22 configured checks passed` from this workspace |
+| `make eval-whatsapp-live` | `29/29` safe reply scenarios passed across all four demo tenants |
 | Portal live price check | passed without generic fallback |
 | Portal live photo check | passed |
 | Meta webhook verify handshake | `403` with this workspace's local verify token |
@@ -159,6 +161,9 @@ What that means in plain English:
 - the local `.env` `META_WA_VERIFY_TOKEN` does not currently match the hosted
   API verify token; webhook POST traffic can still work, but the workspace
   doctor handshake will fail until the token is reconciled,
+- the no-money WhatsApp reply matrix passes for Lily Pond, Library Bites,
+  Pavilion Grill, and Block A Express with deterministic menu/status/photo
+  guardrails,
 - IntaSend is configured for live mode, not test mode,
 - the primary OpenAI provider is reachable as `gpt-5.4-mini` and not tripped
   open.
@@ -2094,6 +2099,22 @@ Current result:
 This is still the main high-signal smoke test for the hosted demo stack. A
 `403` on the Meta verify handshake means this workspace's
 `META_WA_VERIFY_TOKEN` is stale or differs from the hosted Render/Meta value.
+
+Additional safe no-money WhatsApp reply gate:
+
+```bash
+make eval-whatsapp-live
+```
+
+Current result:
+
+```text
+29/29 scenarios passed
+```
+
+This matrix covers Lily Pond, Library Bites, Pavilion Grill, and Block A
+Express. It checks fast deterministic replies for menu, price, availability,
+menu-photo wording, payment-status claims, and internal policy leakage.
 
 ### 22.4 Other useful tests
 
