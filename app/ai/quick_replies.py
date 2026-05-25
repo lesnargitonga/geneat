@@ -35,7 +35,8 @@ _RECOMMENDATION_REQUEST_RE = re.compile(
 _AVAILABILITY_REQUEST_RE = re.compile(
     r"\b("
     r"do you have|have you got|is there|are there|available|"
-    r"can i have|can i get|i'?ll have|i want|i need"
+    r"can i have|can i get|may i have|may i get|let me have|lemme have|"
+    r"i'?ll have|i want|i need"
     r")\b",
     re.IGNORECASE,
 )
@@ -66,11 +67,17 @@ _PRICE_STOPWORDS = {
 }
 _AVAILABILITY_STOPWORDS = {
     "do", "you", "have", "got", "is", "there", "are", "available", "can", "i",
-    "get", "have", "ill", "i'll", "want", "need", "the", "a", "an", "please",
+    "get", "have", "ill", "i'll", "may", "let", "lemme", "want", "need", "the", "a", "an", "please",
     "menu", "options", "anything", "something", "food", "drink", "drinks",
 }
 _INTERNAL_MENU_MARKERS = (
     "demo flow",
+    "for live lily pond demos",
+    "tiny proof item",
+    "m-pesa stk demos",
+    "mpesa stk demos",
+    "during pitches",
+    "treat it as demo espresso",
     "create_order",
     "trigger m-pesa",
     "trigger mpesa",
@@ -165,7 +172,20 @@ def photo_item_query(text: str) -> str:
     if not candidate:
         return GENERIC_PHOTO_QUERY
     lowered = candidate.lower()
-    if any(token in lowered for token in ("whole menu", "full menu", "entire menu", "menu pictures", "menu photo")):
+    if "menu" in lowered and any(
+        token in lowered
+        for token in (
+            "whole menu",
+            "full menu",
+            "entire menu",
+            "menu pictures",
+            "menu photo",
+            "picture of your menu",
+            "photo of your menu",
+            "image of your menu",
+            "menu board",
+        )
+    ):
         return "menu"
     cleaned_candidate = re.sub(r"\s+", " ", re.sub(r"[,;:]+", " ", candidate)).strip()
     if _GENERIC_PHOTO_RE.match(cleaned_candidate):
@@ -200,9 +220,16 @@ def _first_price_after_phrase(segment: str, phrase: str) -> int | None:
         return None
 
 
+def _query_wants_demo(query_norm: str) -> bool:
+    return any(token in query_norm for token in ("demo espresso", "demo order", "10 bob", "ten bob"))
+
+
 def price_reply_from_chunks(query: str, chunks: Sequence[RetrievedChunk]) -> str | None:
     item_query = price_item_query(query)
     query_norm = _normalize(item_query)
+    wants_demo = _query_wants_demo(query_norm)
+    if wants_demo:
+        return "Demo Espresso is KES 10. Want me to set one up for pickup?"
     query_terms = [
         token for token in query_norm.split()
         if token and token not in _PRICE_STOPWORDS and len(token) >= 3
@@ -218,11 +245,18 @@ def price_reply_from_chunks(query: str, chunks: Sequence[RetrievedChunk]) -> str
     best_score = -1
     best_price: int | None = None
     for chunk in chunks:
+        source = (chunk.source or "").lower()
+        if any(marker in source for marker in _INTERNAL_MENU_SOURCE_MARKERS):
+            continue
         for raw_segment in re.split(r"[\n•]+", chunk.content or ""):
             segment = raw_segment.strip(" -:\t")
             if not segment:
                 continue
+            if any(marker in segment.lower() for marker in _INTERNAL_MENU_MARKERS):
+                continue
             seg_norm = _normalize(segment)
+            if not wants_demo and "demo espresso" in seg_norm:
+                continue
             score = 0
             if query_norm and query_norm in seg_norm:
                 score += 3
@@ -244,8 +278,6 @@ def price_reply_from_chunks(query: str, chunks: Sequence[RetrievedChunk]) -> str
 
     label_source = query_phrase or item_query.strip(" ?.!") or "That item"
     label = label_source.title()
-    if "demo espresso" in query_norm or "demo order" in query_norm or "10 bob" in query_norm or "ten bob" in query_norm:
-        return "Demo Espresso is KES 10. Want me to set one up for pickup?"
     if best_segment and "/" in best_segment and best_score < 4:
         return f"The listed price there is KES {best_price}. Want me to pull the exact item for you?"
     return f"{label} is KES {best_price}. Want me to sort one for pickup?"
@@ -423,12 +455,15 @@ def availability_reply_from_chunks(query: str, chunks: Sequence[RetrievedChunk])
     tokens = _availability_tokens(query)
     if not tokens:
         return None
+    wants_demo = "demo" in tokens or "10" in tokens or "ten" in tokens
     options = _extract_options(chunks)
     if not options:
         return None
 
     matches: list[MenuOption] = []
     for option in options:
+        if not wants_demo and "demo espresso" in option.normalized:
+            continue
         option_words = set(option.normalized.split())
         if tokens & option_words or any(token in option.normalized for token in tokens):
             matches.append(option)

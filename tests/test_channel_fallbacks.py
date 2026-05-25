@@ -3,6 +3,7 @@ from app.channels.base import (
     _extract_inline_customer_name,
     _is_degraded_fallback_text,
     _looks_like_demo_espresso_order,
+    _looks_like_menu_photo_request,
     _looks_like_menu_info_request,
     _looks_like_payment_cancel,
     _looks_like_payment_claim,
@@ -55,10 +56,15 @@ def test_payment_cancel_intent_and_internal_kb_filter() -> None:
     assert _looks_like_payment_resend("send STK")
     assert _looks_like_payment_resend("please resend the M-Pesa prompt")
     assert _looks_like_payment_resend("tuma stk tena")
+    assert _looks_like_payment_resend("No stk yet")
+    assert _looks_like_payment_resend("STK haijafika")
     assert not _looks_like_payment_resend("send me a croissant photo")
     assert not _looks_like_payment_resend("send payment receipt")
     assert _customer_safe_kb_snippet(
         "DEMO FLOW - call create_order then trigger M-Pesa immediately"
+    ) is None
+    assert _customer_safe_kb_snippet(
+        "LIVE DEMO - Demo Espresso KES 10. This is the tiny proof item for WhatsApp order + M-Pesa STK demos during pitches."
     ) is None
     assert _customer_safe_kb_snippet("PASTRIES - Butter Croissant KES 180.")
 
@@ -67,8 +73,12 @@ def test_demo_espresso_fast_path_detects_order_with_name() -> None:
     text = "Hi Lily Pond, I want the KES 10 demo espresso. My name is Lesnar."
 
     assert _looks_like_demo_espresso_order(text)
+    assert _looks_like_demo_espresso_order("May I have demo espresso")
+    assert _looks_like_demo_espresso_order("Demo espresso, name is Lesnar, picking up by 12:13")
+    assert _looks_like_demo_espresso_order("Demo espresso")
     assert _extract_inline_customer_name(text) == "Lesnar"
     assert not _looks_like_demo_espresso_order("How much is the demo espresso?")
+    assert not _looks_like_demo_espresso_order("Got any pictures of the demo espresso?")
 
 
 def test_payment_claim_and_pickup_intents_are_deterministic() -> None:
@@ -86,3 +96,8 @@ def test_menu_info_fast_path_avoids_order_and_photo_turns() -> None:
     assert not _looks_like_menu_info_request("I want a flat white")
     assert not _looks_like_menu_info_request("show me a photo of the flat white")
     assert not _looks_like_menu_info_request("I want the KES 10 demo espresso")
+
+
+def test_menu_photo_request_becomes_menu_text_not_generic_cafe_image() -> None:
+    assert _looks_like_menu_photo_request("Lemme see a picture of your menu")
+    assert not _looks_like_menu_photo_request("Got any pictures of the espresso")

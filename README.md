@@ -169,7 +169,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `103 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `107 passed, 1 warning` via `make test-fast` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -690,6 +690,8 @@ Current explicit happy-path fast-paths:
   `I want the KES 10 demo espresso. My name is Lesnar`, is handled in the
   channel layer before the model. It captures the customer name, creates or
   reuses the pending order, and starts the IntaSend STK path immediately.
+  Variants such as `May I have demo espresso`, `Demo espresso, name is Lesnar`,
+  and a plain `Demo espresso` are also deterministic.
 
 Current model-led happy path:
 
@@ -713,6 +715,9 @@ Current order/payment hardening:
   the pending order,
 - customer messages like `send STK`, `send M-Pesa`, or `tuma stk` are also
   treated as STK resend intents,
+- customer messages like `No STK yet`, `STK haijafika`, or `I haven't received
+  the M-Pesa prompt` are treated as resend/status intents instead of going to
+  the model,
 - repeated matching order messages with an old pending STK automatically send
   a fresh STK after 90 seconds instead of silently pointing at a stale prompt,
 - customer claims like `Paid` or `nimelipa` are treated as status checks only;
@@ -751,11 +756,14 @@ Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Docume
   compatibility fallback,
 - generic photo follow-ups such as `send a picture` ask which item to send
   instead of guessing and returning the wrong café/menu image,
+- menu-photo requests such as `Lemme see a picture of your menu` return the
+  text menu instead of sending a random café hero image as "the menu",
 - JSON/tool-call-looking model output is treated as malformed customer copy;
   the channel layer first tries to recover with a menu quick reply, then falls
   back to a short plain-language formatting-error message,
 - keyword KB fallback is tried before generic handoff, but internal/demo
-  operator notes such as `DEMO FLOW` are filtered out of customer replies,
+  operator notes such as `DEMO FLOW`, `LIVE DEMO`, `tiny proof item`, and
+  `if a customer asks...` are filtered out of customer replies,
 - degraded fallback replies are marked and filtered out of future model
   history so the assistant does not imitate old emergency copy,
 - the generic handoff text is now a last resort, not the normal café voice.
@@ -2024,6 +2032,10 @@ Current behavior:
 - uses the actual Lily Pond seed prices from `scripts/seed_geneat_demo.py`,
 - avoids teaching bad payment copy such as `paid`, `confirmed`, `pickup ready`,
   or `ready by` before payment lands,
+- includes transcript-derived bad-path examples for demo espresso variants,
+  `No STK yet` resend/status turns, customer `Paid` claims before provider
+  confirmation, menu-photo text replies, espresso correction turns, and
+  internal policy/tool wording that must never be repeated,
 - generated `lily_pond_training_*.jsonl` files are ignored by git.
 
 ## 22. Testing
@@ -2040,7 +2052,7 @@ make test-fast
 Current result:
 
 ```text
-103 passed, 1 warning
+107 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -2137,14 +2149,26 @@ This is the honest list, not the flattering list.
 - full-menu, price, availability, recommendation, and vague photo follow-ups
   are handled deterministically so the assistant does not send random images,
   code-like copy, or slow generic fallbacks for basic café facts
+- demo espresso order language is broader and deterministic, including
+  `May I have demo espresso`, `Demo espresso, name is...`, and short
+  `Demo espresso` turns
+- `No STK yet` style messages are treated as payment-resend/status turns
+  rather than ordinary chat
+- menu-photo requests return the text menu instead of a generic café/menu hero
+  image
 - price parsing now chooses the first price after the matched item phrase,
   preventing answers like `Flat White is KES 120` or `Flat White is KES 40`
+- plain espresso price/availability no longer gets confused with the KES 10
+  Demo Espresso unless the customer explicitly asks for the demo item
 - explicit photo and obvious menu-info turns now avoid unnecessary RAG
   embedding calls, and repeated RAG query embeddings are cached briefly per
   worker
 - JSON/tool-call-looking model output is sanitized before it reaches WhatsApp,
   with menu quick-reply recovery when the customer asked a factual menu
   question
+- internal demo/policy phrases such as `for live Lily Pond demos`,
+  `tiny proof item`, `M-Pesa STK demos`, and `if a customer asks...` are
+  treated as customer-copy leaks and stripped/recovered
 - long AI waits no longer keep the initial request transaction checked out;
   channel, RAG, and tool phases release DB connections between provider waits
 - Redis session-lock contention no longer falls through to Postgres advisory

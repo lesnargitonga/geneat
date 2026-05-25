@@ -26,6 +26,7 @@ from app.ai.quick_replies import (
     looks_like_price_request,
     looks_like_recommendation_request,
     maybe_build_quick_reply,
+    photo_item_query,
 )
 from app.core.logging import business_id_ctx, conversation_id_ctx, get_logger, tenant_slug_ctx
 from app.core.redis_client import claim_idempotency
@@ -70,7 +71,9 @@ _PAYMENT_RESEND_RE = re.compile(
     r"\b(resend|send again|retry|try again|tuma tena)\b.*\b(stk|payment|pay|malipo|mpesa|m-pesa)\b|"
     r"\b(send|tuma)\b.*\b(stk|mpesa|m-pesa)\b|"
     r"\b(stk|payment|pay|malipo|mpesa|m-pesa)\b.*\b(resend|send again|retry|try again|tuma tena)\b|"
-    r"\b(stk|mpesa|m-pesa)\b.*\b(send|tuma)\b",
+    r"\b(stk|mpesa|m-pesa)\b.*\b(send|tuma)\b|"
+    r"\b(no|not|never|haven'?t|hasn'?t|didn'?t)\b.{0,40}\b(stk|mpesa|m-pesa|prompt)\b|"
+    r"\b(stk|mpesa|m-pesa|prompt)\b.{0,40}\b(no|not|never|missing|absent|haijafika)\b",
     re.IGNORECASE,
 )
 _PAYMENT_CLAIM_RE = re.compile(
@@ -82,12 +85,14 @@ _PICKUP_STATUS_RE = re.compile(
     re.IGNORECASE,
 )
 _ORDER_REPEAT_RE = re.compile(
-    r"\b(i want|i need|i'?ll have|can i have|can i get|order|sort|get me)\b",
+    r"\b(i want|i need|i'?ll have|i'?d like|i would like|can i have|can i get|"
+    r"may i have|may i get|let me get|lemme get|order|sort|get me)\b",
     re.IGNORECASE,
 )
 _DEMO_ESPRESSO_RE = re.compile(r"\b(demo espresso|demo order|10 bob|ten bob)\b", re.IGNORECASE)
 _ORDER_INTENT_RE = re.compile(
-    r"\b(i want|i need|i'?ll have|can i have|can i get|order|sort|get me|nipe|nataka|leta)\b",
+    r"\b(i want|i need|i'?ll have|i'?d like|i would like|can i have|can i get|"
+    r"may i have|may i get|let me get|lemme get|order|sort|get me|nipe|nataka|leta)\b",
     re.IGNORECASE,
 )
 _EXPLICIT_AVAILABILITY_RE = re.compile(
@@ -100,6 +105,15 @@ _INLINE_NAME_RE = re.compile(
 )
 _INTERNAL_KB_MARKERS = (
     "demo flow",
+    "for live lily pond demos",
+    "tiny proof item",
+    "m-pesa stk demos",
+    "mpesa stk demos",
+    "during pitches",
+    "treat it as demo espresso",
+    "if a customer asks",
+    "ask for or use their name",
+    "do not describe internal",
     "create_order",
     "trigger m-pesa",
     "trigger mpesa",
@@ -170,7 +184,26 @@ def _looks_like_order_repeat(text: str) -> bool:
 
 def _looks_like_demo_espresso_order(text: str) -> bool:
     candidate = (text or "").strip()
-    return bool(_DEMO_ESPRESSO_RE.search(candidate) and _ORDER_INTENT_RE.search(candidate))
+    if not candidate or not _DEMO_ESPRESSO_RE.search(candidate):
+        return False
+    if looks_like_price_request(candidate) or looks_like_photo_request(candidate):
+        return False
+    if _looks_like_payment_cancel(candidate) or _looks_like_payment_resend(candidate):
+        return False
+    if _ORDER_INTENT_RE.search(candidate) or _extract_inline_customer_name(candidate):
+        return True
+    if _PICKUP_STATUS_RE.search(candidate):
+        return True
+    tokens = re.findall(r"[a-z0-9]+", candidate.lower())
+    return 1 <= len(tokens) <= 6
+
+
+def _looks_like_menu_photo_request(text: str) -> bool:
+    candidate = (text or "").strip()
+    if not looks_like_photo_request(candidate):
+        return False
+    item_query = photo_item_query(candidate)
+    return item_query == "menu"
 
 
 def _extract_inline_customer_name(text: str) -> str | None:
@@ -1142,6 +1175,33 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 language=effective_lang,
             )
             control_flag = "deterministic:pickup_status" if control_reply else None
+        elif _looks_like_menu_photo_request(turn.text):
+            fallback_profile = None
+            try:
+                fallback_profile = await get_business_for_turn(db, business_id=business_id)
+            except Exception as exc:
+                log.warning("menu_photo_profile_lookup_failed", error=str(exc))
+            try:
+                control_reply = await maybe_build_quick_reply(
+                    db,
+                    business_id=business_id,
+                    profile=fallback_profile,
+                    text="full menu",
+                )
+            except Exception as exc:
+                log.warning("menu_photo_quick_reply_failed", error=str(exc))
+                control_reply = None
+            if control_reply:
+                control_reply = (
+                    "I do not have a clean menu-board photo yet, but here is the menu I have:\n"
+                    + control_reply.removeprefix("Here is the menu I have:\n")
+                )
+            else:
+                control_reply = (
+                    "I do not have a clean menu-board photo yet. Ask for a specific item, "
+                    "like Demo Espresso, Flat White, or Croissant, and I will send that photo."
+                )
+            control_flag = "deterministic:menu_photo_as_text"
         elif _looks_like_menu_info_request(turn.text):
             fallback_profile = None
             try:

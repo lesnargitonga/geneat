@@ -81,6 +81,29 @@ def test_availability_reply_handles_plural_item_questions() -> None:
     assert "Almond Croissant - KES 250" in reply
 
 
+def test_availability_reply_skips_internal_demo_policy_segments() -> None:
+    chunks = [
+        RetrievedChunk(
+            content=(
+                "LIVE DEMO - Demo Espresso KES 10. This is the tiny proof item for "
+                "WhatsApp order + M-Pesa STK demos during pitches. If a customer asks "
+                "for '10 bob', treat it as Demo Espresso KES 10.\n"
+                "COFFEE - Espresso KES 120 / Double KES 160."
+            ),
+            source="menu",
+            score=1.0,
+        )
+    ]
+
+    assert looks_like_availability_request("May I have espresso?")
+    reply = availability_reply_from_chunks("May I have espresso?", chunks)
+
+    assert reply is not None
+    assert "Espresso - KES 120" in reply
+    assert "Demo Espresso" not in reply
+    assert "tiny proof item" not in reply
+
+
 def test_price_reply_from_chunks_handles_demo_espresso() -> None:
     chunks = [
         RetrievedChunk(
@@ -111,6 +134,24 @@ def test_price_reply_uses_base_price_before_add_on_price() -> None:
     )
 
     assert reply == "Flat White is KES 220. Want me to sort one for pickup?"
+
+
+def test_plain_espresso_price_does_not_match_demo_espresso() -> None:
+    reply = price_reply_from_chunks(
+        "How much is the espresso?",
+        [
+            RetrievedChunk(
+                content=(
+                    "LIVE DEMO - Demo Espresso KES 10.\n"
+                    "COFFEE - Espresso KES 120 / Double KES 160."
+                ),
+                source="menu",
+                score=1.0,
+            )
+        ],
+    )
+
+    assert reply == "Espresso is KES 120. Want me to sort one for pickup?"
 
 
 def test_recommendation_reply_from_chunks_respects_budget() -> None:

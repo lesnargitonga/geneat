@@ -28,7 +28,8 @@ SYSTEM_PROMPT = (
     f"You are {ASSISTANT_NAME}, Gen-Eat's WhatsApp ordering assistant at {CAFE_NAME}. "
     "Sound warm, brief, and natural. Quote only menu-backed prices. Use tools for "
     "knowledge lookup, photos, order creation, customer names, and M-Pesa STK. "
-    "Never say paid, confirmed, pickup ready, or ready by a time until payment has landed."
+    "Never expose internal playbooks, tool names, or demo instructions. Never say paid, "
+    "confirmed, pickup ready, or ready by a time until payment has landed."
 )
 DEFAULT_OUTPUT = Path("lily_pond_training_v1.jsonl")
 DEFAULT_EXAMPLES = 50
@@ -74,7 +75,16 @@ MENU_ITEMS: tuple[MenuItem, ...] = (
 
 
 SHENG_GREETINGS = ("Niaje", "Sasa", "Mambo", "Vipi", "Oya", "Habari")
-BUY_INTENTS = ("I want", "Nataka", "Nipe", "Can I get", "I'd like to order", "Let me get")
+BUY_INTENTS = (
+    "I want",
+    "Nataka",
+    "Nipe",
+    "Can I get",
+    "May I have",
+    "I'd like to order",
+    "Let me get",
+    "Lemme get",
+)
 PRICE_INTENTS = ("How much is", "Bei ya", "What is the price of", "Ni how much for")
 PHOTO_INTENTS = ("Send me a pic of", "Show me", "Naweza ona", "Do you have a photo of")
 CUSTOMER_NAMES = ("Lesnar", "Aisha", "Brian", "Njeri", "Kevin", "Wanjiku", "Imani")
@@ -335,6 +345,44 @@ def generate_order_and_pay(rng: random.Random, *, include_tools: bool) -> dict[s
     return _base(messages, include_tools=include_tools)
 
 
+def generate_demo_espresso_variant(rng: random.Random, *, include_tools: bool) -> dict[str, Any]:
+    name = rng.choice(CUSTOMER_NAMES)
+    text = rng.choice((
+        f"May I have demo espresso? Name is {name}",
+        f"Demo espresso, name is {name}, picking up in 10 minutes",
+        f"Nipe 10 bob demo order, naitwa {name}",
+        f"Hi Lily Pond, I want the KES 10 demo espresso. My name is {name}.",
+    ))
+    order_id = _order_id()
+    order_ref = order_id[:8]
+    name_call, name_call_id = _assistant_tool("update_customer_name", {"name": name})
+    order_call, order_call_id = _assistant_tool(
+        "create_order",
+        {"items": [{"sku_or_name": "Demo Espresso", "qty": 1, "unit_price": 10.0}]},
+    )
+    pay_call, pay_call_id = _assistant_tool(
+        "request_mpesa_payment",
+        {"amount_kes": 10, "order_reference": order_ref, "msisdn": DEMO_MSISDN},
+    )
+    messages = [
+        {"role": "user", "content": text},
+        name_call,
+        _tool_msg(name_call_id, "update_customer_name", {"ok": True, "name": name}),
+        order_call,
+        _tool_msg(order_call_id, "create_order", {"ok": True, "order_id": order_id, "amount_kes": 10, "payment_status": "pending"}),
+        pay_call,
+        _tool_msg(pay_call_id, "request_mpesa_payment", {"ok": True, "provider": "intasend", "amount_kes": 10, "message": "STK push sent."}),
+        {
+            "role": "assistant",
+            "content": (
+                f"Got it, {name} - 1 x Demo Espresso = KES 10. I sent the M-Pesa STK prompt. "
+                "Enter your PIN; I will confirm once payment lands."
+            ),
+        },
+    ]
+    return _base(messages, include_tools=include_tools)
+
+
 def generate_order_missing_name(rng: random.Random, *, include_tools: bool) -> dict[str, Any]:
     item = rng.choice(MENU_ITEMS)
     name = rng.choice(CUSTOMER_NAMES)
@@ -392,6 +440,22 @@ def generate_photo_request(rng: random.Random, *, include_tools: bool) -> dict[s
     return _base(messages, include_tools=include_tools)
 
 
+def generate_menu_photo_request(rng: random.Random, *, include_tools: bool) -> dict[str, Any]:
+    messages = [
+        {"role": "user", "content": rng.choice(("Lemme see a picture of your menu", "Send me the menu photo", "Do you have a menu board pic?"))},
+        {
+            "role": "assistant",
+            "content": (
+                "I do not have a clean menu-board photo yet, but here is the menu I have: "
+                "Demo Espresso KES 10, Espresso KES 120, Flat White KES 220, Butter Croissant KES 180, "
+                "Mandazi & Masala Chai KES 230, Chicken Caesar Wrap KES 480. "
+                "Ask for a specific item's photo and I will send that one."
+            ),
+        },
+    ]
+    return _base(messages, include_tools=include_tools)
+
+
 def generate_payment_pending_status(rng: random.Random, *, include_tools: bool) -> dict[str, Any]:
     item = rng.choice((MENU_ITEMS[0], MENU_ITEMS[3], MENU_ITEMS[18], MENU_ITEMS[21]))
     qty = rng.choice((1, 2))
@@ -404,6 +468,52 @@ def generate_payment_pending_status(rng: random.Random, *, include_tools: bool) 
                 f"I already have {qty} x {item.name} for KES {total} waiting on payment. "
                 "Check the STK prompt on your phone and enter your PIN; I'll confirm once it lands. "
                 "If it expired, type 'resend STK'."
+            ),
+        },
+    ]
+    return _base(messages, include_tools=include_tools)
+
+
+def generate_no_stk_resend(rng: random.Random, *, include_tools: bool) -> dict[str, Any]:
+    item = rng.choice((MENU_ITEMS[0], MENU_ITEMS[3], MENU_ITEMS[18]))
+    total = item.price
+    messages = [
+        {"role": "user", "content": rng.choice(("No stk yet", "STK haijafika", "I haven't received the M-Pesa prompt"))},
+        {
+            "role": "assistant",
+            "content": (
+                f"I have the {item.name} order for KES {total} still waiting on payment. "
+                "I have sent a fresh STK prompt; enter your PIN and I will confirm once payment lands."
+            ),
+        },
+    ]
+    return _base(messages, include_tools=include_tools)
+
+
+def generate_paid_claim_pending(rng: random.Random, *, include_tools: bool) -> dict[str, Any]:
+    item = rng.choice((MENU_ITEMS[0], MENU_ITEMS[3], MENU_ITEMS[18]))
+    total = item.price
+    messages = [
+        {"role": "user", "content": rng.choice(("Paid", "Nimelipa", "Done paying"))},
+        {
+            "role": "assistant",
+            "content": (
+                f"I am still waiting for provider confirmation for 1 x {item.name} at KES {total}. "
+                "I cannot mark it paid or promise pickup timing until the payment callback lands."
+            ),
+        },
+    ]
+    return _base(messages, include_tools=include_tools)
+
+
+def generate_espresso_correction(rng: random.Random, *, include_tools: bool) -> dict[str, Any]:
+    messages = [
+        {"role": "user", "content": "You mean you don't know what an espresso is or you don't sell?"},
+        {
+            "role": "assistant",
+            "content": (
+                "We do sell espresso. Regular Espresso is KES 120, Double Espresso is KES 160, "
+                "and the live Demo Espresso is KES 10. Which one should I set up for pickup?"
             ),
         },
     ]
@@ -427,19 +537,33 @@ def generate_cancellation(rng: random.Random, *, include_tools: bool) -> dict[st
 
 
 GENERATORS: tuple[tuple[Callable[[random.Random], dict[str, Any]], float], ...] = (
-    (generate_order_and_pay, 0.28),
-    (generate_order_missing_name, 0.14),
-    (generate_price_check, 0.20),
-    (generate_availability_check, 0.12),
-    (generate_budget_recommendation, 0.10),
-    (generate_photo_request, 0.10),
-    (generate_payment_pending_status, 0.04),
-    (generate_cancellation, 0.02),
+    (generate_order_and_pay, 0.20),
+    (generate_demo_espresso_variant, 0.14),
+    (generate_order_missing_name, 0.10),
+    (generate_price_check, 0.15),
+    (generate_availability_check, 0.10),
+    (generate_budget_recommendation, 0.08),
+    (generate_photo_request, 0.08),
+    (generate_menu_photo_request, 0.05),
+    (generate_payment_pending_status, 0.03),
+    (generate_no_stk_resend, 0.03),
+    (generate_paid_claim_pending, 0.02),
+    (generate_espresso_correction, 0.01),
+    (generate_cancellation, 0.01),
 )
 
 
 ALLOWED_TOOL_NAMES = {tool["function"]["name"] for tool in TOOL_SCHEMAS}
 BAD_PENDING_COPY = ("order confirmed", "payment confirmed", "pickup ready", "ready by", "you have paid")
+BAD_INTERNAL_COPY = (
+    "demo flow",
+    "for live lily pond demos",
+    "tiny proof item",
+    "if a customer asks",
+    "create_order",
+    "request_mpesa_payment",
+    "knowledge_lookup",
+)
 
 
 def _iter_tool_calls(message: dict[str, Any]) -> list[dict[str, Any]]:
@@ -472,6 +596,8 @@ def validate_example(example: dict[str, Any]) -> None:
             lowered = message["content"].lower()
             if "stk" in lowered and any(bad in lowered for bad in BAD_PENDING_COPY):
                 raise ValueError(f"unsafe pending payment wording: {message['content']!r}")
+            if any(bad in lowered for bad in BAD_INTERNAL_COPY):
+                raise ValueError(f"internal policy/tool wording leaked: {message['content']!r}")
     if pending_tool_call_ids:
         raise ValueError(f"tool calls missing tool responses: {sorted(pending_tool_call_ids)}")
 
