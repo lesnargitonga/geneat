@@ -221,10 +221,9 @@ CAFES: list[dict] = [
 KB: dict[str, dict[str, list[str]]] = {
     "lily-pond-cafe": {
         "menu": [
-            "LIVE DEMO — Demo Espresso KES 10. This is the tiny proof item for "
-            "WhatsApp order + M-Pesa STK demos during pitches. If a customer asks "
-            "for '10 bob', 'ten bob', 'demo espresso', or 'demo order', treat it as "
-            "Demo Espresso KES 10.",
+            "LIVE DEMO — Demo Espresso KES 10. Tiny proof coffee item for "
+            "WhatsApp order and M-Pesa STK demos during pitches. Also known as "
+            "10 bob, ten bob, and the demo order.",
             "COFFEE — All beans single-origin Kenyan, roasted weekly.\n"
             "• Espresso KES 120 / Double KES 160. Macchiato/Cortado KES 170. "
             "Flat White / Cappuccino / Latte KES 220 (oat/almond +KES 40). "

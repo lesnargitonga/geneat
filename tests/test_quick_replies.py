@@ -171,6 +171,33 @@ async def test_maybe_build_full_menu_reply_does_not_embed_query(db, monkeypatch)
     assert "Flat White - KES 250" in reply
 
 
+def test_full_menu_reply_skips_policy_chunks_and_operator_instructions() -> None:
+    reply = full_menu_reply_from_chunks([
+        RetrievedChunk(
+            content=(
+                "DEMO ESPRESSO ORDER - Demo Espresso KES 10. "
+                "If a customer asks for Demo Espresso, ask for or use their name."
+            ),
+            source="policies",
+            score=1.0,
+        ),
+        RetrievedChunk(
+            content=(
+                "LIVE DEMO - Demo Espresso KES 10. "
+                "If a customer asks for '10 bob', treat it as Demo Espresso KES 10.\n"
+                "COFFEE - Flat White KES 250."
+            ),
+            source="menu",
+            score=1.0,
+        ),
+    ])
+
+    assert reply is not None
+    assert "Demo Espresso - KES 10" in reply
+    assert "Flat White - KES 250" in reply
+    assert "If a customer asks" not in reply
+
+
 @pytest.mark.asyncio
 async def test_maybe_build_price_reply_uses_menu_fetch_before_vector(db, monkeypatch) -> None:
     async def fake_menu_chunks(*_args, **_kwargs):

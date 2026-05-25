@@ -235,6 +235,8 @@ async def fetch_menu_chunks(
         SELECT content, source
         FROM knowledge_base
         WHERE (CAST(:bid AS uuid) IS NULL OR business_id = CAST(:bid AS uuid))
+          AND LOWER(COALESCE(source, '')) NOT LIKE '%polic%'
+          AND LOWER(COALESCE(source, '')) NOT LIKE '%playbook%'
           AND (
             LOWER(COALESCE(source, '')) LIKE '%menu%'
             OR LOWER(content) LIKE '%coffee%'

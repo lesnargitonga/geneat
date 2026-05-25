@@ -169,7 +169,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `101 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `102 passed, 1 warning` via `make test-fast` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -816,6 +816,9 @@ Current retrieval behavior:
   likely menu chunks directly, without embedding the user query when menu rows
   are available, and only fall back to vector retrieval if no menu-style
   chunks are found,
+- menu quick replies ignore policy/playbook/operator chunks and instruction
+  phrases such as `If a customer asks...` so internal setup notes cannot show
+  up as fake menu items,
 - keyword fallback exists for degraded conditions,
 - tenant scoping is enforced by `business_id`,
 - price redaction uses KB-derived allowed prices,
@@ -2017,7 +2020,7 @@ make test-fast
 Current result:
 
 ```text
-101 passed, 1 warning
+102 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -2153,6 +2156,8 @@ This is the honest list, not the flattering list.
 - Lily Pond seed data now includes a customer-facing menu summary and no
   longer stores the old internal `DEMO FLOW` tool instruction as customer
   retrievable KB
+- menu quick-reply parsing now excludes policy/playbook/operator chunks so
+  internal instructions cannot be rendered as customer menu rows
 - committed test webhook secrets are no longer static strings; tests generate
   per-run Meta webhook secrets/tokens
 - `doctor-live` now retries transient hosted health/webhook/chat/photo probes

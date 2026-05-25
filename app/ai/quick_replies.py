@@ -74,10 +74,19 @@ _INTERNAL_MENU_MARKERS = (
     "create_order",
     "trigger m-pesa",
     "trigger mpesa",
+    "if a customer asks",
+    "ask for or use their name",
+    "do not describe internal",
     "whatsapp -> ai",
     "whatsapp → ai",
     "system prompt",
     "playbook",
+)
+_INTERNAL_MENU_SOURCE_MARKERS = (
+    "polic",
+    "playbook",
+    "operator",
+    "internal",
 )
 _CATEGORY_HINTS: dict[str, set[str]] = {
     "breakfast": {"breakfast", "morning", "chai", "mandazi", "toast", "pancake", "granola", "egg", "croissant"},
@@ -222,6 +231,9 @@ def price_reply_from_chunks(query: str, chunks: Sequence[RetrievedChunk]) -> str
 def _segments(chunks: Sequence[RetrievedChunk]) -> list[str]:
     items: list[str] = []
     for chunk in chunks:
+        source = (chunk.source or "").lower()
+        if any(marker in source for marker in _INTERNAL_MENU_SOURCE_MARKERS):
+            continue
         for piece in re.split(r"\n|(?<=\.)\s+", chunk.content or ""):
             segment = piece.strip(" \t-•")
             if not segment or "KES" not in segment.upper():
