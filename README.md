@@ -169,7 +169,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `102 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `103 passed, 1 warning` via `make test-fast` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -742,6 +742,8 @@ Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Docume
 - deterministic quick replies answer obvious price, hours, recommendation,
   item-availability, and full-menu questions before the model when tenant menu
   chunks are available, and can run again after the model path fails,
+- price quick replies prefer the base item price before add-on prices, so
+  `Flat White KES 220 (oat/almond +KES 40)` answers `KES 220`, not `KES 40`,
 - full-menu requests such as `I need the full menu` are answered
   deterministically from menu chunks instead of waiting on the model or an
   embedding call when menu rows are available, with vector retrieval kept as a
@@ -2020,7 +2022,7 @@ make test-fast
 Current result:
 
 ```text
-102 passed, 1 warning
+103 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -2117,6 +2119,8 @@ This is the honest list, not the flattering list.
 - full-menu, price, availability, recommendation, and vague photo follow-ups
   are handled deterministically so the assistant does not send random images,
   code-like copy, or slow generic fallbacks for basic café facts
+- price parsing now prefers the first/base item price before add-on prices,
+  preventing answers like `Flat White is KES 40`
 - explicit photo and obvious menu-info turns now avoid unnecessary RAG
   embedding calls, and repeated RAG query embeddings are cached briefly per
   worker

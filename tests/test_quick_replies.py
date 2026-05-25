@@ -94,6 +94,21 @@ def test_price_reply_from_chunks_handles_demo_espresso() -> None:
     )
 
 
+def test_price_reply_uses_base_price_before_add_on_price() -> None:
+    reply = price_reply_from_chunks(
+        "How much is the flat white?",
+        [
+            RetrievedChunk(
+                content="COFFEE - Flat White / Cappuccino / Latte KES 220 (oat/almond +KES 40).",
+                source="menu",
+                score=1.0,
+            )
+        ],
+    )
+
+    assert reply == "Flat White is KES 220. Want me to sort one for pickup?"
+
+
 def test_recommendation_reply_from_chunks_respects_budget() -> None:
     chunks = [
         RetrievedChunk(

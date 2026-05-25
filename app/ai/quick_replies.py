@@ -187,12 +187,16 @@ def price_item_query(text: str) -> str:
 def price_reply_from_chunks(query: str, chunks: Sequence[RetrievedChunk]) -> str | None:
     item_query = price_item_query(query)
     query_norm = _normalize(item_query)
-    query_tokens = {
+    query_terms = [
         token for token in query_norm.split()
         if token and token not in _PRICE_STOPWORDS and len(token) >= 3
+    ]
+    query_tokens = {
+        token for token in query_terms
     }
     if not query_tokens and query_norm:
         query_tokens = {query_norm}
+    query_phrase = " ".join(query_terms)
 
     best_segment: str | None = None
     best_score = -1
@@ -206,21 +210,24 @@ def price_reply_from_chunks(query: str, chunks: Sequence[RetrievedChunk]) -> str
             score = 0
             if query_norm and query_norm in seg_norm:
                 score += 3
+            if query_phrase and query_phrase in seg_norm:
+                score += 3
             score += sum(1 for token in query_tokens if token in seg_norm)
             if score <= 0:
                 continue
-            amounts = sorted(extract_kes_amounts(segment))
-            if not amounts:
+            price = _first_price(segment)
+            if price is None:
                 continue
             if score > best_score:
                 best_score = score
                 best_segment = segment
-                best_price = amounts[0]
+                best_price = price
 
     if best_price is None:
         return None
 
-    label = item_query.strip(" ?.!").title() if item_query.strip() else "That item"
+    label_source = query_phrase or item_query.strip(" ?.!") or "That item"
+    label = label_source.title()
     if "demo espresso" in query_norm or "demo order" in query_norm or "10 bob" in query_norm or "ten bob" in query_norm:
         return "Demo Espresso is KES 10. Want me to set one up for pickup?"
     if best_segment and "/" in best_segment and best_score < 4:
