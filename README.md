@@ -132,7 +132,7 @@ Fresh live checks run from this workspace on **2026-05-25**:
 | `GET /healthz` | `{"status":"ok"}` |
 | `GET /readyz` | DB and Redis healthy |
 | `GET /health/deep` | `status=ok`, db/redis/pgvector/whatsapp/payments/llm all reachable |
-| `GET /version` | hosted commit `5326cd0c3d47` on service `geneat-2` |
+| `GET /version` | exposes hosted app/build fingerprint for deploy-drift checks |
 | `make doctor-live` | `22/22 configured checks passed` from this workspace when live verify token is intentionally skipped |
 | `make eval-whatsapp-live` | `65/65` safe reply scenarios passed across all four demo tenants |
 | `make pre-demo-live` | passed no-money public-demo battery, including deploy-drift check |
@@ -157,8 +157,8 @@ What that means in plain English:
 - live mode skips direct local DB introspection and relies on hosted health,
   chat, and photo checks,
 - the hosted chat proxy path works,
-- the hosted API is serving commit `5326cd0c3d47`, matching the local
-  `main` HEAD used for the pre-demo battery,
+- the hosted API exposes its running commit through `/version`, so stale
+  Render deploys can be detected before WhatsApp rehearsal,
 - the live demo tenant exists,
 - the `Demo Espresso` price answer works without the generic fallback,
 - a photo request returns an image,
@@ -2053,8 +2053,8 @@ Current high-value scripts:
   `/mock/message` rate limit
 - `pre_demo_battery.py` is the broader public-demo gate; it runs safe
   live/local checks only, compares `/version` against local git HEAD when the
-  hosted SHA is exposed, and intentionally does not create orders or trigger
-  STK prompts
+  hosted SHA is exposed, tolerates doc/test/tooling-only drift, and
+  intentionally does not create orders or trigger STK prompts
 
 ### 21.1 Lily Pond training data generator
 
@@ -2162,7 +2162,8 @@ This is the recommended command before any public demo. It includes:
 
 - hosted health and provider readiness,
 - `/version` deploy-drift checks against local git HEAD when the hosted commit
-  is exposed; latest hosted run matched `5326cd0c3d47`,
+  is exposed; app/migration/Docker/deploy drift fails the battery, while
+  doc/test/tooling-only drift is reported without blocking the demo,
 - the full four-café no-money reply matrix, latest `65/65` passed,
 - stateful no-money conversations per tenant, including `yes` after a price
   offer and bare item fragments like `the espresso`,

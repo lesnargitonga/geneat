@@ -34,6 +34,16 @@ from eval_whatsapp_reply_matrix import (  # noqa: E402
     run_matrix_paced,
 )
 
+_RUNTIME_DEPLOY_PATHS = (
+    "app/",
+    "alembic/",
+    "requirements.txt",
+    "Dockerfile",
+    "render.yaml",
+    "start.sh",
+    "alembic.ini",
+)
+
 
 @dataclass(frozen=True)
 class CheckResult:
@@ -79,6 +89,31 @@ def _commits_match(expected: str, actual: str) -> bool:
     expected_short = expected[:12]
     actual_short = actual[:12]
     return expected_short == actual_short or expected.startswith(actual) or actual.startswith(expected_short)
+
+
+def _runtime_drift_since(actual_commit: str, expected_commit: str) -> tuple[bool, list[str]]:
+    actual = (actual_commit or "").strip()
+    expected = (expected_commit or "").strip()
+    if not actual or not expected or actual == "unknown":
+        return True, []
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--name-only", f"{actual}..{expected}"],
+            cwd=REPO_ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=2.0,
+        )
+    except Exception:
+        return True, []
+    changed = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    runtime = [
+        path
+        for path in changed
+        if path in _RUNTIME_DEPLOY_PATHS or any(path.startswith(prefix) for prefix in _RUNTIME_DEPLOY_PATHS)
+    ]
+    return bool(runtime), runtime[:8]
 
 
 async def _get_json(client: httpx.AsyncClient, url: str, *, attempts: int = 3) -> tuple[int, Any, float]:
@@ -141,12 +176,20 @@ async def health_checks(
                 actual_commit = str(body.get("commit") or "unknown")
                 expected_short = (expected_commit or "")[:12] or "unknown"
                 version_ok = status == 200 and _commits_match(expected_commit, actual_commit)
+                runtime_drift: list[str] = []
+                if status == 200 and not version_ok:
+                    has_runtime_drift, runtime_drift = _runtime_drift_since(actual_commit, expected_commit)
+                    version_ok = not has_runtime_drift
                 note = (
                     f"status={status} expected={expected_short} actual={actual_commit} "
                     f"service={body.get('service') or 'unknown'} elapsed={elapsed:.2f}s"
                 )
                 if actual_commit == "unknown" and status == 200:
                     note += "; hosted commit unknown, but /version exists"
+                elif runtime_drift:
+                    note += f"; runtime drift={runtime_drift}"
+                elif status == 200 and not _commits_match(expected_commit, actual_commit) and version_ok:
+                    note += "; commit differs only in non-runtime/docs/test/tooling files"
                 results.append(CheckResult("version.deploy_commit", version_ok, note))
             else:
                 results.append(
