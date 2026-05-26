@@ -2197,7 +2197,9 @@ It deliberately does not trigger STK or create real orders. Run a real
 WhatsApp/STK rehearsal separately only when you intentionally want to spend
 the KES 10 demo transaction. The script waits before its burst-load phase so
 the earlier mock-channel checks do not self-trigger the `/mock/message`
-`60/minute` rate limit.
+`60/minute` rate limit. Live stateful checks also use fresh mock phone
+numbers per run and pace turns, so repeated rehearsals do not trip old
+conversation turn caps or endpoint-rate limits.
 
 ### 22.4 Other useful tests
 
@@ -2296,7 +2298,9 @@ This is the honest list, not the flattering list.
 - the safe WhatsApp reply matrix can be run locally or live with
   `make eval-whatsapp-local` / `make eval-whatsapp-live`; it uses shared
   safety invariants plus small per-tenant menu fixtures, so a new business
-  should add a fixture rather than a bespoke test suite
+  should add a fixture rather than a bespoke test suite; live matrix and
+  pre-demo runs now mint fresh mock phone numbers per run so old rehearsal
+  history does not trigger false long-conversation escalations
 - plural menu matching now handles cases like `sandwiches`, `croissants`, and
   `cinnamon rolls`, and hyphenated category headers such as `GRAB-AND-GO`
   no longer leak into customer-facing item labels

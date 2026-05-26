@@ -241,7 +241,12 @@ async def health_checks(
     return results
 
 
-async def stateful_conversation_checks(base_url: str, *, timeout: float) -> list[CheckResult]:
+async def stateful_conversation_checks(
+    base_url: str,
+    *,
+    timeout: float,
+    turn_delay_seconds: float = 0.0,
+) -> list[CheckResult]:
     """Run multi-turn, no-money conversations per tenant.
 
     These are deliberately phrased so they should stay on deterministic menu
@@ -249,9 +254,10 @@ async def stateful_conversation_checks(base_url: str, *, timeout: float) -> list
     the check fail.
     """
     results: list[CheckResult] = []
+    run_id = int(time.time()) % 10000
     async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
         for tenant_index, fixture in enumerate(TENANT_FIXTURES.values(), start=1):
-            phone = f"+1555930{tenant_index:03d}"
+            phone = f"+1555930{run_id:04d}{tenant_index}"
             target_item = fixture.bare_item_text.replace("The ", "").replace("the ", "").strip(" ?.!") or fixture.bare_item_text
             order_without_article = fixture.order_text.replace("the ", "", 1).replace("The ", "", 1)
             turns = [
@@ -304,6 +310,10 @@ async def stateful_conversation_checks(base_url: str, *, timeout: float) -> list
                     detail_parts.append("unexpected_image")
                 detail_parts.append(reply.replace("\n", " ")[:140])
                 results.append(CheckResult(name, ok, "; ".join(detail_parts)))
+                if turn_delay_seconds > 0 and not (
+                    tenant_index == len(TENANT_FIXTURES) and turn_index == len(turns)
+                ):
+                    await asyncio.sleep(turn_delay_seconds)
     return results
 
 
@@ -318,6 +328,7 @@ async def deterministic_load_check(
     fixtures = tuple(TENANT_FIXTURES.values())
     sem = asyncio.Semaphore(concurrency)
     samples: list[dict[str, Any]] = []
+    run_id = int(time.time()) % 1000
 
     async def one(index: int, client: httpx.AsyncClient) -> None:
         fixture = fixtures[index % len(fixtures)]
@@ -328,7 +339,7 @@ async def deterministic_load_check(
                 response = await client.post(
                     f"{base_url.rstrip('/')}/mock/message",
                     json={
-                        "phone": f"+1555940{index:04d}",
+                        "phone": f"+1555940{run_id:03d}{index:02d}",
                         "business_slug": fixture.slug,
                         "text": text,
                     },
@@ -412,6 +423,12 @@ async def main_async() -> int:
         default=65.0,
         help="cooldown before stateful checks when the reply matrix already used most of the /mock rate window",
     )
+    parser.add_argument(
+        "--stateful-turn-delay-seconds",
+        type=float,
+        default=-1.0,
+        help="delay between stateful mock turns; default is 1.05s for --live and 0s locally",
+    )
     parser.add_argument("--load-requests", type=int, default=16)
     parser.add_argument("--load-concurrency", type=int, default=4)
     parser.add_argument("--load-max-p95-ms", type=float, default=2500.0)
@@ -454,6 +471,9 @@ async def main_async() -> int:
         failures += 1 if matrix_rc else 0
 
     if not args.skip_stateful:
+        stateful_turn_delay = args.stateful_turn_delay_seconds
+        if stateful_turn_delay < 0:
+            stateful_turn_delay = 1.05 if args.live else 0.0
         if args.stateful_cooldown_seconds > 0 and not args.skip_matrix:
             print()
             print(
@@ -463,7 +483,11 @@ async def main_async() -> int:
             await asyncio.sleep(args.stateful_cooldown_seconds)
         failures += _print_results(
             "Stateful No-Money Conversations",
-            await stateful_conversation_checks(base_url, timeout=args.timeout),
+            await stateful_conversation_checks(
+                base_url,
+                timeout=args.timeout,
+                turn_delay_seconds=stateful_turn_delay,
+            ),
         )
 
     if not args.skip_load:

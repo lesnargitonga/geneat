@@ -395,6 +395,7 @@ def run_matrix_paced(
     url = f"{base_url.rstrip('/')}/mock/message"
     failures: list[str] = []
     total = 0
+    run_id = int(time.time()) % 10000
     with httpx.Client(timeout=timeout, follow_redirects=True) as client:
         for tenant_index, fixture in enumerate(fixtures, start=1):
             scenarios = _shared_scenarios(fixture)
@@ -402,7 +403,7 @@ def run_matrix_paced(
             print()
             print(f"== {fixture.label} ({fixture.slug}) ==")
             for scenario_index, scenario in enumerate(scenarios, start=1):
-                phone = f"{phone_prefix}{tenant_index:02d}{scenario_index:03d}"
+                phone = f"{phone_prefix}{run_id:04d}{tenant_index}{scenario_index:02d}"
                 request = {"phone": phone, "business_slug": fixture.slug, "text": scenario.text}
                 start = time.perf_counter()
                 try:
