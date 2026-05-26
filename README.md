@@ -134,7 +134,7 @@ Fresh live checks run from this workspace on **2026-05-25**:
 | `GET /health/deep` | `status=ok`, db/redis/pgvector/whatsapp/payments/llm all reachable |
 | `GET /version` | exposes hosted app/build fingerprint for deploy-drift checks |
 | `make doctor-live` | `22/22 configured checks passed` from this workspace when live verify token is intentionally skipped |
-| `make eval-whatsapp-live` | `65/65` safe reply scenarios passed across all four demo tenants |
+| `make eval-whatsapp-live` | currently configured for `77` safe reply scenarios across all four demo tenants |
 | `make pre-demo-live` | passed no-money public-demo battery, including deploy-drift check |
 | Portal live price check | passed without generic fallback |
 | Portal live photo check | passed |
@@ -181,7 +181,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `116 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `117 passed, 1 warning` via `make test-fast` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -759,10 +759,13 @@ Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Docume
 - deterministic quick replies answer obvious price, hours, recommendation,
   item-availability, and full-menu questions before the model when tenant menu
   chunks are available, and can run again after the model path fails,
+- deterministic greetings answer plain `hi` / `hey` / `sasa` turns without
+  promising readiness, queue-skip, or pickup before an order exists,
 - price quick replies choose the first price after the matched item phrase, so
   `Espresso KES 120 ... Flat White KES 220 (oat/almond +KES 40)` answers
   `Flat White is KES 220`, not `KES 120` or `KES 40`,
-- full-menu requests such as `I need the full menu` are answered
+- full-menu requests such as `I need the full menu`, `Lemme see the menu
+  first`, and `Do you sell anything else?` are answered
   deterministically from menu chunks instead of waiting on the model or an
   embedding call when menu rows are available, with vector retrieval kept as a
   compatibility fallback,
@@ -2097,7 +2100,7 @@ make test-fast
 Current result:
 
 ```text
-116 passed, 1 warning
+117 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -2135,16 +2138,17 @@ Additional safe no-money WhatsApp reply gate:
 make eval-whatsapp-live
 ```
 
-Current result:
+Current configured coverage:
 
 ```text
-65/65 scenarios passed
+77 configured scenarios
 ```
 
 This matrix covers Lily Pond, Library Bites, Pavilion Grill, and Block A
 Express. It checks fast deterministic replies for menu, price, availability,
-menu-photo wording, payment-status claims, bare item/order follow-ups,
-affirmative follow-ups, and internal policy leakage.
+menu-first wording, anything-else menu wording, safe greetings, menu-photo
+wording, payment-status claims, bare item/order follow-ups, affirmative
+follow-ups, and internal policy leakage.
 
 Broader pre-demo battery:
 
@@ -2164,9 +2168,10 @@ This is the recommended command before any public demo. It includes:
 - `/version` deploy-drift checks against local git HEAD when the hosted commit
   is exposed; app/migration/Docker/deploy drift fails the battery, while
   doc/test/tooling-only drift is reported without blocking the demo,
-- the full four-café no-money reply matrix, latest `65/65` passed,
+- the full four-café no-money reply matrix, now configured for `77` scenarios,
 - stateful no-money conversations per tenant, including `yes` after a price
-  offer and bare item fragments like `the espresso`,
+  offer, bare item fragments like `the espresso`, menu-first requests, and
+  anything-else menu requests,
 - a small deterministic load burst against `/mock/message`; latest hosted run
   was `16/16` HTTP 200 with p95 `1111 ms`.
 
@@ -2242,6 +2247,8 @@ This is the honest list, not the flattering list.
 - full-menu, price, availability, recommendation, and vague photo follow-ups
   are handled deterministically so the assistant does not send random images,
   code-like copy, or slow generic fallbacks for basic café facts
+- plain greetings are handled deterministically with a neutral menu/prices/
+  photos/order offer, not the old "ready before lecture" promise
 - short affirmatives such as `yes`, `yeah`, and `sure` can continue a recent
   one-item offer deterministically, while ambiguous multi-item offers ask the
   customer which item to order

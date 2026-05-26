@@ -71,8 +71,8 @@ CAFES: list[dict] = [
             "when the energy fits. Always confirm pickup time and queue. Default currency KES."
         ),
         "greeting": (
-            "Sasa! 👋 Karibu Lily Pond. Tell me what you want and when you're picking up — "
-            "I'll have it ready before you finish your lecture. ☕"
+            "Hi, welcome to Lily Pond. I can help with the menu, prices, item photos, "
+            "or an order."
         ),
         "profile": {
             "tagline": "USIU's pondside hangout. Coffee that actually matters.",

@@ -253,7 +253,10 @@ async def stateful_conversation_checks(base_url: str, *, timeout: float) -> list
         for tenant_index, fixture in enumerate(TENANT_FIXTURES.values(), start=1):
             phone = f"+1555930{tenant_index:03d}"
             turns = [
+                ("greeting", "Hey", ("I can help with the menu",), 2.5),
                 ("menu", "I need the full menu, now!", fixture.menu_expected[:1], 2.5),
+                ("menu_first", "Lemme see the menu first", fixture.menu_expected[:1], 2.5),
+                ("sell_anything_else", "Do you sell anything else?", fixture.menu_expected[:1], 2.5),
                 ("photo_menu", "Lemme see a picture of your menu", ("I do not have a clean menu-board photo yet",), 2.5),
                 ("price", fixture.price_text, fixture.price_expected, 2.5),
                 ("yes_after_price", "Yeah", ("what name should I put on",), 2.5),

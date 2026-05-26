@@ -92,6 +92,10 @@ _ORDER_REPEAT_RE = re.compile(
     re.IGNORECASE,
 )
 _DEMO_ESPRESSO_RE = re.compile(r"\b(demo espresso|demo order|10 bob|ten bob)\b", re.IGNORECASE)
+_GREETING_RE = re.compile(
+    r"^\s*(hi|hello|hey|sasa|niaje|mambo|vipi|habari|good morning|good afternoon|good evening)\s*[.!? ]*$",
+    re.IGNORECASE,
+)
 _ORDER_INTENT_RE = re.compile(
     r"\b(i want|i need|i'?ll have|i'?d like|i would like|can i have|can i get|"
     r"may i have|may i get|let me get|lemme get|order|sort|get me|nipe|nataka|leta)\b",
@@ -159,6 +163,23 @@ def _looks_like_payment_claim(text: str) -> bool:
     return bool(_PAYMENT_CLAIM_RE.search(lowered))
 
 
+def _looks_like_greeting(text: str) -> bool:
+    return bool(_GREETING_RE.match(text or ""))
+
+
+def _greeting_reply(*, business_name: str | None, language: str | None) -> str:
+    name = (business_name or "the cafe").replace("Café", "Cafe")
+    if _customer_prefers_swahili(language):
+        return (
+            f"Sasa, karibu {name}. Naweza kukusaidia na menu, bei, picha ya item, "
+            "au kuweka order."
+        )
+    return (
+        f"Hi, welcome to {name}. I can help with the menu, prices, item photos, "
+        "or an order."
+    )
+
+
 def _looks_like_pickup_status_request(text: str) -> bool:
     return bool(_PICKUP_STATUS_RE.search(text or ""))
 
@@ -175,6 +196,7 @@ def _looks_like_menu_info_request(text: str) -> bool:
         or _looks_like_payment_claim(candidate)
         or _looks_like_pickup_status_request(candidate)
         or _looks_like_demo_espresso_order(candidate)
+        or _looks_like_greeting(candidate)
     ):
         return False
     if looks_like_price_request(candidate) or looks_like_hours_request(candidate):
@@ -1513,6 +1535,9 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 log.warning("menu_info_quick_reply_failed", error=str(exc))
                 control_reply = None
             control_flag = "deterministic:menu_info" if control_reply else None
+        elif _looks_like_greeting(turn.text):
+            control_reply = _greeting_reply(business_name=_biz_name, language=effective_lang)
+            control_flag = "deterministic:greeting"
         else:
             control_reply = await _affirmative_followup_reply(
                 db,

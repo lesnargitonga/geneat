@@ -45,7 +45,10 @@ _AVAILABILITY_REQUEST_RE = re.compile(
 _FULL_MENU_REQUEST_RE = re.compile(
     r"\b("
     r"full menu|whole menu|entire menu|complete menu|menu list|show menu|send menu|"
+    r"see (?:the )?menu|look at (?:the )?menu|menu first|"
     r"what'?s on (?:the )?menu|what do you sell|what else do you sell|"
+    r"do you sell anything else|anything else do you sell|what else (?:is|do you have|have you got|can i get)|"
+    r"other (?:items|things|stuff|options)|more (?:items|options|food|drinks)|"
     r"that'?s not (?:the )?menu|not the menu"
     r")\b",
     re.IGNORECASE,
@@ -154,6 +157,8 @@ def looks_like_recommendation_request(text: str) -> bool:
         return False
     if looks_like_photo_request(candidate) or looks_like_price_request(candidate):
         return False
+    if looks_like_full_menu_request(candidate):
+        return False
     lowered = candidate.lower()
     if any(token in lowered for token in ("breakfast", "lunch", "dinner", "coffee", "pastr", "snack", "drink", "menu")):
         return True
@@ -165,6 +170,8 @@ def looks_like_availability_request(text: str) -> bool:
     if not candidate:
         return False
     if looks_like_photo_request(candidate) or looks_like_price_request(candidate):
+        return False
+    if looks_like_full_menu_request(candidate):
         return False
     return bool(_AVAILABILITY_REQUEST_RE.search(candidate))
 
@@ -178,7 +185,10 @@ def looks_like_full_menu_request(text: str) -> bool:
         return True
     return "menu" in lowered and any(
         token in lowered
-        for token in ("now", "please", "pls", "send", "show", "need", "want", "give", "list", "all")
+        for token in (
+            "now", "please", "pls", "send", "show", "need", "want", "give",
+            "list", "all", "first", "see", "view", "look",
+        )
     )
 
 

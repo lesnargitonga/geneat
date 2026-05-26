@@ -59,6 +59,10 @@ def test_full_menu_request_and_reply() -> None:
     assert looks_like_full_menu_request("I need the full menu, now!")
     assert looks_like_full_menu_request("That's not the menu")
     assert looks_like_full_menu_request("Thanks, what else do you sell at the cafe?")
+    assert looks_like_full_menu_request("Lemme see the menu first")
+    assert looks_like_full_menu_request("Do you sell anything else?")
+    assert not looks_like_recommendation_request("Lemme see the menu first")
+    assert not looks_like_availability_request("Do you sell anything else?")
     reply = full_menu_reply_from_chunks(chunks)
     assert reply is not None
     assert "Demo Espresso - KES 10" in reply

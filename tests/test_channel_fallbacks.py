@@ -1,9 +1,11 @@
 from app.channels.base import (
     _customer_safe_kb_snippet,
     _extract_inline_customer_name,
+    _greeting_reply,
     _is_degraded_fallback_text,
     _looks_like_bare_menu_item,
     _looks_like_demo_espresso_order,
+    _looks_like_greeting,
     _looks_like_menu_photo_request,
     _looks_like_menu_info_request,
     _looks_like_payment_cancel,
@@ -101,6 +103,17 @@ def test_menu_info_fast_path_avoids_order_and_photo_turns() -> None:
     assert not _looks_like_menu_info_request("I want a flat white")
     assert not _looks_like_menu_info_request("show me a photo of the flat white")
     assert not _looks_like_menu_info_request("I want the KES 10 demo espresso")
+    assert not _looks_like_menu_info_request("Hey")
+
+
+def test_greeting_reply_does_not_promise_readiness() -> None:
+    assert _looks_like_greeting("Hey")
+    reply = _greeting_reply(business_name="Lily Pond Café", language="en")
+    assert "Lily Pond Cafe" in reply
+    assert "menu" in reply
+    assert "ready" not in reply.lower()
+    assert "pickup" not in reply.lower()
+    assert "queue" not in reply.lower()
 
 
 def test_bare_item_and_affirmative_followups_are_controlled() -> None:

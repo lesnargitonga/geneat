@@ -162,6 +162,13 @@ def _shared_scenarios(fixture: TenantFixture) -> tuple[Scenario, ...]:
             expect_image=False,
         ),
         Scenario(
+            name="menu_first",
+            text="Lemme see the menu first",
+            must_include=("Here is the menu I have",) + fixture.menu_expected[:1],
+            must_not_include=tenant_forbidden,
+            expect_image=False,
+        ),
+        Scenario(
             name="menu_correction",
             text="That's not the menu",
             must_include=("Here is the menu I have",) + fixture.menu_expected[:1],
@@ -173,6 +180,20 @@ def _shared_scenarios(fixture: TenantFixture) -> tuple[Scenario, ...]:
             text="Thanks, what else do you sell at the cafe?",
             must_include=("Here is the menu I have",) + fixture.menu_expected[:1],
             must_not_include=tenant_forbidden,
+            expect_image=False,
+        ),
+        Scenario(
+            name="sell_anything_else",
+            text="Do you sell anything else?",
+            must_include=("Here is the menu I have",) + fixture.menu_expected[:1],
+            must_not_include=tenant_forbidden,
+            expect_image=False,
+        ),
+        Scenario(
+            name="greeting_safe",
+            text="Hey",
+            must_include=("I can help with the menu",),
+            must_not_include=tenant_forbidden + ("ready", "pickup", "queue", "lecture"),
             expect_image=False,
         ),
         Scenario(
