@@ -132,7 +132,7 @@ Fresh live checks run from this workspace on **2026-05-26**:
 | `GET /healthz` | `{"status":"ok"}` |
 | `GET /readyz` | DB and Redis healthy |
 | `GET /health/deep` | `status=ok`, db/redis/pgvector/whatsapp/payments/llm all reachable |
-| `GET /version` | exposes hosted app/build fingerprint; current verified commit `737c129d71bd` |
+| `GET /version` | exposes hosted app/build fingerprint for deploy-drift checks |
 | `make doctor-live` | `22/22 configured checks passed` from this workspace when live verify token is intentionally skipped |
 | `make eval-whatsapp-live` | currently configured for `97` safe reply scenarios across all four demo tenants |
 | `make pre-demo-live` | passed no-money public-demo battery, including deploy-drift check |
