@@ -25,6 +25,9 @@ log = get_logger("rag")
 _EMBED_QUERY_CACHE_TTL_SECONDS = 300.0
 _EMBED_QUERY_CACHE_MAX = 256
 _EMBED_QUERY_CACHE: OrderedDict[str, tuple[float, list[float]]] = OrderedDict()
+_MENU_CHUNK_CACHE_TTL_SECONDS = 60.0
+_MENU_CHUNK_CACHE_MAX = 128
+_MENU_CHUNK_CACHE: OrderedDict[str, tuple[float, list["RetrievedChunk"]]] = OrderedDict()
 
 
 @dataclass
@@ -43,6 +46,10 @@ async def embed_texts(texts: Sequence[str]) -> list[list[float]]:
 
 def clear_embed_query_cache() -> None:
     _EMBED_QUERY_CACHE.clear()
+
+
+def clear_menu_chunk_cache() -> None:
+    _MENU_CHUNK_CACHE.clear()
 
 
 def _embed_query_cache_key(q: str) -> str:
@@ -230,6 +237,16 @@ async def fetch_menu_chunks(
     this path embedding-free makes "send the menu" replies much faster and
     avoids falling back just because the embedding provider is slow.
     """
+    cache_key = f"{business_id or 'global'}:{k}"
+    now = time.monotonic()
+    cached = _MENU_CHUNK_CACHE.get(cache_key)
+    if cached is not None:
+        expires_at, chunks = cached
+        if expires_at > now:
+            _MENU_CHUNK_CACHE.move_to_end(cache_key)
+            return list(chunks)
+        _MENU_CHUNK_CACHE.pop(cache_key, None)
+
     sql = text(
         """
         SELECT content, source
@@ -259,10 +276,15 @@ async def fetch_menu_chunks(
     except Exception as e:
         log.warning("rag_menu_fetch_failed", error=str(e))
         return []
-    return [
+    chunks = [
         RetrievedChunk(content=r.content, source=r.source, score=1.0)
         for r in rows
     ]
+    _MENU_CHUNK_CACHE[cache_key] = (now + _MENU_CHUNK_CACHE_TTL_SECONDS, list(chunks))
+    _MENU_CHUNK_CACHE.move_to_end(cache_key)
+    while len(_MENU_CHUNK_CACHE) > _MENU_CHUNK_CACHE_MAX:
+        _MENU_CHUNK_CACHE.popitem(last=False)
+    return chunks
 
 
 # ── Price discovery (used by output safety filter) ─────────────────────

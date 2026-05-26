@@ -181,7 +181,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `120 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `122 passed, 1 warning` via `make test-fast` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -773,6 +773,9 @@ Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Docume
   deterministically from menu chunks instead of waiting on the model or an
   embedding call when menu rows are available, with vector retrieval kept as a
   compatibility fallback,
+- menu chunk lookups are cached briefly per worker, so repeated deterministic
+  menu/price/availability/photo-clarification turns do not need to hit
+  Postgres for every message in a burst,
 - generic photo follow-ups such as `send a picture` ask which item to send
   using examples from that tenant's menu chunks instead of hard-coded Lily
   Pond examples or the wrong café/menu image,
@@ -2118,7 +2121,7 @@ make test-fast
 Current result:
 
 ```text
-120 passed, 1 warning
+122 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -2308,8 +2311,8 @@ This is the honest list, not the flattering list.
   `cinnamon rolls`, and hyphenated category headers such as `GRAB-AND-GO`
   no longer leak into customer-facing item labels
 - explicit photo and obvious menu-info turns now avoid unnecessary RAG
-  embedding calls, and repeated RAG query embeddings are cached briefly per
-  worker
+  embedding calls, and repeated menu chunk lookups plus RAG query embeddings
+  are cached briefly per worker
 - JSON/tool-call-looking model output is sanitized before it reaches WhatsApp,
   with menu quick-reply recovery when the customer asked a factual menu
   question
