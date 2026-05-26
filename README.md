@@ -15,7 +15,7 @@ final authority, but this document is the canonical human map of:
 - and what still needs hardening before anyone promises enterprise-grade uptime.
 
 Last reconciled with the codebase and local checks: **2026-05-26**.
-Hosted live checks were last verified on **2026-05-25**.
+Hosted live checks were last verified on **2026-05-26**.
 
 ## Table Of Contents
 
@@ -125,14 +125,14 @@ Notes:
 
 ### 2.2 Hosted live verification
 
-Fresh live checks run from this workspace on **2026-05-25**:
+Fresh live checks run from this workspace on **2026-05-26**:
 
 | Check | Result |
 | --- | --- |
 | `GET /healthz` | `{"status":"ok"}` |
 | `GET /readyz` | DB and Redis healthy |
 | `GET /health/deep` | `status=ok`, db/redis/pgvector/whatsapp/payments/llm all reachable |
-| `GET /version` | exposes hosted app/build fingerprint for deploy-drift checks |
+| `GET /version` | exposes hosted app/build fingerprint; current verified commit `737c129d71bd` |
 | `make doctor-live` | `22/22 configured checks passed` from this workspace when live verify token is intentionally skipped |
 | `make eval-whatsapp-live` | currently configured for `97` safe reply scenarios across all four demo tenants |
 | `make pre-demo-live` | passed no-money public-demo battery, including deploy-drift check |
@@ -2187,7 +2187,7 @@ This is the recommended command before any public demo. It includes:
   offer, bare item fragments like `the espresso`, menu-first requests, and
   anything-else menu requests,
 - a small deterministic load burst against `/mock/message`; latest hosted run
-  was `16/16` HTTP 200 with p95 `1111 ms`.
+  was `16/16` HTTP 200 with p95 `1641 ms`.
 
 It deliberately does not trigger STK or create real orders. Run a real
 WhatsApp/STK rehearsal separately only when you intentionally want to spend
