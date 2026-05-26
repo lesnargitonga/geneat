@@ -1,3 +1,8 @@
+from types import SimpleNamespace
+import uuid
+
+import pytest
+
 from app.channels.base import (
     _customer_safe_kb_snippet,
     _extract_inline_customer_name,
@@ -16,6 +21,7 @@ from app.channels.base import (
     _offer_options_from_text,
     _payment_tool_recovery_reply,
     _promises_ready_before_payment,
+    _specific_photo_reply,
 )
 
 
@@ -146,3 +152,36 @@ def test_menu_photo_request_becomes_menu_text_not_generic_cafe_image() -> None:
     assert _looks_like_menu_photo_request("Lemme see a picture of your menu")
     assert not _looks_like_menu_photo_request("Can you send me the full menu please?")
     assert not _looks_like_menu_photo_request("Got any pictures of the espresso")
+
+
+@pytest.mark.asyncio
+async def test_specific_photo_reply_uses_whatsapp_tool_channel(db, monkeypatch) -> None:
+    seen = {}
+
+    class PhotoTool:
+        name = "send_menu_photo"
+
+        async def ainvoke(self, args):
+            seen["args"] = args
+            return {"ok": True, "item": "Espresso", "image_url": "https://cdn.example/espresso.jpg"}
+
+    def fake_build_tools(*args, **kwargs):
+        seen["channel"] = kwargs.get("channel")
+        return [PhotoTool()]
+
+    monkeypatch.setattr("app.ai.tools.build_tools", fake_build_tools)
+
+    reply, image_url, item = await _specific_photo_reply(
+        db,
+        customer=SimpleNamespace(phone_number="+254700000001"),
+        conversation_id=uuid.uuid4(),
+        business_id=uuid.uuid4(),
+        text="Got any pictures of the espresso?",
+        channel="whatsapp",
+    )
+
+    assert seen["channel"] == "whatsapp"
+    assert seen["args"] == {"item": "Got any pictures of the espresso?"}
+    assert reply == "Here you go for Espresso."
+    assert image_url is None
+    assert item == "Espresso"

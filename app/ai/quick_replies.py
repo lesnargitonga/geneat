@@ -606,6 +606,40 @@ def full_menu_reply_from_chunks(chunks: Sequence[RetrievedChunk], *, limit: int 
     return "Here is the menu I have:\n" + "\n".join(lines) + suffix
 
 
+def example_item_labels_from_chunks(chunks: Sequence[RetrievedChunk], *, limit: int = 3) -> tuple[str, ...]:
+    options = _extract_options(chunks)
+    has_non_demo_option = any("demo espresso" not in option.normalized for option in options)
+    labels: list[str] = []
+    seen: set[str] = set()
+    for option in options:
+        if "demo espresso" in option.normalized and has_non_demo_option:
+            continue
+        label_key = _normalize(option.label)
+        if label_key in seen:
+            continue
+        seen.add(label_key)
+        labels.append(option.label)
+        if len(labels) >= limit:
+            break
+    return tuple(labels)
+
+
+def item_examples_text(labels: Sequence[str]) -> str:
+    cleaned = [str(label).strip() for label in labels if str(label).strip()]
+    if not cleaned:
+        cleaned = ["a menu item"]
+    if len(cleaned) == 1:
+        return cleaned[0]
+    if len(cleaned) == 2:
+        return f"{cleaned[0]} or {cleaned[1]}"
+    return ", ".join(cleaned[:-1]) + f", or {cleaned[-1]}"
+
+
+def photo_clarification_reply_from_chunks(chunks: Sequence[RetrievedChunk]) -> str:
+    examples = item_examples_text(example_item_labels_from_chunks(chunks))
+    return f"Which item should I send a picture of? I can send photos for items like {examples}."
+
+
 async def maybe_build_quick_reply(
     db,
     *,

@@ -61,6 +61,7 @@ class TenantFixture:
     availability_text: str
     availability_expected: tuple[str, ...]
     photo_text: str
+    photo_clarify_expected: tuple[str, ...]
     order_text: str
     bare_item_text: str
     order_expected: tuple[str, ...]
@@ -80,6 +81,7 @@ TENANT_FIXTURES: dict[str, TenantFixture] = {
         availability_text="Do you have croissants?",
         availability_expected=("Croissant", "KES"),
         photo_text="Got any pictures of the espresso?",
+        photo_clarify_expected=("Espresso",),
         order_text="May I have the espresso?",
         bare_item_text="The espresso",
         order_expected=("what name should I put on the Espresso order",),
@@ -104,6 +106,7 @@ TENANT_FIXTURES: dict[str, TenantFixture] = {
         availability_text="Do you have sandwiches?",
         availability_expected=("Sandwich", "KES"),
         photo_text="Send me a picture of the chicken mayo sandwich",
+        photo_clarify_expected=("Chicken Mayo Sandwich",),
         order_text="May I have the latte?",
         bare_item_text="The latte",
         order_expected=("what name should I put on the Latte order",),
@@ -119,6 +122,7 @@ TENANT_FIXTURES: dict[str, TenantFixture] = {
         availability_text="Do you have Pavilion Classic?",
         availability_expected=("Pavilion Classic", "KES 580"),
         photo_text="Can I see a picture of the Pavilion Classic?",
+        photo_clarify_expected=("Pavilion Classic",),
         order_text="May I have the Pavilion Classic?",
         bare_item_text="The Pavilion Classic",
         order_expected=("what name should I put on the Pavilion Classic order",),
@@ -134,6 +138,7 @@ TENANT_FIXTURES: dict[str, TenantFixture] = {
         availability_text="Do you have cinnamon rolls?",
         availability_expected=("Cinnamon Roll", "KES 220"),
         photo_text="Show me a pic of the cinnamon roll",
+        photo_clarify_expected=("Espresso",),
         order_text="May I have the espresso?",
         bare_item_text="The espresso",
         order_expected=("what name should I put on the Espresso order",),
@@ -279,7 +284,7 @@ def _shared_scenarios(fixture: TenantFixture) -> tuple[Scenario, ...]:
         Scenario(
             name="generic_photo_clarifies",
             text="Yes please, send a picture",
-            must_include=("Which item should I send a picture of?",),
+            must_include=("Which item should I send a picture of?",) + fixture.photo_clarify_expected,
             must_not_include=tenant_forbidden,
             expect_image=False,
             max_latency_seconds=8.0,

@@ -7,6 +7,7 @@ import pytest
 from app.ai.quick_replies import (
     GENERIC_PHOTO_QUERY,
     availability_reply_from_chunks,
+    example_item_labels_from_chunks,
     full_menu_reply_from_chunks,
     looks_like_full_menu_request,
     looks_like_photo_request,
@@ -17,6 +18,7 @@ from app.ai.quick_replies import (
     maybe_build_quick_reply,
     photo_item_query,
     price_reply_from_chunks,
+    photo_clarification_reply_from_chunks,
     recommendation_reply_from_chunks,
 )
 from app.ai.rag import RetrievedChunk
@@ -41,6 +43,26 @@ def test_generic_photo_request_requires_specific_item() -> None:
     assert photo_item_query("send me a pic of the flat white") != GENERIC_PHOTO_QUERY
     assert looks_like_photo_request("Got any pictures of the espresso?")
     assert not looks_like_photo_request("Can you send me the full menu please?")
+
+
+def test_photo_clarification_uses_tenant_menu_examples() -> None:
+    chunks = [
+        RetrievedChunk(
+            content="BURGERS - Pavilion Classic KES 580. Chicken Burger KES 520. Fries KES 180.",
+            source="menu",
+            score=0.9,
+        )
+    ]
+
+    assert example_item_labels_from_chunks(chunks) == (
+        "Pavilion Classic",
+        "Chicken Burger",
+        "Fries",
+    )
+    reply = photo_clarification_reply_from_chunks(chunks)
+    assert "Pavilion Classic" in reply
+    assert "Chicken Burger" in reply
+    assert "Demo Espresso" not in reply
 
 
 def test_full_menu_request_and_reply() -> None:

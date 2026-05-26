@@ -28,6 +28,7 @@ from app.ai.quick_replies import (
     looks_like_recommendation_request,
     match_order_item_from_chunks,
     maybe_build_quick_reply,
+    photo_clarification_reply_from_chunks,
     photo_item_query,
 )
 from app.core.logging import business_id_ctx, conversation_id_ctx, get_logger, tenant_slug_ctx
@@ -906,14 +907,22 @@ async def _specific_photo_reply(
     conversation_id: uuid.UUID,
     business_id: uuid.UUID | None,
     text: str,
+    channel: str = "mock",
 ) -> tuple[str, str | None, str | None]:
     item_query = photo_item_query(text)
     if item_query == GENERIC_PHOTO_QUERY:
-        return (
-            "Which item should I send a picture of? I can send photos for items like Demo Espresso, Flat White, or Croissant.",
-            None,
-            None,
-        )
+        try:
+            from app.ai.rag import fetch_menu_chunks
+
+            chunks = await fetch_menu_chunks(db, business_id=business_id, k=8)
+            return photo_clarification_reply_from_chunks(chunks), None, None
+        except Exception as exc:  # noqa: BLE001
+            log.warning("photo_clarification_lookup_failed", error=str(exc))
+            return (
+                "Which item should I send a picture of? Tell me the item name and I will send that photo.",
+                None,
+                None,
+            )
 
     try:
         from app.ai.tools import build_tools
@@ -926,7 +935,7 @@ async def _specific_photo_reply(
                     conversation_id,
                     business_id,
                     msisdn=getattr(customer, "phone_number", None),
-                    channel="mock",
+                    channel=channel,
                 )
                 if getattr(tool, "name", "") == "send_menu_photo"
             ),
@@ -949,7 +958,8 @@ async def _specific_photo_reply(
 
     if isinstance(result, dict) and result.get("ok") and result.get("image_url"):
         matched = str(result.get("item") or item_query).strip()
-        return f"Here you go for {matched}.", str(result.get("image_url")), matched
+        image_url = None if channel == "whatsapp" else str(result.get("image_url"))
+        return f"Here you go for {matched}.", image_url, matched
 
     reason = ""
     if isinstance(result, dict):
@@ -1507,9 +1517,17 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     + control_reply.removeprefix("Here is the menu I have:\n")
                 )
             else:
+                photo_hint, _, _ = await _specific_photo_reply(
+                    db,
+                    customer=customer,
+                    conversation_id=conv.id,
+                    business_id=business_id,
+                    text="send a picture",
+                    channel=turn.channel.value,
+                )
                 control_reply = (
-                    "I do not have a clean menu-board photo yet. Ask for a specific item, "
-                    "like Demo Espresso, Flat White, or Croissant, and I will send that photo."
+                    "I do not have a clean menu-board photo yet. "
+                    + photo_hint
                 )
             control_flag = "deterministic:menu_photo_as_text"
         elif looks_like_photo_request(turn.text):
@@ -1519,6 +1537,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 conversation_id=conv.id,
                 business_id=business_id,
                 text=turn.text,
+                channel=turn.channel.value,
             )
             control_flag = "deterministic:specific_photo"
         elif _looks_like_menu_info_request(turn.text):

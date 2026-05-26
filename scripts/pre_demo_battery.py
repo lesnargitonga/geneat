@@ -262,6 +262,12 @@ async def stateful_conversation_checks(base_url: str, *, timeout: float) -> list
                 ("menu_first", "Lemme see the menu first", fixture.menu_expected[:1], 2.5),
                 ("sell_anything_else", "Do you sell anything else?", fixture.menu_expected[:1], 2.5),
                 ("photo_menu", "Lemme see a picture of your menu", ("I do not have a clean menu-board photo yet",), 2.5),
+                (
+                    "generic_photo_clarify",
+                    "Yes please, send a picture",
+                    ("Which item should I send a picture of?",) + fixture.photo_clarify_expected,
+                    2.5,
+                ),
                 ("price", fixture.price_text, fixture.price_expected, 2.5),
                 ("yes_after_price", "Yeah", ("what name should I put on",), 2.5),
                 ("availability", fixture.availability_text, fixture.availability_expected[:1], 2.5),

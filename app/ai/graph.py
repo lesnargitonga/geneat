@@ -23,9 +23,10 @@ from app.ai.prompts import RAG_PREAMBLE, render_system_prompt
 from app.ai.quick_replies import (
     GENERIC_PHOTO_QUERY,
     looks_like_photo_request,
+    photo_clarification_reply_from_chunks,
     photo_item_query,
 )
-from app.ai.rag import format_context, retrieve
+from app.ai.rag import fetch_menu_chunks, format_context, retrieve
 from app.ai.state import AgentState
 from app.ai.tools import build_tools
 from app.core.config import get_settings
@@ -196,14 +197,19 @@ async def _agent_node(state: AgentState, *, db: AsyncSession) -> dict:
     if looks_like_photo_request(last_user_text):
         item_query = photo_item_query(last_user_text)
         if item_query == GENERIC_PHOTO_QUERY:
+            try:
+                chunks = await fetch_menu_chunks(db, business_id=biz_id, k=8)
+                clarification = photo_clarification_reply_from_chunks(chunks)
+            except Exception as exc:
+                log.warning("photo_clarification_lookup_failed", error=str(exc))
+                clarification = (
+                    "Which item should I send a picture of? "
+                    "Tell me the item name and I will send that photo."
+                )
+            await _release_db_connection(db, stage="after_photo_clarification")
             return {
                 "messages": [
-                    AIMessage(
-                        content=(
-                            "Which item should I send a picture of? "
-                            "I can send photos for items like Demo Espresso, Flat White, or Croissant."
-                        )
-                    )
+                    AIMessage(content=clarification)
                 ]
             }
         photo_tool = next((tool for tool in tools if getattr(tool, "name", "") == "send_menu_photo"), None)

@@ -181,7 +181,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `118 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `120 passed, 1 warning` via `make test-fast` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -697,7 +697,9 @@ Current explicit happy-path fast-paths:
   - `send me a picture of the croissant`
   - `picha ya avocado toast`
   short-circuit directly into `send_menu_photo` without waiting for the LLM
-  to decide whether to use a tool.
+  to decide whether to use a tool. On real WhatsApp, this path now passes the
+  actual channel into the tool so Meta media is sent by the provider-aware
+  transport; mock/portal chat still receives the structural `image_url`.
 - **The live KES 10 Demo Espresso order**, such as
   `I want the KES 10 demo espresso. My name is Lesnar`, is handled in the
   channel layer before the model. It captures the customer name, creates or
@@ -771,7 +773,8 @@ Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Docume
   embedding call when menu rows are available, with vector retrieval kept as a
   compatibility fallback,
 - generic photo follow-ups such as `send a picture` ask which item to send
-  instead of guessing and returning the wrong café/menu image,
+  using examples from that tenant's menu chunks instead of hard-coded Lily
+  Pond examples or the wrong café/menu image,
 - menu-photo requests such as `Lemme see a picture of your menu` return the
   text menu instead of sending a random café hero image as "the menu",
 - mock/portal replies only attach an image produced by the current turn; they
@@ -2112,7 +2115,7 @@ make test-fast
 Current result:
 
 ```text
-118 passed, 1 warning
+120 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -2184,8 +2187,9 @@ This is the recommended command before any public demo. It includes:
   doc/test/tooling-only drift is reported without blocking the demo,
 - the full four-café no-money reply matrix, now configured for `97` scenarios,
 - stateful no-money conversations per tenant, including `yes` after a price
-  offer, bare item fragments like `the espresso`, menu-first requests, and
-  anything-else menu requests,
+  offer, bare item fragments like `the espresso`, menu-first requests,
+  tenant-specific generic photo clarifications, and anything-else menu
+  requests,
 - a small deterministic load burst against `/mock/message`; latest hosted run
   was `16/16` HTTP 200 with p95 `1641 ms`.
 
@@ -2244,7 +2248,9 @@ This is the honest list, not the flattering list.
 - live doctor passes end to end
 - DB and Redis health checks are real
 - OpenAI health is visible in `/health/deep`
-- photo requests send real media through a deterministic action path
+- photo requests send real media through a deterministic action path, and the
+  WhatsApp path now passes the real channel into `send_menu_photo` instead of
+  returning a mock-style `image_url` that Meta would not deliver
 - open-ended WhatsApp text remains model-led, while factual menu, price,
   availability, hours, photo, and payment-control turns use deterministic
   tenant data before the model
@@ -2259,8 +2265,9 @@ This is the honest list, not the flattering list.
   callbacks/polls can mark money landed
 - pickup and queue-skip promises are now blocked until payment is confirmed
 - full-menu, price, availability, recommendation, and vague photo follow-ups
-  are handled deterministically so the assistant does not send random images,
-  code-like copy, or slow generic fallbacks for basic café facts
+  are handled deterministically with tenant-derived menu examples, so the
+  assistant does not send random images, code-like copy, Lily-only examples,
+  or slow generic fallbacks for basic café facts
 - plain greetings are handled deterministically with a neutral menu/prices/
   photos/order offer, not the old "ready before lecture" promise; unsafe
   stored branded greetings are sanitized before prompt rendering too
