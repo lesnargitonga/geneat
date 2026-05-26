@@ -2197,7 +2197,7 @@ This is the recommended command before any public demo. It includes:
   tenant-specific generic photo clarifications, and anything-else menu
   requests,
 - a small deterministic load burst against `/mock/message`; latest hosted run
-  was `16/16` HTTP 200 with p95 `1263 ms`.
+  was `16/16` HTTP 200 with p95 `1217 ms`.
 
 It deliberately does not trigger STK or create real orders. Run a real
 WhatsApp/STK rehearsal separately only when you intentionally want to spend
