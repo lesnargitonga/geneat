@@ -252,8 +252,12 @@ async def stateful_conversation_checks(base_url: str, *, timeout: float) -> list
     async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
         for tenant_index, fixture in enumerate(TENANT_FIXTURES.values(), start=1):
             phone = f"+1555930{tenant_index:03d}"
+            target_item = fixture.bare_item_text.replace("The ", "").replace("the ", "").strip(" ?.!") or fixture.bare_item_text
+            order_without_article = fixture.order_text.replace("the ", "", 1).replace("The ", "", 1)
             turns = [
                 ("greeting", "Hey", ("I can help with the menu",), 2.5),
+                ("greeting_there", "Hi there", ("I can help with the menu",), 2.5),
+                ("hours", "Are you open now?", ("open",), 2.5),
                 ("menu", "I need the full menu, now!", fixture.menu_expected[:1], 2.5),
                 ("menu_first", "Lemme see the menu first", fixture.menu_expected[:1], 2.5),
                 ("sell_anything_else", "Do you sell anything else?", fixture.menu_expected[:1], 2.5),
@@ -261,6 +265,8 @@ async def stateful_conversation_checks(base_url: str, *, timeout: float) -> list
                 ("price", fixture.price_text, fixture.price_expected, 2.5),
                 ("yes_after_price", "Yeah", ("what name should I put on",), 2.5),
                 ("availability", fixture.availability_text, fixture.availability_expected[:1], 2.5),
+                ("target_item_availability", f"Do you sell {target_item}?", fixture.confusion_expected or fixture.availability_expected[:1], 2.5),
+                ("order_without_article", order_without_article, fixture.order_expected, 2.5),
                 ("bare_item", fixture.bare_item_text, fixture.order_expected, 2.5),
                 ("paid_without_order", "Paid", ("do not see an order",), 2.5),
                 ("no_stk_without_order", "No STK yet", ("do not see an unpaid order",), 2.5),

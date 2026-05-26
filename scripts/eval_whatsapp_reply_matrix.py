@@ -19,9 +19,12 @@ LOCAL_BASE_URL = "http://localhost:8000"
 LIVE_BASE_URL = "https://api.lesnarai.co.ke"
 BAD_LEAKS = (
     "DEMO FLOW",
+    "LIVE DEMO",
     "for live Lily Pond demos",
     "tiny proof item",
+    "proof item",
     "M-Pesa STK demos",
+    "during pitches",
     "if a customer asks",
     "create_order",
     "request_mpesa_payment",
@@ -29,6 +32,10 @@ BAD_LEAKS = (
     "tool_calls",
     "system took too long",
     "formatting hiccup",
+    "small hiccup",
+    "trouble formatting",
+    "tell me again what you'd like to order",
+    "finish your lecture",
 )
 DETERMINISTIC_MAX_LATENCY_SECONDS = 2.5
 
@@ -138,6 +145,9 @@ TENANT_FIXTURES: dict[str, TenantFixture] = {
 
 def _shared_scenarios(fixture: TenantFixture) -> tuple[Scenario, ...]:
     tenant_forbidden = BAD_LEAKS + fixture.must_not_include
+    order_without_article = fixture.order_text.replace("the ", "", 1).replace("The ", "", 1)
+    hey_order = "Hey, " + fixture.order_text[:1].lower() + fixture.order_text[1:]
+    target_item = fixture.bare_item_text.replace("The ", "").replace("the ", "").strip(" ?.!") or fixture.bare_item_text
     scenarios = [
         Scenario(
             name="full_menu_clean",
@@ -197,6 +207,20 @@ def _shared_scenarios(fixture: TenantFixture) -> tuple[Scenario, ...]:
             expect_image=False,
         ),
         Scenario(
+            name="greeting_there_safe",
+            text="Hi there",
+            must_include=("I can help with the menu",),
+            must_not_include=tenant_forbidden + ("ready", "pickup", "queue", "lecture"),
+            expect_image=False,
+        ),
+        Scenario(
+            name="hours_open_now",
+            text="Are you open now?",
+            must_include=("open",),
+            must_not_include=tenant_forbidden + ("ready", "pickup", "queue"),
+            expect_image=False,
+        ),
+        Scenario(
             name="known_price",
             text=fixture.price_text,
             must_include=fixture.price_expected,
@@ -207,6 +231,13 @@ def _shared_scenarios(fixture: TenantFixture) -> tuple[Scenario, ...]:
             name="known_availability",
             text=fixture.availability_text,
             must_include=fixture.availability_expected,
+            must_not_include=tenant_forbidden,
+            expect_image=False,
+        ),
+        Scenario(
+            name="target_item_availability",
+            text=f"Do you sell {target_item}?",
+            must_include=fixture.confusion_expected or fixture.availability_expected,
             must_not_include=tenant_forbidden,
             expect_image=False,
         ),
@@ -222,6 +253,20 @@ def _shared_scenarios(fixture: TenantFixture) -> tuple[Scenario, ...]:
             text=fixture.order_text,
             must_include=fixture.order_expected,
             must_not_include=tenant_forbidden + ("system took too long", "formatting hiccup"),
+            expect_image=False,
+        ),
+        Scenario(
+            name="order_without_article_needs_name",
+            text=order_without_article,
+            must_include=fixture.order_expected,
+            must_not_include=tenant_forbidden + ("system took too long", "formatting hiccup", "small hiccup"),
+            expect_image=False,
+        ),
+        Scenario(
+            name="greeting_plus_order_needs_name",
+            text=hey_order,
+            must_include=fixture.order_expected,
+            must_not_include=tenant_forbidden + ("system took too long", "formatting hiccup", "small hiccup"),
             expect_image=False,
         ),
         Scenario(

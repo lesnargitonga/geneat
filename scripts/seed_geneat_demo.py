@@ -68,7 +68,8 @@ CAFES: list[dict] = [
             "Friendly campus voice — talks to students like a slightly older sibling "
             "who works in the café and knows everyone by face. Keep it short (1–2 lines), "
             "use first names when you have them, drop the occasional 'wewe' or 'sasa' "
-            "when the energy fits. Always confirm pickup time and queue. Default currency KES."
+            "when the energy fits. Never promise pickup, queue-skip, or readiness until "
+            "payment is confirmed by the provider. Default currency KES."
         ),
         "greeting": (
             "Hi, welcome to Lily Pond. I can help with the menu, prices, item photos, "
@@ -108,9 +109,10 @@ CAFES: list[dict] = [
         "lng": 36.8853,
         "brand_voice": (
             "Quick, efficient, no fluff. You're competing with the bell — get the "
-            "order in fast. Short replies (1 line where possible). No emojis except 📚⏱️."
+            "order in fast. Short replies (1 line where possible). No readiness or "
+            "counter promises before provider-confirmed payment. No emojis except 📚⏱️."
         ),
-        "greeting": "📚 Library Bites. What and what time? I'll have it on the counter.",
+        "greeting": "Hi, welcome to Library Bites. I can help with the menu, prices, item photos, or an order.",
         "profile": {
             "tagline": "Order in 30 seconds. Pick up between classes.",
             "category": "Grab & Go · Snacks · Coffee",
@@ -146,11 +148,10 @@ CAFES: list[dict] = [
         "brand_voice": (
             "Hearty, hospitable, a little proud of the grill. Talks like the chef "
             "himself stepped over. Slight humour. Always upsell sides honestly. "
-            "Use 'boss', 'chief', 'bro/sis' sparingly — match the student's energy."
+            "Use 'boss', 'chief', 'bro/sis' sparingly — match the student's energy. "
+            "Never promise pickup, delivery ETA, or queue priority before payment is confirmed."
         ),
-        "greeting": (
-            "Karibu Pavilion 🔥 We're on the grill from 11. What you ordering, chief?"
-        ),
+        "greeting": "Hi, welcome to Pavilion Grill. I can help with the menu, prices, item photos, or an order.",
         "profile": {
             "tagline": "Real grill on campus. Bring your appetite.",
             "category": "Burgers · Grill · Lunch · Dinner",
@@ -185,9 +186,10 @@ CAFES: list[dict] = [
         "lng": 36.8856,
         "brand_voice": (
             "Cheerful and rapid. Almost text-message energy. Use emojis liberally "
-            "(☕🥐⚡). One-line replies. Always quote the queue time."
+            "(☕🥐⚡). One-line replies. Never quote queue or ready timing before "
+            "provider-confirmed payment."
         ),
-        "greeting": "Hey ☕ Block A here. Order in 10 sec, ready in 5 ⚡",
+        "greeting": "Hi, welcome to Block A Express. I can help with the menu, prices, item photos, or an order.",
         "profile": {
             "tagline": "Coffee + pastries · between every class.",
             "category": "Coffee · Pastries",
@@ -258,8 +260,9 @@ KB: dict[str, dict[str, list[str]]] = {
             "Chicken Caesar Wrap, Halloumi & Avo Bowl, Sukuma & Coconut Curry, "
             "Sweet Potato Fries, Soup of the Day, Butter Croissant, Pain au Chocolat, "
             "Almond Croissant, Banana-Cardamom Loaf, Chocolate Brownie, and Lemon Tart.",
-            "PICKUP & QUEUE — Average prep is 8 minutes. Order on WhatsApp 10 min before "
-            "you arrive and skip the queue. We'll text 'ready' when your order is at the pickup shelf.",
+            "PICKUP & QUEUE — Average prep is 8 minutes after provider-confirmed payment. "
+            "Customers can order on WhatsApp before they arrive. We text 'ready' only when "
+            "the paid order is actually at the pickup shelf.",
             "PAYMENT — M-Pesa Till 522001 (Lily Pond Café) or card. Show the M-Pesa SMS at pickup. "
             "We accept Visa, Mastercard, Amex. No cash after 19:00.",
             "HOURS — Mon-Fri 07:00–21:00, Sat 09:00–18:00, closed Sunday. "
@@ -295,8 +298,8 @@ KB: dict[str, dict[str, list[str]]] = {
             "Coupon valid only with USIU ID, weekdays 10:00–14:00 and 18:00–22:00 during exam weeks.",
         ],
         "policies": [
-            "SPEED — We're built for fast pickup. Average prep is 3 minutes. "
-            "Order on WhatsApp, show the order number at the counter, grab and go.",
+            "SPEED — We're built for fast pickup. Average prep is 3 minutes after "
+            "provider-confirmed payment. Order on WhatsApp, then show the receipt at the counter.",
             "QUIET HOURS — Library is silent zone — please don't take calls at the counter. "
             "We use WhatsApp for everything so you can order without breaking quiet hours.",
             "HOURS — Mon-Fri 06:30–22:00. Sat 08:00–20:00. Sun 10:00–18:00. "
@@ -372,7 +375,8 @@ KB: dict[str, dict[str, list[str]]] = {
             "Energy bars KES 180. Banana KES 30.",
         ],
         "policies": [
-            "SPEED — Average prep 4 min. Order on WhatsApp before you leave class — pickup before the bell. ⚡",
+            "SPEED — Average prep 4 min after provider-confirmed payment. Order on WhatsApp "
+            "before you leave class, then wait for the ready message. ⚡",
             "HOURS — Mon-Fri 06:45–19:00. Sat 08:00–14:00. Closed Sunday.",
             "PAYMENT — M-Pesa Till 522004 only. No cash. Show the SMS, grab and go.",
             "LOYALTY — Buy 10 drinks, get the 11th free. Reply 'card' on WhatsApp once "

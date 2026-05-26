@@ -50,6 +50,33 @@ def _greeting_for(hour: int, language: str = "en") -> str:
     }[part]
 
 
+_UNSAFE_BRANDED_GREETING_MARKERS = (
+    "ready",
+    "queue",
+    "skip",
+    "counter",
+    "lecture",
+    "pickup",
+    "pick up",
+    "have it",
+    "order in",
+    "before the bell",
+)
+
+
+def _safe_branded_greeting(raw: str | None, business_name: str) -> str:
+    greeting = (raw or "").strip()
+    if not greeting:
+        return ""
+    lowered = greeting.lower()
+    if any(marker in lowered for marker in _UNSAFE_BRANDED_GREETING_MARKERS):
+        return (
+            f"Hi, welcome to {business_name}. I can help with the menu, prices, "
+            "item photos, or an order."
+        )
+    return greeting
+
+
 LANGUAGE_GUIDE = """\
 # LANGUAGE & REGISTER (HARD RULE)
 Mirror the customer's language EXACTLY. This is not optional.
@@ -356,7 +383,10 @@ def render_system_prompt(
             f"{brand_voice}"
         )
         prof_dict = profile.profile or {}
-        branded_greeting = (profile.greeting_template or prof_dict.get("greeting") or "").strip()
+        branded_greeting = _safe_branded_greeting(
+            profile.greeting_template or prof_dict.get("greeting"),
+            profile.name,
+        )
         mpesa_till = str(prof_dict.get("mpesa_till") or prof_dict.get("mpesa_paybill") or "").strip()
         try:
             avg_prep_minutes = int(prof_dict.get("avg_prep_minutes") or 0)

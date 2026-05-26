@@ -8,13 +8,11 @@ import uuid as _uuid
 
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import db_session
 from app.channels.mock import Channel, InboundTurn, handle_inbound
 from app.core.rate_limit import limiter
-from app.db.models import ToolInvocation
 
 router = APIRouter(prefix="/mock", tags=["mock"])
 
@@ -38,25 +36,6 @@ class MockMessageOut(BaseModel):
     escalated: bool
     image_url: Optional[str] = None
     photo_item: Optional[str] = None
-
-
-async def _latest_photo_result(db: AsyncSession, conversation_id: str) -> tuple[str | None, str | None]:
-    try:
-        stmt = (
-            select(ToolInvocation)
-            .where(ToolInvocation.conversation_id == _uuid.UUID(conversation_id))
-            .where(ToolInvocation.tool_name == "send_menu_photo")
-            .where(ToolInvocation.success.is_(True))
-            .order_by(ToolInvocation.created_at.desc())
-            .limit(1)
-        )
-        inv = (await db.execute(stmt)).scalar_one_or_none()
-        if inv is None:
-            return None, None
-        result = inv.result if isinstance(inv.result, dict) else {}
-        return result.get("image_url"), result.get("item")
-    except Exception:
-        return None, None
 
 
 def _clean_reply(reply: str, image_url: str | None, photo_item: str | None) -> str:
@@ -90,8 +69,6 @@ async def post_message(
     res = await handle_inbound(db, turn)
     image_url = res.image_url
     photo_item = res.photo_item
-    if image_url is None and photo_item is None:
-        image_url, photo_item = await _latest_photo_result(db, str(res.conversation_id))
     return MockMessageOut(
         reply=_clean_reply(res.reply, image_url, photo_item),
         conversation_id=str(res.conversation_id),
@@ -159,8 +136,6 @@ async def post_image(
     res = await handle_inbound(db, turn)
     image_url = res.image_url
     photo_item = res.photo_item
-    if image_url is None and photo_item is None:
-        image_url, photo_item = await _latest_photo_result(db, str(res.conversation_id))
     return MockMessageOut(
         reply=_clean_reply(res.reply, image_url, photo_item),
         conversation_id=str(res.conversation_id),

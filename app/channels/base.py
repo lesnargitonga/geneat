@@ -93,7 +93,10 @@ _ORDER_REPEAT_RE = re.compile(
 )
 _DEMO_ESPRESSO_RE = re.compile(r"\b(demo espresso|demo order|10 bob|ten bob)\b", re.IGNORECASE)
 _GREETING_RE = re.compile(
-    r"^\s*(hi|hello|hey|sasa|niaje|mambo|vipi|habari|good morning|good afternoon|good evening)\s*[.!? ]*$",
+    r"^\s*"
+    r"(hi|hello|hey|sasa|niaje|mambo|vipi|habari|good morning|good afternoon|good evening)"
+    r"(?:[\s,]+(?:there|team|guys|lily pond|library bites|pavilion(?: grill)?|block a(?: express)?|cafe|caf[eé]))?"
+    r"\s*[.!? ]*$",
     re.IGNORECASE,
 )
 _ORDER_INTENT_RE = re.compile(

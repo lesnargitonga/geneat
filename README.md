@@ -14,7 +14,7 @@ final authority, but this document is the canonical human map of:
 - what is still demo-only,
 - and what still needs hardening before anyone promises enterprise-grade uptime.
 
-Last reconciled with the codebase and local checks: **2026-05-25**.
+Last reconciled with the codebase and local checks: **2026-05-26**.
 Hosted live checks were last verified on **2026-05-25**.
 
 ## Table Of Contents
@@ -134,7 +134,7 @@ Fresh live checks run from this workspace on **2026-05-25**:
 | `GET /health/deep` | `status=ok`, db/redis/pgvector/whatsapp/payments/llm all reachable |
 | `GET /version` | exposes hosted app/build fingerprint for deploy-drift checks |
 | `make doctor-live` | `22/22 configured checks passed` from this workspace when live verify token is intentionally skipped |
-| `make eval-whatsapp-live` | currently configured for `77` safe reply scenarios across all four demo tenants |
+| `make eval-whatsapp-live` | currently configured for `97` safe reply scenarios across all four demo tenants |
 | `make pre-demo-live` | passed no-money public-demo battery, including deploy-drift check |
 | Portal live price check | passed without generic fallback |
 | Portal live photo check | passed |
@@ -181,7 +181,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `117 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `118 passed, 1 warning` via `make test-fast` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -759,8 +759,9 @@ Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Docume
 - deterministic quick replies answer obvious price, hours, recommendation,
   item-availability, and full-menu questions before the model when tenant menu
   chunks are available, and can run again after the model path fails,
-- deterministic greetings answer plain `hi` / `hey` / `sasa` turns without
-  promising readiness, queue-skip, or pickup before an order exists,
+- deterministic greetings answer plain `hi` / `hey` / `hi there` / `sasa`
+  turns without promising readiness, queue-skip, or pickup before an order
+  exists,
 - price quick replies choose the first price after the matched item phrase, so
   `Espresso KES 120 ... Flat White KES 220 (oat/almond +KES 40)` answers
   `Flat White is KES 220`, not `KES 120` or `KES 40`,
@@ -773,6 +774,9 @@ Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Docume
   instead of guessing and returning the wrong café/menu image,
 - menu-photo requests such as `Lemme see a picture of your menu` return the
   text menu instead of sending a random café hero image as "the menu",
+- mock/portal replies only attach an image produced by the current turn; they
+  no longer reuse the latest old `send_menu_photo` tool result from the same
+  conversation,
 - JSON/tool-call-looking model output is treated as malformed customer copy;
   the channel layer first tries to recover with a menu quick reply, then falls
   back to a short plain-language formatting-error message,
@@ -782,6 +786,14 @@ Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Docume
 - degraded fallback replies are marked and filtered out of future model
   history so the assistant does not imitate old emergency copy,
 - the generic handoff text is now a last resort, not the normal café voice.
+
+Current prompt/seed calibration:
+
+- unsafe tenant branded greetings that promise readiness, queue-skip, pickup,
+  counter placement, or "ready before class" behavior are sanitized to a
+  neutral menu/prices/photos/order greeting before they reach the model,
+- Gen-Eat seed data now avoids customer-facing readiness and queue promises
+  before provider-confirmed payment.
 
 Current load/connection-pool behavior:
 
@@ -2100,7 +2112,7 @@ make test-fast
 Current result:
 
 ```text
-117 passed, 1 warning
+118 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -2141,14 +2153,16 @@ make eval-whatsapp-live
 Current configured coverage:
 
 ```text
-77 configured scenarios
+97 configured scenarios
 ```
 
 This matrix covers Lily Pond, Library Bites, Pavilion Grill, and Block A
 Express. It checks fast deterministic replies for menu, price, availability,
-menu-first wording, anything-else menu wording, safe greetings, menu-photo
-wording, payment-status claims, bare item/order follow-ups, affirmative
-follow-ups, and internal policy leakage.
+menu-first wording, anything-else menu wording, safe greetings including
+`Hi there`, hours, menu-photo wording, payment-status claims, target-item
+availability, bare item/order follow-ups, order-without-article phrasing,
+greeting-plus-order phrasing, affirmative follow-ups, stale photo attachments,
+and internal policy leakage.
 
 Broader pre-demo battery:
 
@@ -2168,7 +2182,7 @@ This is the recommended command before any public demo. It includes:
 - `/version` deploy-drift checks against local git HEAD when the hosted commit
   is exposed; app/migration/Docker/deploy drift fails the battery, while
   doc/test/tooling-only drift is reported without blocking the demo,
-- the full four-café no-money reply matrix, now configured for `77` scenarios,
+- the full four-café no-money reply matrix, now configured for `97` scenarios,
 - stateful no-money conversations per tenant, including `yes` after a price
   offer, bare item fragments like `the espresso`, menu-first requests, and
   anything-else menu requests,
@@ -2248,7 +2262,8 @@ This is the honest list, not the flattering list.
   are handled deterministically so the assistant does not send random images,
   code-like copy, or slow generic fallbacks for basic café facts
 - plain greetings are handled deterministically with a neutral menu/prices/
-  photos/order offer, not the old "ready before lecture" promise
+  photos/order offer, not the old "ready before lecture" promise; unsafe
+  stored branded greetings are sanitized before prompt rendering too
 - short affirmatives such as `yes`, `yeah`, and `sure` can continue a recent
   one-item offer deterministically, while ambiguous multi-item offers ask the
   customer which item to order
@@ -2258,11 +2273,15 @@ This is the honest list, not the flattering list.
 - simple known menu-item orders such as `May I have the espresso?` or
   `Can I get 2 flat whites?` now parse menu rows deterministically instead of
   relying on the model to infer the item and price; bare fragments such as
-  `the espresso` are also kept on the controlled order/name path
+  `the espresso`, article-less requests such as `May I have espresso`, and
+  greeting-prefixed requests such as `Hey, may I have the espresso?` are also
+  kept on the controlled order/name path
 - `No STK yet` style messages are treated as payment-resend/status turns
   rather than ordinary chat
 - menu-photo requests return the text menu instead of a generic café/menu hero
   image
+- mock/portal chat no longer carries a stale old photo attachment into a later
+  non-photo reply in the same conversation
 - price parsing now chooses the first price after the matched item phrase,
   preventing answers like `Flat White is KES 120` or `Flat White is KES 40`
 - plain espresso price/availability no longer gets confused with the KES 10

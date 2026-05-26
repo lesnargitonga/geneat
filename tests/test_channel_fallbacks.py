@@ -108,6 +108,9 @@ def test_menu_info_fast_path_avoids_order_and_photo_turns() -> None:
 
 def test_greeting_reply_does_not_promise_readiness() -> None:
     assert _looks_like_greeting("Hey")
+    assert _looks_like_greeting("Hi there")
+    assert _looks_like_greeting("Hello Lily Pond")
+    assert not _looks_like_greeting("Hey, may I have an espresso")
     reply = _greeting_reply(business_name="Lily Pond Café", language="en")
     assert "Lily Pond Cafe" in reply
     assert "menu" in reply
