@@ -171,6 +171,10 @@ class Settings(BaseSettings):
     # Escalation
     owner_alert_phone: str = ""
     ai_max_failed_turns: int = 2
+    # The safety turn cap is evaluated over a recent rolling window rather
+    # than lifetime conversation history, so normal repeat customers do not
+    # get escalated just because they have chatted before.
+    ai_turn_cap_window_hours: float = 6.0
 
     # Admin API (merchant onboarding + KB upload)
     admin_api_token: SecretStr = Field(default=SecretStr(""))

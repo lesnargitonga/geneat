@@ -647,6 +647,7 @@ Settings-layer defaults:
 | `llm_fallback_providers` in `Settings` | `gemini,local` |
 | `AI_TURN_TIMEOUT_SECONDS` / `ai_turn_timeout_seconds` | `30.0` |
 | `AI_TURN_RETRY_TIMEOUT_SECONDS` / `ai_turn_retry_timeout_seconds` | `10.0` |
+| `AI_TURN_CAP_WINDOW_HOURS` / `ai_turn_cap_window_hours` | `6.0` |
 
 Important nuance:
 
@@ -828,8 +829,9 @@ Current safety calibration:
 - the deterministic jailbreak guard now targets actual role/instruction
   hijacks instead of broad everyday wording,
 - menu-photo language is not treated as off-topic image generation,
-- the conversation turn cap was raised to give real ordering threads more
-  room before human escalation.
+- the conversation turn cap is evaluated over a recent rolling window instead
+  of lifetime active-conversation history, so old normal rehearsal/customer
+  messages do not cause a later harmless menu question to escalate.
 
 ### 8.4 Tool surface
 
@@ -1794,6 +1796,7 @@ LLM / embeddings:
 | `OPENAI_EMBED_DIMENSIONS` | must remain `768` |
 | `AI_TURN_TIMEOUT_SECONDS` | normal model-turn timeout; current default `30` |
 | `AI_TURN_RETRY_TIMEOUT_SECONDS` | shorter quiet retry timeout; current default `10` |
+| `AI_TURN_CAP_WINDOW_HOURS` | recent user-message window for the turn-cap safety rule; current default `6` |
 | `REQUEST_MAX_BODY_BYTES` | maximum inbound HTTP request body; default `10485760` |
 | `RL_ADMIN_PER_MIN` | per-IP admin route rate limit; default `30` |
 | `GROQ_API_KEY` | Groq provider / vision |

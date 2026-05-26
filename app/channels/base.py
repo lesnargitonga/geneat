@@ -13,9 +13,10 @@ import json
 import re
 import uuid
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 
 from langchain_core.messages import AIMessage, HumanMessage
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.graph import run_turn
@@ -34,7 +35,7 @@ from app.ai.quick_replies import (
 from app.core.logging import business_id_ctx, conversation_id_ctx, get_logger, tenant_slug_ctx
 from app.core.redis_client import claim_idempotency
 from app.core.security import hash_msisdn, normalize_msisdn
-from app.db.models import Channel, Sender, ToolInvocation
+from app.db.models import Channel, Message, Sender, ToolInvocation
 from app.services.business_service import (
     get_business_by_slug, get_business_for_turn,
 )
@@ -143,6 +144,22 @@ _INTERNAL_KB_MARKERS = (
     "system prompt",
     "playbook",
 )
+
+
+async def _recent_user_turn_count_for_safety(db: AsyncSession, conversation_id: uuid.UUID) -> int:
+    from app.core.config import get_settings
+
+    window_hours = float(getattr(get_settings(), "ai_turn_cap_window_hours", 6.0) or 6.0)
+    window_hours = max(0.25, window_hours)
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=window_hours)
+    res = await db.execute(
+        select(func.count(Message.id)).where(
+            Message.conversation_id == conversation_id,
+            Message.sender == Sender.user,
+            Message.timestamp >= cutoff,
+        )
+    )
+    return int(res.scalar() or 0)
 
 
 def _is_degraded_fallback_text(content: str | None) -> bool:
@@ -1360,17 +1377,13 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             ABUSE_SCORE_BLOCK_THRESHOLD, ABUSE_SCORE_HARD_BLOCK,
             Verdict, evaluate_inbound,
         )
-        # Count prior user turns in this conversation for the turn-cap rule.
+        # Count recent user turns for the turn-cap rule. Lifetime conversation
+        # history is useful for memory, but it should not penalize a normal
+        # repeat customer who returns later.
         try:
-            from sqlalchemy import func as _func, select as _select
-            from app.db.models import Message as _Msg
-            _cnt = await db.execute(
-                _select(_func.count(_Msg.id)).where(
-                    _Msg.conversation_id == conv.id, _Msg.sender == Sender.user,
-                )
-            )
-            _prior_turns = int(_cnt.scalar() or 0)
-        except Exception:
+            _prior_turns = await _recent_user_turn_count_for_safety(db, conv.id)
+        except Exception as exc:
+            log.warning("recent_turn_count_failed", error=str(exc))
             _prior_turns = 0
 
         # Lookup business name for canned-reply personalisation
