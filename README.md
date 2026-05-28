@@ -17,6 +17,8 @@ final authority, but this document is the canonical human map of:
 Last reconciled with the codebase and local checks: **2026-05-26**.
 Hosted live checks were last verified on **2026-05-26**.
 
+Security: See [SECURITY.md](SECURITY.md) for live-run findings and recommended mitigations.
+
 ## Table Of Contents
 
 1. Product In One Page
