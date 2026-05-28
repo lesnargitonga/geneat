@@ -35,8 +35,10 @@
    - Staged rollouts and extensive unit/integration testing using a dedicated branch.
 
 ## How to push/open PR
-- Branch has been pushed to remote: `origin/security/deps-upgrade`.
+- Branch pushed: `origin/security/major-upgrades-finalize`.
 - Create the PR on GitHub (draft) using the suggested title above and include this draft as PR body.
+
+Quick PR link (from remote): https://github.com/lesnargitonga/geneat/pull/new/security/major-upgrades-finalize
 
 ---
 
