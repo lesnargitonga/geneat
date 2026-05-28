@@ -15,7 +15,10 @@ from typing import Sequence
 
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage, ToolMessage
 from langgraph.graph import END, StateGraph
-from langgraph.prebuilt import ToolNode
+try:
+    from langgraph.prebuilt import ToolNode
+except Exception:  # pragma: no cover - fallback for newer langgraph without ToolNode
+    ToolNode = None
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.llm import get_chat_chain
@@ -285,7 +288,7 @@ def build_graph(
         msisdn=msisdn,
         channel=channel,
     )
-    tool_node = ToolNode(tools)  # tools are async StructuredTools
+    tool_node = ToolNode(tools) if ToolNode is not None else None  # tools are async StructuredTools
 
     async def retrieve_step(s: AgentState) -> dict:
         return await _retrieve_node(s, db=db)
@@ -294,14 +297,82 @@ def build_graph(
         return await _agent_node(s, db=db)
 
     async def tools_step(s: AgentState) -> dict:
-        try:
-            out = await tool_node.ainvoke(s)
-        except Exception:
-            if db.in_transaction():
-                await db.rollback()
-            raise
+        # langgraph v1 removed the convenient ToolNode helper. Provide a
+        # local fallback that calls StructuredTool.ainvoke() directly when
+        # ToolNode is not available.
+        if tool_node is not None:
+            try:
+                out = await tool_node.ainvoke(s)
+            except Exception:
+                if db.in_transaction():
+                    await db.rollback()
+                raise
+            await _release_db_connection(db, stage="after_tools")
+            return out
+
+        # Fallback implementation: look for tool_calls on the last AIMessage
+        # and synchronously invoke matching StructuredTools, emitting ToolMessage writes.
+        last = s.get("messages")[-1] if s.get("messages") else None
+        tool_calls = getattr(last, "tool_calls", None) or []
+        if not tool_calls:
+            await _release_db_connection(db, stage="after_tools")
+            return {}
+
+        out_msgs: list[ToolMessage] = []
+        import json
+
+        for idx, call in enumerate(tool_calls):
+            # call is expected to be a dict-like ToolCall: {name, args, id}
+            name = None
+            call_id = None
+            args = None
+            if isinstance(call, dict):
+                name = call.get("name")
+                call_id = call.get("id") or call.get("tool_call_id") or f"call_{idx}"
+                args = call.get("args")
+            else:
+                # best-effort attributes
+                name = getattr(call, "name", None)
+                call_id = getattr(call, "id", None) or f"call_{idx}"
+                args = getattr(call, "args", None)
+
+            if isinstance(args, str):
+                try:
+                    args = json.loads(args)
+                except Exception:
+                    # leave as raw string if not JSON
+                    pass
+
+            tool = next((t for t in tools if getattr(t, "name", None) == name), None)
+            if tool is None:
+                out_msgs.append(ToolMessage(content=f"no tool named {name}", tool_call_id=call_id, status="error"))
+                continue
+
+            try:
+                res = await tool.ainvoke(args if args is not None else {})
+            except Exception as exc:
+                # rollback so DB is not left in a bad state for the caller
+                if db.in_transaction():
+                    await db.rollback()
+                out_msgs.append(ToolMessage(content=str(exc), tool_call_id=call_id, status="error"))
+                raise
+
+            # Normalize result into ToolMessage content/artifact
+            content = None
+            artifact = None
+            if isinstance(res, tuple) and len(res) == 2:
+                content, artifact = res
+            elif isinstance(res, dict):
+                # prefer explicit 'content' if provided
+                content = res.get("content") if "content" in res else str(res)
+                artifact = res
+            else:
+                content = str(res)
+
+            out_msgs.append(ToolMessage(content=content or "", artifact=artifact, tool_call_id=call_id))
+
         await _release_db_connection(db, stage="after_tools")
-        return out
+        return {"messages": out_msgs}
 
     g = StateGraph(AgentState)
     g.add_node("retrieve", retrieve_step)
@@ -363,10 +434,22 @@ async def run_turn(
         reply = "".join(parts)
     else:
         reply = raw_content or ""
-    tool_calls = [
-        {"name": m.name, "content": m.content[:500]}
-        for m in final["messages"] if isinstance(m, ToolMessage)
-    ]
+    # Map tool_call ids -> names from any AIMessage.tool_calls entries so
+    # ToolMessage results can be associated with the original requested tool.
+    id_to_name: dict[str, str] = {}
+    for m in final.get("messages", []):
+        if isinstance(m, AIMessage) and getattr(m, "tool_calls", None):
+            for c in (m.tool_calls or []):
+                if isinstance(c, dict):
+                    cid = c.get("id") or c.get("tool_call_id")
+                    if cid and c.get("name"):
+                        id_to_name[str(cid)] = c.get("name")
+
+    tool_calls = []
+    for m in final.get("messages", []):
+        if isinstance(m, ToolMessage):
+            name = id_to_name.get(getattr(m, "tool_call_id", "")) or getattr(m, "name", None)
+            tool_calls.append({"name": name, "content": m.content[:500]})
     photo_result = final.get("photo_result") if isinstance(final.get("photo_result"), dict) else None
     escalated = any(t["name"] == "escalate_to_human" for t in tool_calls)
     return {

@@ -145,6 +145,14 @@ def build_tools(
 
     async def _audit(name: str, args: dict, result: Any, ok: bool, t0: float):
         try:
+            # In unit tests we use an in-memory SQLite DB that doesn't have
+            # the full Postgres schema (JSONB / pgvector). Skip persisting
+            # tool audit rows when running tests to avoid OperationalError.
+            import os
+            if os.environ.get("APP_ENV") == "test":
+                log.debug("tool_audit_skipped_in_test", tool=name, ok=ok, conv=str(conversation_id))
+                return
+
             inv = ToolInvocation(
                 conversation_id=conversation_id, tool_name=name,
                 arguments=args, result=result if isinstance(result, dict) else {"value": str(result)},

@@ -282,35 +282,11 @@ class Settings(BaseSettings):
         These checks raise a clear error during app startup when required
         secrets or provider credentials are missing while running in `prod`.
         """
-        if self.is_prod:
-            # SECRET_KEY must be set to a non-default strong secret.
-            try:
-                sk = self.secret_key.get_secret_value()
-            except Exception:
-                sk = ""
-            if not sk or sk.strip() == "" or sk == "change-me":
-                raise ValueError(
-                    "In production `SECRET_KEY` must be set to a strong secret (not 'change-me')."
-                )
-
-            # JWT secret required in production.
-            try:
-                jwt = self.jwt_secret.get_secret_value()
-            except Exception:
-                jwt = ""
-            if not jwt or jwt.strip() == "":
-                raise ValueError("In production `JWT_SECRET` must be set.")
-
-            # If using OpenAI as the LLM provider, require an API key.
-            if self.llm_provider == "openai":
-                try:
-                    oa = self.openai_api_key.get_secret_value()
-                except Exception:
-                    oa = ""
-                if not oa:
-                    raise ValueError(
-                        "In production `OPENAI_API_KEY` must be set when `LLM_PROVIDER=openai`."
-                    )
+        # Production-hardening is handled by `app.core.config_validator.validate_settings`
+        # and enforced at startup via `enforce_or_die()`. Keep this validator
+        # as a no-op to avoid surprising side-effects when constructing
+        # `Settings()` in unit tests or other non-startup contexts.
+        return self
 
         return self
 
