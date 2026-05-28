@@ -275,6 +275,45 @@ class Settings(BaseSettings):
             self.redis_url = f"redis://{redis_url}"
         return self
 
+    @model_validator(mode="after")
+    def _prod_hardening_checks(self) -> "Settings":
+        """Production-only sanity checks to prevent insecure startups.
+
+        These checks raise a clear error during app startup when required
+        secrets or provider credentials are missing while running in `prod`.
+        """
+        if self.is_prod:
+            # SECRET_KEY must be set to a non-default strong secret.
+            try:
+                sk = self.secret_key.get_secret_value()
+            except Exception:
+                sk = ""
+            if not sk or sk.strip() == "" or sk == "change-me":
+                raise ValueError(
+                    "In production `SECRET_KEY` must be set to a strong secret (not 'change-me')."
+                )
+
+            # JWT secret required in production.
+            try:
+                jwt = self.jwt_secret.get_secret_value()
+            except Exception:
+                jwt = ""
+            if not jwt or jwt.strip() == "":
+                raise ValueError("In production `JWT_SECRET` must be set.")
+
+            # If using OpenAI as the LLM provider, require an API key.
+            if self.llm_provider == "openai":
+                try:
+                    oa = self.openai_api_key.get_secret_value()
+                except Exception:
+                    oa = ""
+                if not oa:
+                    raise ValueError(
+                        "In production `OPENAI_API_KEY` must be set when `LLM_PROVIDER=openai`."
+                    )
+
+        return self
+
     @property
     def is_prod(self) -> bool:
         return self.app_env == "prod"
