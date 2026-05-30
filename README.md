@@ -94,6 +94,11 @@ Current Lily Pond live-demo path:
 - current Meta Cloud API test number maps to Lily Pond,
 - the public WhatsApp CTA points to `+1 555-657-8220`,
 - the demo proof item is `Demo Espresso` at `KES 10`,
+- the `Demo Espresso` / `10 bob` instant-order fast path is gated by
+  `DEMO_BUSINESS_SLUG` and should only fire for the Lily Pond demo tenant, so
+  real client tenants cannot accidentally create bogus demo orders,
+- the public Lily Pond WhatsApp QR/CTA no longer hardcodes the presenter's
+  name; it asks each customer for their own name before charging,
 - the hosted stack is reachable, while this workspace's Meta verify-token
   handshake remains blocked by local/hosted token drift.
 
@@ -619,6 +624,18 @@ Current default tenant truth:
 - so manual/unscoped demo traffic lands on Lily Pond unless another tenant is
   resolved explicitly.
 
+Current demo-only fast-path truth:
+
+- `DEMO_BUSINESS_SLUG=lily-pond-cafe`
+- the `Demo Espresso` / `10 bob` fast path is a sales-demo proof flow, not a
+  general restaurant behavior,
+- if a message resolves to any tenant whose slug is different from
+  `DEMO_BUSINESS_SLUG`, the demo path returns `None` and normal menu/order
+  routing takes over,
+- for real client onboarding, keep `DEMO_BUSINESS_SLUG` pointed at the demo
+  tenant (or unset it only in a controlled non-production environment) so a
+  client cannot receive a fake KES 10 item.
+
 ## 8. AI Brain, RAG, Tools, And Playbooks
 
 Primary files:
@@ -704,11 +721,14 @@ Current explicit happy-path fast-paths:
   actual channel into the tool so Meta media is sent by the provider-aware
   transport; mock/portal chat still receives the structural `image_url`.
 - **The live KES 10 Demo Espresso order**, such as
-  `I want the KES 10 demo espresso. My name is Lesnar`, is handled in the
-  channel layer before the model. It captures the customer name, creates or
-  reuses the pending order, and starts the IntaSend STK path immediately.
-  Variants such as `May I have demo espresso`, `Demo espresso, name is Lesnar`,
-  and a plain `Demo espresso` are also deterministic.
+  `I want the KES 10 demo espresso. My name is Aisha`, is handled in the
+  channel layer before the model **only for the configured demo tenant**
+  (`DEMO_BUSINESS_SLUG`, currently `lily-pond-cafe`). It captures the customer
+  name, creates or reuses the pending order, and starts the IntaSend STK path
+  immediately. Variants such as `May I have demo espresso`,
+  `Demo espresso, name is Aisha`, and a plain `Demo espresso` are also
+  deterministic for that tenant. For real client tenants this demo path is
+  gated off so normal menu/order routing handles the turn instead.
 
 Multi-item, modifier-aware ordering is now deterministic. Messages such as
 `two flat whites with oat and a butter croissant` or
@@ -735,11 +755,19 @@ WhatsApp interactive menus (Meta Cloud API):
 - full-menu replies attach a category list (Coffee, Breakfast, Lunch, Pastries,
   …) derived from the tenant's menu chunks,
 - successful order/STK replies attach quick-action buttons (Resend STK, Track
-  order, Talk to staff),
+  order, Main menu),
+- category / price / availability replies can attach compact navigation
+  buttons (Main menu, Talk to staff),
+- the main menu includes polished row labels/descriptions for Order, See menu,
+  Pay / Resend STK, Track order, My orders, Talk to staff, and Exit,
+- the `My orders` path deterministically lists recent orders with item summary,
+  amount, and payment status,
 - inbound button/list taps arrive as `Title [lp:id]`; the id is translated back
   into the same plain-text command the deterministic router already handles
   (e.g. `lp:menu` → full menu, `lp:cat:coffee` → coffee, `lp:pay` → resend STK,
-  `lp:track` → pickup status, `lp:staff` → human handoff/escalation),
+  `lp:track` → pickup status, `lp:staff` → human handoff/escalation,
+  `lp:orders` → recent orders, `lp:home` / `lp:back` → main menu,
+  `lp:exit` → polite sign-off),
 - for non-Meta providers the channel layer degrades each interactive payload to
   a compact text list so the same options still appear.
 
@@ -749,6 +777,9 @@ Current order/payment hardening:
   of creating a second order,
 - duplicate STK requests for the same pending order are treated as
   `in_flight` instead of pushing the customer twice,
+- first-time deterministic order payment requests quietly retry once on
+  transient upstream/provider errors before telling the customer payment could
+  not start,
 - repeated customer order messages while an STK is pending get a status reply
   instead of re-running the whole order flow,
 - customer messages like `cancel payment` deterministically cancel the local
@@ -812,15 +843,22 @@ Current degraded fallback behavior in [app/channels/base.py](/home/lesnar/Docume
 - mock/portal replies only attach an image produced by the current turn; they
   no longer reuse the latest old `send_menu_photo` tool result from the same
   conversation,
+- incidental food words no longer force menu recommendations: messages like
+  `hold my coffee for a few more minutes` or `thanks for the coffee` are not
+  treated as menu/category requests, while bare category taps such as `coffee`
+  still route deterministically,
 - JSON/tool-call-looking model output is treated as malformed customer copy;
   the channel layer first tries to recover with a menu quick reply, then falls
-  back to a short plain-language formatting-error message,
+  back to calm café copy that does not expose "formatting" or "system took too
+  long" internals,
 - keyword KB fallback is tried before generic handoff, but internal/demo
   operator notes such as `DEMO FLOW`, `LIVE DEMO`, `tiny proof item`, and
   `if a customer asks...` are filtered out of customer replies,
 - degraded fallback replies are marked and filtered out of future model
   history so the assistant does not imitate old emergency copy,
-- the generic handoff text is now a last resort, not the normal café voice.
+- the generic handoff text is now a last resort, not the normal café voice,
+- escalation fallback copy uses the tenant's own `contact_phone` when present
+  instead of a hard-coded demo phone number.
 
 Current prompt/seed calibration:
 
@@ -1523,6 +1561,8 @@ make doctor-local
 make doctor-live
 make smoke-providers
 make test-fast
+python scripts/tenant_go_live_check.py --slug <business-slug> --chat
+python scripts/tenant_go_live_check.py --slug <business-slug> --live --chat
 ```
 
 Meaning:
@@ -1535,6 +1575,10 @@ Meaning:
 - `smoke-providers` probes provider credential/path sanity
 - `test-fast` includes the focused payment-race, Redis fail-closed, safety,
   fallback, and webhook-signature regressions that protect the live demo path
+- `tenant_go_live_check.py` is the reusable onboarding gate for a new café; it
+  checks tenant existence/active status, Meta phone mapping, contact phone,
+  menu/priced KB rows, no `Demo Espresso` leakage into a non-demo client menu,
+  backend health, and an optional safe non-charging menu chat probe
 
 ### 17.6 Operational watch points
 
@@ -1555,6 +1599,10 @@ Meaning:
   provider deep health, `/version` deploy-drift checks, the four-café reply
   matrix, stateful no-money conversations, and a small deterministic burst
   load check.
+- Before approaching a first real client, run
+  `python scripts/tenant_go_live_check.py --slug <business-slug> --chat`
+  locally after loading their business/menu, then run the same command with
+  `--live --chat` after deployment.
 - Admin routes are rate-limited by Redis; in production, Redis failure returns
   a 503 instead of silently allowing unlimited admin traffic.
 - Requests larger than `REQUEST_MAX_BODY_BYTES` are rejected before route
@@ -2291,7 +2339,8 @@ This is the honest list, not the flattering list.
   availability, hours, photo, and payment-control turns use deterministic
   tenant data before the model
 - the flagship KES 10 Demo Espresso order path now bypasses the model and
-  goes straight to order creation + STK so the live proof feels fast
+  goes straight to order creation + STK for the configured demo tenant only,
+  so the live proof feels fast without leaking a fake item into real clients
 - safety rules now let normal café wording and photo requests reach the model
   while still blocking real prompt-injection attempts
 - order/payment turns now guard against duplicate pending orders, duplicate
@@ -2317,11 +2366,12 @@ This is the honest list, not the flattering list.
   the channel path and the `create_order` AI tool
 - Meta WhatsApp now sends tappable interactive menus: a main-menu list on
   greetings, a category list on full-menu replies, and quick-action buttons
-  after an order/STK; taps map back into the same deterministic commands, and
-  non-Meta providers degrade gracefully to text lists
+  after an order/STK; taps map back into the same deterministic commands,
+  including Main menu / Back / Exit / My orders navigation, and non-Meta
+  providers degrade gracefully to text lists
 - demo espresso order language is broader and deterministic, including
   `May I have demo espresso`, `Demo espresso, name is...`, and short
-  `Demo espresso` turns
+  `Demo espresso` turns, but only for the configured demo tenant
 - simple known menu-item orders such as `May I have the espresso?` or
   `Can I get 2 flat whites?` now parse menu rows deterministically instead of
   relying on the model to infer the item and price; bare fragments such as
@@ -2353,6 +2403,9 @@ This is the honest list, not the flattering list.
 - JSON/tool-call-looking model output is sanitized before it reaches WhatsApp,
   with menu quick-reply recovery when the customer asked a factual menu
   question
+- model timeout/sanitizer fallbacks now use neutral café-facing copy and
+  tenant-specific contact details instead of exposing technical phrasing or a
+  hard-coded demo phone number
 - internal demo/policy phrases such as `for live Lily Pond demos`,
   `tiny proof item`, `M-Pesa STK demos`, and `if a customer asks...` are
   treated as customer-copy leaks and stripped/recovered
