@@ -26,6 +26,64 @@ def _reset_settings(monkeypatch, **env: str) -> None:
     get_settings.cache_clear()
 
 
+@pytest.mark.asyncio
+async def test_request_order_payment_retries_transient_failure(db, monkeypatch):
+    from app.core.exceptions import UpstreamError
+    from app.services import cafe_automation
+
+    calls = {"n": 0}
+
+    class _FakeResult:
+        reference = "chk_retry_123"
+        redirect_url = None
+
+    class _FlakySvc:
+        name = "simulator"
+
+        async def request_payment(self, **kwargs):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise UpstreamError("temporary provider blip")
+            return _FakeResult()
+
+    monkeypatch.setattr(cafe_automation, "get_payment_service", lambda: _FlakySvc())
+
+    order = Order(amount=480, payment_status=PaymentStatus.pending, details={})
+    attempt = await cafe_automation.request_order_payment(
+        db, order=order, msisdn="+254700000001", business_id=None
+    )
+
+    assert calls["n"] == 2  # one quiet retry after the transient failure
+    assert attempt.ok is True
+    assert order.mpesa_checkout_id == "chk_retry_123"
+
+
+@pytest.mark.asyncio
+async def test_request_order_payment_gives_up_after_persistent_failure(db, monkeypatch):
+    from app.core.exceptions import UpstreamError
+    from app.services import cafe_automation
+
+    calls = {"n": 0}
+
+    class _DeadSvc:
+        name = "simulator"
+
+        async def request_payment(self, **kwargs):
+            calls["n"] += 1
+            raise UpstreamError("provider down")
+
+    monkeypatch.setattr(cafe_automation, "get_payment_service", lambda: _DeadSvc())
+
+    order = Order(amount=480, payment_status=PaymentStatus.pending, details={})
+    attempt = await cafe_automation.request_order_payment(
+        db, order=order, msisdn="+254700000001", business_id=None
+    )
+
+    assert calls["n"] == 2  # initial attempt + one retry, then give up
+    assert attempt.ok is False
+    assert attempt.error == "upstream"
+
+
 def test_intasend_rejects_empty_secret_in_prod(monkeypatch):
     _reset_settings(
         monkeypatch,

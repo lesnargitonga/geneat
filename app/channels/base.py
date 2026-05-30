@@ -83,6 +83,11 @@ _DEGRADED_FALLBACK_MARKERS = (
     "niko pamoja na timu",
     "mfumo umechelewa",
     "mfumo umekwama",
+    # Current customer-friendly fallback copy (keep old markers for history).
+    "couldn't finish that just now",
+    "didn't go through on my end",
+    "sijaweza kumaliza hilo",
+    "halijapita vizuri",
 )
 _PAYMENT_CANCEL_RE = re.compile(
     r"\b(cancel|stop|abort|sitisha)\b.{0,50}\b(payment|pay|stk|order|malipo|oda)\b|"
@@ -745,8 +750,16 @@ async def _demo_espresso_fast_order_reply(
     business_id: uuid.UUID | None,
     text: str,
     language: str | None,
+    business_slug: str | None = None,
 ) -> str | None:
     if not _looks_like_demo_espresso_order(text):
+        return None
+    # Sales-demo only: never auto-create a KES 10 "Demo Espresso" order for a
+    # real client tenant. Allow when no tenant is resolved (mock/portal/tests)
+    # or when the demo slug is unset.
+    from app.core.config import get_settings
+    demo_slug = (get_settings().demo_business_slug or "").strip().lower()
+    if demo_slug and business_slug and business_slug.strip().lower() != demo_slug:
         return None
 
     is_sw = _customer_prefers_swahili(language or getattr(customer, "preferred_language", None))
@@ -1498,14 +1511,18 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             log.warning("recent_turn_count_failed", error=str(exc))
             _prior_turns = 0
 
-        # Lookup business name for canned-reply personalisation
+        # Lookup business profile for canned-reply personalisation, demo gating
+        # and tenant-correct escalation contact details.
         _biz_name = None
+        _biz_profile = None
+        _biz_slug = None
         if business_id is not None:
             try:
-                _bp2 = await get_business_for_turn(db, business_id=business_id)
-                _biz_name = _bp2.name if _bp2 else None
+                _biz_profile = await get_business_for_turn(db, business_id=business_id)
+                _biz_name = _biz_profile.name if _biz_profile else None
+                _biz_slug = _biz_profile.slug if _biz_profile else None
             except Exception:
-                _biz_name = None
+                _biz_profile = None
 
         verdict = evaluate_inbound(
             turn.text,
@@ -1781,6 +1798,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     business_id=business_id,
                     text=turn.text,
                     language=effective_lang,
+                    business_slug=_biz_slug,
                 )
             if control_reply and control_flag is None:
                 control_flag = "deterministic:demo_espresso_fast_order"
@@ -2006,22 +2024,26 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     prefix = "Kutoka kwa menu:\n\n" if is_sw else "From the menu:\n\n"
                     reply = prefix + kb_reply
                 elif escalated:
-                    reply = (
-                        "Samahani, mfumo umekwama kabla sijamaliza hilo. "
-                        "Nimeweka mazungumzo haya yakaguliwe na mtu. "
-                        "Kama ni ya haraka, piga simu +254 715 540 653."
-                        if is_sw else
-                        "Sorry, the system got stuck before I could finish that. "
-                        "I've flagged this chat for a person to check. "
-                        "If it's urgent, call +254 715 540 653."
-                    )
+                    _contact = getattr(_biz_profile, "contact_phone", None) if _biz_profile else None
+                    if is_sw:
+                        _urgent = f" Kama ni ya haraka, piga simu {_contact}." if _contact else " Kama ni ya haraka, piga simu kwa cafe moja kwa moja."
+                        reply = (
+                            "Samahani, sijaweza kumaliza hilo sasa hivi. "
+                            "Nimemwarifu mtu wa timu akague mazungumzo haya." + _urgent
+                        )
+                    else:
+                        _urgent = f" If it's urgent, call {_contact}." if _contact else " If it's urgent, please call the café directly."
+                        reply = (
+                            "Sorry, I couldn't finish that just now. "
+                            "I've flagged this chat for a team member to check." + _urgent
+                        )
                 else:
                     reply = (
-                        "Samahani, mfumo umechelewa kabla sijamaliza hilo. "
-                        "Tafadhali tuma tena ujumbe huo mara moja; nitajaribu tena."
+                        "Samahani, hilo halijapita vizuri kwangu. Tafadhali tuma tena, "
+                        "au niambie kuhusu menu, bei, picha au oda — nitakusaidia haraka."
                         if is_sw else
-                        "Sorry, the system took too long before I could finish that. "
-                        "Please send that message once more and I'll try again."
+                        "Sorry, that didn't go through on my end. Please send it once more, "
+                        "or ask me about the menu, prices, photos, or an order — happy to help."
                     )
                 # Persist the fallback so conversation history stays complete
                 await append_message(
@@ -2085,8 +2107,8 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 log.info("sanitizer_reply_recovered", source="quick_reply")
             else:
                 reply = (
-                    "I had trouble formatting that answer. I can help with the menu, prices, "
-                    "photos, or an order. What would you like?"
+                    "Sorry, I didn't quite catch that. I can help with the menu, prices, "
+                    "item photos, or placing an order — what would you like?"
                 )
                 log.info("sanitizer_reply_recovered", source="generic_menu_prompt")
 

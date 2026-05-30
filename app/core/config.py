@@ -200,6 +200,12 @@ class Settings(BaseSettings):
     # the slug doesn't exist.
     default_business_slug: str = "lily-pond-cafe"
 
+    # The KES 10 "Demo Espresso" instant-order fast path is a sales-demo feature.
+    # It only fires for this tenant slug so a real client's customers can never
+    # accidentally create a bogus KES 10 order by typing "demo espresso"/"10 bob".
+    # Leave blank to allow it for every tenant (not recommended in production).
+    demo_business_slug: str = "lily-pond-cafe"
+
     # ── Media storage (Cloudflare R2 — S3-compatible, free 10 GB tier) ─
     # When unset, media features degrade gracefully (no upload, no vision).
     r2_account_id: str = ""

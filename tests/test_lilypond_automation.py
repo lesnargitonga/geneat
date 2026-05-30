@@ -124,3 +124,21 @@ async def test_demo_espresso_fast_path_uses_shared_payment_service(db, monkeypat
     assert seen["fast_path"] == "demo_espresso"
     assert seen["items"] == [CafeOrderItem("Demo Espresso", qty=1, unit_price=10.0)]
     assert "sent a fresh STK" in reply
+
+
+@pytest.mark.asyncio
+async def test_demo_espresso_fast_path_gated_to_demo_tenant() -> None:
+    # A real client tenant (slug != demo slug) must NOT auto-create a KES 10
+    # "Demo Espresso" order even if a customer types the demo phrase.
+    from app.channels.base import _demo_espresso_fast_order_reply
+
+    reply = await _demo_espresso_fast_order_reply(
+        None,  # db must not be touched on the gated-out path
+        customer=SimpleNamespace(id=uuid.uuid4(), name="Lesnar", phone_number="+254700000001", preferred_language="en"),
+        conversation_id=uuid.uuid4(),
+        business_id=uuid.uuid4(),
+        text="Demo espresso",
+        language="en",
+        business_slug="pavilion-grill",
+    )
+    assert reply is None

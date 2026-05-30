@@ -6,6 +6,7 @@ orders, and trigger payment prompts.
 """
 from __future__ import annotations
 
+import asyncio
 import re
 import uuid
 from dataclasses import dataclass, field
@@ -285,14 +286,34 @@ async def request_order_payment(
 ) -> PaymentAttempt:
     from app.jobs.runner import enqueue_job
 
+    svc = get_payment_service()
+    # One quiet retry shields customers from transient provider blips
+    # (network/upstream hiccups) so a clear order intent still gets its STK
+    # instead of an awkward "could not start payment" on the first attempt.
+    result = None
+    for attempt in range(2):
+        try:
+            result = await svc.request_payment(
+                msisdn=msisdn,
+                amount=float(order.amount or 0),
+                reference=str(order.id)[:8],
+                description="Order Payment",
+            )
+            break
+        except RateLimited as exc:
+            return PaymentAttempt(ok=False, message=exc.message, error="rate_limited")
+        except UpstreamError as exc:
+            if attempt == 0:
+                await asyncio.sleep(0.6)
+                continue
+            return PaymentAttempt(ok=False, message=exc.message, error="upstream")
+        except Exception as exc:  # noqa: BLE001
+            if attempt == 0:
+                await asyncio.sleep(0.6)
+                continue
+            return PaymentAttempt(ok=False, message=str(exc), error="unexpected")
+
     try:
-        svc = get_payment_service()
-        result = await svc.request_payment(
-            msisdn=msisdn,
-            amount=float(order.amount or 0),
-            reference=str(order.id)[:8],
-            description="Order Payment",
-        )
         order.mpesa_checkout_id = result.reference
         details = dict(order.details or {})
         details["fulfillment_status"] = "pending_payment"
@@ -321,10 +342,6 @@ async def request_order_payment(
             checkout_id=result.reference,
             provider=svc.name,
         )
-    except RateLimited as exc:
-        return PaymentAttempt(ok=False, message=exc.message, error="rate_limited")
-    except UpstreamError as exc:
-        return PaymentAttempt(ok=False, message=exc.message, error="upstream")
     except Exception as exc:  # noqa: BLE001
         return PaymentAttempt(ok=False, message=str(exc), error="unexpected")
 
