@@ -21,19 +21,19 @@ services:
       - key: DEFAULT_BUSINESS_SLUG
         value: lily-pond-cafe
       - key: LLM_PROVIDER
-        value: openai
-      - key: LLM_FALLBACK_PROVIDERS
         value: groq
+      - key: LLM_FALLBACK_PROVIDERS
+        value: openai
       - key: EMBED_PROVIDER
         value: openai
       - key: OPENAI_MODEL
-        value: gpt-5.4-mini
+        value: gpt-4o-mini
       - key: OPENAI_REASONING_EFFORT
-        value: low
+        value: none
       - key: OPENAI_USE_RESPONSES_API
-        value: "true"
+        value: "false"
       - key: OPENAI_STORE_RESPONSES
-        value: "true"
+        value: "false"
       - key: OPENAI_EMBED_MODEL
         value: text-embedding-3-large
       - key: OPENAI_EMBED_DIMENSIONS

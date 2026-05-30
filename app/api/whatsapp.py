@@ -211,10 +211,24 @@ async def _handle_one_message(SessionLocal, msg: dict, contacts: dict, phone_num
             provider_message_id=msg_id,
             business_id=business.id if business else None,
         ))
-    if result.duplicate or not result.reply:
+    if result.duplicate:
         return
+    reply = (result.reply or "").strip()
+    if not reply:
+        log.warning(
+            "wa_empty_reply_fallback",
+            conv=str(result.conversation_id),
+            escalated=result.escalated,
+        )
+        reply = (
+            "Sorry — I hit a snag on that one. "
+            "Please try again, or ask about the menu, prices, or an order."
+        )
     try:
-        await whatsapp_client.send_text("+" + wa_id, result.reply)
+        sent = await whatsapp_client.send_text("+" + wa_id, reply)
+        if not sent.get("ok", True):
+            log.warning("wa_reply_send_retry", error=sent.get("error"))
+            await whatsapp_client.send_text("+" + wa_id, reply)
     except Exception as e:
         log.exception("wa_reply_send_failed", error=str(e))
 

@@ -7,6 +7,7 @@ type Msg = { id: string; role: "user" | "ai" | "system"; text: string; ts: numbe
 type MsgWithMedia = Msg & { imageUrl?: string | null; imageAlt?: string | null };
 
 const PHONE_KEY = "geneat.phone";
+const CHAT_TIMEOUT_MS = 45_000;
 
 function getOrCreatePhone(): string {
   if (typeof window === "undefined") return "+254700000000";
@@ -85,6 +86,8 @@ export function ChatWidget({ cafe }: { cafe?: Cafe }) {
     setDraft("");
     setBusy(true);
     try {
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), CHAT_TIMEOUT_MS);
       const r = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -94,7 +97,9 @@ export function ChatWidget({ cafe }: { cafe?: Cafe }) {
           business_slug: activeCafe.slug,
           language: "en",
         }),
+        signal: controller.signal,
       });
+      window.clearTimeout(timeout);
       const ok = r.ok;
       const body = await r.json().catch(() => ({}));
       const reply = ok
@@ -116,12 +121,15 @@ export function ChatWidget({ cafe }: { cafe?: Cafe }) {
         },
       ]);
     } catch (e: any) {
+      const timedOut = e?.name === "AbortError";
       setMessages((m) => [
         ...m,
         {
           id: crypto.randomUUID(),
           role: "system",
-          text: `Network error: ${e?.message || "unknown"}`,
+          text: timedOut
+            ? "That took too long — the café AI may be busy. Please try again in a few seconds."
+            : `Network error: ${e?.message || "unknown"}`,
           ts: Date.now(),
         },
       ]);

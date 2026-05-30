@@ -110,10 +110,22 @@ async def inbound(
         log.exception("twilio_wa_inbound_failed", error=str(e))
         return Response(content=_TWIML_EMPTY, media_type="application/xml")
 
-    if result.duplicate or not result.reply:
+    if result.duplicate:
         return Response(content=_TWIML_EMPTY, media_type="application/xml")
 
-    return Response(content=_twiml_message(result.reply), media_type="application/xml")
+    reply = (result.reply or "").strip()
+    if not reply:
+        log.warning(
+            "twilio_wa_empty_reply_fallback",
+            conv=str(result.conversation_id),
+            escalated=result.escalated,
+        )
+        reply = (
+            "Sorry — I hit a snag on that one. "
+            "Please try again, or ask about the menu, prices, or an order."
+        )
+
+    return Response(content=_twiml_message(reply), media_type="application/xml")
 
 
 @router.post("/status")

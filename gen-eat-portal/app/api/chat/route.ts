@@ -5,7 +5,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const base = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+  const base =
+    process.env.BACKEND_URL ||
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    (process.env.VERCEL ? "https://api.lesnarai.co.ke" : "http://localhost:8000");
   let payload: unknown;
   try {
     payload = await req.json();
@@ -17,6 +20,7 @@ export async function POST(req: NextRequest) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(50_000),
     });
     const body = await r.text();
     return new NextResponse(body, {

@@ -19,15 +19,6 @@ try:
     from langgraph.prebuilt import ToolNode
 except Exception:  # pragma: no cover - fallback for newer langgraph without ToolNode
     ToolNode = None
-try:
-    from langgraph.prebuilt._tool_call_transformer import ToolCallTransformer
-except Exception:
-    ToolCallTransformer = None
-
-try:
-    from langgraph.pregel._tools import StreamToolCallHandler
-except Exception:
-    StreamToolCallHandler = None
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.llm import get_chat_chain
@@ -392,12 +383,6 @@ def build_graph(
     g.add_edge("retrieve", "agent")
     g.add_conditional_edges("agent", _should_continue, {"tools": "tools", END: END})
     g.add_edge("tools", "agent")
-
-    # If available, register the ToolCallTransformer so the graph emits
-    # `tools` stream events and LangGraph can attach callback handlers
-    # (e.g. StreamToolCallHandler) to route LangChain tool callbacks.
-    if ToolCallTransformer is not None:
-        return g.compile(transformers=[ToolCallTransformer])
     return g.compile()
 
 
@@ -434,32 +419,7 @@ async def run_turn(
         "language": customer_language,
         "messages": [*history, HumanMessage(content=user_text)],
     }
-    # Use the `tools` stream mode so LangGraph attaches the streaming
-    # tool-call machinery (StreamToolCallHandler + ToolCallTransformer).
-    # `ainvoke` returns a list of stream chunks when `stream_mode` is
-    # not the simple string "values"; normalize that back to the
-    # final state dict so the rest of the code can remain unchanged.
-    raw = await graph.ainvoke(initial, stream_mode=("tools", "values"))
-    if isinstance(raw, list):
-        final = None
-        for chunk in raw:
-            try:
-                # chunk formats: (mode, payload) or (namespace, mode, payload)
-                if isinstance(chunk, tuple):
-                    if len(chunk) == 2:
-                        mode, payload = chunk
-                    else:
-                        _, mode, payload = chunk
-                    if mode == "values":
-                        final = payload
-                elif isinstance(chunk, dict) and "value" in chunk:
-                    # v2 style GraphOutput
-                    final = chunk.get("value")
-            except Exception:
-                continue
-        final = final or (raw[-1] if raw else {})
-    else:
-        final = raw
+    final: AgentState = await graph.ainvoke(initial)
     last_ai = next((m for m in reversed(final["messages"]) if isinstance(m, AIMessage)), None)
     raw_content = last_ai.content if last_ai else ""
     # Gemini returns content as a list of parts ([{"type":"text","text":"…"}, …]);

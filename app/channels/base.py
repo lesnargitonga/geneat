@@ -1649,7 +1649,14 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         if conv.status.value == "human_escalated":
             await db.commit()
             log.info("turn_skipped_escalated", msisdn_hash=hash_msisdn(msisdn))
-            return TurnResult(reply="", conversation_id=conv.id, escalated=True)
+            return TurnResult(
+                reply=(
+                    "I've flagged this for a team member — someone will follow up shortly. "
+                    "If it's urgent, call the café directly."
+                ),
+                conversation_id=conv.id,
+                escalated=True,
+            )
 
         # Staff has taken over via admin console — AI stays out of the way.
         # The inbound message is persisted; replies will be sent by a human
@@ -1673,7 +1680,14 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             except Exception:
                 pass
             log.info("turn_skipped_ai_paused", conv=str(conv.id))
-            return TurnResult(reply="", conversation_id=conv.id, escalated=False)
+            return TurnResult(
+                reply=(
+                    "Thanks — I've passed this to the team. "
+                    "Someone from the café will reply here shortly."
+                ),
+                conversation_id=conv.id,
+                escalated=False,
+            )
 
         # Load short history (last 20 msgs) → LangChain BaseMessage list.
         history_rows = await recent_history(db, conv.id, limit=20)
