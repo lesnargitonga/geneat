@@ -85,7 +85,7 @@ export default async function CafePage({ params }: { params: { slug: string } })
 
   const isLilyPondDemo = cafe.slug === "lily-pond-cafe";
   const waText = isLilyPondDemo
-    ? "Hi Lily Pond, I want the KES 10 demo espresso. My name is Lesnar."
+    ? "Hi Lily Pond, I'd like the KES 10 demo espresso."
     : `Hi ${cafe.name}! I'd like to order.`;
   const wa = whatsappLink(cafe.whatsapp, waText);
   const waLabel = isLilyPondDemo ? "Order KES 10 on WhatsApp" : "Order on WhatsApp";

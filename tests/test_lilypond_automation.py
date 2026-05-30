@@ -21,12 +21,23 @@ LILY_CHUNKS = [
             "(oat/almond +KES 40). Mocha KES 280.\n"
             "BREAKFAST - Avocado Toast on Sourdough KES 450 - add poached egg +KES 80. "
             "Mandazi & Masala Chai KES 230.\n"
+            "LUNCH - Chicken Caesar Wrap KES 480. Halloumi & Avo Bowl KES 520.\n"
             "PASTRIES - Butter Croissant KES 180. Chocolate Brownie KES 200."
         ),
         source="menu",
         score=1.0,
     )
 ]
+
+
+def test_parse_lily_food_order_with_polite_prefix() -> None:
+    # "Caesar wrap please" must resolve deterministically so the fast path can
+    # push the STK instead of dropping the turn to the slower LLM.
+    items = parse_cafe_order_items("Okay, Caesar wrap please", LILY_CHUNKS)
+    assert len(items) == 1
+    assert items[0].sku_or_name == "Chicken Caesar Wrap"
+    assert items[0].qty == 1
+    assert items[0].unit_price == 480.0
 
 
 def test_parse_lily_multi_item_order_with_modifiers() -> None:

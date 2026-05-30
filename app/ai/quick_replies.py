@@ -166,8 +166,17 @@ def looks_like_recommendation_request(text: str) -> bool:
     if looks_like_full_menu_request(candidate):
         return False
     lowered = candidate.lower()
-    if any(token in lowered for token in ("breakfast", "lunch", "dinner", "coffee", "pastr", "snack", "drink", "menu")):
-        return True
+    food_tokens = ("breakfast", "lunch", "dinner", "coffee", "pastr", "snack", "drink", "menu")
+    if any(token in lowered for token in food_tokens):
+        # A bare/dominant category word ("coffee", "any drinks", "breakfast?")
+        # is a menu request; an incidental mention ("hold my coffee for a few
+        # minutes", "thanks for the coffee") is not. Require the word to either
+        # dominate a short message, end in a question, or carry an explicit
+        # recommend/menu phrase before treating it as a menu request.
+        word_count = len(re.findall(r"[a-z]+", lowered))
+        if word_count <= 3 or "?" in candidate:
+            return True
+        return bool(_RECOMMENDATION_REQUEST_RE.search(candidate))
     return bool(_RECOMMENDATION_REQUEST_RE.search(candidate))
 
 

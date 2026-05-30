@@ -863,7 +863,11 @@ async def _simple_menu_order_reply(
 
     from app.ai.rag import fetch_menu_chunks
 
-    chunks = await fetch_menu_chunks(db, business_id=business_id, k=12)
+    # Fetch a wide menu window so deterministic matching covers every category
+    # (coffee, breakfast, lunch, pastries). A narrow window dropped food orders
+    # like "Caesar wrap please" to the slower LLM path, which often created the
+    # order without pushing the STK.
+    chunks = await fetch_menu_chunks(db, business_id=business_id, k=30)
     items = parse_cafe_order_items(text, chunks)
     if not items:
         match = match_order_item_from_chunks(text, chunks)

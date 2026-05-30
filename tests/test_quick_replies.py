@@ -33,6 +33,21 @@ def test_recommendation_detector_catches_budget_and_menu_questions() -> None:
     assert not looks_like_recommendation_request("show me a photo of the flat white")
 
 
+def test_recommendation_detector_handles_bare_category_taps() -> None:
+    # Interactive category taps send a single word and must still match.
+    assert looks_like_recommendation_request("coffee")
+    assert looks_like_recommendation_request("breakfast")
+    assert looks_like_recommendation_request("pastries")
+    assert looks_like_recommendation_request("any drinks?")
+
+
+def test_recommendation_detector_ignores_incidental_food_mentions() -> None:
+    # Real chat where a food word appears but it is not a menu request.
+    assert not looks_like_recommendation_request("Hold my coffee for a few more minutes I'll be there")
+    assert not looks_like_recommendation_request("Thanks for the coffee earlier")
+    assert not looks_like_recommendation_request("I already had lunch today thanks")
+
+
 def test_hours_detector_matches_opening_questions() -> None:
     assert looks_like_hours_request("What time do you open?")
     assert looks_like_hours_request("closing time today?")
