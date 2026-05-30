@@ -710,12 +710,38 @@ Current explicit happy-path fast-paths:
   Variants such as `May I have demo espresso`, `Demo espresso, name is Lesnar`,
   and a plain `Demo espresso` are also deterministic.
 
+Multi-item, modifier-aware ordering is now deterministic. Messages such as
+`two flat whites with oat and a butter croissant` or
+`avocado toast with poached egg` are parsed into a cart (quantities, oat/almond
+add-ons, egg add-on, line totals) by the shared
+[app/services/cafe_automation.py](/home/lesnar/Documents/ai model/app/services/cafe_automation.py)
+service, which both the deterministic channel path and the `create_order` AI
+tool reuse so order creation, idempotency, and STK requests behave identically.
+
 Current model-led happy path:
 
 - ambiguous menu follow-ups after deterministic menu data cannot answer,
-- multi-item order-building turns,
-- clarification turns,
-- payment turns.
+- open-ended/clarification turns,
+- creative chat that the deterministic intents do not cover.
+
+WhatsApp interactive menus (Meta Cloud API):
+
+- the plain-text reply is always authoritative and is sent first, so Twilio and
+  the web portal are unaffected; Meta then receives tappable controls as a
+  follow-up message,
+- greetings attach a main-menu list (Order, See menu, Pay / Resend STK, Track
+  order, Talk to staff) built in
+  [app/services/whatsapp_menus.py](/home/lesnar/Documents/ai model/app/services/whatsapp_menus.py),
+- full-menu replies attach a category list (Coffee, Breakfast, Lunch, Pastries,
+  …) derived from the tenant's menu chunks,
+- successful order/STK replies attach quick-action buttons (Resend STK, Track
+  order, Talk to staff),
+- inbound button/list taps arrive as `Title [lp:id]`; the id is translated back
+  into the same plain-text command the deterministic router already handles
+  (e.g. `lp:menu` → full menu, `lp:cat:coffee` → coffee, `lp:pay` → resend STK,
+  `lp:track` → pickup status, `lp:staff` → human handoff/escalation),
+- for non-Meta providers the channel layer degrades each interactive payload to
+  a compact text list so the same options still appear.
 
 Current order/payment hardening:
 
@@ -2284,6 +2310,15 @@ This is the honest list, not the flattering list.
 - short affirmatives such as `yes`, `yeah`, and `sure` can continue a recent
   one-item offer deterministically, while ambiguous multi-item offers ask the
   customer which item to order
+- multi-item, modifier-aware orders such as `two flat whites with oat and a
+  butter croissant` or `avocado toast with poached egg` are now parsed
+  deterministically into a cart (quantities, oat/almond/egg add-ons, line
+  totals) by a shared `app/services/cafe_automation.py` service reused by both
+  the channel path and the `create_order` AI tool
+- Meta WhatsApp now sends tappable interactive menus: a main-menu list on
+  greetings, a category list on full-menu replies, and quick-action buttons
+  after an order/STK; taps map back into the same deterministic commands, and
+  non-Meta providers degrade gracefully to text lists
 - demo espresso order language is broader and deterministic, including
   `May I have demo espresso`, `Demo espresso, name is...`, and short
   `Demo espresso` turns

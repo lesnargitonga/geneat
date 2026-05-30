@@ -233,8 +233,35 @@ async def _handle_one_message(SessionLocal, msg: dict, contacts: dict, phone_num
         if not sent.get("ok", True):
             log.warning("wa_reply_send_retry", error=sent.get("error"))
             await wa_channel.send_text("+" + wa_id, reply)
+        # Follow the authoritative text with tappable controls (Meta only;
+        # the channel module degrades to plain text for other providers).
+        interactive = getattr(result, "interactive", None)
+        if interactive and isinstance(interactive, dict):
+            await _send_interactive("+" + wa_id, interactive, wa_channel)
     except Exception as e:
         log.exception("wa_reply_send_failed", error=str(e))
+
+
+async def _send_interactive(to_msisdn: str, interactive: dict, wa_channel) -> None:
+    """Send a Meta buttons/list payload as a follow-up to the text reply."""
+    kind = (interactive.get("type") or "").lower()
+    body = (interactive.get("body") or "").strip()
+    try:
+        if kind == "buttons":
+            buttons = interactive.get("buttons") or []
+            if buttons:
+                await wa_channel.send_reply_buttons(to_msisdn, body=body, buttons=buttons)
+        elif kind == "list":
+            sections = interactive.get("sections") or []
+            if sections:
+                await wa_channel.send_list_message(
+                    to_msisdn,
+                    body=body,
+                    button_text=interactive.get("button_text") or "Choose",
+                    sections=sections,
+                )
+    except Exception as e:
+        log.warning("wa_interactive_send_failed", error=str(e), kind=kind)
 
 
 def _is_stale_customer_message(msg: dict, *, max_age_seconds: int = 23 * 3600) -> bool:

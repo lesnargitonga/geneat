@@ -52,6 +52,13 @@ from app.services.cafe_automation import (
     create_order_and_request_payment,
     parse_cafe_order_items,
 )
+from app.services.whatsapp_menus import (
+    category_list_payload,
+    command_for_interactive_id,
+    extract_interactive_id,
+    main_menu_payload,
+    order_actions_payload,
+)
 
 log = get_logger("channel")
 
@@ -1235,10 +1242,21 @@ class TurnResult:
     duplicate: bool = False
     image_url: str | None = None
     photo_item: str | None = None
+    # Optional Meta WhatsApp interactive payload (buttons/list). Plain `reply`
+    # remains authoritative for Twilio / web chat; Meta renders this when set.
+    interactive: dict | None = None
 
 
 async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
     msisdn = normalize_msisdn(turn.msisdn_raw)
+
+    # WhatsApp interactive taps arrive as "Title [lp:id]". Translate our own
+    # button/list ids back into the plain-text command the deterministic
+    # router already understands so taps and typed text share one code path.
+    interactive_id = extract_interactive_id(turn.text)
+    interactive_command = command_for_interactive_id(interactive_id)
+    if interactive_command and interactive_command != "__staff_handoff__":
+        turn.text = interactive_command
 
     # Idempotency: if the provider gave us a message id we've already processed,
     # short-circuit without re-running the LLM.
@@ -1498,6 +1516,21 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         control_flag: str | None = None
         control_image_url: str | None = None
         control_photo_item: str | None = None
+        control_interactive: dict | None = None
+        if interactive_command == "__staff_handoff__":
+            await escalate(db, conv, reason="interactive:staff_handoff")
+            is_sw = _customer_prefers_swahili(effective_lang)
+            control_reply = (
+                "Sawa, nimemwita mhudumu akusaidie. Atakujibu hapa muda mfupi."
+                if is_sw else
+                "Okay, I've asked a team member to help. They'll reply here shortly."
+            )
+            await append_message(
+                db, conversation=conv, sender=Sender.ai, content=control_reply,
+                safety_flags=["deterministic:staff_handoff"],
+            )
+            await db.commit()
+            return TurnResult(reply=control_reply, conversation_id=conv.id, escalated=True)
         if _looks_like_payment_resend(turn.text):
             control_reply = await _resend_pending_payment_reply(
                 db,
@@ -1600,9 +1633,23 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 log.warning("menu_info_quick_reply_failed", error=str(exc))
                 control_reply = None
             control_flag = "deterministic:menu_info" if control_reply else None
+            if control_reply and looks_like_full_menu_request(turn.text):
+                try:
+                    from app.ai.rag import fetch_menu_chunks
+                    from app.ai.quick_replies import menu_categories_from_chunks
+                    menu_chunks = await fetch_menu_chunks(db, business_id=business_id, k=12)
+                    categories = [c.name for c in menu_categories_from_chunks(menu_chunks)]
+                    control_interactive = category_list_payload(
+                        categories, language=effective_lang,
+                    )
+                except Exception as exc:
+                    log.warning("menu_category_payload_failed", error=str(exc))
         elif _looks_like_greeting(turn.text):
             control_reply = _greeting_reply(business_name=_biz_name, language=effective_lang)
             control_flag = "deterministic:greeting"
+            control_interactive = main_menu_payload(
+                business_name=_biz_name, language=effective_lang,
+            )
         else:
             control_reply = await _affirmative_followup_reply(
                 db,
@@ -1625,6 +1672,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 )
             if control_reply and control_flag is None:
                 control_flag = "deterministic:demo_espresso_fast_order"
+                control_interactive = order_actions_payload(language=effective_lang)
             elif not control_reply:
                 control_reply = await _simple_menu_order_reply(
                     db,
@@ -1636,6 +1684,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 )
                 if control_reply:
                     control_flag = "deterministic:simple_menu_order"
+                    control_interactive = order_actions_payload(language=effective_lang)
                 else:
                     control_reply = await _auto_resend_stale_payment_reply(
                         db,
@@ -1673,6 +1722,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 escalated=False,
                 image_url=control_image_url,
                 photo_item=control_photo_item,
+                interactive=control_interactive,
             )
 
         # ── If conversation is already human-escalated, do nothing.
