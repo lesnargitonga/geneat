@@ -1,9 +1,9 @@
 """WhatsApp interactive menu helpers (Meta buttons/lists).
 
 This is a presentation layer on top of the deterministic café automation:
-- builds the main menu and category list payloads
+- builds the main menu, category list, recent-orders and order-action payloads
 - translates inbound interactive button/list IDs back into the plain-text
-  commands the deterministic router already understands
+  commands (or special markers) the deterministic router already understands
 
 Plain text remains the source of truth so Twilio and web chat keep working;
 Meta WhatsApp additionally gets tappable buttons/lists when a payload is set.
@@ -20,7 +20,18 @@ ID_ORDER = "lp:order"
 ID_PAY = "lp:pay"
 ID_TRACK = "lp:track"
 ID_STAFF = "lp:staff"
+ID_ORDERS = "lp:orders"
+ID_HOME = "lp:home"
+ID_BACK = "lp:back"
+ID_EXIT = "lp:exit"
 ID_CATEGORY_PREFIX = "lp:cat:"
+
+# Special markers handled directly in handle_inbound (not plain-text commands).
+CMD_STAFF = "__staff_handoff__"
+CMD_HOME = "__main_menu__"
+CMD_EXIT = "__exit__"
+CMD_ORDERS = "__my_orders__"
+SPECIAL_COMMANDS = {CMD_STAFF, CMD_HOME, CMD_EXIT, CMD_ORDERS}
 
 _INTERACTIVE_ID_RE = re.compile(r"\[(lp:[a-z0-9:_-]+)\]\s*$", re.IGNORECASE)
 
@@ -36,12 +47,12 @@ _CATEGORY_COMMAND = {
 }
 
 _CATEGORY_LABEL = {
-    "coffee": "Coffee",
-    "breakfast": "Breakfast",
-    "lunch": "Lunch",
-    "pastry": "Pastries",
-    "drink": "Drinks",
-    "snack": "Snacks",
+    "coffee": ("\u2615", "Coffee"),
+    "breakfast": ("\U0001F373", "Breakfast"),
+    "lunch": ("\U0001F37D\uFE0F", "Lunch"),
+    "pastry": ("\U0001F950", "Pastries"),
+    "drink": ("\U0001F964", "Drinks"),
+    "snack": ("\U0001F36A", "Snacks"),
 }
 
 
@@ -61,100 +72,150 @@ def strip_interactive_id(text: str) -> str:
 
 
 def command_for_interactive_id(interactive_id: str | None) -> str | None:
-    """Translate one of our interactive ids into a deterministic text command.
+    """Translate one of our interactive ids into a deterministic command.
 
-    Returns None for ids we do not recognise so the caller can fall back to the
-    plain title text and ordinary routing.
+    Returns a plain-text command (routed like typed text), one of the
+    ``CMD_*`` special markers (handled directly in handle_inbound), or None
+    for ids we do not recognise so the caller can fall back to the title text.
     """
     if not interactive_id:
         return None
     lid = interactive_id.lower()
-    if lid == ID_MENU or lid == ID_ORDER:
+    if lid in (ID_MENU, ID_ORDER):
         return "full menu"
     if lid == ID_PAY:
         return "resend STK"
     if lid == ID_TRACK:
         return "is my order ready?"
     if lid == ID_STAFF:
-        return "__staff_handoff__"
+        return CMD_STAFF
+    if lid in (ID_HOME, ID_BACK):
+        return CMD_HOME
+    if lid == ID_EXIT:
+        return CMD_EXIT
+    if lid == ID_ORDERS:
+        return CMD_ORDERS
     if lid.startswith(ID_CATEGORY_PREFIX):
         suffix = lid[len(ID_CATEGORY_PREFIX):]
         return _CATEGORY_COMMAND.get(suffix, suffix)
     return None
 
 
+def _is_swahili(language: str | None) -> bool:
+    return (language or "").lower().startswith(("sw", "she"))
+
+
 def main_menu_payload(*, business_name: str | None, language: str | None) -> dict:
     """A single list message that mirrors the greeting's offered actions."""
-    is_sw = (language or "").lower().startswith(("sw", "she"))
-    if is_sw:
-        body = "Gusa chaguo hapa chini:"
-        button_text = "Chagua"
+    name = (business_name or "the cafe").replace("Caf\u00e9", "Cafe")
+    if _is_swahili(language):
         rows = [
-            {"id": ID_ORDER, "title": "Weka oda", "description": "Anza oda ya chakula/kahawa"},
-            {"id": ID_MENU, "title": "Ona menu", "description": "Bei na vyakula vyote"},
-            {"id": ID_PAY, "title": "Lipa / STK", "description": "Tuma tena STK ya M-Pesa"},
-            {"id": ID_TRACK, "title": "Hali ya oda", "description": "Iko tayari?"},
-            {"id": ID_STAFF, "title": "Ongea na staff", "description": "Mhudumu akusaidie"},
+            {"id": ID_ORDER, "title": "\U0001F6D2 Weka oda", "description": "Anza oda ya chakula/kahawa"},
+            {"id": ID_MENU, "title": "\U0001F4CB Ona menu", "description": "Bei na vyakula vyote"},
+            {"id": ID_PAY, "title": "\U0001F4B3 Lipa / STK", "description": "Tuma tena STK ya M-Pesa"},
+            {"id": ID_TRACK, "title": "\U0001F4E6 Hali ya oda", "description": "Iko tayari?"},
+            {"id": ID_ORDERS, "title": "\U0001F9FE Oda zangu", "description": "Oda za hivi karibuni"},
+            {"id": ID_STAFF, "title": "\U0001F9D1\u200D\U0001F373 Ongea na staff", "description": "Mhudumu akusaidie"},
+            {"id": ID_EXIT, "title": "\u2716\uFE0F Toka", "description": "Maliza mazungumzo"},
         ]
-    else:
-        body = "Tap an option below:"
-        button_text = "Choose"
-        rows = [
-            {"id": ID_ORDER, "title": "Order", "description": "Start a food/coffee order"},
-            {"id": ID_MENU, "title": "See menu", "description": "Prices and all items"},
-            {"id": ID_PAY, "title": "Pay / Resend STK", "description": "Re-send the M-Pesa prompt"},
-            {"id": ID_TRACK, "title": "Track order", "description": "Is my order ready?"},
-            {"id": ID_STAFF, "title": "Talk to staff", "description": "A person will help"},
-        ]
+        return {
+            "type": "list",
+            "header": name[:60],
+            "body": "Gusa chaguo hapa chini:",
+            "button_text": "Chagua",
+            "sections": [{"title": "Menu", "rows": rows}],
+        }
+    rows = [
+        {"id": ID_ORDER, "title": "\U0001F6D2 Order", "description": "Start a food/coffee order"},
+        {"id": ID_MENU, "title": "\U0001F4CB See menu", "description": "Prices and all items"},
+        {"id": ID_PAY, "title": "\U0001F4B3 Pay / Resend STK", "description": "Re-send the M-Pesa prompt"},
+        {"id": ID_TRACK, "title": "\U0001F4E6 Track order", "description": "Is my order ready?"},
+        {"id": ID_ORDERS, "title": "\U0001F9FE My orders", "description": "Recent orders & receipts"},
+        {"id": ID_STAFF, "title": "\U0001F9D1\u200D\U0001F373 Talk to staff", "description": "A person will help"},
+        {"id": ID_EXIT, "title": "\u2716\uFE0F Exit", "description": "End this chat"},
+    ]
     return {
         "type": "list",
-        "body": body,
-        "button_text": button_text,
+        "header": name[:60],
+        "body": "Tap an option below:",
+        "button_text": "Choose",
         "sections": [{"title": "Menu", "rows": rows}],
     }
 
 
 def category_list_payload(category_names: Sequence[str], *, language: str | None) -> dict | None:
     """Build a category drill-down list from known menu categories."""
+    is_sw = _is_swahili(language)
     rows = []
     for name in category_names:
         label = _CATEGORY_LABEL.get(name)
         if not label:
             continue
-        rows.append({"id": f"{ID_CATEGORY_PREFIX}{name}", "title": label, "description": f"See {label.lower()}"})
-        if len(rows) >= 9:
+        emoji, text = label
+        desc = (f"Ona {text.lower()}" if is_sw else f"See {text.lower()}")
+        rows.append({"id": f"{ID_CATEGORY_PREFIX}{name}", "title": f"{emoji} {text}", "description": desc})
+        if len(rows) >= 8:
             break
     if not rows:
         return None
-    rows.append({"id": ID_MENU, "title": "Full menu", "description": "Everything we have"})
-    is_sw = (language or "").lower().startswith(("sw", "she"))
+    rows.append({
+        "id": ID_MENU,
+        "title": ("\U0001F4CB Menu kamili" if is_sw else "\U0001F4CB Full menu"),
+        "description": ("Vyakula vyote" if is_sw else "Everything we have"),
+    })
+    rows.append({
+        "id": ID_HOME,
+        "title": ("\U0001F3E0 Menu kuu" if is_sw else "\U0001F3E0 Main menu"),
+        "description": ("Rudi mwanzo" if is_sw else "Back to start"),
+    })
     return {
         "type": "list",
-        "body": "Chagua aina:" if is_sw else "Pick a category:",
-        "button_text": "Chagua" if is_sw else "Choose",
-        "sections": [{"title": "Categories" if not is_sw else "Aina", "rows": rows}],
+        "header": ("Aina za Menu" if is_sw else "Our Menu"),
+        "body": ("Chagua aina:" if is_sw else "Pick a category:"),
+        "button_text": ("Chagua" if is_sw else "Choose"),
+        "sections": [{"title": ("Aina" if is_sw else "Categories"), "rows": rows}],
     }
 
 
 def order_actions_payload(*, language: str | None) -> dict:
     """Reply buttons offered after a pending order + STK is created."""
-    is_sw = (language or "").lower().startswith(("sw", "she"))
-    if is_sw:
+    if _is_swahili(language):
         return {
             "type": "buttons",
             "body": "Ukimaliza malipo nitathibitisha. Unahitaji nini kingine?",
             "buttons": [
-                {"id": ID_PAY, "title": "Tuma STK tena"},
-                {"id": ID_TRACK, "title": "Hali ya oda"},
-                {"id": ID_STAFF, "title": "Ongea na staff"},
+                {"id": ID_PAY, "title": "\U0001F4B3 Tuma STK"},
+                {"id": ID_TRACK, "title": "\U0001F4E6 Hali ya oda"},
+                {"id": ID_HOME, "title": "\U0001F3E0 Menu kuu"},
             ],
         }
     return {
         "type": "buttons",
         "body": "I'll confirm once payment lands. Anything else?",
         "buttons": [
-            {"id": ID_PAY, "title": "Resend STK"},
-            {"id": ID_TRACK, "title": "Track order"},
-            {"id": ID_STAFF, "title": "Talk to staff"},
+            {"id": ID_PAY, "title": "\U0001F4B3 Resend STK"},
+            {"id": ID_TRACK, "title": "\U0001F4E6 Track order"},
+            {"id": ID_HOME, "title": "\U0001F3E0 Main menu"},
+        ],
+    }
+
+
+def back_to_menu_payload(*, language: str | None) -> dict:
+    """Compact buttons that let the customer jump back to the main menu/staff."""
+    if _is_swahili(language):
+        return {
+            "type": "buttons",
+            "body": "Unahitaji kingine?",
+            "buttons": [
+                {"id": ID_HOME, "title": "\U0001F3E0 Menu kuu"},
+                {"id": ID_STAFF, "title": "\U0001F9D1\u200D\U0001F373 Ongea na staff"},
+            ],
+        }
+    return {
+        "type": "buttons",
+        "body": "Anything else?",
+        "buttons": [
+            {"id": ID_HOME, "title": "\U0001F3E0 Main menu"},
+            {"id": ID_STAFF, "title": "\U0001F9D1\u200D\U0001F373 Talk to staff"},
         ],
     }

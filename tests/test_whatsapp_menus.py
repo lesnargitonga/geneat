@@ -18,7 +18,11 @@ def test_command_for_interactive_id_maps_controls() -> None:
     assert wm.command_for_interactive_id("lp:order") == "full menu"
     assert wm.command_for_interactive_id("lp:pay") == "resend STK"
     assert wm.command_for_interactive_id("lp:track") == "is my order ready?"
-    assert wm.command_for_interactive_id("lp:staff") == "__staff_handoff__"
+    assert wm.command_for_interactive_id("lp:staff") == wm.CMD_STAFF
+    assert wm.command_for_interactive_id("lp:home") == wm.CMD_HOME
+    assert wm.command_for_interactive_id("lp:back") == wm.CMD_HOME
+    assert wm.command_for_interactive_id("lp:exit") == wm.CMD_EXIT
+    assert wm.command_for_interactive_id("lp:orders") == wm.CMD_ORDERS
     assert wm.command_for_interactive_id("lp:cat:coffee") == "coffee"
     assert wm.command_for_interactive_id("lp:cat:pastry") == "pastries"
     assert wm.command_for_interactive_id(None) is None
@@ -31,9 +35,12 @@ def test_command_for_interactive_id_maps_controls() -> None:
 def test_main_menu_payload_is_a_list_with_core_actions() -> None:
     payload = wm.main_menu_payload(business_name="Lily Pond Cafe", language="en")
     assert payload["type"] == "list"
+    assert payload["header"] == "Lily Pond Cafe"
     rows = payload["sections"][0]["rows"]
     ids = {row["id"] for row in rows}
-    assert {wm.ID_ORDER, wm.ID_MENU, wm.ID_PAY, wm.ID_TRACK, wm.ID_STAFF} <= ids
+    assert {wm.ID_ORDER, wm.ID_MENU, wm.ID_PAY, wm.ID_TRACK, wm.ID_ORDERS, wm.ID_STAFF, wm.ID_EXIT} <= ids
+    # Every row should carry an emoji prefix for the polished look.
+    assert all(row["title"][0] not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" for row in rows)
 
 
 def test_category_list_payload_filters_unknown_and_caps() -> None:
@@ -47,17 +54,26 @@ def test_category_list_payload_filters_unknown_and_caps() -> None:
     assert "lp:cat:breakfast" in ids
     assert "lp:cat:other" not in ids  # unknown category dropped
     assert wm.ID_MENU in ids  # trailing full-menu shortcut
+    assert wm.ID_HOME in ids  # main-menu navigation row
 
 
 def test_category_list_payload_empty_when_no_known_categories() -> None:
     assert wm.category_list_payload(["other", "misc"], language="en") is None
 
 
-def test_order_actions_payload_offers_pay_track_staff() -> None:
+def test_order_actions_payload_offers_pay_track_home() -> None:
     payload = wm.order_actions_payload(language="en")
     assert payload["type"] == "buttons"
+    assert len(payload["buttons"]) <= 3  # Meta caps reply buttons at 3
     ids = {b["id"] for b in payload["buttons"]}
-    assert ids == {wm.ID_PAY, wm.ID_TRACK, wm.ID_STAFF}
+    assert ids == {wm.ID_PAY, wm.ID_TRACK, wm.ID_HOME}
+
+
+def test_back_to_menu_payload_offers_home_and_staff() -> None:
+    payload = wm.back_to_menu_payload(language="en")
+    assert payload["type"] == "buttons"
+    ids = {b["id"] for b in payload["buttons"]}
+    assert ids == {wm.ID_HOME, wm.ID_STAFF}
 
 
 @pytest.mark.asyncio

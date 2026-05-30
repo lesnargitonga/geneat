@@ -53,6 +53,12 @@ from app.services.cafe_automation import (
     parse_cafe_order_items,
 )
 from app.services.whatsapp_menus import (
+    CMD_EXIT,
+    CMD_HOME,
+    CMD_ORDERS,
+    CMD_STAFF,
+    SPECIAL_COMMANDS,
+    back_to_menu_payload,
     category_list_payload,
     command_for_interactive_id,
     extract_interactive_id,
@@ -523,6 +529,60 @@ async def _latest_order_for_turn(
         if _order_matches_text(order, text):
             return order
     return orders[0]
+
+
+_PAYMENT_STATUS_LABEL_EN = {
+    "pending": "awaiting payment",
+    "paid": "paid",
+    "failed": "payment failed",
+    "cancelled": "cancelled",
+    "refunded": "refunded",
+}
+_PAYMENT_STATUS_LABEL_SW = {
+    "pending": "inasubiri malipo",
+    "paid": "imelipwa",
+    "failed": "malipo yameshindwa",
+    "cancelled": "imefutwa",
+    "refunded": "imerejeshwa",
+}
+
+
+async def _recent_orders_reply(
+    db: AsyncSession,
+    *,
+    customer,
+    conversation_id: uuid.UUID,
+    business_id: uuid.UUID | None,
+    language: str | None,
+    limit: int = 5,
+) -> str:
+    """Deterministic 'My orders / receipts' summary for the customer."""
+    from app.db.models import Order
+
+    is_sw = _customer_prefers_swahili(language)
+    stmt = (
+        select(Order)
+        .where(Order.customer_id == customer.id)
+        .where(Order.business_id == business_id if business_id is not None else Order.business_id.is_(None))
+        .order_by(Order.created_at.desc())
+        .limit(limit)
+    )
+    orders = (await db.execute(stmt)).scalars().all()
+    if not orders:
+        return (
+            "Bado huna oda yoyote. Andika 'menu' kuanza."
+            if is_sw else
+            "You don't have any orders yet. Type 'menu' to get started."
+        )
+    lines: list[str] = ["Oda zako za hivi karibuni:" if is_sw else "Your recent orders:"]
+    labels = _PAYMENT_STATUS_LABEL_SW if is_sw else _PAYMENT_STATUS_LABEL_EN
+    for order in orders:
+        status_key = getattr(order.payment_status, "value", str(order.payment_status))
+        status = labels.get(status_key, status_key)
+        amount = int(float(order.amount or 0))
+        summary = _order_items_summary_from_details(order.details)
+        lines.append(f"- {summary} — KES {amount} ({status})")
+    return "\n".join(lines)
 
 
 async def _payment_claim_status_reply(
@@ -1255,7 +1315,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
     # router already understands so taps and typed text share one code path.
     interactive_id = extract_interactive_id(turn.text)
     interactive_command = command_for_interactive_id(interactive_id)
-    if interactive_command and interactive_command != "__staff_handoff__":
+    if interactive_command and interactive_command not in SPECIAL_COMMANDS:
         turn.text = interactive_command
 
     # Idempotency: if the provider gave us a message id we've already processed,
@@ -1517,7 +1577,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         control_image_url: str | None = None
         control_photo_item: str | None = None
         control_interactive: dict | None = None
-        if interactive_command == "__staff_handoff__":
+        if interactive_command == CMD_STAFF:
             await escalate(db, conv, reason="interactive:staff_handoff")
             is_sw = _customer_prefers_swahili(effective_lang)
             control_reply = (
@@ -1531,6 +1591,51 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             )
             await db.commit()
             return TurnResult(reply=control_reply, conversation_id=conv.id, escalated=True)
+        if interactive_command == CMD_EXIT:
+            is_sw = _customer_prefers_swahili(effective_lang)
+            control_reply = (
+                f"Asante kwa kutembelea {_biz_name}. Andika tena wakati wowote!"
+                if is_sw else
+                f"Thanks for visiting {_biz_name}. Message us anytime — just say hi to start again."
+            )
+            await append_message(
+                db, conversation=conv, sender=Sender.ai, content=control_reply,
+                safety_flags=["deterministic:exit"],
+            )
+            await db.commit()
+            return TurnResult(reply=control_reply, conversation_id=conv.id, escalated=False)
+        if interactive_command == CMD_HOME:
+            control_reply = _greeting_reply(business_name=_biz_name, language=effective_lang)
+            control_interactive = main_menu_payload(
+                business_name=_biz_name, language=effective_lang,
+            )
+            await append_message(
+                db, conversation=conv, sender=Sender.ai, content=control_reply,
+                safety_flags=["deterministic:main_menu"],
+            )
+            await db.commit()
+            return TurnResult(
+                reply=control_reply, conversation_id=conv.id, escalated=False,
+                interactive=control_interactive,
+            )
+        if interactive_command == CMD_ORDERS:
+            control_reply = await _recent_orders_reply(
+                db,
+                customer=customer,
+                conversation_id=conv.id,
+                business_id=business_id,
+                language=effective_lang,
+            )
+            control_interactive = back_to_menu_payload(language=effective_lang)
+            await append_message(
+                db, conversation=conv, sender=Sender.ai, content=control_reply,
+                safety_flags=["deterministic:my_orders"],
+            )
+            await db.commit()
+            return TurnResult(
+                reply=control_reply, conversation_id=conv.id, escalated=False,
+                interactive=control_interactive,
+            )
         if _looks_like_payment_resend(turn.text):
             control_reply = await _resend_pending_payment_reply(
                 db,
@@ -1644,6 +1749,9 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     )
                 except Exception as exc:
                     log.warning("menu_category_payload_failed", error=str(exc))
+            if control_reply and control_interactive is None:
+                # Category / price / availability answer — offer navigation back.
+                control_interactive = back_to_menu_payload(language=effective_lang)
         elif _looks_like_greeting(turn.text):
             control_reply = _greeting_reply(business_name=_biz_name, language=effective_lang)
             control_flag = "deterministic:greeting"
