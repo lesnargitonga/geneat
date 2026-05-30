@@ -175,7 +175,10 @@ async def _handle_one_message(SessionLocal, msg: dict, contacts: dict, phone_num
         media_url = f"geo:{lat},{lng}" if lat is not None and lng is not None else None
     elif msg_type == "interactive":
         inter = msg.get("interactive") or {}
-        text = (inter.get("button_reply") or inter.get("list_reply") or {}).get("title", "")
+        reply = (inter.get("button_reply") or inter.get("list_reply") or {})
+        title = str(reply.get("title") or "").strip()
+        reply_id = str(reply.get("id") or "").strip()
+        text = f"{title} [{reply_id}]" if title and reply_id else title
     else:
         text = f"[unsupported message type: {msg_type}]"
 
@@ -225,10 +228,11 @@ async def _handle_one_message(SessionLocal, msg: dict, contacts: dict, phone_num
             "Please try again, or ask about the menu, prices, or an order."
         )
     try:
-        sent = await whatsapp_client.send_text("+" + wa_id, reply)
+        from app.channels import whatsapp as wa_channel
+        sent = await wa_channel.send_text("+" + wa_id, reply)
         if not sent.get("ok", True):
             log.warning("wa_reply_send_retry", error=sent.get("error"))
-            await whatsapp_client.send_text("+" + wa_id, reply)
+            await wa_channel.send_text("+" + wa_id, reply)
     except Exception as e:
         log.exception("wa_reply_send_failed", error=str(e))
 

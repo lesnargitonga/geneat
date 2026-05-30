@@ -105,6 +105,118 @@ async def send_template(to_msisdn: str, template_name: str, lang: str = "en", co
         return r.json()
 
 
+@retry(stop=stop_after_attempt(3), wait=wait_exponential_jitter(initial=0.3, max=3.0))
+async def send_reply_buttons(
+    to_msisdn: str,
+    *,
+    body: str,
+    buttons: list[dict[str, str]],
+    header: str | None = None,
+    footer: str | None = None,
+) -> dict:
+    """Send up to three WhatsApp reply buttons."""
+    if not await wa_outbound_allowed():
+        raise UpstreamError("wa rate limited")
+    if not settings.meta_wa_phone_number_id:
+        log.info("wa_send_stub_no_creds_buttons", tail=to_msisdn[-4:]); return {"stub": True}
+    clean_buttons = [
+        {
+            "type": "reply",
+            "reply": {
+                "id": str(button.get("id") or button.get("title") or "")[:256],
+                "title": str(button.get("title") or "")[:20],
+            },
+        }
+        for button in buttons[:3]
+        if str(button.get("title") or "").strip()
+    ]
+    if not clean_buttons:
+        return await send_text(to_msisdn, body)
+    interactive: dict = {
+        "type": "button",
+        "body": {"text": body[:1024]},
+        "action": {"buttons": clean_buttons},
+    }
+    if header:
+        interactive["header"] = {"type": "text", "text": header[:60]}
+    if footer:
+        interactive["footer"] = {"text": footer[:60]}
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": to_msisdn.lstrip("+"),
+        "type": "interactive",
+        "interactive": interactive,
+    }
+    async with httpx.AsyncClient(timeout=15) as c:
+        r = await c.post(f"{GRAPH_BASE}/{settings.meta_wa_phone_number_id}/messages", json=payload, headers=_auth_headers())
+        if r.status_code >= 400:
+            log.error("wa_buttons_failed", status=r.status_code, body=r.text[:500])
+            raise UpstreamError(f"wa buttons failed: {r.status_code}")
+        return r.json()
+
+
+@retry(stop=stop_after_attempt(3), wait=wait_exponential_jitter(initial=0.3, max=3.0))
+async def send_list_message(
+    to_msisdn: str,
+    *,
+    body: str,
+    button_text: str,
+    sections: list[dict],
+    header: str | None = None,
+    footer: str | None = None,
+) -> dict:
+    """Send a WhatsApp list message. Rows are capped to Meta's 10-row limit."""
+    if not await wa_outbound_allowed():
+        raise UpstreamError("wa rate limited")
+    if not settings.meta_wa_phone_number_id:
+        log.info("wa_send_stub_no_creds_list", tail=to_msisdn[-4:]); return {"stub": True}
+
+    total_rows = 0
+    clean_sections = []
+    for section in sections[:10]:
+        rows = []
+        for row in section.get("rows", []):
+            if total_rows >= 10:
+                break
+            title = str(row.get("title") or "").strip()
+            if not title:
+                continue
+            rows.append(
+                {
+                    "id": str(row.get("id") or title)[:200],
+                    "title": title[:24],
+                    "description": str(row.get("description") or "")[:72],
+                }
+            )
+            total_rows += 1
+        if rows:
+            clean_sections.append({"title": str(section.get("title") or "Options")[:24], "rows": rows})
+    if not clean_sections:
+        return await send_text(to_msisdn, body)
+
+    interactive: dict = {
+        "type": "list",
+        "body": {"text": body[:1024]},
+        "action": {"button": button_text[:20], "sections": clean_sections},
+    }
+    if header:
+        interactive["header"] = {"type": "text", "text": header[:60]}
+    if footer:
+        interactive["footer"] = {"text": footer[:60]}
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": to_msisdn.lstrip("+"),
+        "type": "interactive",
+        "interactive": interactive,
+    }
+    async with httpx.AsyncClient(timeout=15) as c:
+        r = await c.post(f"{GRAPH_BASE}/{settings.meta_wa_phone_number_id}/messages", json=payload, headers=_auth_headers())
+        if r.status_code >= 400:
+            log.error("wa_list_failed", status=r.status_code, body=r.text[:500])
+            raise UpstreamError(f"wa list failed: {r.status_code}")
+        return r.json()
+
+
 async def download_media(media_id: str) -> tuple[bytes, str]:
     """Return (binary, mime_type). Two-step download per Meta's docs."""
     async with httpx.AsyncClient(timeout=20) as c:

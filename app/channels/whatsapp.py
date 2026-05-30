@@ -62,3 +62,63 @@ async def send_image(to_msisdn: str, image_url: str, caption: str | None = None)
     except Exception as e:
         log.exception("wa_send_image_failed", error=str(e))
         return {"ok": False, "error": "upstream"}
+
+
+async def send_reply_buttons(
+    to_msisdn: str,
+    *,
+    body: str,
+    buttons: list[dict[str, str]],
+    header: str | None = None,
+    footer: str | None = None,
+) -> dict:
+    """Send Meta reply buttons, falling back to text for non-Meta providers."""
+    if settings.whatsapp_provider == "twilio":
+        choices = "\n".join(f"- {button.get('title', '')}" for button in buttons[:3])
+        return await send_text(to_msisdn, f"{body}\n\n{choices}".strip())
+    try:
+        from app.integrations import whatsapp_client
+        return await whatsapp_client.send_reply_buttons(
+            to_msisdn,
+            body=body,
+            buttons=buttons,
+            header=header,
+            footer=footer,
+        )
+    except Exception as e:
+        log.exception("wa_send_buttons_failed", error=str(e))
+        return {"ok": False, "error": "upstream"}
+
+
+async def send_list_message(
+    to_msisdn: str,
+    *,
+    body: str,
+    button_text: str,
+    sections: list[dict],
+    header: str | None = None,
+    footer: str | None = None,
+) -> dict:
+    """Send a Meta list message, falling back to compact text elsewhere."""
+    if settings.whatsapp_provider == "twilio":
+        lines: list[str] = [body]
+        for section in sections:
+            if section.get("title"):
+                lines.append(f"\n{section['title']}:")
+            for row in section.get("rows", [])[:10]:
+                desc = f" - {row.get('description')}" if row.get("description") else ""
+                lines.append(f"- {row.get('title', '')}{desc}")
+        return await send_text(to_msisdn, "\n".join(lines).strip())
+    try:
+        from app.integrations import whatsapp_client
+        return await whatsapp_client.send_list_message(
+            to_msisdn,
+            body=body,
+            button_text=button_text,
+            sections=sections,
+            header=header,
+            footer=footer,
+        )
+    except Exception as e:
+        log.exception("wa_send_list_failed", error=str(e))
+        return {"ok": False, "error": "upstream"}

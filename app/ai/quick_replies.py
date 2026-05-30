@@ -127,6 +127,12 @@ class MenuOrderMatch:
     quantity: int
 
 
+@dataclass(frozen=True)
+class MenuCategory:
+    name: str
+    options: tuple[MenuOption, ...]
+
+
 def _normalize(text: str) -> str:
     return _NORMALIZE_RE.sub(" ", (text or "").lower()).strip()
 
@@ -289,6 +295,27 @@ def _order_quantity(text: str) -> int:
     return 1
 
 
+def _order_label_for_query(label: str, query_norm: str) -> str:
+    """Pick the requested item name from compact menu labels like A / B / C."""
+    parts = [part.strip(" .:-") for part in re.split(r"\s*/\s*", label or "") if part.strip(" .:-")]
+    if len(parts) <= 1:
+        return label
+    query_tokens = set(query_norm.split())
+    best_part = label
+    best_score = -1
+    for part in parts:
+        part_norm = _normalize(part)
+        part_tokens = set(part_norm.split())
+        score = 0
+        if part_norm and part_norm in query_norm:
+            score += 4
+        score += len(query_tokens & part_tokens)
+        if score > best_score:
+            best_score = score
+            best_part = part
+    return best_part
+
+
 def match_order_item_from_chunks(query: str, chunks: Sequence[RetrievedChunk]) -> MenuOrderMatch | None:
     query_norm = _normalize(query)
     if not query_norm:
@@ -326,7 +353,8 @@ def match_order_item_from_chunks(query: str, chunks: Sequence[RetrievedChunk]) -
         return None
     ranked.sort(key=lambda row: (-row[0], row[1], row[2].label))
     _score, _price, option = ranked[0]
-    return MenuOrderMatch(label=option.label, unit_price=option.price, quantity=_order_quantity(query))
+    label = _order_label_for_query(option.label, query_norm)
+    return MenuOrderMatch(label=label, unit_price=option.price, quantity=_order_quantity(query))
 
 
 def price_reply_from_chunks(query: str, chunks: Sequence[RetrievedChunk]) -> str | None:
@@ -442,6 +470,65 @@ def _extract_options(chunks: Sequence[RetrievedChunk]) -> list[MenuOption]:
         seen.add(key)
         options.append(MenuOption(label=label, price=primary_price, segment=segment, normalized=_normalize(segment)))
     return options
+
+
+def menu_categories_from_chunks(chunks: Sequence[RetrievedChunk], *, limit_per_category: int = 6) -> list[MenuCategory]:
+    options = _extract_options(chunks)
+    categories: dict[str, list[MenuOption]] = {}
+    seen: dict[str, set[str]] = {}
+    for option in options:
+        if "demo espresso" in option.normalized:
+            continue
+        matched = [
+            category
+            for category, hints in _CATEGORY_HINTS.items()
+            if any(hint in option.normalized for hint in hints)
+        ]
+        category = matched[0] if matched else "other"
+        bucket = categories.setdefault(category, [])
+        seen_bucket = seen.setdefault(category, set())
+        label_key = _normalize(option.label)
+        if label_key in seen_bucket:
+            continue
+        seen_bucket.add(label_key)
+        bucket.append(option)
+    ordered = ["coffee", "breakfast", "lunch", "pastry", "drink", "snack", "other"]
+    out: list[MenuCategory] = []
+    for name in ordered:
+        items = categories.get(name) or []
+        if items:
+            out.append(MenuCategory(name=name, options=tuple(items[:limit_per_category])))
+    return out
+
+
+def category_menu_reply_from_chunks(query: str, chunks: Sequence[RetrievedChunk]) -> str | None:
+    query_norm = _normalize(query)
+    categories = menu_categories_from_chunks(chunks)
+    if not categories:
+        return None
+    requested = [
+        category for category in categories
+        if category.name in query_norm
+        or any(hint in query_norm for hint in _CATEGORY_HINTS.get(category.name, set()))
+    ]
+    chosen = requested or categories
+    if len(chosen) == 1:
+        category = chosen[0]
+        lines = [f"- {option.label} - KES {option.price}" for option in category.options[:6]]
+        return (
+            f"{category.name.title()} options:\n"
+            + "\n".join(lines)
+            + "\n\nReply with the item name and your name to order."
+        )
+    summaries = []
+    for category in chosen[:5]:
+        sample = ", ".join(option.label for option in category.options[:3])
+        summaries.append(f"- {category.name.title()}: {sample}")
+    return (
+        "Pick a category:\n"
+        + "\n".join(summaries)
+        + "\n\nAsk for coffee, breakfast, lunch, or pastries to see prices."
+    )
 
 
 def hours_reply_from_profile(profile: BusinessProfile | None) -> str | None:
@@ -652,6 +739,9 @@ async def maybe_build_quick_reply(
 
     if looks_like_full_menu_request(text):
         chunks = await fetch_menu_chunks(db, business_id=business_id, k=8)
+        category_reply = category_menu_reply_from_chunks(text, chunks)
+        if category_reply and not any(token in _normalize(text) for token in ("full", "whole", "entire", "complete", "all")):
+            return category_reply
         reply = full_menu_reply_from_chunks(chunks)
         if reply:
             return reply

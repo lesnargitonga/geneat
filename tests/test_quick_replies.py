@@ -7,6 +7,7 @@ import pytest
 from app.ai.quick_replies import (
     GENERIC_PHOTO_QUERY,
     availability_reply_from_chunks,
+    category_menu_reply_from_chunks,
     example_item_labels_from_chunks,
     full_menu_reply_from_chunks,
     looks_like_full_menu_request,
@@ -399,6 +400,31 @@ def test_full_menu_reply_skips_policy_chunks_and_operator_instructions() -> None
     assert "Demo Espresso - KES 10" in reply
     assert "Flat White - KES 250" in reply
     assert "If a customer asks" not in reply
+
+
+def test_category_menu_reply_groups_lily_options() -> None:
+    chunks = [
+        RetrievedChunk(
+            content=(
+                "COFFEE - Espresso KES 120. Flat White KES 220. Latte KES 220.\n"
+                "BREAKFAST - Avocado Toast KES 450. Mandazi & Masala Chai KES 230.\n"
+                "PASTRIES - Butter Croissant KES 180. Chocolate Brownie KES 200."
+            ),
+            source="menu",
+            score=1.0,
+        )
+    ]
+
+    coffee = category_menu_reply_from_chunks("show me coffee", chunks)
+    assert coffee
+    assert "Coffee options" in coffee
+    assert "Flat White - KES 220" in coffee
+    assert "Avocado Toast" not in coffee
+
+    overview = category_menu_reply_from_chunks("menu", chunks)
+    assert overview
+    assert "Pick a category" in overview
+    assert "Coffee:" in overview
 
 
 @pytest.mark.asyncio

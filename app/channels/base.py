@@ -47,6 +47,11 @@ from app.services.conversation_service import (
 from app.services.language import detect_language
 from app.services.session_manager import acquire_session
 from app.services.slash_commands import parse_slash
+from app.services.cafe_automation import (
+    CafeOrderItem,
+    create_order_and_request_payment,
+    parse_cafe_order_items,
+)
 
 log = get_logger("channel")
 
@@ -318,6 +323,11 @@ def _customer_prefers_swahili(language: str | None) -> bool:
 
 
 def _order_items_summary_from_details(details: object) -> str:
+    from app.services.cafe_automation import order_items_from_details, order_items_summary
+
+    items = order_items_from_details(details)
+    if items:
+        return order_items_summary(items)
     if not isinstance(details, dict):
         return "your order"
     items = details.get("items")
@@ -672,8 +682,6 @@ async def _demo_espresso_fast_order_reply(
     if not _looks_like_demo_espresso_order(text):
         return None
 
-    from app.db.models import Order, PaymentStatus
-
     is_sw = _customer_prefers_swahili(language or getattr(customer, "preferred_language", None))
     name = _extract_inline_customer_name(text) or getattr(customer, "name", None)
     if not name:
@@ -714,29 +722,46 @@ async def _demo_espresso_fast_order_reply(
             language=language,
         )
 
-    order = Order(
-        customer_id=customer.id,
-        business_id=business_id,
-        conversation_id=conversation_id,
-        details={
-            "items": [{"sku_or_name": "Demo Espresso", "qty": 1, "unit_price": 10.0}],
-            "delivery_notes": "Live Lily Pond demo order",
-            "fast_path": "demo_espresso",
-        },
-        amount=10.0,
-        payment_status=PaymentStatus.pending,
-    )
-    db.add(order)
-    await db.flush()
-
-    payment_reply = await _resend_pending_payment_reply(
+    result = await create_order_and_request_payment(
         db,
-        customer=customer,
+        customer_id=customer.id,
         conversation_id=conversation_id,
         business_id=business_id,
-        text="Demo Espresso KES 10",
-        language=language,
+        msisdn=customer.phone_number,
+        items=[CafeOrderItem("Demo Espresso", qty=1, unit_price=10.0)],
+        delivery_notes="Live Lily Pond demo order",
+        fast_path="demo_espresso",
     )
+    if result.payment and not result.payment.ok:
+        payment_reply = (
+            f"Sijaweza kutuma STK bado: {result.payment.message}. Jaribu tena baada ya muda mfupi."
+            if is_sw else
+            f"I could not send the STK yet: {result.payment.message}. Please try again in a moment."
+        )
+    elif result.payment is None and not result.created:
+        payment_reply = await _pending_order_repeat_reply(
+            db,
+            customer=customer,
+            conversation_id=conversation_id,
+            business_id=business_id,
+            text="Demo Espresso KES 10",
+            language=language,
+        ) or await _resend_pending_payment_reply(
+            db,
+            customer=customer,
+            conversation_id=conversation_id,
+            business_id=business_id,
+            text="Demo Espresso KES 10",
+            language=language,
+        )
+    else:
+        amount = result.amount_kes
+        summary = _order_items_summary_from_details(result.order.details)
+        payment_reply = (
+            f"Nimetuma STK mpya ya {summary} ya KES {amount}. Weka PIN; nitathibitisha malipo yakifika."
+            if is_sw else
+            f"Sent a fresh STK for {summary} at KES {amount}. Enter your PIN; I will confirm once payment lands."
+        )
     if is_sw:
         return payment_reply
     if payment_reply.startswith("Sent a fresh STK"):
@@ -770,25 +795,28 @@ async def _simple_menu_order_reply(
         return None
 
     from app.ai.rag import fetch_menu_chunks
-    from app.db.models import Order, PaymentStatus
 
     chunks = await fetch_menu_chunks(db, business_id=business_id, k=12)
-    match = match_order_item_from_chunks(text, chunks)
-    if match is None:
+    items = parse_cafe_order_items(text, chunks)
+    if not items:
+        match = match_order_item_from_chunks(text, chunks)
+        items = [CafeOrderItem(match.label, qty=match.quantity, unit_price=float(match.unit_price))] if match else []
+    if not items:
         return None
 
     is_sw = _customer_prefers_swahili(language or getattr(customer, "preferred_language", None))
     name = _extract_inline_customer_name(text) or getattr(customer, "name", None)
     if not name:
+        summary = ", ".join(item.sku_or_name for item in items)
         return (
-            f"Sawa - niandikie jina la kuweka kwa oda ya {match.label}."
+            f"Sawa - niandikie jina la kuweka kwa oda ya {summary}."
             if is_sw else
-            f"Sure - what name should I put on the {match.label} order?"
+            f"Sure - what name should I put on the {summary} order?"
         )
     if getattr(customer, "name", None) != name:
         customer.name = name
 
-    lookup_text = f"{match.label} KES {match.unit_price}"
+    lookup_text = " ".join(f"{item.sku_or_name} KES {int(item.unit_price)}" for item in items)
     existing = await _latest_pending_order_for_turn(
         db,
         customer_id=customer.id,
@@ -806,35 +834,37 @@ async def _simple_menu_order_reply(
             language=language,
         )
 
-    amount = float(match.unit_price * match.quantity)
-    order = Order(
-        customer_id=customer.id,
-        business_id=business_id,
-        conversation_id=conversation_id,
-        details={
-            "items": [
-                {
-                    "sku_or_name": match.label,
-                    "qty": match.quantity,
-                    "unit_price": float(match.unit_price),
-                }
-            ],
-            "delivery_notes": "WhatsApp simple menu order",
-            "fast_path": "simple_menu_order",
-        },
-        amount=amount,
-        payment_status=PaymentStatus.pending,
-    )
-    db.add(order)
-    await db.flush()
-
-    return await _resend_pending_payment_reply(
+    result = await create_order_and_request_payment(
         db,
-        customer=customer,
+        customer_id=customer.id,
         conversation_id=conversation_id,
         business_id=business_id,
-        text=lookup_text,
-        language=language,
+        msisdn=customer.phone_number,
+        items=items,
+        delivery_notes="WhatsApp deterministic menu order",
+        fast_path="simple_menu_order",
+    )
+    if result.payment and not result.payment.ok:
+        return (
+            f"Sijaweza kutuma STK bado: {result.payment.message}. Jaribu tena baada ya muda mfupi."
+            if is_sw else
+            f"I could not send the STK yet: {result.payment.message}. Please try again in a moment."
+        )
+    if result.payment is None and not result.created:
+        return await _pending_order_repeat_reply(
+            db,
+            customer=customer,
+            conversation_id=conversation_id,
+            business_id=business_id,
+            text=lookup_text,
+            language=language,
+        )
+    amount = result.amount_kes
+    summary = _order_items_summary_from_details(result.order.details)
+    return (
+        f"Nimetuma STK mpya ya {summary} ya KES {amount}. Weka PIN; nitathibitisha malipo yakifika."
+        if is_sw else
+        f"Sent a fresh STK for {summary} at KES {amount}. Enter your PIN; I will confirm once payment lands."
     )
 
 

@@ -90,12 +90,26 @@ async def _transition_payment_status(
         order.payment_version = current_version + 1
         if receipt is not None:
             order.mpesa_receipt = receipt
+        details = dict(order.details or {})
+        if to_status == PaymentStatus.paid:
+            details["fulfillment_status"] = "preparing"
+            details["paid_at"] = datetime.now(timezone.utc).isoformat()
+        elif to_status in {PaymentStatus.cancelled, PaymentStatus.failed, PaymentStatus.timeout}:
+            details["fulfillment_status"] = to_status.value
+        order.details = details
         return True
 
     values = {
         "payment_status": to_status,
         "payment_version": Order.payment_version + 1,
     }
+    details = dict(order.details or {})
+    if to_status == PaymentStatus.paid:
+        details["fulfillment_status"] = "preparing"
+        details["paid_at"] = datetime.now(timezone.utc).isoformat()
+    elif to_status in {PaymentStatus.cancelled, PaymentStatus.failed, PaymentStatus.timeout}:
+        details["fulfillment_status"] = to_status.value
+    values["details"] = details
     if receipt is not None:
         values["mpesa_receipt"] = receipt
     result = await db.execute(
@@ -253,6 +267,10 @@ async def _schedule_ready_after_payment(
             prep_min = 8
     try:
         from app.jobs.order_ready_notifier import schedule_ready_notification
+        details = dict(order.details or {})
+        details["fulfillment_status"] = "preparing"
+        details["estimated_ready_at"] = (datetime.now(timezone.utc) + timedelta(minutes=prep_min)).isoformat()
+        order.details = details
         await schedule_ready_notification(
             db,
             business_id=business_id,

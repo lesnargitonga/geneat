@@ -126,6 +126,11 @@ async def run_order_ready(job: JobSnapshot) -> None:
         customer = await db.get(Customer, order.customer_id)
         if customer is None:
             return
+        details = dict(order.details or {})
+        details["fulfillment_status"] = "ready"
+        details["ready_at"] = datetime.now(timezone.utc).isoformat()
+        order.details = details
+        await db.commit()
 
     body = (
         f"Heads-up — your order ({items_summary}) is ready for pickup at "

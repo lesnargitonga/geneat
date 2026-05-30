@@ -19,6 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.ai.rag import format_context, retrieve
 from app.core.logging import get_logger
 from app.db.models import ToolInvocation
+from app.services.cafe_automation import CafeOrderItem, create_pending_order, stored_items_match
 
 log = get_logger("tools")
 
@@ -100,38 +101,6 @@ class CustomerNameArgs(BaseModel):
     )
 
 
-def _normalise_items(items: list[OrderItem]) -> list[dict[str, object]]:
-    normalised: list[dict[str, object]] = []
-    for item in items:
-        normalised.append({
-            "name": item.sku_or_name.strip().lower(),
-            "qty": int(item.qty or 1),
-            "unit_price": round(float(item.unit_price or 0), 2),
-        })
-    return sorted(normalised, key=lambda row: (str(row["name"]), int(row["qty"]), float(row["unit_price"])))
-
-
-def _stored_items_match(details: Any, items: list[OrderItem]) -> bool:
-    if not isinstance(details, dict):
-        return False
-    stored = details.get("items")
-    if not isinstance(stored, list):
-        return False
-    try:
-        stored_items = [
-            OrderItem(
-                sku_or_name=str(row.get("sku_or_name") or row.get("name") or ""),
-                qty=int(row.get("qty") or 1),
-                unit_price=float(row.get("unit_price") or 0),
-            )
-            for row in stored
-            if isinstance(row, dict)
-        ]
-    except Exception:
-        return False
-    return _normalise_items(stored_items) == _normalise_items(items)
-
-
 # ── Tool factory: binds tools to an AsyncSession + conversation_id ────
 
 def build_tools(
@@ -185,13 +154,12 @@ def build_tools(
             items=items, delivery_notes=delivery_notes,
             appointment_time_iso=appointment_time_iso,
         )
-        from app.db.models import Order, PaymentStatus
         t0 = time.perf_counter()
         if not conversation_id:
             return {"ok": False, "error": "no_conversation"}
         # Resolve customer via conversation
         from sqlalchemy import select
-        from app.db.models import Conversation
+        from app.db.models import Conversation, Order, PaymentStatus
         conv = (await db.execute(select(Conversation).where(Conversation.id == conversation_id))).scalar_one()
         tenant_id = business_id or conv.business_id
 
@@ -211,7 +179,15 @@ def build_tools(
             await _audit("create_order", args.model_dump(), result, False, t0)
             return result
 
-        amount = sum((i.unit_price or 0) * i.qty for i in args.items)
+        cafe_items = [
+            CafeOrderItem(
+                sku_or_name=item.sku_or_name,
+                qty=item.qty,
+                unit_price=float(item.unit_price or 0),
+            )
+            for item in args.items
+        ]
+        amount = sum(item.line_total for item in cafe_items)
         existing_orders = (await db.execute(
             select(Order)
             .where(Order.conversation_id == conversation_id)
@@ -222,7 +198,7 @@ def build_tools(
             .limit(5)
         )).scalars().all()
         for existing in existing_orders:
-            if abs(float(existing.amount or 0) - float(amount or 0)) <= 0.01 and _stored_items_match(existing.details, args.items):
+            if abs(float(existing.amount or 0) - float(amount or 0)) <= 0.01 and stored_items_match(existing.details, cafe_items):
                 result = {
                     "ok": True,
                     "order_id": str(existing.id),
@@ -234,12 +210,16 @@ def build_tools(
                 return result
 
         appt = datetime.fromisoformat(args.appointment_time_iso) if args.appointment_time_iso else None
-        order = Order(
-            customer_id=conv.customer_id, business_id=tenant_id, conversation_id=conv.id,
-            details={"items": [i.model_dump() for i in args.items], "delivery_notes": args.delivery_notes},
-            amount=amount, payment_status=PaymentStatus.pending, appointment_time=appt,
+        order, _created = await create_pending_order(
+            db,
+            customer_id=conv.customer_id,
+            conversation_id=conv.id,
+            business_id=tenant_id,
+            items=cafe_items,
+            delivery_notes=args.delivery_notes,
+            fast_path="llm_tool",
+            appointment_time=appt,
         )
-        db.add(order); await db.flush()
 
         result = {
             "ok": True,
