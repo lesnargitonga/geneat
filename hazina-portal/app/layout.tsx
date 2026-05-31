@@ -54,10 +54,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`scroll-smooth ${inter.variable} ${cormorant.variable} ${dmMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="min-h-screen bg-sand text-ink font-sans font-normal antialiased">
+      <body className="min-h-screen flex flex-col bg-sand text-ink font-sans font-normal antialiased">
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <Nav />
-        <main>{children}</main>
+        <main className="flex-1 min-h-0 overflow-auto">{children}</main>
         <Footer />
       </body>
     </html>

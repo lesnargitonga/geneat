@@ -19,9 +19,13 @@ import { formatDualPrice, whatsappLink } from "@/lib/format";
 type DeliveryMode = "hotel" | "jkia" | "international";
 
 export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }) {
-  const [selected, setSelected] = useState<Set<string>>(
-    () => new Set(initialAddIds.filter((id) => TREASURES.some((t) => t.id === id))),
-  );
+  const [selected, setSelected] = useState<Map<string, number>>(() => {
+    const m = new Map<string, number>();
+    for (const id of initialAddIds) {
+      if (TREASURES.some((t) => t.id === id)) m.set(id, 1);
+    }
+    return m;
+  });
   const [category, setCategory] = useState<TreasureCategory | "all">("all");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<"curated" | "price-low" | "price-high" | "fastest">("curated");
@@ -59,27 +63,45 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
       .map(({ item }) => item);
   }, [category, query, sort]);
 
-  const selectedItems = useMemo(
-    () => TREASURES.filter((t) => selected.has(t.id)),
-    [selected],
-  );
+  const selectedItems = useMemo(() => TREASURES.filter((t) => selected.has(t.id)), [selected]);
 
-  const subtotalKes = selectedItems.reduce((s, t) => s + t.price_kes, 0);
+  const totalUnits = useMemo(() => Array.from(selected.values()).reduce((a, b) => a + b, 0), [selected]);
+
+  const subtotalKes = selectedItems.reduce((s, t) => s + t.price_kes * (selected.get(t.id) || 1), 0);
   const packagingKes = includePackaging ? PACKAGING_FEE_KES : 0;
   const totalKes = subtotalKes + packagingKes;
-  const totalUsd = selectedItems.reduce((s, t) => s + t.price_usd, 0) + (includePackaging ? PACKAGING_FEE_USD : 0);
+  const totalUsd = selectedItems.reduce((s, t) => s + t.price_usd * (selected.get(t.id) || 1), 0) + (includePackaging ? PACKAGING_FEE_USD : 0);
 
   const toggle = (id: string) => {
     setSelected((prev) => {
-      const next = new Set(prev);
+      const next = new Map(prev);
       if (next.has(id)) next.delete(id);
-      else next.add(id);
+      else next.set(id, 1);
+      return next;
+    });
+  };
+
+  const increment = (id: string) => {
+    setSelected((prev) => {
+      const next = new Map(prev);
+      const cur = next.get(id) || 0;
+      next.set(id, cur + 1);
+      return next;
+    });
+  };
+
+  const decrement = (id: string) => {
+    setSelected((prev) => {
+      const next = new Map(prev);
+      const cur = next.get(id) || 0;
+      if (cur <= 1) next.delete(id);
+      else next.set(id, cur - 1);
       return next;
     });
   };
 
   const checkoutMessage = buildWhatsAppMessage({
-    items: selectedItems,
+    items: selectedItems.map((t) => ({ item: t, qty: selected.get(t.id) || 1 })),
     packaging: includePackaging,
     totalKes,
     totalUsd,
@@ -102,6 +124,12 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
     window.dispatchEvent(new CustomEvent("hazina:chat-prompt", { detail: { prompt: checkoutMessage } }));
     window.location.hash = "chat";
   };
+
+  const validationHints: string[] = [];
+  if (!canOrder) validationHints.push(`Select at least ${MIN_CUSTOM_ITEMS} items`);
+  if (deliveryLocation.trim().length < 6) validationHints.push(`Delivery location: ${deliveryLocationPlaceholder(deliveryMode)}`);
+  if (deliveryWindow.trim().length < 3) validationHints.push(`Delivery window: ${deliveryWindowPlaceholder(deliveryMode)}`);
+  if (contact.trim().length < 5) validationHints.push(paymentCurrency === "USD" ? "Contact: email or WhatsApp for checkout link" : "Contact: M-Pesa phone number");
 
   return (
     <div className="grid lg:grid-cols-12 gap-10 lg:gap-14">
@@ -144,7 +172,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
             ))}
           </div>
 
-          <p className="label-mono">{filtered.length} available treasures · {selected.size} selected</p>
+          <p className="label-mono">{filtered.length} available treasures · {selected.size} selected ({totalUnits} units)</p>
         </div>
 
         {filtered.length > 0 ? (
@@ -183,10 +211,31 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
           ) : (
             <ul className="space-y-3 max-h-64 overflow-y-auto">
               {selectedItems.map((item) => (
-                <li key={item.id} className="flex justify-between gap-3 text-sm border-b border-border pb-2">
-                  <span className="text-obsidian">{item.name}</span>
+                <li key={item.id} className="flex items-center justify-between gap-3 text-sm border-b border-border pb-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-obsidian">{item.name}</span>
+                    <div className="inline-flex items-center border border-border rounded overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() => decrement(item.id)}
+                        className="px-3 py-1 bg-sand text-obsidian"
+                        aria-label={`Decrease quantity for ${item.name}`}
+                      >
+                        −
+                      </button>
+                      <span className="px-3 py-1 font-mono text-sm">{selected.get(item.id) || 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => increment(item.id)}
+                        className="px-3 py-1 bg-sand text-obsidian"
+                        aria-label={`Increase quantity for ${item.name}`}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
                   <span className="font-mono text-sm text-ink-mute shrink-0 text-right">
-                    {formatDualPrice(item.price_usd, item.price_kes)}
+                    {formatDualPrice(item.price_usd * (selected.get(item.id) || 1), item.price_kes * (selected.get(item.id) || 1))}
                   </span>
                 </li>
               ))}
@@ -196,7 +245,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
           {selectedItems.length > 0 && (
             <button
               type="button"
-              onClick={() => setSelected(new Set())}
+              onClick={() => setSelected(new Map())}
               className="label-mono text-left text-bronze hover:text-obsidian"
             >
               Clear selection
@@ -325,6 +374,17 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
             </button>
           )}
 
+          {validationHints.length > 0 && (
+            <div className="mt-3 text-sm text-ink-mute">
+              <p className="font-mono text-xs text-ink-mute">Missing information to start automated checkout:</p>
+              <ul className="list-disc list-inside mt-1">
+                {validationHints.map((h) => (
+                  <li key={h}>{h}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <p className="label-mono text-center">
             Or{" "}
             <Link href="/collections" className="text-bronze hover:text-obsidian">
@@ -409,7 +469,7 @@ function buildWhatsAppMessage({
   contact,
   paymentCurrency,
 }: {
-  items: Treasure[];
+  items: { item: Treasure; qty: number }[];
   packaging: boolean;
   totalKes: number;
   totalUsd: number;
@@ -423,7 +483,7 @@ function buildWhatsAppMessage({
   const lines = [
     "Hello Hazina Nomads — automated custom gift box checkout:",
     "",
-    ...items.map((t) => `• ${t.name} (${t.sku})`),
+    ...items.map(({ item, qty }) => `• ${qty > 1 ? qty + '× ' : ''}${item.name} (${item.sku})`),
   ];
   if (packaging) lines.push("• Premium packaging & story card");
   lines.push("", `Estimated total: USD ${totalUsd.toLocaleString("en-US")} / KES ${totalKes.toLocaleString("en-KE")}`);

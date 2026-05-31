@@ -139,7 +139,7 @@
   }
 
   .card-luxury {
-    @apply border border-border bg-sand transition-all duration-500
+    @apply flex flex-col min-h-0 border border-border bg-sand transition-all duration-500
            hover:border-obsidian/20 hover:shadow-editorial;
   }
 
