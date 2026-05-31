@@ -37,7 +37,7 @@ SLUG = "hazina-nomads"
 NAME = "Hazina Nomads"
 INDUSTRY = "gift-concierge"
 LOCATION = "Nairobi, Kenya — Westlands, Kilimani, Karen & JKIA delivery"
-CONTACT_PHONE = "+254700000001"
+CONTACT_PHONE = "+15556578220"
 CONTACT_EMAIL = "concierge@hazina-nomads.com"
 LANG_PRIMARY = "en"
 LANG_SECONDARY = "sw"
@@ -131,7 +131,7 @@ KB_POLICIES: list[str] = [
         "souvenir shop. Emphasise curation, packaging quality, and reliable last-mile delivery."
     ),
     (
-        "CONTACT — WhatsApp concierge: +254 700 000 001. Email: concierge@hazina-nomads.com. "
+        "CONTACT — WhatsApp concierge: +1 555 657 8220. Email: concierge@hazina-nomads.com. "
         "Operating hours for dispatch coordination: 08:00–20:00 EAT daily."
     ),
 ]

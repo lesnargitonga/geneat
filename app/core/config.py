@@ -74,7 +74,7 @@ class Settings(BaseSettings):
     # primary raises a rate-limit / quota / transient error. Each provider
     # MUST also have its own model setting populated. Set to empty string
     # to disable failover. Example: "gemini,local".
-    llm_fallback_providers: str = "gemini,local"
+    llm_fallback_providers: str = "groq"
     # Optional per-provider override of the primary's model when used as a
     # fallback. Example: when groq is the fallback we want the cheaper 8B
     # model, not the same expensive 70B that just hit TPD.

@@ -19,6 +19,8 @@ def test_hazina_intent_detectors() -> None:
     assert ga.looks_like_hazina_order_intent("order kenya edit")
     assert ga.looks_like_hazina_track("track my delivery")
     assert ga.looks_like_hazina_corporate("corporate gifting for our team")
+    assert ga.looks_like_hazina_catalog_request("what do you sell?")
+    assert ga.looks_like_hazina_catalog_request("show me your gift boxes")
 
 
 def test_is_hazina_slug() -> None:

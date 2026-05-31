@@ -90,7 +90,10 @@ async def test_create_order_sets_usd_details(db, fake_redis, monkeypatch):
 
 def test_build_hazina_menu_photos_maps_collections_and_treasures() -> None:
     photos = build_hazina_menu_photos("https://hazina.example.com")
-    assert photos["kenya-edit"].startswith("https://hazina.example.com/products/")
+    assert photos["kenya-edit"].startswith("https://hazina.example.com/treasures/")
     assert photos["maasai-bracelet"].startswith("https://hazina.example.com/treasures/")
+    assert photos["raw-honey"].endswith("/treasures/raw-honey-jars.jpg")
+    assert photos["african-woven-mat"].endswith("/treasures/african-woven-mats.jpg")
     assert photos["the kenya edit"].startswith("https://hazina.example.com/")
     assert "hn-t-010" in photos
+    assert "leather-luggage-tag" not in photos

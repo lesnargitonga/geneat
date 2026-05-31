@@ -5,7 +5,7 @@ Merges the user master blueprint with in-repo implementation status.
 **Target launch:** Q3 2026 · **Model:** Premium tourist gift concierge · **Stack:** WhatsApp AI + Next.js portal on existing multi-tenant platform.
 
 > Platform architecture remains in [README.md](../README.md). This doc owns Hazina-specific product, ops, and cutover truth.  
-> **Last doc sync:** 2026-05-31 · **Branch:** `main` · **Latest Hazina commit:** `947946b`
+> **Last doc sync:** 2026-05-31 · **Branch:** `main` · **Latest Hazina commit:** current hardening pass pending commit
 
 ---
 
@@ -48,7 +48,7 @@ Hazina Nomads is a **live multi-tenant configuration** on the existing Gen-Eat /
 | Layer | What the customer gets | Status |
 |---|---|---|
 | **5 curated collections** | Fixed gift boxes (Kenya Edit → Departure Drop) | ✅ Portal + WhatsApp menu + seed + RAG |
-| **26 individual treasures** | Coffee, beadwork, leather, carvings, textiles, art, baskets, packaging | ✅ Portal + RAG + WhatsApp custom box |
+| **30 individual treasures** | Coffee, beadwork, leather, carvings, textiles, art, baskets, homeware, packaging | ✅ Portal + RAG + WhatsApp custom box |
 | **Build your box** | Pick 2+ treasures + optional packaging → WhatsApp handoff → automated checkout | ✅ `/build` + `gift_automation` SKU parser |
 | **Collection detail** | See exactly which treasures are inside each box | ✅ `/collections/[id]` |
 | **Treasure detail** | Photo, origin, lead time, add to custom box | ✅ `/treasures/[id]` |
@@ -62,11 +62,11 @@ Hazina Nomads is a **live multi-tenant configuration** on the existing Gen-Eat /
 
 | Asset pool | Count | Location | Used for |
 |---|---|---|---|
-| Source photography | 43 | `docs/pictures/` | Master archive (original filenames preserved) |
-| Portal treasure images | 43 | `hazina-portal/public/treasures/` | Slug-renamed copies for web |
-| Collection hero shots | 5 | `hazina-portal/public/products/` | Curated box cards |
-| Brand atmosphere | 3 | `hazina-portal/public/brand/` | Hero, JKIA banner, safari sunset |
-| **menu_photos (seeded)** | 5 collections + 26 treasures + 3 brand keys | `profile.menu_photos` via `build_hazina_menu_photos()` | Meta Catalog sync prep |
+| Source photography | 49 | `docs/pictures/` | Master archive (original filenames preserved) |
+| Portal treasure images | 49 | `hazina-portal/public/treasures/` | Slug-renamed copies for web |
+| Collection hero shots | 2 direct matches, 3 blank pending | `hazina-portal/lib/products.ts` | Only direct photo matches are shown |
+| Brand atmosphere | 1 direct brand image + reused treasure context images | `hazina-portal/public/brand/`, `public/treasures/` | Safari banner, atelier room, market context |
+| **menu_photos (seeded)** | 93 direct id/name/sku keys | `profile.menu_photos` via `build_hazina_menu_photos()` | Meta Catalog sync prep; non-matching items intentionally omitted |
 
 ### 0.4 Repositories & services map
 
@@ -94,8 +94,9 @@ Hazina Nomads is a **live multi-tenant configuration** on the existing Gen-Eat /
 | `a133dc4` | Launch gift concierge tenant, portal, WhatsApp automation |
 | `467150a` | Treasure catalog, custom box builder, system docs |
 | `947946b` | Sync catalog to RAG, hybrid payments, custom box checkout, Safari landing, AI USD wiring |
+| pending | OpenAI primary LLM, Hazina phone default, image-provenance cleanup, 30 treasures, portal API/status/search/theme UX |
 
-Branch is **3 commits ahead** of `origin/main` (not pushed at last sync).
+Branch is **4 commits ahead** of `origin/main` before this hardening pass.
 
 ### 0.6 Catalog sync rules (do not drift)
 
@@ -119,7 +120,7 @@ Branch is **3 commits ahead** of `origin/main` (not pushed at last sync).
 | Real DHL rate API | `calculate_dhl_shipping` is weight-band stub only |
 | Host affiliate ledger | `REF-HOST-*` config in seed; no IntaSend payout automation |
 | Physical fulfillment automation | Courier status updates, dispatch webhooks |
-| Real phone / email in production | Placeholders: `+254700000001`, `concierge@hazina-nomads.com` |
+| Real email in production | Placeholder remains `concierge@hazina-nomads.com` |
 | Terracotta vs bronze hex alignment | Seed profile `#B85C38` vs portal bronze `#A67C52` |
 
 ---
@@ -177,7 +178,7 @@ Seed profile still has legacy hex `#B85C38` — align at design lock if needed.
 | Catalog type | Count | Backend source | Portal source | WhatsApp | RAG |
 |---|---|---|---|---|---|
 | **Curated collections** | 5 | `HAZINA_COLLECTIONS` | `lib/products.ts` → `GIFT_BOXES` | ✅ Menu + automation | ✅ 5 chunks |
-| **Individual treasures** | 26 | `HAZINA_TREASURES` | `lib/treasures.ts` → `TREASURES` | ✅ Custom box SKU parser | ✅ 26 chunks |
+| **Individual treasures** | 30 | `HAZINA_TREASURES` | `lib/treasures.ts` → `TREASURES` | ✅ Custom box SKU parser | ✅ 30 chunks |
 | **Custom box builder** | 2+ items + packaging | `MIN_CUSTOM_ITEMS=2`, `PACKAGING_FEE_*` | `PackBuilder.tsx` | ✅ Full checkout flow | ✅ 1 policy chunk |
 
 **Constants (shared backend):**
@@ -204,7 +205,7 @@ Seed profile still has legacy hex `#B85C38` — align at design lock if needed.
 | **Lead time** | 24h |
 | **Personalization** | No |
 | **Portal itemIds** | `premium-coffee-250g`, `maasai-bracelet`, `soapstone-big-five`, `premium-packaging` |
-| **Hero image** | `/products/kenya-edit.png` |
+| **Hero image** | `/treasures/curated-gift-box.png` from `gift box with cofee, rungu, earings, leather passport.png` |
 
 #### The Highland Treasure
 
@@ -216,7 +217,7 @@ Seed profile still has legacy hex `#B85C38` — align at design lock if needed.
 | **Contents** | Export-grade Kenyan coffee, premium Kenyan loose-leaf tea, local raw honey, carved wooden tasting spoon |
 | **Lead time** | 24h |
 | **Portal itemIds** | `premium-coffee-250g`, `loose-leaf-tea`, `raw-honey`, `wooden-combs` |
-| **Hero image** | `/products/highland-treasure.jpg` |
+| **Hero image** | blank pending direct collection photography |
 
 #### The Nomad Leather Set
 
@@ -229,7 +230,7 @@ Seed profile still has legacy hex `#B85C38` — align at design lock if needed.
 | **Lead time** | 24h |
 | **Personalization** | Yes — **engraving requires 24-hour notice** |
 | **Portal itemIds** | `leather-passport`, `leather-luggage-tag`, `premium-packaging` |
-| **Hero image** | `/products/nomad-leather-set.jpg` |
+| **Hero image** | blank pending direct collection photography |
 
 #### The Safari Romance Box
 
@@ -242,7 +243,7 @@ Seed profile still has legacy hex `#B85C38` — align at design lock if needed.
 | **Lead time** | 48h (assembly); leather tag engraving +24h notice |
 | **Personalization** | Yes |
 | **Portal itemIds** | `maasai-necklace`, `maasai-bracelet`, `premium-coffee-250g`, `big-five-print`, `leather-luggage-tag` |
-| **Hero image** | `/products/safari-romance-box.png` |
+| **Hero image** | blank pending direct collection photography |
 
 #### The Departure Drop
 
@@ -255,13 +256,13 @@ Seed profile still has legacy hex `#B85C38` — align at design lock if needed.
 | **Lead time** | **4h** (JKIA-optimised) |
 | **Flag** | `jkia_only: true` in seed/profile |
 | **Portal itemIds** | `premium-coffee-250g`, `loose-leaf-tea`, `leather-passport`, `maasai-bracelet`, `premium-packaging` |
-| **Hero image** | `/products/departure-drop.png` |
+| **Hero image** | `/treasures/departure-pack.png` from `package with coffee, leather passport and beadwoowen bracelet.png` |
 
-### 2.2 Individual treasures (26 items — full table)
+### 2.2 Individual treasures (30 items — full table)
 
 **Backend:** `app/catalog/hazina_catalog.py` → `HAZINA_TREASURES`  
 **Portal:** `hazina-portal/lib/treasures.ts`  
-**Images:** `hazina-portal/public/treasures/` (43 files; some treasures share visual context)
+**Images:** `hazina-portal/public/treasures/` (49 files; some treasures intentionally remain blank until direct photography exists)
 
 | ID | SKU | Name | Category | USD | KES | Lead (h) | Personalization |
 |---|---|---|---|---|---|---|---|
@@ -290,9 +291,13 @@ Seed profile still has legacy hex `#B85C38` — align at design lock if needed.
 | `pottery-vessel` | HN-T-063 | Hand-Thrown Pottery | art-sculpture | 38 | 4,900 | 48 | — |
 | `big-five-print` | HN-T-064 | Big Five Safari Print | art-sculpture | 24 | 3,100 | 24 | — |
 | `maasai-market-tote` | HN-T-065 | Maasai Market Tote | textiles | 26 | 3,300 | 24 | — |
+| `african-woven-mat` | HN-T-066 | African Woven Mat | homeware | 30 | 3,900 | 24 | — |
+| `african-hand-broom` | HN-T-067 | African Hand Broom | homeware | 18 | 2,300 | 24 | — |
+| `beaded-wood-containers` | HN-T-068 | Beaded Wood Container Set | wood-carving | 46 | 5,900 | 48 | — |
+| `coconut-shell-plates-spoons` | HN-T-069 | Coconut Shell Plate & Spoon Set | homeware | 32 | 4,100 | 24 | — |
 | `premium-packaging` | HN-T-070 | Premium Gift Box & Tissue | packaging | 25 | 3,200 | 12 | — |
 
-**Category counts:** Coffee & Tea 2 · Beadwork 3 · Leather 3 · Wood & Carvings 6 · Textiles 4 · Art & Sculpture 5 · Food 1 · Baskets 2 · Packaging 1
+**Category counts:** Coffee & Tea 2 · Beadwork 3 · Leather 3 · Wood & Carvings 7 · Textiles 4 · Art & Sculpture 5 · Food 1 · Baskets 2 · Homeware 3 · Packaging 1
 
 ### 2.3 Custom box rules (`/build`)
 
@@ -460,7 +465,7 @@ Guest / order context
 - [ ] 10× matte-black rigid magnetic-closure boxes (Industrial Area / packaging suppliers)
 - [ ] Branded cream tissue, wax seals or premium logo stickers
 - [ ] Product shots: natural light, wood/marble surface — **no stock photos**
-- [x] Upload to portal — **43 photos live**
+- [x] Upload to portal — **49 photos live**
 - [x] `profile.menu_photos` seeded with absolute URLs for Meta Catalog prep
 - [ ] Meta WhatsApp Catalog live sync
 
@@ -507,7 +512,7 @@ Guest / order context
 |---|---|---|
 | JKIA last-minute landing | ✅ | `/last-minute-kenya-gifts-jkia` |
 | Safari souvenirs Nairobi | ✅ | `/premium-safari-souvenirs-nairobi` |
-| Treasure atelier browse | ✅ | `/treasures` (+ 26 detail pages) |
+| Treasure atelier browse | ✅ | `/treasures` (+ 30 detail pages) |
 | Custom box builder | ✅ | `/build` |
 | TikTok / short video | ⬜ External | "Departure Drop to Terminal 1A in 3 hours" narrative |
 
@@ -518,11 +523,11 @@ Guest / order context
 | Day | Workstream | Blueprint intent | In-repo status |
 |---|---|---|---|
 | **1** | Digital real estate | Domains, social handles, logo, Paystack application | ⬜ **External** — user-owned |
-| **2** | Tech pivot — tenant | Postgres tenant `hazina-nomads`, env prep | ✅ Seed: 5 collections, 26 treasures, 40 KB chunks, `menu_photos` |
-| **2–3** | Tech pivot — frontend | Standalone Hazina portal | ✅ `hazina-portal/` — 42 routes at build |
+| **2** | Tech pivot — tenant | Postgres tenant `hazina-nomads`, env prep | ✅ Seed: 5 collections, 30 treasures, 44 KB chunks, `menu_photos` |
+| **2–3** | Tech pivot — frontend | Standalone Hazina portal | ✅ `hazina-portal/` — 48 routes at build |
 | **3** | Physical prototyping | Source coffee, beadwork, rigid boxes; assemble prototype | ⬜ **External** |
 | **3** | WhatsApp + AI tools | Hazina menus, delivery fields, hybrid pay | ✅ See §10–§12 |
-| **4** | Media production | Product photography → WA Catalog + website | ✅ 43 photos in portal; ⬜ Meta Catalog sync |
+| **4** | Media production | Product photography → WA Catalog + website | ✅ 49 photos in portal; ⬜ Meta Catalog sync |
 | **4** | Paystack USD | Checkout links for international guests | ✅ Router wired; add live keys |
 | **5** | AI calibration | RAG rules, eval matrix for terminals/times | ✅ RAG seeded; run `make eval-whatsapp-local` |
 | **6** | Logistics lock | Vet courier/driver; packaging workflow | ⬜ **External** |
@@ -541,7 +546,7 @@ Guest / order context
 | **Name** | Hazina Nomads |
 | **Industry** | `gift-concierge` |
 | **Location** | Nairobi — Westlands, Kilimani, Karen & JKIA delivery |
-| **Phone** | `+254700000001` (seed placeholder) |
+| **Phone** | `+1 555 657 8220` |
 | **Email** | `concierge@hazina-nomads.com` |
 | **Languages** | `en` primary, `sw` secondary |
 | **Coords** | -1.2921, 36.7853 (Nairobi) |
@@ -582,9 +587,9 @@ PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py --skip-kb
 
 | Source | Chunks | Contents |
 |---|---|---|
-| `KB_CATALOG` | **32** | 5 collections + 1 custom-box policy + 26 treasures |
+| `KB_CATALOG` | **36** | 5 collections + 1 custom-box policy + 30 treasures |
 | `KB_POLICIES` | **8** | Delivery, JKIA, hotel, late dispatch, custom boxes, payments, brand, contact |
-| **Total** | **40** | Re-embed deletes old chunks for tenant before ingest |
+| **Total** | **44** | Re-embed deletes old chunks for tenant before ingest |
 
 **Seed side effects:**
 
@@ -600,6 +605,17 @@ Documented in `.env.example`. **Do not flip production secrets until Day 7 decis
 # ── Tenant routing ──
 DEFAULT_BUSINESS_SLUG=hazina-nomads          # render.yaml + config default
 DEMO_BUSINESS_SLUG=lily-pond-cafe            # KES 10 demo espresso — café tenant only
+
+# ── LLM / embeddings ──
+LLM_PROVIDER=openai
+LLM_FALLBACK_PROVIDERS=groq
+OPENAI_MODEL=gpt-5.4-mini
+OPENAI_REASONING_EFFORT=low
+OPENAI_USE_RESPONSES_API=true
+OPENAI_STORE_RESPONSES=true
+OPENAI_EMBED_MODEL=text-embedding-3-large
+OPENAI_EMBED_DIMENSIONS=768
+GROQ_API_KEY=
 
 # ── WhatsApp ──
 META_WA_PHONE_NUMBER_ID=<Hazina Meta number>
@@ -617,14 +633,14 @@ PAYMENT_PROVIDER=intasend
 PAYMENT_SIMULATOR=false
 INTASEND_API_TOKEN=
 INTASEND_PUBLISHABLE_KEY=
-INTASEND_TEST_MODE=true
+INTASEND_TEST_MODE=false
 INTASEND_WEBHOOK_SECRET=
 PAYSTACK_SECRET_KEY=                         # Required for USD checkout
 PAYSTACK_PUBLIC_KEY=
 
 # ── hazina-portal/ (Render hazina-portal service) ──
-NEXT_PUBLIC_HAZINA_WHATSAPP=254700000001
-NEXT_PUBLIC_HAZINA_PHONE=+254700000001
+NEXT_PUBLIC_HAZINA_WHATSAPP=15556578220
+NEXT_PUBLIC_HAZINA_PHONE=+15556578220
 NEXT_PUBLIC_BACKEND_URL=https://api.lesnarai.co.ke
 BACKEND_URL=https://api.lesnarai.co.ke
 ```
@@ -641,19 +657,13 @@ PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py
 python scripts/tenant_go_live_check.py --slug hazina-nomads --chat
 python scripts/tenant_go_live_check.py --slug hazina-nomads --live --chat
 
-# 3. Hazina unit tests (54 tests)
-./.venv/bin/python -m pytest -q \
-  tests/test_whatsapp_menus.py \
-  tests/test_gift_automation.py \
-  tests/test_payment_routing.py \
-  tests/test_ai_tools_payment.py \
-  tests/test_channel_fallbacks.py \
-  tests/test_payments_hardening.py
+# 3. Hazina unit tests
+make test-hazina
 
 # 4. WhatsApp reply matrix
 make eval-whatsapp-local
 
-# 5. Portal build (42 routes)
+# 5. Portal build (48 routes)
 cd hazina-portal && npm run build
 ```
 
@@ -719,12 +729,12 @@ Gen-Eat café tenants (`lily-pond-cafe`, etc.) remain in DB; demo path stays on 
 - `BACKEND_URL` / `NEXT_PUBLIC_BACKEND_URL` → `https://api.lesnarai.co.ke`
 - `NEXT_PUBLIC_HAZINA_WHATSAPP`, `NEXT_PUBLIC_HAZINA_PHONE` (secrets)
 
-### 9.1 Routes (42 static pages at build)
+### 9.1 Routes (48 routes at build)
 
 | Route | Status | File | Purpose |
 |---|---|---|---|
 | `/` | ✅ | `app/page.tsx` | Editorial homepage |
-| `/treasures` | ✅ | `app/treasures/page.tsx` | All 26 treasures; `?category=` filter |
+| `/treasures` | ✅ | `app/treasures/page.tsx` | All 30 treasures; search, sort, category, photo, and lead-time filters |
 | `/treasures/[id]` | ✅ | `app/treasures/[id]/page.tsx` | Item detail + add to box |
 | `/collections` | ✅ | `app/collections/page.tsx` | 5 curated boxes |
 | `/collections/[id]` | ✅ | `app/collections/[id]/page.tsx` | Inside-the-box treasure grid |
@@ -733,6 +743,8 @@ Gen-Eat café tenants (`lily-pond-cafe`, etc.) remain in DB; demo path stays on 
 | `/premium-safari-souvenirs-nairobi` | ✅ | `app/premium-safari-souvenirs-nairobi/page.tsx` | Safari SEO landing |
 | `/about` | ✅ | `app/about/page.tsx` | Brand story |
 | `/api/chat` | ✅ | `app/api/chat/route.ts` | Proxy to backend `/mock/message` |
+| `/api/catalog` | ✅ | `app/api/catalog/route.ts` | Portal catalog JSON + backend media-key probe |
+| `/api/health` | ✅ | `app/api/health/route.ts` | Backend `/healthz` proxy for live status |
 
 **Error boundaries:** `app/error.tsx`, `app/global-error.tsx`
 
@@ -740,7 +752,7 @@ No `/cafes`, `/map`, or `/owners` — Gen-Eat-only in `gen-eat-portal/`.
 
 ### 9.2 Navigation & footer links
 
-**Nav (`components/Nav.tsx`):** Treasures · Collections · Build · Safari · JKIA · About · Concierge (WhatsApp)
+**Nav (`components/Nav.tsx`):** Treasures · Collections · Build · Safari · JKIA · About · Concierge (WhatsApp), mobile menu, API status, day/night theme toggle
 
 **Footer (`components/Footer.tsx`):** All collections · Safari souvenirs · JKIA departure · Our story · email · phone · dispatch hours
 
@@ -754,8 +766,13 @@ No `/cafes`, `/map`, or `/owners` — Gen-Eat-only in `gen-eat-portal/`.
 | Format helpers | `lib/format.ts` → `formatKES`, `whatsappLink` |
 | Collection card | `components/CollectionCard.tsx` |
 | Treasure card | `components/TreasureCard.tsx` |
+| Treasure explorer | `components/TreasureExplorer.tsx` — search, sort, filters, inspect/add/ask actions |
 | Pack builder | `components/PackBuilder.tsx` |
 | Product image | `components/ProductImage.tsx` |
+| Catalog image | `components/CatalogImage.tsx` — blank frame for products with no direct image yet |
+| Catalog sync badge | `components/CatalogSyncBadge.tsx` — hits `/api/catalog` |
+| API status | `components/ApiStatus.tsx` — hits `/api/health` |
+| Theme controls | `components/ThemeScript.tsx`, `components/ThemeToggle.tsx` |
 | Nav / Footer | `components/Nav.tsx`, `components/Footer.tsx` |
 | Chat widget | `components/ChatWidget.tsx` — `business_slug=hazina-nomads` |
 | Styles | `tailwind.config.ts`, `app/globals.css` |
@@ -764,12 +781,12 @@ No `/cafes`, `/map`, or `/owners` — Gen-Eat-only in `gen-eat-portal/`.
 
 | Location | Files | Notes |
 |---|---|---|
-| `docs/pictures/` | 43 | Master archive |
-| `public/treasures/` | 43 | Slug-renamed for Next.js `Image` |
-| `public/products/` | 5 | Collection hero shots |
-| `public/brand/` | 3 | `hero-bg.jpg`, `hero-gift-box.png`, `safari-sunset.jpg` |
+| `docs/pictures/` | 49 | Master archive |
+| `public/treasures/` | 49 | Slug-renamed for Next.js `Image` |
+| `public/products/` | 0 | Removed to avoid stale duplicate collection images |
+| `public/brand/` | 1 | `safari-sunset.jpg`; other brand context reuses direct treasure photography |
 
-Image paths mirrored in `HAZINA_COLLECTION_IMAGES` and `HAZINA_TREASURE_IMAGES` in Python catalog for `menu_photos`.
+Image paths mirrored in `HAZINA_COLLECTION_IMAGES` and `HAZINA_TREASURE_IMAGES` in Python catalog for `menu_photos`. If a product has no direct image, the portal renders a clean blank image frame until real photography is added.
 
 ### 9.5 Local dev
 
@@ -991,7 +1008,7 @@ Routes through `resolve_payment_service(currency=…)`.
 | Area | Path | Status |
 |---|---|---|
 | **Catalog (backend)** | `app/catalog/hazina_catalog.py` | ✅ Collections, treasures, KB builder, menu_photos |
-| **Tenant seed + KB** | `scripts/seed_hazina_nomads.py` | ✅ 40 KB chunks, full profile |
+| **Tenant seed + KB** | `scripts/seed_hazina_nomads.py` | ✅ 44 KB chunks, full profile |
 | **Gift automation** | `app/services/gift_automation.py` | ✅ Collections, custom box, pay, track |
 | **WhatsApp menus** | `app/services/whatsapp_menus.py` | ✅ Hazina branch |
 | **Channel dispatch** | `app/channels/base.py` | ✅ Fast path + resend + AI payment handoff |
@@ -999,13 +1016,16 @@ Routes through `resolve_payment_service(currency=…)`.
 | **Order + payment** | `app/services/cafe_automation.py` | ✅ Hybrid `request_order_payment` |
 | **AI tools** | `app/ai/tools.py` | ✅ USD fields, hybrid payment tool |
 | **Render cutover** | `render.yaml` | ✅ `hazina-nomads` default + portal + Paystack env keys |
-| **Standalone portal** | `hazina-portal/` | ✅ 42 routes |
+| **Standalone portal** | `hazina-portal/` | ✅ 48 routes |
 | **Collections (portal)** | `hazina-portal/lib/products.ts` | ✅ |
 | **Treasures (portal)** | `hazina-portal/lib/treasures.ts` | ✅ |
-| **Pack builder** | `components/PackBuilder.tsx` | ✅ |
+| **Portal API proxies** | `app/api/chat`, `app/api/catalog`, `app/api/health` | ✅ Chat, catalog/media probe, backend health |
+| **Pack builder** | `components/PackBuilder.tsx` | ✅ Search, sort, category filters, WhatsApp handoff |
+| **Treasure explorer** | `components/TreasureExplorer.tsx` | ✅ Search, sort, filters, inspect/add/ask |
+| **Theme + mobile UX** | `components/Nav.tsx`, `ThemeToggle`, `ApiStatus` | ✅ Responsive nav, live API status, day/night mode |
 | **Safari landing** | `app/premium-safari-souvenirs-nairobi/` | ✅ |
 | **JKIA landing** | `app/last-minute-kenya-gifts-jkia/` | ✅ |
-| **Image library** | `public/treasures/` (43) | ✅ |
+| **Image library** | `public/treasures/` (49) | ✅ |
 | **menu_photos seed** | `build_hazina_menu_photos()` | ✅ Absolute URLs in profile |
 | **Dev launcher** | `scripts/dev-hazina.sh`, `Makefile` | ✅ |
 | **Error boundaries** | `app/error.tsx`, `app/global-error.tsx` | ✅ |
@@ -1019,16 +1039,23 @@ Routes through `resolve_payment_service(currency=…)`.
 
 ## 13. Testing
 
-### 13.1 Automated tests (54 passing)
+### 13.1 Automated tests
+
+Current local verification on 2026-05-31:
+
+- `make test-hazina` → `54 passed, 1 warning`
+- `make test-fast` → `155 passed, 1 warning`
+- `cd hazina-portal && npm run typecheck` → passed
+- `cd hazina-portal && npm run build` → passed, `48` routes
 
 ```bash
-./.venv/bin/python -m pytest -q \
-  tests/test_whatsapp_menus.py \
-  tests/test_gift_automation.py \
-  tests/test_payment_routing.py \
-  tests/test_ai_tools_payment.py \
-  tests/test_channel_fallbacks.py \
-  tests/test_payments_hardening.py
+make test-hazina
+
+# broader fast confidence suite
+make test-fast
+
+# portal
+cd hazina-portal && npm run typecheck && npm run build
 ```
 
 | Test file | Covers |
@@ -1074,7 +1101,7 @@ make eval-whatsapp-local
 | 1 | **Live WhatsApp number** + Meta `phone_number_id` | User | Real customer WA |
 | 2 | **Paystack merchant approval** + live keys on Render | User | USD checkout in production |
 | 3 | **Domain** `hazina.lesnarai.co.ke` DNS live | User | Public SEO / trust |
-| 4 | **Re-seed production KB** after deploy | Eng/Ops | RAG knows 26 treasures |
+| 4 | **Re-seed production KB** after deploy | Eng/Ops | RAG knows 30 treasures |
 | 5 | **Product photography** in physical boxes | User | Fulfillment quality |
 | 6 | **Courier contract** | User | Last-mile SLA |
 | 7 | **Terracotta vs bronze hex** alignment | Design | Brand consistency |
@@ -1083,7 +1110,7 @@ make eval-whatsapp-local
 
 **Completed (no longer blockers):**
 
-- ~~Sync 26 treasures to seed/RAG~~ → `app/catalog/hazina_catalog.py`
+- ~~Sync 30 treasures to seed/RAG~~ → `app/catalog/hazina_catalog.py`
 - ~~Paystack routing code~~ → `resolve_payment_service`
 - ~~Custom box WhatsApp automation~~ → SKU parser in `gift_automation.py`
 - ~~Safari SEO landing~~ → `/premium-safari-souvenirs-nairobi`
@@ -1097,9 +1124,9 @@ Use before any production tag or Hazina cutover (§8.6).
 
 - [ ] Run `alembic upgrade head` in staging
 - [ ] Run seed: `PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py`
-- [ ] Run 54 Hazina pytest suite (§13.1)
+- [ ] Run Hazina pytest suite (§13.1)
 - [ ] Run `make eval-whatsapp-local`
-- [ ] `cd hazina-portal && npm run build` — confirm 42 routes
+- [ ] `cd hazina-portal && npm run build` — confirm 48 routes
 - [ ] Set Render secrets: Meta WA, IntaSend, Paystack, `NEXT_PUBLIC_HAZINA_*`
 - [ ] Add `https://hazina.lesnarai.co.ke` to `ADMIN_CORS_ORIGINS`
 - [ ] Live smoke: menu → order → STK + USD link rehearsal

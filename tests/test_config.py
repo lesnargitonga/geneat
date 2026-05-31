@@ -48,3 +48,5 @@ def test_security_runtime_defaults_are_bounded(monkeypatch) -> None:
     assert s.request_max_body_bytes == 10 * 1024 * 1024
     assert s.rl_admin_per_min == 30
     assert s.ai_turn_cap_window_hours == 6.0
+    assert s.llm_provider == "openai"
+    assert s.llm_fallback_providers == "groq"

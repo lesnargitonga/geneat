@@ -160,3 +160,24 @@ def test_render_blueprint_sets_live_intasend_mode() -> None:
     assert env["PAYMENT_PROVIDER"] == "intasend"
     assert env["PAYMENT_SIMULATOR"] == "false"
     assert env["INTASEND_TEST_MODE"] == "false"
+
+
+def test_render_blueprint_uses_openai_primary_with_groq_fallback() -> None:
+    with open("render.yaml", "r", encoding="utf-8") as fh:
+        blueprint = yaml.safe_load(fh)
+
+    api_service = next(
+        service for service in blueprint["services"]
+        if service.get("name") == "geneat-api"
+    )
+    env = {
+        item["key"]: item.get("value")
+        for item in api_service.get("envVars", [])
+        if "key" in item
+    }
+
+    assert env["LLM_PROVIDER"] == "openai"
+    assert env["LLM_FALLBACK_PROVIDERS"] == "groq"
+    assert env["OPENAI_MODEL"] == "gpt-5.4-mini"
+    assert env["OPENAI_USE_RESPONSES_API"] == "true"
+    assert env["OPENAI_STORE_RESPONSES"] == "true"

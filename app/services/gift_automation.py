@@ -27,7 +27,7 @@ from app.services.cafe_automation import (
     create_order_and_request_payment,
     order_items_summary,
 )
-from app.services.whatsapp_menus import HAZINA_NOMADS_SLUG, ID_PRODUCT_PREFIX
+from app.services.whatsapp_menus import HAZINA_NOMADS_SLUG, ID_PRODUCT_PREFIX, product_list_payload
 
 HAZINA_SLUG = HAZINA_NOMADS_SLUG
 
@@ -74,6 +74,11 @@ _DEPARTURE_RE = re.compile(
 )
 _CUSTOM_BOX_INTRO_RE = re.compile(
     r"\b(custom gift box|build a custom|compose.*box|custom box)\b",
+    re.IGNORECASE,
+)
+_CATALOG_RE = re.compile(
+    r"\b(full menu|menu|catalogue|catalog|collections?|gift boxes?|what do you sell|"
+    r"show (?:me )?(?:your )?(?:gifts|boxes|collections)|shop|browse)\b",
     re.IGNORECASE,
 )
 _SKU_LINE_RE = re.compile(r"\((HN-[A-Z0-9-]+)\)", re.IGNORECASE)
@@ -149,6 +154,10 @@ def looks_like_hazina_track(text: str) -> bool:
 
 def looks_like_hazina_corporate(text: str) -> bool:
     return bool(_CORPORATE_RE.search(text or ""))
+
+
+def looks_like_hazina_catalog_request(text: str) -> bool:
+    return bool(_CATALOG_RE.search(text or ""))
 
 
 def is_custom_box_handoff(text: str) -> bool:
@@ -313,6 +322,24 @@ def _corporate_reply(*, is_sw: bool) -> str:
     return (
         "Corporate gifting — we handle team and event orders with curated packaging. "
         "I've asked a concierge to join this chat shortly with bulk pricing and timelines."
+    )
+
+
+def _catalog_reply(*, is_sw: bool) -> str:
+    lines = [
+        f"- {row['name']} — KES {int(row['price_kes']):,} / USD {int(row['price_usd'])}"
+        for row in HAZINA_PRODUCTS.values()
+    ]
+    if is_sw:
+        return (
+            "Hizi ndizo collection zetu kuu:\n"
+            + "\n".join(lines)
+            + "\n\nChagua moja hapa chini, au tuma custom box kutoka /build ukiwa na angalau vitu 2."
+        )
+    return (
+        "These are our signature collections:\n"
+        + "\n".join(lines)
+        + "\n\nPick one below, or send a custom box from /build with at least 2 treasures."
     )
 
 
@@ -626,6 +653,15 @@ async def try_hazina_automation(
         )
 
     checkout = await _get_checkout(conversation_id)
+
+    if looks_like_hazina_catalog_request(text):
+        if checkout:
+            await _clear_checkout(conversation_id)
+        return GiftAutomationResult(
+            reply=_catalog_reply(is_sw=is_sw),
+            interactive=product_list_payload(language=language),
+            safety_flag="deterministic:hazina_catalog",
+        )
 
     if checkout and checkout.get("step") in {"delivery", "departure", "custom_delivery"}:
         if checkout.get("order_type") == "custom_box":

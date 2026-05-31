@@ -14,7 +14,7 @@ final authority, but this document is the canonical human map of:
 - what is still demo-only,
 - and what still needs hardening before anyone promises enterprise-grade uptime.
 
-Last reconciled with the codebase and local checks: **2026-05-26**.
+Last reconciled with the codebase and local checks: **2026-05-31**.
 Hosted live checks were last verified on **2026-05-26**.
 
 Security: See [SECURITY.md](SECURITY.md) for live-run findings and recommended mitigations.
@@ -73,7 +73,8 @@ Current important public endpoints:
 
 | Thing | Current truth |
 | --- | --- |
-| Customer portal | `https://geneat.lesnarai.co.ke` |
+| Gen-Eat customer portal | `https://geneat.lesnarai.co.ke` |
+| Hazina Nomads portal | `https://hazina.lesnarai.co.ke` |
 | Lily Pond page | `https://geneat.lesnarai.co.ke/cafes/lily-pond-cafe` |
 | API | `https://api.lesnarai.co.ke` |
 | API liveness | `https://api.lesnarai.co.ke/healthz` |
@@ -90,9 +91,18 @@ Current demo tenants:
 | Pavilion Grill | `pavilion-grill` | heavier lunch / group orders |
 | Block A Express | `block-a-express` | quick bites / delivery vibe |
 
+Current Hazina production-routing path:
+
+- `DEFAULT_BUSINESS_SLUG=hazina-nomads`,
+- Hazina uses the same shared API, WhatsApp ingress, RAG, order, and payment
+  machinery as Gen-Eat,
+- the Hazina portal has its own Next.js app under `hazina-portal/`,
+- Hazina product and launch truth lives in
+  [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md).
+
 Current Lily Pond live-demo path:
 
-- default tenant slug is `lily-pond-cafe`,
+- demo tenant slug is `lily-pond-cafe` through `DEMO_BUSINESS_SLUG`,
 - current Meta Cloud API test number maps to Lily Pond,
 - the public WhatsApp CTA points to `+1 555-657-8220`,
 - the demo proof item is `Demo Espresso` at `KES 10`,
@@ -190,7 +200,8 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `122 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `155 passed, 1 warning` via `make test-fast` |
+| Hazina focused suite | `54 passed, 1 warning` via `make test-hazina` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -211,6 +222,7 @@ make test-fast
 ./.venv/bin/pip-audit
 cd admin-ui && npm run build
 cd gen-eat-portal && npm run build
+cd hazina-portal && npm run typecheck && npm run build
 ```
 
 ### 2.4 Current demo-vs-real split
@@ -622,9 +634,10 @@ Isolation rules:
 
 Current default tenant truth:
 
-- `DEFAULT_BUSINESS_SLUG=lily-pond-cafe`
-- so manual/unscoped demo traffic lands on Lily Pond unless another tenant is
+- `DEFAULT_BUSINESS_SLUG=hazina-nomads`
+- so unscoped production traffic lands on Hazina unless another tenant is
   resolved explicitly.
+- Lily Pond remains available for café demos through `DEMO_BUSINESS_SLUG`.
 
 Current demo-only fast-path truth:
 
@@ -2288,7 +2301,7 @@ make test-fast
 Current result:
 
 ```text
-122 passed, 1 warning
+155 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -2296,12 +2309,16 @@ Current result:
 ```bash
 cd admin-ui && npm run build
 cd gen-eat-portal && npm run build
+cd hazina-portal && npm run typecheck
+cd hazina-portal && npm run build
 ```
 
 Current result:
 
 - admin build passed
-- portal build passed
+- Gen-Eat portal build passed
+- Hazina portal typecheck passed
+- Hazina portal build passed with 48 routes
 
 ### 22.3 Live system doctor
 
