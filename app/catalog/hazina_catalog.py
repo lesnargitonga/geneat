@@ -122,6 +122,10 @@ HAZINA_TREASURES: list[dict[str, Any]] = [
     {"id": "pottery-vessel", "sku": "HN-T-063", "name": "Hand-Thrown Pottery", "category": "art-sculpture", "price_usd": 38, "price_kes": 4900, "description": "Small vessel or bowl — each unique.", "lead_time_hours": 48},
     {"id": "big-five-print", "sku": "HN-T-064", "name": "Big Five Safari Print", "category": "art-sculpture", "price_usd": 24, "price_kes": 3100, "description": "Minimalist safari wildlife print.", "lead_time_hours": 24},
     {"id": "maasai-market-tote", "sku": "HN-T-065", "name": "Maasai Market Tote", "category": "textiles", "price_usd": 26, "price_kes": 3300, "description": "Leather or canvas market bag.", "lead_time_hours": 24},
+    {"id": "african-woven-mat", "sku": "HN-T-066", "name": "African Woven Mat", "category": "homeware", "price_usd": 30, "price_kes": 3900, "description": "Decorative woven mat for table, wall, or shelf styling.", "lead_time_hours": 24},
+    {"id": "african-hand-broom", "sku": "HN-T-067", "name": "African Hand Broom", "category": "homeware", "price_usd": 18, "price_kes": 2300, "description": "Minimal hand broom made from natural fibres.", "lead_time_hours": 24},
+    {"id": "beaded-wood-containers", "sku": "HN-T-068", "name": "Beaded Wood Container Set", "category": "wood-carving", "price_usd": 46, "price_kes": 5900, "description": "Decorative beaded wooden containers, selected as a set.", "lead_time_hours": 48},
+    {"id": "coconut-shell-plates-spoons", "sku": "HN-T-069", "name": "Coconut Shell Plate & Spoon Set", "category": "homeware", "price_usd": 32, "price_kes": 4100, "description": "Set of three coconut shell plates with wooden spoons.", "lead_time_hours": 24},
     {"id": "premium-packaging", "sku": "HN-T-070", "name": "Premium Gift Box & Tissue", "category": "packaging", "price_usd": 25, "price_kes": 3200, "description": "Matte rigid box, cream tissue, wax seal, brand story card.", "lead_time_hours": 12},
 ]
 
@@ -191,28 +195,28 @@ def build_hazina_kb_catalog() -> list[str]:
 
 # Portal image paths — mirrors hazina-portal/lib/products.ts and lib/treasures.ts
 HAZINA_COLLECTION_IMAGES: dict[str, str] = {
-    "kenya-edit": "/products/kenya-edit.png",
-    "highland-treasure": "/products/highland-treasure.jpg",
-    "nomad-leather-set": "/products/nomad-leather-set.jpg",
-    "safari-romance-box": "/products/safari-romance-box.png",
-    "departure-drop": "/products/departure-drop.png",
+    "kenya-edit": "/treasures/curated-gift-box.png",
+    "highland-treasure": "/treasures/highland-treasure-hero.png",
+    "nomad-leather-set": "/treasures/nomad-leather-set-studio.png",
+    "safari-romance-box": "/treasures/safari-romance-box-hero.png",
+    "departure-drop": "/treasures/departure-pack.png",
 }
 
 HAZINA_TREASURE_IMAGES: dict[str, str] = {
     "premium-coffee-250g": "/treasures/coffee-beans-variety.jpg",
     "loose-leaf-tea": "/treasures/premium-tea-spoons.jpg",
-    "raw-honey": "/treasures/coffee-sack.jpg",
+    "raw-honey": "/treasures/raw-honey-jars.jpg",
     "maasai-bracelet": "/treasures/beaded-bracelet.jpg",
-    "maasai-necklace": "/treasures/beaded-circle.png",
+    "maasai-necklace": "/treasures/maasai-necklace-worn.png",
     "maasai-earrings": "/treasures/maasai-earrings.jpg",
     "leather-passport": "/treasures/leather-passport-open.jpg",
-    "leather-luggage-tag": "/treasures/leather-passport-closed.jpg",
+    "leather-luggage-tag": "/treasures/leather-luggage-tag-lifestyle.png",
     "soapstone-big-five": "/treasures/big-five-sculpture.jpg",
     "antelope-carving": "/treasures/antelope-wood-carving.jpg",
     "wood-carving-set": "/treasures/handmade-woodcarvings.jpg",
     "swahili-drums": "/treasures/swahili-drums-set.jpg",
     "rungu-clubs": "/treasures/wooden-clubs-beaded.jpg",
-    "woven-basket": "/treasures/women-weaving-baskets.jpg",
+    "woven-basket": "/treasures/basket-variety.jpg",
     "sisal-basket-small": "/treasures/basket-weaving-hands.jpg",
     "kitenge-fabric": "/treasures/kitenge-textiles.jpg",
     "beaded-market-bag": "/treasures/beaded-market-bag.jpg",
@@ -224,6 +228,10 @@ HAZINA_TREASURE_IMAGES: dict[str, str] = {
     "pottery-vessel": "/treasures/pottery-hands.jpg",
     "big-five-print": "/treasures/big-five-art.jpg",
     "maasai-market-tote": "/treasures/maasai-market-bags.jpg",
+    "african-woven-mat": "/treasures/african-woven-mats.jpg",
+    "african-hand-broom": "/treasures/african-hand-broom.jpg",
+    "beaded-wood-containers": "/treasures/beaded-wood-containers.jpg",
+    "coconut-shell-plates-spoons": "/treasures/coconut-shell-plates-spoons.jpg",
     "premium-packaging": "/treasures/gift-box-light.jpg",
 }
 
@@ -232,8 +240,8 @@ def build_hazina_menu_photos(portal_base_url: str = "https://hazina.lesnarai.co.
     """Map collection/treasure ids and fuzzy names → absolute portal image URLs."""
     base = (portal_base_url or "https://hazina.lesnarai.co.ke").rstrip("/")
     out: dict[str, str] = {
-        "menu": f"{base}/brand/hero-gift-box.png",
-        "collections": f"{base}/brand/hero-gift-box.png",
+        "menu": f"{base}/treasures/curated-gift-box.png",
+        "collections": f"{base}/treasures/curated-gift-box.png",
         "safari": f"{base}/brand/safari-sunset.jpg",
     }
     for row in HAZINA_COLLECTIONS:

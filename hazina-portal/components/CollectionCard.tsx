@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { CatalogImage } from "@/components/CatalogImage";
 import type { GiftBox } from "@/lib/products";
 import { BRAND } from "@/lib/products";
 import { getTreasuresByIds } from "@/lib/treasures";
@@ -20,12 +20,12 @@ export function CollectionCard({ box, className = "", priority }: Props) {
       className={`group flex flex-col card-luxury overflow-hidden ${className}`}
     >
       <Link href={`/collections/${box.id}`} className="block">
-        <div className="relative aspect-[4/5] overflow-hidden bg-sand-dark">
-          <Image
+        <div className="relative">
+          <CatalogImage
             src={box.image}
-            alt={box.imageAlt}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+            alt={box.imageAlt || box.name}
+            className="aspect-[4/5]"
+            imageClassName="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
             priority={priority}
           />
@@ -35,7 +35,7 @@ export function CollectionCard({ box, className = "", priority }: Props) {
           </div>
           {itemCount > 0 && (
             <div className="absolute bottom-4 left-4">
-              <span className="chip-dark bg-obsidian/70">{itemCount} treasures inside</span>
+              <span className="chip-dark bg-black/70">{itemCount} treasures inside</span>
             </div>
           )}
         </div>
@@ -52,12 +52,12 @@ export function CollectionCard({ box, className = "", priority }: Props) {
             <p className="label-mono mt-1">{box.sku}</p>
           </div>
           <div className="text-right shrink-0">
-            <div className="font-mono text-sm text-obsidian">{formatKES(box.price_kes)}</div>
-            <div className="font-mono text-xs text-ink-mute">USD {box.price_usd}</div>
+            <div className="font-mono text-sm font-medium text-obsidian">{formatKES(box.price_kes)}</div>
+            <div className="font-mono text-xs text-ink-soft">USD {box.price_usd}</div>
           </div>
         </div>
 
-        <p className="text-ink-mute text-sm mt-4 leading-relaxed line-clamp-2">{box.contents}</p>
+        <p className="text-ink-soft text-sm mt-4 leading-relaxed line-clamp-2">{box.contents}</p>
 
         {box.personalization && (
           <p className="label-mono text-bronze mt-2">
@@ -91,15 +91,13 @@ export function CollectionItemsPreview({ box }: { box: GiftBox }) {
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {items.map((item) => (
         <Link key={item.id} href={`/treasures/${item.id}`} className="group">
-          <div className="relative aspect-square overflow-hidden bg-sand-dark mb-3">
-            <Image
-              src={item.image}
-              alt={item.imageAlt}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-              sizes="200px"
-            />
-          </div>
+          <CatalogImage
+            src={item.image}
+            alt={item.imageAlt || item.name}
+            className="aspect-square mb-3"
+            imageClassName="object-cover group-hover:scale-105 transition-transform duration-500"
+            sizes="200px"
+          />
           <p className="font-serif text-sm text-obsidian">{item.name}</p>
           <p className="font-mono text-[10px] text-ink-mute mt-0.5">{formatKES(item.price_kes)}</p>
         </Link>

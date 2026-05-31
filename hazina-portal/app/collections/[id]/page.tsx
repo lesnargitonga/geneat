@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { CatalogImage } from "@/components/CatalogImage";
 import { GIFT_BOXES, getGiftBox, BRAND } from "@/lib/products";
 import { getTreasuresByIds } from "@/lib/treasures";
 import { CollectionItemsPreview } from "@/components/CollectionCard";
@@ -42,16 +42,13 @@ export default function CollectionDetailPage({ params }: Props) {
         </Link>
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 mt-8 items-start">
-          <div className="relative aspect-[4/5] overflow-hidden bg-sand-dark shadow-editorial sticky top-24">
-            <Image
-              src={box.image}
-              alt={box.imageAlt}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              priority
-            />
-          </div>
+          <CatalogImage
+            src={box.image}
+            alt={box.imageAlt || box.name}
+            className="aspect-[4/5] shadow-editorial sticky top-24"
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            priority
+          />
 
           <div className="space-y-8">
             <div>

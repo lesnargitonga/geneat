@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BRAND } from "@/lib/products";
+import { whatsappLink } from "@/lib/format";
 
 type Msg = { id: string; role: "user" | "ai" | "system"; text: string; ts: number };
 type MsgWithMedia = Msg & { imageUrl?: string | null; imageAlt?: string | null };
 
 const BUSINESS_SLUG = "hazina-nomads";
 const PHONE_KEY = "hazina.phone";
-const CHAT_TIMEOUT_MS = 45_000;
+const CHAT_TIMEOUT_MS = 30_000;
 
 const ASK_PROMPTS = [
   "Show me your gift collections",
@@ -122,8 +123,8 @@ export function ChatWidget() {
             id: crypto.randomUUID(),
             role: "system",
             text: timedOut
-              ? "That took too long — please try again in a few seconds."
-              : `Network error: ${err?.message || "unknown"}`,
+              ? "The concierge line is taking longer than usual. Try once more, or continue on WhatsApp for the fastest handoff."
+              : `The concierge line is temporarily unreachable: ${err?.message || "unknown"}`,
             ts: Date.now(),
           },
         ]);
@@ -169,6 +170,14 @@ export function ChatWidget() {
               <div className="label-mono text-sand/50">Concierge chat</div>
               <div className="h-display text-base">{BRAND.name}</div>
             </div>
+            <a
+              href={whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like concierge help.")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-[10px] uppercase tracking-editorial text-sand/70 hover:text-sand"
+            >
+              WhatsApp
+            </a>
           </div>
 
           <div ref={scrollerRef} className="flex-1 overflow-auto p-3 space-y-2 bg-sand">
@@ -182,7 +191,7 @@ export function ChatWidget() {
                 <span className="w-2 h-2 rounded-full bg-ink/30 animate-bounce" style={{ animationDelay: "300ms" }} />
               </div>
             )}
-            {!busy && messages.length <= 1 && (
+            {!busy && (
               <div className="pt-2 flex flex-wrap gap-1.5">
                 {ASK_PROMPTS.map((p) => (
                   <button

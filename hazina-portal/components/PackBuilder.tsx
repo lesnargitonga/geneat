@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { CatalogImage } from "@/components/CatalogImage";
 import {
   ALL_CATEGORIES,
   CATEGORY_LABELS,
@@ -17,14 +17,39 @@ import { BRAND } from "@/lib/products";
 import { formatKES, whatsappLink } from "@/lib/format";
 
 export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }) {
-  const [selected, setSelected] = useState<Set<string>>(() => new Set(initialAddIds));
+  const [selected, setSelected] = useState<Set<string>>(
+    () => new Set(initialAddIds.filter((id) => TREASURES.some((t) => t.id === id))),
+  );
   const [category, setCategory] = useState<TreasureCategory | "all">("all");
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<"curated" | "price-low" | "price-high" | "fastest">("curated");
   const [includePackaging, setIncludePackaging] = useState(true);
 
-  const filtered = useMemo(
-    () => (category === "all" ? TREASURES : TREASURES.filter((t) => t.category === category)),
-    [category],
-  );
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return TREASURES.map((item, index) => ({ item, index }))
+      .filter(({ item }) => {
+        if (category !== "all" && item.category !== category) return false;
+        if (!q) return true;
+        return [
+          item.name,
+          item.sku,
+          item.description,
+          item.origin || "",
+          CATEGORY_LABELS[item.category],
+        ]
+          .join(" ")
+          .toLowerCase()
+          .includes(q);
+      })
+      .sort((a, b) => {
+        if (sort === "price-low") return a.item.price_kes - b.item.price_kes;
+        if (sort === "price-high") return b.item.price_kes - a.item.price_kes;
+        if (sort === "fastest") return (a.item.lead_time_hours || 99) - (b.item.lead_time_hours || 99);
+        return a.index - b.index;
+      })
+      .map(({ item }) => item);
+  }, [category, query, sort]);
 
   const selectedItems = useMemo(
     () => TREASURES.filter((t) => selected.has(t.id)),
@@ -51,28 +76,66 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
   return (
     <div className="grid lg:grid-cols-12 gap-10 lg:gap-14">
       <div className="lg:col-span-7 space-y-8">
-        <div className="flex flex-wrap gap-2">
-          <FilterChip active={category === "all"} onClick={() => setCategory("all")} label="All" />
-          {ALL_CATEGORIES.map((c) => (
-            <FilterChip
-              key={c}
-              active={category === c}
-              onClick={() => setCategory(c)}
-              label={CATEGORY_LABELS[c]}
-            />
-          ))}
+        <div className="panel-luxury p-4 md:p-5 space-y-4">
+          <div className="grid gap-3 md:grid-cols-[1fr,180px]">
+            <label>
+              <span className="sr-only">Search treasures for your custom box</span>
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="input-luxury"
+                placeholder="Search by item, SKU, material, origin..."
+              />
+            </label>
+            <label>
+              <span className="sr-only">Sort custom box items</span>
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as typeof sort)}
+                className="input-luxury"
+              >
+                <option value="curated">Curated order</option>
+                <option value="price-low">Price low to high</option>
+                <option value="price-high">Price high to low</option>
+                <option value="fastest">Fastest lead time</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <FilterChip active={category === "all"} onClick={() => setCategory("all")} label="All" />
+            {ALL_CATEGORIES.map((c) => (
+              <FilterChip
+                key={c}
+                active={category === c}
+                onClick={() => setCategory(c)}
+                label={CATEGORY_LABELS[c]}
+              />
+            ))}
+          </div>
+
+          <p className="label-mono">{filtered.length} available treasures · {selected.size} selected</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8">
-          {filtered.map((item) => (
-            <SelectableTreasure
-              key={item.id}
-              item={item}
-              checked={selected.has(item.id)}
-              onToggle={() => toggle(item.id)}
-            />
-          ))}
-        </div>
+        {filtered.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8">
+            {filtered.map((item) => (
+              <SelectableTreasure
+                key={item.id}
+                item={item}
+                checked={selected.has(item.id)}
+                onToggle={() => toggle(item.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="panel-luxury p-8 text-center">
+            <h2 className="font-serif text-2xl text-obsidian">Nothing matches that filter</h2>
+            <p className="text-sm text-ink-mute mt-2">
+              Clear your search or ask the concierge to source a special item.
+            </p>
+          </div>
+        )}
       </div>
 
       <aside className="lg:col-span-5">
@@ -96,6 +159,16 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
                 </li>
               ))}
             </ul>
+          )}
+
+          {selectedItems.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setSelected(new Set())}
+              className="label-mono text-left text-bronze hover:text-obsidian"
+            >
+              Clear selection
+            </button>
           )}
 
           <label className="flex items-center gap-3 cursor-pointer">
@@ -187,10 +260,15 @@ function SelectableTreasure({
         checked ? "ring-2 ring-obsidian ring-offset-2 border-obsidian" : ""
       }`}
     >
-      <div className="relative aspect-square overflow-hidden bg-sand-dark">
-        <Image src={item.image} alt={item.imageAlt} fill className="object-cover" sizes="200px" />
+      <div className="relative">
+        <CatalogImage
+          src={item.image}
+          alt={item.imageAlt || item.name}
+          className="aspect-square"
+          sizes="200px"
+        />
         {checked && (
-          <div className="absolute inset-0 bg-obsidian/30 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
             <span className="chip-dark">Added</span>
           </div>
         )}

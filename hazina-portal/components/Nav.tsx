@@ -1,4 +1,10 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { ApiStatus } from "@/components/ApiStatus";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { BRAND } from "@/lib/products";
 import { whatsappLink } from "@/lib/format";
 
@@ -12,11 +18,13 @@ const NAV = [
 ];
 
 export function Nav() {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
   const wa = whatsappLink(BRAND.whatsapp, "Hello — I'd like help choosing a gift box.");
   return (
-    <header className="sticky top-0 z-30 backdrop-blur-md bg-sand/85 border-b border-border">
+    <header className="sticky top-0 z-30 border-b border-border bg-sand/85 backdrop-blur-md">
       <div className="container-page flex items-center justify-between h-16 md:h-[4.5rem]">
-        <Link href="/" className="group leading-none">
+        <Link href="/" className="group leading-none" onClick={() => setOpen(false)}>
           <span className="font-serif text-xl md:text-2xl uppercase tracking-wide text-obsidian">
             Hazina{" "}
             <span className="italic normal-case text-bronze tracking-normal">Nomads</span>
@@ -27,16 +35,65 @@ export function Nav() {
             <Link
               key={n.href}
               href={n.href}
-              className="font-mono text-[10px] uppercase tracking-editorial text-ink-mute hover:text-obsidian transition-colors"
+              className={`font-mono text-[11px] font-medium uppercase tracking-[0.12em] transition-colors ${
+                pathname === n.href
+                  ? "text-obsidian"
+                  : "text-ink-soft hover:text-obsidian"
+              }`}
             >
               {n.label}
             </Link>
           ))}
         </nav>
-        <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark text-[10px] py-2.5 px-5">
-          Concierge
-        </a>
+        <div className="hidden md:flex items-center gap-3">
+          <ApiStatus />
+          <ThemeToggle compact />
+          <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark py-2.5 px-5">
+            Concierge
+          </a>
+        </div>
+        <div className="md:hidden flex items-center gap-2">
+          <ApiStatus compact />
+          <ThemeToggle compact />
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-label={open ? "Close navigation" : "Open navigation"}
+            aria-expanded={open}
+            className="inline-flex h-10 w-10 items-center justify-center border border-border text-obsidian"
+          >
+            {open ? "×" : "☰"}
+          </button>
+        </div>
       </div>
+      {open && (
+        <div className="md:hidden border-t border-border bg-sand">
+          <nav className="container-page py-4 grid gap-2">
+            {NAV.map((n) => (
+              <Link
+                key={n.href}
+                href={n.href}
+                onClick={() => setOpen(false)}
+                className={`flex items-center justify-between border border-border px-4 py-3 font-mono text-[11px] uppercase tracking-editorial ${
+                  pathname === n.href ? "bg-obsidian text-sand" : "text-obsidian"
+                }`}
+              >
+                {n.label}
+                <span aria-hidden="true">→</span>
+              </Link>
+            ))}
+            <a
+              href={wa}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-dark w-full mt-2"
+              onClick={() => setOpen(false)}
+            >
+              Speak with concierge
+            </a>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

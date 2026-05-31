@@ -6,35 +6,35 @@ const config: Config = {
     extend: {
       colors: {
         sand: {
-          DEFAULT: "#FAF8F5",
-          dark: "#F0EBE3",
+          DEFAULT: "rgb(var(--color-sand) / <alpha-value>)",
+          dark: "rgb(var(--color-sand-dark) / <alpha-value>)",
         },
-        cream: "#FAF8F5",
+        cream: "rgb(var(--color-sand) / <alpha-value>)",
         obsidian: {
-          DEFAULT: "#1C1A17",
-          soft: "#2A2723",
+          DEFAULT: "rgb(var(--color-obsidian) / <alpha-value>)",
+          soft: "rgb(var(--color-obsidian-soft) / <alpha-value>)",
         },
         ink: {
-          DEFAULT: "#1C1A17",
-          soft: "#2A2723",
-          mute: "#5C564E",
+          DEFAULT: "rgb(var(--color-ink) / <alpha-value>)",
+          soft: "rgb(var(--color-ink-soft) / <alpha-value>)",
+          mute: "rgb(var(--color-ink-mute) / <alpha-value>)",
         },
         bronze: {
-          DEFAULT: "#A67C52",
-          dark: "#8B6642",
-          light: "#C9A882",
+          DEFAULT: "rgb(var(--color-bronze) / <alpha-value>)",
+          dark: "rgb(var(--color-bronze-dark) / <alpha-value>)",
+          light: "rgb(var(--color-bronze-light) / <alpha-value>)",
         },
         brand: {
-          DEFAULT: "#A67C52",
-          dark: "#8B6642",
-          light: "#C9A882",
+          DEFAULT: "rgb(var(--color-bronze) / <alpha-value>)",
+          dark: "rgb(var(--color-bronze-dark) / <alpha-value>)",
+          light: "rgb(var(--color-bronze-light) / <alpha-value>)",
         },
         border: {
-          DEFAULT: "#EAE6DF",
+          DEFAULT: "rgb(var(--color-border) / <alpha-value>)",
         },
         sage: {
-          DEFAULT: "#8B9A6B",
-          soft: "#E8EDE0",
+          DEFAULT: "rgb(var(--color-sage) / <alpha-value>)",
+          soft: "rgb(var(--color-sage-soft) / <alpha-value>)",
         },
       },
       fontFamily: {

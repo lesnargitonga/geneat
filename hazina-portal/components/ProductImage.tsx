@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { CatalogImage } from "@/components/CatalogImage";
 import type { GiftBox } from "@/lib/products";
 
 type Props = {
@@ -10,15 +10,12 @@ type Props = {
 
 export function ProductImage({ box, priority, className = "", sizes }: Props) {
   return (
-    <div className={`relative aspect-[4/3] overflow-hidden bg-sand-dark ${className}`}>
-      <Image
-        src={box.image}
-        alt={box.imageAlt}
-        fill
-        className="object-cover"
-        sizes={sizes ?? "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
-        priority={priority}
-      />
-    </div>
+    <CatalogImage
+      src={box.image}
+      alt={box.imageAlt || box.name}
+      className={`aspect-[4/5] w-full ${className}`}
+      sizes={sizes ?? "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
+      priority={priority}
+    />
   );
 }

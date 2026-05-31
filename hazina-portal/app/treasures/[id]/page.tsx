@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { CatalogImage } from "@/components/CatalogImage";
 import { TREASURES, CATEGORY_LABELS, getTreasure } from "@/lib/treasures";
 import { BRAND } from "@/lib/products";
 import { formatKES, whatsappLink } from "@/lib/format";
@@ -39,16 +39,13 @@ export default function TreasureDetailPage({ params }: Props) {
         </Link>
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 mt-8">
-          <div className="relative aspect-[4/5] overflow-hidden bg-sand-dark shadow-editorial">
-            <Image
-              src={item.image}
-              alt={item.imageAlt}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              priority
-            />
-          </div>
+          <CatalogImage
+            src={item.image}
+            alt={item.imageAlt || item.name}
+            className="aspect-[4/5] shadow-editorial"
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            priority
+          />
 
           <div className="space-y-6">
             <span className="label-mono">{CATEGORY_LABELS[item.category]} · {item.sku}</span>
@@ -105,9 +102,13 @@ export default function TreasureDetailPage({ params }: Props) {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {related.map((r) => (
                 <Link key={r.id} href={`/treasures/${r.id}`} className="group">
-                  <div className="relative aspect-square overflow-hidden bg-sand-dark mb-2">
-                    <Image src={r.image} alt={r.imageAlt} fill className="object-cover group-hover:scale-105 transition-transform" sizes="200px" />
-                  </div>
+                  <CatalogImage
+                    src={r.image}
+                    alt={r.imageAlt || r.name}
+                    className="aspect-square mb-2"
+                    imageClassName="object-cover group-hover:scale-105 transition-transform"
+                    sizes="200px"
+                  />
                   <p className="font-serif text-sm">{r.name}</p>
                 </Link>
               ))}

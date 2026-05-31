@@ -15,14 +15,16 @@ export type GiftBox = {
   personalization_note?: string;
   jkia_only?: boolean;
   emoji: string;
-  image: string;
-  imageAlt: string;
+  image: string | null;
+  imageAlt?: string;
+  sourceImage?: string;
 };
 
 /** Brand / atmosphere imagery (not tied to a single SKU). */
 export const BRAND_IMAGES = {
-  heroGiftBox: "/brand/hero-gift-box.png",
-  heroBg: "/brand/hero-bg.jpg",
+  heroGiftBox: "/treasures/curated-gift-box.png",
+  atelierRoom: "/treasures/afrohemian-room.jpg",
+  artisanMarket: "/treasures/african-market-shop.jpg",
   safariSunset: "/brand/safari-sunset.jpg",
 } as const;
 
@@ -30,8 +32,8 @@ export const BRAND = {
   name: "Hazina Nomads",
   tagline: "Curated treasures for the modern nomad.",
   meaning: "Hazina = treasure (Swahili)",
-  whatsapp: process.env.NEXT_PUBLIC_HAZINA_WHATSAPP || "254700000001",
-  phone: process.env.NEXT_PUBLIC_HAZINA_PHONE || "+254 700 000 001",
+  whatsapp: process.env.NEXT_PUBLIC_HAZINA_WHATSAPP || "15556578220",
+  phone: process.env.NEXT_PUBLIC_HAZINA_PHONE || "+1 555 657 8220",
   email: "concierge@hazina-nomads.com",
 };
 
@@ -50,8 +52,9 @@ export const GIFT_BOXES: GiftBox[] = [
     itemIds: ["premium-coffee-250g", "maasai-bracelet", "soapstone-big-five", "premium-packaging"],
     lead_time_hours: 24,
     emoji: "🎁",
-    image: "/products/kenya-edit.png",
-    imageAlt: "The Kenya Edit — premium Kenyan coffee, Maasai beadwork, and artisan soapstone in a curated gift box",
+    image: "/treasures/curated-gift-box.png",
+    imageAlt: "Gift box with coffee, rungu, earrings, and leather passport holder",
+    sourceImage: "curated-gift-box.png",
   },
   {
     id: "highland-treasure",
@@ -65,8 +68,9 @@ export const GIFT_BOXES: GiftBox[] = [
     itemIds: ["premium-coffee-250g", "loose-leaf-tea", "raw-honey", "wooden-combs"],
     lead_time_hours: 24,
     emoji: "☕",
-    image: "/products/highland-treasure.jpg",
-    imageAlt: "The Highland Treasure — export-grade Kenyan tea, coffee, and honey with a carved wooden spoon",
+    image: "/treasures/highland-treasure-hero.png",
+    imageAlt: "The Highland Treasure — coffee, tea, honey, and wooden combs in a curated box",
+    sourceImage: "highland-treasure-hero.png",
   },
   {
     id: "nomad-leather-set",
@@ -81,8 +85,9 @@ export const GIFT_BOXES: GiftBox[] = [
     personalization: true,
     personalization_note: "Engraving requires 24-hour notice",
     emoji: "🧳",
-    image: "/products/nomad-leather-set.jpg",
-    imageAlt: "The Nomad Leather Set — handmade Kenyan leather passport holder, luggage tag, and travel notebook",
+    image: "/treasures/nomad-leather-set-studio.png",
+    imageAlt: "The Nomad Leather Set — passport holder and luggage tag on linen",
+    sourceImage: "nomad-leather-set-studio.png",
   },
   {
     id: "safari-romance-box",
@@ -97,8 +102,9 @@ export const GIFT_BOXES: GiftBox[] = [
     lead_time_hours: 48,
     personalization: true,
     emoji: "💝",
-    image: "/products/safari-romance-box.png",
-    imageAlt: "The Safari Romance Box — matching Maasai beadwork and curated treats for couples on safari",
+    image: "/treasures/safari-romance-box-hero.png",
+    imageAlt: "The Safari Romance Box — beadwork, coffee, and leather for couples",
+    sourceImage: "safari-romance-box-hero.png",
   },
   {
     id: "departure-drop",
@@ -112,8 +118,9 @@ export const GIFT_BOXES: GiftBox[] = [
     lead_time_hours: 4,
     jkia_only: true,
     emoji: "✈️",
-    image: "/products/departure-drop.png",
-    imageAlt: "The Departure Drop — pre-packed Kenyan coffee, tea, leather, and beadwork for JKIA departures",
+    image: "/treasures/departure-pack.png",
+    imageAlt: "Gift package with coffee, leather passport holder, and beadwoven bracelet",
+    sourceImage: "departure-pack.png",
   },
 ];
 

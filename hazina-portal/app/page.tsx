@@ -1,15 +1,28 @@
 import Image from "next/image";
 import Link from "next/link";
+import { CatalogImage } from "@/components/CatalogImage";
 import { BRAND, BRAND_IMAGES, DELIVERY_ZONES, GIFT_BOXES } from "@/lib/products";
-import { TREASURES } from "@/lib/treasures";
+import { getTreasure, TREASURES } from "@/lib/treasures";
 import { formatKES, whatsappLink } from "@/lib/format";
 import { ChatWidget } from "@/components/ChatWidget";
 import { CollectionCard } from "@/components/CollectionCard";
+import { ConciergePromptButton } from "@/components/ConciergePromptButton";
+import { CatalogSyncBadge } from "@/components/CatalogSyncBadge";
 import { TreasureCard } from "@/components/TreasureCard";
 
 export default function HomePage() {
   const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like help choosing a gift box.");
   const heroBox = GIFT_BOXES[0];
+  const featuredTreasures = [
+    "premium-coffee-250g",
+    "maasai-bracelet",
+    "leather-passport",
+    "antelope-carving",
+    "kitenge-fabric",
+    "african-wall-art",
+  ]
+    .map((id) => getTreasure(id))
+    .filter(Boolean);
 
   return (
     <>
@@ -30,12 +43,19 @@ export default function HomePage() {
             </p>
             <div className="flex flex-wrap gap-4">
               <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark">
-                Speak with concierge
+                WhatsApp concierge
               </a>
+              <ConciergePromptButton
+                prompt="Show me the best Hazina gift box for a traveller leaving Nairobi soon."
+                className="btn-bronze"
+              >
+                Ask in live chat
+              </ConciergePromptButton>
               <Link href="/build" className="btn-outline">
                 Build your box
               </Link>
             </div>
+            <CatalogSyncBadge />
             <div className="flex items-center gap-10 pt-2">
               <Stat value={String(TREASURES.length)} label="individual treasures" />
               <Stat value="5" label="curated collections" />
@@ -45,15 +65,14 @@ export default function HomePage() {
 
           <div className="relative">
             <div className="relative aspect-[4/5] overflow-hidden shadow-editorial">
-              <Image
+              <CatalogImage
                 src={heroBox.image}
-                alt={heroBox.imageAlt}
-                fill
-                className="object-cover"
+                alt={heroBox.imageAlt || heroBox.name}
+                className="absolute inset-0"
                 sizes="(max-width: 768px) 100vw, 480px"
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-obsidian/70 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
               <div className="absolute bottom-6 left-6 right-6">
                 <p className="font-serif text-2xl text-sand">{heroBox.name}</p>
                 <p className="font-mono text-xs text-sand/70 mt-1">{formatKES(heroBox.price_kes)}</p>
@@ -119,22 +138,20 @@ export default function HomePage() {
         </div>
 
         <div className="grid md:grid-cols-12 gap-6 md:gap-8">
-          <div className="md:col-span-7">
-            <TreasureCard item={TREASURES[0]} featured priority />
-          </div>
+          {featuredTreasures[0] && (
+            <div className="md:col-span-7">
+              <TreasureCard item={featuredTreasures[0]} featured priority />
+            </div>
+          )}
           <div className="md:col-span-5 flex flex-col gap-6 md:gap-8 md:pt-16">
-            <TreasureCard item={TREASURES[4]} compact />
-            <TreasureCard item={TREASURES[6]} compact />
+            {featuredTreasures[1] && <TreasureCard item={featuredTreasures[1]} compact />}
+            {featuredTreasures[2] && <TreasureCard item={featuredTreasures[2]} compact />}
           </div>
-          <div className="md:col-span-4">
-            <TreasureCard item={TREASURES[9]} compact />
-          </div>
-          <div className="md:col-span-4">
-            <TreasureCard item={TREASURES[14]} compact />
-          </div>
-          <div className="md:col-span-4">
-            <TreasureCard item={TREASURES[18]} compact />
-          </div>
+          {featuredTreasures.slice(3, 6).map((item) => (
+            <div key={item!.id} className="md:col-span-4">
+              <TreasureCard item={item!} compact />
+            </div>
+          ))}
         </div>
       </section>
 
@@ -188,7 +205,7 @@ export default function HomePage() {
             className="object-cover"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-obsidian/80" />
+          <div className="absolute inset-0 bg-black/80" />
         </div>
         <div className="relative container-page py-20 md:py-28 grid md:grid-cols-[2fr,1fr] gap-10 items-end">
           <div>
@@ -217,8 +234,8 @@ export default function HomePage() {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="relative aspect-[4/3] overflow-hidden shadow-soft">
             <Image
-              src={BRAND_IMAGES.heroBg}
-              alt="Artisan hands crafting Kenyan treasures"
+              src={BRAND_IMAGES.atelierRoom}
+              alt="African decor room filled with cultural craft pieces"
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"

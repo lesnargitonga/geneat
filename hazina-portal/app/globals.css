@@ -3,18 +3,77 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: light;
+    --color-sand: 250 248 245;
+    --color-sand-dark: 240 235 227;
+    --color-obsidian: 28 26 23;
+    --color-obsidian-soft: 42 39 35;
+    --color-ink: 28 26 23;
+    --color-ink-soft: 42 39 35;
+    --color-ink-mute: 78 72 64;
+    --color-bronze: 166 124 82;
+    --color-bronze-dark: 139 102 66;
+    --color-bronze-light: 201 168 130;
+    --color-border: 234 230 223;
+    --color-sage: 139 154 107;
+    --color-sage-soft: 232 237 224;
+  }
+
+  :root[data-theme="night"] {
+    color-scheme: dark;
+    --color-sand: 21 20 18;
+    --color-sand-dark: 31 29 26;
+    --color-obsidian: 246 241 232;
+    --color-obsidian-soft: 232 222 205;
+    --color-ink: 246 241 232;
+    --color-ink-soft: 229 219 204;
+    --color-ink-mute: 179 166 148;
+    --color-bronze: 214 165 103;
+    --color-bronze-dark: 238 195 132;
+    --color-bronze-light: 245 213 166;
+    --color-border: 57 52 46;
+    --color-sage: 171 184 135;
+    --color-sage-soft: 47 54 38;
+  }
+
   html {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
   body {
-    @apply bg-sand text-ink font-sans min-h-screen;
+    @apply bg-sand text-ink font-sans font-normal text-[15px] md:text-base leading-relaxed min-h-screen;
   }
   a {
     @apply no-underline;
   }
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    @apply outline-none;
+  }
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply ring-2 ring-bronze ring-offset-2 ring-offset-sand;
+  }
   ::selection {
     background: rgba(226, 109, 92, 0.2);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
@@ -25,28 +84,28 @@
 
   .btn-dark {
     @apply inline-flex items-center justify-center gap-2 px-6 py-3
-           text-xs font-mono uppercase tracking-editorial
+           text-sm font-mono font-medium uppercase tracking-[0.12em]
            transition-all duration-300 active:scale-[0.98] disabled:opacity-50
            bg-obsidian text-sand hover:bg-obsidian-soft;
   }
   .btn-outline {
     @apply inline-flex items-center justify-center gap-2 px-6 py-3
-           text-xs font-mono uppercase tracking-editorial
+           text-sm font-mono font-medium uppercase tracking-[0.12em]
            transition-all duration-300 active:scale-[0.98] disabled:opacity-50
            border border-obsidian text-obsidian bg-transparent
            hover:bg-obsidian hover:text-sand;
   }
   .btn-bronze {
     @apply inline-flex items-center justify-center gap-2 px-6 py-3
-           text-xs font-mono uppercase tracking-editorial
+           text-sm font-mono font-medium uppercase tracking-[0.12em]
            transition-all duration-300 active:scale-[0.98] disabled:opacity-50
-           bg-bronze text-sand hover:bg-bronze-dark;
+           bg-bronze-dark text-sand hover:bg-bronze;
   }
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2 px-6 py-3
-           text-xs font-mono uppercase tracking-editorial
+           text-sm font-mono font-medium uppercase tracking-[0.12em]
            transition-all duration-300 active:scale-[0.98] disabled:opacity-50
-           border border-border text-ink-mute bg-transparent
+           border border-border text-ink-soft bg-transparent
            hover:border-obsidian hover:text-obsidian;
   }
 
@@ -55,10 +114,10 @@
   }
 
   .chip {
-    @apply inline-flex items-center gap-1 px-3 py-1 text-[10px] font-mono uppercase tracking-editorial;
+    @apply inline-flex items-center gap-1 px-3 py-1 text-[11px] font-mono font-medium uppercase tracking-[0.12em];
   }
   .chip-dark {
-    @apply chip bg-obsidian/90 text-sand backdrop-blur-sm;
+    @apply chip bg-black/90 text-white backdrop-blur-sm;
   }
   .chip-bronze {
     @apply chip border border-bronze/40 text-bronze;
@@ -68,7 +127,7 @@
   }
 
   .h-display {
-    @apply font-serif tracking-tight;
+    @apply font-serif font-semibold tracking-tight text-obsidian;
   }
 
   .editorial-rule {
@@ -76,11 +135,20 @@
   }
 
   .label-mono {
-    @apply font-mono text-[10px] uppercase tracking-editorial text-ink-mute;
+    @apply font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-ink-soft;
   }
 
   .card-luxury {
     @apply border border-border bg-sand transition-all duration-500
            hover:border-obsidian/20 hover:shadow-editorial;
+  }
+
+  .input-luxury {
+    @apply w-full border border-border bg-sand px-4 py-3 text-sm text-obsidian
+           placeholder:text-ink-mute/60 transition-colors focus:border-obsidian;
+  }
+
+  .panel-luxury {
+    @apply border border-border bg-sand shadow-soft;
   }
 }

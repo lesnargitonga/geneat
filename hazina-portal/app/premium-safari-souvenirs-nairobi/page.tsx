@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     title: "Premium Safari Souvenirs Nairobi",
     description:
       "Editorial gift collections for safari tourists — curated in Nairobi, delivered to your hotel or JKIA.",
-    images: [{ url: "/products/kenya-edit.png", alt: "The Kenya Edit — premium safari souvenir collection" }],
+    images: [{ url: "/treasures/curated-gift-box.png", alt: "Curated gift box with Kenyan coffee and craft pieces" }],
   },
 };
 
@@ -35,17 +35,17 @@ export default function SafariSouvenirsPage() {
   return (
     <>
       <section className="grid lg:grid-cols-2 min-h-[70vh]">
-        <div className="relative bg-obsidian flex items-end">
-          <div className="relative w-full aspect-[4/5] lg:aspect-auto lg:absolute lg:inset-0">
+        <div className="relative bg-obsidian flex items-end min-h-[420px] lg:min-h-[70vh]">
+          <div className="relative w-full aspect-[4/5] lg:absolute lg:inset-0 lg:aspect-auto">
             <ProductImage
               box={kenyaEdit}
               priority
-              className="rounded-none h-full lg:h-full aspect-[4/5] lg:aspect-auto"
+              className="rounded-none !absolute inset-0 h-full w-full"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-obsidian/60 via-transparent to-transparent lg:hidden" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
           </div>
-          <div className="relative z-10 p-8 md:p-12 lg:absolute lg:bottom-0 lg:left-0 lg:right-0 bg-gradient-to-t from-obsidian to-transparent pt-24">
+          <div className="relative z-10 p-8 md:p-12 lg:absolute lg:bottom-0 lg:left-0 lg:right-0 bg-gradient-to-t from-black to-transparent pt-24">
             <span className="label-mono text-sand/50">Safari edit · 24h lead</span>
             <h2 className="font-serif text-3xl md:text-4xl text-sand mt-2">{kenyaEdit.name}</h2>
             <div className="flex items-baseline gap-4 mt-3">
