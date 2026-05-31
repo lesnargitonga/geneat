@@ -27,6 +27,11 @@ export function Footer() {
               </Link>
             </li>
             <li>
+              <Link className="hover:text-sand transition-colors" href="/premium-safari-souvenirs-nairobi">
+                Safari souvenirs
+              </Link>
+            </li>
+            <li>
               <Link className="hover:text-sand transition-colors" href="/last-minute-kenya-gifts-jkia">
                 JKIA departure service
               </Link>

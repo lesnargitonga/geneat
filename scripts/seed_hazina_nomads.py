@@ -21,6 +21,14 @@ import uuid
 from sqlalchemy import delete, select
 
 from app.ai.rag import ingest_text
+from app.catalog.hazina_catalog import (
+    HAZINA_COLLECTIONS,
+    HAZINA_TREASURES,
+    MIN_CUSTOM_ITEMS,
+    PACKAGING_FEE_USD,
+    build_hazina_kb_catalog,
+    build_hazina_menu_photos,
+)
 from app.core.config import get_settings
 from app.db.models import Business, KnowledgeChunk
 from app.db.session import SessionLocal
@@ -42,87 +50,16 @@ BRAND_VOICE = (
     "(1–3 sentences), use the guest's name when known, and never use slang or "
     "campus-café tone. Confirm delivery location (hotel name and room, or JKIA "
     "terminal) and departure time before promising dispatch. Default currency is "
-    "KES for M-Pesa; quote USD equivalents when the guest asks. Zero custom "
-    "orders at launch unless they mention corporate or high-budget gifting."
+    "KES for M-Pesa; quote USD equivalents when the guest asks. Guests may order "
+    "five curated collections or compose a custom box from individual treasures "
+    f"(minimum {MIN_CUSTOM_ITEMS} items plus optional packaging USD {PACKAGING_FEE_USD})."
 )
 
 GREETING_TEMPLATE = (
     "Welcome to Hazina Nomads — curated treasures for the modern nomad. "
-    "I can help you shop our gift collections, arrange delivery to your hotel or "
-    "JKIA, or connect you with a concierge. How may I assist you today?"
+    "I can help you shop our gift collections, build a custom box, arrange delivery "
+    "to your hotel or JKIA, or connect you with a concierge. How may I assist you today?"
 )
-
-# MVP catalog — mirrored in KB chunks and profile.products for portal/tools.
-PRODUCTS: list[dict] = [
-    {
-        "id": "kenya-edit",
-        "sku": "HN-KE-001",
-        "name": "The Kenya Edit",
-        "price_usd": 89,
-        "price_kes": 11500,
-        "target": "Safari tourists, European/US visitors",
-        "contents": (
-            "Premium Kenyan coffee (250g), handmade Maasai beadwork "
-            "(bracelet or necklace), small artisan soapstone carving, printed brand story card"
-        ),
-        "lead_time_hours": 24,
-        "personalization": False,
-    },
-    {
-        "id": "highland-treasure",
-        "sku": "HN-HT-002",
-        "name": "The Highland Treasure",
-        "price_usd": 59,
-        "price_kes": 7600,
-        "target": "General gifting, diaspora, colleagues",
-        "contents": (
-            "Export-grade Kenyan coffee, premium Kenyan loose-leaf tea, "
-            "local raw honey, carved wooden tasting spoon"
-        ),
-        "lead_time_hours": 24,
-        "personalization": False,
-    },
-    {
-        "id": "nomad-leather-set",
-        "sku": "HN-NL-003",
-        "name": "The Nomad Leather Set",
-        "price_usd": 129,
-        "price_kes": 16600,
-        "target": "Business travellers, wealthy tourists",
-        "contents": "Handmade leather passport holder, luggage tag, and travel notebook",
-        "lead_time_hours": 24,
-        "personalization": True,
-        "personalization_note": "Engraving requires 24-hour notice",
-    },
-    {
-        "id": "safari-romance-box",
-        "sku": "HN-SR-004",
-        "name": "The Safari Romance Box",
-        "price_usd": 199,
-        "price_kes": 25600,
-        "target": "Honeymooners, anniversary trips",
-        "contents": (
-            "Matching couple's beadwork, premium treats (chocolate/coffee), "
-            "framed minimalist safari route map, leather luggage tags"
-        ),
-        "lead_time_hours": 48,
-        "personalization": True,
-    },
-    {
-        "id": "departure-drop",
-        "sku": "HN-DD-005",
-        "name": "The Departure Drop",
-        "price_usd": 149,
-        "price_kes": 19200,
-        "target": "Last-minute JKIA departures",
-        "contents": (
-            "Pre-packed fast-moving items: coffee, tea, un-personalized leather, beadwork"
-        ),
-        "lead_time_hours": 4,
-        "personalization": False,
-        "jkia_only": True,
-    },
-]
 
 PROFILE: dict = {
     "vertical": "retail",
@@ -140,57 +77,25 @@ PROFILE: dict = {
     "currency": "KES",
     "usd_pricing": True,
     "payment_methods": ["M-Pesa (IntaSend STK)", "Visa/Mastercard/Apple Pay (Paystack USD)"],
-    "custom_orders": False,
+    "custom_orders": True,
     "corporate_gifting": True,
     "timezone": "Africa/Nairobi",
     "delivery_zones": ["Westlands", "Kilimani", "Karen", "JKIA"],
     "jkia_delivery_window_hours": 4,
     "late_dispatch_fee_usd": 15,
     "late_dispatch_after": "20:00 EAT",
-    "products": PRODUCTS,
-    "menu_photos": {},
+    "products": HAZINA_COLLECTIONS,
+    "treasures": HAZINA_TREASURES,
+    "menu_photos": build_hazina_menu_photos(
+        os.environ.get("PUBLIC_HAZINA_PORTAL_URL", "https://hazina.lesnarai.co.ke")
+    ),
     "affiliate": {
         "host_commission_pct": 15,
         "referral_prefix": "REF-HOST-",
     },
 }
 
-KB_CATALOG: list[str] = [
-    (
-        "THE KENYA EDIT (SKU HN-KE-001) — USD 89 / KES 11,500. "
-        "Target: safari tourists, European/US visitors. "
-        "Includes: premium Kenyan coffee 250g, handmade Maasai beadwork "
-        "(bracelet or necklace), small artisan soapstone carving, printed brand story card. "
-        "Standard lead time: 24 hours. No custom contents at launch."
-    ),
-    (
-        "THE HIGHLAND TREASURE (SKU HN-HT-002) — USD 59 / KES 7,600. "
-        "Target: general gifting, diaspora, colleagues. "
-        "Includes: export-grade Kenyan coffee, premium Kenyan loose-leaf tea, "
-        "local raw honey, carved wooden tasting spoon. "
-        "Standard lead time: 24 hours."
-    ),
-    (
-        "THE NOMAD LEATHER SET (SKU HN-NL-003) — USD 129 / KES 16,600. "
-        "Target: business travellers, wealthy tourists. "
-        "Includes: handmade leather passport holder, luggage tag, travel notebook. "
-        "Personalized engraving requires 24-hour notice before dispatch."
-    ),
-    (
-        "THE SAFARI ROMANCE BOX (SKU HN-SR-004) — USD 199 / KES 25,600. "
-        "Target: honeymooners, anniversary trips. "
-        "Includes: matching couple's beadwork, premium treats (chocolate/coffee), "
-        "framed minimalist safari route map, leather luggage tags. "
-        "Allow 48 hours for assembly; engraving on leather tags needs 24-hour notice."
-    ),
-    (
-        "THE DEPARTURE DROP (SKU HN-DD-005) — USD 149 / KES 19,200. "
-        "Target: last-minute JKIA departures. "
-        "Includes: pre-packed coffee, tea, un-personalized leather, beadwork. "
-        "Guaranteed 4-hour delivery window to JKIA or Nairobi hotels — requires "
-        "customer's terminal number and confirmed departure time."
-    ),
-]
+KB_CATALOG: list[str] = build_hazina_kb_catalog()
 
 KB_POLICIES: list[str] = [
     (
@@ -212,14 +117,14 @@ KB_POLICIES: list[str] = [
         "4-hour window rule without the late fee if feasible."
     ),
     (
-        "CUSTOM ORDERS — We offer exactly five curated gift boxes at launch. "
-        "No bespoke/custom boxes unless the guest mentions corporate gifting or "
-        "a high-budget request; escalate those to a human concierge."
+        "CUSTOM BOXES — Guests may compose their own gift box from individual treasures "
+        f"(minimum {MIN_CUSTOM_ITEMS} items). Premium packaging (SKU HN-T-070) is optional. "
+        "Confirm each SKU, delivery location, and payment method before dispatch."
     ),
     (
         "PAYMENTS — Local guests: M-Pesa STK push via IntaSend (KES). "
         "International cards: USD checkout link via Paystack (Visa, Mastercard, Apple Pay). "
-        "Do not promise payment until the guest confirms their preferred method."
+        "Ask which method the guest prefers before initiating payment."
     ),
     (
         "BRAND POSITIONING — Hazina Nomads is a premium travel concierge, not a "
@@ -280,7 +185,10 @@ async def main(argv: argparse.Namespace) -> int:
         biz = await upsert_business(db)
         await db.commit()
         await db.refresh(biz)
-        print(f"  ✓ {biz.name} (id={biz.id}, slug={biz.slug})")
+        print(
+            f"  ✓ {biz.name} (id={biz.id}, slug={biz.slug}) — "
+            f"{len(HAZINA_COLLECTIONS)} collections, {len(HAZINA_TREASURES)} treasures"
+        )
 
         if not argv.skip_kb:
             print("→ Re-embedding knowledge base...")
@@ -296,6 +204,7 @@ async def main(argv: argparse.Namespace) -> int:
     print("Next steps:")
     print("  • Set DEFAULT_BUSINESS_SLUG=hazina-nomads in .env / Render")
     print("  • Point META_WA_PHONE_NUMBER_ID at this tenant when WA number is live")
+    print("  • Add PAYSTACK_SECRET_KEY for USD card checkout")
     print("  • python scripts/tenant_go_live_check.py --slug hazina-nomads")
     return 0
 

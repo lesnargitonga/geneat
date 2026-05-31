@@ -6,6 +6,7 @@ const NAV = [
   { href: "/treasures", label: "Treasures" },
   { href: "/collections", label: "Collections" },
   { href: "/build", label: "Build" },
+  { href: "/premium-safari-souvenirs-nairobi", label: "Safari" },
   { href: "/last-minute-kenya-gifts-jkia", label: "JKIA" },
   { href: "/about", label: "About" },
 ];

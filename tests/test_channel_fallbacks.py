@@ -69,6 +69,8 @@ def test_payment_cancel_intent_and_internal_kb_filter() -> None:
     assert _looks_like_payment_resend("tuma stk tena")
     assert _looks_like_payment_resend("No stk yet")
     assert _looks_like_payment_resend("STK haijafika")
+    assert _looks_like_payment_resend("resend link")
+    assert _looks_like_payment_resend("please send a new checkout link")
     assert not _looks_like_payment_resend("send me a croissant photo")
     assert not _looks_like_payment_resend("send payment receipt")
     assert _customer_safe_kb_snippet(

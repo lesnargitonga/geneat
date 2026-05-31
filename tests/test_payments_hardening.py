@@ -46,7 +46,7 @@ async def test_request_order_payment_retries_transient_failure(db, monkeypatch):
                 raise UpstreamError("temporary provider blip")
             return _FakeResult()
 
-    monkeypatch.setattr(cafe_automation, "get_payment_service", lambda: _FlakySvc())
+    monkeypatch.setattr(cafe_automation, "resolve_payment_service", lambda **kw: _FlakySvc())
 
     order = Order(amount=480, payment_status=PaymentStatus.pending, details={})
     attempt = await cafe_automation.request_order_payment(
@@ -72,7 +72,7 @@ async def test_request_order_payment_gives_up_after_persistent_failure(db, monke
             calls["n"] += 1
             raise UpstreamError("provider down")
 
-    monkeypatch.setattr(cafe_automation, "get_payment_service", lambda: _DeadSvc())
+    monkeypatch.setattr(cafe_automation, "resolve_payment_service", lambda **kw: _DeadSvc())
 
     order = Order(amount=480, payment_status=PaymentStatus.pending, details={})
     attempt = await cafe_automation.request_order_payment(

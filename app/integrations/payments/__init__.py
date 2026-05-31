@@ -12,6 +12,6 @@ Usage:
 Switching providers is a one-line `.env` change (`PAYMENT_PROVIDER=intasend`).
 """
 from app.integrations.payments.base import PaymentService, PaymentResult
-from app.integrations.payments.factory import get_payment_service
+from app.integrations.payments.factory import get_payment_service, resolve_payment_service
 
-__all__ = ["PaymentService", "PaymentResult", "get_payment_service"]
+__all__ = ["PaymentService", "PaymentResult", "get_payment_service", "resolve_payment_service"]

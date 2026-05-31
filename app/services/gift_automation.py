@@ -11,11 +11,17 @@ import json
 import re
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.catalog.hazina_catalog import (
+    HAZINA_COLLECTIONS,
+    MIN_CUSTOM_ITEMS,
+    PACKAGING_FEE_KES,
+    PACKAGING_FEE_USD,
+    hazina_treasure_by_sku,
+)
 from app.services.cafe_automation import (
     CafeOrderItem,
     create_order_and_request_payment,
@@ -25,57 +31,19 @@ from app.services.whatsapp_menus import HAZINA_NOMADS_SLUG, ID_PRODUCT_PREFIX
 
 HAZINA_SLUG = HAZINA_NOMADS_SLUG
 
-# Catalog mirrors scripts/seed_hazina_nomads.py PRODUCTS (id → row).
+# Curated collections for menu taps (id → row).
 HAZINA_PRODUCTS: dict[str, dict[str, Any]] = {
-    "kenya-edit": {
-        "name": "The Kenya Edit",
-        "sku": "HN-KE-001",
-        "price_kes": 11500,
-        "price_usd": 89,
-        "lead_time_hours": 24,
-        "jkia_only": False,
-        "blurb": (
-            "Premium Kenyan coffee (250g), Maasai beadwork, soapstone carving, "
-            "and a brand story card."
-        ),
-    },
-    "highland-treasure": {
-        "name": "The Highland Treasure",
-        "sku": "HN-HT-002",
-        "price_kes": 7600,
-        "price_usd": 59,
-        "lead_time_hours": 24,
-        "jkia_only": False,
-        "blurb": "Export-grade coffee, Kenyan tea, raw honey, and a carved tasting spoon.",
-    },
-    "nomad-leather-set": {
-        "name": "The Nomad Leather Set",
-        "sku": "HN-NL-003",
-        "price_kes": 16600,
-        "price_usd": 129,
-        "lead_time_hours": 24,
-        "jkia_only": False,
-        "blurb": "Handmade leather passport holder, luggage tag, and travel notebook.",
-        "personalization_note": "Engraving needs 24-hour notice.",
-    },
-    "safari-romance-box": {
-        "name": "The Safari Romance Box",
-        "sku": "HN-SR-004",
-        "price_kes": 25600,
-        "price_usd": 199,
-        "lead_time_hours": 48,
-        "jkia_only": False,
-        "blurb": "Couple's beadwork, premium treats, safari route map, and leather luggage tags.",
-    },
-    "departure-drop": {
-        "name": "The Departure Drop",
-        "sku": "HN-DD-005",
-        "price_kes": 19200,
-        "price_usd": 149,
-        "lead_time_hours": 4,
-        "jkia_only": True,
-        "blurb": "Pre-packed coffee, tea, leather, and beadwork — optimised for JKIA (4h window).",
-    },
+    row["id"]: {
+        "name": row["name"],
+        "sku": row["sku"],
+        "price_kes": row["price_kes"],
+        "price_usd": row["price_usd"],
+        "lead_time_hours": row["lead_time_hours"],
+        "jkia_only": bool(row.get("jkia_only")),
+        "blurb": row["contents"] if isinstance(row.get("contents"), str) else row["name"],
+        **({"personalization_note": row["personalization_note"]} if row.get("personalization_note") else {}),
+    }
+    for row in HAZINA_COLLECTIONS
 }
 
 _CHECKOUT_TTL = 3600
@@ -104,6 +72,16 @@ _DEPARTURE_RE = re.compile(
     r"\b(?:depart|departure|flight|leave|fly)\b.{0,30}\b(\d{1,2}[:\.]\d{2}|\d{1,2}\s*(?:am|pm)|today|tomorrow)",
     re.IGNORECASE,
 )
+_CUSTOM_BOX_INTRO_RE = re.compile(
+    r"\b(custom gift box|build a custom|compose.*box|custom box)\b",
+    re.IGNORECASE,
+)
+_SKU_LINE_RE = re.compile(r"\((HN-[A-Z0-9-]+)\)", re.IGNORECASE)
+_USD_PAY_RE = re.compile(
+    r"\b(usd|dollar|\$|card|visa|mastercard|apple pay|paystack|international)\b",
+    re.IGNORECASE,
+)
+_EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
 
 
 @dataclass(frozen=True)
@@ -112,6 +90,14 @@ class GiftAutomationResult:
     interactive: dict | None = None
     escalated: bool = False
     safety_flag: str = "deterministic:gift_automation"
+
+
+@dataclass(frozen=True)
+class ParsedCustomBox:
+    items: list[CafeOrderItem]
+    total_kes: float
+    total_usd: float
+    skus: list[str]
 
 
 def is_hazina_slug(slug: str | None) -> bool:
@@ -163,6 +149,67 @@ def looks_like_hazina_track(text: str) -> bool:
 
 def looks_like_hazina_corporate(text: str) -> bool:
     return bool(_CORPORATE_RE.search(text or ""))
+
+
+def is_custom_box_handoff(text: str) -> bool:
+    body = text or ""
+    if _CUSTOM_BOX_INTRO_RE.search(body):
+        return True
+    return len(_SKU_LINE_RE.findall(body)) >= MIN_CUSTOM_ITEMS
+
+
+def detect_payment_currency(text: str, *, checkout: dict | None = None) -> str:
+    if checkout and checkout.get("payment_currency"):
+        return str(checkout["payment_currency"]).upper()
+    return "USD" if _USD_PAY_RE.search(text or "") else "KES"
+
+
+def parse_custom_box_handoff(text: str) -> ParsedCustomBox | None:
+    body = text or ""
+    skus = _SKU_LINE_RE.findall(body)
+    if not skus and not _CUSTOM_BOX_INTRO_RE.search(body):
+        return None
+
+    items: list[CafeOrderItem] = []
+    seen: set[str] = set()
+    total_kes = 0.0
+    total_usd = 0.0
+    resolved_skus: list[str] = []
+
+    for sku in skus:
+        row = hazina_treasure_by_sku(sku)
+        if row is None or row["sku"] in seen:
+            continue
+        seen.add(row["sku"])
+        resolved_skus.append(row["sku"])
+        items.append(
+            CafeOrderItem(
+                sku_or_name=f"{row['name']} ({row['sku']})",
+                qty=1,
+                unit_price=float(row["price_kes"]),
+            )
+        )
+        total_kes += float(row["price_kes"])
+        total_usd += float(row["price_usd"])
+
+    if re.search(r"premium packaging", body, re.IGNORECASE) and "HN-T-070" not in seen:
+        packaging = hazina_treasure_by_sku("HN-T-070")
+        if packaging:
+            seen.add("HN-T-070")
+            resolved_skus.append("HN-T-070")
+            items.append(
+                CafeOrderItem(
+                    sku_or_name=f"{packaging['name']} ({packaging['sku']})",
+                    qty=1,
+                    unit_price=float(PACKAGING_FEE_KES),
+                )
+            )
+            total_kes += float(PACKAGING_FEE_KES)
+            total_usd += float(PACKAGING_FEE_USD)
+
+    if len(items) < MIN_CUSTOM_ITEMS:
+        return None
+    return ParsedCustomBox(items=items, total_kes=total_kes, total_usd=total_usd, skus=resolved_skus)
 
 
 async def _get_checkout(conv_id: uuid.UUID) -> dict | None:
@@ -245,6 +292,18 @@ def _ask_delivery_reply(product_id: str, *, is_sw: bool) -> str:
     )
 
 
+def _ask_custom_delivery_reply(*, item_count: int, total_kes: float, is_sw: bool) -> str:
+    if is_sw:
+        return (
+            f"Sanduku lako la desturi ({item_count} vitu, KES {int(total_kes):,}) — "
+            "niambie hoteli + chumba, au JKIA + terminal, na muda wa ndege ikiwa unaondoka."
+        )
+    return (
+        f"Your custom box ({item_count} treasures, KES {int(total_kes):,}) — "
+        "share hotel + room, or JKIA + terminal, and departure time if you're flying out."
+    )
+
+
 def _corporate_reply(*, is_sw: bool) -> str:
     if is_sw:
         return (
@@ -254,6 +313,36 @@ def _corporate_reply(*, is_sw: bool) -> str:
     return (
         "Corporate gifting — we handle team and event orders with curated packaging. "
         "I've asked a concierge to join this chat shortly with bulk pricing and timelines."
+    )
+
+
+def _payment_success_reply(
+    *,
+    summary: str,
+    amount_kes: int,
+    amount_usd: float,
+    delivery_location: str,
+    payment,
+    is_sw: bool,
+) -> str:
+    if payment and payment.currency == "USD" and payment.redirect_url:
+        if is_sw:
+            return (
+                f"Nimeandaa {summary} (USD {amount_usd:.0f}) kwa uwasilishaji: {delivery_location}. "
+                f"Lipa hapa: {payment.redirect_url}"
+            )
+        return (
+            f"I've set up {summary} at USD {amount_usd:.0f} for delivery to {delivery_location}. "
+            f"Pay securely here: {payment.redirect_url}"
+        )
+    if is_sw:
+        return (
+            f"Nimeandaa {summary} ya KES {amount_kes:,} kwa uwasilishaji: {delivery_location}. "
+            "Angalia STK kwa simu na weka PIN; nitathibitisha malipo yakifika."
+        )
+    return (
+        f"I've set up {summary} at KES {amount_kes:,} for delivery to {delivery_location}. "
+        "Check your phone for the M-Pesa STK prompt and enter your PIN — I'll confirm once payment lands."
     )
 
 
@@ -301,6 +390,7 @@ async def _track_delivery_reply(
     loc = details.get("delivery_location") or details.get("delivery_notes") or ""
     loc_bit = f" to {loc}" if loc else ""
     pay = order.payment_status.value
+    pay_cur = str(details.get("payment_currency") or "KES").upper()
     if pay == PaymentStatus.paid.value:
         status_en = {
             "pending_payment": "paid — dispatch being scheduled",
@@ -311,6 +401,11 @@ async def _track_delivery_reply(
             return f"{summary}{loc_bit}: malipo yamethibitishwa, hali — {status_en}."
         return f"{summary}{loc_bit}: payment confirmed — {status_en}."
     if pay == PaymentStatus.pending.value:
+        if pay_cur == "USD":
+            amt = float(details.get("amount_usd") or 0)
+            if is_sw:
+                return f"{summary} ya USD {amt:.0f} bado inasubiri malipo. Andika 'resend link' kwa kiungo kipya."
+            return f"{summary} at USD {amt:.0f} is awaiting payment. Type 'resend link' for a fresh checkout link."
         if is_sw:
             return (
                 f"{summary} ya KES {int(float(order.amount or 0)):,} bado inasubiri malipo. "
@@ -330,7 +425,6 @@ async def _track_delivery_reply(
 def _parse_departure_iso(text: str) -> str | None:
     if not _DEPARTURE_RE.search(text or ""):
         return None
-    # Store raw capture for concierge ops — full ISO parsing is LLM/tool territory.
     snippet = (text or "").strip()[:120]
     return snippet
 
@@ -347,6 +441,8 @@ async def _finalize_order(
     departure_note: str | None,
     customer_name: str | None,
     is_sw: bool,
+    payment_currency: str = "KES",
+    payment_email: str | None = None,
 ) -> GiftAutomationResult:
     row = HAZINA_PRODUCTS[product_id]
     items = [
@@ -371,8 +467,10 @@ async def _finalize_order(
         items=items,
         delivery_notes=" | ".join(notes_parts),
         fast_path="hazina_gift_checkout",
+        payment_currency=payment_currency,
+        amount_usd=float(row["price_usd"]) if payment_currency == "USD" else None,
+        payment_email=payment_email,
     )
-    # Patch delivery fields on the order row
     order = result.order
     details = dict(order.details or {})
     details["delivery_location"] = delivery_location
@@ -384,32 +482,100 @@ async def _finalize_order(
     await db.flush()
     await _clear_checkout(conversation_id)
 
-    amount = result.amount_kes
-    summary = row["name"]
     if result.payment and not result.payment.ok:
         msg = (
-            f"Sijaweza kutuma STK: {result.payment.message}. Jaribu tena baada ya muda mfupi."
+            f"Sijaweza kuanzisha malipo: {result.payment.message}. Jaribu tena baada ya muda mfupi."
             if is_sw else
-            f"I could not send the M-Pesa prompt yet: {result.payment.message}. Try again shortly."
+            f"I could not start payment yet: {result.payment.message}. Try again shortly."
         )
         return GiftAutomationResult(reply=msg, safety_flag="deterministic:hazina_payment_failed")
 
-    if is_sw:
-        reply = (
-            f"Nimeandaa {summary} ya KES {amount:,} kwa uwasilishaji: {delivery_location}. "
-            "Angalia STK kwa simu na weka PIN; nitathibitisha malipo yakifika."
-        )
-    else:
-        reply = (
-            f"I've set up {summary} at KES {amount:,} for delivery to {delivery_location}. "
-            "Check your phone for the M-Pesa STK prompt and enter your PIN — I'll confirm once payment lands."
-        )
     from app.services.whatsapp_menus import order_actions_payload
 
+    reply = _payment_success_reply(
+        summary=row["name"],
+        amount_kes=int(float(row["price_kes"])),
+        amount_usd=float(row["price_usd"]),
+        delivery_location=delivery_location,
+        payment=result.payment,
+        is_sw=is_sw,
+    )
     return GiftAutomationResult(
         reply=reply,
         interactive=order_actions_payload(language="sw" if is_sw else "en", business_slug=HAZINA_SLUG),
         safety_flag="deterministic:hazina_checkout",
+    )
+
+
+async def _finalize_custom_order(
+    db: AsyncSession,
+    *,
+    customer_id: uuid.UUID,
+    conversation_id: uuid.UUID,
+    business_id: uuid.UUID | None,
+    msisdn: str,
+    parsed: ParsedCustomBox,
+    delivery_location: str,
+    departure_note: str | None,
+    customer_name: str | None,
+    is_sw: bool,
+    payment_currency: str,
+    payment_email: str | None,
+) -> GiftAutomationResult:
+    notes_parts = [f"Custom box — {', '.join(parsed.skus)}"]
+    if customer_name:
+        notes_parts.append(f"Guest: {customer_name}")
+    if departure_note:
+        notes_parts.append(f"Departure: {departure_note}")
+
+    result = await create_order_and_request_payment(
+        db,
+        customer_id=customer_id,
+        conversation_id=conversation_id,
+        business_id=business_id,
+        msisdn=msisdn,
+        items=parsed.items,
+        delivery_notes=" | ".join(notes_parts),
+        fast_path="hazina_custom_box",
+        payment_currency=payment_currency,
+        amount_usd=parsed.total_usd if payment_currency == "USD" else None,
+        payment_email=payment_email,
+    )
+    order = result.order
+    details = dict(order.details or {})
+    details["delivery_location"] = delivery_location
+    if departure_note:
+        details["departure_time_iso"] = departure_note
+    details["order_type"] = "custom_box"
+    details["treasure_skus"] = parsed.skus
+    details["fulfillment_status"] = "pending_payment"
+    order.details = details
+    await db.flush()
+    await _clear_checkout(conversation_id)
+
+    summary = order_items_summary(parsed.items) or "your custom box"
+    if result.payment and not result.payment.ok:
+        msg = (
+            f"Sijaweza kuanzisha malipo: {result.payment.message}."
+            if is_sw else
+            f"I could not start payment: {result.payment.message}."
+        )
+        return GiftAutomationResult(reply=msg, safety_flag="deterministic:hazina_custom_payment_failed")
+
+    from app.services.whatsapp_menus import order_actions_payload
+
+    reply = _payment_success_reply(
+        summary=summary,
+        amount_kes=int(parsed.total_kes),
+        amount_usd=parsed.total_usd,
+        delivery_location=delivery_location,
+        payment=result.payment,
+        is_sw=is_sw,
+    )
+    return GiftAutomationResult(
+        reply=reply,
+        interactive=order_actions_payload(language="sw" if is_sw else "en", business_slug=HAZINA_SLUG),
+        safety_flag="deterministic:hazina_custom_checkout",
     )
 
 
@@ -431,6 +597,10 @@ async def try_hazina_automation(
     is_sw = (language or "").lower().startswith(("sw", "she")) or (
         (getattr(customer, "preferred_language", None) or "").lower().startswith(("sw", "she"))
     )
+    payment_email = None
+    email_match = _EMAIL_RE.search(text or "")
+    if email_match:
+        payment_email = email_match.group(0)
 
     if looks_like_hazina_corporate(text):
         return GiftAutomationResult(
@@ -456,7 +626,71 @@ async def try_hazina_automation(
         )
 
     checkout = await _get_checkout(conversation_id)
-    if checkout and checkout.get("step") == "delivery":
+
+    if checkout and checkout.get("step") in {"delivery", "departure", "custom_delivery"}:
+        if checkout.get("order_type") == "custom_box":
+            location = (text or "").strip()
+            if checkout.get("step") == "custom_delivery":
+                if len(location) < 6:
+                    return GiftAutomationResult(
+                        reply=(
+                            "Tafadhali niambie hoteli + chumba, au JKIA + terminal."
+                            if is_sw else
+                            "Please share hotel + room, or JKIA + terminal."
+                        ),
+                        safety_flag="deterministic:hazina_custom_need_location",
+                    )
+                departure = _parse_departure_iso(text) if _JKIA_RE.search(location) else None
+                if _JKIA_RE.search(location) and not departure:
+                    checkout["delivery_location"] = location
+                    checkout["step"] = "departure"
+                    await _set_checkout(conversation_id, checkout)
+                    return GiftAutomationResult(
+                        reply=(
+                            "Asante. Niambie muda wa ndege yako inayotarajiwa kuondoka."
+                            if is_sw else
+                            "Got it. What time is your flight departing?"
+                        ),
+                        safety_flag="deterministic:hazina_custom_need_departure",
+                    )
+                if checkout.get("step") == "departure":
+                    departure = _parse_departure_iso(text) or location
+                    location = str(checkout.get("delivery_location") or location)
+                parsed_data = checkout.get("custom_box") or {}
+                items = [
+                    CafeOrderItem(
+                        str(r.get("sku_or_name") or ""),
+                        qty=int(r.get("qty") or 1),
+                        unit_price=float(r.get("unit_price") or 0),
+                    )
+                    for r in (parsed_data.get("items") or [])
+                    if isinstance(r, dict)
+                ]
+                if len(items) < MIN_CUSTOM_ITEMS:
+                    await _clear_checkout(conversation_id)
+                    return None
+                parsed = ParsedCustomBox(
+                    items=items,
+                    total_kes=float(parsed_data.get("total_kes") or 0),
+                    total_usd=float(parsed_data.get("total_usd") or 0),
+                    skus=list(parsed_data.get("skus") or []),
+                )
+                pay_cur = detect_payment_currency(text, checkout=checkout)
+                return await _finalize_custom_order(
+                    db,
+                    customer_id=customer.id,
+                    conversation_id=conversation_id,
+                    business_id=business_id,
+                    msisdn=customer.phone_number,
+                    parsed=parsed,
+                    delivery_location=location,
+                    departure_note=departure,
+                    customer_name=getattr(customer, "name", None),
+                    is_sw=is_sw,
+                    payment_currency=pay_cur,
+                    payment_email=payment_email,
+                )
+
         product_id = str(checkout.get("product_id") or "")
         if product_id not in HAZINA_PRODUCTS:
             await _clear_checkout(conversation_id)
@@ -487,7 +721,7 @@ async def try_hazina_automation(
         if checkout.get("step") == "departure":
             departure = _parse_departure_iso(text) or location
             location = str(checkout.get("delivery_location") or location)
-        name = getattr(customer, "name", None)
+        pay_cur = detect_payment_currency(text, checkout=checkout)
         return await _finalize_order(
             db,
             customer_id=customer.id,
@@ -497,8 +731,35 @@ async def try_hazina_automation(
             product_id=product_id,
             delivery_location=location,
             departure_note=departure,
-            customer_name=name,
+            customer_name=getattr(customer, "name", None),
             is_sw=is_sw,
+            payment_currency=pay_cur,
+            payment_email=payment_email,
+        )
+
+    parsed_box = parse_custom_box_handoff(text)
+    if parsed_box:
+        await _set_checkout(
+            conversation_id,
+            {
+                "order_type": "custom_box",
+                "step": "custom_delivery",
+                "custom_box": {
+                    "items": [i.to_order_dict() for i in parsed_box.items],
+                    "total_kes": parsed_box.total_kes,
+                    "total_usd": parsed_box.total_usd,
+                    "skus": parsed_box.skus,
+                },
+                "payment_currency": detect_payment_currency(text),
+            },
+        )
+        return GiftAutomationResult(
+            reply=_ask_custom_delivery_reply(
+                item_count=len(parsed_box.items),
+                total_kes=parsed_box.total_kes,
+                is_sw=is_sw,
+            ),
+            safety_flag="deterministic:hazina_custom_start",
         )
 
     product_id = resolve_product_id(text, interactive_id=interactive_id)
@@ -536,7 +797,7 @@ async def finalize_checkout_from_ai(
     order_id: str | None,
     language: str | None,
 ) -> GiftAutomationResult | None:
-    """After AI create_order, push STK on the same fast payment path."""
+    """After AI create_order, push payment on the same fast payment path."""
     if not order_id:
         return None
     from sqlalchemy import select
@@ -551,28 +812,39 @@ async def finalize_checkout_from_ai(
         return None
     if getattr(order, "mpesa_checkout_id", None):
         return None
+    details = order.details if isinstance(order.details, dict) else {}
+    pay_cur = str(details.get("payment_currency") or "KES").upper()
     payment = await request_order_payment(
-        db, order=order, msisdn=msisdn, business_id=business_id,
+        db, order=order, msisdn=msisdn, business_id=business_id, currency=pay_cur,
     )
     is_sw = (language or "").lower().startswith(("sw", "she"))
     if not payment.ok:
         return GiftAutomationResult(
             reply=(
-                f"Sijaweza kutuma STK: {payment.message}"
+                f"Sijaweza kuanzisha malipo: {payment.message}"
                 if is_sw else
-                f"I could not send the M-Pesa prompt: {payment.message}"
+                f"I could not start payment: {payment.message}"
             ),
             safety_flag="deterministic:hazina_ai_payment",
         )
-    amount = int(float(order.amount or 0))
     from app.services.whatsapp_menus import order_actions_payload
 
-    return GiftAutomationResult(
-        reply=(
+    if pay_cur == "USD" and payment.redirect_url:
+        amt = float(details.get("amount_usd") or 0)
+        reply = (
+            f"Kiungo cha malipo cha USD {amt:.0f}: {payment.redirect_url}"
+            if is_sw else
+            f"Paystack link for USD {amt:.0f}: {payment.redirect_url}"
+        )
+    else:
+        amount = int(float(order.amount or 0))
+        reply = (
             f"Nimetuma STK ya KES {amount:,}. Weka PIN; nitathibitisha malipo."
             if is_sw else
             f"M-Pesa STK sent for KES {amount:,}. Enter your PIN and I'll confirm payment."
-        ),
+        )
+    return GiftAutomationResult(
+        reply=reply,
         interactive=order_actions_payload(language=language, business_slug=HAZINA_SLUG),
         safety_flag="deterministic:hazina_ai_stk",
     )

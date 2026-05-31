@@ -19,7 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.ai.quick_replies import MenuOrderMatch, match_order_item_from_chunks
 from app.core.exceptions import RateLimited, UpstreamError
 from app.db.models import Conversation, Order, PaymentStatus
-from app.integrations.payments import get_payment_service
+from app.integrations.payments import get_payment_service, resolve_payment_service
 
 
 @dataclass(frozen=True)
@@ -51,6 +51,8 @@ class PaymentAttempt:
     checkout_id: str | None = None
     provider: str | None = None
     error: str | None = None
+    redirect_url: str | None = None
+    currency: str = "KES"
 
 
 @dataclass(frozen=True)
@@ -289,22 +291,40 @@ async def request_order_payment(
     order: Order,
     msisdn: str,
     business_id: uuid.UUID | None,
+    currency: str | None = None,
+    payment_email: str | None = None,
 ) -> PaymentAttempt:
     from app.jobs.runner import enqueue_job
 
-    svc = get_payment_service()
+    details = order.details if isinstance(order.details, dict) else {}
+    pay_currency = (currency or details.get("payment_currency") or "KES").upper()
+    try:
+        svc = resolve_payment_service(currency=pay_currency)
+    except UpstreamError as exc:
+        return PaymentAttempt(ok=False, message=exc.message, error="upstream", currency=pay_currency)
+
+    pay_amount = float(order.amount or 0)
+    if pay_currency == "USD":
+        pay_amount = float(details.get("amount_usd") or 0)
+        if pay_amount <= 0:
+            pay_amount = round(float(order.amount or 0) / 129.0, 2)
     # One quiet retry shields customers from transient provider blips
     # (network/upstream hiccups) so a clear order intent still gets its STK
     # instead of an awkward "could not start payment" on the first attempt.
     result = None
     for attempt in range(2):
         try:
-            result = await svc.request_payment(
-                msisdn=msisdn,
-                amount=float(order.amount or 0),
-                reference=str(order.id)[:8],
-                description="Order Payment",
-            )
+            kwargs: dict[str, object] = {
+                "msisdn": msisdn,
+                "amount": pay_amount,
+                "reference": str(order.id)[:8],
+                "description": "Order Payment",
+            }
+            if pay_currency == "USD" and svc.name == "paystack":
+                kwargs["currency"] = "USD"
+                if payment_email:
+                    kwargs["email"] = payment_email
+            result = await svc.request_payment(**kwargs)
             break
         except RateLimited as exc:
             return PaymentAttempt(ok=False, message=exc.message, error="rate_limited")
@@ -339,14 +359,19 @@ async def request_order_payment(
                     "poll_count": 1,
                 },
             )
-        message = f"STK push sent to {msisdn} via {svc.name}."
-        if result.redirect_url:
-            message += f" Pay link: {result.redirect_url}"
+        if pay_currency == "USD" and result.redirect_url:
+            message = f"Paystack checkout link ready for USD {pay_amount:.2f}."
+        else:
+            message = f"STK push sent to {msisdn} via {svc.name}."
+            if result.redirect_url:
+                message += f" Pay link: {result.redirect_url}"
         return PaymentAttempt(
             ok=True,
             message=message,
             checkout_id=result.reference,
             provider=svc.name,
+            redirect_url=result.redirect_url,
+            currency=pay_currency,
         )
     except Exception as exc:  # noqa: BLE001
         return PaymentAttempt(ok=False, message=str(exc), error="unexpected")
@@ -362,6 +387,9 @@ async def create_order_and_request_payment(
     items: Sequence[CafeOrderItem],
     delivery_notes: str | None = None,
     fast_path: str | None = None,
+    payment_currency: str = "KES",
+    amount_usd: float | None = None,
+    payment_email: str | None = None,
 ) -> CafeOrderAutomationResult:
     order, created = await create_pending_order(
         db,
@@ -372,6 +400,14 @@ async def create_order_and_request_payment(
         delivery_notes=delivery_notes,
         fast_path=fast_path,
     )
+    if amount_usd or payment_currency.upper() == "USD":
+        details = dict(order.details or {})
+        details["payment_currency"] = payment_currency.upper()
+        if amount_usd is not None:
+            details["amount_usd"] = round(float(amount_usd), 2)
+        order.details = details
+        await db.flush()
+
     if order.mpesa_checkout_id and not created:
         return CafeOrderAutomationResult(order=order, created=False, payment=None)
     payment = await request_order_payment(
@@ -379,5 +415,7 @@ async def create_order_and_request_payment(
         order=order,
         msisdn=msisdn,
         business_id=business_id,
+        currency=payment_currency,
+        payment_email=payment_email,
     )
     return CafeOrderAutomationResult(order=order, created=created, payment=payment)

@@ -103,12 +103,13 @@ _PAYMENT_CANCEL_RE = re.compile(
     re.IGNORECASE,
 )
 _PAYMENT_RESEND_RE = re.compile(
-    r"\b(resend|send again|retry|try again|tuma tena)\b.*\b(stk|payment|pay|malipo|mpesa|m-pesa)\b|"
-    r"\b(send|tuma)\b.*\b(stk|mpesa|m-pesa)\b|"
-    r"\b(stk|payment|pay|malipo|mpesa|m-pesa)\b.*\b(resend|send again|retry|try again|tuma tena)\b|"
-    r"\b(stk|mpesa|m-pesa)\b.*\b(send|tuma)\b|"
-    r"\b(no|not|never|haven'?t|hasn'?t|didn'?t)\b.{0,40}\b(stk|mpesa|m-pesa|prompt)\b|"
-    r"\b(stk|mpesa|m-pesa|prompt)\b.{0,40}\b(no|not|never|missing|absent|haijafika)\b",
+    r"\b(resend|send again|retry|try again|tuma tena)\b.*\b(stk|payment|pay|malipo|mpesa|m-pesa|link|checkout)\b|"
+    r"\b(send|tuma)\b.*\b(stk|mpesa|m-pesa|link)\b|"
+    r"\b(stk|payment|pay|malipo|mpesa|m-pesa|link|checkout)\b.*\b(resend|send again|retry|try again|tuma tena)\b|"
+    r"\b(stk|mpesa|m-pesa|link)\b.*\b(send|tuma)\b|"
+    r"\b(resend link|send link|new link|checkout link|pay link)\b|"
+    r"\b(no|not|never|haven'?t|hasn'?t|didn'?t)\b.{0,40}\b(stk|mpesa|m-pesa|prompt|link)\b|"
+    r"\b(stk|mpesa|m-pesa|prompt|link)\b.{0,40}\b(no|not|never|missing|absent|haijafika|expired)\b",
     re.IGNORECASE,
 )
 _PAYMENT_CLAIM_RE = re.compile(
@@ -1200,10 +1201,7 @@ async def _resend_pending_payment_reply(
     text: str,
     language: str | None,
 ) -> str:
-    from datetime import datetime, timedelta, timezone
-    from app.core.exceptions import RateLimited, UpstreamError
-    from app.integrations.payments import get_payment_service
-    from app.jobs.runner import enqueue_job
+    from app.services.cafe_automation import request_order_payment
 
     order = await _latest_pending_order_for_turn(
         db,
@@ -1217,52 +1215,40 @@ async def _resend_pending_payment_reply(
         return (
             "Sioni oda inayosubiri malipo ya kutumiwa STK upya. Niambie item unayotaka kuagiza."
             if is_sw else
-            "I do not see an unpaid order to resend an STK for. Tell me the item you want to order."
+            "I do not see an unpaid order to resend payment for. Tell me the item you want to order."
         )
 
-    try:
-        await _cancel_jobs_for_order(db, order_id=order.id, business_id=business_id)
-        svc = get_payment_service()
-        result = await svc.request_payment(
-            msisdn=customer.phone_number,
-            amount=float(order.amount or 0),
-            reference=str(order.id)[:8],
-            description="Order Payment",
-        )
-        order.mpesa_checkout_id = result.reference
-        if svc.name == "intasend":
-            await enqueue_job(
-                db,
-                kind="payment.intasend_poll",
-                business_id=business_id,
-                run_at=datetime.now(timezone.utc) + timedelta(seconds=20),
-                max_attempts=1,
-                ttl_seconds=10 * 60,
-                payload={
-                    "order_id": str(order.id),
-                    "checkout_id": result.reference,
-                    "poll_count": 1,
-                },
-            )
-    except RateLimited as exc:
-        reason = exc.message
-    except UpstreamError as exc:
-        reason = exc.message
-    except Exception as exc:  # noqa: BLE001
-        reason = str(exc)
-    else:
-        amount = int(float(order.amount or 0))
+    await _cancel_jobs_for_order(db, order_id=order.id, business_id=business_id)
+    details = order.details if isinstance(order.details, dict) else {}
+    pay_cur = str(details.get("payment_currency") or "KES").upper()
+    attempt = await request_order_payment(
+        db,
+        order=order,
+        msisdn=customer.phone_number,
+        business_id=business_id,
+        currency=pay_cur,
+    )
+    if attempt.ok:
         summary = _order_items_summary_from_details(order.details)
+        if pay_cur == "USD" and attempt.redirect_url:
+            amt = float(details.get("amount_usd") or 0)
+            return (
+                f"Kiungo kipya cha malipo cha {summary} (USD {amt:.0f}): {attempt.redirect_url}"
+                if is_sw else
+                f"Fresh Paystack link for {summary} at USD {amt:.0f}: {attempt.redirect_url}"
+            )
+        amount = int(float(order.amount or 0))
         return (
             f"Nimetuma STK mpya ya {summary} ya KES {amount}. Weka PIN; nitathibitisha malipo yakifika."
             if is_sw else
             f"Sent a fresh STK for {summary} at KES {amount}. Enter your PIN; I will confirm once payment lands."
         )
 
+    reason = attempt.message or attempt.error or "unknown error"
     return (
-        f"Sijaweza kutuma STK mpya bado: {reason}. Jaribu tena baada ya muda mfupi."
+        f"Sijaweza kutuma malipo mpya bado: {reason}. Jaribu tena baada ya muda mfupi."
         if is_sw else
-        f"I could not resend the STK yet: {reason}. Please try again in a moment."
+        f"I could not resend payment yet: {reason}. Please try again in a moment."
     )
 
 

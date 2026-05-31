@@ -54,6 +54,13 @@ class CreateOrderArgs(BaseModel):
     appointment_time_iso: str | None = Field(
         None, description="ISO-8601 if this order is also a booking (e.g. salon, clinic).",
     )
+    payment_currency: str | None = Field(
+        None,
+        description="KES (default) for M-Pesa STK, or USD for Paystack card checkout.",
+    )
+    amount_usd: float | None = Field(
+        None, gt=0, description="USD total when payment_currency is USD.",
+    )
 
 
 class DhlShippingArgs(BaseModel):
@@ -65,6 +72,13 @@ class MpesaArgs(BaseModel):
     amount_kes: float = Field(..., gt=0)
     order_reference: str = Field(..., description="Short reference, max 12 chars.")
     msisdn: str = Field(..., description="E.164 phone number to charge.")
+    currency: str = Field(
+        "KES",
+        description="KES for M-Pesa STK; USD for Paystack card checkout link.",
+    )
+    amount_usd: float | None = Field(
+        None, gt=0, description="USD amount when currency is USD.",
+    )
 
 
 class BookingArgs(BaseModel):
@@ -165,6 +179,8 @@ def build_tools(
         delivery_location: str | None = None,
         departure_time_iso: str | None = None,
         appointment_time_iso: str | None = None,
+        payment_currency: str | None = None,
+        amount_usd: float | None = None,
     ) -> dict:
         # Normalise items — StructuredTool may pass them as dicts.
         items = [i if isinstance(i, OrderItem) else OrderItem(**i) for i in items]
@@ -174,6 +190,8 @@ def build_tools(
             delivery_location=delivery_location,
             departure_time_iso=departure_time_iso,
             appointment_time_iso=appointment_time_iso,
+            payment_currency=payment_currency,
+            amount_usd=amount_usd,
         )
         t0 = time.perf_counter()
         if not conversation_id:
@@ -252,6 +270,16 @@ def build_tools(
             fast_path="llm_tool",
             appointment_time=appt,
         )
+        pay_cur = (args.payment_currency or "KES").upper()
+        if pay_cur == "USD" or args.amount_usd:
+            details = dict(order.details or {})
+            details["payment_currency"] = pay_cur
+            if args.amount_usd is not None:
+                details["amount_usd"] = round(float(args.amount_usd), 2)
+            elif pay_cur == "USD":
+                details["amount_usd"] = round(float(amount) / 129.0, 2)
+            order.details = details
+            await db.flush()
 
         result = {
             "ok": True,
@@ -260,6 +288,11 @@ def build_tools(
             "payment_status": "pending",
             "message": "Order recorded; payment must be confirmed before ready notifications are sent.",
         }
+        if pay_cur == "USD":
+            usd_val = (order.details or {}).get("amount_usd")
+            if usd_val is not None:
+                result["amount_usd"] = float(usd_val)
+                result["payment_currency"] = "USD"
         await _audit("create_order", args.model_dump(), result, True, t0)
         return result
 
@@ -268,12 +301,20 @@ def build_tools(
         amount_kes: float,
         order_reference: str,
         msisdn: str,
+        currency: str = "KES",
+        amount_usd: float | None = None,
     ) -> dict:
-        args = MpesaArgs(amount_kes=amount_kes, order_reference=order_reference, msisdn=msisdn)
-        """Trigger STK push. Routes through the active PaymentService
-        adapter (daraja | intasend | paystack | stripe), picked by
-        PAYMENT_PROVIDER env var. Tool name kept as 'mpesa' since that's
-        what the user-facing prompt knows.
+        args = MpesaArgs(
+            amount_kes=amount_kes,
+            order_reference=order_reference,
+            msisdn=msisdn,
+            currency=currency,
+            amount_usd=amount_usd,
+        )
+        """Trigger STK push or USD checkout link. Routes through
+        ``resolve_payment_service`` (IntaSend for KES, Paystack for USD).
+
+        Tool name kept as 'mpesa' since that's what the user-facing prompt knows.
 
         Idempotency: short-lived Redis lock keyed on
         (conversation, msisdn, order_reference, amount) prevents duplicate
@@ -282,11 +323,12 @@ def build_tools(
         from app.core.exceptions import RateLimited, UpstreamError
         from app.core.redis_client import claim_with_result, store_result
         from app.core.security import normalize_msisdn
-        from app.integrations.payments import get_payment_service
+        from app.integrations.payments import resolve_payment_service
         from app.db.models import Order, PaymentStatus
         from sqlalchemy import select
 
         t0 = time.perf_counter()
+        pay_cur = (args.currency or "KES").upper()
         try:
             msisdn = normalize_msisdn(args.msisdn)
         except Exception as e:
@@ -296,7 +338,8 @@ def build_tools(
 
         # Idempotency key combines logical payment identity. Re-entry within
         # 10 min returns the cached result instead of double-charging.
-        idem_key = f"mpesa:{conversation_id}:{msisdn}:{args.order_reference}:{int(args.amount_kes*100)}"
+        idem_amount = int((args.amount_usd or 0) * 100) if pay_cur == "USD" else int(args.amount_kes * 100)
+        idem_key = f"pay:{conversation_id}:{msisdn}:{args.order_reference}:{pay_cur}:{idem_amount}"
         fresh, cached = await claim_with_result(idem_key, ttl_seconds=600)
         if not fresh:
             if cached is not None:
@@ -306,19 +349,21 @@ def build_tools(
                 await _audit("request_mpesa_payment", args.model_dump(), cached, cached.get("ok", False), t0)
                 return cached
             # In-flight (PENDING) — refuse a second push.
-            result = {"ok": False, "error": "in_flight",
-                      "message": "An STK push is already being processed for this reference."}
+            in_flight_msg = (
+                "A payment request is already being processed for this reference."
+            )
+            result = {"ok": False, "error": "in_flight", "message": in_flight_msg}
             log.info("mpesa_idempotent_inflight", key=idem_key)
             await _audit("request_mpesa_payment", args.model_dump(), result, False, t0)
             return result
 
         try:
-            svc = get_payment_service()
             # Attach to the most recent pending order in this exact tenant
             # conversation. A customer can chat with several businesses using
             # one phone number, so customer-only matching is unsafe.
             latest = None
             tenant_id = business_id
+            order_details: dict = {}
             if conversation_id:
                 from app.db.models import Conversation
                 conv = (await db.execute(select(Conversation).where(Conversation.id == conversation_id))).scalar_one()
@@ -331,25 +376,47 @@ def build_tools(
                     .where(Order.business_id == tenant_id if tenant_id is not None else Order.business_id.is_(None))
                     .order_by(Order.created_at.desc()).limit(1)
                 )).scalar_one_or_none()
+                if latest is not None and isinstance(latest.details, dict):
+                    order_details = latest.details
+                    if not pay_cur or pay_cur == "KES":
+                        pay_cur = str(order_details.get("payment_currency") or pay_cur).upper()
                 if (
                     latest is not None
                     and latest.mpesa_checkout_id
                     and str(latest.id).startswith(args.order_reference)
                 ):
+                    pending_msg = (
+                        "An STK push is already pending for this order. Ask the customer to check their phone or wait before retrying."
+                        if pay_cur == "KES" else
+                        "A checkout link is already pending for this order. Share the existing link or wait before retrying."
+                    )
                     result = {
                         "ok": False,
                         "error": "in_flight",
                         "checkout_request_id": latest.mpesa_checkout_id,
-                        "message": "An STK push is already pending for this order. Ask the customer to check their phone or wait before retrying.",
+                        "message": pending_msg,
                     }
                     await store_result(idem_key, result, ttl_seconds=600)
                     await _audit("request_mpesa_payment", args.model_dump(), result, False, t0)
                     return result
 
-            res = await svc.request_payment(
-                msisdn=msisdn, amount=args.amount_kes,
-                reference=args.order_reference, description="Order Payment",
-            )
+            svc = resolve_payment_service(currency=pay_cur)
+            pay_amount = float(args.amount_kes)
+            if pay_cur == "USD":
+                pay_amount = float(
+                    args.amount_usd
+                    or order_details.get("amount_usd")
+                    or round(float(args.amount_kes) / 129.0, 2)
+                )
+            pay_kwargs: dict[str, object] = {
+                "msisdn": msisdn,
+                "amount": pay_amount,
+                "reference": args.order_reference,
+                "description": "Order Payment",
+            }
+            if pay_cur == "USD" and svc.name == "paystack":
+                pay_kwargs["currency"] = "USD"
+            res = await svc.request_payment(**pay_kwargs)
             checkout_id = res.reference
             if latest is not None:
                 latest.mpesa_checkout_id = checkout_id
@@ -369,13 +436,23 @@ def build_tools(
                             "poll_count": 1,
                         },
                     )
-            msg = f"STK push sent to {msisdn} via {svc.name}."
-            if res.redirect_url:
-                msg += f" Pay link: {res.redirect_url}"
-            result = {"ok": True, "checkout_request_id": checkout_id,
-                      "provider": svc.name, "redirect_url": res.redirect_url,
-                      "amount_kes": float(args.amount_kes),
-                      "message": msg}
+            if pay_cur == "USD" and res.redirect_url:
+                msg = f"Paystack checkout link ready for USD {pay_amount:.2f} via {svc.name}."
+            else:
+                msg = f"STK push sent to {msisdn} via {svc.name}."
+                if res.redirect_url:
+                    msg += f" Pay link: {res.redirect_url}"
+            result = {
+                "ok": True,
+                "checkout_request_id": checkout_id,
+                "provider": svc.name,
+                "redirect_url": res.redirect_url,
+                "amount_kes": float(args.amount_kes),
+                "payment_currency": pay_cur,
+                "message": msg,
+            }
+            if pay_cur == "USD":
+                result["amount_usd"] = pay_amount
             # Demo: auto-confirm simulated payments after a short delay so
             # WhatsApp demos can show the 'payment received' path end-to-end.
             try:
@@ -685,9 +762,15 @@ def build_tools(
         StructuredTool.from_function(coroutine=create_order, name="create_order",
                                      description="Create an order/booking record once items+price are confirmed with the customer.",
                                      args_schema=CreateOrderArgs),
-        StructuredTool.from_function(coroutine=request_mpesa_payment, name="request_mpesa_payment",
-                                     description="Trigger an M-Pesa STK push to the customer's phone.",
-                                     args_schema=MpesaArgs),
+        StructuredTool.from_function(
+            coroutine=request_mpesa_payment,
+            name="request_mpesa_payment",
+            description=(
+                "Trigger M-Pesa STK (KES) or Paystack card checkout link (USD). "
+                "Pass currency='USD' and amount_usd for international card payments."
+            ),
+            args_schema=MpesaArgs,
+        ),
         StructuredTool.from_function(coroutine=book_appointment, name="book_appointment",
                                      description="Book an appointment slot on the business calendar.",
                                      args_schema=BookingArgs),
