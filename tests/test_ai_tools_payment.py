@@ -94,6 +94,7 @@ def test_build_hazina_menu_photos_maps_collections_and_treasures() -> None:
     assert photos["maasai-bracelet"].startswith("https://hazina.example.com/treasures/")
     assert photos["raw-honey"].endswith("/treasures/raw-honey-jars.jpg")
     assert photos["african-woven-mat"].endswith("/treasures/african-woven-mats.jpg")
+    assert photos["leather-luggage-tag"].endswith("/treasures/leather-luggage-tag-lifestyle.png")
+    assert photos["maasai-necklace"].endswith("/treasures/maasai-necklace-worn.png")
     assert photos["the kenya edit"].startswith("https://hazina.example.com/")
     assert "hn-t-010" in photos
-    assert "leather-luggage-tag" not in photos
