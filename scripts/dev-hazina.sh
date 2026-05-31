@@ -55,12 +55,11 @@ port_in_use() {
 ensure_port_free() {
   local p=$1
   if port_in_use "$p"; then
-    echo "ERROR: port ${p} is still in use after cleanup." >&2
+    echo "WARNING: port ${p} is still in use (often a stuck Cursor dev server)." >&2
     ss -tlnp "sport = :${p}" 2>/dev/null || true
-    echo "Run this from your own terminal (outside a restricted sandbox):" >&2
-    echo "  fuser -k ${p}/tcp   # or: kill -9 \$(lsof -t -i:${p})" >&2
-    exit 1
+    return 1
   fi
+  return 0
 }
 
 stop_repo_next() {
@@ -76,7 +75,19 @@ for p in 3000 3001 3002; do
 done
 stop_repo_next
 sleep 1
-ensure_port_free "${PORT}"
+if ! ensure_port_free "${PORT}"; then
+  for fallback in 3002 3003 3004; do
+    if ensure_port_free "$fallback"; then
+      echo "==> Using fallback port ${fallback} (${PORT} is stuck — kill it: fuser -k ${PORT}/tcp)"
+      PORT=$fallback
+      break
+    fi
+  done
+  if port_in_use "${PORT}"; then
+    echo "ERROR: no free port found. Run: fuser -k 3001/tcp" >&2
+    exit 1
+  fi
+fi
 
 if [[ ! -d "${PORTAL}/node_modules" ]]; then
   echo "==> Installing hazina-portal dependencies…"
@@ -115,12 +126,12 @@ wait_for_ready() {
 if [[ "$BACKGROUND" -eq 1 ]]; then
   LOG="${PORTAL}/.dev-hazina.log"
   echo "==> Starting next dev in background (log: ${LOG})…"
-  nohup npm run dev >>"${LOG}" 2>&1 &
+  nohup npx next dev -p "${PORT}" >>"${LOG}" 2>&1 &
   echo $! > "${PORTAL}/.dev-hazina.pid"
   wait_for_ready
 else
   echo "==> Starting next dev on port ${PORT} (Ctrl+C to stop)…"
-  npm run dev &
+  npx next dev -p "${PORT}" &
   DEV_PID=$!
   trap 'kill ${DEV_PID} 2>/dev/null || true' EXIT INT TERM
   wait_for_ready || { kill ${DEV_PID} 2>/dev/null || true; exit 1; }

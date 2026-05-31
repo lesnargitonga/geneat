@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { BRAND, BRAND_IMAGES, DELIVERY_ZONES, GIFT_BOXES } from "@/lib/products";
+import { TREASURES } from "@/lib/treasures";
 import { formatKES, whatsappLink } from "@/lib/format";
 import { ChatWidget } from "@/components/ChatWidget";
 import { CollectionCard } from "@/components/CollectionCard";
+import { TreasureCard } from "@/components/TreasureCard";
 
 export default function HomePage() {
   const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like help choosing a gift box.");
@@ -30,13 +32,13 @@ export default function HomePage() {
               <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark">
                 Speak with concierge
               </a>
-              <Link href="/collections" className="btn-outline">
-                View collections
+              <Link href="/build" className="btn-outline">
+                Build your box
               </Link>
             </div>
             <div className="flex items-center gap-10 pt-2">
+              <Stat value={String(TREASURES.length)} label="individual treasures" />
               <Stat value="5" label="curated collections" />
-              <Stat value="4h" label="JKIA express" />
               <Stat value="M-Pesa" label="USD cards" />
             </div>
           </div>
@@ -74,8 +76,8 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-10 md:gap-12">
             <Step
               n="01"
-              title="Select a collection"
-              body="Five meticulously curated gift boxes — from safari keepsakes to last-minute JKIA departures."
+              title="Browse or build"
+              body="Choose a curated collection, explore individual treasures, or compose your own box from our atelier."
             />
             <Step
               n="02"
@@ -91,6 +93,51 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Treasures atelier preview — editorial, not catalog grid */}
+      <section className="container-page py-20 md:py-28 border-t border-border">
+        <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-end mb-14">
+          <div className="lg:col-span-7">
+            <span className="label-mono">The atelier</span>
+            <h2 className="h-display text-4xl md:text-6xl mt-3 text-obsidian leading-[0.95]">
+              Compose from {TREASURES.length} treasures
+            </h2>
+          </div>
+          <div className="lg:col-span-5 space-y-5">
+            <p className="text-ink-mute leading-relaxed">
+              Real photography from our sourcing runs — not stock imagery. Inspect each piece,
+              then build a box that reflects your journey.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/treasures" className="btn-outline">
+                Browse atelier
+              </Link>
+              <Link href="/build" className="btn-dark">
+                Build your box
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-12 gap-6 md:gap-8">
+          <div className="md:col-span-7">
+            <TreasureCard item={TREASURES[0]} featured priority />
+          </div>
+          <div className="md:col-span-5 flex flex-col gap-6 md:gap-8 md:pt-16">
+            <TreasureCard item={TREASURES[4]} compact />
+            <TreasureCard item={TREASURES[6]} compact />
+          </div>
+          <div className="md:col-span-4">
+            <TreasureCard item={TREASURES[9]} compact />
+          </div>
+          <div className="md:col-span-4">
+            <TreasureCard item={TREASURES[14]} compact />
+          </div>
+          <div className="md:col-span-4">
+            <TreasureCard item={TREASURES[18]} compact />
+          </div>
+        </div>
+      </section>
+
       {/* Collections preview */}
       <section className="container-page py-20 md:py-28">
         <div className="flex items-end justify-between mb-12 md:mb-16">
@@ -98,7 +145,7 @@ export default function HomePage() {
             <span className="label-mono">The edit</span>
             <h2 className="h-display text-4xl md:text-5xl mt-2 text-obsidian">Collections</h2>
             <p className="text-ink-mute mt-3 max-w-md">
-              Five boxes. Pure curation — no bespoke contents unless corporate gifting calls for it.
+              Signature assemblies — tap to see what&apos;s inside, or swap items via concierge.
             </p>
           </div>
           <Link

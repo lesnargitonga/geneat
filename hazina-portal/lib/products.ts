@@ -8,6 +8,8 @@ export type GiftBox = {
   price_kes: number;
   target: string;
   contents: string;
+  /** Treasure IDs included in this curated collection */
+  itemIds: string[];
   lead_time_hours: number;
   personalization?: boolean;
   personalization_note?: string;
@@ -45,6 +47,7 @@ export const GIFT_BOXES: GiftBox[] = [
     target: "Safari tourists, European/US visitors",
     contents:
       "Premium Kenyan coffee (250g), handmade Maasai beadwork (bracelet or necklace), small artisan soapstone carving, printed brand story card",
+    itemIds: ["premium-coffee-250g", "maasai-bracelet", "soapstone-big-five", "premium-packaging"],
     lead_time_hours: 24,
     emoji: "🎁",
     image: "/products/kenya-edit.png",
@@ -59,6 +62,7 @@ export const GIFT_BOXES: GiftBox[] = [
     target: "General gifting, diaspora, colleagues",
     contents:
       "Export-grade Kenyan coffee, premium Kenyan loose-leaf tea, local raw honey, carved wooden tasting spoon",
+    itemIds: ["premium-coffee-250g", "loose-leaf-tea", "raw-honey", "wooden-combs"],
     lead_time_hours: 24,
     emoji: "☕",
     image: "/products/highland-treasure.jpg",
@@ -72,6 +76,7 @@ export const GIFT_BOXES: GiftBox[] = [
     price_kes: 16600,
     target: "Business travellers, wealthy tourists",
     contents: "Handmade leather passport holder, luggage tag, and travel notebook",
+    itemIds: ["leather-passport", "leather-luggage-tag", "premium-packaging"],
     lead_time_hours: 24,
     personalization: true,
     personalization_note: "Engraving requires 24-hour notice",
@@ -88,6 +93,7 @@ export const GIFT_BOXES: GiftBox[] = [
     target: "Honeymooners, anniversary trips",
     contents:
       "Matching couple's beadwork, premium treats (chocolate/coffee), framed minimalist safari route map, leather luggage tags",
+    itemIds: ["maasai-necklace", "maasai-bracelet", "premium-coffee-250g", "big-five-print", "leather-luggage-tag"],
     lead_time_hours: 48,
     personalization: true,
     emoji: "💝",
@@ -102,6 +108,7 @@ export const GIFT_BOXES: GiftBox[] = [
     price_kes: 19200,
     target: "Last-minute JKIA departures",
     contents: "Pre-packed fast-moving items: coffee, tea, un-personalized leather, beadwork",
+    itemIds: ["premium-coffee-250g", "loose-leaf-tea", "leather-passport", "maasai-bracelet", "premium-packaging"],
     lead_time_hours: 4,
     jkia_only: true,
     emoji: "✈️",

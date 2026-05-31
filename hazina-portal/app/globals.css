@@ -8,7 +8,10 @@
     text-rendering: optimizeLegibility;
   }
   body {
-    @apply bg-sand text-ink font-sans;
+    @apply bg-sand text-ink font-sans min-h-screen;
+  }
+  a {
+    @apply no-underline;
   }
   ::selection {
     background: rgba(226, 109, 92, 0.2);
@@ -20,23 +23,30 @@
     @apply max-w-page mx-auto px-5 md:px-8;
   }
 
-  .btn {
+  .btn-dark {
     @apply inline-flex items-center justify-center gap-2 px-6 py-3
            text-xs font-mono uppercase tracking-editorial
-           transition-all duration-300 active:scale-[0.98] disabled:opacity-50;
-  }
-  .btn-dark {
-    @apply btn bg-obsidian text-sand hover:bg-obsidian-soft;
+           transition-all duration-300 active:scale-[0.98] disabled:opacity-50
+           bg-obsidian text-sand hover:bg-obsidian-soft;
   }
   .btn-outline {
-    @apply btn border border-obsidian text-obsidian bg-transparent
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3
+           text-xs font-mono uppercase tracking-editorial
+           transition-all duration-300 active:scale-[0.98] disabled:opacity-50
+           border border-obsidian text-obsidian bg-transparent
            hover:bg-obsidian hover:text-sand;
   }
   .btn-bronze {
-    @apply btn bg-bronze text-sand hover:bg-bronze-dark;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3
+           text-xs font-mono uppercase tracking-editorial
+           transition-all duration-300 active:scale-[0.98] disabled:opacity-50
+           bg-bronze text-sand hover:bg-bronze-dark;
   }
   .btn-ghost {
-    @apply btn border border-border text-ink-mute bg-transparent
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3
+           text-xs font-mono uppercase tracking-editorial
+           transition-all duration-300 active:scale-[0.98] disabled:opacity-50
+           border border-border text-ink-mute bg-transparent
            hover:border-obsidian hover:text-obsidian;
   }
 
@@ -48,7 +58,7 @@
     @apply inline-flex items-center gap-1 px-3 py-1 text-[10px] font-mono uppercase tracking-editorial;
   }
   .chip-dark {
-    @apply chip bg-obsidian/90 text-sand;
+    @apply chip bg-obsidian/90 text-sand backdrop-blur-sm;
   }
   .chip-bronze {
     @apply chip border border-bronze/40 text-bronze;
@@ -67,5 +77,10 @@
 
   .label-mono {
     @apply font-mono text-[10px] uppercase tracking-editorial text-ink-mute;
+  }
+
+  .card-luxury {
+    @apply border border-border bg-sand transition-all duration-500
+           hover:border-obsidian/20 hover:shadow-editorial;
   }
 }

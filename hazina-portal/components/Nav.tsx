@@ -3,7 +3,9 @@ import { BRAND } from "@/lib/products";
 import { whatsappLink } from "@/lib/format";
 
 const NAV = [
+  { href: "/treasures", label: "Treasures" },
   { href: "/collections", label: "Collections" },
+  { href: "/build", label: "Build" },
   { href: "/last-minute-kenya-gifts-jkia", label: "JKIA" },
   { href: "/about", label: "About" },
 ];

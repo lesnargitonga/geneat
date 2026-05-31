@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { BRAND, GIFT_BOXES } from "@/lib/products";
+import { TREASURES } from "@/lib/treasures";
 import { whatsappLink } from "@/lib/format";
 import { CollectionCard } from "@/components/CollectionCard";
 
@@ -16,11 +17,14 @@ export default function CollectionsPage() {
   return (
     <>
       <header className="container-page pt-10 md:pt-16 mb-14 md:mb-20">
-        <span className="label-mono">Five curated boxes</span>
+        <span className="label-mono">Five signature collections · {TREASURES.length} individual treasures</span>
         <h1 className="h-display text-5xl md:text-7xl mt-4 mb-5 text-obsidian">Collections</h1>
         <p className="text-ink-mute max-w-2xl text-lg leading-relaxed">
-          Premium Kenyan treasures, thoughtfully assembled. Each collection is fixed at launch —
-          bespoke contents reserved for corporate gifting and special commissions.
+          Start from a curator&apos;s assembly — or{" "}
+          <Link href="/build" className="text-bronze hover:text-obsidian underline-offset-4 hover:underline">
+            compose your own
+          </Link>{" "}
+          from the atelier. Tap any collection to see exactly what&apos;s inside.
         </p>
       </header>
 
