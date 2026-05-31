@@ -1320,6 +1320,18 @@ class TurnResult:
     interactive: dict | None = None
 
 
+def _unresolved_business_slug_reply(slug: str) -> str:
+    if is_hazina_slug(slug):
+        return (
+            "Hazina Nomads is not configured on this backend yet. "
+            "Please seed the Hazina tenant, then try again."
+        )
+    return (
+        f"I could not find the business '{slug}' on this backend. "
+        "Please check the tenant setup and try again."
+    )
+
+
 async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
     msisdn = normalize_msisdn(turn.msisdn_raw)
 
@@ -1398,6 +1410,16 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             bp = await get_business_by_slug(db, turn.business_slug)
             if bp:
                 business_id = bp.id
+            else:
+                log.warning(
+                    "explicit_business_slug_not_found",
+                    business_slug=turn.business_slug,
+                )
+                return TurnResult(
+                    reply=_unresolved_business_slug_reply(turn.business_slug),
+                    conversation_id=uuid.uuid4(),
+                    escalated=False,
+                )
         if business_id is None and turn.meta_phone_number_id:
             bp = await get_business_for_turn(
                 db,

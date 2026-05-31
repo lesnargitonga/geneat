@@ -28,6 +28,8 @@ _HAZINA_TENANT_HINT_RE = re.compile(
     r"curated\s+treasures?|"
     r"gift\s+(?:box|boxes|collection|collections)|"
     r"custom\s+box|"
+    r"corporate\s+gifting|"
+    r"(?:host|guide|travel\s+planner).{0,60}(?:gift|box|concierge|guest)|"
     r"kenya\s+edit|"
     r"highland\s+treasure|"
     r"nomad\s+leather|"

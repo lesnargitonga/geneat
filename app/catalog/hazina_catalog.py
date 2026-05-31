@@ -201,7 +201,11 @@ def build_hazina_kb_catalog() -> list[str]:
 
 # Portal image paths — mirrors hazina-portal/lib/products.ts and lib/treasures.ts
 HAZINA_COLLECTION_IMAGES: dict[str, str] = {
-    # Collection hero images stay blank until exact Hazina product photography is supplied.
+    "kenya-edit": "/treasures/kenya-edit-hero.png",
+    "highland-treasure": "/treasures/highland-treasure-hero.png",
+    "nomad-leather-set": "/treasures/nomad-leather-set-hero.png",
+    "safari-romance-box": "/treasures/safari-romance-box-hero.png",
+    "departure-drop": "/treasures/departure-drop-hero.png",
 }
 
 HAZINA_TREASURE_IMAGES: dict[str, str] = {
@@ -241,7 +245,11 @@ HAZINA_TREASURE_IMAGES: dict[str, str] = {
 def build_hazina_menu_photos(portal_base_url: str = "https://hazina.lesnarai.co.ke") -> dict[str, str]:
     """Map collection/treasure ids and fuzzy names → absolute portal image URLs."""
     base = (portal_base_url or "https://hazina.lesnarai.co.ke").rstrip("/")
-    out: dict[str, str] = {"safari": f"{base}/brand/safari-sunset.jpg"}
+    out: dict[str, str] = {
+        "menu": f"{base}/treasures/kenya-edit-hero.png",
+        "collections": f"{base}/treasures/kenya-edit-hero.png",
+        "safari": f"{base}/brand/safari-sunset.jpg",
+    }
     for row in HAZINA_COLLECTIONS:
         path = HAZINA_COLLECTION_IMAGES.get(row["id"])
         if not path:

@@ -22,6 +22,7 @@ from app.channels.base import (
     _payment_tool_recovery_reply,
     _promises_ready_before_payment,
     _specific_photo_reply,
+    _unresolved_business_slug_reply,
 )
 
 
@@ -35,6 +36,12 @@ def test_degraded_fallback_detector_filters_old_generic_copy() -> None:
     assert not _is_degraded_fallback_text(
         "Demo Espresso is KES 10. Want me to set one up for pickup?"
     )
+
+
+def test_unresolved_hazina_slug_does_not_name_lily_pond() -> None:
+    reply = _unresolved_business_slug_reply("hazina-nomads")
+    assert "Hazina Nomads" in reply
+    assert "Lily" not in reply
 
 
 def test_payment_tool_recovery_reply_for_successful_stk() -> None:
