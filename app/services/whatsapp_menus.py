@@ -1,12 +1,14 @@
 """WhatsApp interactive menu helpers (Meta buttons/lists).
 
-This is a presentation layer on top of the deterministic café automation:
-- builds the main menu, category list, recent-orders and order-action payloads
-- translates inbound interactive button/list IDs back into the plain-text
-  commands (or special markers) the deterministic router already understands
+Presentation layer for deterministic automation:
+- builds the main menu, category/product list, recent-orders and order-action payloads
+- translates inbound interactive button/list IDs back into plain-text commands
 
 Plain text remains the source of truth so Twilio and web chat keep working;
 Meta WhatsApp additionally gets tappable buttons/lists when a payload is set.
+
+Tenant-specific menus: pass ``business_slug`` (e.g. ``hazina-nomads``) to
+``main_menu_payload``; café tenants keep the legacy food-order menu.
 """
 from __future__ import annotations
 
@@ -25,6 +27,13 @@ ID_HOME = "lp:home"
 ID_BACK = "lp:back"
 ID_EXIT = "lp:exit"
 ID_CATEGORY_PREFIX = "lp:cat:"
+# Hazina Nomads gift-concierge menu ids
+ID_SHOP = "lp:shop"
+ID_CORPORATE = "lp:corp"
+ID_CONCIERGE = "lp:concierge"
+ID_PRODUCT_PREFIX = "lp:prod:"
+
+HAZINA_NOMADS_SLUG = "hazina-nomads"
 
 # Special markers handled directly in handle_inbound (not plain-text commands).
 CMD_STAFF = "__staff_handoff__"
@@ -55,6 +64,19 @@ _CATEGORY_LABEL = {
     "snack": ("\U0001F36A", "Snacks"),
 }
 
+# Hazina gift-box product ids (mirror seed_hazina_nomads.py).
+_HAZINA_PRODUCTS = (
+    ("kenya-edit", "\U0001F381", "The Kenya Edit", "USD 89 · safari keepsake"),
+    ("highland-treasure", "\u2615", "Highland Treasure", "USD 59 · tea & honey"),
+    ("nomad-leather-set", "\U0001F9F3", "Nomad Leather Set", "USD 129 · passport & tag"),
+    ("safari-romance-box", "\U0001F48D", "Safari Romance Box", "USD 199 · couples"),
+    ("departure-drop", "\u2708\uFE0F", "Departure Drop", "USD 149 · 4h JKIA"),
+)
+
+
+def _is_hazina(slug: str | None) -> bool:
+    return (slug or "").strip().lower() == HAZINA_NOMADS_SLUG
+
 
 def extract_interactive_id(text: str) -> str | None:
     """Return the trailing interactive id (e.g. ``lp:menu``) if present."""
@@ -81,8 +103,12 @@ def command_for_interactive_id(interactive_id: str | None) -> str | None:
     if not interactive_id:
         return None
     lid = interactive_id.lower()
-    if lid in (ID_MENU, ID_ORDER):
+    if lid in (ID_MENU, ID_ORDER, ID_SHOP):
         return "full menu"
+    if lid == ID_CORPORATE:
+        return "corporate gifting"
+    if lid == ID_CONCIERGE:
+        return CMD_STAFF
     if lid == ID_PAY:
         return "resend STK"
     if lid == ID_TRACK:
@@ -95,6 +121,9 @@ def command_for_interactive_id(interactive_id: str | None) -> str | None:
         return CMD_EXIT
     if lid == ID_ORDERS:
         return CMD_ORDERS
+    if lid.startswith(ID_PRODUCT_PREFIX):
+        suffix = lid[len(ID_PRODUCT_PREFIX):]
+        return f"order {suffix.replace('-', ' ')}"
     if lid.startswith(ID_CATEGORY_PREFIX):
         suffix = lid[len(ID_CATEGORY_PREFIX):]
         return _CATEGORY_COMMAND.get(suffix, suffix)
@@ -105,8 +134,8 @@ def _is_swahili(language: str | None) -> bool:
     return (language or "").lower().startswith(("sw", "she"))
 
 
-def main_menu_payload(*, business_name: str | None, language: str | None) -> dict:
-    """A single list message that mirrors the greeting's offered actions."""
+def _cafe_main_menu_payload(*, business_name: str | None, language: str | None) -> dict:
+    """Legacy café food-order main menu."""
     name = (business_name or "the cafe").replace("Caf\u00e9", "Cafe")
     if _is_swahili(language):
         rows = [
@@ -140,6 +169,78 @@ def main_menu_payload(*, business_name: str | None, language: str | None) -> dic
         "body": "Tap an option below:",
         "button_text": "Choose",
         "sections": [{"title": "Menu", "rows": rows}],
+    }
+
+
+def _hazina_main_menu_payload(*, business_name: str | None, language: str | None) -> dict:
+    """Hazina Nomads gift-concierge main menu."""
+    name = (business_name or "Hazina Nomads")[:60]
+    if _is_swahili(language):
+        rows = [
+            {"id": ID_SHOP, "title": "\U0001F381 The Kenya Edit", "description": "Angalia mkusanyiko wetu wa zawadi"},
+            {"id": ID_CORPORATE, "title": "\U0001F3E2 Zawadi za kampuni", "description": "Oda za biashara na wafanyakazi"},
+            {"id": ID_CONCIERGE, "title": "\U0001F9D1\u200D\U0001F4BC Ongea na concierge", "description": "Msaada wa kibinafsi"},
+            {"id": ID_TRACK, "title": "\U0001F4E6 Fuata uwasilishaji", "description": "Hali ya oda yako"},
+            {"id": ID_ORDERS, "title": "\U0001F9FE Oda zangu", "description": "Oda za hivi karibuni"},
+            {"id": ID_EXIT, "title": "\u2716\uFE0F Toka", "description": "Maliza mazungumzo"},
+        ]
+        return {
+            "type": "list",
+            "header": name,
+            "body": "Chagua chaguo:",
+            "button_text": "Chagua",
+            "sections": [{"title": "Concierge", "rows": rows}],
+        }
+    rows = [
+        {"id": ID_SHOP, "title": "\U0001F381 Shop The Kenya Edit", "description": "Browse our curated gift collections"},
+        {"id": ID_CORPORATE, "title": "\U0001F3E2 Corporate Gifting", "description": "Bulk orders for teams & events"},
+        {"id": ID_CONCIERGE, "title": "\U0001F9D1\u200D\U0001F4BC Talk to Concierge", "description": "Personal assistance"},
+        {"id": ID_TRACK, "title": "\U0001F4E6 Track Delivery", "description": "Where is my gift box?"},
+        {"id": ID_ORDERS, "title": "\U0001F9FE My orders", "description": "Recent orders & receipts"},
+        {"id": ID_EXIT, "title": "\u2716\uFE0F Exit", "description": "End this chat"},
+    ]
+    return {
+        "type": "list",
+        "header": name,
+        "body": "Tap an option below:",
+        "button_text": "Choose",
+        "sections": [{"title": "Concierge", "rows": rows}],
+    }
+
+
+def main_menu_payload(
+    *,
+    business_name: str | None,
+    language: str | None,
+    business_slug: str | None = None,
+) -> dict:
+    """Main menu list — tenant-aware (Hazina vs café default)."""
+    if _is_hazina(business_slug):
+        return _hazina_main_menu_payload(business_name=business_name, language=language)
+    return _cafe_main_menu_payload(business_name=business_name, language=language)
+
+
+def product_list_payload(*, language: str | None) -> dict:
+    """Hazina gift-box drill-down list (shown after Shop)."""
+    is_sw = _is_swahili(language)
+    rows = []
+    for pid, emoji, title, desc in _HAZINA_PRODUCTS:
+        rows.append({
+            "id": f"{ID_PRODUCT_PREFIX}{pid}",
+            "title": f"{emoji} {title}"[:24],
+            "description": desc[:72],
+        })
+    rows.append({
+        "id": ID_HOME,
+        "title": ("\U0001F3E0 Menu kuu" if is_sw else "\U0001F3E0 Main menu"),
+        "description": ("Rudi mwanzo" if is_sw else "Back to start"),
+    })
+    return {
+        "type": "list",
+        "header": ("Mkusanyiko" if is_sw else "Collections"),
+        "body": ("Chagua sanduku:" if is_sw else "Pick a gift box:"),
+        "button_text": ("Chagua" if is_sw else "Choose"),
+        "sections": [{"title": ("Sanduku" if is_sw else "Gift boxes"), "rows": rows}],
     }
 
 
@@ -200,15 +301,25 @@ def order_actions_payload(*, language: str | None) -> dict:
     }
 
 
-def back_to_menu_payload(*, language: str | None) -> dict:
+def back_to_menu_payload(*, language: str | None, business_slug: str | None = None) -> dict:
     """Compact buttons that let the customer jump back to the main menu/staff."""
+    staff_label = (
+        "\U0001F9D1\u200D\U0001F4BC Concierge"
+        if _is_hazina(business_slug)
+        else "\U0001F9D1\u200D\U0001F373 Talk to staff"
+    )
     if _is_swahili(language):
+        staff_sw = (
+            "\U0001F9D1\u200D\U0001F4BC Concierge"
+            if _is_hazina(business_slug)
+            else "\U0001F9D1\u200D\U0001F373 Ongea na staff"
+        )
         return {
             "type": "buttons",
             "body": "Unahitaji kingine?",
             "buttons": [
                 {"id": ID_HOME, "title": "\U0001F3E0 Menu kuu"},
-                {"id": ID_STAFF, "title": "\U0001F9D1\u200D\U0001F373 Ongea na staff"},
+                {"id": ID_STAFF, "title": staff_sw},
             ],
         }
     return {
@@ -216,6 +327,6 @@ def back_to_menu_payload(*, language: str | None) -> dict:
         "body": "Anything else?",
         "buttons": [
             {"id": ID_HOME, "title": "\U0001F3E0 Main menu"},
-            {"id": ID_STAFF, "title": "\U0001F9D1\u200D\U0001F373 Talk to staff"},
+            {"id": ID_STAFF, "title": staff_label},
         ],
     }

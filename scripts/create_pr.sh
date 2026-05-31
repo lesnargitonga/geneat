@@ -32,8 +32,8 @@ if [ -z "$title" ]; then
 fi
 
 # prefer bundled draft if present
-if [ -z "$body_file" ] && [ -f "PR_DRAFT_SECURITY_DEPS_UPGRADE.md" ]; then
-  body_file="PR_DRAFT_SECURITY_DEPS_UPGRADE.md"
+if [ -z "$body_file" ] && [ -f "docs/archive/PR_DRAFT_SECURITY_DEPS_UPGRADE.md" ]; then
+  body_file="docs/archive/PR_DRAFT_SECURITY_DEPS_UPGRADE.md"
 fi
 
 # prefer gh CLI if available

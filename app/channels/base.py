@@ -52,11 +52,18 @@ from app.services.cafe_automation import (
     create_order_and_request_payment,
     parse_cafe_order_items,
 )
+from app.services.gift_automation import (
+    finalize_checkout_from_ai,
+    is_hazina_slug,
+    try_hazina_automation,
+)
 from app.services.whatsapp_menus import (
     CMD_EXIT,
     CMD_HOME,
     CMD_ORDERS,
     CMD_STAFF,
+    HAZINA_NOMADS_SLUG,
+    ID_SHOP,
     SPECIAL_COMMANDS,
     back_to_menu_payload,
     category_list_payload,
@@ -64,6 +71,7 @@ from app.services.whatsapp_menus import (
     extract_interactive_id,
     main_menu_payload,
     order_actions_payload,
+    product_list_payload,
 )
 
 log = get_logger("channel")
@@ -1628,7 +1636,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         if interactive_command == CMD_HOME:
             control_reply = _greeting_reply(business_name=_biz_name, language=effective_lang)
             control_interactive = main_menu_payload(
-                business_name=_biz_name, language=effective_lang,
+                business_name=_biz_name, language=effective_lang, business_slug=_biz_slug,
             )
             await append_message(
                 db, conversation=conv, sender=Sender.ai, content=control_reply,
@@ -1647,10 +1655,59 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 business_id=business_id,
                 language=effective_lang,
             )
-            control_interactive = back_to_menu_payload(language=effective_lang)
+            control_interactive = back_to_menu_payload(language=effective_lang, business_slug=_biz_slug)
             await append_message(
                 db, conversation=conv, sender=Sender.ai, content=control_reply,
                 safety_flags=["deterministic:my_orders"],
+            )
+            await db.commit()
+            return TurnResult(
+                reply=control_reply, conversation_id=conv.id, escalated=False,
+                interactive=control_interactive,
+            )
+        if is_hazina_slug(_biz_slug):
+            hazina_result = await try_hazina_automation(
+                db,
+                text=turn.text,
+                interactive_id=interactive_id,
+                business_slug=_biz_slug,
+                customer=customer,
+                conversation_id=conv.id,
+                business_id=business_id,
+                language=effective_lang,
+            )
+            if hazina_result is not None:
+                if hazina_result.escalated:
+                    await escalate(db, conv, reason="hazina:corporate_gifting")
+                await append_message(
+                    db,
+                    conversation=conv,
+                    sender=Sender.ai,
+                    content=hazina_result.reply,
+                    safety_flags=[hazina_result.safety_flag],
+                )
+                await db.commit()
+                return TurnResult(
+                    reply=hazina_result.reply,
+                    conversation_id=conv.id,
+                    escalated=hazina_result.escalated,
+                    interactive=hazina_result.interactive,
+                )
+
+        if (
+            interactive_id == ID_SHOP
+            and is_hazina_slug(_biz_slug)
+        ):
+            is_sw = _customer_prefers_swahili(effective_lang)
+            control_reply = (
+                "Hizi ndizo sanduku zetu za zawadi — chagua moja au niambie unachotafuta:"
+                if is_sw else
+                "Here are our curated gift collections — pick one or tell me what you're looking for:"
+            )
+            control_interactive = product_list_payload(language=effective_lang)
+            await append_message(
+                db, conversation=conv, sender=Sender.ai, content=control_reply,
+                safety_flags=["deterministic:hazina_shop"],
             )
             await db.commit()
             return TurnResult(
@@ -1772,12 +1829,12 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     log.warning("menu_category_payload_failed", error=str(exc))
             if control_reply and control_interactive is None:
                 # Category / price / availability answer — offer navigation back.
-                control_interactive = back_to_menu_payload(language=effective_lang)
+                control_interactive = back_to_menu_payload(language=effective_lang, business_slug=_biz_slug)
         elif _looks_like_greeting(turn.text):
             control_reply = _greeting_reply(business_name=_biz_name, language=effective_lang)
             control_flag = "deterministic:greeting"
             control_interactive = main_menu_payload(
-                business_name=_biz_name, language=effective_lang,
+                business_name=_biz_name, language=effective_lang, business_slug=_biz_slug,
             )
         else:
             control_reply = await _affirmative_followup_reply(
@@ -2138,6 +2195,24 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         if out_flags:
             log.info("output_safety_redacted", flags=out_flags[:6])
 
+        post_interactive: dict | None = None
+        if is_hazina_slug(_biz_slug):
+            ai_order = _latest_tool_result(result, "create_order")
+            if ai_order.get("ok") and not ai_order.get("deduped"):
+                hazina_stk = await finalize_checkout_from_ai(
+                    db,
+                    conversation_id=conv.id,
+                    customer=customer,
+                    business_id=business_id,
+                    msisdn=msisdn,
+                    order_id=ai_order.get("order_id"),
+                    language=effective_lang,
+                )
+                if hazina_stk is not None:
+                    reply = hazina_stk.reply
+                    post_interactive = hazina_stk.interactive
+                    out_flags = list(out_flags or []) + [hazina_stk.safety_flag]
+
         await append_message(
             db, conversation=conv, sender=Sender.ai, content=reply,
             safety_flags=out_flags or None,
@@ -2162,6 +2237,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             escalated=result["escalated"],
             image_url=image_url,
             photo_item=photo_item,
+            interactive=post_interactive,
         )
 
 

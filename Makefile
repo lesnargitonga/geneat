@@ -1,6 +1,9 @@
 PYTHON ?= ./.venv/bin/python
 
-.PHONY: dev test-fast doctor-local doctor-live smoke-providers publish-demo-photos bootstrap-demo generate-lily-training eval-whatsapp-live eval-whatsapp-local pre-demo-local pre-demo-live
+.PHONY: dev dev-hazina test-fast doctor-local doctor-live smoke-providers publish-demo-photos bootstrap-demo generate-lily-training eval-whatsapp-live eval-whatsapp-local pre-demo-local pre-demo-live
+
+dev-hazina:
+	./scripts/dev-hazina.sh
 
 dev:
 	./scripts/run_dev.sh

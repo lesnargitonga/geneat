@@ -5,20 +5,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        cream: "#FFF8EE",
+        cream: "#F5F0E8",
         ink: {
-          DEFAULT: "#1F2937",
-          soft: "#374151",
+          DEFAULT: "#2C2C2C",
+          soft: "#3D3D3D",
           mute: "#6B7280",
         },
         brand: {
-          DEFAULT: "#FF6A3D",   // warm orange
-          dark: "#E5552B",
-          light: "#FFE0D2",
+          DEFAULT: "#C45C3E",   // terracotta
+          dark: "#A84A30",
+          light: "#F0D5CC",
         },
-        lime: {
-          DEFAULT: "#B8E600",
-          soft: "#E8F8B0",
+        sage: {
+          DEFAULT: "#8B9A6B",
+          soft: "#E8EDE0",
         },
         sand: "#F5E6CC",
       },
@@ -28,7 +28,7 @@ const config: Config = {
       },
       boxShadow: {
         soft: "0 4px 24px -8px rgba(31,41,55,0.10)",
-        pop: "0 18px 40px -16px rgba(255,106,61,0.35)",
+        pop: "0 18px 40px -16px rgba(196,92,62,0.30)",
       },
       borderRadius: {
         xl: "16px",

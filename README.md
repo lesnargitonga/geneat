@@ -56,7 +56,9 @@ The platform receives inbound customer traffic from WhatsApp, voice, and mock
 with retrieval and tools, persists the conversation and business objects, and
 then responds through the correct outbound transport.
 
-The current demo story is food ordering for USIU-Africa cafés:
+The current demo story is food ordering for USIU-Africa cafés (Gen-Eat).
+A parallel launch pivot — **Hazina Nomads** (premium tourist gift concierge) —
+is documented in [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md).
 
 - students browse a café page,
 - click through to WhatsApp or chat on the web,
@@ -1617,6 +1619,76 @@ Meaning:
 - OpenAI breaker state in `/health/deep` is now worth checking when the chat
   path feels weird.
 
+### 17.7 Monitoring checklist
+
+- Ensure Prometheus scrapes `/metrics` from each app replica.
+- Alert on `AppDown`, `PGBouncerDown`, and `HighJobBacklog` (see
+  `deploy/monitoring/`).
+- Use `scripts/check_metrics.py` and `scripts/check_pgbouncer.py` for local
+  validation.
+- When an endpoint fails frequently, rotate provider credentials and re-run
+  smoke tests.
+
+### 17.8 Log rotation
+
+Use `logrotate` or systemd journald for production log rotation. Example
+`/etc/logrotate.d/omni` for a file-based logger:
+
+```text
+/var/log/omni/app.log {
+    daily
+    rotate 14
+    compress
+    missingok
+    notifempty
+    copytruncate
+}
+```
+
+If logs go to stdout (recommended for containers), rely on the container
+runtime or systemd to capture and rotate logs.
+
+### 17.9 Dedicated outbox worker
+
+For high-volume deployments, run the outbox processor as dedicated workers so
+HTTP delivery retries do not tie up request-handling threads.
+
+Systemd unit (example):
+
+```ini
+[Unit]
+Description=omnichannel-ai outbox worker
+After=network.target
+
+[Service]
+User=www-data
+WorkingDirectory=/srv/omnichannel-ai
+EnvironmentFile=/etc/omnichannel-ai/env
+ExecStart=/srv/omnichannel-ai/.venv/bin/python -m app.jobs.outbox_runner
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Docker Compose worker example:
+
+```yaml
+outbox_worker:
+  image: your-registry/omni:latest
+  command: ["/srv/omnichannel-ai/.venv/bin/python", "-m", "app.jobs.outbox_runner"]
+  env_file: .env
+  depends_on: [redis, db]
+  deploy:
+    replicas: 2
+    restart_policy:
+      condition: on-failure
+```
+
+Run `alembic upgrade head` before starting workers. Use `scripts/flush_outbox.py`
+for one-off re-processing. Alert on `OutboxDeliveryFailures` and job backlog.
+
 ## 18. Local Development
 
 ### 18.1 Prerequisites
@@ -1771,7 +1843,18 @@ Current operational nuance:
 Checked-in desired deployment config:
 
 - [render.yaml](/home/lesnar/Documents/ai model/render.yaml)
-- [deploy/render/README.md](/home/lesnar/Documents/ai model/deploy/render/README.md)
+- Full step-by-step Render guide (archived): [docs/archive/DEPLOY_RENDER.md](/home/lesnar/Documents/ai model/docs/archive/DEPLOY_RENDER.md)
+
+Render blueprint quickstart:
+
+1. Push repo with `render.yaml` to GitHub → Render **New > Blueprint**.
+2. Fill `sync: false` secrets (`python scripts/build_render_env.py` writes a
+   local checklist at `deploy/render/render.local.env`, gitignored).
+3. Add custom domain `api.lesnarai.co.ke` on the API service; point Cloudflare
+   DNS to Render's target.
+4. Verify: `curl -s https://api.lesnarai.co.ke/healthz` and `/readyz`.
+5. Reconnect Meta WhatsApp and IntaSend webhooks to the Render API URL.
+6. Seed: `python scripts/seed_geneat_demo.py` (or restore a `pg_dump`).
 
 That target declares:
 
@@ -1784,9 +1867,9 @@ with a cleaner managed setup than the manual beta cutover.
 
 ### 19.3 Alternative server path
 
-Truehost server-side bundle exists here:
+Truehost server-side bundle exists here (archived guide — not live path):
 
-- [deploy/truehost/README.md](/home/lesnar/Documents/ai model/deploy/truehost/README.md)
+- [docs/archive/DEPLOY_TRUEHOST.md](/home/lesnar/Documents/ai model/docs/archive/DEPLOY_TRUEHOST.md)
 - [deploy/truehost/docker-compose.api.yml](/home/lesnar/Documents/ai model/deploy/truehost/docker-compose.api.yml)
 
 That path is currently a prepared alternative, not the current live path.
@@ -1795,12 +1878,20 @@ That path is currently a prepared alternative, not the current live path.
 
 Prepared operational assets now exist for the next hardening pass:
 
-- [deploy/pgbouncer/README.md](/home/lesnar/Documents/ai model/deploy/pgbouncer/README.md)
+- Extended PgBouncer notes (archived): [docs/archive/DEPLOY_PGBOUNCER.md](/home/lesnar/Documents/ai model/docs/archive/DEPLOY_PGBOUNCER.md)
 - [deploy/pgbouncer/pgbouncer.ini](/home/lesnar/Documents/ai model/deploy/pgbouncer/pgbouncer.ini)
 - [deploy/pgbouncer/pgbouncer.service](/home/lesnar/Documents/ai model/deploy/pgbouncer/pgbouncer.service)
 - [deploy/monitoring/prometheus.yml](/home/lesnar/Documents/ai model/deploy/monitoring/prometheus.yml)
 - [deploy/monitoring/alertmanager_rules.yml](/home/lesnar/Documents/ai model/deploy/monitoring/alertmanager_rules.yml)
 - [deploy/monitoring/grafana_dashboard.json](/home/lesnar/Documents/ai model/deploy/monitoring/grafana_dashboard.json)
+
+PgBouncer local quickstart:
+
+```bash
+bash scripts/setup_pgbouncer.sh
+docker-compose up -d postgres redis pgbouncer
+psql -h 127.0.0.1 -p 6432 -U omni -d omni -c "SHOW POOLS;"
+```
 
 Current truth:
 
@@ -2322,6 +2413,19 @@ a production blocker before real customer money.
 LangGraph / LangChain still emits a pending deprecation warning around
 `allowed_objects`. It is not currently a release blocker.
 
+### 22.6 Load test scenarios
+
+Quick local sanity checks:
+
+| Scenario | Command / target |
+| --- | --- |
+| Smoke | 100 requests / 10 concurrency against `/` |
+| Short chat | 300 requests / 20 concurrency against `/api/chat` |
+
+Use `scripts/load_test_sample.py` for quick checks; use `scripts/load_test_mock.py`
+for mock-channel concurrency. For larger tests use `k6`, `locust`, or a cloud
+load generator.
+
 ## 23. Scaling Notes And Known Gaps
 
 This is the honest list, not the flattering list.
@@ -2536,31 +2640,25 @@ Still blocking production with real customer money:
 
 ## 24. Documentation Policy
 
-This README is the canonical system document.
+This README is the canonical **platform** document. Hazina Nomads product and
+launch truth lives in [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md).
 
-All other Markdown files should stay small and point back here:
+**Active Markdown files (keep these small):**
 
-- [docs/BETA_DEPLOY.md](/home/lesnar/Documents/ai model/docs/BETA_DEPLOY.md)
-- [docs/PRODUCTION_RUNBOOK.md](/home/lesnar/Documents/ai model/docs/PRODUCTION_RUNBOOK.md)
-- [docs/RELEASE_CHECKLIST.md](/home/lesnar/Documents/ai model/docs/RELEASE_CHECKLIST.md)
-- [docs/business_plan_geneat_usiu_pilot.md](/home/lesnar/Documents/ai model/docs/business_plan_geneat_usiu_pilot.md)
-- [docs/logging_rotation.md](/home/lesnar/Documents/ai model/docs/logging_rotation.md)
-- [docs/monitoring_RUNBOOK.md](/home/lesnar/Documents/ai model/docs/monitoring_RUNBOOK.md)
-- [docs/outbox_architecture.md](/home/lesnar/Documents/ai model/docs/outbox_architecture.md)
-- [admin-ui/README.md](/home/lesnar/Documents/ai model/admin-ui/README.md)
-- [gen-eat-portal/README.md](/home/lesnar/Documents/ai model/gen-eat-portal/README.md)
-- [gen-eat-portal/public/menu/README.md](/home/lesnar/Documents/ai model/gen-eat-portal/public/menu/README.md)
-- [deploy/load_test_scenarios.md](/home/lesnar/Documents/ai model/deploy/load_test_scenarios.md)
-- [deploy/pgbouncer/PR_SUMMARY.md](/home/lesnar/Documents/ai model/deploy/pgbouncer/PR_SUMMARY.md)
-- [deploy/pgbouncer/README.md](/home/lesnar/Documents/ai model/deploy/pgbouncer/README.md)
-- [deploy/render/README.md](/home/lesnar/Documents/ai model/deploy/render/README.md)
-- [deploy/truehost/README.md](/home/lesnar/Documents/ai model/deploy/truehost/README.md)
+| File | Purpose |
+| --- | --- |
+| [README.md](README.md) | Platform architecture, deployment, ops, Gen-Eat demo |
+| [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md) | Hazina Nomads launch SSOT |
+| [SECURITY.md](SECURITY.md) | Security audit and hardening |
+| [admin-ui/README.md](admin-ui/README.md) | Admin SPA setup commands |
+| [gen-eat-portal/README.md](gen-eat-portal/README.md) | Portal setup commands |
+| [docs/archive/README.md](docs/archive/README.md) | Index of archived Gen-Eat / superseded guides |
 
 Rules:
 
-1. If the system changes, update this README first.
-2. Keep package-local READMEs thin.
-3. Do not reintroduce a second long-form architecture or deploy guide unless
-   there is a compelling, isolated reason.
-4. When reality and aspiration differ, document both clearly and label which
-   one is live truth.
+1. If the platform changes, update this README first.
+2. If Hazina product/ops changes, update `docs/HAZINA_NOMADS.md`.
+3. Keep package READMEs to setup commands + one link to the canonical doc.
+4. Do not reintroduce overlapping launch or deploy guides — merge into README
+   or HAZINA, or archive under `docs/archive/`.
+5. When reality and aspiration differ, document both and label live truth.

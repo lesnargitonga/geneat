@@ -40,9 +40,25 @@ class OrderItem(BaseModel):
 class CreateOrderArgs(BaseModel):
     items: list[OrderItem]
     delivery_notes: str | None = None
+    delivery_location: str | None = Field(
+        None,
+        description=(
+            "Structured delivery destination: hotel name + room, front-desk hold, "
+            "or JKIA terminal (e.g. 'Hemingways Karen room 412', 'JKIA Terminal 1A')."
+        ),
+    )
+    departure_time_iso: str | None = Field(
+        None,
+        description="ISO-8601 departure/flight time — required for JKIA deliveries.",
+    )
     appointment_time_iso: str | None = Field(
         None, description="ISO-8601 if this order is also a booking (e.g. salon, clinic).",
     )
+
+
+class DhlShippingArgs(BaseModel):
+    destination_country: str = Field(..., description="ISO country name or code, e.g. 'United Kingdom'.")
+    box_weight_kg: float = Field(1.5, gt=0, le=30, description="Estimated packed box weight in kg.")
 
 
 class MpesaArgs(BaseModel):
@@ -146,12 +162,17 @@ def build_tools(
     async def create_order(
         items: list[OrderItem | dict],
         delivery_notes: str | None = None,
+        delivery_location: str | None = None,
+        departure_time_iso: str | None = None,
         appointment_time_iso: str | None = None,
     ) -> dict:
         # Normalise items — StructuredTool may pass them as dicts.
         items = [i if isinstance(i, OrderItem) else OrderItem(**i) for i in items]
         args = CreateOrderArgs(
-            items=items, delivery_notes=delivery_notes,
+            items=items,
+            delivery_notes=delivery_notes,
+            delivery_location=delivery_location,
+            departure_time_iso=departure_time_iso,
             appointment_time_iso=appointment_time_iso,
         )
         t0 = time.perf_counter()
@@ -209,14 +230,25 @@ def build_tools(
                 await _audit("create_order", args.model_dump(), result, True, t0)
                 return result
 
-        appt = datetime.fromisoformat(args.appointment_time_iso) if args.appointment_time_iso else None
+        appt_iso = args.appointment_time_iso or args.departure_time_iso
+        appt = datetime.fromisoformat(appt_iso) if appt_iso else None
+        note_parts: list[str] = []
+        if args.delivery_location:
+            note_parts.append(f"Location: {args.delivery_location}")
+        if args.departure_time_iso:
+            note_parts.append(f"Departure: {args.departure_time_iso}")
+        if args.delivery_notes:
+            note_parts.append(args.delivery_notes)
+        composed_notes = " | ".join(note_parts) if note_parts else None
         order, _created = await create_pending_order(
             db,
             customer_id=conv.customer_id,
             conversation_id=conv.id,
             business_id=tenant_id,
             items=cafe_items,
-            delivery_notes=args.delivery_notes,
+            delivery_notes=composed_notes,
+            delivery_location=args.delivery_location,
+            departure_time_iso=args.departure_time_iso,
             fast_path="llm_tool",
             appointment_time=appt,
         )
@@ -614,6 +646,38 @@ def build_tools(
                      result.get("ok", False), t0)
         return result
 
+    # ── calculate_dhl_shipping (stub — Day 4+ real API) ──
+    async def calculate_dhl_shipping(
+        destination_country: str,
+        box_weight_kg: float = 1.5,
+    ) -> dict:
+        """Estimate international DHL shipping for diaspora / corporate sends."""
+        args = DhlShippingArgs(
+            destination_country=destination_country,
+            box_weight_kg=box_weight_kg,
+        )
+        t0 = time.perf_counter()
+        # MVP stub: flat bands by weight — replace with DHL rate API at launch+.
+        weight = args.box_weight_kg
+        if weight <= 2:
+            usd = 45.0
+        elif weight <= 5:
+            usd = 78.0
+        else:
+            usd = round(78.0 + (weight - 5) * 12.0, 2)
+        result = {
+            "ok": True,
+            "destination": args.destination_country,
+            "weight_kg": weight,
+            "estimate_usd": usd,
+            "carrier": "DHL Express",
+            "lead_days": "3–5 business days",
+            "note": "Estimate only — confirm at checkout. Nairobi pickup included.",
+            "stub": True,
+        }
+        await _audit("calculate_dhl_shipping", args.model_dump(), result, True, t0)
+        return result
+
     return [
         StructuredTool.from_function(coroutine=knowledge_lookup, name="knowledge_lookup",
                                      description="Search the business knowledge base (menu, prices, hours, FAQs).",
@@ -658,4 +722,13 @@ def build_tools(
                                          "someone else."
                                      ),
                                      args_schema=CustomerNameArgs),
+        StructuredTool.from_function(
+            coroutine=calculate_dhl_shipping,
+            name="calculate_dhl_shipping",
+            description=(
+                "Estimate DHL Express international shipping cost and lead time for "
+                "sending a gift box abroad (diaspora / corporate). Returns USD estimate."
+            ),
+            args_schema=DhlShippingArgs,
+        ),
     ]

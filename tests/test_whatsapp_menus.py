@@ -32,6 +32,43 @@ def test_command_for_interactive_id_maps_controls() -> None:
     assert wm.command_for_interactive_id("lp:cat:smoothie") == "smoothie"
 
 
+def test_hazina_main_menu_payload() -> None:
+    payload = wm.main_menu_payload(
+        business_name="Hazina Nomads", language="en", business_slug="hazina-nomads",
+    )
+    assert payload["type"] == "list"
+    rows = payload["sections"][0]["rows"]
+    ids = {row["id"] for row in rows}
+    assert wm.ID_SHOP in ids
+    assert wm.ID_CORPORATE in ids
+    assert wm.ID_CONCIERGE in ids
+    assert wm.ID_TRACK in ids
+    assert wm.ID_ORDER not in ids  # café-only action
+
+
+def test_cafe_main_menu_unchanged_without_slug() -> None:
+    payload = wm.main_menu_payload(business_name="Lily Pond Cafe", language="en")
+    rows = payload["sections"][0]["rows"]
+    ids = {row["id"] for row in rows}
+    assert wm.ID_ORDER in ids
+    assert wm.ID_SHOP not in ids
+
+
+def test_product_list_payload_has_five_boxes() -> None:
+    payload = wm.product_list_payload(language="en")
+    rows = payload["sections"][0]["rows"]
+    prod_rows = [r for r in rows if r["id"].startswith(wm.ID_PRODUCT_PREFIX)]
+    assert len(prod_rows) == 5
+    assert wm.ID_HOME in {r["id"] for r in rows}
+
+
+def test_command_for_hazina_interactive_ids() -> None:
+    assert wm.command_for_interactive_id("lp:shop") == "full menu"
+    assert wm.command_for_interactive_id("lp:corp") == "corporate gifting"
+    assert wm.command_for_interactive_id("lp:concierge") == wm.CMD_STAFF
+    assert wm.command_for_interactive_id("lp:prod:kenya-edit") == "order kenya edit"
+
+
 def test_main_menu_payload_is_a_list_with_core_actions() -> None:
     payload = wm.main_menu_payload(business_name="Lily Pond Cafe", language="en")
     assert payload["type"] == "list"

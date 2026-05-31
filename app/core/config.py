@@ -198,7 +198,7 @@ class Settings(BaseSettings):
     # phone_number_id, no sticky conversation), this slug is used as the
     # global default. Falls back to the oldest active business if unset or
     # the slug doesn't exist.
-    default_business_slug: str = "lily-pond-cafe"
+    default_business_slug: str = "hazina-nomads"
 
     # The KES 10 "Demo Espresso" instant-order fast path is a sales-demo feature.
     # It only fires for this tenant slug so a real client's customers can never

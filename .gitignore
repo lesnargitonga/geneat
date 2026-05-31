@@ -26,6 +26,10 @@ lily_pond_training_*.jsonl
 node_modules/
 gen-eat-portal/node_modules/
 gen-eat-portal/.next/
+hazina-portal/node_modules/
+hazina-portal/.next/
+hazina-portal/.dev-hazina.*
+hazina-portal/tsconfig.tsbuildinfo
 admin-ui/node_modules/
 admin-ui/dist/
 admin-ui/tsconfig.tsbuildinfo

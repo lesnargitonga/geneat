@@ -231,6 +231,8 @@ async def create_pending_order(
     business_id: uuid.UUID | None,
     items: Sequence[CafeOrderItem],
     delivery_notes: str | None = None,
+    delivery_location: str | None = None,
+    departure_time_iso: str | None = None,
     fast_path: str | None = None,
     appointment_time: datetime | None = None,
 ) -> tuple[Order, bool]:
@@ -260,6 +262,10 @@ async def create_pending_order(
         "delivery_notes": delivery_notes,
         "fulfillment_status": "pending_payment",
     }
+    if delivery_location:
+        details["delivery_location"] = delivery_location
+    if departure_time_iso:
+        details["departure_time_iso"] = departure_time_iso
     if fast_path:
         details["fast_path"] = fast_path
 

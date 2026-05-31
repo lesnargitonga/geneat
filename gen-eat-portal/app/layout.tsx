@@ -4,13 +4,13 @@ import { Footer } from "@/components/Footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Gen-Eat · USIU campus food, on tap",
+  title: "Hazina Nomads · Curated Kenyan gift boxes",
   description:
-    "Order from any café on USIU campus and pick up between classes. Coffee, brunch, burgers, snacks — all in one chat.",
+    "Premium gift concierge for travellers in Nairobi. Curated Kenyan treasures delivered to your hotel or JKIA before you fly home.",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FF6A3D",
+  themeColor: "#C45C3E",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

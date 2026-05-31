@@ -10,11 +10,11 @@
   body {
     @apply bg-cream text-ink font-sans;
     background-image:
-      radial-gradient(800px 400px at 100% -10%, rgba(255,106,61,0.10), transparent 60%),
-      radial-gradient(700px 360px at -10% 80%, rgba(184,230,0,0.10), transparent 55%);
+      radial-gradient(800px 400px at 100% -10%, rgba(196,92,62,0.08), transparent 60%),
+      radial-gradient(700px 360px at -10% 80%, rgba(139,154,107,0.10), transparent 55%);
     background-attachment: fixed;
   }
-  ::selection { background: #FF6A3D33; }
+  ::selection { background: #C45C3E33; }
 }
 
 @layer components {
@@ -35,7 +35,7 @@
   .chip {
     @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium;
   }
-  .chip-ok   { @apply chip bg-lime-soft text-emerald-800; }
+  .chip-ok   { @apply chip bg-sage-soft text-emerald-900; }
   .chip-warn { @apply chip bg-amber-100 text-amber-800; }
   .chip-mute { @apply chip bg-ink/5 text-ink-mute; }
 
