@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3001",
+    "dev:clean": "bash ../scripts/dev-hazina.sh",
     "build": "next build",
     "start": "next start -p ${PORT:-3000}",
+    "preview": "npm run build && next start -p 3003",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit",
-    "dev:clean": "bash ../scripts/dev-hazina.sh"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "clsx": "2.1.1",

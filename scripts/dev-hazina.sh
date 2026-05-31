@@ -108,6 +108,16 @@ wait_for_ready() {
   local i
   for i in $(seq 1 90); do
     if curl -sf -o /dev/null "$url"; then
+      local css_path
+      css_path=$(curl -sf "$url" | grep -oE '/_next/static/css/[^"]+\.css' | head -1 || true)
+      if [[ -n "$css_path" ]]; then
+        local ctype
+        ctype=$(curl -sfI "http://127.0.0.1:${PORT}${css_path}" | tr -d '\r' | awk -F': ' 'tolower($1)=="content-type"{print $2; exit}')
+        if [[ "$ctype" != *"text/css"* ]]; then
+          echo "WARNING: CSS at ${css_path} returned '${ctype:-unknown}' — page may look unstyled." >&2
+          echo "  Fix: stop all next dev processes, rm -rf hazina-portal/.next, rerun make dev-hazina" >&2
+        fi
+      fi
       echo ""
       echo "✓ Hazina portal ready: http://localhost:${PORT}"
       echo "  Collections: http://localhost:${PORT}/collections"

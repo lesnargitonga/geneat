@@ -38,10 +38,10 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
-        serif: ["Cormorant Garamond", "Georgia", "serif"],
-        mono: ["DM Mono", "ui-monospace", "monospace"],
-        display: ["Cormorant Garamond", "Georgia", "serif"],
+        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        serif: ["var(--font-cormorant)", "Georgia", "serif"],
+        mono: ["var(--font-dm-mono)", "ui-monospace", "monospace"],
+        display: ["var(--font-cormorant)", "Georgia", "serif"],
       },
       boxShadow: {
         soft: "0 4px 24px -8px rgba(28, 26, 23, 0.08)",

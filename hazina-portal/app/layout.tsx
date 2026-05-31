@@ -1,8 +1,40 @@
 import type { Metadata, Viewport } from "next";
+import { Cormorant_Garamond, DM_Mono, Inter } from "next/font/google";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
-import { ThemeScript } from "@/components/ThemeScript";
 import "./globals.css";
+
+const themeInitScript = `(() => {
+  try {
+    const stored = window.localStorage.getItem("hazina.theme");
+    const prefersNight = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const theme = stored || (prefersNight ? "night" : "day");
+    document.documentElement.dataset.theme = theme;
+  } catch {
+    document.documentElement.dataset.theme = "day";
+  }
+})();`;
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
+
+const dmMono = DM_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-dm-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.PUBLIC_HAZINA_PORTAL_URL || "https://hazina.lesnarai.co.ke"),
@@ -17,17 +49,13 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <head>
-        <ThemeScript />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap"
-        />
-      </head>
+    <html
+      lang="en"
+      className={`scroll-smooth ${inter.variable} ${cormorant.variable} ${dmMono.variable}`}
+      suppressHydrationWarning
+    >
       <body className="min-h-screen bg-sand text-ink font-sans font-normal antialiased">
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <Nav />
         <main>{children}</main>
         <Footer />
