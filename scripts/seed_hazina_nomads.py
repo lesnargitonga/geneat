@@ -18,7 +18,7 @@ import os
 import sys
 import uuid
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
 
 from app.ai.rag import ingest_text
 from app.catalog.hazina_catalog import (
@@ -48,17 +48,17 @@ BRAND_VOICE = (
     "Professional, calm, high-end hotel concierge. You curate premium Kenyan gift "
     "boxes for travellers — never a discount souvenir shop. Keep replies concise "
     "(1–3 sentences), use the guest's name when known, and never use slang or "
-    "campus-café tone. Confirm delivery location (hotel name and room, or JKIA "
-    "terminal) and departure time before promising dispatch. Default currency is "
-    "KES for M-Pesa; quote USD equivalents when the guest asks. Guests may order "
+    "campus-café tone. Confirm delivery location (hotel name and room, JKIA "
+    "terminal, or international address for DHL/export quote) and timing before promising dispatch. Display USD first "
+    "for tourist clarity, with KES visible for local M-Pesa settlement. Guests may order "
     "five curated collections or compose a custom box from individual treasures "
     f"(minimum {MIN_CUSTOM_ITEMS} items plus optional packaging USD {PACKAGING_FEE_USD})."
 )
 
 GREETING_TEMPLATE = (
     "Welcome to Hazina Nomads — curated treasures for the modern nomad. "
-    "I can help you shop our gift collections, build a custom box, arrange delivery "
-    "to your hotel or JKIA, or connect you with a concierge. How may I assist you today?"
+    "I can help you shop our gift collections, build a custom box, arrange hotel/JKIA delivery, "
+    "or quote DHL export shipping. How may I assist you today?"
 )
 
 PROFILE: dict = {
@@ -74,13 +74,19 @@ PROFILE: dict = {
             "cream": "#F5F0E8",
         },
     },
-    "currency": "KES",
+    "currency": "USD",
+    "currency_display": "USD first, KES equivalent",
     "usd_pricing": True,
     "payment_methods": ["M-Pesa (IntaSend STK)", "Visa/Mastercard/Apple Pay (Paystack USD)"],
     "custom_orders": True,
     "corporate_gifting": True,
     "timezone": "Africa/Nairobi",
-    "delivery_zones": ["Westlands", "Kilimani", "Karen", "JKIA"],
+    "delivery_zones": ["Westlands", "Kilimani", "Karen", "JKIA", "DHL export quote"],
+    "international_shipping": {
+        "enabled": True,
+        "carrier_preference": "DHL Express or equivalent insured courier",
+        "quote_before_payment": True,
+    },
     "jkia_delivery_window_hours": 4,
     "late_dispatch_fee_usd": 15,
     "late_dispatch_after": "20:00 EAT",
@@ -115,6 +121,13 @@ KB_POLICIES: list[str] = [
         "LATE DISPATCH — Deliveries requested after 20:00 East Africa Time incur a "
         "USD 15 late-dispatch fee. Same-day JKIA requests before 20:00 follow the "
         "4-hour window rule without the late fee if feasible."
+    ),
+    (
+        "INTERNATIONAL SHIPPING — If a traveller has already left Kenya or needs "
+        "delivery outside the country, offer a DHL Express or equivalent insured "
+        "courier quote. Collect destination country, city, full address, recipient "
+        "name, phone/email, and deadline. Quote courier, customs risk, and ETA "
+        "before taking payment."
     ),
     (
         "CUSTOM BOXES — Guests may compose their own gift box from individual treasures "
@@ -163,8 +176,14 @@ async def upsert_business(db) -> Business:
         or ""
     )
     if meta_pid:
+        await db.execute(
+            update(Business)
+            .where(Business.slug != SLUG)
+            .where(Business.meta_wa_phone_number_id == str(meta_pid))
+            .values(meta_wa_phone_number_id=None)
+        )
         biz.meta_wa_phone_number_id = str(meta_pid)
-        print(f"  • Linked Meta phone_number_id → {meta_pid[:6]}…")
+        print(f"  • Claimed Meta phone_number_id for Hazina → {meta_pid[:6]}…")
     await db.flush()
     return biz
 

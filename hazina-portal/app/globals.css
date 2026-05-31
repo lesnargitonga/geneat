@@ -42,7 +42,7 @@
     text-rendering: optimizeLegibility;
   }
   body {
-    @apply bg-sand text-ink font-sans font-normal text-[15px] md:text-base leading-relaxed min-h-screen;
+    @apply bg-sand text-ink font-sans font-normal text-base leading-relaxed min-h-screen;
   }
   a {
     @apply no-underline;
@@ -83,26 +83,26 @@
   }
 
   .btn-dark {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 px-6 py-3
            text-sm font-mono font-medium uppercase tracking-[0.12em]
            transition-all duration-300 active:scale-[0.98] disabled:opacity-50
            bg-obsidian text-sand hover:bg-obsidian-soft;
   }
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 px-6 py-3
            text-sm font-mono font-medium uppercase tracking-[0.12em]
            transition-all duration-300 active:scale-[0.98] disabled:opacity-50
            border border-obsidian text-obsidian bg-transparent
            hover:bg-obsidian hover:text-sand;
   }
   .btn-bronze {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 px-6 py-3
            text-sm font-mono font-medium uppercase tracking-[0.12em]
            transition-all duration-300 active:scale-[0.98] disabled:opacity-50
            bg-bronze-dark text-sand hover:bg-bronze;
   }
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 px-6 py-3
            text-sm font-mono font-medium uppercase tracking-[0.12em]
            transition-all duration-300 active:scale-[0.98] disabled:opacity-50
            border border-border text-ink-soft bg-transparent
@@ -114,7 +114,7 @@
   }
 
   .chip {
-    @apply inline-flex items-center gap-1 px-3 py-1 text-[11px] font-mono font-medium uppercase tracking-[0.12em];
+    @apply inline-flex min-h-[38px] items-center gap-1 px-3 py-1.5 text-xs font-mono font-medium uppercase tracking-[0.12em];
   }
   .chip-dark {
     @apply chip bg-black/90 text-white backdrop-blur-sm;
@@ -135,7 +135,7 @@
   }
 
   .label-mono {
-    @apply font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-ink-soft;
+    @apply font-mono text-[13px] font-medium uppercase tracking-[0.12em] text-ink-soft;
   }
 
   .card-luxury {
@@ -144,7 +144,7 @@
   }
 
   .input-luxury {
-    @apply w-full border border-border bg-sand px-4 py-3 text-sm text-obsidian
+    @apply w-full border border-border bg-sand px-4 py-3 text-base text-obsidian
            placeholder:text-ink-mute/60 transition-colors focus:border-obsidian;
   }
 

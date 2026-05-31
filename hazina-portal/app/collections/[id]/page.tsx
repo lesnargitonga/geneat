@@ -5,7 +5,11 @@ import { CatalogImage } from "@/components/CatalogImage";
 import { GIFT_BOXES, getGiftBox, BRAND } from "@/lib/products";
 import { getTreasuresByIds } from "@/lib/treasures";
 import { CollectionItemsPreview } from "@/components/CollectionCard";
-import { formatKES, whatsappLink } from "@/lib/format";
+import { CollectionCheckout } from "@/components/CollectionCheckout";
+import { formatDualPrice, whatsappLink } from "@/lib/format";
+import { StickyWhatsAppCTA } from "@/components/StickyWhatsAppCTA";
+import { SmartBackLink } from "@/components/SmartBackLink";
+import { TrustRow } from "@/components/TrustRow";
 
 type Props = { params: { id: string } };
 
@@ -27,8 +31,9 @@ export default function CollectionDetailPage({ params }: Props) {
   if (!box) notFound();
 
   const items = getTreasuresByIds(box.itemIds ?? []);
-  const itemsSubtotal = items.reduce((s, t) => s + t.price_kes, 0);
-  const wa = whatsappLink(BRAND.whatsapp, `Hi — I'd like to reserve ${box.name} as listed.`);
+  const itemsSubtotalKes = items.reduce((s, t) => s + t.price_kes, 0);
+  const itemsSubtotalUsd = items.reduce((s, t) => s + t.price_usd, 0);
+  const orderMessage = `Hello Hazina Nomads — I'd like to order ${box.name}.`;
   const customizeWa = whatsappLink(
     BRAND.whatsapp,
     `Hi — I'm interested in ${box.name} but would like to swap a few items inside.`,
@@ -37,9 +42,9 @@ export default function CollectionDetailPage({ params }: Props) {
   return (
     <>
       <div className="container-page pt-10 md:pt-16 pb-16">
-        <Link href="/collections" className="label-mono text-bronze hover:text-obsidian">
-          ← All collections
-        </Link>
+        <SmartBackLink fallbackHref="/collections" className="label-mono text-bronze hover:text-obsidian">
+          ← Back to browsing
+        </SmartBackLink>
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 mt-8 items-start">
           <CatalogImage
@@ -55,8 +60,13 @@ export default function CollectionDetailPage({ params }: Props) {
               <span className="label-mono">{box.sku} · {box.lead_time_hours}h lead</span>
               <h1 className="h-display text-4xl md:text-5xl text-obsidian mt-3">{box.name}</h1>
               <p className="text-ink-mute mt-2">{box.target}</p>
-              <div className="font-mono text-xl text-bronze mt-4">
-                {formatKES(box.price_kes)} · USD {box.price_usd}
+              <div className="mt-4 inline-block border border-border bg-sand-dark/60 px-4 py-3">
+                <div className="font-mono text-2xl font-semibold text-bronze">
+                  USD {box.price_usd.toLocaleString("en-US")}
+                </div>
+                <div className="font-mono text-sm text-ink-soft">
+                  KES {box.price_kes.toLocaleString("en-KE")}
+                </div>
               </div>
             </div>
 
@@ -70,13 +80,16 @@ export default function CollectionDetailPage({ params }: Props) {
             )}
 
             <div className="flex flex-wrap gap-4">
-              <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark">
-                Reserve this collection
+              <a href="#checkout" className="btn-dark">
+                Start checkout
               </a>
               <Link href="/build" className="btn-outline">
                 Build your own instead
               </Link>
             </div>
+            <TrustRow />
+
+            <CollectionCheckout box={box} />
           </div>
         </div>
 
@@ -89,7 +102,7 @@ export default function CollectionDetailPage({ params }: Props) {
               </h2>
             </div>
             <p className="text-sm text-ink-mute">
-              Individual value ~{formatKES(itemsSubtotal)} — collection price includes curation &amp; packaging
+              Individual value ~{formatDualPrice(itemsSubtotalUsd, itemsSubtotalKes)} — collection price includes curation &amp; packaging
             </p>
           </div>
           <CollectionItemsPreview box={box} />
@@ -101,6 +114,7 @@ export default function CollectionDetailPage({ params }: Props) {
           </a>
         </section>
       </div>
+      <StickyWhatsAppCTA message={orderMessage} />
     </>
   );
 }

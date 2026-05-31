@@ -213,6 +213,7 @@ async def _handle_one_message(SessionLocal, msg: dict, contacts: dict, phone_num
             customer_name=profile_name, media_url=media_url,
             provider_message_id=msg_id,
             business_id=business.id if business else None,
+            meta_phone_number_id=phone_number_id,
         ))
     if result.duplicate:
         return

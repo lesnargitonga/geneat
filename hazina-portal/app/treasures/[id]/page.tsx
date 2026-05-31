@@ -2,9 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CatalogImage } from "@/components/CatalogImage";
+import { SmartBackLink } from "@/components/SmartBackLink";
 import { TREASURES, CATEGORY_LABELS, getTreasure } from "@/lib/treasures";
 import { BRAND } from "@/lib/products";
-import { formatKES, whatsappLink } from "@/lib/format";
+import { formatDualPrice, whatsappLink } from "@/lib/format";
 
 type Props = { params: { id: string } };
 
@@ -34,9 +35,9 @@ export default function TreasureDetailPage({ params }: Props) {
   return (
     <>
       <div className="container-page pt-10 md:pt-16 pb-16">
-        <Link href="/treasures" className="label-mono text-bronze hover:text-obsidian">
-          ← All treasures
-        </Link>
+        <SmartBackLink fallbackHref="/treasures" className="label-mono text-bronze hover:text-obsidian">
+          ← Back to browsing
+        </SmartBackLink>
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 mt-8">
           <CatalogImage
@@ -51,14 +52,14 @@ export default function TreasureDetailPage({ params }: Props) {
             <span className="label-mono">{CATEGORY_LABELS[item.category]} · {item.sku}</span>
             <h1 className="h-display text-4xl md:text-5xl text-obsidian">{item.name}</h1>
             <div className="font-mono text-lg text-bronze">
-              {formatKES(item.price_kes)} · USD {item.price_usd}
+              {formatDualPrice(item.price_usd, item.price_kes)}
             </div>
             <p className="text-ink-mute text-lg leading-relaxed">{item.description}</p>
 
             <div className="editorial-rule space-y-3 text-sm text-ink-mute">
               {item.origin && (
                 <p>
-                  <span className="text-obsidian font-mono text-[10px] uppercase tracking-editorial block mb-1">
+                  <span className="text-obsidian font-mono text-sm uppercase tracking-[0.1em] block mb-1">
                     Origin
                   </span>
                   {item.origin}
@@ -66,7 +67,7 @@ export default function TreasureDetailPage({ params }: Props) {
               )}
               {item.lead_time_hours && (
                 <p>
-                  <span className="text-obsidian font-mono text-[10px] uppercase tracking-editorial block mb-1">
+                  <span className="text-obsidian font-mono text-sm uppercase tracking-[0.1em] block mb-1">
                     Lead time
                   </span>
                   {item.lead_time_hours} hours
@@ -74,7 +75,7 @@ export default function TreasureDetailPage({ params }: Props) {
               )}
               {item.personalization && (
                 <p>
-                  <span className="text-obsidian font-mono text-[10px] uppercase tracking-editorial block mb-1">
+                  <span className="text-obsidian font-mono text-sm uppercase tracking-[0.1em] block mb-1">
                     Personalisation
                   </span>
                   Available — confirm details with concierge
@@ -109,7 +110,7 @@ export default function TreasureDetailPage({ params }: Props) {
                     imageClassName="object-cover group-hover:scale-105 transition-transform"
                     sizes="200px"
                   />
-                  <p className="font-serif text-sm">{r.name}</p>
+                  <p className="font-serif text-base leading-tight text-obsidian">{r.name}</p>
                 </Link>
               ))}
             </div>

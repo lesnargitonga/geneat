@@ -5,6 +5,9 @@ Outputs a report of:
  - treasures and gift boxes with `image: null`
  - `sourceImage` entries whose files are missing
  - suggestions for close filename matches found in the treasures folder
+
+Collection hero composites are intentionally not suggested. Hazina collection
+cards should stay blank until exact product photography is supplied.
 """
 from __future__ import annotations
 
@@ -19,7 +22,11 @@ PRODUCTS_TS = ROOT / "hazina-portal" / "lib" / "products.ts"
 
 
 def list_files():
-    files = [p.name for p in TREASURES_DIR.glob("**/*") if p.is_file()]
+    files = [
+        p.relative_to(TREASURES_DIR).as_posix()
+        for p in TREASURES_DIR.glob("**/*")
+        if p.is_file()
+    ]
     return files
 
 
@@ -98,12 +105,7 @@ def main():
     print("\nGift boxes with missing 'image' fields:")
     for p in missing_box_images:
         print(f" - {p['id']} ({p.get('name')}) [line {p['line']}] -> sourceImage={p.get('sourceImage')}")
-        # look for generated hero first
-        gold = f"{p['id']}-hero.jpg"
-        if gold in files or f"generated/{gold}" in files:
-            print(f"    generated suggestion: /treasures/generated/{gold}")
-        else:
-            print("    no generated hero image found; consider running composer")
+        print("    exact collection photograph needed; leave blank until supplied")
 
     # Check sourceImage validity across all items
     print("\nSourceImage files missing or mismatched:")

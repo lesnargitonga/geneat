@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BRAND } from "@/lib/products";
 import { whatsappLink } from "@/lib/format";
@@ -19,7 +20,7 @@ const ASK_PROMPTS = [
 ];
 
 const GREETING =
-  "Welcome to Hazina Nomads. I can help you choose a curated gift box and coordinate delivery to your hotel or JKIA terminal. Where are you staying, and when do you depart?";
+  "Welcome to Hazina Nomads. I can help you choose a curated gift box and coordinate hotel delivery, JKIA handoff, or an insured DHL export quote. Where are you staying, and when do you depart?";
 
 function getOrCreatePhone(): string {
   if (typeof window === "undefined") return "+254700000000";
@@ -158,7 +159,9 @@ export function ChatWidget() {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? "Close chat" : "Open chat"}
-        className="fixed bottom-5 right-5 z-40 w-14 h-14 bg-obsidian text-sand shadow-editorial flex items-center justify-center text-2xl active:scale-95 transition hover:bg-obsidian-soft"
+        className={`fixed bottom-5 right-5 z-40 w-14 h-14 bg-obsidian text-sand shadow-editorial items-center justify-center text-2xl active:scale-95 transition hover:bg-obsidian-soft ${
+          open ? "flex" : "hidden sm:flex"
+        }`}
       >
         {open ? "✕" : "💬"}
       </button>
@@ -174,7 +177,7 @@ export function ChatWidget() {
               href={whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like concierge help.")}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-mono text-[10px] uppercase tracking-editorial text-sand/70 hover:text-sand"
+              className="font-mono text-sm uppercase tracking-[0.1em] text-sand/70 hover:text-sand"
             >
               WhatsApp
             </a>
@@ -197,7 +200,7 @@ export function ChatWidget() {
                   <button
                     key={p}
                     onClick={() => send(p)}
-                    className="text-[11px] font-mono uppercase tracking-wide px-3 py-1.5 border border-border text-ink-mute hover:border-obsidian hover:text-obsidian transition-colors"
+                    className="text-xs font-mono uppercase tracking-wide px-3 py-1.5 border border-border text-ink-mute hover:border-obsidian hover:text-obsidian transition-colors"
                   >
                     {p}
                   </button>
@@ -223,7 +226,7 @@ export function ChatWidget() {
             <button
               onClick={() => send()}
               disabled={busy || !draft.trim()}
-              className="btn-dark !px-4 !py-2 text-[10px]"
+              className="btn-dark !px-4 !py-2 text-xs"
             >
               Send
             </button>
@@ -241,7 +244,7 @@ export function triggerConciergePrompt(prompt: string) {
 
 function Bubble({ m }: { m: MsgWithMedia }) {
   if (m.role === "system") {
-    return <div className="text-center text-[11px] text-ink-mute py-1">{m.text}</div>;
+    return <div className="text-center text-xs text-ink-mute py-1">{m.text}</div>;
   }
   const mine = m.role === "user";
   return (
@@ -255,11 +258,13 @@ function Bubble({ m }: { m: MsgWithMedia }) {
         }
       >
         {!mine && m.imageUrl && (
-          <img
+          <Image
             src={m.imageUrl}
             alt={m.imageAlt || "Product photo"}
+            width={240}
+            height={160}
             className="mb-2 w-full max-w-[240px] rounded-xl object-cover"
-            loading="lazy"
+            unoptimized
           />
         )}
         {m.text}

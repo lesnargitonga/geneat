@@ -728,7 +728,7 @@ def build_tools(
         destination_country: str,
         box_weight_kg: float = 1.5,
     ) -> dict:
-        """Estimate international DHL shipping for diaspora / corporate sends."""
+        """Estimate international DHL or equivalent insured shipping for diaspora / corporate sends."""
         args = DhlShippingArgs(
             destination_country=destination_country,
             box_weight_kg=box_weight_kg,
@@ -747,7 +747,7 @@ def build_tools(
             "destination": args.destination_country,
             "weight_kg": weight,
             "estimate_usd": usd,
-            "carrier": "DHL Express",
+            "carrier": "DHL Express or equivalent insured courier",
             "lead_days": "3–5 business days",
             "note": "Estimate only — confirm at checkout. Nairobi pickup included.",
             "stub": True,

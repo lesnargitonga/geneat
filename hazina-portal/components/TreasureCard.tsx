@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CatalogImage } from "@/components/CatalogImage";
 import type { Treasure } from "@/lib/treasures";
 import { CATEGORY_LABELS } from "@/lib/treasures";
-import { formatKES } from "@/lib/format";
+import { formatDualPrice } from "@/lib/format";
 
 type Props = {
   item: Treasure;
@@ -19,7 +19,7 @@ export function TreasureCard({ item, priority, compact, featured }: Props) {
           src={item.image}
           alt={item.imageAlt || item.name}
           className={`${
-            featured ? "aspect-[3/4]" : compact ? "aspect-[4/5]" : "aspect-[4/5]"
+            featured ? "aspect-[3/4]" : compact ? "aspect-[4/3] sm:aspect-[4/5]" : "aspect-[4/3] sm:aspect-[4/5]"
           }`}
           imageClassName="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
           sizes={featured ? "(max-width: 768px) 100vw, 40vw" : "(max-width: 768px) 50vw, 25vw"}
@@ -40,12 +40,14 @@ export function TreasureCard({ item, priority, compact, featured }: Props) {
           >
             {item.name}
           </h3>
-          <span className="font-mono text-xs font-medium text-bronze shrink-0 pt-1">{formatKES(item.price_kes)}</span>
+          <span className="font-mono text-sm font-medium text-bronze shrink-0 pt-1 text-right leading-relaxed">
+            {formatDualPrice(item.price_usd, item.price_kes)}
+          </span>
         </div>
         {!compact && (
           <p className="text-ink-soft text-sm mt-4 leading-relaxed line-clamp-2">{item.description}</p>
         )}
-        <span className="label-mono text-bronze mt-4 inline-block">Inspect treasure →</span>
+        <span className="label-mono text-bronze mt-4 inline-block">View details →</span>
       </div>
     </Link>
   );

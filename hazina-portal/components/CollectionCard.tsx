@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { CatalogImage } from "@/components/CatalogImage";
 import type { GiftBox } from "@/lib/products";
-import { BRAND } from "@/lib/products";
 import { getTreasuresByIds } from "@/lib/treasures";
-import { formatKES, whatsappLink } from "@/lib/format";
+import { formatDualPrice, formatUSD } from "@/lib/format";
 
 type Props = {
   box: GiftBox;
@@ -12,7 +11,6 @@ type Props = {
 };
 
 export function CollectionCard({ box, className = "", priority }: Props) {
-  const wa = whatsappLink(BRAND.whatsapp, `Hi — I'd like to reserve ${box.name}`);
   const itemCount = box.itemIds?.length ?? 0;
 
   return (
@@ -24,7 +22,7 @@ export function CollectionCard({ box, className = "", priority }: Props) {
           <CatalogImage
             src={box.image}
             alt={box.imageAlt || box.name}
-            className="aspect-[4/5]"
+            className="aspect-[5/4] sm:aspect-[4/5]"
             imageClassName="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
             priority={priority}
@@ -51,9 +49,9 @@ export function CollectionCard({ box, className = "", priority }: Props) {
             </Link>
             <p className="label-mono mt-1">{box.sku}</p>
           </div>
-          <div className="text-right shrink-0">
-            <div className="font-mono text-sm font-medium text-obsidian">{formatKES(box.price_kes)}</div>
-            <div className="font-mono text-xs text-ink-soft">USD {box.price_usd}</div>
+          <div className="text-right shrink-0 rounded-sm border border-border bg-sand-dark/60 px-3 py-2">
+            <div className="font-mono text-base md:text-lg font-semibold text-obsidian">{formatUSD(box.price_usd)}</div>
+            <div className="font-mono text-sm text-ink-soft">KES {box.price_kes.toLocaleString("en-KE")}</div>
           </div>
         </div>
 
@@ -67,16 +65,11 @@ export function CollectionCard({ box, className = "", priority }: Props) {
 
         <div className="flex flex-wrap gap-3 mt-6">
           <Link href={`/collections/${box.id}`} className="btn-outline">
-            See inside
+            View details
           </Link>
-          <a
-            href={wa}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-ghost"
-          >
-            Reserve as-is
-          </a>
+          <Link href={`/collections/${box.id}#checkout`} className="btn-ghost">
+            Start checkout
+          </Link>
         </div>
       </div>
     </article>
@@ -98,8 +91,8 @@ export function CollectionItemsPreview({ box }: { box: GiftBox }) {
             imageClassName="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="200px"
           />
-          <p className="font-serif text-sm text-obsidian">{item.name}</p>
-          <p className="font-mono text-[10px] text-ink-mute mt-0.5">{formatKES(item.price_kes)}</p>
+          <p className="font-serif text-base leading-tight text-obsidian">{item.name}</p>
+          <p className="font-mono text-sm text-ink-mute mt-1">{formatDualPrice(item.price_usd, item.price_kes)}</p>
         </Link>
       ))}
     </div>

@@ -2,13 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { BRAND, getGiftBox } from "@/lib/products";
-import { formatKES, whatsappLink } from "@/lib/format";
+import { formatDualPrice, whatsappLink } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
 
 export const metadata: Metadata = {
   title: "Premium Safari Souvenirs Nairobi · Hazina Nomads",
   description:
-    "Curated Kenyan safari souvenirs for discerning travellers — Maasai beadwork, artisan leather, coffee, and sculpture. Hotel delivery across Nairobi or JKIA handoff.",
+    "Curated Kenyan safari souvenirs for discerning travellers — Maasai beadwork, artisan leather, coffee, and sculpture. Hotel delivery, JKIA handoff, or insured DHL export quote.",
   keywords: [
     "safari souvenirs Nairobi",
     "Kenya travel gifts",
@@ -20,8 +20,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Premium Safari Souvenirs Nairobi",
     description:
-      "Editorial gift collections for safari tourists — curated in Nairobi, delivered to your hotel or JKIA.",
-    images: [{ url: "/treasures/curated-gift-box.png", alt: "Curated gift box with Kenyan coffee and craft pieces" }],
+      "Editorial gift collections for safari tourists — curated in Nairobi for hotel delivery, JKIA handoff, or DHL export quote.",
+    images: [{ url: "/brand/safari-sunset.jpg", alt: "Kenyan safari sunset for Hazina Nomads" }],
   },
 };
 
@@ -35,27 +35,30 @@ export default function SafariSouvenirsPage() {
   return (
     <>
       <section className="grid lg:grid-cols-2 min-h-[70vh]">
-        <div className="relative bg-obsidian flex items-end min-h-[420px] lg:min-h-[70vh]">
-          <div className="relative w-full aspect-[4/5] lg:absolute lg:inset-0 lg:aspect-auto">
+        <div className="relative bg-obsidian min-h-[520px] lg:min-h-[70vh]">
+          <div className="absolute inset-0">
             <ProductImage
               box={kenyaEdit}
               priority
               className="rounded-none !absolute inset-0 h-full w-full"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/10" />
           </div>
-          <div className="relative z-10 p-8 md:p-12 lg:absolute lg:bottom-0 lg:left-0 lg:right-0 bg-gradient-to-t from-black to-transparent pt-24">
-            <span className="label-mono text-sand/50">Safari edit · 24h lead</span>
-            <h2 className="font-serif text-3xl md:text-4xl text-sand mt-2">{kenyaEdit.name}</h2>
-            <div className="flex items-baseline gap-4 mt-3">
-              <span className="font-mono text-lg text-sand">{formatKES(kenyaEdit.price_kes)}</span>
-              <span className="font-mono text-sm text-sand/50">USD {kenyaEdit.price_usd}</span>
+          <div className="relative z-10 flex min-h-[520px] lg:min-h-[70vh] items-end p-8 md:p-12">
+            <div className="max-w-md">
+              <span className="label-mono !text-white/60">Safari edit · 24h lead</span>
+              <h2 className="font-serif text-3xl md:text-4xl text-white mt-2">{kenyaEdit.name}</h2>
+              <div className="flex items-baseline gap-4 mt-3">
+                <span className="font-mono text-lg text-white">
+                  {formatDualPrice(kenyaEdit.price_usd, kenyaEdit.price_kes)}
+                </span>
+              </div>
+              <p className="text-white/75 text-sm mt-4 max-w-md leading-relaxed">{kenyaEdit.contents}</p>
+              <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline border-white/40 text-white hover:bg-white hover:text-black mt-6">
+                Order on WhatsApp
+              </a>
             </div>
-            <p className="text-sand/70 text-sm mt-4 max-w-md leading-relaxed">{kenyaEdit.contents}</p>
-            <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline border-sand/30 text-sand hover:bg-sand hover:text-obsidian mt-6">
-              Speak with concierge
-            </a>
           </div>
         </div>
 
@@ -69,7 +72,8 @@ export default function SafariSouvenirsPage() {
               After the plains and the Mara, you deserve more than airport trinkets. Hazina Nomads
               assembles editorial gift collections from trusted Nairobi artisans — coffee from the
               highlands, Maasai beadwork, leather from Kariokor, and soapstone from Kisii — delivered
-              to your hotel in Westlands, Kilimani, or Karen before you fly home.
+              to your hotel in Westlands, Kilimani, or Karen before you fly home, or quoted for
+              insured export if the parcel must follow you abroad.
             </p>
           </header>
 
@@ -79,7 +83,7 @@ export default function SafariSouvenirsPage() {
               <li>Fixed vendor relationships — no random market quality</li>
               <li>Matte rigid boxes, cream tissue, wax seal, brand story card</li>
               <li>Optional personalisation on leather (24-hour notice)</li>
-              <li>M-Pesa or USD card checkout via WhatsApp concierge</li>
+              <li>USD card or KES M-Pesa checkout through the automated concierge</li>
             </ul>
           </div>
 
@@ -142,7 +146,7 @@ export default function SafariSouvenirsPage() {
 
       <div className="container-page py-16 text-center space-y-4">
         <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark">
-          Start with concierge
+          Order on WhatsApp
         </a>
         <p className="label-mono text-ink-mute">
           Dispatch coordination 08:00–20:00 EAT · Custom boxes from 2 treasures

@@ -37,7 +37,10 @@ from app.core.redis_client import claim_idempotency
 from app.core.security import hash_msisdn, normalize_msisdn
 from app.db.models import Channel, Message, Sender, ToolInvocation
 from app.services.business_service import (
-    get_business_by_slug, get_business_for_turn,
+    HAZINA_NOMADS_SLUG,
+    get_business_by_slug,
+    get_business_for_turn,
+    looks_like_hazina_tenant_hint,
 )
 from app.services.conversation_service import (
     append_message, bump_failed_turn, close_active_conversations, escalate,
@@ -62,7 +65,6 @@ from app.services.whatsapp_menus import (
     CMD_HOME,
     CMD_ORDERS,
     CMD_STAFF,
-    HAZINA_NOMADS_SLUG,
     ID_SHOP,
     SPECIAL_COMMANDS,
     back_to_menu_payload,
@@ -1454,11 +1456,52 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 escalated=False,
             )
 
+        # If a Hazina conversation is already active, let that sticky tenant
+        # override a stale Meta phone_number_id mapping. This keeps short
+        # follow-ups like "menu" or "yes" from falling back to Lily Pond after
+        # the first Hazina-specific message established the tenant.
+        active_business_id = await get_active_business_id(db, customer)
+        if (
+            active_business_id is not None
+            and business_id is not None
+            and active_business_id != business_id
+            and turn.meta_phone_number_id
+            and not turn.business_slug
+        ):
+            try:
+                active_bp = await get_business_for_turn(db, business_id=active_business_id)
+            except Exception:
+                active_bp = None
+            if active_bp and is_hazina_slug(active_bp.slug):
+                log.warning(
+                    "hazina_sticky_tenant_overrode_provider_business",
+                    provider_phone_number_id=turn.meta_phone_number_id,
+                    previous_business_id=str(business_id),
+                    hazina_business_id=str(active_business_id),
+                )
+                business_id = active_business_id
+
+        # If the message clearly came from Hazina surfaces, override a stale
+        # Meta phone mapping before sticky conversation/default routing can
+        # drag the customer back to a café tenant.
+        if (
+            not turn.business_slug
+            and looks_like_hazina_tenant_hint(turn.text)
+        ):
+            hazina_bp = await get_business_by_slug(db, HAZINA_NOMADS_SLUG)
+            if hazina_bp and business_id != hazina_bp.id:
+                log.warning(
+                    "hazina_tenant_hint_overrode_resolved_business",
+                    previous_business_id=str(business_id) if business_id else None,
+                    hazina_business_id=str(hazina_bp.id),
+                )
+                business_id = hazina_bp.id
+
         # If still unresolved, prefer this customer's existing active tenant
         # (makes /biz sticky across turns). Otherwise fall back to global
         # default-active business.
         if business_id is None:
-            business_id = await get_active_business_id(db, customer)
+            business_id = active_business_id
         if business_id is None:
             bp = await get_business_for_turn(
                 db, phone_number_id=None, business_id=None,

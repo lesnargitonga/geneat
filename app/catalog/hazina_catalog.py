@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import Any
 
-PACKAGING_FEE_USD = 25
-PACKAGING_FEE_KES = 3200
+PACKAGING_FEE_USD = 45
+PACKAGING_FEE_KES = 5800
 MIN_CUSTOM_ITEMS = 2
 
 HAZINA_COLLECTIONS: list[dict[str, Any]] = [
@@ -15,8 +15,8 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "id": "kenya-edit",
         "sku": "HN-KE-001",
         "name": "The Kenya Edit",
-        "price_usd": 89,
-        "price_kes": 11500,
+        "price_usd": 189,
+        "price_kes": 24500,
         "target": "Safari tourists, European/US visitors",
         "contents": (
             "Premium Kenyan coffee (250g), handmade Maasai beadwork "
@@ -30,8 +30,8 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "id": "highland-treasure",
         "sku": "HN-HT-002",
         "name": "The Highland Treasure",
-        "price_usd": 59,
-        "price_kes": 7600,
+        "price_usd": 149,
+        "price_kes": 19300,
         "target": "General gifting, diaspora, colleagues",
         "contents": (
             "Export-grade Kenyan coffee, premium Kenyan loose-leaf tea, "
@@ -39,14 +39,14 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         ),
         "lead_time_hours": 24,
         "personalization": False,
-        "item_ids": ["premium-coffee-250g", "loose-leaf-tea", "raw-honey", "wooden-combs"],
+        "item_ids": ["premium-coffee-250g", "loose-leaf-tea", "raw-honey", "wooden-combs", "premium-packaging"],
     },
     {
         "id": "nomad-leather-set",
         "sku": "HN-NL-003",
         "name": "The Nomad Leather Set",
-        "price_usd": 129,
-        "price_kes": 16600,
+        "price_usd": 249,
+        "price_kes": 32300,
         "target": "Business travellers, wealthy tourists",
         "contents": "Handmade leather passport holder, luggage tag, and travel notebook",
         "lead_time_hours": 24,
@@ -58,8 +58,8 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "id": "safari-romance-box",
         "sku": "HN-SR-004",
         "name": "The Safari Romance Box",
-        "price_usd": 199,
-        "price_kes": 25600,
+        "price_usd": 349,
+        "price_kes": 45200,
         "target": "Honeymooners, anniversary trips",
         "contents": (
             "Matching couple's beadwork, premium treats (chocolate/coffee), "
@@ -79,8 +79,8 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "id": "departure-drop",
         "sku": "HN-DD-005",
         "name": "The Departure Drop",
-        "price_usd": 149,
-        "price_kes": 19200,
+        "price_usd": 279,
+        "price_kes": 36200,
         "target": "Last-minute JKIA departures",
         "contents": "Pre-packed fast-moving items: coffee, tea, un-personalized leather, beadwork",
         "lead_time_hours": 4,
@@ -97,36 +97,36 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
 ]
 
 HAZINA_TREASURES: list[dict[str, Any]] = [
-    {"id": "premium-coffee-250g", "sku": "HN-T-001", "name": "Premium Kenyan Coffee", "category": "coffee-tea", "price_usd": 18, "price_kes": 2300, "description": "250g single-origin Kenyan AA, export grade.", "lead_time_hours": 12},
-    {"id": "loose-leaf-tea", "sku": "HN-T-002", "name": "Highland Loose-Leaf Tea", "category": "coffee-tea", "price_usd": 14, "price_kes": 1800, "description": "Export-grade purple and black tea blend with tasting spoon.", "lead_time_hours": 12},
-    {"id": "raw-honey", "sku": "HN-T-003", "name": "Local Raw Honey", "category": "food", "price_usd": 16, "price_kes": 2100, "description": "Unfiltered acacia honey, 200g jar.", "lead_time_hours": 24},
-    {"id": "maasai-bracelet", "sku": "HN-T-010", "name": "Maasai Beaded Bracelet", "category": "beadwork", "price_usd": 22, "price_kes": 2800, "description": "Hand-strung glass bead bracelet from Maasai Market.", "lead_time_hours": 12},
-    {"id": "maasai-necklace", "sku": "HN-T-011", "name": "Maasai Beaded Necklace", "category": "beadwork", "price_usd": 38, "price_kes": 4900, "description": "Statement collar or layered necklace.", "lead_time_hours": 24},
-    {"id": "maasai-earrings", "sku": "HN-T-012", "name": "Maasai Earrings", "category": "beadwork", "price_usd": 18, "price_kes": 2300, "description": "Lightweight beaded drop earrings.", "lead_time_hours": 12},
-    {"id": "leather-passport", "sku": "HN-T-020", "name": "Leather Passport Holder", "category": "leather", "price_usd": 45, "price_kes": 5800, "description": "Full-grain leather passport sleeve. Optional embossing.", "lead_time_hours": 24, "personalization": True},
-    {"id": "leather-luggage-tag", "sku": "HN-T-021", "name": "Leather Luggage Tag", "category": "leather", "price_usd": 15, "price_kes": 1900, "description": "Embossed leather tag with buckle strap.", "lead_time_hours": 24, "personalization": True},
-    {"id": "soapstone-big-five", "sku": "HN-T-030", "name": "Soapstone Big Five Carving", "category": "art-sculpture", "price_usd": 32, "price_kes": 4100, "description": "Compact soapstone Big Five sculpture.", "lead_time_hours": 24},
-    {"id": "antelope-carving", "sku": "HN-T-031", "name": "Antelope Wood Carving", "category": "wood-carving", "price_usd": 36, "price_kes": 4600, "description": "Hand-carved antelope in African hardwood.", "lead_time_hours": 24},
-    {"id": "wood-carving-set", "sku": "HN-T-032", "name": "Artisan Wood Carving", "category": "wood-carving", "price_usd": 28, "price_kes": 3600, "description": "Selected woodcarving piece.", "lead_time_hours": 24},
-    {"id": "swahili-drums", "sku": "HN-T-033", "name": "Swahili Drum Set (3)", "category": "wood-carving", "price_usd": 55, "price_kes": 7100, "description": "Decorative coastal Swahili hand drums, set of three.", "lead_time_hours": 48},
-    {"id": "rungu-clubs", "sku": "HN-T-034", "name": "Beaded Rungu Club Set", "category": "wood-carving", "price_usd": 42, "price_kes": 5400, "description": "Traditional Maasai rungu with beadwork, set of three.", "lead_time_hours": 24},
-    {"id": "woven-basket", "sku": "HN-T-040", "name": "Hand-Woven Basket", "category": "baskets", "price_usd": 34, "price_kes": 4400, "description": "Medium sisal or banana-fibre basket.", "lead_time_hours": 48},
-    {"id": "sisal-basket-small", "sku": "HN-T-041", "name": "Small Woven Keepsake Basket", "category": "baskets", "price_usd": 22, "price_kes": 2800, "description": "Compact woven basket for nested gifting.", "lead_time_hours": 48},
-    {"id": "kitenge-fabric", "sku": "HN-T-050", "name": "Kitenge Fabric Length", "category": "textiles", "price_usd": 28, "price_kes": 3600, "description": "1.5m premium kitenge length.", "lead_time_hours": 24},
-    {"id": "beaded-market-bag", "sku": "HN-T-051", "name": "Beaded Market Bag", "category": "textiles", "price_usd": 40, "price_kes": 5100, "description": "Statement tote with beadwork panel.", "lead_time_hours": 24},
-    {"id": "maasai-sandals", "sku": "HN-T-052", "name": "Maasai Leather Sandals", "category": "leather", "price_usd": 35, "price_kes": 4500, "description": "Beaded leather sandals — size confirmed before dispatch.", "lead_time_hours": 48},
-    {"id": "wooden-combs", "sku": "HN-T-053", "name": "Carved Wooden Combs", "category": "wood-carving", "price_usd": 16, "price_kes": 2100, "description": "Set of two carved combs.", "lead_time_hours": 12},
-    {"id": "african-wall-art", "sku": "HN-T-060", "name": "Contemporary African Art Print", "category": "art-sculpture", "price_usd": 48, "price_kes": 6200, "description": "Framed or unframed contemporary Kenyan art.", "lead_time_hours": 48},
-    {"id": "sculpture-piece", "sku": "HN-T-061", "name": "Africa-Inspired Sculpture", "category": "art-sculpture", "price_usd": 52, "price_kes": 6700, "description": "Single sculptural piece.", "lead_time_hours": 48},
-    {"id": "kitenge-umbrella", "sku": "HN-T-062", "name": "Kitenge Umbrella", "category": "textiles", "price_usd": 30, "price_kes": 3900, "description": "Vibrant kitenge canopy umbrella.", "lead_time_hours": 24},
-    {"id": "pottery-vessel", "sku": "HN-T-063", "name": "Hand-Thrown Pottery", "category": "art-sculpture", "price_usd": 38, "price_kes": 4900, "description": "Small vessel or bowl — each unique.", "lead_time_hours": 48},
-    {"id": "big-five-print", "sku": "HN-T-064", "name": "Big Five Safari Print", "category": "art-sculpture", "price_usd": 24, "price_kes": 3100, "description": "Minimalist safari wildlife print.", "lead_time_hours": 24},
-    {"id": "maasai-market-tote", "sku": "HN-T-065", "name": "Maasai Market Tote", "category": "textiles", "price_usd": 26, "price_kes": 3300, "description": "Leather or canvas market bag.", "lead_time_hours": 24},
-    {"id": "african-woven-mat", "sku": "HN-T-066", "name": "African Woven Mat", "category": "homeware", "price_usd": 30, "price_kes": 3900, "description": "Decorative woven mat for table, wall, or shelf styling.", "lead_time_hours": 24},
-    {"id": "african-hand-broom", "sku": "HN-T-067", "name": "African Hand Broom", "category": "homeware", "price_usd": 18, "price_kes": 2300, "description": "Minimal hand broom made from natural fibres.", "lead_time_hours": 24},
-    {"id": "beaded-wood-containers", "sku": "HN-T-068", "name": "Beaded Wood Container Set", "category": "wood-carving", "price_usd": 46, "price_kes": 5900, "description": "Decorative beaded wooden containers, selected as a set.", "lead_time_hours": 48},
-    {"id": "coconut-shell-plates-spoons", "sku": "HN-T-069", "name": "Coconut Shell Plate & Spoon Set", "category": "homeware", "price_usd": 32, "price_kes": 4100, "description": "Set of three coconut shell plates with wooden spoons.", "lead_time_hours": 24},
-    {"id": "premium-packaging", "sku": "HN-T-070", "name": "Premium Gift Box & Tissue", "category": "packaging", "price_usd": 25, "price_kes": 3200, "description": "Matte rigid box, cream tissue, wax seal, brand story card.", "lead_time_hours": 12},
+    {"id": "premium-coffee-250g", "sku": "HN-T-001", "name": "Premium Kenyan Coffee", "category": "coffee-tea", "price_usd": 35, "price_kes": 4600, "description": "250g single-origin Kenyan AA, export grade.", "lead_time_hours": 12},
+    {"id": "loose-leaf-tea", "sku": "HN-T-002", "name": "Highland Loose-Leaf Tea", "category": "coffee-tea", "price_usd": 28, "price_kes": 3600, "description": "Export-grade purple and black tea blend with tasting spoon.", "lead_time_hours": 12},
+    {"id": "raw-honey", "sku": "HN-T-003", "name": "Local Raw Honey", "category": "food", "price_usd": 30, "price_kes": 3900, "description": "Unfiltered acacia honey, 200g jar.", "lead_time_hours": 24},
+    {"id": "maasai-bracelet", "sku": "HN-T-010", "name": "Maasai Beaded Bracelet", "category": "beadwork", "price_usd": 45, "price_kes": 5900, "description": "Hand-strung glass bead bracelet from Maasai Market.", "lead_time_hours": 12},
+    {"id": "maasai-necklace", "sku": "HN-T-011", "name": "Maasai Beaded Necklace", "category": "beadwork", "price_usd": 85, "price_kes": 11000, "description": "Statement collar or layered necklace.", "lead_time_hours": 24},
+    {"id": "maasai-earrings", "sku": "HN-T-012", "name": "Maasai Earrings", "category": "beadwork", "price_usd": 42, "price_kes": 5500, "description": "Lightweight beaded drop earrings.", "lead_time_hours": 12},
+    {"id": "leather-passport", "sku": "HN-T-020", "name": "Leather Passport Holder", "category": "leather", "price_usd": 95, "price_kes": 12300, "description": "Full-grain leather passport sleeve. Optional embossing.", "lead_time_hours": 24, "personalization": True},
+    {"id": "leather-luggage-tag", "sku": "HN-T-021", "name": "Leather Luggage Tag", "category": "leather", "price_usd": 45, "price_kes": 5900, "description": "Embossed leather tag with buckle strap.", "lead_time_hours": 24, "personalization": True},
+    {"id": "soapstone-big-five", "sku": "HN-T-030", "name": "Soapstone Big Five Carving", "category": "art-sculpture", "price_usd": 75, "price_kes": 9700, "description": "Compact soapstone Big Five sculpture.", "lead_time_hours": 24},
+    {"id": "antelope-carving", "sku": "HN-T-031", "name": "Antelope Wood Carving", "category": "wood-carving", "price_usd": 85, "price_kes": 11000, "description": "Hand-carved antelope in African hardwood.", "lead_time_hours": 24},
+    {"id": "wood-carving-set", "sku": "HN-T-032", "name": "Artisan Wood Carving", "category": "wood-carving", "price_usd": 75, "price_kes": 9700, "description": "Selected woodcarving piece.", "lead_time_hours": 24},
+    {"id": "swahili-drums", "sku": "HN-T-033", "name": "Swahili Drum Set (3)", "category": "wood-carving", "price_usd": 120, "price_kes": 15600, "description": "Decorative coastal Swahili hand drums, set of three.", "lead_time_hours": 48},
+    {"id": "rungu-clubs", "sku": "HN-T-034", "name": "Beaded Rungu Club Set", "category": "wood-carving", "price_usd": 110, "price_kes": 14300, "description": "Traditional Maasai rungu with beadwork, set of three.", "lead_time_hours": 24},
+    {"id": "woven-basket", "sku": "HN-T-040", "name": "Hand-Woven Basket", "category": "baskets", "price_usd": 95, "price_kes": 12300, "description": "Medium sisal or banana-fibre basket.", "lead_time_hours": 48},
+    {"id": "sisal-basket-small", "sku": "HN-T-041", "name": "Small Woven Keepsake Basket", "category": "baskets", "price_usd": 60, "price_kes": 7800, "description": "Compact woven basket for nested gifting.", "lead_time_hours": 48},
+    {"id": "kitenge-fabric", "sku": "HN-T-050", "name": "Kitenge Fabric Length", "category": "textiles", "price_usd": 70, "price_kes": 9100, "description": "1.5m premium kitenge length.", "lead_time_hours": 24},
+    {"id": "beaded-market-bag", "sku": "HN-T-051", "name": "Beaded Market Bag", "category": "textiles", "price_usd": 120, "price_kes": 15600, "description": "Statement tote with beadwork panel.", "lead_time_hours": 24},
+    {"id": "maasai-sandals", "sku": "HN-T-052", "name": "Maasai Leather Sandals", "category": "leather", "price_usd": 85, "price_kes": 11000, "description": "Beaded leather sandals — size confirmed before dispatch.", "lead_time_hours": 48},
+    {"id": "wooden-combs", "sku": "HN-T-053", "name": "Carved Wooden Combs", "category": "wood-carving", "price_usd": 38, "price_kes": 4900, "description": "Set of two carved combs.", "lead_time_hours": 12},
+    {"id": "african-wall-art", "sku": "HN-T-060", "name": "Contemporary African Art Print", "category": "art-sculpture", "price_usd": 150, "price_kes": 19500, "description": "Framed or unframed contemporary Kenyan art.", "lead_time_hours": 48},
+    {"id": "sculpture-piece", "sku": "HN-T-061", "name": "Africa-Inspired Sculpture", "category": "art-sculpture", "price_usd": 180, "price_kes": 23400, "description": "Single sculptural piece.", "lead_time_hours": 48},
+    {"id": "kitenge-umbrella", "sku": "HN-T-062", "name": "Kitenge Umbrella", "category": "textiles", "price_usd": 85, "price_kes": 11000, "description": "Vibrant kitenge canopy umbrella.", "lead_time_hours": 24},
+    {"id": "pottery-vessel", "sku": "HN-T-063", "name": "Hand-Thrown Pottery", "category": "art-sculpture", "price_usd": 95, "price_kes": 12300, "description": "Small vessel or bowl — each unique.", "lead_time_hours": 48},
+    {"id": "big-five-print", "sku": "HN-T-064", "name": "Big Five Safari Print", "category": "art-sculpture", "price_usd": 85, "price_kes": 11000, "description": "Minimalist safari wildlife print.", "lead_time_hours": 24},
+    {"id": "maasai-market-tote", "sku": "HN-T-065", "name": "Maasai Market Tote", "category": "textiles", "price_usd": 110, "price_kes": 14300, "description": "Leather or canvas market bag.", "lead_time_hours": 24},
+    {"id": "african-woven-mat", "sku": "HN-T-066", "name": "African Woven Mat", "category": "homeware", "price_usd": 85, "price_kes": 11000, "description": "Decorative woven mat for table, wall, or shelf styling.", "lead_time_hours": 24},
+    {"id": "african-hand-broom", "sku": "HN-T-067", "name": "African Hand Broom", "category": "homeware", "price_usd": 45, "price_kes": 5900, "description": "Minimal hand broom made from natural fibres.", "lead_time_hours": 24},
+    {"id": "beaded-wood-containers", "sku": "HN-T-068", "name": "Beaded Wood Container Set", "category": "wood-carving", "price_usd": 140, "price_kes": 18200, "description": "Decorative beaded wooden containers, selected as a set.", "lead_time_hours": 48},
+    {"id": "coconut-shell-plates-spoons", "sku": "HN-T-069", "name": "Coconut Shell Plate & Spoon Set", "category": "homeware", "price_usd": 90, "price_kes": 11700, "description": "Set of three coconut shell plates with wooden spoons.", "lead_time_hours": 24},
+    {"id": "premium-packaging", "sku": "HN-T-070", "name": "Premium Gift Box & Tissue", "category": "packaging", "price_usd": 45, "price_kes": 5800, "description": "Matte rigid box, cream tissue, wax seal, brand story card.", "lead_time_hours": 12},
 ]
 
 
@@ -180,7 +180,13 @@ def build_hazina_kb_catalog() -> list[str]:
     chunks.append(
         "CUSTOM BOX BUILDER — Guests may compose their own box from individual treasures "
         f"(minimum {MIN_CUSTOM_ITEMS} items plus optional premium packaging USD {PACKAGING_FEE_USD}). "
-        "Confirm each SKU, delivery location, and payment method (M-Pesa or USD card)."
+        "Confirm each SKU, delivery location, delivery mode (hotel, JKIA, or DHL/export quote), "
+        "and payment method (M-Pesa or USD card)."
+    )
+    chunks.append(
+        "INTERNATIONAL SHIPPING — Hazina can quote DHL Express or an equivalent insured courier "
+        "for guests outside Kenya or missed-flight parcels. Collect country, city, full address, "
+        "recipient contact, and deadline, then quote courier cost before payment."
     )
     for row in HAZINA_TREASURES:
         pers = " Personalisation available." if row.get("personalization") else ""
@@ -195,11 +201,7 @@ def build_hazina_kb_catalog() -> list[str]:
 
 # Portal image paths — mirrors hazina-portal/lib/products.ts and lib/treasures.ts
 HAZINA_COLLECTION_IMAGES: dict[str, str] = {
-    "kenya-edit": "/treasures/curated-gift-box.png",
-    "highland-treasure": "/treasures/highland-treasure-hero.png",
-    "nomad-leather-set": "/treasures/nomad-leather-set-studio.png",
-    "safari-romance-box": "/treasures/safari-romance-box-hero.png",
-    "departure-drop": "/treasures/departure-pack.png",
+    # Collection hero images stay blank until exact Hazina product photography is supplied.
 }
 
 HAZINA_TREASURE_IMAGES: dict[str, str] = {
@@ -239,11 +241,7 @@ HAZINA_TREASURE_IMAGES: dict[str, str] = {
 def build_hazina_menu_photos(portal_base_url: str = "https://hazina.lesnarai.co.ke") -> dict[str, str]:
     """Map collection/treasure ids and fuzzy names → absolute portal image URLs."""
     base = (portal_base_url or "https://hazina.lesnarai.co.ke").rstrip("/")
-    out: dict[str, str] = {
-        "menu": f"{base}/treasures/curated-gift-box.png",
-        "collections": f"{base}/treasures/curated-gift-box.png",
-        "safari": f"{base}/brand/safari-sunset.jpg",
-    }
+    out: dict[str, str] = {"safari": f"{base}/brand/safari-sunset.jpg"}
     for row in HAZINA_COLLECTIONS:
         path = HAZINA_COLLECTION_IMAGES.get(row["id"])
         if not path:

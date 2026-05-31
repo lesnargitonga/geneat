@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ApiStatus } from "@/components/ApiStatus";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BRAND } from "@/lib/products";
 import { whatsappLink } from "@/lib/format";
@@ -14,13 +13,14 @@ const NAV = [
   { href: "/build", label: "Build" },
   { href: "/premium-safari-souvenirs-nairobi", label: "Safari" },
   { href: "/last-minute-kenya-gifts-jkia", label: "JKIA" },
+  { href: "/hosts-guides", label: "Hosts" },
   { href: "/about", label: "About" },
 ];
 
 export function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const wa = whatsappLink(BRAND.whatsapp, "Hello — I'd like help choosing a gift box.");
+  const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like to order a gift box.");
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-sand/85 backdrop-blur-md">
       <div className="container-page flex items-center justify-between h-16 md:h-[4.5rem]">
@@ -35,7 +35,7 @@ export function Nav() {
             <Link
               key={n.href}
               href={n.href}
-              className={`font-mono text-[11px] font-medium uppercase tracking-[0.12em] transition-colors ${
+              className={`font-mono text-sm font-medium uppercase tracking-[0.1em] transition-colors ${
                 pathname === n.href
                   ? "text-obsidian"
                   : "text-ink-soft hover:text-obsidian"
@@ -46,14 +46,12 @@ export function Nav() {
           ))}
         </nav>
         <div className="hidden md:flex items-center gap-3">
-          <ApiStatus />
           <ThemeToggle compact />
           <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark py-2.5 px-5">
-            Concierge
+            Order on WhatsApp
           </a>
         </div>
         <div className="md:hidden flex items-center gap-2">
-          <ApiStatus compact />
           <ThemeToggle compact />
           <button
             type="button"
@@ -74,13 +72,13 @@ export function Nav() {
                 key={n.href}
                 href={n.href}
                 onClick={() => setOpen(false)}
-                className={`flex items-center justify-between border border-border px-4 py-3 font-mono text-[11px] uppercase tracking-editorial ${
+                className={`flex items-center justify-between border border-border px-4 py-3 font-mono text-sm uppercase tracking-[0.1em] ${
                   pathname === n.href ? "bg-obsidian text-sand" : "text-obsidian"
                 }`}
               >
-                {n.label}
-                <span aria-hidden="true">→</span>
-              </Link>
+              {n.label}
+              <span aria-hidden="true">→</span>
+            </Link>
             ))}
             <a
               href={wa}
@@ -89,7 +87,7 @@ export function Nav() {
               className="btn-dark w-full mt-2"
               onClick={() => setOpen(false)}
             >
-              Speak with concierge
+              Order on WhatsApp
             </a>
           </nav>
         </div>

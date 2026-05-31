@@ -39,11 +39,19 @@ export function CatalogImage({
           onError={() => setFailed(true)}
         />
       ) : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-sand-dark via-sand to-sand-dark p-6 text-center">
-          <span className="font-serif text-lg text-ink-soft">Photograph loading</span>
-          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-mute max-w-[14rem] leading-relaxed">
-            {alt || "Image unavailable — concierge can confirm this item"}
-          </span>
+        <div
+          role="img"
+          aria-label={alt || "Verified Hazina product photography pending"}
+          className="absolute inset-0 flex items-center justify-center border border-border bg-sand-dark px-5 text-center"
+        >
+          <div>
+            <p className="font-mono text-sm font-medium uppercase tracking-[0.1em] text-ink-soft">
+              Verified image pending
+            </p>
+            <p className="mt-2 text-sm text-ink-mute">
+              Exact Hazina photography needed
+            </p>
+          </div>
         </div>
       )}
     </div>

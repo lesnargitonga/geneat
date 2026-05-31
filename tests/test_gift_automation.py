@@ -35,18 +35,43 @@ def test_parse_custom_box_handoff() -> None:
 • Maasai Beaded Bracelet (HN-T-010)
 • Premium packaging & story card
 
-Estimated total: KES 8,300 (~USD 64)"""
+Estimated total: USD 125 / KES 16,300"""
     parsed = ga.parse_custom_box_handoff(msg)
     assert parsed is not None
     assert len(parsed.items) == 3
-    assert parsed.total_kes == 8300
+    assert parsed.total_kes == 16300
     assert "HN-T-001" in parsed.skus
     assert "HN-T-070" in parsed.skus
+
+
+def test_parse_checkout_details_from_website_handoff() -> None:
+    msg = """Hello Hazina Nomads — automated custom gift box checkout:
+
+• Premium Kenyan Coffee (HN-T-001)
+• Maasai Beaded Bracelet (HN-T-010)
+• Premium packaging & story card
+
+Estimated total: USD 125 / KES 16,300
+Guest: Amina
+Delivery type: Hotel delivery
+Delivery location: Villa Rosa Kempinski room 412
+Delivery window: Today 7:30 pm
+Contact/payment detail: amina@example.com
+Preferred payment: USD card link
+
+Please create the order, confirm availability, and start payment."""
+    details = ga.parse_checkout_details(msg)
+    assert details.customer_name == "Amina"
+    assert details.delivery_type == "Hotel delivery"
+    assert details.delivery_location == "Villa Rosa Kempinski room 412"
+    assert details.delivery_window == "Today 7:30 pm"
+    assert details.payment_currency == "USD"
 
 
 def test_detect_payment_currency() -> None:
     assert ga.detect_payment_currency("pay with card please") == "USD"
     assert ga.detect_payment_currency("M-Pesa STK") == "KES"
+    assert ga.detect_payment_currency("deliver to Villa Rosa room 412") == "USD"
     assert ga.detect_payment_currency("ok", checkout={"payment_currency": "USD"}) == "USD"
 
 

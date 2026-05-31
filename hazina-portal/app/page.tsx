@@ -3,12 +3,12 @@ import Link from "next/link";
 import { CatalogImage } from "@/components/CatalogImage";
 import { BRAND, BRAND_IMAGES, DELIVERY_ZONES, GIFT_BOXES } from "@/lib/products";
 import { getTreasure, TREASURES } from "@/lib/treasures";
-import { formatKES, whatsappLink } from "@/lib/format";
+import { formatDualPrice, whatsappLink } from "@/lib/format";
 import { ChatWidget } from "@/components/ChatWidget";
 import { CollectionCard } from "@/components/CollectionCard";
 import { ConciergePromptButton } from "@/components/ConciergePromptButton";
-import { CatalogSyncBadge } from "@/components/CatalogSyncBadge";
 import { TreasureCard } from "@/components/TreasureCard";
+import { TrustRow } from "@/components/TrustRow";
 
 export default function HomePage() {
   const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like help choosing a gift box.");
@@ -30,20 +30,20 @@ export default function HomePage() {
       <section className="container-page pt-10 md:pt-16 pb-16 md:pb-24">
         <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
           <div className="space-y-8">
-            <span className="label-mono">Nairobi · Hotel &amp; JKIA delivery</span>
+            <span className="label-mono">Nairobi · Hotel · JKIA · DHL export quote</span>
             <h1 className="h-display text-5xl md:text-7xl lg:text-8xl leading-[0.95] text-obsidian">
               Curated treasures
               <br />
               <span className="italic text-bronze">for the modern nomad.</span>
             </h1>
             <p className="text-lg text-ink-mute max-w-lg leading-relaxed">
-              Premium Kenyan gift boxes, hand-delivered to your hotel suite or
-              JKIA terminal. One discreet WhatsApp exchange — no market crowds,
-              no last-minute compromise.
+              Premium Kenyan gift boxes, coordinated to your hotel suite, JKIA
+              terminal, or international address by DHL quote. One discreet
+              WhatsApp exchange — no market crowds, no last-minute compromise.
             </p>
             <div className="flex flex-wrap gap-4">
               <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark">
-                WhatsApp concierge
+                Order on WhatsApp
               </a>
               <ConciergePromptButton
                 prompt="Show me the best Hazina gift box for a traveller leaving Nairobi soon."
@@ -55,11 +55,11 @@ export default function HomePage() {
                 Build your box
               </Link>
             </div>
-            <CatalogSyncBadge />
-            <div className="flex items-center gap-10 pt-2">
+            <TrustRow className="max-w-2xl" />
+            <div className="grid grid-cols-3 gap-4 pt-2">
               <Stat value={String(TREASURES.length)} label="individual treasures" />
               <Stat value="5" label="curated collections" />
-              <Stat value="M-Pesa" label="USD cards" />
+              <Stat value="USD card" label="KES M-Pesa" />
             </div>
           </div>
 
@@ -75,7 +75,9 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
               <div className="absolute bottom-6 left-6 right-6">
                 <p className="font-serif text-2xl text-sand">{heroBox.name}</p>
-                <p className="font-mono text-xs text-sand/70 mt-1">{formatKES(heroBox.price_kes)}</p>
+                <p className="font-mono text-sm text-sand/80 mt-1">
+                  {formatDualPrice(heroBox.price_usd, heroBox.price_kes)}
+                </p>
               </div>
             </div>
           </div>
@@ -101,12 +103,12 @@ export default function HomePage() {
             <Step
               n="02"
               title="Confirm your coordinates"
-              body="Share your hotel and room, or JKIA terminal and departure time. We orchestrate the rest."
+              body="Share your hotel room, JKIA terminal, or international delivery address. We orchestrate the rest."
             />
             <Step
               n="03"
               title="Receive with ease"
-              body="M-Pesa or USD card. Your box arrives beautifully packaged, precisely on schedule."
+              body="M-Pesa or USD card. Your box arrives beautifully packaged, locally or by insured export quote."
             />
           </div>
         </div>
@@ -123,7 +125,7 @@ export default function HomePage() {
           </div>
           <div className="lg:col-span-5 space-y-5">
             <p className="text-ink-mute leading-relaxed">
-              Real photography from our sourcing runs — not stock imagery. Inspect each piece,
+              Real photography from our sourcing runs — not stock imagery. View each piece,
               then build a box that reflects your journey.
             </p>
             <div className="flex flex-wrap gap-3">
@@ -167,7 +169,7 @@ export default function HomePage() {
           </div>
           <Link
             href="/collections"
-            className="hidden md:inline font-mono text-[10px] uppercase tracking-editorial text-bronze hover:text-bronze-dark transition-colors"
+            className="hidden md:inline font-mono text-sm uppercase tracking-[0.1em] text-bronze hover:text-bronze-dark transition-colors"
           >
             View all →
           </Link>
@@ -242,7 +244,7 @@ export default function HomePage() {
             />
           </div>
           <div className="space-y-6">
-            <span className="label-mono">WhatsApp concierge</span>
+            <span className="label-mono">WhatsApp ordering</span>
             <h2 className="h-display text-3xl md:text-4xl text-obsidian">
               A single conversation.<br />
               <span className="italic text-bronze">Everything arranged.</span>
@@ -252,12 +254,12 @@ export default function HomePage() {
                 I&apos;m at Hemingways Karen — need a gift before my flight tomorrow at 6pm.
               </ConciergeLine>
               <ConciergeLine role="concierge">
-                Welcome. The Kenya Edit is our signature — KES 11,500, delivered to
+                Welcome. The Kenya Edit is our signature — USD 189 / KES 24,500, delivered to
                 your room by noon. May I confirm your room number and departure terminal?
               </ConciergeLine>
             </div>
             <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark">
-              Begin conversation
+              Order on WhatsApp
             </a>
           </div>
         </div>
@@ -280,7 +282,7 @@ function Stat({ value, label }: { value: string; label: string }) {
 function Step({ n, title, body }: { n: string; title: string; body: string }) {
   return (
     <div className="space-y-4">
-      <span className="font-mono text-xs text-bronze-light">{n}</span>
+      <span className="font-mono text-sm text-bronze-light">{n}</span>
       <h3 className="font-serif text-2xl text-sand">{title}</h3>
       <p className="text-sand/60 text-sm leading-relaxed">{body}</p>
     </div>

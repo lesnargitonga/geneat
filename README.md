@@ -96,6 +96,29 @@ Current Hazina production-routing path:
 - `DEFAULT_BUSINESS_SLUG=hazina-nomads`,
 - Hazina uses the same shared API, WhatsApp ingress, RAG, order, and payment
   machinery as Gen-Eat,
+- the public Hazina WhatsApp number is `+1 555 657 8220` via
+  `NEXT_PUBLIC_HAZINA_WHATSAPP` / `NEXT_PUBLIC_HAZINA_PHONE`; this is the
+  current Meta/AI automation route, not a placeholder,
+- `scripts/seed_hazina_nomads.py` now claims the configured Meta
+  `phone_number_id` for Hazina and clears the same id from any other tenant,
+- the channel layer also uses Hazina-specific message hints plus sticky active
+  Hazina conversations to protect against stale Lily Pond phone mappings,
+- Hazina pricing is USD-first with the KES equivalent shown everywhere,
+- curated collections and custom boxes now use guided checkout workflows on
+  the website before opening portal chat or WhatsApp, with Hotel, JKIA, and
+  DHL/export quote modes,
+- generated/edited collection hero composites are no longer customer-facing;
+  collection hero slots stay blank until exact Hazina product photos are
+  supplied,
+- collection and treasure prices were raised again for premium tourist/luxury
+  positioning across the portal, backend catalog, RAG, and WhatsApp menu
+  labels,
+- treasure and collection detail back buttons now use browser history so a
+  shopper returns to the exact previous browsing position when possible,
+- mobile customer pages now prioritize `Order on WhatsApp`, visible trust
+  cues, and sticky WhatsApp CTAs on collections and JKIA,
+- `/hosts-guides` is the host / guide partner landing page for QR-card and
+  referral pilots,
 - the Hazina portal has its own Next.js app under `hazina-portal/`,
 - Hazina product and launch truth lives in
   [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md).
@@ -103,8 +126,9 @@ Current Hazina production-routing path:
 Current Lily Pond live-demo path:
 
 - demo tenant slug is `lily-pond-cafe` through `DEMO_BUSINESS_SLUG`,
-- current Meta Cloud API test number maps to Lily Pond,
-- the public WhatsApp CTA points to `+1 555-657-8220`,
+- Lily Pond remains a café demo tenant, but the shared production WhatsApp
+  number should not be assumed to route to Lily while Hazina is the active
+  production tenant,
 - the demo proof item is `Demo Espresso` at `KES 10`,
 - the `Demo Espresso` / `10 bob` instant-order fast path is gated by
   `DEMO_BUSINESS_SLUG` and should only fire for the Lily Pond demo tenant, so
@@ -200,8 +224,8 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `155 passed, 1 warning` via `make test-fast` |
-| Hazina focused suite | `54 passed, 1 warning` via `make test-hazina` |
+| Fast focused backend suite | `158 passed, 1 warning` via `make test-fast` |
+| Hazina focused suite | `57 passed, 1 warning` via `make test-hazina` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -2301,7 +2325,7 @@ make test-fast
 Current result:
 
 ```text
-155 passed, 1 warning
+158 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -2318,7 +2342,7 @@ Current result:
 - admin build passed
 - Gen-Eat portal build passed
 - Hazina portal typecheck passed
-- Hazina portal build passed with 48 routes
+- Hazina portal build passed with 49 routes
 
 ### 22.3 Live system doctor
 
@@ -2533,6 +2557,21 @@ This is the honest list, not the flattering list.
 - long AI waits no longer keep the initial request transaction checked out;
   channel, RAG, and tool phases release DB connections between provider waits
 - Redis session-lock contention no longer falls through to Postgres advisory
+- Hazina WhatsApp routing is now protected on two layers: the seed script
+  uniquely claims the Meta phone id for `hazina-nomads`, and the channel layer
+  overrides stale provider mappings when Hazina website messages or active
+  Hazina conversations are detected
+- Hazina pricing now uses USD-first / KES-visible display across the backend
+  catalog, WhatsApp menus, portal cards, collection details, treasure pages,
+  and custom-box totals
+- Hazina curated collections and custom boxes now collect delivery location,
+  delivery window, contact, and payment preference in website workflows, then
+  send structured automation prompts that can create the order and start
+  Paystack/M-Pesa payment without vague concierge forwarding
+- Hazina collection prices were raised after a quick market benchmark against
+  Nairobi premium hamper, coffee hamper, artisan beadwork, and leather travel
+  good prices, so the offer fits a tourist/luxury concierge margin instead of
+  ordinary retail souvenir pricing
   locks, which prevents same-phone bursts from exhausting the DB pool
 - `load_test_mock.py` now uses unique phone numbers by default and handles
   client-side failures without crashing its summary output

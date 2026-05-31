@@ -2,8 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { BRAND, getGiftBox } from "@/lib/products";
-import { formatKES, whatsappLink } from "@/lib/format";
+import { formatDualPrice, whatsappLink } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
+import { StickyWhatsAppCTA } from "@/components/StickyWhatsAppCTA";
+import { TrustRow } from "@/components/TrustRow";
 
 export const metadata: Metadata = {
   title: "Last-Minute Kenya Gifts at JKIA · Hazina Nomads",
@@ -19,43 +21,45 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Last-Minute Kenya Gifts at JKIA",
     description: "4-hour delivery to any JKIA terminal. Premium curated boxes — not airport junk.",
-    images: [{ url: "/treasures/departure-pack.png", alt: "Gift package with coffee, leather passport holder, and beadwoven bracelet" }],
+    images: [{ url: "/brand/safari-sunset.jpg", alt: "Kenyan safari sunset for Hazina Nomads" }],
   },
 };
 
 export default function JkiaLandingPage() {
   const departureDrop = getGiftBox("departure-drop")!;
-  const wa = whatsappLink(
-    BRAND.whatsapp,
-    "Hi — I need a last-minute gift delivered to JKIA. My flight departs at [time], terminal [number].",
-  );
+  const orderMessage =
+    "Hi Hazina Nomads — I need a last-minute gift delivered to JKIA. My flight departs at [time], terminal [number].";
+  const wa = whatsappLink(BRAND.whatsapp, orderMessage);
 
   return (
     <>
       {/* Split-screen hero */}
       <section className="grid lg:grid-cols-2 min-h-[70vh]">
         {/* Left — product context */}
-        <div className="relative bg-obsidian flex items-end min-h-[420px] lg:min-h-[70vh]">
-          <div className="relative w-full aspect-[4/5] lg:absolute lg:inset-0 lg:aspect-auto">
+        <div className="relative bg-obsidian min-h-[520px] lg:min-h-[70vh]">
+          <div className="absolute inset-0">
             <ProductImage
               box={departureDrop}
               priority
               className="rounded-none !absolute inset-0 h-full w-full"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/10" />
           </div>
-          <div className="relative z-10 p-8 md:p-12 lg:absolute lg:bottom-0 lg:left-0 lg:right-0 bg-gradient-to-t from-black to-transparent pt-24">
-            <span className="label-mono text-sand/50">JKIA express · 4h lead</span>
-            <h2 className="font-serif text-3xl md:text-4xl text-sand mt-2">{departureDrop.name}</h2>
-            <div className="flex items-baseline gap-4 mt-3">
-              <span className="font-mono text-lg text-sand">{formatKES(departureDrop.price_kes)}</span>
-              <span className="font-mono text-sm text-sand/50">USD {departureDrop.price_usd}</span>
+          <div className="relative z-10 flex min-h-[520px] lg:min-h-[70vh] items-end p-8 md:p-12">
+            <div className="max-w-md">
+              <span className="label-mono !text-white/60">JKIA express · 4h lead</span>
+              <h2 className="font-serif text-3xl md:text-4xl text-white mt-2">{departureDrop.name}</h2>
+              <div className="flex items-baseline gap-4 mt-3">
+                <span className="font-mono text-lg text-white">
+                  {formatDualPrice(departureDrop.price_usd, departureDrop.price_kes)}
+                </span>
+              </div>
+              <p className="text-white/75 text-sm mt-4 max-w-md leading-relaxed">{departureDrop.contents}</p>
+              <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline border-white/40 text-white hover:bg-white hover:text-black mt-6">
+                Order on WhatsApp
+              </a>
             </div>
-            <p className="text-sand/70 text-sm mt-4 max-w-md leading-relaxed">{departureDrop.contents}</p>
-            <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline border-sand/30 text-sand hover:bg-sand hover:text-obsidian mt-6">
-              Reserve for my flight
-            </a>
           </div>
         </div>
 
@@ -72,6 +76,7 @@ export default function JkiaLandingPage() {
               treasures delivered hand-to-hand directly to your terminal check-in at JKIA within a
               tight four-hour window.
             </p>
+            <TrustRow className="mt-8" />
           </header>
 
           <div className="editorial-rule space-y-4">
@@ -87,7 +92,8 @@ export default function JkiaLandingPage() {
           <div className="editorial-rule space-y-3">
             <h3 className="font-serif text-xl text-obsidian">Beyond the terminal</h3>
             <p className="text-ink-mute text-sm leading-relaxed">
-              Hotel delivery to Westlands, Kilimani, and Karen — explore our full{" "}
+              Hotel delivery to Westlands, Kilimani, and Karen. If the flight leaves before the
+              parcel does, we can quote insured DHL export instead. Explore our full{" "}
               <Link href="/collections" className="text-bronze hover:text-bronze-dark transition-colors">
                 collections
               </Link>{" "}
@@ -136,12 +142,13 @@ export default function JkiaLandingPage() {
 
       <div className="container-page py-16 text-center space-y-4">
         <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark">
-          Speak with concierge
+          Order on WhatsApp
         </a>
         <p className="label-mono text-ink-mute">
           Dispatch coordination 08:00–20:00 EAT · Late requests after 20:00 incur USD 15 fee
         </p>
       </div>
+      <StickyWhatsAppCTA message={orderMessage} />
     </>
   );
 }

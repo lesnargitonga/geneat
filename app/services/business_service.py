@@ -8,6 +8,7 @@ retrieves KB chunks for that tenant.
 from __future__ import annotations
 
 import uuid
+import re
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -18,6 +19,26 @@ from app.core.logging import get_logger
 from app.db.models import Business
 
 log = get_logger("business")
+
+HAZINA_NOMADS_SLUG = "hazina-nomads"
+
+_HAZINA_TENANT_HINT_RE = re.compile(
+    r"\b("
+    r"hazina(?:\s+nomads)?|"
+    r"curated\s+treasures?|"
+    r"gift\s+(?:box|boxes|collection|collections)|"
+    r"custom\s+box|"
+    r"kenya\s+edit|"
+    r"highland\s+treasure|"
+    r"nomad\s+leather|"
+    r"safari\s+romance|"
+    r"departure\s+drop|"
+    r"hn-[a-z0-9-]+|"
+    r"jkia.{0,40}(?:gift|box|delivery)|"
+    r"(?:hotel|suite|room).{0,40}(?:gift|box|delivery)"
+    r")\b",
+    re.IGNORECASE,
+)
 
 
 _VERTICAL_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
@@ -42,6 +63,17 @@ def _infer_vertical(industry: str, profile: dict) -> str:
         if any(k in s for k in keys):
             return vert
     return "general"
+
+
+def looks_like_hazina_tenant_hint(text: str | None) -> bool:
+    """Detect messages that almost certainly originated from Hazina surfaces.
+
+    This is a defensive guard for Meta/Render drift: a wa.me link can point to
+    the right display number while the provider ``phone_number_id`` is still
+    mapped to an old tenant in the database. We keep the detector narrow so a
+    normal café question does not unexpectedly jump tenants.
+    """
+    return bool(_HAZINA_TENANT_HINT_RE.search(text or ""))
 
 
 @dataclass

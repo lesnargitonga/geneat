@@ -4,6 +4,9 @@ import { BRAND, GIFT_BOXES } from "@/lib/products";
 import { TREASURES } from "@/lib/treasures";
 import { whatsappLink } from "@/lib/format";
 import { CollectionCard } from "@/components/CollectionCard";
+import { SmartBackLink } from "@/components/SmartBackLink";
+import { StickyWhatsAppCTA } from "@/components/StickyWhatsAppCTA";
+import { TrustRow } from "@/components/TrustRow";
 
 export const metadata: Metadata = {
   title: "Gift Collections · Hazina Nomads",
@@ -12,7 +15,8 @@ export const metadata: Metadata = {
 };
 
 export default function CollectionsPage() {
-  const wa = whatsappLink(BRAND.whatsapp, "Hello — I'd like help choosing a gift collection.");
+  const orderMessage = "Hello Hazina Nomads — I'd like to order a gift collection.";
+  const wa = whatsappLink(BRAND.whatsapp, orderMessage);
 
   return (
     <>
@@ -26,6 +30,7 @@ export default function CollectionsPage() {
           </Link>{" "}
           from the atelier. Tap any collection to see exactly what&apos;s inside.
         </p>
+        <TrustRow className="mt-8 max-w-3xl" />
       </header>
 
       <div className="container-page">
@@ -57,7 +62,7 @@ export default function CollectionsPage() {
             with the discretion of a five-star hotel desk.
           </p>
           <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline border-sand/30 text-sand hover:bg-sand hover:text-obsidian">
-            Speak with concierge
+            Order on WhatsApp
           </a>
           <p className="label-mono text-sand/30">
             Corporate gifting? Mention it in chat — we&apos;ll connect you with a senior host.
@@ -66,13 +71,14 @@ export default function CollectionsPage() {
       </section>
 
       <p className="container-page text-center py-10">
-        <Link
-          href="/"
-          className="font-mono text-[10px] uppercase tracking-editorial text-bronze hover:text-bronze-dark transition-colors"
+        <SmartBackLink
+          fallbackHref="/"
+          className="font-mono text-sm uppercase tracking-[0.1em] text-bronze hover:text-bronze-dark transition-colors"
         >
-          ← Return home
-        </Link>
+          ← Back to browsing
+        </SmartBackLink>
       </p>
+      <StickyWhatsAppCTA message={orderMessage} />
     </>
   );
 }

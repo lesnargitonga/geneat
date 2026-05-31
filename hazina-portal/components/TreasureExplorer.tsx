@@ -11,7 +11,7 @@ import {
   type Treasure,
   type TreasureCategory,
 } from "@/lib/treasures";
-import { formatKES, whatsappLink } from "@/lib/format";
+import { formatDualPrice, whatsappLink } from "@/lib/format";
 
 type SortMode = "curated" | "price-low" | "price-high" | "fastest";
 
@@ -71,7 +71,7 @@ export function TreasureExplorer({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="input-luxury"
-              placeholder="Search coffee, beadwork, leather, JKIA..."
+              placeholder="Search coffee, leather, JKIA..."
             />
           </label>
           <label className="block">
@@ -159,7 +159,7 @@ function TreasureResult({ item, priority }: { item: Treasure; priority?: boolean
         <CatalogImage
           src={item.image}
           alt={item.imageAlt || item.name}
-          className="aspect-[4/5]"
+          className="aspect-[4/3] sm:aspect-[4/5]"
           imageClassName="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
           sizes="(max-width: 768px) 100vw, 33vw"
           priority={priority}
@@ -173,18 +173,20 @@ function TreasureResult({ item, priority }: { item: Treasure; priority?: boolean
             </Link>
             <p className="label-mono mt-1">{CATEGORY_LABELS[item.category]} · {item.sku}</p>
           </div>
-          <span className="font-mono text-xs text-bronze shrink-0 pt-1">{formatKES(item.price_kes)}</span>
+          <span className="font-mono text-sm text-bronze shrink-0 pt-1 text-right leading-relaxed">
+            {formatDualPrice(item.price_usd, item.price_kes)}
+          </span>
         </div>
         <p className="text-sm text-ink-mute leading-relaxed mt-4 line-clamp-2">{item.description}</p>
-        <div className="mt-auto pt-5 flex flex-wrap gap-2">
-          <Link href={`/treasures/${item.id}`} className="btn-outline !px-4 !py-2">
-            Inspect
+        <div className="mt-auto pt-5 grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <Link href={`/build?add=${item.id}`} className="btn-dark !px-4 !py-2 w-full">
+            Add to box
           </Link>
-          <Link href={`/build?add=${item.id}`} className="btn-dark !px-4 !py-2">
-            Add
+          <Link href={`/treasures/${item.id}`} className="btn-outline !px-4 !py-2 w-full">
+            View details
           </Link>
-          <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-ghost !px-4 !py-2">
-            Ask
+          <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-ghost !px-4 !py-2 w-full">
+            Ask concierge
           </a>
         </div>
       </div>

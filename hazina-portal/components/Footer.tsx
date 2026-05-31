@@ -12,10 +12,10 @@ export function Footer() {
           </div>
           <p className="text-sand/70 max-w-sm leading-relaxed">
             {BRAND.tagline} A premium travel concierge — curated Kenyan treasures
-            delivered to your hotel or JKIA terminal before you depart.
+            delivered to your hotel, JKIA terminal, or quoted for insured DHL export.
           </p>
           <p className="label-mono text-sand/40">
-            Nairobi · Westlands, Kilimani, Karen &amp; JKIA
+            Nairobi · Hotels · JKIA · DHL export quotes
           </p>
         </div>
         <div className="md:col-span-3">
@@ -37,6 +37,11 @@ export function Footer() {
               </Link>
             </li>
             <li>
+              <Link className="hover:text-sand transition-colors" href="/hosts-guides">
+                For hosts &amp; guides
+              </Link>
+            </li>
+            <li>
               <Link className="hover:text-sand transition-colors" href="/about">
                 Our story
               </Link>
@@ -52,7 +57,7 @@ export function Footer() {
               </a>
             </li>
             <li>{BRAND.phone}</li>
-            <li className="label-mono text-sand/40 pt-1">Dispatch 08:00–20:00 EAT</li>
+            <li className="label-mono text-sand/40 pt-1">Dispatch 08:00–20:00 EAT · Export by quote</li>
           </ul>
         </div>
       </div>
