@@ -62,7 +62,7 @@ export default function HomePage() {
               <CatalogImage
                 src={heroBox.image}
                 alt={heroBox.imageAlt || heroBox.name}
-                className="absolute inset-0"
+                className="h-full w-full"
                 imageClassName="object-contain object-center"
                 sizes="(max-width: 768px) 100vw, 480px"
                 priority
