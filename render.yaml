@@ -4,12 +4,11 @@ services:
     runtime: docker
     repo: https://github.com/lesnargitonga/geneat
     plan: starter
-    region: frankfurt
+    region: oregon
     dockerfilePath: ./Dockerfile
     dockerContext: .
     autoDeployTrigger: commit
     healthCheckPath: /readyz
-    preDeployCommand: alembic upgrade head
     envVars:
       - key: APP_ENV
         value: prod
@@ -128,14 +127,14 @@ services:
   - name: hazina-redis
     type: keyvalue
     plan: starter
-    region: frankfurt
+    region: oregon
     ipAllowList: []
 
   - name: hazina-portal
     type: web
     runtime: node
     plan: starter
-    region: frankfurt
+    region: oregon
     rootDir: hazina-portal
     buildCommand: npm install && npm run build
     startCommand: npm start
@@ -159,6 +158,6 @@ services:
 databases:
   - name: hazina-postgres
     plan: basic-256mb
-    region: frankfurt
+    region: oregon
     databaseName: omni
     diskSizeGB: 15
