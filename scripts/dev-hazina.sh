@@ -1,24 +1,27 @@
 #!/usr/bin/env bash
-# Stop other local frontends, optionally clear Next cache, start Hazina on :3001.
+# Hazina portal — one local URL, hot reload (refresh after saves; no rebuild).
 #
 # Usage:
-#   ./scripts/dev-hazina.sh              # clean .next, foreground dev server
-#   ./scripts/dev-hazina.sh --no-clean   # faster restart, keep .next
+#   ./scripts/dev-hazina.sh              # start next dev on :3004
+#   ./scripts/dev-hazina.sh --clean      # wipe .next then start (fix stale CSS)
 #   ./scripts/dev-hazina.sh --background # detach (logs: hazina-portal/.dev-hazina.log)
+#
+# Always: http://localhost:3004  (override: HAZINA_DEV_PORT=3005)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PORTAL="${ROOT}/hazina-portal"
-PORT=3001
-CLEAN=1
+PORT="${HAZINA_DEV_PORT:-3004}"
+CLEAN=0
 BACKGROUND=0
 
 for arg in "$@"; do
   case "$arg" in
+    --clean) CLEAN=1 ;;
     --no-clean) CLEAN=0 ;;
     --background|-b) BACKGROUND=1 ;;
     -h|--help)
-      sed -n '2,8p' "$0"
+      sed -n '2,10p' "$0"
       exit 0
       ;;
     *)
@@ -47,46 +50,27 @@ kill_listeners_on_port() {
   fi
 }
 
-
 port_in_use() {
   ss -tln "sport = :${1}" 2>/dev/null | grep -q LISTEN
 }
 
-ensure_port_free() {
-  local p=$1
-  if port_in_use "$p"; then
-    echo "WARNING: port ${p} is still in use (often a stuck Cursor dev server)." >&2
-    ss -tlnp "sport = :${p}" 2>/dev/null || true
-    return 1
-  fi
-  return 0
-}
-
 stop_repo_next() {
   pkill -f "${ROOT}/hazina-portal/node_modules/.bin/next dev" 2>/dev/null || true
-  pkill -f "${ROOT}/gen-eat-portal/node_modules/.bin/next dev" 2>/dev/null || true
-  pkill -f "next dev -p 300[012]" 2>/dev/null || true
+  pkill -f "${ROOT}/hazina-portal/node_modules/.bin/next start" 2>/dev/null || true
+  pkill -f "next dev -p ${PORT}" 2>/dev/null || true
+  pkill -f "next start -p ${PORT}" 2>/dev/null || true
 }
 
-echo "==> Stopping dev servers on ports 3000, 3001, 3002…"
+echo "==> Stopping anything on port ${PORT} (next dev / next start)…"
 stop_repo_next
-for p in 3000 3001 3002; do
-  kill_listeners_on_port "$p"
-done
+kill_listeners_on_port "${PORT}"
 stop_repo_next
-sleep 1
-if ! ensure_port_free "${PORT}"; then
-  for fallback in 3002 3003 3004; do
-    if ensure_port_free "$fallback"; then
-      echo "==> Using fallback port ${fallback} (${PORT} is stuck — kill it: fuser -k ${PORT}/tcp)"
-      PORT=$fallback
-      break
-    fi
-  done
-  if port_in_use "${PORT}"; then
-    echo "ERROR: no free port found. Run: fuser -k 3001/tcp" >&2
-    exit 1
-  fi
+sleep 0.5
+
+if port_in_use "${PORT}"; then
+  echo "ERROR: port ${PORT} is still in use. Try: fuser -k ${PORT}/tcp" >&2
+  ss -tlnp "sport = :${PORT}" 2>/dev/null || true
+  exit 1
 fi
 
 if [[ ! -d "${PORTAL}/node_modules" ]]; then
@@ -97,8 +81,6 @@ fi
 if [[ "$CLEAN" -eq 1 ]]; then
   echo "==> Removing ${PORTAL}/.next …"
   rm -rf "${PORTAL}/.next"
-else
-  echo "==> Skipping .next clean (--no-clean)"
 fi
 
 cd "${PORTAL}"
@@ -108,21 +90,11 @@ wait_for_ready() {
   local i
   for i in $(seq 1 90); do
     if curl -sf -o /dev/null "$url"; then
-      local css_path
-      css_path=$(curl -sf "$url" | grep -oE '/_next/static/css/[^"]+\.css' | head -1 || true)
-      if [[ -n "$css_path" ]]; then
-        local ctype
-        ctype=$(curl -sfI "http://127.0.0.1:${PORT}${css_path}" | tr -d '\r' | awk -F': ' 'tolower($1)=="content-type"{print $2; exit}')
-        if [[ "$ctype" != *"text/css"* ]]; then
-          echo "WARNING: CSS at ${css_path} returned '${ctype:-unknown}' — page may look unstyled." >&2
-          echo "  Fix: stop all next dev processes, rm -rf hazina-portal/.next, rerun make dev-hazina" >&2
-        fi
-      fi
       echo ""
-      echo "✓ Hazina portal ready: http://localhost:${PORT}"
+      echo "✓ Hazina portal (dev, hot reload): http://localhost:${PORT}"
+      echo "  Edit files → save → refresh the browser (same port)."
+      echo "  Build page:  http://localhost:${PORT}/build"
       echo "  Collections: http://localhost:${PORT}/collections"
-      echo "  JKIA gifts:  http://localhost:${PORT}/last-minute-kenya-gifts-jkia"
-      echo "  About:       http://localhost:${PORT}/about"
       echo ""
       echo "Chat widget needs API on :8000 — run in another terminal: make dev"
       return 0

@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3001",
-    "dev:clean": "bash ../scripts/dev-hazina.sh",
+    "dev": "next dev -p 3004",
+    "dev:clean": "bash ../scripts/dev-hazina.sh --clean",
     "build": "next build",
-    "start": "next start -p ${PORT:-3000}",
-    "preview": "npm run build && next start -p 3003",
+    "start": "next start -p 3004",
+    "preview": "npm run build && next start -p 3004",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
   },

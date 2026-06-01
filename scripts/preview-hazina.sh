@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Rebuild and run Hazina portal in production mode (styled, stable).
-# Stops stale next start/dev on preview ports so CSS hashes stay in sync.
+# Rebuild and run Hazina portal in production mode (pre-deploy CSS check).
+# Daily work: use ./scripts/dev-hazina.sh instead (hot reload on :3004).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
