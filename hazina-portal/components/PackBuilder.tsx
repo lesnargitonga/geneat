@@ -158,8 +158,8 @@ export function PackBuilder({
   }
 
   return (
-    <div className="grid lg:grid-cols-12 gap-10 lg:gap-14">
-      <div className="lg:col-span-7 space-y-8">
+    <div className="grid min-w-0 lg:grid-cols-12 gap-10 lg:gap-14">
+      <div className="min-w-0 lg:col-span-7 space-y-8">
         <div className="panel-luxury p-4 md:p-5 space-y-4">
           <div className="grid gap-3 md:grid-cols-[1fr,180px]">
             <label>
@@ -168,7 +168,7 @@ export function PackBuilder({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 className="input-soft"
-                placeholder="Search by item, SKU, material, origin..."
+                placeholder="Search item, SKU, origin..."
               />
             </label>
             <label>
@@ -188,7 +188,7 @@ export function PackBuilder({
 
           <div className="flex items-center gap-3">
             <span className="label-mono shrink-0 text-ink-mute">Category</span>
-            <div className="-mx-1 flex-1 overflow-x-auto pb-1 local-scroll-x">
+            <div className="-mx-1 min-w-0 flex-1 overflow-x-auto pb-1 local-scroll-x">
               <div className="flex min-w-max gap-5 px-1">
                 <CategoryLink active={category === "all"} onClick={() => setCategory("all")} label="All" />
                 {ALL_CATEGORIES.filter((c) => c !== "packaging").map((c) => (
@@ -210,7 +210,7 @@ export function PackBuilder({
         </div>
 
         {filtered.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8">
+          <div className="grid min-w-0 grid-cols-1 gap-x-4 gap-y-8 min-[430px]:grid-cols-2 md:grid-cols-3">
             {filtered.map((item) => (
               <SelectableTreasure
                 key={item.id}
@@ -230,7 +230,7 @@ export function PackBuilder({
         )}
       </div>
 
-      <aside className="lg:col-span-5">
+      <aside className="min-w-0 lg:col-span-5">
         <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto local-scroll local-scroll--subtle border border-border bg-sand p-6 md:p-8 space-y-6">
           <div>
             <span className="label-mono">Your box</span>
@@ -274,7 +274,7 @@ export function PackBuilder({
                           </button>
                         </div>
                       </div>
-                      <span className="font-mono text-xs text-ink-mute shrink-0 text-right leading-relaxed">
+                      <span className="font-mono text-sm text-ink-mute shrink-0 text-right leading-relaxed">
                         {formatUSD(item.price_usd * qty)}
                         <br />
                         {formatKES(item.price_kes * qty)}
@@ -306,7 +306,7 @@ export function PackBuilder({
                 />
                 <span className="text-sm text-ink-mute leading-relaxed">
                   Premium gift box &amp; story card — {formatUSD(PACKAGING_FEE_USD)}
-                  <span className="block font-mono text-xs text-ink-mute/80 mt-0.5">
+                  <span className="block font-mono text-sm text-ink-mute/80 mt-0.5">
                     {formatKES(PACKAGING_FEE_KES)}
                   </span>
                 </span>
@@ -349,8 +349,8 @@ export function PackBuilder({
               <div className="rounded-sm bg-sand-dark/50 p-4 space-y-2 text-sm">
                 <p className="label-mono text-ink-mute">Order summary</p>
                 <p className="font-serif text-xl text-obsidian">{formatUSD(totalUsd)}</p>
-                <p className="font-mono text-xs text-ink-mute">{formatKES(totalKes)}</p>
-                <p className="text-ink-mute text-xs mt-1">
+                <p className="font-mono text-sm text-ink-mute">{formatKES(totalKes)}</p>
+                <p className="text-ink-mute text-sm mt-1">
                   {totalUnits} treasures
                   {includePackaging ? " · premium packaging" : ""}
                 </p>
@@ -363,7 +363,7 @@ export function PackBuilder({
                       key={mode}
                       type="button"
                       onClick={() => setDeliveryMode(mode)}
-                      className={`font-mono text-xs uppercase tracking-[0.1em] pb-1 border-b-2 transition-colors ${
+                      className={`font-mono text-sm uppercase pb-1 border-b-2 transition-colors ${
                         deliveryMode === mode
                           ? "border-obsidian text-obsidian"
                           : "border-transparent text-ink-mute hover:text-obsidian"
@@ -405,7 +405,7 @@ export function PackBuilder({
                   <button
                     type="button"
                     onClick={() => setPaymentCurrency("USD")}
-                    className={`font-mono text-xs uppercase tracking-[0.1em] pb-1 border-b-2 transition-colors ${
+                    className={`font-mono text-sm uppercase pb-1 border-b-2 transition-colors ${
                       paymentCurrency === "USD"
                         ? "border-obsidian text-obsidian"
                         : "border-transparent text-ink-mute hover:text-obsidian"
@@ -416,7 +416,7 @@ export function PackBuilder({
                   <button
                     type="button"
                     onClick={() => setPaymentCurrency("KES")}
-                    className={`font-mono text-xs uppercase tracking-[0.1em] pb-1 border-b-2 transition-colors ${
+                    className={`font-mono text-sm uppercase pb-1 border-b-2 transition-colors ${
                       paymentCurrency === "KES"
                         ? "border-obsidian text-obsidian"
                         : "border-transparent text-ink-mute hover:text-obsidian"
@@ -488,7 +488,7 @@ function CategoryLink({
     <button
       type="button"
       onClick={onClick}
-      className={`shrink-0 font-mono text-xs uppercase tracking-[0.12em] whitespace-nowrap pb-1 border-b transition-colors ${
+      className={`shrink-0 font-mono text-sm uppercase whitespace-nowrap pb-1 border-b transition-colors ${
         active
           ? "text-obsidian border-obsidian"
           : "text-ink-mute border-transparent hover:text-obsidian"
@@ -514,7 +514,7 @@ function SelectableTreasure({
     <button
       type="button"
       onClick={onToggle}
-      className={`text-left card-luxury overflow-hidden transition-all ${
+      className={`w-full min-w-0 text-left card-luxury overflow-hidden transition-all ${
         inCart ? "ring-1 ring-obsidian ring-offset-2 ring-offset-sand" : ""
       }`}
     >
@@ -529,14 +529,14 @@ function SelectableTreasure({
         />
         {inCart && (
           <div className="absolute top-3 right-3">
-            <span className="chip-dark text-xs">{qty > 1 ? `×${qty}` : "Added"}</span>
+            <span className="chip-dark text-sm">{qty > 1 ? `×${qty}` : "Added"}</span>
           </div>
         )}
       </div>
       <div className="p-3 border-t border-border/60">
         <p className="font-serif text-base text-obsidian leading-tight">{item.name}</p>
         <p className="font-serif text-sm text-obsidian mt-1">{formatUSD(item.price_usd)}</p>
-        <p className="font-mono text-xs text-ink-mute">{formatKES(item.price_kes)}</p>
+        <p className="font-mono text-sm text-ink-mute">{formatKES(item.price_kes)}</p>
       </div>
     </button>
   );

@@ -155,6 +155,17 @@ def _hazina_profile_defaults(portal_base_url: str) -> dict:
     }
 
 
+def _hazina_canonical_photo_keys() -> set[str]:
+    from app.catalog.hazina_catalog import HAZINA_COLLECTIONS
+
+    keys = {"menu", "collections", "safari"}
+    for row in HAZINA_COLLECTIONS:
+        keys.add(str(row["id"]).lower())
+        keys.add(str(row["name"]).lower())
+        keys.add(str(row["sku"]).lower())
+    return keys
+
+
 async def ensure_hazina_business(
     db: AsyncSession,
     *,
@@ -201,11 +212,18 @@ async def ensure_hazina_business(
     existing = biz.profile if isinstance(biz.profile, dict) else {}
     existing_photos = existing.get("menu_photos") if isinstance(existing.get("menu_photos"), dict) else {}
     default_photos = defaults.get("menu_photos") if isinstance(defaults.get("menu_photos"), dict) else {}
-    biz.profile = {
+    photo_keys_to_replace = _hazina_canonical_photo_keys()
+    merged_photos = {**default_photos, **existing_photos}
+    for key in photo_keys_to_replace:
+        if key in default_photos:
+            merged_photos[key] = default_photos[key]
+
+    profile = {
         **defaults,
         **existing,
-        "menu_photos": {**default_photos, **existing_photos},
+        "menu_photos": merged_photos,
     }
+    biz.profile = profile
 
     meta_pid = (settings.meta_wa_phone_number_id or "").strip()
     if claim_meta_phone and meta_pid:
@@ -219,14 +237,17 @@ async def ensure_hazina_business(
 
     await db.flush()
 
-    try:
-        from app.services.hazina_kb import sync_hazina_knowledge_base
+    if created or not existing.get("hazina_kb_catalog_count"):
+        try:
+            from app.services.hazina_kb import sync_hazina_knowledge_base
 
-        synced = await sync_hazina_knowledge_base(db, biz.id)
-        if synced:
-            await db.flush()
-    except Exception as exc:
-        log.warning("hazina_kb_sync_failed", error=str(exc))
+            synced = await sync_hazina_knowledge_base(db, biz.id)
+            if synced:
+                profile["hazina_kb_catalog_count"] = synced
+                biz.profile = profile
+                await db.flush()
+        except Exception as exc:
+            log.warning("hazina_kb_sync_failed", error=str(exc))
 
     log.warning(
         "hazina_business_auto_provisioned" if created else "hazina_business_auto_repaired",
@@ -244,11 +265,11 @@ async def get_business_by_wa_phone_id(
     from app.core.config import get_settings  # local import to avoid cycle
 
     settings = get_settings()
-    if (
+    configured_meta_pid = (settings.meta_wa_phone_number_id or "").strip()
+    hazina_is_primary = bool(getattr(settings, "hazina_claims_meta_phone", True)) or (
         (settings.default_business_slug or "").strip().lower() == HAZINA_NOMADS_SLUG
-        and (settings.meta_wa_phone_number_id or "").strip()
-        and str(phone_number_id) == str(settings.meta_wa_phone_number_id).strip()
-    ):
+    )
+    if hazina_is_primary and configured_meta_pid and str(phone_number_id) == configured_meta_pid:
         return await ensure_hazina_business(db, claim_meta_phone=True)
 
     res = await db.execute(

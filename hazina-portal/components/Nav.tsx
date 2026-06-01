@@ -47,8 +47,11 @@ export function Nav() {
         </nav>
         <div className="hidden md:flex items-center gap-3">
           <ThemeToggle compact />
+          <Link href="/#chat" className="btn-outline py-2.5 px-5">
+            Chat in app
+          </Link>
           <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-bronze py-2.5 px-5">
-            Talk to Concierge
+            Order on WhatsApp
           </a>
         </div>
         <div className="md:hidden flex items-center gap-2">
@@ -87,8 +90,15 @@ export function Nav() {
               className="btn-bronze w-full mt-2"
               onClick={() => setOpen(false)}
             >
-              Talk to Concierge
+              Order on WhatsApp
             </a>
+            <Link
+              href="/#chat"
+              className="btn-outline w-full"
+              onClick={() => setOpen(false)}
+            >
+              Chat in app
+            </Link>
           </nav>
         </div>
       )}

@@ -101,8 +101,8 @@ _DEGRADED_FALLBACK_MARKERS = (
     "halijapita vizuri",
 )
 _PAYMENT_CANCEL_RE = re.compile(
-    r"\b(cancel|stop|abort|sitisha)\b.{0,50}\b(payment|pay|stk|order|malipo|oda)\b|"
-    r"\b(payment|pay|stk|order|malipo|oda)\b.{0,50}\b(cancel|stop|abort|sitisha)\b",
+    r"\b(cancel|stop|abort|sitisha)\b.{0,50}\b(payment|pay|stk|order|checkout|malipo|oda)\b|"
+    r"\b(payment|pay|stk|order|checkout|malipo|oda)\b.{0,50}\b(cancel|stop|abort|sitisha)\b",
     re.IGNORECASE,
 )
 _PAYMENT_RESEND_RE = re.compile(
@@ -1418,9 +1418,10 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         # after /biz) → default-active business.
         business_id = turn.business_id
         if business_id is None and turn.business_slug:
-            bp = await get_business_by_slug(db, turn.business_slug)
-            if bp is None and is_hazina_slug(turn.business_slug):
+            if is_hazina_slug(turn.business_slug):
                 bp = await ensure_hazina_business(db, claim_meta_phone=True)
+            else:
+                bp = await get_business_by_slug(db, turn.business_slug)
             if bp:
                 business_id = bp.id
             else:
@@ -1523,9 +1524,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             not turn.business_slug
             and looks_like_hazina_tenant_hint(turn.text)
         ):
-            hazina_bp = await get_business_by_slug(db, HAZINA_NOMADS_SLUG)
-            if hazina_bp is None:
-                hazina_bp = await ensure_hazina_business(db, claim_meta_phone=True)
+            hazina_bp = await ensure_hazina_business(db, claim_meta_phone=True)
             if hazina_bp and business_id != hazina_bp.id:
                 log.warning(
                     "hazina_tenant_hint_overrode_resolved_business",

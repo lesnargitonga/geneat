@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ChatWidget } from "@/components/ChatWidget";
-import { BRAND, BRAND_IMAGES } from "@/lib/products";
-import { whatsappLink } from "@/lib/format";
+import { CatalogImage } from "@/components/CatalogImage";
+import { BRAND, BRAND_IMAGES, GIFT_BOXES } from "@/lib/products";
+import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
 
 export default function HomePage() {
   const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like help choosing a gift box.");
@@ -38,6 +39,12 @@ export default function HomePage() {
               <Link href="/collections" className="btn-bronze">
                 View collections
               </Link>
+              <Link
+                href="/#chat"
+                className="btn-outline border-white/60 text-white hover:bg-white hover:text-black"
+              >
+                Chat in app
+              </Link>
               <a
                 href={wa}
                 target="_blank"
@@ -46,6 +53,35 @@ export default function HomePage() {
               >
                 Order on WhatsApp
               </a>
+            </div>
+          </div>
+
+          <div className="-mx-5 overflow-x-auto px-5 pb-2 local-scroll-x lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0">
+            <div className="flex min-w-max gap-3 lg:grid lg:min-w-0 lg:grid-cols-5">
+              {GIFT_BOXES.map((box) => (
+                <Link
+                  key={box.id}
+                  href={`/collections/${box.id}`}
+                  className="group grid w-[min(78vw,300px)] shrink-0 grid-cols-[76px_1fr] gap-3 border border-white/18 bg-black/34 p-2.5 text-white backdrop-blur-sm transition hover:border-bronze-light hover:bg-black/48 lg:w-auto lg:grid-cols-1"
+                >
+                  <CatalogImage
+                    src={box.image}
+                    alt={box.imageAlt || box.name}
+                    tone="warm"
+                    fit="cover"
+                    className="h-[76px] w-[76px] lg:h-24 lg:w-full"
+                    sizes="180px"
+                  />
+                  <span className="min-w-0 self-center">
+                    <span className="block font-serif text-base leading-tight text-white group-hover:text-bronze-light">
+                      {box.name}
+                    </span>
+                    <span className="mt-1 block font-mono text-sm leading-relaxed text-white/76">
+                      {formatUSD(box.price_usd)} · {formatKES(box.price_kes)}
+                    </span>
+                  </span>
+                </Link>
+              ))}
             </div>
           </div>
 

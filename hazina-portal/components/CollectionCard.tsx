@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CatalogImage } from "@/components/CatalogImage";
 import type { GiftBox } from "@/lib/products";
 import { BRAND, getCollectionPackaging, getCollectionTreasureItems } from "@/lib/products";
-import { formatUSD, whatsappLink } from "@/lib/format";
+import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
 
 type Props = {
   box: GiftBox;
@@ -61,8 +61,8 @@ export function CollectionCard({ box, className = "", priority }: Props) {
           <p className="font-serif text-2xl md:text-[1.75rem] text-obsidian leading-none">
             {formatUSD(box.price_usd)}
           </p>
-          <p className="font-mono text-sm text-ink-mute mt-1">
-            KES {box.price_kes.toLocaleString("en-KE")}
+          <p className="font-mono text-sm text-ink-mute mt-1 leading-relaxed">
+            {formatKES(box.price_kes)}
           </p>
         </div>
 
@@ -72,14 +72,22 @@ export function CollectionCard({ box, className = "", priority }: Props) {
           </p>
         )}
 
-        <a
-          href={waUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-auto pt-5 font-mono text-sm text-bronze underline-offset-4 hover:underline"
-        >
-          Reserve via WhatsApp
-        </a>
+        <div className="mt-auto pt-5 grid gap-2">
+          <Link href={`/collections/${box.id}`} className="btn-dark w-full !px-4 !py-2.5">
+            View details
+          </Link>
+          <Link href={`/collections/${box.id}#checkout`} className="btn-outline w-full !px-4 !py-2.5">
+            Add to box
+          </Link>
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-ghost w-full !px-4 !py-2.5"
+          >
+            Ask concierge
+          </a>
+        </div>
       </div>
     </article>
   );
@@ -105,8 +113,8 @@ export function CollectionItemsPreview({ box }: { box: GiftBox }) {
             />
             <p className="font-serif text-base leading-tight text-obsidian">{item.name}</p>
             <p className="font-serif text-base text-obsidian mt-1">{formatUSD(item.price_usd)}</p>
-            <p className="font-mono text-xs text-ink-mute mt-0.5">
-              KES {item.price_kes.toLocaleString("en-KE")}
+            <p className="font-mono text-sm text-ink-mute mt-0.5">
+              {formatKES(item.price_kes)}
             </p>
           </Link>
         ))}

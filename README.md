@@ -101,6 +101,8 @@ Current Hazina production-routing path:
 - the public Hazina WhatsApp number is `+1 555 657 8220` via
   `NEXT_PUBLIC_HAZINA_WHATSAPP` / `NEXT_PUBLIC_HAZINA_PHONE`; this is the
   current Meta/AI automation route, not a placeholder,
+- `HAZINA_CLAIMS_META_PHONE=true` lets the configured Meta phone id route to
+  Hazina during cutover even if an old tenant mapping is still present,
 - `scripts/seed_hazina_nomads.py` claims the configured Meta
   `phone_number_id` for Hazina and clears the same id from any other tenant,
 - the backend can now auto-provision/repair the Hazina tenant from the code
@@ -114,9 +116,10 @@ Current Hazina production-routing path:
 - curated collections and custom boxes now use guided checkout workflows on
   the website before opening portal chat or WhatsApp, with Hotel, JKIA, and
   DHL/export quote modes,
-- all five collection hero image slots and all individual treasure image
-  references resolve locally; current collection pack images remain provisional
-  until exact no-watermark Hazina product photos replace them,
+- all five collection image slots and all individual treasure image references
+  resolve locally; collection images now use real available product/context
+  photos instead of generated branded mockups, but exact no-watermark finished
+  box photos are still required before a premium hard launch,
 - collection and treasure prices were raised again for premium tourist/luxury
   positioning across the portal, backend catalog, RAG, and WhatsApp menu
   labels,
@@ -235,7 +238,7 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `158 passed, 1 warning` via `make test-fast` |
+| Fast focused backend suite | `165 passed, 1 warning` via `make test-fast` |
 | Hazina focused suite | `61 passed, 1 warning` via `make test-hazina` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
@@ -2336,7 +2339,7 @@ make test-fast
 Current result:
 
 ```text
-158 passed, 1 warning
+165 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -2353,7 +2356,7 @@ Current result:
 - admin build passed
 - Gen-Eat portal build passed
 - Hazina portal typecheck passed
-- Hazina portal build passed with ~48 routes (see docs/HAZINA_NOMADS.md §9.1)
+- Hazina portal build passed with 51 routes (see docs/HAZINA_NOMADS.md §9.1)
 
 ### 22.3 Live system doctor
 
@@ -2579,6 +2582,12 @@ This is the honest list, not the flattering list.
   delivery window, contact, and payment preference in website workflows, then
   send structured automation prompts that can create the order and start
   Paystack/M-Pesa payment without vague concierge forwarding
+- Hazina draft checkouts now allow interruption: photo requests, `no STK yet`,
+  and `cancel checkout` no longer get misread as hotel/JKIA/DHL addresses or
+  accidentally start payment
+- Hazina collection photo replies now use the corrected collection/context
+  photo map and unknown specific photo requests no longer substitute random
+  unrelated catalog images
 - collection checkout quantities and custom-box item quantities are preserved
   end to end in the structured automation handoff,
 - Hazina collection prices were raised after a quick market benchmark against
@@ -2775,5 +2784,11 @@ Local QA on 2026-06-01 verified:
 - public portal routes and `/api/health` return `200` with FastAPI connected on `:8000`,
 - all referenced portal product and brand images resolve through Next image optimization,
 - Hazina menu photos return 108 backend keys, including collection and individual treasure keys,
-- mobile checks on home, collections, build, hosts/guides, and collection detail showed no horizontal overflow,
-- Hazina chat probes through both backend and portal proxy replied with Hazina-only copy and no Lily Pond references.
+- mobile checks on home, build, and collection detail showed the collection rail,
+  builder cards, and collection imagery fitting phone-width screens without
+  horizontal page overflow,
+- Hazina chat probes through the backend replied with Hazina-only copy and no
+  Lily Pond references,
+- draft checkout interruption was smoke-tested: a photo request during checkout
+  returns an image, and `cancel checkout` clears the draft instead of starting
+  payment.

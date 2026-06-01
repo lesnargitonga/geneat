@@ -82,6 +82,15 @@ _CATALOG_RE = re.compile(
     re.IGNORECASE,
 )
 _PHOTO_RE = re.compile(r"\b(photo|picture|pic|image|picha|show me)\b", re.IGNORECASE)
+_CHECKOUT_CANCEL_RE = re.compile(
+    r"\b(cancel|stop|abort|sitisha)\b.{0,50}\b(checkout|order|payment|pay|malipo|oda)\b|"
+    r"\b(checkout|order|payment|pay|malipo|oda)\b.{0,50}\b(cancel|stop|abort|sitisha)\b",
+    re.IGNORECASE,
+)
+_CHECKOUT_STATUS_INTERRUPT_RE = re.compile(
+    r"\b(resend|send again|retry|paid|nimepay|nimelipa|no stk|not received|haijafika)\b",
+    re.IGNORECASE,
+)
 _SKU_LINE_RE = re.compile(r"\((HN-[A-Z0-9-]+)\)", re.IGNORECASE)
 _SKU_QTY_LINE_RE = re.compile(
     r"^\s*(?:[•*-]\s*)?(?:(\d{1,2})\s*[x×]\s*)?.*?\((HN-[A-Z0-9-]+)\)",
@@ -180,6 +189,21 @@ def looks_like_hazina_corporate(text: str) -> bool:
 
 def looks_like_hazina_catalog_request(text: str) -> bool:
     return bool(_CATALOG_RE.search(text or ""))
+
+
+def looks_like_checkout_cancel(text: str) -> bool:
+    return bool(_CHECKOUT_CANCEL_RE.search(text or ""))
+
+
+def should_pause_checkout_for_customer_request(text: str) -> bool:
+    """Let informational/status turns escape a draft checkout state.
+
+    A user can ask for a photo, menu, or payment status while a checkout is
+    waiting for delivery details. Those turns must not be misread as hotel
+    locations and accidentally start payment.
+    """
+    candidate = text or ""
+    return bool(_PHOTO_RE.search(candidate) or _CHECKOUT_STATUS_INTERRUPT_RE.search(candidate))
 
 
 def is_custom_box_handoff(text: str) -> bool:
@@ -407,11 +431,11 @@ def _ask_custom_delivery_reply(*, item_count: int, total_kes: float, total_usd: 
     if is_sw:
         return (
             f"Sanduku lako la desturi ({item_count} vitu, {_price_label(usd=total_usd, kes=total_kes)}) — "
-            "niambie hoteli + chumba au JKIA + terminal, muda wa ndege, na card/USD au M-Pesa/KES."
+            "nitakamilisha baada ya kupata jina la mgeni, mahali pa delivery (hoteli + chumba, JKIA + terminal, au anwani ya DHL), muda unaotaka, na email/card au M-Pesa."
         )
     return (
         f"Your custom box ({item_count} treasures, {_price_label(usd=total_usd, kes=total_kes)}) — "
-        "share hotel + room or JKIA + terminal, departure time if flying, and USD card or KES M-Pesa."
+        "to finish checkout, send guest name, delivery location (hotel + room, JKIA + terminal, or DHL address), delivery window, and email/card or M-Pesa contact."
     )
 
 
@@ -776,6 +800,20 @@ async def try_hazina_automation(
             interactive=product_list_payload(language=language),
             safety_flag="deterministic:hazina_catalog",
         )
+
+    if checkout and looks_like_checkout_cancel(text):
+        await _clear_checkout(conversation_id)
+        return GiftAutomationResult(
+            reply=(
+                "Sawa, nimefuta checkout hiyo. Unaweza kuchagua collection au kujenga box mpya wakati wowote."
+                if is_sw else
+                "Done — I cancelled that draft checkout. You can choose a collection or build a new box whenever you are ready."
+            ),
+            safety_flag="deterministic:hazina_checkout_cancel",
+        )
+
+    if checkout and should_pause_checkout_for_customer_request(text):
+        return None
 
     if checkout and checkout.get("step") in {"delivery", "departure", "custom_delivery"}:
         if checkout.get("order_type") == "custom_box":

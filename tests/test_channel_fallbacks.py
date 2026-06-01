@@ -70,6 +70,7 @@ def test_premature_ready_detector_allows_payment_qualified_copy() -> None:
 
 def test_payment_cancel_intent_and_internal_kb_filter() -> None:
     assert _looks_like_payment_cancel("Cancel the payment for 10 please")
+    assert _looks_like_payment_cancel("cancel this checkout please")
     assert not _looks_like_payment_cancel("I will stop by later")
     assert _looks_like_payment_resend("send STK")
     assert _looks_like_payment_resend("please resend the M-Pesa prompt")

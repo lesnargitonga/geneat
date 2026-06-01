@@ -22,6 +22,10 @@ def test_hazina_intent_detectors() -> None:
     assert ga.looks_like_hazina_corporate("corporate gifting for our team")
     assert ga.looks_like_hazina_catalog_request("what do you sell?")
     assert ga.looks_like_hazina_catalog_request("show me your gift boxes")
+    assert ga.should_pause_checkout_for_customer_request("send me a picture of The Kenya Edit")
+    assert ga.should_pause_checkout_for_customer_request("no stk yet")
+    assert ga.looks_like_checkout_cancel("cancel this checkout please")
+    assert not ga.should_pause_checkout_for_customer_request("Villa Rosa room 412 today 7 pm")
 
 
 def test_is_hazina_slug() -> None:

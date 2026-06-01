@@ -20,6 +20,10 @@ services:
         value: "1"
       - key: DEFAULT_BUSINESS_SLUG
         value: hazina-nomads
+      - key: HAZINA_CLAIMS_META_PHONE
+        value: "true"
+      - key: PUBLIC_HAZINA_PORTAL_URL
+        value: https://hazina.lesnarai.co.ke
       - key: DEMO_BUSINESS_SLUG
         value: lily-pond-cafe
       - key: LLM_PROVIDER

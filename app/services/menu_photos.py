@@ -87,10 +87,52 @@ MENU_PHOTOS: dict[str, dict[str, str]] = {
 
 
 _NORMALIZE_RE = re.compile(r"[^a-z0-9 ]+")
+_STOPWORDS = {
+    "a",
+    "an",
+    "and",
+    "any",
+    "can",
+    "could",
+    "for",
+    "have",
+    "i",
+    "image",
+    "me",
+    "of",
+    "photo",
+    "pic",
+    "picture",
+    "please",
+    "send",
+    "show",
+    "the",
+    "to",
+    "you",
+    "your",
+}
+_GENERIC_PHOTO_TERMS = {
+    "catalog",
+    "catalogue",
+    "collection",
+    "collections",
+    "gift",
+    "gifts",
+    "menu",
+    "shop",
+}
 
 
 def _normalize(s: str) -> str:
     return _NORMALIZE_RE.sub(" ", (s or "").lower()).strip()
+
+
+def _meaningful_tokens(s: str) -> set[str]:
+    return {
+        token
+        for token in _normalize(s).split()
+        if len(token) > 1 and token not in _STOPWORDS
+    }
 
 
 def _normalize_photo_map(raw: Mapping[str, str] | None) -> dict[str, str]:
@@ -113,21 +155,44 @@ def _lookup_photo(table: Mapping[str, str] | None, item_query: str) -> tuple[str
     if not q:
         return ("menu", table.get("menu")) if "menu" in table else (None, None)
 
-    # Exact key, then word-overlap, then fall back to 'menu' hero.
+    # Exact key, then phrase containment, then meaningful-token overlap. Do
+    # not match on filler words like "the" or "of"; a wrong luxury product
+    # photo is worse than asking the customer to pick another item.
     if q in table:
         return q, table[q]
-    # Token overlap — prefer longer key matches first.
-    tokens = set(q.split())
-    candidates = sorted(table.keys(), key=len, reverse=True)
+    candidates = sorted(table.keys(), key=lambda key: (len(_meaningful_tokens(key)), len(key)), reverse=True)
     for key in candidates:
-        key_tokens = set(key.split())
-        if key in q or key_tokens & tokens:
+        if not key or key == "menu":
+            continue
+        if key in q:
             return key, table[key]
-    if "menu" in table:
+
+    query_tokens = _meaningful_tokens(q)
+    best_key: str | None = None
+    best_score: tuple[int, float, int] = (0, 0.0, 0)
+    for key in candidates:
+        if not key or key == "menu":
+            continue
+        key_tokens = _meaningful_tokens(key)
+        if not key_tokens:
+            continue
+        overlap = query_tokens & key_tokens
+        if not overlap:
+            continue
+        coverage = len(overlap) / len(key_tokens)
+        score = (len(overlap), coverage, len(key_tokens))
+        if score > best_score:
+            best_key = key
+            best_score = score
+
+    # Require either a complete short-name match ("kenya edit") or at least
+    # two meaningful shared words ("maasai necklace" → "maasai beaded necklace").
+    if best_key and (best_score[1] >= 1.0 or best_score[0] >= 2):
+        return best_key, table[best_key]
+
+    if "menu" in table and (query_tokens & _GENERIC_PHOTO_TERMS):
         return "menu", table["menu"]
-    # Any image is better than none.
-    first_key = next(iter(table))
-    return first_key, table[first_key]
+    return None, None
 
 
 def find_photo(

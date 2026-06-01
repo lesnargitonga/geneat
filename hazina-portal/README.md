@@ -41,7 +41,7 @@ make preview-hazina   # next build + next start on :3004
 
 | URL | In nav? | Notes |
 |---|---|---|
-| `/` | — | Hero + 4 path cards (no full product grid) |
+| `/` | — | Hero + mobile collection rail + path cards |
 | `/collections` | ✅ | 5 curated boxes |
 | `/collections/[id]` | via cards | Checkout + inside-the-box |
 | `/build` | ✅ | Browse treasures + custom box cart |
@@ -51,7 +51,7 @@ make preview-hazina   # next build + next start on :3004
 | `/treasures` | — | **301 → `/build`** |
 | `/last-minute-kenya-gifts-jkia` | — | **301 → `/collections/departure-drop`** |
 
-**Nav:** Collections · Build · Safari · About · Talk to Concierge (WhatsApp).
+**Nav:** Collections · Build · Safari · About · Chat in app · Order on WhatsApp.
 
 ---
 

@@ -252,11 +252,13 @@ HAZINA_KB_POLICIES: list[str] = [
 
 # Portal image paths — mirrors hazina-portal/lib/products.ts and lib/treasures.ts
 HAZINA_COLLECTION_IMAGES: dict[str, str] = {
-    "kenya-edit": "/treasures/kenya-edit-hero.png",
-    "highland-treasure": "/treasures/highland-treasure-hero.png",
-    "nomad-leather-set": "/treasures/nomad-leather-set-hero.png",
-    "safari-romance-box": "/treasures/safari-romance-box-hero.png",
-    "departure-drop": "/treasures/departure-drop-hero.png",
+    # Use direct product/context photos, not generated branded mockups. Replace
+    # these with exact photographed finished boxes when physical prototypes land.
+    "kenya-edit": "/treasures/coffee-beans-variety.jpg",
+    "highland-treasure": "/treasures/premium-tea-spoons.jpg",
+    "nomad-leather-set": "/treasures/leather-passport-open.jpg",
+    "safari-romance-box": "/treasures/maasai-necklace-worn.png",
+    "departure-drop": "/treasures/leather-passport-closed.jpg",
 }
 
 HAZINA_TREASURE_IMAGES: dict[str, str] = {
@@ -297,8 +299,8 @@ def build_hazina_menu_photos(portal_base_url: str = "https://hazina.lesnarai.co.
     """Map collection/treasure ids and fuzzy names → absolute portal image URLs."""
     base = (portal_base_url or "https://hazina.lesnarai.co.ke").rstrip("/")
     out: dict[str, str] = {
-        "menu": f"{base}/treasures/kenya-edit-hero.png",
-        "collections": f"{base}/treasures/kenya-edit-hero.png",
+        "menu": f"{base}/treasures/african-market-shop.jpg",
+        "collections": f"{base}/treasures/african-market-shop.jpg",
         "safari": f"{base}/brand/safari-sunset.jpg",
     }
     for row in HAZINA_COLLECTIONS:

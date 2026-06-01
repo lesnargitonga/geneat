@@ -26,18 +26,18 @@ Hazina Nomads is a **tenant on the shared Gen-Eat / Omni AI backend** — not a 
 │  hazina.lesnarai.co.ke   │  +1 555 657 8220 → tenant hazina-nomads      │
 │  Next.js 14 · dev :3004  │  Menus + gift_automation + RAG + LLM fallback │
 └────────────┬─────────────┴──────────────────┬───────────────────────────┘
-             │  /api/chat → backend           │  POST /webhooks/meta/wa
+             │  /api/chat → backend           │  POST /webhooks/whatsapp
              ▼                                ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
 │  SHARED API (Render) · api.lesnarai.co.ke                               │
 │  FastAPI                                                                │
 │    ├─ Tenant: phone_number_id / business_slug / DEFAULT_BUSINESS_SLUG   │
-│    ├─ ensure_hazina_business() — auto-provision + KB sync if stale     │
+│    ├─ ensure_hazina_business() — auto-provision + KB/photo repair       │
 │    ├─ gift_automation.py — menus, catalog, custom box, pay, track       │
 │    ├─ channels/base.py — Hazina fast path before LLM; payment resend    │
 │    └─ LangGraph + RAG + tools — open Q&A; order/payment tools           │
 ├──────────────────────────┬──────────────────────────────────────────────┤
-│  Postgres                │  Redis (optional; degrades gracefully)        │
+│  Postgres                │  Redis / Valkey                              │
 │  businesses, orders,     │  gift_checkout:{conv_id}                      │
 │  knowledge_base (RAG)    │  payment idempotency                          │
 ├──────────────────────────┴──────────────────────────────────────────────┤
@@ -88,7 +88,7 @@ Hazina Nomads is a **tenant on the shared Gen-Eat / Omni AI backend** — not a 
 | `/api/partners/login` | — | — | Partner session cookie |
 | `/api/partners/logout` | — | — | Clear partner cookie |
 
-**Nav (2026-06-01):** Collections · Build · Safari · About · Talk to Concierge (bronze).  
+**Nav (2026-06-01):** Collections · Build · Safari · About · Chat in app · Order on WhatsApp.
 **Not in nav/footer:** Hosts, JKIA landing URL, partner pages, `/treasures` index.
 
 **Middleware:** protects `/partners/dashboard`; redirects authed users away from `/partners/login`.
@@ -107,7 +107,7 @@ Hazina Nomads is a **tenant on the shared Gen-Eat / Omni AI backend** — not a 
 | M-Pesa STK | — | ✅ IntaSend | Needs live IntaSend + `PAYMENT_SIMULATOR=false` |
 | USD Paystack link | — | ✅ code | Needs `PAYSTACK_SECRET_KEY` on Render |
 | Resend payment | — | ✅ “resend STK” / “resend link” | `channels/base.py` |
-| Photo requests | — | ✅ | Won’t trigger order intent (`_PHOTO_RE` guard) |
+| Photo requests | — | ✅ | Won’t trigger order intent and can interrupt a draft checkout without starting payment |
 | RAG on all treasures | — | ✅ after seed/sync | `build_hazina_kb_catalog()` |
 | Tenant anti–Lily-Pond | — | ✅ | Hints + `ensure_hazina_business` |
 | Partner program page | ✅ ghost `/hosts-guides` | — | Commission visible only to partners |
@@ -121,11 +121,11 @@ Hazina Nomads is a **tenant on the shared Gen-Eat / Omni AI backend** — not a 
 | Asset pool | Count | Location | Used for |
 |---|---|---|---|
 | Source photography | 49+ | `docs/pictures/` | Master archive (original filenames preserved) |
-| Portal treasure images | 60 | `hazina-portal/public/treasures/` | Slug-renamed direct photos plus current collection hero placeholders for web |
-| Collection hero shots | **5 / 5 mapped provisional images** | `lib/products.ts` + `HAZINA_COLLECTION_IMAGES` | Portal and WhatsApp have working collection images; replace with exact no-watermark Hazina product photos before premium launch |
+| Portal treasure images | 60 | `hazina-portal/public/treasures/` | Slug-renamed direct photos plus current collection/context placeholders for web |
+| Collection hero shots | **5 / 5 mapped provisional direct photos** | `lib/products.ts` + `HAZINA_COLLECTION_IMAGES` | Portal and WhatsApp use real available product/context photos now; replace with exact no-watermark finished-box photos before premium launch |
 | Brand atmosphere | 1 direct brand image + reused treasure context images | `hazina-portal/public/brand/`, `public/treasures/` | Safari banner, atelier room, market context |
 | **menu_photos (seeded)** | **108** id/name/sku keys | `profile.menu_photos` via `build_hazina_menu_photos()` | Collection, menu, brand, and treasure photo keys for AI/WhatsApp photo replies |
-| AI composites | 0 generated-folder files | `public/treasures/generated/` removed | No generated folder is served; current collection hero files are provisional and must be replaced with exact product photography |
+| AI composites | 0 generated-folder files | `public/treasures/generated/` removed | No generated folder is served; collection hero mappings avoid branded mockup composites |
 
 ### 0.6 Repositories & services map
 
@@ -133,7 +133,7 @@ Hazina Nomads is a **tenant on the shared Gen-Eat / Omni AI backend** — not a 
 |---|---|---|
 | **Catalog source of truth (backend)** | `app/catalog/hazina_catalog.py` (263 lines) | Collections, treasures, KB chunks, image maps, `menu_photos` |
 | **Tenant seed + RAG** | `scripts/seed_hazina_nomads.py` | Business row upsert, KB re-embed, profile |
-| **Gift automation** | `app/services/gift_automation.py` (886 lines) | Deterministic WA: collections, custom box, catalog menu, pay, track |
+| **Gift automation** | `app/services/gift_automation.py` | Deterministic WA: collections, custom box, catalog menu, pay, track, checkout interruption |
 | **WhatsApp menus** | `app/services/whatsapp_menus.py` | Hazina main menu + 5-product list |
 | **Channel router** | `app/channels/base.py` | Hazina branch before LLM; resend pay; AI → payment handoff |
 | **Order + payment** | `app/services/cafe_automation.py` | Shared order creation, hybrid `request_order_payment` |
@@ -194,7 +194,7 @@ Use this table when planning work — everything else in §0.3–0.4 is implemen
 | **Partner earnings** | ⬜ Code | Dashboard shows `PARTNER_REFERRAL_CODE` | Ledger, attribution on orders, payout automation |
 | **Per-host accounts** | ⬜ Code | Single shared login via env | Multi-user auth, password reset, host onboarding |
 | **Partner API** | ⬜ Code | Cookie session for dashboard | REST for referrals, commissions, statements |
-| **Collection hero photos** | ⬜ Creative | Provisional mapped images | Exact no-watermark in-box product photography |
+| **Collection hero photos** | ⬜ Creative | Real product/context placeholders | Exact no-watermark in-box product photography |
 | **Brand email** | ⬜ Ops | `concierge@hazina-nomads.com` in UI | Real mailbox + SPF/DKIM |
 | **Design tokens** | ⬜ Design | Portal bronze `#A67C52` | Align seed profile terracotta `#B85C38` if required |
 | **Next.js security** | ⬜ Eng | `next@14.2.18` builds clean | Major upgrade per `npm audit` before hardened prod |
@@ -286,7 +286,7 @@ Seed profile still has legacy hex `#B85C38` — align at design lock if needed.
 | **Lead time** | 24h |
 | **Personalization** | No |
 | **Portal itemIds** | `premium-coffee-250g`, `maasai-bracelet`, `soapstone-big-five`, `premium-packaging` |
-| **Hero image** | Provisional mapped pack image; replace with exact no-watermark product photography before premium launch |
+| **Hero image** | Provisional direct product/context photo; replace with exact no-watermark finished-box photography before premium launch |
 
 #### The Highland Treasure
 
@@ -298,7 +298,7 @@ Seed profile still has legacy hex `#B85C38` — align at design lock if needed.
 | **Contents** | Export-grade Kenyan coffee, premium Kenyan loose-leaf tea, local raw honey, carved wooden tasting spoon |
 | **Lead time** | 24h |
 | **Portal itemIds** | `premium-coffee-250g`, `loose-leaf-tea`, `raw-honey`, `wooden-combs`, `premium-packaging` |
-| **Hero image** | Provisional mapped pack image; replace with exact no-watermark product photography before premium launch |
+| **Hero image** | Provisional direct product/context photo; replace with exact no-watermark finished-box photography before premium launch |
 
 #### The Nomad Leather Set
 
@@ -311,7 +311,7 @@ Seed profile still has legacy hex `#B85C38` — align at design lock if needed.
 | **Lead time** | 24h |
 | **Personalization** | Yes — **engraving requires 24-hour notice** |
 | **Portal itemIds** | `leather-passport`, `leather-luggage-tag`, `premium-packaging` |
-| **Hero image** | Provisional mapped pack image; replace with exact no-watermark product photography before premium launch |
+| **Hero image** | Provisional direct product/context photo; replace with exact no-watermark finished-box photography before premium launch |
 
 #### The Safari Romance Box
 
@@ -324,7 +324,7 @@ Seed profile still has legacy hex `#B85C38` — align at design lock if needed.
 | **Lead time** | 48h (assembly); leather tag engraving +24h notice |
 | **Personalization** | Yes |
 | **Portal itemIds** | `maasai-necklace`, `maasai-bracelet`, `premium-coffee-250g`, `big-five-print`, `leather-luggage-tag` |
-| **Hero image** | Provisional mapped pack image; replace with exact no-watermark product photography before premium launch |
+| **Hero image** | Provisional direct product/context photo; replace with exact no-watermark finished-box photography before premium launch |
 
 #### The Departure Drop
 
@@ -337,7 +337,7 @@ Seed profile still has legacy hex `#B85C38` — align at design lock if needed.
 | **Lead time** | **4h** (JKIA-optimised) |
 | **Flag** | `jkia_only: true` in seed/profile |
 | **Portal itemIds** | `premium-coffee-250g`, `loose-leaf-tea`, `leather-passport`, `maasai-bracelet`, `premium-packaging` |
-| **Hero image** | Provisional mapped pack image; replace with exact no-watermark product photography before premium launch |
+| **Hero image** | Provisional direct product/context photo; replace with exact no-watermark finished-box photography before premium launch |
 
 ### 2.2 Individual treasures (30 items — full table)
 
@@ -575,7 +575,7 @@ Guest / order context
 - [ ] 10× matte-black rigid magnetic-closure boxes (Industrial Area / packaging suppliers)
 - [ ] Branded cream tissue, wax seals or premium logo stickers
 - [ ] Product shots: natural light, wood/marble surface — **no stock photos**
-- [x] Upload treasure photos to portal — **57 files in `public/treasures/`**, with generated collection composites removed
+- [x] Upload treasure photos to portal — **60 files in `public/treasures/`**, with generated collection composites removed
 - [ ] Supply exact collection photos for all 5 curated boxes before hard launch
 - [x] `profile.menu_photos` seeded with absolute URLs for Meta Catalog prep
 - [ ] Meta WhatsApp Catalog live sync
@@ -636,7 +636,7 @@ Guest / order context
 |---|---|---|---|
 | **1** | Digital real estate | Domains, social handles, logo, Paystack application | ⬜ **External** — user-owned |
 | **2** | Tech pivot — tenant | Postgres tenant `hazina-nomads`, env prep | ✅ Seed: 5 collections, 30 treasures, 46 KB chunks, `menu_photos` |
-| **2–3** | Tech pivot — frontend | Standalone Hazina portal | ✅ `hazina-portal/` — ~48 routes (§9.1) |
+| **2–3** | Tech pivot — frontend | Standalone Hazina portal | ✅ `hazina-portal/` — 51 routes (§9.1) |
 | **3** | Physical prototyping | Source coffee, beadwork, rigid boxes; assemble prototype | ⬜ **External** |
 | **3** | WhatsApp + AI tools | Hazina menus, delivery fields, hybrid pay | ✅ See §10–§12 |
 | **4** | Media production | Product photography → WA Catalog + website | ✅ 60 portal assets and collection/treasure `menu_photos` keys; ⬜ exact no-watermark collection photos + Meta Catalog sync |
@@ -720,6 +720,7 @@ Documented in `.env.example`. **Do not flip production secrets until Day 7 decis
 # ── Tenant routing ──
 DEFAULT_BUSINESS_SLUG=hazina-nomads          # render.yaml + config default
 DEMO_BUSINESS_SLUG=lily-pond-cafe            # KES 10 demo espresso — café tenant only
+HAZINA_CLAIMS_META_PHONE=true                # configured Meta phone id routes to Hazina during cutover
 
 # ── LLM / embeddings ──
 LLM_PROVIDER=openai
@@ -778,7 +779,7 @@ make test-hazina
 # 4. WhatsApp reply matrix
 make eval-whatsapp-local
 
-# 5. Portal build (~48 routes — see §9.1)
+# 5. Portal build (51 routes — see §9.1)
 cd hazina-portal && npm run build
 ```
 
@@ -796,10 +797,11 @@ cd hazina-portal && npm run build
 
 1. `META_WA_PHONE_NUMBER_ID` — Hazina Meta Cloud API phone id
 2. `META_WA_ACCESS_TOKEN`, `META_WA_VERIFY_TOKEN`, `META_WA_APP_SECRET`
-3. `ADMIN_CORS_ORIGINS` — include `https://hazina.lesnarai.co.ke`
-4. `NEXT_PUBLIC_HAZINA_WHATSAPP` / `NEXT_PUBLIC_HAZINA_PHONE` on `hazina-portal`
-5. `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` for USD
-6. Re-run `scripts/seed_hazina_nomads.py` after Meta phone id is set
+3. `HAZINA_CLAIMS_META_PHONE=true` while Hazina owns the configured Meta number
+4. `ADMIN_CORS_ORIGINS` — include `https://hazina.lesnarai.co.ke`
+5. `NEXT_PUBLIC_HAZINA_WHATSAPP` / `NEXT_PUBLIC_HAZINA_PHONE` on `hazina-portal`
+6. `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` for USD
+7. Re-run `scripts/seed_hazina_nomads.py` after Meta phone id is set
 
 **Smoke test after cutover:**
 
@@ -807,7 +809,9 @@ cd hazina-portal && npm run build
 2. Shop → 5 collections → tap Kenya Edit → delivery prompt → STK
 3. `/build` handoff message with 2+ SKUs → delivery → STK or Paystack link
 4. "resend STK" / "resend link" on pending order
-5. Free-form Q&A → AI `create_order` → automatic payment handoff
+5. Photo request during a draft checkout → photo reply, not payment start
+6. "cancel checkout" during a draft checkout → draft cleared
+7. Free-form Q&A → AI `create_order` → automatic payment handoff
 
 ### 8.7 Tenant swap model
 
@@ -878,7 +882,7 @@ No `/cafes`, `/map`, or `/owners` — those live only in `gen-eat-portal/`.
 
 ### 9.2 Navigation & footer links
 
-**Nav (`components/Nav.tsx`):** Collections · Build · Safari · About · **Talk to Concierge** (`btn-bronze` WhatsApp). Theme toggle + mobile drawer. **Not linked:** Treasures index, JKIA URL, Hosts, partner pages.
+**Nav (`components/Nav.tsx`):** Collections · Build · Safari · About · **Chat in app** · **Order on WhatsApp**. Theme toggle + mobile drawer. **Not linked:** Treasures index, JKIA URL, Hosts, partner pages.
 
 **Footer (`components/Footer.tsx`):** All collections · Safari souvenirs · Kenya Edit · **JKIA Departure Drop** (collection URL, not old JKIA page) · Build custom box · Our story · email · phone · dispatch hours. **No hosts link.**
 
@@ -889,9 +893,9 @@ No `/cafes`, `/map`, or `/owners` — those live only in `gen-eat-portal/`.
 | Curated collections | `lib/products.ts` | `GIFT_BOXES`, `itemIds[]`, `BRAND`, images |
 | Individual treasures | `lib/treasures.ts` | 30 SKUs; packaging excluded from build grid |
 | Format helpers | `lib/format.ts` | `formatUSD`, `formatKES`, `whatsappLink` |
-| Collection card | `components/CollectionCard.tsx` | Image link + stacked prices + Reserve via WhatsApp |
+| Collection card | `components/CollectionCard.tsx` | Image link + stacked prices + View details / Add to box / Ask concierge |
 | Collection checkout | `components/CollectionCheckout.tsx` | Delivery/payment → chat handoff |
-| Pack builder | `components/PackBuilder.tsx` | Browse, cart, deferred delivery form, category anchors |
+| Pack builder | `components/PackBuilder.tsx` | Browse, mobile-safe grid, cart, deferred delivery form, category filters |
 | Product image | `components/ProductImage.tsx` | Safari landing imagery |
 | Catalog image | `components/CatalogImage.tsx` | Fallback frame |
 | Catalog sync badge | `components/CatalogSyncBadge.tsx` | `/api/catalog` |
@@ -906,12 +910,12 @@ No `/cafes`, `/map`, or `/owners` — those live only in `gen-eat-portal/`.
 | Location | Files | Notes |
 |---|---|---|
 | `docs/pictures/` | 49+ | Master archive |
-| `public/treasures/` | 60 | Slug-renamed for Next.js `Image`; all referenced collection and treasure images resolve locally |
+| `public/treasures/` | 60 | Slug-renamed for Next.js image rendering; all referenced collection and treasure images resolve locally |
 | `public/products/` | 0 | Removed to avoid stale duplicate collection images |
 | `public/brand/` | 1 | `safari-sunset.jpg`; other brand context reuses direct treasure photography |
 | `public/treasures/generated/` | 0 | Removed; no generated subfolder is served |
 
-Treasure image paths are mirrored in `HAZINA_TREASURE_IMAGES` in Python catalog for `menu_photos`. `HAZINA_COLLECTION_IMAGES` maps all five collection placeholders now, but those should be replaced by exact no-watermark Hazina product photos before premium launch. Verify refs:
+Treasure image paths are mirrored in `HAZINA_TREASURE_IMAGES` in Python catalog for `menu_photos`. `HAZINA_COLLECTION_IMAGES` maps all five collections to real available product/context photos now, but those should be replaced by exact no-watermark finished-box photos before premium launch. Verify refs:
 
 ```bash
 python scripts/check_asset_images.py
@@ -1027,6 +1031,8 @@ Tap → `order {product}` → `gift_automation` checkout.
 | `resolve_product_id` | Text/interactive → collection id |
 | `parse_custom_box_handoff` | WhatsApp message → SKU line items |
 | `detect_payment_currency` | KES vs USD from guest text |
+| `should_pause_checkout_for_customer_request` | Lets photo/status turns escape draft checkout state |
+| `looks_like_checkout_cancel` | Clears draft checkout before it can be misread as a delivery address |
 | `_finalize_order` | Collection → order + payment |
 | `_finalize_custom_order` | Custom box → order + payment |
 | `finalize_checkout_from_ai` | Post-AI `create_order` → payment |
@@ -1097,6 +1103,12 @@ Also: auto-resend stale STK after timeout (`_auto_resend_stale_payment_reply`).
 2. Guest: *"resend link"* (USD) or *"resend STK"* (KES)
 3. Fresh payment prompt
 
+**WhatsApp — checkout interruption guard**
+
+1. Draft collection/custom checkout is awaiting delivery details
+2. Guest asks for a photo, says `no STK yet`, or cancels checkout
+3. Automation does not treat that message as a hotel/JKIA/DHL address; photo/status/cancel paths handle it first
+
 ### 10.5 Hybrid automation architecture
 
 ```
@@ -1106,6 +1118,7 @@ Inbound WhatsApp (hazina-nomads)
     ├─ Catalog request ("menu", "shop", …) ► gift_automation → product list (no LLM)
     ├─ Custom box SKU message ──────────► gift_automation (no LLM)
     ├─ Track / Corporate ───────────────► gift_automation (no LLM)
+    ├─ Draft checkout interrupt ────────► photo/status/cancel path
     ├─ Resend STK / link ───────────────► base.py payment resend
     ├─ Greeting ────────────────────────► main menu payload
     │
@@ -1186,7 +1199,7 @@ Routes through `resolve_payment_service(currency=…)`.
 | **Order + payment** | `app/services/cafe_automation.py` | ✅ Hybrid `request_order_payment` |
 | **AI tools** | `app/ai/tools.py` | ✅ USD fields, hybrid payment tool |
 | **Render cutover** | `render.yaml` | ✅ `hazina-nomads` default + portal + Paystack env keys |
-| **Standalone portal** | `hazina-portal/` | ✅ ~48 routes (see §9.1) |
+| **Standalone portal** | `hazina-portal/` | ✅ 51 routes (see §9.1) |
 | **Collections (portal)** | `hazina-portal/lib/products.ts` | ✅ |
 | **Treasures (portal)** | `hazina-portal/lib/treasures.ts` | ✅ |
 | **KB sync service** | `app/services/hazina_kb.py` | ✅ `sync_hazina_knowledge_base` + treasure chunks |
@@ -1224,10 +1237,10 @@ Routes through `resolve_payment_service(currency=…)`.
 Current local verification on **2026-06-01**:
 
 - `make test-hazina` → **61 passed**, 1 warning
-- `make test-fast` → run before release (broader suite)
+- `make test-fast` → **165 passed**, 1 warning (broader suite)
 - `cd hazina-portal && npm run typecheck` → passed
 - `cd hazina-portal && npm run lint` → passed
-- `cd hazina-portal && npm run build` → passed, **~48 routes** (43 static pages + 5 API + middleware)
+- `cd hazina-portal && npm run build` → passed, **51 routes** (static pages + API routes + middleware)
 - `npm audit --omit=dev` → `next@14.2.18` advisories; major upgrade before hardened prod
 - `scripts/check_asset_images.py` → image ref audit
 - Manual QA pages: `/`, `/collections`, `/collections/kenya-edit`, `/build`, `/premium-safari-souvenirs-nairobi`, `/hosts-guides` (ghost), `/partners/login`; confirm `/treasures` and `/last-minute-kenya-gifts-jkia` redirect
@@ -1252,6 +1265,7 @@ make preview-hazina
 | `test_payment_routing.py` | KES→IntaSend, USD→Paystack, missing keys error |
 | `test_ai_tools_payment.py` | USD redirect_url, create_order USD details, menu_photos builder |
 | `test_channel_fallbacks.py` | Resend STK/link, pending order flows |
+| `test_menu_photos.py` | Fuzzy photo matching, unknown-specific-photo guard, generic collection photos |
 | `test_payments_hardening.py` | Payment retry, `resolve_payment_service` mocks |
 
 ### 13.2 Manual checks
@@ -1277,6 +1291,8 @@ make eval-whatsapp-local
 - [ ] JKIA location → departure time prompt
 - [ ] STK arrives (KES) or Paystack link (USD)
 - [ ] Custom box message with 2+ SKUs → automated checkout
+- [ ] During a draft checkout, ask for a collection photo → image reply, no payment attempt
+- [ ] During a draft checkout, send `cancel checkout` → draft cleared
 - [ ] "resend STK" / "resend link" works
 - [ ] Track delivery returns order status
 - [ ] Corporate → escalation flag
@@ -1323,7 +1339,7 @@ Use before any production tag or Hazina cutover (§8.6).
 - [ ] Run seed: `PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py`
 - [ ] Run Hazina pytest suite (§13.1)
 - [ ] Run `make eval-whatsapp-local`
-- [ ] `cd hazina-portal && npm run build` — confirm ~48 routes (§9.1)
+- [ ] `cd hazina-portal && npm run build` — confirm 51 routes (§9.1)
 - [ ] Confirm redirects: `/treasures` → `/build`, JKIA URL → departure-drop
 - [ ] Set `PARTNER_PORTAL_*` on Render if using partner dashboard
 - [ ] `cd hazina-portal && npm run lint` — no errors
