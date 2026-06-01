@@ -2376,9 +2376,10 @@ make doctor-hazina-live
 # passed against https://api.lesnarai.co.ke
 
 make doctor-hazina-api
-# after manual migration + dockerCommand repair: deep health is OK and Hazina
-# replies work, but the latency gate still fails because the existing API
-# service is in Frankfurt while Hazina DB/Redis are in Oregon
+# after manual migration + clearing the Render dockerCommand override: deep
+# health is OK and Hazina replies work, but the latency gate still fails
+# because the existing API service is in Frankfurt while Hazina DB/Redis are
+# in Oregon
 ```
 
 Additional safe no-money WhatsApp reply gate:
