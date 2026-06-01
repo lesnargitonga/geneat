@@ -187,13 +187,23 @@
            focus:border-obsidian focus:bg-obsidian/[0.06];
   }
 
-  /* Product photos: knock out white margins into page sand (day + night tokens) */
+  /* Product photos — day: multiply knocks white edges into sand; night: normal (multiply crushes photos) */
   .catalog-photo-frame {
     @apply relative isolate bg-sand;
   }
 
   .catalog-photo-blend {
+    @apply relative z-[1];
     mix-blend-mode: multiply;
+  }
+
+  :root[data-theme="night"] .catalog-photo-frame {
+    background-color: rgb(var(--color-sand-dark));
+  }
+
+  :root[data-theme="night"] .catalog-photo-blend {
+    mix-blend-mode: normal;
+    filter: brightness(1.06) contrast(1.03);
   }
 
   .catalog-tile-image {

@@ -13,7 +13,7 @@ type Props = {
   imageClassName?: string;
   sizes?: string;
   /**
-   * warm = theme sand backdrop + multiply blend (white edges disappear into the UI).
+   * warm = theme sand frame; multiply blend in day mode only (night keeps full photo visibility).
    * default = flat tile background, no blend (full-bleed brand/scenic shots).
    */
   tone?: "default" | "warm";
