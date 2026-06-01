@@ -76,7 +76,7 @@ Current important public endpoints:
 | Thing | Current truth |
 | --- | --- |
 | Gen-Eat customer portal | `https://geneat.lesnarai.co.ke` |
-| Hazina Nomads portal | `https://hazina.lesnarai.co.ke` |
+| Hazina Nomads portal | target `https://hazina.lesnarai.co.ke`; DNS did not resolve from this workspace on 2026-06-01, local preview is `http://localhost:3004` |
 | Lily Pond page | `https://geneat.lesnarai.co.ke/cafes/lily-pond-cafe` |
 | API | `https://api.lesnarai.co.ke` |
 | API liveness | `https://api.lesnarai.co.ke/healthz` |
@@ -2791,4 +2791,10 @@ Local QA on 2026-06-01 verified:
   Lily Pond references,
 - draft checkout interruption was smoke-tested: a photo request during checkout
   returns an image, and `cancel checkout` clears the draft instead of starting
-  payment.
+  payment,
+- live API `/version` reports commit `43779d8`; live Hazina backend probes for
+  catalog, collection photo, custom checkout, and checkout cancel passed after
+  Render promoted the commit,
+- `https://hazina.lesnarai.co.ke` did not resolve from this workspace on
+  2026-06-01, so portal DNS still needs final ops verification even though the
+  local production preview on `:3004` passes.

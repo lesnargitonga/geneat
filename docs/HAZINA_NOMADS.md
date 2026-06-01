@@ -187,7 +187,7 @@ Use this table when planning work — everything else in §0.3–0.4 is implemen
 | **Paystack USD live** | ⬜ Ops | `resolve_payment_service(USD)`, link in WA | Merchant approval + `PAYSTACK_SECRET_KEY` on Render |
 | **M-Pesa live** | ⬜ Ops | IntaSend STK path | Live IntaSend keys; `PAYMENT_SIMULATOR=false` |
 | **Meta WhatsApp Catalog** | ⬜ Ops | `menu_photos` (~108 keys) in profile | Merchant catalog sync in Meta Business Manager |
-| **Production deploy** | ⬜ Ops | Code on local `main` | Push + Render redeploy `hazina-portal` + API |
+| **Production deploy** | ◐ Ops | API deployed at commit `43779d8`; local portal preview passes | Fix/verify `hazina.lesnarai.co.ke` DNS and deploy portal service |
 | **Production KB re-embed** | ⬜ Ops | Seed script + auto-sync hook | Run seed on prod DB after deploy |
 | **DHL live rates** | ⬜ Code | `calculate_dhl_shipping` stub in `app/ai/tools.py` | Real carrier API + quote persistence |
 | **Fulfillment ops** | ⬜ Process | Order rows + status fields | Dispatch webhooks, courier SLA, packing SOP |
@@ -1241,6 +1241,8 @@ Current local verification on **2026-06-01**:
 - `cd hazina-portal && npm run typecheck` → passed
 - `cd hazina-portal && npm run lint` → passed
 - `cd hazina-portal && npm run build` → passed, **51 routes** (static pages + API routes + middleware)
+- live API `/version` after push → commit `43779d8`; live Hazina backend probes for catalog, collection photo, custom checkout, and checkout cancel passed
+- `https://hazina.lesnarai.co.ke` DNS did not resolve from this workspace on 2026-06-01; fix DNS / portal deploy before public launch
 - `npm audit --omit=dev` → `next@14.2.18` advisories; major upgrade before hardened prod
 - `scripts/check_asset_images.py` → image ref audit
 - Manual QA pages: `/`, `/collections`, `/collections/kenya-edit`, `/build`, `/premium-safari-souvenirs-nairobi`, `/hosts-guides` (ghost), `/partners/login`; confirm `/treasures` and `/last-minute-kenya-gifts-jkia` redirect
