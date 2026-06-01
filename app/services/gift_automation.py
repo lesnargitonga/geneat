@@ -82,6 +82,10 @@ _CATALOG_RE = re.compile(
     re.IGNORECASE,
 )
 _SKU_LINE_RE = re.compile(r"\((HN-[A-Z0-9-]+)\)", re.IGNORECASE)
+_SKU_QTY_LINE_RE = re.compile(
+    r"^\s*(?:[•*-]\s*)?(?:(\d{1,2})\s*[x×]\s*)?.*?\((HN-[A-Z0-9-]+)\)",
+    re.IGNORECASE | re.MULTILINE,
+)
 _USD_PAY_RE = re.compile(
     r"\b(usd|dollar|\$|card|visa|mastercard|apple pay|paystack|international)\b",
     re.IGNORECASE,
@@ -117,6 +121,7 @@ class ParsedCheckoutDetails:
     customer_name: str | None = None
     contact: str | None = None
     payment_currency: str | None = None
+    quantity: int = 1
 
 
 def is_hazina_slug(slug: str | None) -> bool:
@@ -197,17 +202,28 @@ def _price_label(*, usd: float | int, kes: float | int) -> str:
 
 def parse_custom_box_handoff(text: str) -> ParsedCustomBox | None:
     body = text or ""
-    skus = _SKU_LINE_RE.findall(body)
+    sku_qty_rows = _SKU_QTY_LINE_RE.findall(body)
+    skus = [sku for _, sku in sku_qty_rows] or _SKU_LINE_RE.findall(body)
     if not skus and not _CUSTOM_BOX_INTRO_RE.search(body):
         return None
 
     items: list[CafeOrderItem] = []
+    qty_by_sku: dict[str, int] = {}
+    if sku_qty_rows:
+        for qty_raw, sku in sku_qty_rows:
+            qty = int(qty_raw or 1)
+            sku_up = sku.upper()
+            qty_by_sku[sku_up] = min(20, qty_by_sku.get(sku_up, 0) + max(1, qty))
+    else:
+        for sku in skus:
+            sku_up = sku.upper()
+            qty_by_sku[sku_up] = min(20, qty_by_sku.get(sku_up, 0) + 1)
     seen: set[str] = set()
     total_kes = 0.0
     total_usd = 0.0
     resolved_skus: list[str] = []
 
-    for sku in skus:
+    for sku, qty in qty_by_sku.items():
         row = hazina_treasure_by_sku(sku)
         if row is None or row["sku"] in seen:
             continue
@@ -216,12 +232,12 @@ def parse_custom_box_handoff(text: str) -> ParsedCustomBox | None:
         items.append(
             CafeOrderItem(
                 sku_or_name=f"{row['name']} ({row['sku']})",
-                qty=1,
+                qty=qty,
                 unit_price=float(row["price_kes"]),
             )
         )
-        total_kes += float(row["price_kes"])
-        total_usd += float(row["price_usd"])
+        total_kes += float(row["price_kes"]) * qty
+        total_usd += float(row["price_usd"]) * qty
 
     if re.search(r"premium packaging", body, re.IGNORECASE) and "HN-T-070" not in seen:
         packaging = hazina_treasure_by_sku("HN-T-070")
@@ -259,6 +275,14 @@ def parse_checkout_details(text: str) -> ParsedCheckoutDetails:
     """Parse the structured handoff emitted by the Hazina website workflow."""
     body = text or ""
     payment_currency = detect_payment_currency(body)
+    quantity = 1
+    qty_match = re.search(
+        r"^\s*Collection\s*:\s*(\d{1,2})\s*[x×]\s+",
+        body,
+        re.IGNORECASE | re.MULTILINE,
+    )
+    if qty_match:
+        quantity = max(1, min(20, int(qty_match.group(1))))
     delivery_type = _structured_value(body, "Delivery type")
     delivery_location = _structured_value(body, "Delivery location")
     delivery_window = _structured_value(body, "Delivery window")
@@ -292,6 +316,7 @@ def parse_checkout_details(text: str) -> ParsedCheckoutDetails:
         customer_name=customer_name,
         contact=contact,
         payment_currency=payment_currency,
+        quantity=quantity,
     )
 
 
@@ -543,14 +568,16 @@ async def _finalize_order(
     delivery_type: str | None,
     customer_name: str | None,
     is_sw: bool,
+    quantity: int = 1,
     payment_currency: str = "USD",
     payment_email: str | None = None,
 ) -> GiftAutomationResult:
     row = HAZINA_PRODUCTS[product_id]
+    quantity = max(1, min(20, int(quantity or 1)))
     items = [
         CafeOrderItem(
             sku_or_name=row["name"],
-            qty=1,
+            qty=quantity,
             unit_price=float(row["price_kes"]),
         )
     ]
@@ -572,7 +599,7 @@ async def _finalize_order(
         delivery_notes=" | ".join(notes_parts),
         fast_path="hazina_gift_checkout",
         payment_currency=payment_currency,
-        amount_usd=float(row["price_usd"]) if payment_currency == "USD" else None,
+        amount_usd=(float(row["price_usd"]) * quantity) if payment_currency == "USD" else None,
         payment_email=payment_email,
     )
     order = result.order
@@ -599,9 +626,9 @@ async def _finalize_order(
     from app.services.whatsapp_menus import order_actions_payload
 
     reply = _payment_success_reply(
-        summary=row["name"],
-        amount_kes=int(float(row["price_kes"])),
-        amount_usd=float(row["price_usd"]),
+        summary=order_items_summary(items) or row["name"],
+        amount_kes=int(float(row["price_kes"]) * quantity),
+        amount_usd=float(row["price_usd"]) * quantity,
         delivery_location=delivery_location,
         payment=result.payment,
         is_sw=is_sw,
@@ -843,6 +870,7 @@ async def try_hazina_automation(
             departure = _parse_departure_iso(text) or location
             location = str(checkout.get("delivery_location") or location)
         pay_cur = detect_payment_currency(text, checkout=checkout)
+        quantity = int(checkout.get("quantity") or 1)
         return await _finalize_order(
             db,
             customer_id=customer.id,
@@ -850,6 +878,7 @@ async def try_hazina_automation(
             business_id=business_id,
             msisdn=customer.phone_number,
             product_id=product_id,
+            quantity=quantity,
             delivery_location=location,
             departure_note=departure,
             delivery_type=str(checkout.get("delivery_type") or ""),
@@ -941,6 +970,7 @@ async def try_hazina_automation(
                 business_id=business_id,
                 msisdn=customer.phone_number,
                 product_id=pid,
+                quantity=checkout_details.quantity,
                 delivery_location=checkout_details.delivery_location.strip(),
                 departure_note=checkout_details.delivery_window.strip(),
                 delivery_type=checkout_details.delivery_type,
@@ -953,6 +983,7 @@ async def try_hazina_automation(
             conversation_id,
             {
                 "product_id": pid,
+                "quantity": checkout_details.quantity,
                 "step": "delivery",
                 "delivery_type": checkout_details.delivery_type,
                 "payment_currency": checkout_details.payment_currency or detect_payment_currency(text),

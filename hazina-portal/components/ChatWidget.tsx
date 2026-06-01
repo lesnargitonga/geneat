@@ -160,18 +160,18 @@ export function ChatWidget() {
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? "Close chat" : "Open chat"}
         className={`fixed bottom-5 right-5 z-40 w-14 h-14 bg-obsidian text-sand shadow-editorial items-center justify-center text-2xl active:scale-95 transition hover:bg-obsidian-soft ${
-          open ? "flex" : "hidden sm:flex"
+          open ? "flex" : "flex"
         }`}
       >
         {open ? "✕" : "💬"}
       </button>
 
       {open && (
-        <div className="fixed bottom-24 right-5 z-40 w-[min(380px,calc(100vw-2rem))] max-h-[70vh] flex flex-col bg-sand border border-border shadow-editorial overflow-hidden">
+        <div className="fixed bottom-24 right-5 z-40 w-[min(400px,calc(100vw-2rem))] max-h-[min(78svh,680px)] flex flex-col bg-sand border border-border shadow-editorial overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 bg-obsidian text-sand">
             <div>
               <div className="label-mono text-sand/50">Concierge chat</div>
-              <div className="h-display text-base">{BRAND.name}</div>
+              <div className="font-serif text-lg text-sand">{BRAND.name}</div>
             </div>
             <a
               href={whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like concierge help.")}
@@ -251,7 +251,7 @@ function Bubble({ m }: { m: MsgWithMedia }) {
     <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
       <div
         className={
-          "max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-snug whitespace-pre-wrap " +
+          "max-w-[84%] px-3 py-2 rounded-2xl text-base leading-relaxed whitespace-pre-wrap " +
           (mine
             ? "bg-obsidian text-sand"
             : "bg-sand-dark border border-border text-obsidian")

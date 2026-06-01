@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CatalogImage } from "@/components/CatalogImage";
+import { ConciergePromptButton } from "@/components/ConciergePromptButton";
 import type { GiftBox } from "@/lib/products";
 import { getTreasuresByIds } from "@/lib/treasures";
 import { formatDualPrice, formatUSD } from "@/lib/format";
@@ -63,11 +64,17 @@ export function CollectionCard({ box, className = "", priority }: Props) {
 
         <div className="flex flex-wrap gap-3 mt-6">
           <Link href={`/collections/${box.id}`} className="btn-outline">
-            See inside
+            View details
           </Link>
           <Link href={`/collections/${box.id}#checkout`} className="btn-ghost">
-            Order
+            Add to box
           </Link>
+          <ConciergePromptButton
+            prompt={`Hello Hazina Nomads — tell me if ${box.name} is right for my trip.`}
+            className="btn-ghost"
+          >
+            Ask concierge
+          </ConciergePromptButton>
         </div>
       </div>
     </article>

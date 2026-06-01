@@ -101,17 +101,22 @@ Current Hazina production-routing path:
 - the public Hazina WhatsApp number is `+1 555 657 8220` via
   `NEXT_PUBLIC_HAZINA_WHATSAPP` / `NEXT_PUBLIC_HAZINA_PHONE`; this is the
   current Meta/AI automation route, not a placeholder,
-- `scripts/seed_hazina_nomads.py` now claims the configured Meta
+- `scripts/seed_hazina_nomads.py` claims the configured Meta
   `phone_number_id` for Hazina and clears the same id from any other tenant,
-- the channel layer also uses Hazina-specific message hints plus sticky active
-  Hazina conversations to protect against stale Lily Pond phone mappings,
+- the backend can now auto-provision/repair the Hazina tenant from the code
+  catalog when `DEFAULT_BUSINESS_SLUG=hazina-nomads`, an explicit
+  `business_slug=hazina-nomads`, or the configured Meta phone id points at
+  Hazina, so customers should no longer see a "not configured" dead end,
+- the channel layer also uses Hazina-specific message hints, the configured
+  Meta phone id, and sticky active Hazina conversations to protect against
+  stale Lily Pond phone mappings,
 - Hazina pricing is USD-first with the KES equivalent shown everywhere,
 - curated collections and custom boxes now use guided checkout workflows on
   the website before opening portal chat or WhatsApp, with Hotel, JKIA, and
   DHL/export quote modes,
-- generated/edited collection hero composites are no longer customer-facing;
-  collection hero slots stay blank until exact Hazina product photos are
-  supplied,
+- all five collection hero image slots and all individual treasure image
+  references resolve locally; current collection pack images remain provisional
+  until exact no-watermark Hazina product photos replace them,
 - collection and treasure prices were raised again for premium tourist/luxury
   positioning across the portal, backend catalog, RAG, and WhatsApp menu
   labels,
@@ -228,7 +233,7 @@ Fresh local checks run during this reconciliation:
 | Check | Result |
 | --- | --- |
 | Fast focused backend suite | `158 passed, 1 warning` via `make test-fast` |
-| Hazina focused suite | `57 passed, 1 warning` via `make test-hazina` |
+| Hazina focused suite | `60 passed, 1 warning` via `make test-hazina` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -2571,6 +2576,8 @@ This is the honest list, not the flattering list.
   delivery window, contact, and payment preference in website workflows, then
   send structured automation prompts that can create the order and start
   Paystack/M-Pesa payment without vague concierge forwarding
+- collection checkout quantities and custom-box item quantities are preserved
+  end to end in the structured automation handoff,
 - Hazina collection prices were raised after a quick market benchmark against
   Nairobi premium hamper, coffee hamper, artisan beadwork, and leather travel
   good prices, so the offer fits a tourist/luxury concierge margin instead of
@@ -2764,6 +2771,6 @@ Local QA on 2026-06-01 verified:
 - `hazina-portal` lint, typecheck, and production build pass after the offline-safe font update,
 - public portal routes and `/api/health` return `200` with FastAPI connected on `:8000`,
 - all referenced portal product and brand images resolve through Next image optimization,
-- Hazina menu photos return 93 backend keys, including collection and individual treasure keys,
+- Hazina menu photos return 108 backend keys, including collection and individual treasure keys,
 - mobile checks on home, collections, build, hosts/guides, and collection detail showed no horizontal overflow,
 - Hazina chat probes through both backend and portal proxy replied with Hazina-only copy and no Lily Pond references.

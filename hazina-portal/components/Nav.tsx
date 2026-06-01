@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ConciergePromptButton } from "@/components/ConciergePromptButton";
 import { BRAND } from "@/lib/products";
 import { whatsappLink } from "@/lib/format";
 
@@ -21,6 +22,8 @@ export function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like to order a gift box.");
+  const isActive = (href: string) =>
+    pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-sand/85 backdrop-blur-md">
       <div className="container-page flex items-center justify-between h-16 md:h-[4.5rem]">
@@ -35,9 +38,10 @@ export function Nav() {
             <Link
               key={n.href}
               href={n.href}
-              className={`font-mono text-sm font-medium uppercase tracking-[0.1em] transition-colors ${
-                pathname === n.href
-                  ? "text-obsidian"
+              aria-current={isActive(n.href) ? "page" : undefined}
+              className={`relative py-2 font-mono text-sm font-medium uppercase tracking-[0.1em] transition-colors ${
+                isActive(n.href)
+                  ? "text-obsidian after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-px after:bg-bronze"
                   : "text-ink-soft hover:text-obsidian"
               }`}
             >
@@ -47,6 +51,12 @@ export function Nav() {
         </nav>
         <div className="hidden md:flex items-center gap-3">
           <ThemeToggle compact />
+          <ConciergePromptButton
+            prompt="Hello Hazina Nomads — I want concierge help choosing a gift."
+            className="btn-outline py-2.5 px-5"
+          >
+            Chat in app
+          </ConciergePromptButton>
           <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark py-2.5 px-5">
             Order on WhatsApp
           </a>
@@ -73,7 +83,7 @@ export function Nav() {
                 href={n.href}
                 onClick={() => setOpen(false)}
                 className={`flex items-center justify-between border border-border px-4 py-3 font-mono text-sm uppercase tracking-[0.1em] ${
-                  pathname === n.href ? "bg-obsidian text-sand" : "text-obsidian"
+                  isActive(n.href) ? "bg-obsidian text-sand" : "text-obsidian"
                 }`}
               >
               {n.label}
@@ -89,6 +99,12 @@ export function Nav() {
             >
               Order on WhatsApp
             </a>
+            <ConciergePromptButton
+              prompt="Hello Hazina Nomads — I want concierge help choosing a gift."
+              className="btn-outline w-full"
+            >
+              Chat in app
+            </ConciergePromptButton>
           </nav>
         </div>
       )}

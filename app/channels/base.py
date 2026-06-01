@@ -38,6 +38,7 @@ from app.core.security import hash_msisdn, normalize_msisdn
 from app.db.models import Channel, Message, Sender, ToolInvocation
 from app.services.business_service import (
     HAZINA_NOMADS_SLUG,
+    ensure_hazina_business,
     get_business_by_slug,
     get_business_for_turn,
     looks_like_hazina_tenant_hint,
@@ -224,6 +225,16 @@ def _looks_like_greeting(text: str) -> bool:
 
 def _greeting_reply(*, business_name: str | None, language: str | None) -> str:
     name = (business_name or "the cafe").replace("Café", "Cafe")
+    if "hazina" in name.lower():
+        if _customer_prefers_swahili(language):
+            return (
+                f"Karibu {name}. Naweza kukusaidia kuchagua gift collection, "
+                "kuunda custom box, kupanga hotel/JKIA delivery, au kuomba quote ya DHL."
+            )
+        return (
+            f"Welcome to {name}. I can help you choose a gift collection, "
+            "build a custom box, arrange hotel or JKIA delivery, or quote DHL export shipping."
+        )
     if _customer_prefers_swahili(language):
         return (
             f"Sasa, karibu {name}. Naweza kukusaidia na menu, bei, picha ya item, "
@@ -1323,8 +1334,8 @@ class TurnResult:
 def _unresolved_business_slug_reply(slug: str) -> str:
     if is_hazina_slug(slug):
         return (
-            "Hazina Nomads is not configured on this backend yet. "
-            "Please seed the Hazina tenant, then try again."
+            "I could not connect the Hazina Nomads concierge on this request. "
+            "Please send that once more, or continue from hazina.lesnarai.co.ke."
         )
     return (
         f"I could not find the business '{slug}' on this backend. "
@@ -1408,6 +1419,8 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         business_id = turn.business_id
         if business_id is None and turn.business_slug:
             bp = await get_business_by_slug(db, turn.business_slug)
+            if bp is None and is_hazina_slug(turn.business_slug):
+                bp = await ensure_hazina_business(db, claim_meta_phone=True)
             if bp:
                 business_id = bp.id
             else:
@@ -1511,6 +1524,8 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             and looks_like_hazina_tenant_hint(turn.text)
         ):
             hazina_bp = await get_business_by_slug(db, HAZINA_NOMADS_SLUG)
+            if hazina_bp is None:
+                hazina_bp = await ensure_hazina_business(db, claim_meta_phone=True)
             if hazina_bp and business_id != hazina_bp.id:
                 log.warning(
                     "hazina_tenant_hint_overrode_resolved_business",
@@ -1518,16 +1533,6 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     hazina_business_id=str(hazina_bp.id),
                 )
                 business_id = hazina_bp.id
-            elif not hazina_bp:
-                log.warning(
-                    "hazina_tenant_hint_without_configured_tenant",
-                    previous_business_id=str(business_id) if business_id else None,
-                )
-                return TurnResult(
-                    reply=_unresolved_business_slug_reply(HAZINA_NOMADS_SLUG),
-                    conversation_id=uuid.uuid4(),
-                    escalated=False,
-                )
 
         # If still unresolved, prefer this customer's existing active tenant
         # (makes /biz sticky across turns). Otherwise fall back to global

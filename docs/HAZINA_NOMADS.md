@@ -6,7 +6,7 @@ Merges the user master blueprint with in-repo implementation detail.
 
 > Canonical source of truth is now [README.md](../README.md) for the entire system (Gen-Eat + Hazina + shared backend + open gaps).  
 > This file is detail-only and must not conflict with README.  
-> **Last doc sync:** 2026-06-01 · **Branch:** `main` · **Latest committed QA fix before this doc update:** `3ea5ccc`
+> **Last doc sync:** 2026-06-01 · **Branch:** `main` · use `git log --oneline -1` for the current commit.
 
 ---
 
@@ -67,10 +67,10 @@ Hazina Nomads is a **live multi-tenant configuration** on the existing Gen-Eat /
 |---|---|---|---|
 | Source photography | 49+ | `docs/pictures/` | Master archive (original filenames preserved) |
 | Portal treasure images | 60 | `hazina-portal/public/treasures/` | Slug-renamed direct photos plus current collection hero placeholders for web |
-| Collection hero shots | **5 / 5 mapped placeholders** | `lib/products.ts` + `HAZINA_COLLECTION_IMAGES` | Portal and WhatsApp have working hero images; exact real Hazina photos still needed before premium launch |
+| Collection hero shots | **5 / 5 mapped provisional images** | `lib/products.ts` + `HAZINA_COLLECTION_IMAGES` | Portal and WhatsApp have working collection images; replace with exact no-watermark Hazina product photos before premium launch |
 | Brand atmosphere | 1 direct brand image + reused treasure context images | `hazina-portal/public/brand/`, `public/treasures/` | Safari banner, atelier room, market context |
-| **menu_photos (seeded)** | **91** id/name/sku keys | `profile.menu_photos` via `build_hazina_menu_photos()` | Treasure photos only; collection/menu placeholders omitted until exact photos arrive |
-| AI composites | 0 live files | `public/treasures/generated/` removed | Not used in customer UI or WhatsApp photo maps |
+| **menu_photos (seeded)** | **108** id/name/sku keys | `profile.menu_photos` via `build_hazina_menu_photos()` | Collection, menu, brand, and treasure photo keys for AI/WhatsApp photo replies |
+| AI composites | 0 generated-folder files | `public/treasures/generated/` removed | No generated folder is served; current collection hero files are provisional and must be replaced with exact product photography |
 
 ### 0.4 Repositories & services map
 
@@ -92,7 +92,7 @@ Hazina Nomads is a **live multi-tenant configuration** on the existing Gen-Eat /
 | **Preview launcher** | `scripts/preview-hazina.sh`, `make preview-hazina` | Rebuild + production `next start` (stable CSS) |
 | **Asset checker** | `scripts/check_asset_images.py` | Verify portal image refs vs `public/treasures/` |
 | **Pack compositor** | `scripts/compose_packs.py` | Disabled by default; exact collection photography is required |
-| **This doc** | `docs/HAZINA_NOMADS.md` | Single source of truth |
+| **This doc** | `docs/HAZINA_NOMADS.md` | Implementation appendix; README is canonical |
 
 ### 0.5 Git history (Hazina commits on `main`)
 
@@ -108,7 +108,7 @@ Hazina Nomads is a **live multi-tenant configuration** on the existing Gen-Eat /
 | `e078793` | Load fonts via `next/font`, ESLint config, dev CSS health check |
 | `84d3e0b` | Add six new treasure source photographs |
 
-Branch is **10 commits ahead** of `origin/main` before this working-tree update — not pushed.
+Use `git status -sb` and `git log --oneline -5` for the live branch state; this appendix should not be treated as a git-ahead counter.
 
 ### 0.6 Catalog sync rules (do not drift)
 
@@ -213,64 +213,64 @@ Seed profile still has legacy hex `#B85C38` — align at design lock if needed.
 | | |
 |---|---|
 | **ID / SKU** | `kenya-edit` / `HN-KE-001` |
-| **Price** | USD 189 · KES 24,500 |
+| **Price** | USD 249 · KES 32,400 |
 | **Target** | Safari tourists, European/US visitors |
 | **Contents** | Premium Kenyan coffee (250g), handmade Maasai beadwork (bracelet or necklace), small artisan soapstone carving, printed brand story card |
 | **Lead time** | 24h |
 | **Personalization** | No |
 | **Portal itemIds** | `premium-coffee-250g`, `maasai-bracelet`, `soapstone-big-five`, `premium-packaging` |
-| **Hero image** | Blank until exact Hazina collection photo is supplied |
+| **Hero image** | Provisional mapped pack image; replace with exact no-watermark product photography before premium launch |
 
 #### The Highland Treasure
 
 | | |
 |---|---|
 | **ID / SKU** | `highland-treasure` / `HN-HT-002` |
-| **Price** | USD 149 · KES 19,300 |
+| **Price** | USD 199 · KES 25,900 |
 | **Target** | General gifting, diaspora, colleagues |
 | **Contents** | Export-grade Kenyan coffee, premium Kenyan loose-leaf tea, local raw honey, carved wooden tasting spoon |
 | **Lead time** | 24h |
 | **Portal itemIds** | `premium-coffee-250g`, `loose-leaf-tea`, `raw-honey`, `wooden-combs`, `premium-packaging` |
-| **Hero image** | Blank until exact Hazina collection photo is supplied |
+| **Hero image** | Provisional mapped pack image; replace with exact no-watermark product photography before premium launch |
 
 #### The Nomad Leather Set
 
 | | |
 |---|---|
 | **ID / SKU** | `nomad-leather-set` / `HN-NL-003` |
-| **Price** | USD 249 · KES 32,300 |
+| **Price** | USD 329 · KES 42,800 |
 | **Target** | Business travellers, wealthy tourists |
 | **Contents** | Handmade leather passport holder, luggage tag, travel notebook |
 | **Lead time** | 24h |
 | **Personalization** | Yes — **engraving requires 24-hour notice** |
 | **Portal itemIds** | `leather-passport`, `leather-luggage-tag`, `premium-packaging` |
-| **Hero image** | Blank until exact Hazina collection photo is supplied |
+| **Hero image** | Provisional mapped pack image; replace with exact no-watermark product photography before premium launch |
 
 #### The Safari Romance Box
 
 | | |
 |---|---|
 | **ID / SKU** | `safari-romance-box` / `HN-SR-004` |
-| **Price** | USD 349 · KES 45,200 |
+| **Price** | USD 449 · KES 58,400 |
 | **Target** | Honeymooners, anniversary trips |
 | **Contents** | Matching couple's beadwork, premium treats (chocolate/coffee), framed minimalist safari route map, leather luggage tags |
 | **Lead time** | 48h (assembly); leather tag engraving +24h notice |
 | **Personalization** | Yes |
 | **Portal itemIds** | `maasai-necklace`, `maasai-bracelet`, `premium-coffee-250g`, `big-five-print`, `leather-luggage-tag` |
-| **Hero image** | Blank until exact Hazina collection photo is supplied |
+| **Hero image** | Provisional mapped pack image; replace with exact no-watermark product photography before premium launch |
 
 #### The Departure Drop
 
 | | |
 |---|---|
 | **ID / SKU** | `departure-drop` / `HN-DD-005` |
-| **Price** | USD 279 · KES 36,200 |
+| **Price** | USD 349 · KES 45,400 |
 | **Target** | Last-minute JKIA departures |
 | **Contents** | Pre-packed fast movers: coffee, tea, un-personalized leather, beadwork |
 | **Lead time** | **4h** (JKIA-optimised) |
 | **Flag** | `jkia_only: true` in seed/profile |
 | **Portal itemIds** | `premium-coffee-250g`, `loose-leaf-tea`, `leather-passport`, `maasai-bracelet`, `premium-packaging` |
-| **Hero image** | Blank until exact Hazina collection photo is supplied |
+| **Hero image** | Provisional mapped pack image; replace with exact no-watermark product photography before premium launch |
 
 ### 2.2 Individual treasures (30 items — full table)
 
@@ -571,7 +571,7 @@ Guest / order context
 | **2–3** | Tech pivot — frontend | Standalone Hazina portal | ✅ `hazina-portal/` — 49 routes at build |
 | **3** | Physical prototyping | Source coffee, beadwork, rigid boxes; assemble prototype | ⬜ **External** |
 | **3** | WhatsApp + AI tools | Hazina menus, delivery fields, hybrid pay | ✅ See §10–§12 |
-| **4** | Media production | Product photography → WA Catalog + website | ✅ 57 portal assets, 91 treasure/brand `menu_photos` keys; ⬜ exact collection photos + Meta Catalog sync |
+| **4** | Media production | Product photography → WA Catalog + website | ✅ 60 portal assets and collection/treasure `menu_photos` keys; ⬜ exact no-watermark collection photos + Meta Catalog sync |
 | **4** | Paystack USD | Checkout links for international guests | ✅ Router wired; add live keys |
 | **5** | AI calibration | RAG rules, eval matrix for terminals/times | ✅ RAG seeded; run `make eval-whatsapp-local` |
 | **6** | Logistics lock | Vet courier/driver; packaging workflow | ⬜ **External** |
@@ -833,12 +833,12 @@ No `/cafes`, `/map`, or `/owners` — Gen-Eat-only in `gen-eat-portal/`.
 | Location | Files | Notes |
 |---|---|---|
 | `docs/pictures/` | 49+ | Master archive |
-| `public/treasures/` | 57 | Slug-renamed for Next.js `Image`; only direct treasure/brand-context photos are customer-facing |
+| `public/treasures/` | 60 | Slug-renamed for Next.js `Image`; all referenced collection and treasure images resolve locally |
 | `public/products/` | 0 | Removed to avoid stale duplicate collection images |
 | `public/brand/` | 1 | `safari-sunset.jpg`; other brand context reuses direct treasure photography |
-| `public/treasures/generated/` | 0 | Removed so generated collection heroes cannot be served directly |
+| `public/treasures/generated/` | 0 | Removed; no generated subfolder is served |
 
-Treasure image paths are mirrored in `HAZINA_TREASURE_IMAGES` in Python catalog for `menu_photos`. `HAZINA_COLLECTION_IMAGES` is intentionally empty until exact collection photos are supplied. Verify refs:
+Treasure image paths are mirrored in `HAZINA_TREASURE_IMAGES` in Python catalog for `menu_photos`. `HAZINA_COLLECTION_IMAGES` maps all five collection placeholders now, but those should be replaced by exact no-watermark Hazina product photos before premium launch. Verify refs:
 
 ```bash
 python scripts/check_asset_images.py
@@ -921,11 +921,11 @@ Hard refresh after fix: **Ctrl+Shift+R** (Cmd+Shift+R on Mac).
 
 | Row ID | Product |
 |---|---|
-| `lp:prod:kenya-edit` | The Kenya Edit — USD 189 |
-| `lp:prod:highland-treasure` | Highland Treasure — USD 149 |
-| `lp:prod:nomad-leather-set` | Nomad Leather Set — USD 249 |
-| `lp:prod:safari-romance-box` | Safari Romance Box — USD 349 |
-| `lp:prod:departure-drop` | Departure Drop — USD 279 · 4h JKIA |
+| `lp:prod:kenya-edit` | The Kenya Edit — USD 249 |
+| `lp:prod:highland-treasure` | Highland Treasure — USD 199 |
+| `lp:prod:nomad-leather-set` | Nomad Leather Set — USD 329 |
+| `lp:prod:safari-romance-box` | Safari Romance Box — USD 449 |
+| `lp:prod:departure-drop` | Departure Drop — USD 349 · 4h JKIA |
 
 Tap → `order {product}` → `gift_automation` checkout.
 
@@ -1124,8 +1124,8 @@ Routes through `resolve_payment_service(currency=…)`.
 | **Safari landing** | `app/premium-safari-souvenirs-nairobi/` | ✅ |
 | **JKIA landing** | `app/last-minute-kenya-gifts-jkia/` | ✅ |
 | **Hosts & guides landing** | `app/hosts-guides/` | ✅ |
-| **Image library** | `public/treasures/` (57 files) | ✅ All 30 treasures mapped; collection heroes blank until exact photos arrive |
-| **menu_photos seed** | `build_hazina_menu_photos()` | ✅ 91 treasure/brand absolute URLs in profile |
+| **Image library** | `public/treasures/` (60 files) | ✅ All 30 treasures and 5 collection image slots mapped; collection shots remain provisional |
+| **menu_photos seed** | `build_hazina_menu_photos()` | ✅ Collection, treasure, menu, and brand absolute URLs in profile |
 | **Dev launcher** | `scripts/dev-hazina.sh`, `make dev-hazina` | ✅ CSS health check on startup |
 | **Preview launcher** | `scripts/preview-hazina.sh`, `make preview-hazina` | ✅ Rebuild + stable prod server (:3004) |
 | **Fonts + layout** | `app/layout.tsx` (`next/font`) | ✅ Self-hosted Inter, Cormorant, DM Mono |
@@ -1147,7 +1147,7 @@ Routes through `resolve_payment_service(currency=…)`.
 
 Current local verification on 2026-05-31:
 
-- `make test-hazina` → `57 passed, 1 warning`
+- `make test-hazina` → `60 passed, 1 warning`
 - `make test-fast` → `158 passed, 1 warning`
 - `cd hazina-portal && npm run typecheck` → passed
 - `cd hazina-portal && npm run lint` → passed, no warnings
@@ -1233,9 +1233,9 @@ make eval-whatsapp-local
 - ~~Paystack routing code~~ → `resolve_payment_service`
 - ~~Custom box WhatsApp automation~~ → SKU parser in `gift_automation.py`
 - ~~Safari SEO landing~~ → `/premium-safari-souvenirs-nairobi`
-- ~~menu_photos in profile~~ → `build_hazina_menu_photos()` (91 keys, no generated collection photos)
+- ~~menu_photos in profile~~ → `build_hazina_menu_photos()` (collection, treasure, menu, and brand keys)
 - ~~WhatsApp catalog menu intent~~ → `looks_like_hazina_catalog_request`
-- Collection hero images → still open; generated/edited composites removed from customer UI
+- Collection hero images → mapped and visible, but still provisional until exact no-watermark Hazina product photos replace them
 - ~~Portal unstyled HTML (CSS mismatch)~~ → `make preview-hazina` + §9.6
 
 ---

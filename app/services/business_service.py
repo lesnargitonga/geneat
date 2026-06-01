@@ -7,12 +7,12 @@ retrieves KB chunks for that tenant.
 """
 from __future__ import annotations
 
-import uuid
 import re
+import uuid
 from dataclasses import dataclass, field
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
@@ -26,6 +26,9 @@ _HAZINA_TENANT_HINT_RE = re.compile(
     r"\b("
     r"hazina(?:\s+nomads)?|"
     r"curated\s+treasures?|"
+    r"kenyan\s+(?:gift|gifts|souvenirs?)|"
+    r"(?:premium|luxury)\s+(?:gift|gifts|souvenirs?)|"
+    r"(?:gift|souvenir)\s+(?:concierge|delivery|for\s+(?:tourists?|travellers?|travelers?))|"
     r"gift\s+(?:box|boxes|collection|collections)|"
     r"order\s+(?:a\s+)?gift\s+box|"
     r"learn\s+more\s+about\s+hazina|"
@@ -113,11 +116,131 @@ def _to_profile(b: Business) -> BusinessProfile:
     )
 
 
+def _hazina_profile_defaults(portal_base_url: str) -> dict:
+    from app.catalog.hazina_catalog import (
+        HAZINA_COLLECTIONS,
+        HAZINA_TREASURES,
+        MIN_CUSTOM_ITEMS,
+        PACKAGING_FEE_USD,
+        build_hazina_menu_photos,
+    )
+
+    return {
+        "vertical": "retail",
+        "tagline": "Curated treasures for the modern nomad.",
+        "currency": "USD",
+        "currency_display": "USD first, KES equivalent",
+        "usd_pricing": True,
+        "payment_methods": ["M-Pesa (IntaSend STK)", "Visa/Mastercard/Apple Pay (Paystack USD)"],
+        "custom_orders": True,
+        "corporate_gifting": True,
+        "timezone": "Africa/Nairobi",
+        "delivery_zones": ["Westlands", "Kilimani", "Karen", "JKIA", "DHL export quote"],
+        "international_shipping": {
+            "enabled": True,
+            "carrier_preference": "DHL Express or equivalent insured courier",
+            "quote_before_payment": True,
+        },
+        "jkia_delivery_window_hours": 4,
+        "late_dispatch_fee_usd": 15,
+        "late_dispatch_after": "20:00 EAT",
+        "products": HAZINA_COLLECTIONS,
+        "treasures": HAZINA_TREASURES,
+        "menu_photos": build_hazina_menu_photos(portal_base_url),
+        "order_rules": {
+            "min_custom_items": MIN_CUSTOM_ITEMS,
+            "packaging_fee_usd": PACKAGING_FEE_USD,
+            "quote_dhl_before_payment": True,
+        },
+    }
+
+
+async def ensure_hazina_business(
+    db: AsyncSession,
+    *,
+    claim_meta_phone: bool = False,
+) -> BusinessProfile:
+    """Create/repair the Hazina tenant from the code catalog if it is absent.
+
+    This prevents a live WhatsApp/portal route from dead-ending just because
+    the hosted DB was not manually seeded after an environment rotation.
+    """
+    from app.core.config import get_settings
+
+    settings = get_settings()
+    res = await db.execute(select(Business).where(Business.slug == HAZINA_NOMADS_SLUG))
+    biz = res.scalar_one_or_none()
+    created = biz is None
+    if biz is None:
+        biz = Business(slug=HAZINA_NOMADS_SLUG)
+        db.add(biz)
+
+    biz.name = "Hazina Nomads"
+    biz.industry = "gift-concierge"
+    biz.location = "Nairobi, Kenya - Westlands, Kilimani, Karen, JKIA and DHL export quotes"
+    biz.contact_phone = "+15556578220"
+    biz.contact_email = "concierge@hazina-nomads.com"
+    biz.brand_voice = (
+        "Professional, calm, high-end hotel concierge. Curate premium Kenyan "
+        "gift boxes for travellers, hotels, guides, and international delivery. "
+        "Keep replies concise, quote USD first with KES visible, and collect "
+        "delivery location, timing, contact, and payment preference before checkout."
+    )
+    biz.greeting_template = (
+        "Welcome to Hazina Nomads - curated treasures for the modern nomad. "
+        "I can help you choose a collection, build a custom box, arrange hotel "
+        "or JKIA delivery, or quote DHL export shipping."
+    )
+    biz.language_primary = "en"
+    biz.language_secondary = "sw"
+    biz.latitude = -1.2921
+    biz.longitude = 36.7853
+    biz.active = True
+
+    defaults = _hazina_profile_defaults(settings.public_hazina_portal_url)
+    existing = biz.profile if isinstance(biz.profile, dict) else {}
+    existing_photos = existing.get("menu_photos") if isinstance(existing.get("menu_photos"), dict) else {}
+    default_photos = defaults.get("menu_photos") if isinstance(defaults.get("menu_photos"), dict) else {}
+    biz.profile = {
+        **defaults,
+        **existing,
+        "menu_photos": {**default_photos, **existing_photos},
+    }
+
+    meta_pid = (settings.meta_wa_phone_number_id or "").strip()
+    if claim_meta_phone and meta_pid:
+        await db.execute(
+            update(Business)
+            .where(Business.slug != HAZINA_NOMADS_SLUG)
+            .where(Business.meta_wa_phone_number_id == meta_pid)
+            .values(meta_wa_phone_number_id=None)
+        )
+        biz.meta_wa_phone_number_id = meta_pid
+
+    await db.flush()
+    log.warning(
+        "hazina_business_auto_provisioned" if created else "hazina_business_auto_repaired",
+        business_id=str(biz.id),
+        claimed_meta_phone=bool(claim_meta_phone and meta_pid),
+    )
+    return _to_profile(biz)
+
+
 async def get_business_by_wa_phone_id(
     db: AsyncSession, phone_number_id: str | None
 ) -> Optional[BusinessProfile]:
     if not phone_number_id:
         return None
+    from app.core.config import get_settings  # local import to avoid cycle
+
+    settings = get_settings()
+    if (
+        (settings.default_business_slug or "").strip().lower() == HAZINA_NOMADS_SLUG
+        and (settings.meta_wa_phone_number_id or "").strip()
+        and str(phone_number_id) == str(settings.meta_wa_phone_number_id).strip()
+    ):
+        return await ensure_hazina_business(db, claim_meta_phone=True)
+
     res = await db.execute(
         select(Business).where(
             Business.meta_wa_phone_number_id == str(phone_number_id),
@@ -149,6 +272,8 @@ async def get_default_business(db: AsyncSession) -> Optional[BusinessProfile]:
         b = res.scalar_one_or_none()
         if b:
             return _to_profile(b)
+        if slug == HAZINA_NOMADS_SLUG:
+            return await ensure_hazina_business(db, claim_meta_phone=True)
     res = await db.execute(
         select(Business).where(Business.active.is_(True)).order_by(Business.created_at.asc()).limit(1)
     )

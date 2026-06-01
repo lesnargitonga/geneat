@@ -12,6 +12,8 @@ def test_hazina_tenant_hint_detects_site_and_sku_messages() -> None:
     assert looks_like_hazina_tenant_hint("Hello — I'd like to learn more about Hazina Nomads.")
     assert looks_like_hazina_tenant_hint("Hello Hazina Nomads — I'd like to order a gift box.")
     assert looks_like_hazina_tenant_hint("Corporate gifting enquiry")
+    assert looks_like_hazina_tenant_hint("I need premium Kenyan gifts for tourists")
+    assert looks_like_hazina_tenant_hint("Do you offer souvenir delivery to a hotel?")
     assert looks_like_hazina_tenant_hint(
         "I host travellers in Nairobi and want gift boxes for guests"
     )

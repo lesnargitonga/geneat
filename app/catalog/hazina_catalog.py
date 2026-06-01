@@ -15,8 +15,8 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "id": "kenya-edit",
         "sku": "HN-KE-001",
         "name": "The Kenya Edit",
-        "price_usd": 189,
-        "price_kes": 24500,
+        "price_usd": 249,
+        "price_kes": 32400,
         "target": "Safari tourists, European/US visitors",
         "contents": (
             "Premium Kenyan coffee (250g), handmade Maasai beadwork "
@@ -30,8 +30,8 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "id": "highland-treasure",
         "sku": "HN-HT-002",
         "name": "The Highland Treasure",
-        "price_usd": 149,
-        "price_kes": 19300,
+        "price_usd": 199,
+        "price_kes": 25900,
         "target": "General gifting, diaspora, colleagues",
         "contents": (
             "Export-grade Kenyan coffee, premium Kenyan loose-leaf tea, "
@@ -45,8 +45,8 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "id": "nomad-leather-set",
         "sku": "HN-NL-003",
         "name": "The Nomad Leather Set",
-        "price_usd": 249,
-        "price_kes": 32300,
+        "price_usd": 329,
+        "price_kes": 42800,
         "target": "Business travellers, wealthy tourists",
         "contents": "Handmade leather passport holder, luggage tag, and travel notebook",
         "lead_time_hours": 24,
@@ -58,8 +58,8 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "id": "safari-romance-box",
         "sku": "HN-SR-004",
         "name": "The Safari Romance Box",
-        "price_usd": 349,
-        "price_kes": 45200,
+        "price_usd": 449,
+        "price_kes": 58400,
         "target": "Honeymooners, anniversary trips",
         "contents": (
             "Matching couple's beadwork, premium treats (chocolate/coffee), "
@@ -79,8 +79,8 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "id": "departure-drop",
         "sku": "HN-DD-005",
         "name": "The Departure Drop",
-        "price_usd": 279,
-        "price_kes": 36200,
+        "price_usd": 349,
+        "price_kes": 45400,
         "target": "Last-minute JKIA departures",
         "contents": "Pre-packed fast-moving items: coffee, tea, un-personalized leather, beadwork",
         "lead_time_hours": 4,

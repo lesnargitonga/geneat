@@ -66,11 +66,11 @@ _CATEGORY_LABEL = {
 
 # Hazina gift-box product ids (mirror seed_hazina_nomads.py).
 _HAZINA_PRODUCTS = (
-    ("kenya-edit", "\U0001F381", "The Kenya Edit", "USD 189 · safari keepsake"),
-    ("highland-treasure", "\u2615", "Highland Treasure", "USD 149 · tea & honey"),
-    ("nomad-leather-set", "\U0001F9F3", "Nomad Leather Set", "USD 249 · passport & tag"),
-    ("safari-romance-box", "\U0001F48D", "Safari Romance Box", "USD 349 · couples"),
-    ("departure-drop", "\u2708\uFE0F", "Departure Drop", "USD 279 · 4h JKIA"),
+    ("kenya-edit", "\U0001F381", "The Kenya Edit", "USD 249 · safari keepsake"),
+    ("highland-treasure", "\u2615", "Highland Treasure", "USD 199 · tea & honey"),
+    ("nomad-leather-set", "\U0001F9F3", "Nomad Leather Set", "USD 329 · passport & tag"),
+    ("safari-romance-box", "\U0001F48D", "Safari Romance Box", "USD 449 · couples"),
+    ("departure-drop", "\u2708\uFE0F", "Departure Drop", "USD 349 · 4h JKIA"),
 )
 
 

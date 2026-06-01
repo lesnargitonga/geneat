@@ -1,251 +1,218 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CatalogImage } from "@/components/CatalogImage";
-import { BRAND, BRAND_IMAGES, DELIVERY_ZONES, GIFT_BOXES } from "@/lib/products";
-import { getTreasure, TREASURES } from "@/lib/treasures";
-import { formatDualPrice, whatsappLink } from "@/lib/format";
 import { ChatWidget } from "@/components/ChatWidget";
 import { CollectionCard } from "@/components/CollectionCard";
 import { ConciergePromptButton } from "@/components/ConciergePromptButton";
-import { TreasureCard } from "@/components/TreasureCard";
+import { TrustRow } from "@/components/TrustRow";
+import { BRAND, BRAND_IMAGES, GIFT_BOXES } from "@/lib/products";
+import { getTreasure } from "@/lib/treasures";
+import { formatDualPrice, whatsappLink } from "@/lib/format";
 
 export default function HomePage() {
   const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like help choosing a gift box.");
-  const heroBox = GIFT_BOXES[0];
-  const featuredTreasures = [
-    "premium-coffee-250g",
-    "maasai-bracelet",
-    "leather-passport",
-    "antelope-carving",
-    "kitenge-fabric",
-    "african-wall-art",
-  ]
+  const atelierHighlights = ["leather-passport", "maasai-necklace", "african-wall-art"]
     .map((id) => getTreasure(id))
     .filter(Boolean);
 
   return (
     <>
-      {/* Hero */}
-      <section className="container-page pt-10 md:pt-16 pb-16 md:pb-24">
-        <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
-          <div className="space-y-8">
-            <span className="label-mono">Nairobi hotel · JKIA · DHL quote</span>
-            <h1 className="h-display text-5xl md:text-7xl lg:text-8xl leading-[0.95] text-obsidian">
-              Curated treasures
-              <br />
-              <span className="italic text-bronze">for the modern nomad.</span>
+      <section className="relative isolate overflow-hidden">
+        <div className="absolute inset-0">
+          <Image
+            src={BRAND_IMAGES.safariSunset}
+            alt="Serene Kenyan safari landscape at sunset"
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+          />
+          <div className="absolute inset-0 bg-black/65" />
+        </div>
+
+        <div className="relative container-page min-h-[82svh] py-16 md:py-24 flex flex-col justify-between gap-12">
+          <div className="max-w-4xl pt-8 md:pt-16">
+            <span className="font-mono text-sm font-medium uppercase tracking-[0.12em] text-white/70">Nairobi hotel delivery · JKIA handoff · DHL export quotes</span>
+            <h1 className="mt-5 font-serif text-5xl md:text-7xl lg:text-8xl leading-[0.92] tracking-tight text-white">
+              Hazina Nomads
             </h1>
-            <p className="text-lg text-ink-mute max-w-lg leading-relaxed">
-              Premium Kenyan gift boxes without the market run. Choose a ready box,
-              pick individual treasures, or ask the concierge to handle it.
+            <p className="mt-6 max-w-2xl text-lg md:text-xl leading-relaxed text-white/85">
+              Premium Kenyan gift collections for travellers who want something more considered than a souvenir run.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark">
+            <div className="mt-8 flex flex-wrap gap-3">
+              <ConciergePromptButton
+                prompt="Hello Hazina Nomads — help me choose a premium gift collection."
+                className="btn-bronze"
+              >
+                Chat in app
+              </ConciergePromptButton>
+              <a
+                href={wa}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-outline border-white/60 text-white hover:bg-white hover:text-black"
+              >
                 Order on WhatsApp
               </a>
-              <Link href="/collections" className="btn-bronze">
-                Choose a ready box
+              <Link href="/collections" className="btn-dark bg-white text-black hover:bg-white/90">
+                View collections
               </Link>
-              <Link href="/build" className="btn-outline">
-                Pick items
-              </Link>
-            </div>
-            <div className="grid grid-cols-3 gap-4 pt-2">
-              <Stat value={String(TREASURES.length)} label="individual treasures" />
-              <Stat value="5" label="curated collections" />
-              <Stat value="USD card" label="KES M-Pesa" />
             </div>
           </div>
 
-          <div className="relative">
-            <div className="relative aspect-[4/3] overflow-hidden border border-border bg-sand-dark shadow-editorial">
-              <CatalogImage
-                src={heroBox.image}
-                alt={heroBox.imageAlt || heroBox.name}
-                className="h-full w-full"
-                imageClassName="object-contain object-center"
-                sizes="(max-width: 768px) 100vw, 480px"
-                priority
-              />
+          <div className="grid gap-4 md:grid-cols-[1fr,1.25fr] md:items-end">
+            <div className="hidden md:block">
+              <TrustRow dark />
             </div>
-            <div className="mt-4 flex items-center justify-between gap-4">
-              <p className="font-serif text-2xl text-obsidian">{heroBox.name}</p>
-              <p className="font-mono text-sm text-bronze text-right">
-                {formatDualPrice(heroBox.price_usd, heroBox.price_kes)}
-              </p>
+            <div className="grid grid-cols-5 gap-2">
+              {GIFT_BOXES.map((box) => (
+                <Link
+                  key={box.id}
+                  href={`/collections/${box.id}`}
+                  className="group min-h-[86px] border border-white/20 bg-black/35 p-2 backdrop-blur-sm transition hover:bg-white hover:text-black"
+                >
+                  <span className="block font-serif text-base leading-tight text-white group-hover:text-black">
+                    {box.name.replace("The ", "")}
+                  </span>
+                  <span className="mt-2 block font-mono text-xs uppercase tracking-[0.1em] text-bronze-light group-hover:text-bronze-dark">
+                    USD {box.price_usd}
+                  </span>
+                </Link>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Direct paths */}
-      <section className="section-dark py-14 md:py-16">
-        <div className="container-page">
-          <div className="grid md:grid-cols-3 gap-8">
-            <Step
-              n="01"
-              title="Choose"
-              body="Pick a ready box or individual treasures."
-            />
-            <Step
-              n="02"
-              title="Confirm"
-              body="Send hotel, JKIA, or export details once."
-            />
-            <Step
-              n="03"
-              title="Receive"
-              body="Pay by USD card or M-Pesa. We deliver."
-            />
-          </div>
-        </div>
+      <section className="container-page py-10 md:py-12 md:hidden">
+        <TrustRow />
       </section>
 
-      {/* Treasures atelier preview — editorial, not catalog grid */}
-      <section className="container-page py-20 md:py-28 border-t border-border">
-        <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-end mb-14">
-          <div className="lg:col-span-7">
-            <span className="label-mono">The atelier</span>
-            <h2 className="h-display text-4xl md:text-6xl mt-3 text-obsidian leading-[0.95]">
-              Pick individual treasures
+      <section className="container-page py-16 md:py-24 border-b border-border">
+        <div className="grid gap-8 lg:grid-cols-[0.9fr,1.1fr] lg:items-end mb-12">
+          <div>
+            <span className="label-mono">Five signature collections</span>
+            <h2 className="h-display mt-3 text-4xl md:text-6xl leading-[0.96]">
+              Choose the box.
+              <br />
+              We handle the handoff.
             </h2>
           </div>
-          <div className="lg:col-span-5 space-y-5">
-            <p className="text-ink-mute leading-relaxed">
-              See the item clearly, choose quantity, and add a gift box only if you want packaging.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Link href="/treasures" className="btn-outline">
-                Browse atelier
-              </Link>
-              <Link href="/build" className="btn-dark">
-                Pick items
-              </Link>
-            </div>
-          </div>
+          <p className="text-base md:text-lg text-ink-mute leading-relaxed max-w-xl lg:justify-self-end">
+            USD and KES are both visible from the start. Guests can checkout in-app,
+            continue on WhatsApp, or request an insured DHL export quote.
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-12 gap-6 md:gap-8">
-          {featuredTreasures[0] && (
-            <div className="md:col-span-7">
-              <TreasureCard item={featuredTreasures[0]} featured priority />
-            </div>
-          )}
-          <div className="md:col-span-5 flex flex-col gap-6 md:gap-8 md:pt-16">
-            {featuredTreasures[1] && <TreasureCard item={featuredTreasures[1]} compact />}
-            {featuredTreasures[2] && <TreasureCard item={featuredTreasures[2]} compact />}
-          </div>
-          {featuredTreasures.slice(3, 6).map((item) => (
-            <div key={item!.id} className="md:col-span-4">
-              <TreasureCard item={item!} compact />
-            </div>
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {GIFT_BOXES.map((box, index) => (
+            <CollectionCard key={box.id} box={box} priority={index < 2} />
           ))}
         </div>
       </section>
 
-      {/* Collections preview */}
-      <section className="container-page py-20 md:py-28">
-        <div className="flex items-end justify-between mb-12 md:mb-16">
-          <div>
-            <span className="label-mono">The edit</span>
-            <h2 className="h-display text-4xl md:text-5xl mt-2 text-obsidian">Collections</h2>
-            <p className="text-ink-mute mt-3 max-w-md">
-              Signature assemblies — tap to see what&apos;s inside, or swap items via concierge.
-            </p>
-          </div>
-          <Link
-            href="/collections"
-            className="hidden md:inline font-mono text-sm uppercase tracking-[0.1em] text-bronze hover:text-bronze-dark transition-colors"
-          >
-            View all →
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-12 gap-x-6 gap-y-16">
-          <div className="col-span-12 lg:col-span-7">
-            <CollectionCard box={GIFT_BOXES[0]} priority />
-          </div>
-          <div className="col-span-12 lg:col-span-5 lg:mt-20">
-            <CollectionCard box={GIFT_BOXES[1]} />
-          </div>
-          <div className="col-span-12 md:col-span-6 lg:col-span-5">
-            <CollectionCard box={GIFT_BOXES[2]} />
-          </div>
-          <div className="col-span-12 md:col-span-6 lg:col-span-7 lg:-mt-10">
-            <CollectionCard box={GIFT_BOXES[3]} />
-          </div>
-        </div>
-
-        <div className="mt-12 text-center md:hidden">
-          <Link href="/collections" className="btn-outline">
-            View all collections
-          </Link>
+      <section className="section-dark py-16 md:py-24">
+        <div className="container-page grid gap-8 md:grid-cols-3">
+          <ServiceTile
+            n="01"
+            title="Hotel delivery"
+            body="Westlands, Kilimani, and Karen deliveries coordinated with the guest or front desk."
+          />
+          <ServiceTile
+            n="02"
+            title="JKIA handoff"
+            body="Terminal-aware departure drops for guests who remember gifting at the last minute."
+          />
+          <ServiceTile
+            n="03"
+            title="DHL export"
+            body="For missed flights or overseas orders, we collect address details and quote insured courier before payment."
+          />
         </div>
       </section>
 
-      {/* JKIA CTA — dark with photography */}
+      <section className="container-page py-16 md:py-24">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+          <div className="lg:col-span-5 lg:sticky lg:top-28 space-y-5">
+            <span className="label-mono">Build a custom box</span>
+            <h2 className="h-display text-4xl md:text-5xl leading-tight">
+              Pick only what belongs in the gift.
+            </h2>
+            <p className="text-ink-mute leading-relaxed">
+              Select individual treasures, set quantities, add packaging, then checkout through the in-app concierge.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/build" className="btn-dark">
+                Build your box
+              </Link>
+              <ConciergePromptButton
+                prompt="Hello Hazina Nomads — I want help building a custom gift box."
+                className="btn-outline"
+              >
+                Ask concierge
+              </ConciergePromptButton>
+            </div>
+          </div>
+
+          <div className="lg:col-span-7 grid gap-5 sm:grid-cols-3">
+            {atelierHighlights.map((item) => (
+              <Link
+                key={item!.id}
+                href={`/treasures/${item!.id}`}
+                className="card-luxury overflow-hidden group"
+              >
+                <CatalogImage
+                  src={item!.image}
+                  alt={item!.imageAlt || item!.name}
+                  className="aspect-[4/5]"
+                  imageClassName="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                  sizes="(max-width: 768px) 100vw, 260px"
+                />
+                <div className="p-4">
+                  <p className="font-serif text-xl text-obsidian leading-tight">{item!.name}</p>
+                  <p className="mt-2 font-mono text-sm text-bronze">{formatDualPrice(item!.price_usd, item!.price_kes)}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src={BRAND_IMAGES.safariSunset}
-            alt="Kenyan safari landscape at sunset with acacia trees"
+            src={BRAND_IMAGES.atelierRoom}
+            alt="African decor room filled with cultural craft pieces"
             fill
             className="object-cover"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-black/80" />
+          <div className="absolute inset-0 bg-black/72" />
         </div>
-        <div className="relative container-page py-20 md:py-28 grid md:grid-cols-[2fr,1fr] gap-10 items-end">
+        <div className="relative container-page py-16 md:py-24 grid gap-8 md:grid-cols-[1.4fr,0.8fr] md:items-end">
           <div>
-            <span className="label-mono text-sand/40">Departure service</span>
-            <h2 className="h-display text-4xl md:text-5xl mt-3 text-sand leading-tight">
-              Flying from JKIA?
-              <br />
-              <span className="italic text-bronze-light">We intercept your departure.</span>
+            <span className="font-mono text-sm font-medium uppercase tracking-[0.12em] text-white/60">Concierge, not a catalogue dump</span>
+            <h2 className="font-serif text-4xl md:text-6xl leading-tight text-white">
+              A premium order should feel handled.
             </h2>
-            <p className="text-sand/70 max-w-xl mt-5 leading-relaxed">
-              The Departure Drop ships in four hours to any JKIA terminal.
-              Hotel delivery to Westlands, Kilimani, and Karen also available.
-            </p>
-            <p className="label-mono text-sand/40 mt-4">
-              {DELIVERY_ZONES.join(" · ")}
+            <p className="mt-5 max-w-2xl text-white/78 leading-relaxed">
+              Use the in-app chat for guided help, or move to WhatsApp when you want the handoff saved in your travel thread.
             </p>
           </div>
-          <Link href="/last-minute-kenya-gifts-jkia" className="btn-outline border-sand/30 text-sand hover:bg-sand hover:text-obsidian md:justify-self-end">
-            JKIA departure service
-          </Link>
-        </div>
-      </section>
-
-      {/* Concierge whisper */}
-      <section className="container-page py-20 md:py-24">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="relative aspect-[4/3] overflow-hidden shadow-soft">
-            <Image
-              src={BRAND_IMAGES.atelierRoom}
-              alt="African decor room filled with cultural craft pieces"
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          </div>
-          <div className="space-y-6">
-            <span className="label-mono">WhatsApp ordering</span>
-            <h2 className="h-display text-3xl md:text-4xl text-obsidian">
-              A single conversation.<br />
-              <span className="italic text-bronze">Everything arranged.</span>
-            </h2>
-            <div className="space-y-4 border-l-2 border-obsidian pl-6">
-              <ConciergeLine role="guest">
-                I&apos;m at Hemingways Karen — need a gift before my flight tomorrow at 6pm.
-              </ConciergeLine>
-              <ConciergeLine role="concierge">
-                Welcome. The Kenya Edit is our signature — USD 189 / KES 24,500, delivered to
-                your room by noon. May I confirm your room number and departure terminal?
-              </ConciergeLine>
-            </div>
-            <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark">
-              Order on WhatsApp
+          <div className="flex flex-wrap gap-3 md:justify-end">
+            <ConciergePromptButton
+              prompt="Hello Hazina Nomads — I need concierge help with delivery timing and payment."
+              className="btn-bronze"
+            >
+              Chat in app
+            </ConciergePromptButton>
+            <a
+              href={wa}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-outline border-white/60 text-white hover:bg-white hover:text-black"
+            >
+              WhatsApp
             </a>
           </div>
         </div>
@@ -256,30 +223,12 @@ export default function HomePage() {
   );
 }
 
-function Stat({ value, label }: { value: string; label: string }) {
+function ServiceTile({ n, title, body }: { n: string; title: string; body: string }) {
   return (
-    <div>
-      <div className="font-serif text-2xl text-obsidian">{value}</div>
-      <div className="label-mono mt-0.5">{label}</div>
-    </div>
-  );
-}
-
-function Step({ n, title, body }: { n: string; title: string; body: string }) {
-  return (
-    <div className="space-y-4">
+    <div className="min-h-[180px] border border-sand/15 p-5 md:p-6 local-scroll">
       <span className="font-mono text-sm text-bronze-light">{n}</span>
-      <h3 className="font-serif text-2xl text-sand">{title}</h3>
-      <p className="text-sand/60 text-sm leading-relaxed">{body}</p>
+      <h3 className="mt-4 font-serif text-2xl md:text-3xl text-sand leading-tight">{title}</h3>
+      <p className="mt-3 text-sand/70 text-base leading-relaxed">{body}</p>
     </div>
-  );
-}
-
-function ConciergeLine({ role, children }: { role: "guest" | "concierge"; children: React.ReactNode }) {
-  const isGuest = role === "guest";
-  return (
-    <p className={`text-sm leading-relaxed ${isGuest ? "text-ink-mute italic" : "text-obsidian"}`}>
-      {isGuest ? "— Guest" : "— Concierge"}: {children}
-    </p>
   );
 }

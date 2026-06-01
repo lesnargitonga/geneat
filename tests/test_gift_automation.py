@@ -44,6 +44,22 @@ Estimated total: USD 125 / KES 16,300"""
     assert "HN-T-070" in parsed.skus
 
 
+def test_parse_custom_box_handoff_keeps_quantities() -> None:
+    msg = """Hello Hazina Nomads — automated custom gift box checkout:
+
+• 2× Premium Kenyan Coffee (HN-T-001)
+• Maasai Beaded Bracelet (HN-T-010)
+
+Estimated total: USD 115 / KES 15,100"""
+    parsed = ga.parse_custom_box_handoff(msg)
+    assert parsed is not None
+    coffee = next(item for item in parsed.items if "HN-T-001" in item.sku_or_name)
+    bracelet = next(item for item in parsed.items if "HN-T-010" in item.sku_or_name)
+    assert coffee.qty == 2
+    assert bracelet.qty == 1
+    assert parsed.total_kes == 15100
+
+
 def test_parse_checkout_details_from_website_handoff() -> None:
     msg = """Hello Hazina Nomads — automated custom gift box checkout:
 
@@ -66,6 +82,21 @@ Please create the order, confirm availability, and start payment."""
     assert details.delivery_location == "Villa Rosa Kempinski room 412"
     assert details.delivery_window == "Today 7:30 pm"
     assert details.payment_currency == "USD"
+    assert details.quantity == 1
+
+
+def test_parse_collection_checkout_quantity() -> None:
+    msg = """Hello Hazina Nomads - automated collection checkout:
+
+Collection: 3x The Kenya Edit (HN-KE-001)
+Guest: Amina
+Delivery type: Hotel delivery
+Delivery location: Villa Rosa Kempinski room 412
+Delivery window: Today 7:30 pm
+Preferred payment: KES M-Pesa STK"""
+    details = ga.parse_checkout_details(msg)
+    assert details.quantity == 3
+    assert details.payment_currency == "KES"
 
 
 def test_detect_payment_currency() -> None:
