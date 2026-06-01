@@ -255,8 +255,14 @@ async def create_pending_order(
         .order_by(Order.created_at.desc())
         .limit(5)
     )).scalars().all()
+    from app.services.business_service import HAZINA_NOMADS_SLUG, get_business_by_slug
+    from app.services.order_tracking import ensure_order_tracking
+
+    hazina_biz = await get_business_by_slug(db, HAZINA_NOMADS_SLUG) if tenant_id else None
     for order in pending:
         if abs(float(order.amount or 0) - amount) <= 0.01 and stored_items_match(order.details, items):
+            if hazina_biz is not None and tenant_id == hazina_biz.id:
+                await ensure_order_tracking(db, order)
             return order, False
 
     details: dict[str, object] = {
@@ -282,6 +288,8 @@ async def create_pending_order(
     )
     db.add(order)
     await db.flush()
+    if hazina_biz is not None and tenant_id == hazina_biz.id:
+        await ensure_order_tracking(db, order)
     return order, True
 
 

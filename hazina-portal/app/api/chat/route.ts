@@ -3,12 +3,10 @@
 // Note: also reachable via next.config rewrites for direct fetches.
 
 import { NextRequest, NextResponse } from "next/server";
+import { backendBase } from "@/lib/backend";
 
 export async function POST(req: NextRequest) {
-  const base =
-    process.env.BACKEND_URL ||
-    process.env.NEXT_PUBLIC_BACKEND_URL ||
-    (process.env.VERCEL ? "https://api.lesnarai.co.ke" : "http://localhost:8000");
+  const base = backendBase();
   let payload: unknown;
   try {
     payload = await req.json();

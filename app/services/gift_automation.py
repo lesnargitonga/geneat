@@ -544,6 +544,11 @@ async def _track_delivery_reply(
     loc_bit = f" to {loc}" if loc else ""
     pay = order.payment_status.value
     pay_cur = str(details.get("payment_currency") or "KES").upper()
+    from app.services.order_tracking import ensure_order_tracking, tracking_link_line
+
+    await ensure_order_tracking(db, order)
+    track = tracking_link_line(order, is_sw=is_sw)
+
     if pay == PaymentStatus.paid.value:
         status_en = {
             "pending_payment": "paid — dispatch being scheduled",
@@ -551,8 +556,10 @@ async def _track_delivery_reply(
             "delivered": "delivered",
         }.get(fulfillment, "paid — our team is preparing dispatch")
         if is_sw:
-            return f"{summary}{loc_bit}: malipo yamethibitishwa, hali — {status_en}."
-        return f"{summary}{loc_bit}: payment confirmed — {status_en}."
+            base = f"{summary}{loc_bit}: malipo yamethibitishwa, hali — {status_en}."
+        else:
+            base = f"{summary}{loc_bit}: payment confirmed — {status_en}."
+        return f"{base}\n\n{track}" if track else base
     if pay == PaymentStatus.pending.value:
         if pay_cur == "USD":
             amt = float(details.get("amount_usd") or 0)
@@ -650,8 +657,10 @@ async def _finalize_order(
         )
         return GiftAutomationResult(reply=msg, safety_flag="deterministic:hazina_payment_failed")
 
+    from app.services.order_tracking import ensure_order_tracking, tracking_link_line
     from app.services.whatsapp_menus import order_actions_payload
 
+    await ensure_order_tracking(db, order)
     reply = _payment_success_reply(
         summary=order_items_summary(items) or row["name"],
         amount_kes=int(float(row["price_kes"]) * quantity),
@@ -660,6 +669,9 @@ async def _finalize_order(
         payment=result.payment,
         is_sw=is_sw,
     )
+    track = tracking_link_line(order, is_sw=is_sw)
+    if track:
+        reply = f"{reply}\n\n{track}"
     return GiftAutomationResult(
         reply=reply,
         interactive=order_actions_payload(language="sw" if is_sw else "en", business_slug=HAZINA_SLUG),
@@ -718,6 +730,9 @@ async def _finalize_custom_order(
     await db.flush()
     await _clear_checkout(conversation_id)
 
+    from app.services.order_tracking import ensure_order_tracking, tracking_link_line
+
+    await ensure_order_tracking(db, order)
     summary = order_items_summary(parsed.items) or "your custom box"
     if result.payment and not result.payment.ok:
         msg = (
@@ -737,6 +752,9 @@ async def _finalize_custom_order(
         payment=result.payment,
         is_sw=is_sw,
     )
+    track = tracking_link_line(order, is_sw=is_sw)
+    if track:
+        reply = f"{reply}\n\n{track}"
     return GiftAutomationResult(
         reply=reply,
         interactive=order_actions_payload(language="sw" if is_sw else "en", business_slug=HAZINA_SLUG),

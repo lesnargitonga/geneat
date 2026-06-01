@@ -18,7 +18,7 @@ test-fast:
 	$(PYTHON) -m pytest -q tests/test_menu_photos.py tests/test_business_service.py tests/test_config.py tests/test_config_validator.py tests/test_health_version.py tests/test_training_data_generator.py tests/test_graph_messages.py tests/test_rag_cache.py tests/test_safety.py tests/test_quick_replies.py tests/test_channel_fallbacks.py tests/test_prompts.py tests/test_output_sanitizer.py tests/test_payments_hardening.py tests/test_redis_client.py tests/test_whatsapp_webhook.py tests/test_whatsapp_menus.py tests/test_gift_automation.py tests/test_payment_routing.py tests/test_ai_tools_payment.py
 
 test-hazina:
-	$(PYTHON) -m pytest -q tests/test_business_service.py tests/test_whatsapp_menus.py tests/test_gift_automation.py tests/test_payment_routing.py tests/test_ai_tools_payment.py tests/test_channel_fallbacks.py tests/test_payments_hardening.py
+	$(PYTHON) -m pytest -q tests/test_business_service.py tests/test_whatsapp_menus.py tests/test_gift_automation.py tests/test_payment_routing.py tests/test_ai_tools_payment.py tests/test_channel_fallbacks.py tests/test_payments_hardening.py tests/test_order_tracking.py tests/test_ops_automation.py
 
 doctor-local:
 	$(PYTHON) scripts/lily_pond_demo_check.py --chat --photo

@@ -200,6 +200,9 @@ class Settings(BaseSettings):
     # the slug doesn't exist.
     default_business_slug: str = "hazina-nomads"
     public_hazina_portal_url: str = "https://hazina.lesnarai.co.ke"
+    # Comma-separated E.164 WhatsApp numbers allowed to send Ghost Ops commands
+    # (!dispatch, !delivered). Non-listed senders are treated as customers.
+    admin_wa_numbers: str = ""
     # Production WhatsApp has pivoted to Hazina. When true, the configured
     # Meta phone_number_id is owned by hazina-nomads even if an old DB row or
     # stale Render env still points that phone at a café tenant.

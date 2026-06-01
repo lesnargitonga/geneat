@@ -56,6 +56,7 @@ from app.services.cafe_automation import (
     create_order_and_request_payment,
     parse_cafe_order_items,
 )
+from app.services.ops_automation import try_handle_ops_command
 from app.services.gift_automation import (
     finalize_checkout_from_ai,
     is_hazina_slug,
@@ -1596,6 +1597,37 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 _biz_slug = _biz_profile.slug if _biz_profile else None
             except Exception:
                 _biz_profile = None
+
+        ops_reply = await try_handle_ops_command(
+            db,
+            text=turn.text,
+            sender=msisdn,
+            tenant_slug=_biz_slug,
+        )
+        if ops_reply is not None:
+            await append_message(
+                db,
+                conversation=conv,
+                sender=Sender.user,
+                content=turn.text,
+                language=effective_lang,
+                media_url=turn.media_url,
+                provider_message_id=turn.provider_message_id,
+                safety_flags=["ops:admin_command"],
+            )
+            await append_message(
+                db,
+                conversation=conv,
+                sender=Sender.ai,
+                content=ops_reply,
+                safety_flags=["ops:ghost_reply"],
+            )
+            await db.commit()
+            return TurnResult(
+                reply=ops_reply,
+                conversation_id=conv.id,
+                escalated=False,
+            )
 
         verdict = evaluate_inbound(
             turn.text,

@@ -1,12 +1,5 @@
 import { NextResponse } from "next/server";
-
-function backendBase(): string {
-  return (
-    process.env.BACKEND_URL ||
-    process.env.NEXT_PUBLIC_BACKEND_URL ||
-    (process.env.VERCEL ? "https://api.lesnarai.co.ke" : "http://localhost:8000")
-  ).replace(/\/$/, "");
-}
+import { backendBase } from "@/lib/backend";
 
 export async function GET() {
   const base = backendBase();
@@ -20,6 +13,7 @@ export async function GET() {
       ok: res.ok,
       backend: base,
       status: body?.status || (res.ok ? "ok" : "unknown"),
+      orders_api: `${base}/api/public/orders/{ref}?token=…`,
     }, { status: res.ok ? 200 : 503 });
   } catch (e: unknown) {
     const err = e as { message?: string };

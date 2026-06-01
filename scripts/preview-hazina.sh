@@ -30,4 +30,6 @@ rm -rf "${PORTAL}/.next"
 
 echo "==> Starting production server on http://localhost:${PORT}"
 cd "${PORTAL}"
+export BACKEND_URL="${BACKEND_URL:-http://127.0.0.1:8000}"
+export NEXT_PUBLIC_BACKEND_URL="${NEXT_PUBLIC_BACKEND_URL:-http://127.0.0.1:8000}"
 exec npx next start -p "${PORT}"

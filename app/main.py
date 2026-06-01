@@ -23,6 +23,7 @@ from app.api.metrics import MetricsMiddleware, router as metrics_router
 from app.api.mock import router as mock_router
 from app.api.payments import router as payments_router
 from app.api.privacy import router as privacy_router
+from app.api.public_orders import router as public_orders_router
 from app.api.voice import router as voice_router
 from app.api.voice_at import router as voice_at_router
 from app.api.whatsapp import router as whatsapp_router
@@ -251,6 +252,7 @@ async def rate_limit_handler(_: Request, exc: RateLimitExceeded):
 app.include_router(health_router)
 app.include_router(metrics_router)
 app.include_router(catalog_router)
+app.include_router(public_orders_router)
 app.include_router(mock_router)
 app.include_router(whatsapp_router)
 app.include_router(whatsapp_twilio_router)

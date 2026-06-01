@@ -100,7 +100,8 @@ wait_for_ready() {
       echo "  Build page:  http://localhost:${PORT}/build"
       echo "  Collections: http://localhost:${PORT}/collections"
       echo ""
-      echo "Chat widget needs API on :8000 — run in another terminal: make dev"
+      echo "Order tracking needs API on :8000 — run in another terminal: make dev"
+      echo "  Example: /orders/HN-ORD-…?token=… (from WhatsApp after checkout)"
       return 0
     fi
     sleep 1
@@ -112,12 +113,16 @@ wait_for_ready() {
 if [[ "$BACKGROUND" -eq 1 ]]; then
   LOG="${PORTAL}/.dev-hazina.log"
   echo "==> Starting next dev in background (log: ${LOG})…"
-  nohup npx next dev -p "${PORT}" >>"${LOG}" 2>&1 &
+  BACKEND_URL="${BACKEND_URL:-http://127.0.0.1:8000}" \
+  NEXT_PUBLIC_BACKEND_URL="${NEXT_PUBLIC_BACKEND_URL:-http://127.0.0.1:8000}" \
+    nohup npx next dev -p "${PORT}" >>"${LOG}" 2>&1 &
   echo $! > "${PORTAL}/.dev-hazina.pid"
   wait_for_ready
 else
   echo "==> Starting next dev on port ${PORT} (Ctrl+C to stop)…"
-  npx next dev -p "${PORT}" &
+  BACKEND_URL="${BACKEND_URL:-http://127.0.0.1:8000}" \
+  NEXT_PUBLIC_BACKEND_URL="${NEXT_PUBLIC_BACKEND_URL:-http://127.0.0.1:8000}" \
+    npx next dev -p "${PORT}" &
   DEV_PID=$!
   trap 'kill ${DEV_PID} 2>/dev/null || true' EXIT INT TERM
   wait_for_ready || { kill ${DEV_PID} 2>/dev/null || true; exit 1; }

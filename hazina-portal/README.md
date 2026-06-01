@@ -107,7 +107,17 @@ python scripts/check_asset_images.py
 
 Render service `hazina-portal` in `render.yaml` → `hazina.lesnarai.co.ke`.
 
-Env: `BACKEND_URL`, `NEXT_PUBLIC_HAZINA_WHATSAPP`, `NEXT_PUBLIC_HAZINA_PHONE`, partner vars above.
+Env: `BACKEND_URL`, `PUBLIC_HAZINA_PORTAL_URL`, `NEXT_PUBLIC_HAZINA_WHATSAPP`, `NEXT_PUBLIC_HAZINA_PHONE`, partner vars above.
+
+### Order tracking (magic links)
+
+Guest URL: `/orders/{HN-ORD-…}?token=…` (sent via WhatsApp after checkout).
+
+- Portal server-fetches `GET {BACKEND_URL}/api/public/orders/{ref}?token=…`
+- BFF mirror: `GET /api/orders/{ref}?token=…` (same payload; useful for debugging)
+- Ops updates (`!dispatch` / `!delivered`) and payment webhooks drive `order.details.fulfillment_status`
+
+Local: copy `.env.example` → `.env.local`, run API (`make dev`) + portal (`make dev-hazina`).
 
 If the live site looks like an old UI, redeploy after `git push` — local commits do not update production until Render rebuilds.
 

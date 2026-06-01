@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
+import { SiteChrome } from "@/components/SiteChrome";
 import "./globals.css";
 
 const themeInitScript = `(() => {
@@ -30,9 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <body className="min-h-screen flex flex-col bg-sand text-ink font-sans font-normal antialiased">
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        <Nav />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );

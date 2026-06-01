@@ -1,14 +1,7 @@
 import { NextResponse } from "next/server";
+import { backendBase } from "@/lib/backend";
 import { BRAND, GIFT_BOXES } from "@/lib/products";
 import { ALL_CATEGORIES, CATEGORY_LABELS, TREASURES } from "@/lib/treasures";
-
-function backendBase(): string {
-  return (
-    process.env.BACKEND_URL ||
-    process.env.NEXT_PUBLIC_BACKEND_URL ||
-    (process.env.VERCEL ? "https://api.lesnarai.co.ke" : "http://localhost:8000")
-  ).replace(/\/$/, "");
-}
 
 export async function GET() {
   const base = backendBase();

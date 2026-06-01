@@ -87,6 +87,8 @@ Hazina Nomads is a **tenant on the shared Gen-Eat / Omni AI backend** — not a 
 | `/api/health` | — | — | Backend health proxy |
 | `/api/partners/login` | — | — | Partner session cookie |
 | `/api/partners/logout` | — | — | Clear partner cookie |
+| `/orders/[id]` | **hidden** | **noindex** | Magic-link tracking (`?token=`); no marketing nav (`SiteChrome`) |
+| `/api/orders/[id]` | — | — | Proxy → `GET /api/public/orders/{ref}?token=` |
 
 **Nav (2026-06-01):** Collections · Build · Safari · About · Chat in app · Order on WhatsApp.
 **Not in nav/footer:** Hosts, JKIA landing URL, partner pages, `/treasures` index.
@@ -97,9 +99,9 @@ Hazina Nomads is a **tenant on the shared Gen-Eat / Omni AI backend** — not a 
 
 | Capability | Portal | WhatsApp / backend | Notes |
 |---|---|---|---|
-| Browse 5 collections | ✅ `/collections` | ✅ menu + automation | Cards: image → Reserve via WhatsApp |
-| Collection checkout | ✅ `CollectionCheckout` | ✅ one-shot parser | Delivery + payment prefs → portal chat |
-| Build custom box (2+ items) | ✅ `/build` | ✅ SKU lines + automation | Two-step sidebar; packaging optional |
+| Browse 5 collections | ✅ `/collections` | ✅ menu + automation | Cards: image → details → guided checkout |
+| Collection checkout | ✅ `CollectionCheckout` | ✅ guided draft checkout | Collection → chat asks one detail at a time |
+| Build custom box (2+ items) | ✅ `/build` | ✅ SKU lines + automation | Builder → guided chat; packaging optional |
 | Treasure detail | ✅ `/treasures/[id]` | ✅ | Back link → `/build` |
 | Safari landing | ✅ dedicated page | — | Kenya Edit hero + editorial copy |
 | JKIA story | ✅ via redirect | ✅ Departure Drop collection | No separate JKIA marketing page |
@@ -401,10 +403,13 @@ Reference sources: [The Stems hampers](https://thestemsflowers.co.ke/collections
 - Minimum **2** treasures (`MIN_CUSTOM_ITEMS`)
 - Optional premium packaging (+USD 45 / KES 5,800) — SKU `HN-T-070`
 - Running total in sidebar uses USD first with KES equal visibility.
-- The website checkout form collects guest name, hotel/JKIA location,
-  delivery window, contact, and preferred payment before opening chat.
-- **Start automated checkout** sends a structured message to the portal chat;
-  **Continue in WhatsApp** sends the same structure through the public number.
+- The website checkout entry point collects only lightweight preferences
+  before opening chat. The in-app chat then asks for guest name, delivery mode,
+  exact location, timing, payment choice, and contact one turn at a time.
+- **Start guided checkout** sends a structured checkout object to the portal
+  chat; the customer never sees the internal automation payload.
+- **Continue in WhatsApp** remains available, with a concise request that asks
+  the concierge automation to guide the remaining details step by step.
 
 ```
 Hello Hazina Nomads — automated custom gift box checkout:
@@ -538,6 +543,12 @@ Guest / order context
 | `treasure_skus` | Custom box | List of `HN-T-xxx` SKUs |
 | `product_id` | Collection checkout | e.g. `kenya-edit` |
 | `fast_path` | Automation | `hazina_gift_checkout`, `hazina_custom_box`, `llm_tool` |
+| `public_reference` | `order_tracking.ensure_order_tracking` | Guest-facing `HN-ORD-{uuid8}` |
+| `tracking_token` | Same | Magic-link secret; required on portal + public API |
+| `courier_note` | Ghost Ops `!dispatch` / future courier webhook | Shown on tracking timeline when `out_for_delivery` |
+
+**Public API:** `GET /api/public/orders/{HN-ORD-…}?token=…` → payload for portal (rate-limited).  
+**Portal:** `hazina-portal/app/orders/[id]/page.tsx` server-fetches via `BACKEND_URL`.
 
 ### 4.3 Phase 1 — Day 1–30 (Hybrid stack)
 
@@ -871,8 +882,10 @@ Gen-Eat café tenants (`lily-pond-cafe`, etc.) remain in DB; demo path stays on 
 | `/api/health` | — | `app/api/health/route.ts` | Backend health proxy |
 | `/api/partners/login` | — | `app/api/partners/login/route.ts` | Partner session cookie |
 | `/api/partners/logout` | — | `app/api/partners/logout/route.ts` | Clear session |
+| `/orders/[id]` | **hidden** | `app/orders/[id]/page.tsx` + `app/orders/layout.tsx` | Live tracking; `?token=`; obsidian shell; `noindex` |
+| `/api/orders/[id]` | — | `app/api/orders/[id]/route.ts` | Proxy → `GET /api/public/orders/{ref}?token=` |
 
-**SSG:** 5 collection slugs + 30 treasure slugs. **Middleware:** `middleware.ts` guards `/partners/dashboard`.
+**SSG:** 5 collection slugs + 30 treasure slugs. **Dynamic:** `/orders/[id]` (token query). **Middleware:** `middleware.ts` guards `/partners/dashboard`.
 
 **Removed (do not document as active):** `app/treasures/page.tsx`, `TreasureExplorer`, `TreasureCard`, `TrustRow`, `ConciergePromptButton`, JKIA standalone page.
 
@@ -893,6 +906,7 @@ No `/cafes`, `/map`, or `/owners` — those live only in `gen-eat-portal/`.
 | Curated collections | `lib/products.ts` | `GIFT_BOXES`, `itemIds[]`, `BRAND`, images |
 | Individual treasures | `lib/treasures.ts` | 30 SKUs; packaging excluded from build grid |
 | Format helpers | `lib/format.ts` | `formatUSD`, `formatKES`, `whatsappLink` |
+| Order tracking fetch | `lib/orderTracking.ts`, `lib/backend.ts` | Server fetch → FastAPI public orders API |
 | Collection card | `components/CollectionCard.tsx` | Image link + stacked prices + View details / Add to box / Ask concierge |
 | Collection checkout | `components/CollectionCheckout.tsx` | Delivery/payment → chat handoff |
 | Pack builder | `components/PackBuilder.tsx` | Browse, mobile-safe grid, cart, deferred delivery form, category filters |
@@ -1058,18 +1072,28 @@ Also: auto-resend stale STK after timeout (`_auto_resend_stale_payment_reply`).
 **Web — browse collection**
 
 1. `/` or `/collections` → **See inside** → `/collections/kenya-edit`
-2. **Checkout** / **Reserve this collection** → in-page delivery/payment workflow
-3. **Start checkout** → portal chat receives a structured order, creates the
-   order, then sends Paystack URL or M-Pesa STK
-4. **Continue in WhatsApp** remains the fallback with the same structured
-   automation payload
+2. **Order this box** → choose quantity, delivery mode, and payment preference
+3. **Start guided checkout** → portal chat asks name, exact delivery point,
+   timing, payment contact, and confirmation
+4. Only after confirmation does the portal chat send the complete structured
+   automation payload to the backend, which creates the order and starts
+   Paystack or M-Pesa
 
 **Web — build custom box**
 
 1. `/treasures` or `/build` → select 2+ items + packaging
-2. Fill guest name, hotel/JKIA location, delivery window, contact, payment preference
-3. **Start automated checkout** → portal chat receives the structured SKU list
-4. Automation parses SKUs + delivery/payment fields → creates order → Paystack URL or STK
+2. Choose delivery and payment preference in the sidebar
+3. **Continue guided checkout** → portal chat asks missing details one at a time
+4. Automation receives SKUs + confirmed delivery/payment fields → creates
+   order → Paystack URL or STK
+
+**WhatsApp — collection order**
+
+1. Guest taps a collection or says `order Kenya Edit`
+2. `gift_automation` stores `gift_checkout:{conv_id}` and asks for one missing
+   detail at a time: name → delivery mode → location → window → payment →
+   contact → confirm
+3. Payment starts only after the final confirmation
 
 **WhatsApp — catalog request (fast path, no LLM)**
 
@@ -1236,8 +1260,8 @@ Routes through `resolve_payment_service(currency=…)`.
 
 Current local verification on **2026-06-01**:
 
-- `make test-hazina` → **61 passed**, 1 warning
-- `make test-fast` → **165 passed**, 1 warning (broader suite)
+- `make test-hazina` → **63 passed**, 1 warning
+- `make test-fast` → **167 passed**, 1 warning (broader suite)
 - `cd hazina-portal && npm run typecheck` → passed
 - `cd hazina-portal && npm run lint` → passed
 - `cd hazina-portal && npm run build` → passed, **51 routes** (static pages + API routes + middleware)

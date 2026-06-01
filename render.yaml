@@ -135,6 +135,8 @@ services:
         value: https://api.lesnarai.co.ke
       - key: NEXT_PUBLIC_BACKEND_URL
         value: https://api.lesnarai.co.ke
+      - key: PUBLIC_HAZINA_PORTAL_URL
+        value: https://hazina.lesnarai.co.ke
       - key: NEXT_PUBLIC_HAZINA_WHATSAPP
         sync: false
       - key: NEXT_PUBLIC_HAZINA_PHONE
