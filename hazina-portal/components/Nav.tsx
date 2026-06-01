@@ -50,7 +50,7 @@ export function Nav() {
         </nav>
         <div className="hidden md:flex items-center gap-3">
           <ThemeToggle compact />
-          <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark py-2.5 px-5">
+          <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-bronze py-2.5 px-5">
             Talk to Concierge
           </a>
         </div>
@@ -87,7 +87,7 @@ export function Nav() {
               href={wa}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-dark w-full mt-2"
+              className="btn-bronze w-full mt-2"
               onClick={() => setOpen(false)}
             >
               Talk to Concierge

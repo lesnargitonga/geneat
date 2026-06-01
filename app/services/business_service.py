@@ -218,6 +218,16 @@ async def ensure_hazina_business(
         biz.meta_wa_phone_number_id = meta_pid
 
     await db.flush()
+
+    try:
+        from app.services.hazina_kb import sync_hazina_knowledge_base
+
+        synced = await sync_hazina_knowledge_base(db, biz.id)
+        if synced:
+            await db.flush()
+    except Exception as exc:
+        log.warning("hazina_kb_sync_failed", error=str(exc))
+
     log.warning(
         "hazina_business_auto_provisioned" if created else "hazina_business_auto_repaired",
         business_id=str(biz.id),

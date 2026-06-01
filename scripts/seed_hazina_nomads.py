@@ -6,7 +6,6 @@ Run after migrations (idempotent upsert by slug):
 
 Optional flags:
     --skip-kb     Upsert business row only (no RAG re-embed)
-    --wipe-kb     Clear and re-ingest KB even if unchanged
 
 Requires a working embedder (EMBED_PROVIDER in .env).
 """
@@ -16,22 +15,19 @@ import argparse
 import asyncio
 import os
 import sys
-import uuid
+from sqlalchemy import select, update
 
-from sqlalchemy import delete, select, update
-
-from app.ai.rag import ingest_text
 from app.catalog.hazina_catalog import (
     HAZINA_COLLECTIONS,
     HAZINA_TREASURES,
     MIN_CUSTOM_ITEMS,
     PACKAGING_FEE_USD,
-    build_hazina_kb_catalog,
     build_hazina_menu_photos,
 )
 from app.core.config import get_settings
-from app.db.models import Business, KnowledgeChunk
+from app.db.models import Business
 from app.db.session import SessionLocal
+from app.services.hazina_kb import KB_CATALOG, sync_hazina_knowledge_base
 
 SLUG = "hazina-nomads"
 NAME = "Hazina Nomads"
@@ -101,55 +97,6 @@ PROFILE: dict = {
     },
 }
 
-KB_CATALOG: list[str] = build_hazina_kb_catalog()
-
-KB_POLICIES: list[str] = [
-    (
-        "DELIVERY ZONES — We deliver to Westlands, Kilimani, Karen, and JKIA "
-        "(all terminals). We do not dispatch to other Nairobi neighbourhoods at MVP launch."
-    ),
-    (
-        "JKIA DELIVERIES — Require at least 4 hours lead time before the guest's "
-        "departure, the customer's terminal number (e.g. 1A, 1E), and a reachable "
-        "phone number. The Departure Drop is optimised for this use case."
-    ),
-    (
-        "HOTEL DELIVERIES — Collect hotel name, room number (or front-desk hold), "
-        "and preferred delivery window. Confirm the guest's name on the order."
-    ),
-    (
-        "LATE DISPATCH — Deliveries requested after 20:00 East Africa Time incur a "
-        "USD 15 late-dispatch fee. Same-day JKIA requests before 20:00 follow the "
-        "4-hour window rule without the late fee if feasible."
-    ),
-    (
-        "INTERNATIONAL SHIPPING — If a traveller has already left Kenya or needs "
-        "delivery outside the country, offer a DHL Express or equivalent insured "
-        "courier quote. Collect destination country, city, full address, recipient "
-        "name, phone/email, and deadline. Quote courier, customs risk, and ETA "
-        "before taking payment."
-    ),
-    (
-        "CUSTOM BOXES — Guests may compose their own gift box from individual treasures "
-        f"(minimum {MIN_CUSTOM_ITEMS} items). Premium packaging (SKU HN-T-070) is optional. "
-        "Confirm each SKU, delivery location, and payment method before dispatch."
-    ),
-    (
-        "PAYMENTS — Local guests: M-Pesa STK push via IntaSend (KES). "
-        "International cards: USD checkout link via Paystack (Visa, Mastercard, Apple Pay). "
-        "Ask which method the guest prefers before initiating payment."
-    ),
-    (
-        "BRAND POSITIONING — Hazina Nomads is a premium travel concierge, not a "
-        "souvenir shop. Emphasise curation, packaging quality, and reliable last-mile delivery."
-    ),
-    (
-        "CONTACT — WhatsApp concierge: +1 555 657 8220. Email: concierge@hazina-nomads.com. "
-        "Operating hours for dispatch coordination: 08:00–20:00 EAT daily."
-    ),
-]
-
-
 async def upsert_business(db) -> Business:
     biz = (
         await db.execute(select(Business).where(Business.slug == SLUG))
@@ -188,16 +135,6 @@ async def upsert_business(db) -> Business:
     return biz
 
 
-async def reset_and_ingest_kb(db, business_id: uuid.UUID) -> int:
-    await db.execute(
-        delete(KnowledgeChunk).where(KnowledgeChunk.business_id == business_id)
-    )
-    n = 0
-    n += await ingest_text(db, business_id=business_id, source="catalog", chunks=KB_CATALOG)
-    n += await ingest_text(db, business_id=business_id, source="policies", chunks=KB_POLICIES)
-    return n
-
-
 async def main(argv: argparse.Namespace) -> int:
     async with SessionLocal() as db:
         print(f"→ Upserting business '{SLUG}'...")
@@ -211,12 +148,9 @@ async def main(argv: argparse.Namespace) -> int:
 
         if not argv.skip_kb:
             print("→ Re-embedding knowledge base...")
-            n = await reset_and_ingest_kb(db, biz.id)
+            n = await sync_hazina_knowledge_base(db, biz.id, force=True)
             await db.commit()
-            print(
-                f"  ✓ {n} KB chunks ingested "
-                f"({len(KB_CATALOG)} catalog + {len(KB_POLICIES)} policy)"
-            )
+            print(f"  ✓ {n} KB chunks ingested ({len(KB_CATALOG)} catalog chunks)")
 
     print()
     print("Hazina Nomads tenant ready.")

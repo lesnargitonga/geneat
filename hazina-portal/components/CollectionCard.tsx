@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { CatalogImage } from "@/components/CatalogImage";
-import { ConciergePromptButton } from "@/components/ConciergePromptButton";
 import type { GiftBox } from "@/lib/products";
+import { BRAND } from "@/lib/products";
 import { getTreasuresByIds } from "@/lib/treasures";
-import { formatDualPrice, formatUSD } from "@/lib/format";
+import { formatDualPrice, formatUSD, whatsappLink } from "@/lib/format";
 
 type Props = {
   box: GiftBox;
@@ -13,6 +13,10 @@ type Props = {
 
 export function CollectionCard({ box, className = "", priority }: Props) {
   const itemCount = box.itemIds?.length ?? 0;
+  const waUrl = whatsappLink(
+    BRAND.whatsapp,
+    `Hello Hazina Nomads — I'd like to reserve the ${box.name} collection.`
+  );
 
   return (
     <article
@@ -41,19 +45,20 @@ export function CollectionCard({ box, className = "", priority }: Props) {
       </Link>
 
       <div className="flex flex-col flex-1 p-5 md:p-6">
-        <div className="flex items-end justify-between gap-4 pb-4 border-b border-border">
-          <div>
-            <Link href={`/collections/${box.id}`}>
-              <h2 className="font-serif text-2xl md:text-3xl text-obsidian leading-tight hover:text-bronze transition-colors">
-                {box.name}
-              </h2>
-            </Link>
-            <p className="label-mono mt-1">{box.sku}</p>
-          </div>
-          <div className="text-right shrink-0 rounded-sm border border-border bg-sand-dark/60 px-3 py-2">
-            <div className="font-mono text-base md:text-lg font-semibold text-obsidian">{formatUSD(box.price_usd)}</div>
-            <div className="font-mono text-sm text-ink-soft">KES {box.price_kes.toLocaleString("en-KE")}</div>
-          </div>
+        <Link href={`/collections/${box.id}`}>
+          <h2 className="font-serif text-2xl md:text-3xl text-obsidian leading-tight hover:text-bronze transition-colors">
+            {box.name}
+          </h2>
+        </Link>
+        <p className="label-mono mt-1">{box.sku}</p>
+
+        <div className="mt-3 pb-4 border-b border-border">
+          <p className="font-serif text-2xl md:text-[1.75rem] text-obsidian leading-none">
+            {formatUSD(box.price_usd)}
+          </p>
+          <p className="font-mono text-sm text-ink-mute mt-1">
+            KES {box.price_kes.toLocaleString("en-KE")}
+          </p>
         </div>
 
         {box.personalization && (
@@ -62,20 +67,14 @@ export function CollectionCard({ box, className = "", priority }: Props) {
           </p>
         )}
 
-        <div className="flex flex-wrap gap-3 mt-6">
-          <Link href={`/collections/${box.id}`} className="btn-outline">
-            View details
-          </Link>
-          <Link href={`/collections/${box.id}#checkout`} className="btn-ghost">
-            Add to box
-          </Link>
-          <ConciergePromptButton
-            prompt={`Hello Hazina Nomads — tell me if ${box.name} is right for my trip.`}
-            className="btn-ghost"
-          >
-            Ask concierge
-          </ConciergePromptButton>
-        </div>
+        <a
+          href={waUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-auto pt-5 font-mono text-sm text-bronze underline-offset-4 hover:underline"
+        >
+          Reserve via WhatsApp
+        </a>
       </div>
     </article>
   );

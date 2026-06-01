@@ -7,7 +7,12 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from app.ai.tools import build_tools
-from app.catalog.hazina_catalog import build_hazina_menu_photos
+from app.catalog.hazina_catalog import (
+    HAZINA_COLLECTIONS,
+    HAZINA_TREASURES,
+    build_hazina_kb_catalog,
+    build_hazina_menu_photos,
+)
 from app.core.config import get_settings
 from app.db.models import Order, PaymentStatus
 
@@ -98,3 +103,13 @@ def test_build_hazina_menu_photos_maps_collections_and_treasures() -> None:
     assert photos["maasai-necklace"].endswith("/treasures/maasai-necklace-worn.png")
     assert photos["the kenya edit"].startswith("https://hazina.example.com/")
     assert "hn-t-010" in photos
+
+
+def test_build_hazina_kb_catalog_includes_every_treasure() -> None:
+    chunks = build_hazina_kb_catalog()
+    treasure_chunks = [c for c in chunks if c.startswith("TREASURE:")]
+    assert len(treasure_chunks) == len(HAZINA_TREASURES)
+    for row in HAZINA_COLLECTIONS:
+        assert any(row["sku"] in c and row["name"].upper() in c for c in chunks)
+    for row in HAZINA_TREASURES:
+        assert any(row["sku"] in c and row["name"] in c for c in treasure_chunks)
