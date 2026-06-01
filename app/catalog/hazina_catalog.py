@@ -252,13 +252,13 @@ HAZINA_KB_POLICIES: list[str] = [
 
 # Portal image paths — mirrors hazina-portal/lib/products.ts and lib/treasures.ts
 HAZINA_COLLECTION_IMAGES: dict[str, str] = {
-    # Use direct product/context photos, not generated branded mockups. Replace
+    # Use the strongest available collection hero visuals for launch. Replace
     # these with exact photographed finished boxes when physical prototypes land.
-    "kenya-edit": "/treasures/coffee-beans-variety.jpg",
-    "highland-treasure": "/treasures/premium-tea-spoons.jpg",
-    "nomad-leather-set": "/treasures/leather-passport-open.jpg",
-    "safari-romance-box": "/treasures/maasai-necklace-worn.png",
-    "departure-drop": "/treasures/leather-passport-closed.jpg",
+    "kenya-edit": "/treasures/kenya-edit-hero.jpg",
+    "highland-treasure": "/treasures/highland-treasure-hero.jpg",
+    "nomad-leather-set": "/treasures/nomad-leather-set-hero.jpg",
+    "safari-romance-box": "/treasures/safari-romance-box-hero.jpg",
+    "departure-drop": "/treasures/departure-drop-hero.jpg",
 }
 
 HAZINA_TREASURE_IMAGES: dict[str, str] = {

@@ -186,10 +186,10 @@ export function PackBuilder({
             </label>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="label-mono shrink-0 text-ink-mute">Category</span>
-            <div className="-mx-1 min-w-0 flex-1 overflow-x-auto pb-1 local-scroll-x">
-              <div className="flex min-w-max gap-5 px-1">
+          <div className="flex items-start gap-3">
+            <span className="label-mono shrink-0 pt-1 text-ink-mute">Category</span>
+            <div className="-mx-1 min-w-0 flex-1 overflow-visible pb-1 sm:overflow-x-auto sm:local-scroll-x">
+              <div className="flex flex-wrap gap-x-4 gap-y-2 px-1 sm:min-w-max sm:flex-nowrap sm:gap-5">
                 <CategoryLink active={category === "all"} onClick={() => setCategory("all")} label="All" />
                 {ALL_CATEGORIES.filter((c) => c !== "packaging").map((c) => (
                   <CategoryLink

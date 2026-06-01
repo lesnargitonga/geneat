@@ -14,6 +14,9 @@ export function CollectionCard({ box, className = "", priority }: Props) {
   const treasures = getCollectionTreasureItems(box);
   const itemCount = treasures.length;
   const fallbackImage = treasures.find((t) => t.image)?.image ?? null;
+  const heroBackground = fallbackImage
+    ? `url("${box.image}"), url("${fallbackImage}")`
+    : `url("${box.image}")`;
   const waUrl = whatsappLink(
     BRAND.whatsapp,
     `Hello Hazina Nomads — I'd like to reserve the ${box.name} collection.`,
@@ -24,16 +27,15 @@ export function CollectionCard({ box, className = "", priority }: Props) {
       className={`group flex flex-col card-luxury overflow-hidden ${className}`}
     >
       <Link href={`/collections/${box.id}`} className="block">
-        <div className="relative aspect-[4/3] catalog-photo-frame">
-          <CatalogImage
-            src={box.image}
-            fallbackSrc={fallbackImage}
-            alt={box.imageAlt || box.name}
-            tone="warm"
-            fit="contain"
-            className="absolute inset-0"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
-            priority={priority}
+        <div
+          className="relative aspect-[4/3] overflow-hidden bg-sand-dark"
+          role="img"
+          aria-label={box.imageAlt || box.name}
+        >
+          <div
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-[1.03]"
+            style={{ backgroundImage: heroBackground }}
+            data-priority={priority ? "true" : undefined}
           />
           <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-2 pointer-events-none">
             <span className="chip-dark">{box.lead_time_hours}h lead</span>

@@ -21,10 +21,6 @@ type Props = {
   fit?: "cover" | "contain";
 };
 
-function isLocalStaticPath(path: string) {
-  return path.startsWith("/treasures/") || path.startsWith("/brand/");
-}
-
 export function CatalogImage({
   src,
   fallbackSrc,
@@ -50,7 +46,6 @@ export function CatalogImage({
 
   const activeSrc = candidates[index];
   const showImage = Boolean(activeSrc) && !failed;
-  const useNativeImg = Boolean(activeSrc && isLocalStaticPath(activeSrc));
   const useLightbox = tone === "warm";
 
   const frameClass = useLightbox ? "catalog-photo-frame bg-[#f5f0e8]" : "bg-sand-dark";
@@ -74,18 +69,7 @@ export function CatalogImage({
       className={`relative overflow-hidden ${frameClass} ${className}`}
       data-image-missing={!showImage ? "true" : undefined}
     >
-      {showImage && useNativeImg ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          key={activeSrc}
-          src={activeSrc}
-          alt={alt || "Hazina Nomads product photograph"}
-          className={`absolute inset-0 h-full w-full ${imgClass}`}
-          loading={priority ? "eager" : "lazy"}
-          decoding="async"
-          onError={handleError}
-        />
-      ) : showImage ? (
+      {showImage ? (
         <Image
           key={activeSrc}
           src={activeSrc!}
@@ -94,6 +78,7 @@ export function CatalogImage({
           className={imgClass}
           sizes={sizes}
           priority={priority}
+          quality={82}
           onError={handleError}
         />
       ) : (

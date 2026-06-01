@@ -121,11 +121,11 @@ Hazina Nomads is a **tenant on the shared Gen-Eat / Omni AI backend** — not a 
 | Asset pool | Count | Location | Used for |
 |---|---|---|---|
 | Source photography | 49+ | `docs/pictures/` | Master archive (original filenames preserved) |
-| Portal treasure images | 60 | `hazina-portal/public/treasures/` | Slug-renamed direct photos plus current collection/context placeholders for web |
-| Collection hero shots | **5 / 5 mapped provisional direct photos** | `lib/products.ts` + `HAZINA_COLLECTION_IMAGES` | Portal and WhatsApp use real available product/context photos now; replace with exact no-watermark finished-box photos before premium launch |
+| Portal treasure images | 65 | `hazina-portal/public/treasures/` | Slug-renamed product photos plus current collection/context visuals and optimized hero derivatives for web |
+| Collection hero shots | **5 / 5 mapped hero visuals** | `lib/products.ts` + `HAZINA_COLLECTION_IMAGES` | Portal and WhatsApp use optimized JPEG derivatives of the strongest available collection pack visuals now; replace with exact no-watermark finished-box photography before premium launch |
 | Brand atmosphere | 1 direct brand image + reused treasure context images | `hazina-portal/public/brand/`, `public/treasures/` | Safari banner, atelier room, market context |
 | **menu_photos (seeded)** | **108** id/name/sku keys | `profile.menu_photos` via `build_hazina_menu_photos()` | Collection, menu, brand, and treasure photo keys for AI/WhatsApp photo replies |
-| AI composites | 0 generated-folder files | `public/treasures/generated/` removed | No generated folder is served; collection hero mappings avoid branded mockup composites |
+| Generated folder | 0 generated-folder files | `public/treasures/generated/` removed | No generated subfolder is served; current collection heroes are provisional launch visuals until real finished-box shoots replace them |
 
 ### 0.6 Repositories & services map
 
@@ -194,7 +194,7 @@ Use this table when planning work — everything else in §0.3–0.4 is implemen
 | **Partner earnings** | ⬜ Code | Dashboard shows `PARTNER_REFERRAL_CODE` | Ledger, attribution on orders, payout automation |
 | **Per-host accounts** | ⬜ Code | Single shared login via env | Multi-user auth, password reset, host onboarding |
 | **Partner API** | ⬜ Code | Cookie session for dashboard | REST for referrals, commissions, statements |
-| **Collection hero photos** | ⬜ Creative | Real product/context placeholders | Exact no-watermark in-box product photography |
+| **Collection hero photos** | ⬜ Creative | Strong provisional pack visuals mapped across portal + WhatsApp | Exact no-watermark in-box product photography |
 | **Brand email** | ⬜ Ops | `concierge@hazina-nomads.com` in UI | Real mailbox + SPF/DKIM |
 | **Design tokens** | ⬜ Design | Portal bronze `#A67C52` | Align seed profile terracotta `#B85C38` if required |
 | **Next.js security** | ⬜ Eng | `next@14.2.18` builds clean | Major upgrade per `npm audit` before hardened prod |
@@ -915,7 +915,7 @@ No `/cafes`, `/map`, or `/owners` — those live only in `gen-eat-portal/`.
 | `public/brand/` | 1 | `safari-sunset.jpg`; other brand context reuses direct treasure photography |
 | `public/treasures/generated/` | 0 | Removed; no generated subfolder is served |
 
-Treasure image paths are mirrored in `HAZINA_TREASURE_IMAGES` in Python catalog for `menu_photos`. `HAZINA_COLLECTION_IMAGES` maps all five collections to real available product/context photos now, but those should be replaced by exact no-watermark finished-box photos before premium launch. Verify refs:
+Treasure image paths are mirrored in `HAZINA_TREASURE_IMAGES` in Python catalog for `menu_photos`. `HAZINA_COLLECTION_IMAGES` maps all five collections to optimized JPEG hero derivatives now, while the larger PNGs remain as master/provisional source visuals. Replace them with exact no-watermark finished-box photos before premium launch. Verify refs:
 
 ```bash
 python scripts/check_asset_images.py
@@ -1212,7 +1212,7 @@ Routes through `resolve_payment_service(currency=…)`.
 | **JKIA URL** | `next.config.mjs` redirect | ✅ → `/collections/departure-drop` |
 | **Hosts landing (ghost)** | `app/hosts-guides/` | ✅ noindex; not in nav |
 | **Treasure list page** | — | ❌ Removed; `/treasures` → `/build` |
-| **Image library** | `public/treasures/` (60 files) | ✅ All 30 treasures and 5 collection image slots mapped; collection shots remain provisional |
+| **Image library** | `public/treasures/` (65 files) | ✅ All 30 treasures and 5 collection image slots mapped; collection heroes use optimized derivatives of the strongest available provisional pack visuals |
 | **menu_photos seed** | `build_hazina_menu_photos()` | ✅ Collection, treasure, menu, and brand absolute URLs in profile |
 | **Dev launcher** | `scripts/dev-hazina.sh`, `make dev-hazina` | ✅ CSS health check on startup |
 | **Preview launcher** | `scripts/preview-hazina.sh`, `make preview-hazina` | ✅ Rebuild + stable prod server (:3004) |
@@ -1328,7 +1328,7 @@ make eval-whatsapp-local
 - ~~Public hosts nav~~ → ghost page + `/partners/login`
 - ~~menu_photos in profile~~ → `build_hazina_menu_photos()` (collection, treasure, menu, and brand keys)
 - ~~WhatsApp catalog menu intent~~ → `looks_like_hazina_catalog_request`
-- Collection hero images → mapped and visible, but still provisional until exact no-watermark Hazina product photos replace them
+- Collection hero images → mapped to the stronger pack visuals and visible, but still provisional until exact no-watermark Hazina product photos replace them
 - ~~Portal unstyled HTML (CSS mismatch)~~ → `make preview-hazina` + §9.6
 
 ---

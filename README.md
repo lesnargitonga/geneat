@@ -2783,6 +2783,9 @@ Local QA on 2026-06-01 verified:
 - `hazina-portal` lint, typecheck, and production build pass after the offline-safe font update,
 - public portal routes and `/api/health` return `200` with FastAPI connected on `:8000`,
 - all referenced portal product and brand images resolve through Next image optimization,
+- Hazina collection cards now use the stronger pack visuals again, with
+  optimized JPEG derivatives for mobile loading and direct card backgrounds to
+  avoid blank-looking hero frames,
 - Hazina menu photos return 108 backend keys, including collection and individual treasure keys,
 - mobile checks on home, build, and collection detail showed the collection rail,
   builder cards, and collection imagery fitting phone-width screens without
