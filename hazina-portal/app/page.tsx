@@ -4,7 +4,6 @@ import { CatalogImage } from "@/components/CatalogImage";
 import { ChatWidget } from "@/components/ChatWidget";
 import { CollectionCard } from "@/components/CollectionCard";
 import { ConciergePromptButton } from "@/components/ConciergePromptButton";
-import { TrustRow } from "@/components/TrustRow";
 import { BRAND, BRAND_IMAGES, GIFT_BOXES } from "@/lib/products";
 import { getTreasure } from "@/lib/treasures";
 import { formatDualPrice, whatsappLink } from "@/lib/format";
@@ -27,25 +26,23 @@ export default function HomePage() {
             sizes="100vw"
             priority
           />
-          <div className="absolute inset-0 bg-black/65" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.18)_0%,rgba(0,0,0,0.38)_42%,rgba(14,13,12,0.86)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_45%,rgba(0,0,0,0.04)_0%,rgba(0,0,0,0.42)_62%,rgba(0,0,0,0.76)_100%)]" />
         </div>
 
-        <div className="relative container-page min-h-[82svh] py-16 md:py-24 flex flex-col justify-between gap-12">
+        <div className="relative container-page min-h-[86svh] py-16 md:py-24 flex flex-col justify-between gap-12">
           <div className="max-w-4xl pt-8 md:pt-16">
             <span className="font-mono text-sm font-medium uppercase tracking-[0.12em] text-white/70">Nairobi hotel delivery · JKIA handoff · DHL export quotes</span>
             <h1 className="mt-5 font-serif text-5xl md:text-7xl lg:text-8xl leading-[0.92] tracking-tight text-white">
-              Hazina Nomads
+              Treasures, delivered to your journey.
             </h1>
             <p className="mt-6 max-w-2xl text-lg md:text-xl leading-relaxed text-white/85">
               Premium Kenyan gift collections for travellers who want something more considered than a souvenir run.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <ConciergePromptButton
-                prompt="Hello Hazina Nomads — help me choose a premium gift collection."
-                className="btn-bronze"
-              >
-                Chat in app
-              </ConciergePromptButton>
+              <Link href="/collections" className="btn-bronze">
+                View collections
+              </Link>
               <a
                 href={wa}
                 target="_blank"
@@ -54,38 +51,15 @@ export default function HomePage() {
               >
                 Order on WhatsApp
               </a>
-              <Link href="/collections" className="btn-dark bg-white text-black hover:bg-white/90">
-                View collections
-              </Link>
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-[1fr,1.25fr] md:items-end">
-            <div className="hidden md:block">
-              <TrustRow dark />
-            </div>
-            <div className="grid grid-cols-5 gap-2">
-              {GIFT_BOXES.map((box) => (
-                <Link
-                  key={box.id}
-                  href={`/collections/${box.id}`}
-                  className="group min-h-[86px] border border-white/20 bg-black/35 p-2 backdrop-blur-sm transition hover:bg-white hover:text-black"
-                >
-                  <span className="block font-serif text-base leading-tight text-white group-hover:text-black">
-                    {box.name.replace("The ", "")}
-                  </span>
-                  <span className="mt-2 block font-mono text-xs uppercase tracking-[0.1em] text-bronze-light group-hover:text-bronze-dark">
-                    USD {box.price_usd}
-                  </span>
-                </Link>
-              ))}
-            </div>
+          <div className="grid gap-5 border-t border-white/20 pt-6 text-white/80 sm:grid-cols-3 md:max-w-4xl">
+            <HeroNote title="Hotel delivery" body="Westlands · Kilimani · Karen" />
+            <HeroNote title="JKIA handoff" body="Terminal-aware departure gifts" />
+            <HeroNote title="DHL export" body="Insured quotes before payment" />
           </div>
         </div>
-      </section>
-
-      <section className="container-page py-10 md:py-12 md:hidden">
-        <TrustRow />
       </section>
 
       <section className="container-page py-16 md:py-24 border-b border-border">
@@ -229,6 +203,15 @@ function ServiceTile({ n, title, body }: { n: string; title: string; body: strin
       <span className="font-mono text-sm text-bronze-light">{n}</span>
       <h3 className="mt-4 font-serif text-2xl md:text-3xl text-sand leading-tight">{title}</h3>
       <p className="mt-3 text-sand/70 text-base leading-relaxed">{body}</p>
+    </div>
+  );
+}
+
+function HeroNote({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="sm:border-l sm:border-white/20 sm:pl-5 first:border-l-0 first:pl-0">
+      <p className="font-mono text-[13px] uppercase tracking-[0.14em] text-bronze-light">{title}</p>
+      <p className="mt-2 text-sm md:text-base leading-relaxed text-white/72">{body}</p>
     </div>
   );
 }

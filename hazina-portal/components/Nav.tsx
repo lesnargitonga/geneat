@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { ConciergePromptButton } from "@/components/ConciergePromptButton";
 import { BRAND } from "@/lib/products";
 import { whatsappLink } from "@/lib/format";
 
@@ -51,14 +50,8 @@ export function Nav() {
         </nav>
         <div className="hidden md:flex items-center gap-3">
           <ThemeToggle compact />
-          <ConciergePromptButton
-            prompt="Hello Hazina Nomads — I want concierge help choosing a gift."
-            className="btn-outline py-2.5 px-5"
-          >
-            Chat in app
-          </ConciergePromptButton>
           <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark py-2.5 px-5">
-            Order on WhatsApp
+            Talk to Concierge
           </a>
         </div>
         <div className="md:hidden flex items-center gap-2">
@@ -97,14 +90,8 @@ export function Nav() {
               className="btn-dark w-full mt-2"
               onClick={() => setOpen(false)}
             >
-              Order on WhatsApp
+              Talk to Concierge
             </a>
-            <ConciergePromptButton
-              prompt="Hello Hazina Nomads — I want concierge help choosing a gift."
-              className="btn-outline w-full"
-            >
-              Chat in app
-            </ConciergePromptButton>
           </nav>
         </div>
       )}

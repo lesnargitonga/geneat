@@ -159,11 +159,13 @@ export function ChatWidget() {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? "Close chat" : "Open chat"}
-        className={`fixed bottom-5 right-5 z-40 w-14 h-14 bg-obsidian text-sand shadow-editorial items-center justify-center text-2xl active:scale-95 transition hover:bg-obsidian-soft ${
-          open ? "flex" : "flex"
+        className={`fixed bottom-5 right-5 z-40 inline-flex items-center justify-center shadow-editorial active:scale-95 transition ${
+          open
+            ? "h-12 w-12 rounded-full bg-obsidian text-sand text-xl hover:bg-obsidian-soft"
+            : "min-h-[46px] rounded-full border border-white/20 bg-obsidian/92 px-5 text-sm font-medium text-sand backdrop-blur-md hover:bg-obsidian"
         }`}
       >
-        {open ? "✕" : "💬"}
+        {open ? "×" : "Chat with Concierge"}
       </button>
 
       {open && (
@@ -177,7 +179,7 @@ export function ChatWidget() {
               href={whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like concierge help.")}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-mono text-sm uppercase tracking-[0.1em] text-sand/70 hover:text-sand"
+              className="text-sm font-medium text-sand/70 hover:text-sand"
             >
               WhatsApp
             </a>
@@ -200,7 +202,7 @@ export function ChatWidget() {
                   <button
                     key={p}
                     onClick={() => send(p)}
-                    className="text-sm font-mono uppercase tracking-[0.1em] px-3 py-1.5 border border-border text-ink-mute hover:border-obsidian hover:text-obsidian transition-colors"
+                    className="text-sm px-3 py-1.5 border border-border text-ink-mute hover:border-obsidian hover:text-obsidian transition-colors"
                   >
                     {p}
                   </button>
