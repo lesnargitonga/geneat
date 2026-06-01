@@ -11,7 +11,7 @@ import {
   type Treasure,
   type TreasureCategory,
 } from "@/lib/treasures";
-import { formatDualPrice, whatsappLink } from "@/lib/format";
+import { formatUSD, whatsappLink } from "@/lib/format";
 
 type SortMode = "curated" | "price-low" | "price-high" | "fastest";
 
@@ -150,7 +150,7 @@ export function TreasureExplorer({
 function TreasureResult({ item, priority }: { item: Treasure; priority?: boolean }) {
   const wa = whatsappLink(
     BRAND.whatsapp,
-    `Hi Hazina Nomads — I'd like to ask about ${item.name} (${item.sku}).`,
+    `Hello Hazina Nomads — I'd like to reserve ${item.name} (${item.sku}).`,
   );
 
   return (
@@ -166,31 +166,27 @@ function TreasureResult({ item, priority }: { item: Treasure; priority?: boolean
         />
       </Link>
       <div className="p-5 flex flex-1 flex-col">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <Link href={`/treasures/${item.id}`} className="font-serif text-xl text-obsidian hover:text-bronze transition-colors">
-              {item.name}
-            </Link>
-            <p className="label-mono mt-1">{CATEGORY_LABELS[item.category]} · {item.sku}</p>
-          </div>
-          <span className="font-mono text-sm text-bronze shrink-0 pt-1 text-right leading-relaxed">
-            {formatDualPrice(item.price_usd, item.price_kes)}
-          </span>
+        <Link href={`/treasures/${item.id}`} className="font-serif text-xl text-obsidian hover:text-bronze transition-colors">
+          {item.name}
+        </Link>
+        <p className="label-mono mt-1">{CATEGORY_LABELS[item.category]} · {item.sku}</p>
+        <div className="mt-3 pb-4 border-b border-border">
+          <p className="font-serif text-xl text-obsidian leading-none">{formatUSD(item.price_usd)}</p>
+          <p className="font-mono text-sm text-ink-mute mt-1">
+            KES {item.price_kes.toLocaleString("en-KE")}
+          </p>
         </div>
-        <div className="mt-4 max-h-24 local-scroll">
+        <div className="mt-3 max-h-24 local-scroll flex-1">
           <p className="text-sm text-ink-mute leading-relaxed">{item.description}</p>
         </div>
-        <div className="mt-auto pt-5 grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <Link href={`/build?add=${item.id}`} className="btn-dark !px-4 !py-2 w-full">
-            Add to box
-          </Link>
-          <Link href={`/treasures/${item.id}`} className="btn-outline !px-4 !py-2 w-full">
-            View details
-          </Link>
-          <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-ghost !px-4 !py-2 w-full">
-            Ask concierge
-          </a>
-        </div>
+        <a
+          href={wa}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-auto pt-5 font-mono text-sm text-bronze underline-offset-4 hover:underline"
+        >
+          Reserve via WhatsApp
+        </a>
       </div>
     </article>
   );

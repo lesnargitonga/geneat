@@ -3,7 +3,7 @@ import { CatalogImage } from "@/components/CatalogImage";
 import type { GiftBox } from "@/lib/products";
 import { BRAND } from "@/lib/products";
 import { getTreasuresByIds } from "@/lib/treasures";
-import { formatDualPrice, formatUSD, whatsappLink } from "@/lib/format";
+import { formatUSD, whatsappLink } from "@/lib/format";
 
 type Props = {
   box: GiftBox;
@@ -96,7 +96,10 @@ export function CollectionItemsPreview({ box }: { box: GiftBox }) {
             sizes="200px"
           />
           <p className="font-serif text-base leading-tight text-obsidian">{item.name}</p>
-          <p className="font-mono text-sm text-ink-mute mt-1">{formatDualPrice(item.price_usd, item.price_kes)}</p>
+          <p className="font-serif text-base text-obsidian mt-1">{formatUSD(item.price_usd)}</p>
+          <p className="font-mono text-xs text-ink-mute mt-0.5">
+            KES {item.price_kes.toLocaleString("en-KE")}
+          </p>
         </Link>
       ))}
     </div>

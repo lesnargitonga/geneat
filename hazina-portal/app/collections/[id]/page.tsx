@@ -6,7 +6,7 @@ import { GIFT_BOXES, getGiftBox, BRAND } from "@/lib/products";
 import { getTreasuresByIds } from "@/lib/treasures";
 import { CollectionItemsPreview } from "@/components/CollectionCard";
 import { CollectionCheckout } from "@/components/CollectionCheckout";
-import { formatDualPrice, whatsappLink } from "@/lib/format";
+import { formatDualPrice, formatUSD, whatsappLink } from "@/lib/format";
 import { StickyWhatsAppCTA } from "@/components/StickyWhatsAppCTA";
 import { SmartBackLink } from "@/components/SmartBackLink";
 
@@ -59,13 +59,13 @@ export default function CollectionDetailPage({ params }: Props) {
               <span className="label-mono">{box.sku} · {box.lead_time_hours}h lead</span>
               <h1 className="h-display text-4xl md:text-5xl text-obsidian mt-3">{box.name}</h1>
               <p className="text-ink-mute mt-2">{box.target}</p>
-              <div className="mt-4 inline-block border border-border bg-sand-dark/60 px-4 py-3">
-                <div className="font-mono text-2xl font-semibold text-bronze">
-                  USD {box.price_usd.toLocaleString("en-US")}
-                </div>
-                <div className="font-mono text-sm text-ink-soft">
+              <div className="mt-4">
+                <p className="font-serif text-3xl md:text-4xl text-obsidian leading-none">
+                  {formatUSD(box.price_usd)}
+                </p>
+                <p className="font-mono text-sm text-ink-mute mt-1">
                   KES {box.price_kes.toLocaleString("en-KE")}
-                </div>
+                </p>
               </div>
             </div>
 

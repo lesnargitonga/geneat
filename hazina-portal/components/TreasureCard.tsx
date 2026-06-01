@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CatalogImage } from "@/components/CatalogImage";
 import type { Treasure } from "@/lib/treasures";
 import { CATEGORY_LABELS } from "@/lib/treasures";
-import { formatDualPrice } from "@/lib/format";
+import { formatUSD } from "@/lib/format";
 
 type Props = {
   item: Treasure;
@@ -32,24 +32,30 @@ export function TreasureCard({ item, priority, compact, featured }: Props) {
       </div>
 
       <div className="p-5 md:p-6">
-        <div className="flex items-start justify-between gap-4 border-b border-border pb-4">
-          <h3
-            className={`font-serif text-obsidian leading-tight group-hover:text-bronze transition-colors ${
-              featured ? "text-2xl md:text-3xl" : compact ? "text-lg" : "text-xl md:text-2xl"
+        <h3
+          className={`font-serif text-obsidian leading-tight group-hover:text-bronze transition-colors ${
+            featured ? "text-2xl md:text-3xl" : compact ? "text-lg" : "text-xl md:text-2xl"
+          }`}
+        >
+          {item.name}
+        </h3>
+        <div className="mt-3 pb-4 border-b border-border">
+          <p
+            className={`font-serif text-obsidian leading-none ${
+              featured ? "text-2xl" : "text-xl"
             }`}
           >
-            {item.name}
-          </h3>
-          <span className="font-mono text-sm font-medium text-bronze shrink-0 pt-1 text-right leading-relaxed">
-            {formatDualPrice(item.price_usd, item.price_kes)}
-          </span>
+            {formatUSD(item.price_usd)}
+          </p>
+          <p className="font-mono text-sm text-ink-mute mt-1">
+            KES {item.price_kes.toLocaleString("en-KE")}
+          </p>
         </div>
         {!compact && (
           <div className="mt-4 max-h-24 local-scroll">
             <p className="text-ink-soft text-sm leading-relaxed">{item.description}</p>
           </div>
         )}
-        <span className="label-mono text-bronze mt-4 inline-block">View details →</span>
       </div>
     </Link>
   );
