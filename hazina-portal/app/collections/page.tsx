@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { BRAND, GIFT_BOXES } from "@/lib/products";
-import { TREASURES } from "@/lib/treasures";
 import { whatsappLink } from "@/lib/format";
 import { CollectionCard } from "@/components/CollectionCard";
 import { SmartBackLink } from "@/components/SmartBackLink";

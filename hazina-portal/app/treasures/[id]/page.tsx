@@ -35,7 +35,7 @@ export default function TreasureDetailPage({ params }: Props) {
   return (
     <>
       <div className="container-page pt-10 md:pt-16 pb-16">
-        <SmartBackLink fallbackHref="/treasures" className="label-mono text-bronze hover:text-obsidian">
+        <SmartBackLink fallbackHref="/build" className="label-mono text-bronze hover:text-obsidian">
           ← Back to browsing
         </SmartBackLink>
 

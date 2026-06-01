@@ -34,6 +34,7 @@ export default function SafariSouvenirsPage() {
 
   return (
     <>
+      {/* Split hero */}
       <section className="grid lg:grid-cols-2 min-h-[70vh]">
         <div className="relative bg-obsidian min-h-[520px] lg:min-h-[70vh]">
           <div className="absolute inset-0">
@@ -43,26 +44,46 @@ export default function SafariSouvenirsPage() {
               className="rounded-none !absolute inset-0 h-full w-full"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/10" />
+            {/* Left burn + base lift so product copy stays readable */}
+            <div
+              className="absolute inset-0 bg-gradient-to-r from-black/92 via-black/55 to-black/15 lg:from-black/95 lg:via-black/65 lg:to-transparent"
+              aria-hidden
+            />
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/35 to-transparent"
+              aria-hidden
+            />
           </div>
           <div className="relative z-10 flex min-h-[520px] lg:min-h-[70vh] items-end p-8 md:p-12">
-            <div className="max-w-md">
-              <span className="label-mono !text-white/60">Safari edit · 24h lead</span>
-              <h2 className="font-serif text-3xl md:text-4xl text-white mt-2">{kenyaEdit.name}</h2>
-              <div className="flex items-baseline gap-4 mt-3">
-                <span className="font-mono text-lg text-white">
+            <div className="max-w-md rounded-sm bg-black/45 backdrop-blur-[2px] p-6 md:p-8 border border-white/10">
+              <span className="label-mono !text-white/70">Safari edit · 24h lead</span>
+              <h2 className="font-serif text-3xl md:text-4xl text-white mt-2 drop-shadow-sm">
+                {kenyaEdit.name}
+              </h2>
+              <div className="mt-3">
+                <span className="font-mono text-lg text-white/95">
                   {formatDualPrice(kenyaEdit.price_usd, kenyaEdit.price_kes)}
                 </span>
               </div>
-              <p className="text-white/75 text-sm mt-4 max-w-md leading-relaxed">{kenyaEdit.contents}</p>
-              <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline border-white/40 text-white hover:bg-white hover:text-black mt-6">
-                Order on WhatsApp
-              </a>
+              <p className="text-white/85 text-sm mt-4 max-w-md leading-relaxed">{kenyaEdit.contents}</p>
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <Link href="/collections/kenya-edit" className="btn-bronze inline-flex justify-center">
+                  View The Kenya Edit
+                </Link>
+                <a
+                  href={wa}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-outline border-white/50 text-white hover:bg-white/10 hover:text-white inline-flex justify-center"
+                >
+                  Order on WhatsApp
+                </a>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="container-page lg:px-12 xl:px-16 py-12 md:py-16 lg:py-20 flex flex-col justify-center space-y-12">
+        <div className="container-page lg:px-12 xl:px-16 py-12 md:py-16 lg:py-20 flex flex-col justify-center space-y-10 border-l border-border/80">
           <header>
             <span className="chip-bronze">Nairobi curation</span>
             <h1 className="h-display text-4xl md:text-5xl lg:text-6xl mt-5 mb-6 leading-[1.05] text-obsidian">
@@ -91,43 +112,56 @@ export default function SafariSouvenirsPage() {
             <h3 className="font-serif text-xl text-obsidian">Collections for safari travellers</h3>
             <p className="text-ink-mute text-sm leading-relaxed">
               Browse our full{" "}
-              <Link href="/collections" className="text-bronze hover:text-bronze-dark transition-colors">
+              <Link href="/collections" className="text-bronze hover:text-obsidian transition-colors">
                 curated collections
               </Link>{" "}
               or{" "}
-              <Link href="/build" className="text-bronze hover:text-bronze-dark transition-colors">
+              <Link href="/build" className="text-bronze hover:text-obsidian transition-colors">
                 build a custom box
               </Link>{" "}
-              from individual treasures. Flying out soon? See our{" "}
-              <Link href="/last-minute-kenya-gifts-jkia" className="text-bronze hover:text-bronze-dark transition-colors">
-                JKIA express service
+              from individual treasures. Flying out soon? See the{" "}
+              <Link
+                href="/collections/departure-drop"
+                className="text-bronze hover:text-obsidian transition-colors"
+              >
+                JKIA Departure Drop
               </Link>
               .
-            </p>
-          </div>
-
-          <div className="relative aspect-[16/10] overflow-hidden shadow-soft">
-            <Image
-              src="/brand/safari-sunset.jpg"
-              alt="Kenyan safari at sunset — curated souvenirs for the journey home"
-              fill
-              className="object-cover contrast-[1.05]"
-              sizes="(max-width: 1024px) 100vw, 40vw"
-            />
-            <p className="absolute bottom-4 left-4 right-4 font-serif text-sand text-lg drop-shadow-lg">
-              Treasures with provenance — not generic curio-shop fare.
             </p>
           </div>
         </div>
       </section>
 
-      <section className="section-dark py-16 md:py-20">
+      {/* Full-width transition — photography only, caption below the fade */}
+      <section className="relative w-full min-h-[38vh] md:min-h-[46vh]">
+        <Image
+          src="/brand/safari-sunset.jpg"
+          alt="Kenyan safari at sunset — curated souvenirs for the journey home"
+          fill
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-black/40" aria-hidden />
+        <div
+          className="absolute inset-0 bg-gradient-to-b from-sand via-transparent to-sand"
+          aria-hidden
+        />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-sand to-transparent" aria-hidden />
+      </section>
+      <div className="bg-sand border-b border-border/60">
+        <p className="container-page py-8 md:py-10 font-serif text-2xl md:text-3xl text-obsidian text-center max-w-3xl mx-auto leading-snug">
+          Treasures with provenance — not generic curio-shop fare.
+        </p>
+      </div>
+
+      {/* Distinction — stays on sand to avoid another hard black band */}
+      <section className="bg-sand py-16 md:py-24">
         <div className="container-page">
-          <span className="label-mono text-sand/40">The distinction</span>
-          <h2 className="h-display text-3xl md:text-4xl mt-3 mb-10 text-sand">
+          <span className="label-mono">The distinction</span>
+          <h2 className="h-display text-3xl md:text-4xl mt-3 mb-10 text-obsidian">
             Why safari guests choose Hazina
           </h2>
-          <div className="grid md:grid-cols-3 gap-10">
+          <div className="grid md:grid-cols-3 gap-10 md:gap-12">
             <Reason
               title="Curated, never generic"
               body="Real Kenyan coffee, Maasai beadwork, and artisan leather — assembled with intention for European and US visitors."
@@ -144,23 +178,34 @@ export default function SafariSouvenirsPage() {
         </div>
       </section>
 
-      <div className="container-page py-16 text-center space-y-4">
-        <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark">
-          Order on WhatsApp
-        </a>
-        <p className="label-mono text-ink-mute">
-          Dispatch coordination 08:00–20:00 EAT · Custom boxes from 2 treasures
-        </p>
-      </div>
+      {/* Bronze close — softer than a black slab + white button */}
+      <section className="bg-bronze-dark py-16 md:py-20">
+        <div className="container-page text-center max-w-lg mx-auto space-y-6">
+          <p className="font-serif text-2xl md:text-3xl text-sand leading-snug">
+            When you are ready, we handle the rest.
+          </p>
+          <p className="text-sand/75 text-sm leading-relaxed">
+            Dispatch coordination 08:00–20:00 EAT · Custom boxes from 2 treasures
+          </p>
+          <a
+            href={wa}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-[44px] items-center justify-center px-8 py-3 font-mono text-sm font-medium uppercase tracking-[0.12em] border border-sand/60 text-sand transition-colors hover:bg-sand/10"
+          >
+            Order on WhatsApp
+          </a>
+        </div>
+      </section>
     </>
   );
 }
 
 function Reason({ title, body }: { title: string; body: string }) {
   return (
-    <div className="space-y-3 border-l-2 border-bronze/40 pl-6">
-      <h3 className="font-serif text-xl text-sand">{title}</h3>
-      <p className="text-sand/60 text-sm leading-relaxed">{body}</p>
+    <div className="space-y-3 border-l-2 border-bronze/50 pl-6">
+      <h3 className="font-serif text-xl text-obsidian">{title}</h3>
+      <p className="text-ink-mute text-sm leading-relaxed">{body}</p>
     </div>
   );
 }

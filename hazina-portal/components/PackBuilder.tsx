@@ -20,7 +20,20 @@ type DeliveryMode = "hotel" | "jkia" | "international";
 
 const BUILDABLE_TREASURES = TREASURES.filter((t) => t.category !== "packaging");
 
-export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }) {
+export function PackBuilder({
+  initialAddIds = [],
+  initialCategory,
+  initialQuery = "",
+}: {
+  initialAddIds?: string[];
+  initialCategory?: string;
+  initialQuery?: string;
+}) {
+  const validInitialCategory =
+    initialCategory && ALL_CATEGORIES.includes(initialCategory as TreasureCategory)
+      ? (initialCategory as TreasureCategory)
+      : "all";
+
   const [cart, setCart] = useState<Map<string, number>>(() => {
     const m = new Map<string, number>();
     for (const id of initialAddIds) {
@@ -28,8 +41,8 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
     }
     return m;
   });
-  const [category, setCategory] = useState<TreasureCategory | "all">("all");
-  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState<TreasureCategory | "all">(validInitialCategory);
+  const [query, setQuery] = useState(initialQuery);
   const [sort, setSort] = useState<"curated" | "price-low" | "price-high" | "fastest">("curated");
   const [includePackaging, setIncludePackaging] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState<"browse" | "delivery">("browse");

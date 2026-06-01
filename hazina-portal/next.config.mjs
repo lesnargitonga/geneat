@@ -13,6 +13,16 @@ const nextConfig = {
       { source: "/api/backend/:path*", destination: "http://localhost:8000/:path*" },
     ];
   },
+  async redirects() {
+    return [
+      { source: "/treasures", destination: "/build", permanent: true },
+      {
+        source: "/last-minute-kenya-gifts-jkia",
+        destination: "/collections/departure-drop",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
