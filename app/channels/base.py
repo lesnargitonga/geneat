@@ -1518,6 +1518,16 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     hazina_business_id=str(hazina_bp.id),
                 )
                 business_id = hazina_bp.id
+            elif not hazina_bp:
+                log.warning(
+                    "hazina_tenant_hint_without_configured_tenant",
+                    previous_business_id=str(business_id) if business_id else None,
+                )
+                return TurnResult(
+                    reply=_unresolved_business_slug_reply(HAZINA_NOMADS_SLUG),
+                    conversation_id=uuid.uuid4(),
+                    escalated=False,
+                )
 
         # If still unresolved, prefer this customer's existing active tenant
         # (makes /biz sticky across turns). Otherwise fall back to global

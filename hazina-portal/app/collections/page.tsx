@@ -6,7 +6,6 @@ import { whatsappLink } from "@/lib/format";
 import { CollectionCard } from "@/components/CollectionCard";
 import { SmartBackLink } from "@/components/SmartBackLink";
 import { StickyWhatsAppCTA } from "@/components/StickyWhatsAppCTA";
-import { TrustRow } from "@/components/TrustRow";
 
 export const metadata: Metadata = {
   title: "Gift Collections · Hazina Nomads",
@@ -20,34 +19,33 @@ export default function CollectionsPage() {
 
   return (
     <>
-      <header className="container-page pt-10 md:pt-16 mb-14 md:mb-20">
-        <span className="label-mono">Five signature collections · {TREASURES.length} individual treasures</span>
-        <h1 className="h-display text-5xl md:text-7xl mt-4 mb-5 text-obsidian">Collections</h1>
+      <header className="container-page pt-10 md:pt-16 mb-10 md:mb-12">
+        <span className="label-mono">Five ready-to-order boxes</span>
+        <h1 className="h-display text-5xl md:text-7xl mt-4 mb-5 text-obsidian">Choose a box</h1>
         <p className="text-ink-mute max-w-2xl text-lg leading-relaxed">
-          Start from a curator&apos;s assembly — or{" "}
+          Pick a finished collection, or{" "}
           <Link href="/build" className="text-bronze hover:text-obsidian underline-offset-4 hover:underline">
-            compose your own
+            choose individual treasures
           </Link>{" "}
-          from the atelier. Tap any collection to see exactly what&apos;s inside.
+          instead. Each card shows price, lead time, and what is inside.
         </p>
-        <TrustRow className="mt-8 max-w-3xl" />
       </header>
 
       <div className="container-page">
-        <div className="grid grid-cols-12 gap-x-6 gap-y-16 md:gap-y-20">
-          <div className="col-span-12 lg:col-span-7">
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
+          <div>
             <CollectionCard box={GIFT_BOXES[0]} priority />
           </div>
-          <div className="col-span-12 lg:col-span-5 lg:mt-24">
+          <div>
             <CollectionCard box={GIFT_BOXES[1]} />
           </div>
-          <div className="col-span-12 md:col-span-6 lg:col-span-5">
+          <div>
             <CollectionCard box={GIFT_BOXES[2]} />
           </div>
-          <div className="col-span-12 md:col-span-6 lg:col-span-7 lg:-mt-12">
+          <div>
             <CollectionCard box={GIFT_BOXES[3]} />
           </div>
-          <div className="col-span-12 lg:col-span-6 lg:col-start-4">
+          <div>
             <CollectionCard box={GIFT_BOXES[4]} />
           </div>
         </div>

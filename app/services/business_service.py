@@ -27,6 +27,8 @@ _HAZINA_TENANT_HINT_RE = re.compile(
     r"hazina(?:\s+nomads)?|"
     r"curated\s+treasures?|"
     r"gift\s+(?:box|boxes|collection|collections)|"
+    r"order\s+(?:a\s+)?gift\s+box|"
+    r"learn\s+more\s+about\s+hazina|"
     r"custom\s+box|"
     r"corporate\s+gifting|"
     r"(?:host|guide|travel\s+planner).{0,60}(?:gift|box|concierge|guest)|"

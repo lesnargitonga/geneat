@@ -1,10 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { BRAND, BRAND_IMAGES, GIFT_BOXES } from "@/lib/products";
+import { BRAND, BRAND_IMAGES } from "@/lib/products";
 import { whatsappLink } from "@/lib/format";
-import { TrustRow } from "@/components/TrustRow";
-import { CollectionCard } from "@/components/CollectionCard";
 
 export const metadata: Metadata = {
   title: "For Hosts & Guides · Hazina Nomads",
@@ -14,32 +12,35 @@ export const metadata: Metadata = {
 
 export default function HostsGuidesPage() {
   const partnerMessage =
-    "Hello Hazina Nomads — I host or guide travellers in Nairobi and would like to offer curated gift boxes to my guests.";
+    "Hello Hazina Nomads — I want to join the host/guide referral program.";
   const wa = whatsappLink(BRAND.whatsapp, partnerMessage);
 
   return (
     <>
-      <section className="container-page pt-10 md:pt-16 pb-16 md:pb-20">
+      <section className="container-page pt-10 md:pt-16 pb-12 md:pb-16">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          <div className="space-y-7">
-            <span className="label-mono">For hosts &amp; guides</span>
+          <div className="space-y-6">
+            <span className="label-mono">For hosts, guides, drivers &amp; agents</span>
             <h1 className="h-display text-5xl md:text-7xl leading-[0.95] text-obsidian">
-              Add a premium Kenyan gift moment to every stay.
+              Earn when guests buy premium Kenyan gifts.
             </h1>
             <p className="text-lg text-ink-mute leading-relaxed max-w-xl">
-              Hazina gives hotels, Airbnb hosts, safari guides, drivers, and travel planners a
-              polished gift concierge without carrying stock. Guests order on WhatsApp; we curate,
-              pack, collect payment, and deliver to the hotel, lobby, vehicle handoff, or JKIA.
+              Share a QR or WhatsApp link. We curate, collect payment, package, and deliver.
+              You earn a commission without holding stock.
             </p>
+            <div className="grid grid-cols-3 border border-border">
+              <Stat value="15%" label="host commission" />
+              <Stat value="KES / USD" label="guest payment" />
+              <Stat value="0 stock" label="for partners" />
+            </div>
             <div className="flex flex-wrap gap-3">
               <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark">
-                Partner on WhatsApp
+                Join referral program
               </a>
               <Link href="/collections" className="btn-outline">
-                View collections
+                See guest offer
               </Link>
             </div>
-            <TrustRow />
           </div>
 
           <div className="relative aspect-[4/5] overflow-hidden shadow-editorial">
@@ -60,64 +61,53 @@ export default function HostsGuidesPage() {
         </div>
       </section>
 
-      <section className="section-dark py-16 md:py-20">
+      <section className="section-dark py-14 md:py-16">
         <div className="container-page">
-          <div className="max-w-2xl mb-10">
-            <span className="label-mono text-sand/40">How the partnership works</span>
-            <h2 className="h-display text-3xl md:text-5xl text-sand mt-3">
-              Designed for real guest operations
-            </h2>
+          <div className="max-w-2xl mb-8">
+            <span className="label-mono text-sand/40">Who it is for</span>
+            <h2 className="h-display text-3xl md:text-5xl text-sand mt-3">Built around tourist moments</h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            <PartnerStep
-              title="Share a link or QR"
-              body="Place Hazina on a hotel card, welcome note, safari itinerary, WhatsApp message, or concierge desk QR."
-            />
-            <PartnerStep
-              title="Guest orders directly"
-              body="The traveller chooses a collection, pays in USD or KES, and gives hotel or flight details in the checkout workflow."
-            />
-            <PartnerStep
-              title="We deliver discreetly"
-              body="Hazina handles packaging, dispatch, WhatsApp updates, and handoff timing so your team stays light."
-            />
+          <div className="grid md:grid-cols-4 gap-4">
+            <PartnerCard title="Airbnb hosts" body="Welcome-card QR in apartments across Kilimani, Westlands, Karen." />
+            <PartnerCard title="Safari guides" body="Offer gifts on the drive back to Nairobi or before JKIA." />
+            <PartnerCard title="Drivers" body="Commission on last-minute orders from guests heading to flights." />
+            <PartnerCard title="Travel agents" body="Add curated Kenyan gifts to itineraries and honeymoon packs." />
           </div>
         </div>
       </section>
 
-      <section className="container-page py-16 md:py-24">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-10">
+      <section className="container-page py-14 md:py-20">
+        <div className="grid lg:grid-cols-[0.8fr,1.2fr] gap-10 lg:gap-14">
           <div>
-            <span className="label-mono">Host-friendly picks</span>
-            <h2 className="h-display text-3xl md:text-5xl text-obsidian mt-2">
-              Easy recommendations for guests
-            </h2>
+            <span className="label-mono">How money flows</span>
+            <h2 className="h-display text-3xl md:text-5xl text-obsidian mt-2">Simple commission model.</h2>
+            <p className="text-ink-mute mt-4 leading-relaxed">
+              Each partner gets a referral code or QR. When a guest buys through it, the order is tagged
+              and commission is logged for payout.
+            </p>
           </div>
-          <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark md:self-end">
-            Partner on WhatsApp
-          </a>
-        </div>
-        <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-          <CollectionCard box={GIFT_BOXES[0]} priority />
-          <CollectionCard box={GIFT_BOXES[3]} />
-          <CollectionCard box={GIFT_BOXES[4]} />
+          <div className="grid md:grid-cols-3 border border-border">
+            <PayoutStep n="01" title="Share code" body="QR card, WhatsApp link, or printed itinerary." />
+            <PayoutStep n="02" title="Guest pays" body="USD card or KES M-Pesa handled by Hazina." />
+            <PayoutStep n="03" title="You earn" body="15% host commission on eligible gift-box sales." />
+          </div>
         </div>
       </section>
 
       <section className="container-page pb-20 md:pb-24">
         <div className="border border-border bg-sand-dark/60 p-6 md:p-10 grid md:grid-cols-[1.3fr,0.7fr] gap-8 items-center">
           <div>
-            <span className="label-mono">Pilot materials</span>
+            <span className="label-mono">Partner kit</span>
             <h2 className="font-serif text-3xl text-obsidian mt-2">
-              QR cards, guest scripts, and referral tracking can be prepared per host.
+              QR cards, guest scripts, and referral tracking prepared per partner.
             </h2>
             <p className="text-ink-mute mt-4 leading-relaxed">
-              We can leave blank visual slots for your property photos, safari vehicle shots, or
-              welcome-desk photography, then wire the page to your preferred handoff flow.
+              We prepare the guest-facing message, your referral code, and the handoff flow.
+              You introduce the option; Hazina handles the rest.
             </p>
           </div>
           <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline md:justify-self-end">
-            Request pilot pack
+            Request partner kit
           </a>
         </div>
       </section>
@@ -125,11 +115,30 @@ export default function HostsGuidesPage() {
   );
 }
 
-function PartnerStep({ title, body }: { title: string; body: string }) {
+function Stat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="border-l-2 border-bronze/50 pl-6">
+    <div className="p-4 border-r border-border last:border-r-0">
+      <p className="font-serif text-2xl text-obsidian">{value}</p>
+      <p className="label-mono mt-1">{label}</p>
+    </div>
+  );
+}
+
+function PartnerCard({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="border border-sand/15 p-5">
       <h3 className="font-serif text-2xl text-sand">{title}</h3>
-      <p className="text-sand/65 text-sm md:text-base leading-relaxed mt-3">{body}</p>
+      <p className="text-sand/65 text-sm leading-relaxed mt-3">{body}</p>
+    </div>
+  );
+}
+
+function PayoutStep({ n, title, body }: { n: string; title: string; body: string }) {
+  return (
+    <div className="p-5 md:p-6 border-b md:border-b-0 md:border-r border-border last:border-0">
+      <p className="label-mono text-bronze">{n}</p>
+      <h3 className="font-serif text-2xl text-obsidian mt-3">{title}</h3>
+      <p className="text-sm text-ink-mute leading-relaxed mt-2">{body}</p>
     </div>
   );
 }

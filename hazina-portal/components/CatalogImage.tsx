@@ -33,7 +33,7 @@ export function CatalogImage({
           src={src!}
           alt={alt || "Hazina Nomads product photograph"}
           fill
-          className={imageClassName || "object-contain object-center"}
+          className={imageClassName || "object-cover object-center"}
           sizes={sizes}
           priority={priority}
           onError={() => setFailed(true)}

@@ -29,7 +29,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
   const [category, setCategory] = useState<TreasureCategory | "all">("all");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<"curated" | "price-low" | "price-high" | "fastest">("curated");
-  const [includePackaging, setIncludePackaging] = useState(true);
+  const [includePackaging, setIncludePackaging] = useState(false);
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>("hotel");
   const [deliveryLocation, setDeliveryLocation] = useState("");
   const [deliveryWindow, setDeliveryWindow] = useState("");
@@ -126,7 +126,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
   };
 
   const validationHints: string[] = [];
-  if (!canOrder) validationHints.push(`Select at least ${MIN_CUSTOM_ITEMS} items`);
+  if (!canOrder) validationHints.push(`Choose ${MIN_CUSTOM_ITEMS} or more treasures`);
   if (deliveryLocation.trim().length < 6) validationHints.push(`Delivery location: ${deliveryLocationPlaceholder(deliveryMode)}`);
   if (deliveryWindow.trim().length < 3) validationHints.push(`Delivery window: ${deliveryWindowPlaceholder(deliveryMode)}`);
   if (contact.trim().length < 5) validationHints.push(paymentCurrency === "USD" ? "Contact: email or WhatsApp for checkout link" : "Contact: M-Pesa phone number");
@@ -199,10 +199,10 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
       <aside className="lg:col-span-5">
         <div className="lg:sticky lg:top-24 border border-border bg-sand p-6 md:p-8 space-y-6">
           <div>
-            <span className="label-mono">Your composition</span>
-            <h2 className="font-serif text-3xl text-obsidian mt-2">Build your box</h2>
+            <span className="label-mono">Your order</span>
+            <h2 className="font-serif text-3xl text-obsidian mt-2">Choose treasures</h2>
             <p className="text-ink-mute text-sm mt-2 leading-relaxed">
-              Select at least {MIN_CUSTOM_ITEMS} treasures. We assemble, wrap, and deliver — hotel, JKIA, or DHL export quote.
+              Pick what you want. Add a gift box only if you need presentation packaging.
             </p>
           </div>
 
@@ -252,7 +252,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
             </button>
           )}
 
-          <label className="flex items-center gap-3 cursor-pointer">
+          <label className="flex items-center gap-3 cursor-pointer border border-border bg-sand-dark/40 p-3">
             <input
               type="checkbox"
               checked={includePackaging}
@@ -260,7 +260,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
               className="accent-obsidian"
             />
             <span className="text-sm text-ink-mute">
-              Premium packaging &amp; story card (+{formatDualPrice(PACKAGING_FEE_USD, PACKAGING_FEE_KES)})
+              Add premium gift box &amp; story card (+{formatDualPrice(PACKAGING_FEE_USD, PACKAGING_FEE_KES)})
             </span>
           </label>
 
@@ -276,9 +276,9 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
 
           <div className="border-t border-border pt-5 space-y-4">
             <div>
-              <span className="label-mono">Checkout workflow</span>
+              <span className="label-mono">Delivery details</span>
               <p className="text-sm text-ink-mute mt-1 leading-relaxed">
-                Complete these details and the AI checkout will create the order instead of sending a vague handoff.
+                Fill this once. The concierge creates the order and starts payment.
               </p>
             </div>
 
@@ -351,7 +351,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
 
           {canCheckout ? (
             <button type="button" onClick={startAutomatedCheckout} className="btn-dark w-full">
-              Start automated checkout
+              Create order
             </button>
           ) : (
             <button type="button" disabled className="btn-dark w-full opacity-40">
@@ -376,7 +376,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
 
           {validationHints.length > 0 && (
             <div className="mt-3 text-sm text-ink-mute">
-              <p className="font-mono text-xs text-ink-mute">Missing information to start automated checkout:</p>
+              <p className="font-mono text-xs text-ink-mute">Needed before checkout:</p>
               <ul className="list-disc list-inside mt-1">
                 {validationHints.map((h) => (
                   <li key={h}>{h}</li>

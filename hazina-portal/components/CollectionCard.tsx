@@ -22,8 +22,8 @@ export function CollectionCard({ box, className = "", priority }: Props) {
           <CatalogImage
             src={box.image}
             alt={box.imageAlt || box.name}
-            className="aspect-[5/4] sm:aspect-[4/5]"
-            imageClassName="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+            className="aspect-[4/3] bg-sand-dark"
+            imageClassName="object-contain transition-transform duration-700 group-hover:scale-[1.02]"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
             priority={priority}
           />
@@ -55,8 +55,6 @@ export function CollectionCard({ box, className = "", priority }: Props) {
           </div>
         </div>
 
-        <p className="text-ink-soft text-sm mt-4 leading-relaxed line-clamp-2">{box.contents}</p>
-
         {box.personalization && (
           <p className="label-mono text-bronze mt-2">
             {box.personalization_note || "Personalisation available"}
@@ -65,10 +63,10 @@ export function CollectionCard({ box, className = "", priority }: Props) {
 
         <div className="flex flex-wrap gap-3 mt-6">
           <Link href={`/collections/${box.id}`} className="btn-outline">
-            View details
+            See inside
           </Link>
           <Link href={`/collections/${box.id}#checkout`} className="btn-ghost">
-            Start checkout
+            Order
           </Link>
         </div>
       </div>

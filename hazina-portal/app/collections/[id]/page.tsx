@@ -9,7 +9,6 @@ import { CollectionCheckout } from "@/components/CollectionCheckout";
 import { formatDualPrice, whatsappLink } from "@/lib/format";
 import { StickyWhatsAppCTA } from "@/components/StickyWhatsAppCTA";
 import { SmartBackLink } from "@/components/SmartBackLink";
-import { TrustRow } from "@/components/TrustRow";
 
 type Props = { params: { id: string } };
 
@@ -81,13 +80,12 @@ export default function CollectionDetailPage({ params }: Props) {
 
             <div className="flex flex-wrap gap-4">
               <a href="#checkout" className="btn-dark">
-                Start checkout
+                Order this box
               </a>
               <Link href="/build" className="btn-outline">
-                Build your own instead
+                Pick individual items
               </Link>
             </div>
-            <TrustRow />
 
             <CollectionCheckout box={box} />
           </div>

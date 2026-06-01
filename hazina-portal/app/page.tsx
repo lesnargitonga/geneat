@@ -8,7 +8,6 @@ import { ChatWidget } from "@/components/ChatWidget";
 import { CollectionCard } from "@/components/CollectionCard";
 import { ConciergePromptButton } from "@/components/ConciergePromptButton";
 import { TreasureCard } from "@/components/TreasureCard";
-import { TrustRow } from "@/components/TrustRow";
 
 export default function HomePage() {
   const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like help choosing a gift box.");
@@ -30,32 +29,27 @@ export default function HomePage() {
       <section className="container-page pt-10 md:pt-16 pb-16 md:pb-24">
         <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
           <div className="space-y-8">
-            <span className="label-mono">Nairobi · Hotel · JKIA · DHL export quote</span>
+            <span className="label-mono">Nairobi hotel · JKIA · DHL quote</span>
             <h1 className="h-display text-5xl md:text-7xl lg:text-8xl leading-[0.95] text-obsidian">
               Curated treasures
               <br />
               <span className="italic text-bronze">for the modern nomad.</span>
             </h1>
             <p className="text-lg text-ink-mute max-w-lg leading-relaxed">
-              Premium Kenyan gift boxes, coordinated to your hotel suite, JKIA
-              terminal, or international address by DHL quote. One discreet
-              WhatsApp exchange — no market crowds, no last-minute compromise.
+              Premium Kenyan gift boxes without the market run. Choose a ready box,
+              pick individual treasures, or ask the concierge to handle it.
             </p>
             <div className="flex flex-wrap gap-4">
               <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark">
                 Order on WhatsApp
               </a>
-              <ConciergePromptButton
-                prompt="Show me the best Hazina gift box for a traveller leaving Nairobi soon."
-                className="btn-bronze"
-              >
-                Ask in live chat
-              </ConciergePromptButton>
+              <Link href="/collections" className="btn-bronze">
+                Choose a ready box
+              </Link>
               <Link href="/build" className="btn-outline">
-                Build your box
+                Pick items
               </Link>
             </div>
-            <TrustRow className="max-w-2xl" />
             <div className="grid grid-cols-3 gap-4 pt-2">
               <Stat value={String(TREASURES.length)} label="individual treasures" />
               <Stat value="5" label="curated collections" />
@@ -64,51 +58,44 @@ export default function HomePage() {
           </div>
 
           <div className="relative">
-            <div className="relative aspect-[4/5] overflow-hidden shadow-editorial">
+            <div className="relative aspect-[4/3] overflow-hidden border border-border bg-sand-dark shadow-editorial">
               <CatalogImage
                 src={heroBox.image}
                 alt={heroBox.imageAlt || heroBox.name}
                 className="absolute inset-0"
+                imageClassName="object-contain object-center"
                 sizes="(max-width: 768px) 100vw, 480px"
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-              <div className="absolute bottom-6 left-6 right-6">
-                <p className="font-serif text-2xl text-sand">{heroBox.name}</p>
-                <p className="font-mono text-sm text-sand/80 mt-1">
-                  {formatDualPrice(heroBox.price_usd, heroBox.price_kes)}
-                </p>
-              </div>
+            </div>
+            <div className="mt-4 flex items-center justify-between gap-4">
+              <p className="font-serif text-2xl text-obsidian">{heroBox.name}</p>
+              <p className="font-mono text-sm text-bronze text-right">
+                {formatDualPrice(heroBox.price_usd, heroBox.price_kes)}
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* How it works — dark section */}
-      <section className="section-dark py-20 md:py-28">
+      {/* Direct paths */}
+      <section className="section-dark py-14 md:py-16">
         <div className="container-page">
-          <div className="max-w-xl mb-14">
-            <span className="label-mono text-sand/40">The experience</span>
-            <h2 className="h-display text-4xl md:text-5xl mt-3 text-sand">How we serve you</h2>
-            <p className="text-sand/60 mt-4 leading-relaxed">
-              No app to download. A calm, high-end concierge exchange — entirely on WhatsApp.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-10 md:gap-12">
+          <div className="grid md:grid-cols-3 gap-8">
             <Step
               n="01"
-              title="Browse or build"
-              body="Choose a curated collection, explore individual treasures, or compose your own box from our atelier."
+              title="Choose"
+              body="Pick a ready box or individual treasures."
             />
             <Step
               n="02"
-              title="Confirm your coordinates"
-              body="Share your hotel room, JKIA terminal, or international delivery address. We orchestrate the rest."
+              title="Confirm"
+              body="Send hotel, JKIA, or export details once."
             />
             <Step
               n="03"
-              title="Receive with ease"
-              body="M-Pesa or USD card. Your box arrives beautifully packaged, locally or by insured export quote."
+              title="Receive"
+              body="Pay by USD card or M-Pesa. We deliver."
             />
           </div>
         </div>
@@ -120,20 +107,19 @@ export default function HomePage() {
           <div className="lg:col-span-7">
             <span className="label-mono">The atelier</span>
             <h2 className="h-display text-4xl md:text-6xl mt-3 text-obsidian leading-[0.95]">
-              Compose from {TREASURES.length} treasures
+              Pick individual treasures
             </h2>
           </div>
           <div className="lg:col-span-5 space-y-5">
             <p className="text-ink-mute leading-relaxed">
-              Real photography from our sourcing runs — not stock imagery. View each piece,
-              then build a box that reflects your journey.
+              See the item clearly, choose quantity, and add a gift box only if you want packaging.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link href="/treasures" className="btn-outline">
                 Browse atelier
               </Link>
               <Link href="/build" className="btn-dark">
-                Build your box
+                Pick items
               </Link>
             </div>
           </div>
