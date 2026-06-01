@@ -6,12 +6,17 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from app.core.config import get_settings
 from app.services import ops_automation as ops
 
 
 @pytest.fixture
 def admin_env(monkeypatch):
+    get_settings.cache_clear()
     monkeypatch.setenv("ADMIN_WA_NUMBERS", "+254700000099")
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()
 
 
 @pytest.mark.asyncio

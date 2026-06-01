@@ -13,7 +13,8 @@
 
 | Area | Code | Live | Blocker / note |
 |---|---|---|---|
-| Shared API | ✅ | 🟢 | `GET /version` for deploy drift |
+| Shared API | ✅ | 🟢 | `api.lesnarai.co.ke`; `make doctor-hazina-live` passed on 2026-06-01 |
+| Dedicated Hazina API service | ✅ | ◐ | `hazina-api.onrender.com` is same code but currently repair-gated by pgvector drift until migration `0013` deploys |
 | Tenant `hazina-nomads` | ✅ | ◐ | `DEFAULT_BUSINESS_SLUG`; Meta `phone_number_id` |
 | Gen-Eat portal | ✅ | 🟢 | `geneat.lesnarai.co.ke` |
 | Hazina portal | ✅ | ⬜ | `hazina.lesnarai.co.ke` DNS unverified 2026-06-01; local `:3004` |
@@ -24,7 +25,7 @@
 | Private sourcing brief `/build` | ✅ | ◐ | Monograms + bespoke; may need push/deploy |
 | Order tracking `HN-ORD-*?token=` | ✅ | ◐ | Needs `PUBLIC_HAZINA_PORTAL_URL` |
 | Ghost Ops `!dispatch` / `!delivered` | ✅ | ⬜ | `ADMIN_WA_NUMBERS` on API |
-| RAG / menu_photos | ✅ | ⬜ | Prod re-seed after catalog change |
+| RAG / menu_photos | ✅ | ◐ | Shared API has pgvector + KB rows; dedicated Hazina DB needs `0013` repair + re-seed |
 | Courier integration | ⬜ | ⬜ | Manual ops only |
 | Partner payouts | ⬜ | ⬜ | Dashboard placeholder |
 | DHL live rates | ⬜ | ⬜ | Stub in `app/ai/tools.py` |
@@ -60,7 +61,9 @@ Portals (/api/chat, /api/orders) + Meta WA webhook
   → IntaSend (KES M-Pesa + card-link fallback) · Paystack (preferred USD card)
 ```
 
-**No separate Hazina API.**
+**No separate Hazina codebase.** The dedicated `hazina-api` Render service runs
+the same FastAPI app and must pass the same `/health/deep` + Hazina doctor
+checks before it becomes the public API target.
 
 ---
 
@@ -227,10 +230,12 @@ make dev              # API :8000
 make dev-hazina       # portal :3004
 make preview-hazina   # prod build — CSS QA
 make test-hazina
+make doctor-hazina-live   # safe no-money Hazina check against api.lesnarai.co.ke
+make doctor-hazina-api    # same check against hazina-api.onrender.com
 PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py
 ```
 
-**Deploy:** `alembic upgrade head` → seed → `make test-hazina` → portal build → push → check `/version` → secrets below → smoke order + brief + tracking + `!dispatch`.
+**Deploy:** `alembic upgrade head` → seed → `make test-hazina` → portal build → push → check `/version` → `make doctor-hazina-live` → secrets below → smoke order + brief + tracking + `!dispatch`.
 
 ### Env (minimum)
 

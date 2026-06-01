@@ -1110,8 +1110,14 @@ Routes through `resolve_payment_service(currency=…)`.
 
 Current local verification on **2026-06-01**:
 
-- `make test-hazina` → **63 passed**, 1 warning
-- `make test-fast` → **167 passed**, 1 warning (broader suite)
+- `make test-hazina` → **76 passed**, 1 warning
+- `make test-fast` → **172 passed**, 1 warning (broader suite)
+- `make doctor-hazina-live` → passed on 2026-06-01 against `api.lesnarai.co.ke`
+  with no payment confirmation; catalog reply, checkout start, and name →
+  delivery step all passed
+- `make doctor-hazina-api` → failed before the `0013_repair_pgvector_extension`
+  deploy because `hazina-api.onrender.com` had `pgvector_extension_missing` and
+  `/mock/message` returned 500 despite `/readyz` being green
 - `cd hazina-portal && npm run typecheck` → passed
 - `cd hazina-portal && npm run lint` → passed
 - `cd hazina-portal && npm run build` → passed, **51 routes** (static pages + API routes + middleware)
@@ -1126,6 +1132,10 @@ make test-hazina
 
 # broader fast confidence suite
 make test-fast
+
+# safe hosted Hazina checks; these do not trigger STK/card payment
+make doctor-hazina-live
+make doctor-hazina-api
 
 # portal
 cd hazina-portal && npm run typecheck && npm run lint && npm run build
@@ -1224,6 +1234,9 @@ Use before any production tag or Hazina cutover (§8.6).
 - [ ] Run `alembic upgrade head` in staging
 - [ ] Run seed: `PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py`
 - [ ] Run Hazina pytest suite (§13.1)
+- [ ] Run `make doctor-hazina-live`
+- [ ] Run `make doctor-hazina-api` before pointing public Hazina traffic at the
+      dedicated API service
 - [ ] Run `make eval-whatsapp-local`
 - [ ] `cd hazina-portal && npm run build` — confirm 51 routes (§9.1)
 - [ ] Confirm redirects: `/treasures` → `/build`, JKIA URL → departure-drop

@@ -211,8 +211,8 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `167 passed, 1 warning` via `make test-fast` |
-| Hazina focused suite | `63 passed, 1 warning` via `make test-hazina` |
+| Fast focused backend suite | `172 passed, 1 warning` via `make test-fast` |
+| Hazina focused suite | `76 passed, 1 warning` via `make test-hazina` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -600,6 +600,7 @@ Current Alembic head:
 | `0010_enforce_embedding_768` | enforces `vector(768)` |
 | `0011_payment_locking_and_job_ttl` | optimistic payment status versioning and background job TTL |
 | `0012_add_outbox_table` | durable outbox table for outbound webhook delivery |
+| `0013_repair_pgvector_extension` | idempotent pgvector extension repair for managed DB drift |
 
 Current schema truth:
 
@@ -611,6 +612,9 @@ Current schema truth:
 - `background_jobs.expires_at` lets stale jobs fail closed instead of retrying
   forever,
 - `outbox` exists for durable outbound webhook delivery attempts,
+- `0013_repair_pgvector_extension` exists because a managed Hazina DB can pass
+  `/readyz` while still missing the `vector` extension needed by RAG and tenant
+  auto-provisioning,
 - doctor DB introspection expects the current Alembic head when local DB checks
   are enabled.
 
@@ -1588,6 +1592,8 @@ Current developer/operator commands:
 ```bash
 make doctor-local
 make doctor-live
+make doctor-hazina-live
+make doctor-hazina-api
 make smoke-providers
 make test-fast
 python scripts/tenant_go_live_check.py --slug <business-slug> --chat
@@ -1602,6 +1608,13 @@ Meaning:
   create false alarms, and a slow `/readyz` response is tolerated when
   `/health/deep` proves DB and Redis are healthy
 - `smoke-providers` probes provider credential/path sanity
+- `doctor-hazina-live` safely checks Hazina catalog routing and guided checkout
+  on `api.lesnarai.co.ke` without confirming an order or triggering money
+  movement
+- `doctor-hazina-api` runs the same check against the dedicated
+  `hazina-api.onrender.com` service; as of the pre-fix probe on 2026-06-01 it
+  exposed `pgvector_extension_missing` plus `/mock/message` 500s, so this gate
+  must pass before routing public traffic there
 - `test-fast` includes the focused payment-race, Redis fail-closed, safety,
   fallback, and webhook-signature regressions that protect the live demo path
 - `tenant_go_live_check.py` is the reusable onboarding gate for a new café; it
@@ -2241,6 +2254,7 @@ Current scripts and helpers:
 | `scripts/flush_outbox.py` | one-shot outbox row processor |
 | `scripts/list_tables.py` | lists public Postgres tables using `DATABASE_URL_SYNC` or `DATABASE_URL` |
 | `scripts/load_test_mock.py` | concurrent `/mock/message` load test helper |
+| `scripts/hazina_live_check.py` | safe no-money Hazina live doctor for catalog routing, deep health, and checkout step progression |
 | `scripts/eval_whatsapp_reply_matrix.py` | safe local/live WhatsApp reply regression matrix with shared invariants and per-tenant fixtures |
 | `scripts/pre_demo_battery.py` | no-money pre-demo battery combining health, reply matrix, stateful, and burst-load checks |
 | `scripts/load_test_sample.py` | small local load-test helper |
@@ -2263,6 +2277,9 @@ Current high-value scripts:
 - `load_test_mock.py` is the quickest local latency sanity check for the
   mock/web-chat path after tuning LLM and RAG timeouts; it uses unique phones
   by default and has `--same-phone` for session-lock stress tests
+- `hazina_live_check.py` is the focused Hazina live gate; it verifies no café
+  leakage, checks pgvector via `/health/deep`, and proves checkout starts with
+  one question at a time without starting payment
 - `eval_whatsapp_reply_matrix.py` is the professional pre-demo reply gate for
   menu, payment-status, photo, and policy-leak regressions without triggering
   live money movement; it runs all four demo cafés by default and can be
@@ -2315,7 +2332,7 @@ make test-fast
 Current result:
 
 ```text
-167 passed, 1 warning
+172 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -2338,6 +2355,7 @@ Current result:
 
 ```bash
 make doctor-live
+make doctor-hazina-live
 ```
 
 Current result:
@@ -2350,6 +2368,16 @@ This is still the main high-signal smoke test for the hosted demo stack. The
 Meta verify handshake uses `GENEAT_LIVE_META_WA_VERIFY_TOKEN` when you export
 it locally; otherwise the check is skipped because the hosted Render token is
 intentionally hidden.
+
+Current Hazina no-money doctor truth on 2026-06-01:
+
+```text
+make doctor-hazina-live
+# passed against https://api.lesnarai.co.ke
+
+make doctor-hazina-api
+# failed before migration 0013 deploy: pgvector missing and /mock/message 500
+```
 
 Additional safe no-money WhatsApp reply gate:
 

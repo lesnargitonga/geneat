@@ -1,6 +1,6 @@
 PYTHON ?= ./.venv/bin/python
 
-.PHONY: dev dev-hazina preview-hazina test-fast test-hazina doctor-local doctor-live smoke-providers publish-demo-photos bootstrap-demo generate-lily-training eval-whatsapp-live eval-whatsapp-local pre-demo-local pre-demo-live
+.PHONY: dev dev-hazina preview-hazina test-fast test-hazina doctor-local doctor-live doctor-hazina-live doctor-hazina-api smoke-providers publish-demo-photos bootstrap-demo generate-lily-training eval-whatsapp-live eval-whatsapp-local pre-demo-local pre-demo-live
 
 dev-hazina:
 	./scripts/dev-hazina.sh --background
@@ -25,6 +25,12 @@ doctor-local:
 
 doctor-live:
 	$(PYTHON) scripts/lily_pond_demo_check.py --live --chat --photo
+
+doctor-hazina-live:
+	$(PYTHON) scripts/hazina_live_check.py
+
+doctor-hazina-api:
+	$(PYTHON) scripts/hazina_live_check.py --hazina-api
 
 smoke-providers:
 	$(PYTHON) scripts/smoke_providers.py
