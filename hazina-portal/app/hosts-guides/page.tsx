@@ -1,20 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { BRAND, BRAND_IMAGES } from "@/lib/products";
-import { whatsappLink } from "@/lib/format";
+import { BRAND_IMAGES } from "@/lib/products";
 
 export const metadata: Metadata = {
   title: "For Hosts & Guides · Hazina Nomads",
   description:
     "A premium Kenyan gift concierge for hotels, Airbnb hosts, safari guides, and travel planners serving guests in Nairobi.",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: { index: false, follow: false },
+  },
 };
 
 export default function HostsGuidesPage() {
-  const partnerMessage =
-    "Hello Hazina Nomads — I want to join the host/guide referral program.";
-  const wa = whatsappLink(BRAND.whatsapp, partnerMessage);
-
   return (
     <>
       <section className="container-page pt-10 md:pt-16 pb-12 md:pb-16">
@@ -34,9 +34,9 @@ export default function HostsGuidesPage() {
               <Stat value="0 stock" label="for partners" />
             </div>
             <div className="flex flex-wrap gap-3">
-              <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark">
+              <Link href="/partners/login" className="btn-dark">
                 Join referral program
-              </a>
+              </Link>
               <Link href="/collections" className="btn-outline">
                 See guest offer
               </Link>
@@ -106,9 +106,9 @@ export default function HostsGuidesPage() {
               You introduce the option; Hazina handles the rest.
             </p>
           </div>
-          <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline md:justify-self-end">
-            Request partner kit
-          </a>
+          <Link href="/partners/login" className="btn-outline md:justify-self-end">
+            Partner login
+          </Link>
         </div>
       </section>
     </>

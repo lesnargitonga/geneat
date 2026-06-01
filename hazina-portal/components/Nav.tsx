@@ -11,7 +11,6 @@ const NAV = [
   { href: "/collections", label: "Collections" },
   { href: "/build", label: "Build" },
   { href: "/premium-safari-souvenirs-nairobi", label: "Safari" },
-  { href: "/hosts-guides", label: "Hosts" },
   { href: "/about", label: "About" },
 ];
 

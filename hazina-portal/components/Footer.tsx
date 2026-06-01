@@ -50,11 +50,6 @@ export function Footer() {
               </Link>
             </li>
             <li>
-              <Link className="hover:text-sand transition-colors" href="/hosts-guides">
-                For hosts &amp; guides
-              </Link>
-            </li>
-            <li>
               <Link className="hover:text-sand transition-colors" href="/about">
                 Our story
               </Link>
