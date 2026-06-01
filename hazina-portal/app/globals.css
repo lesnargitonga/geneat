@@ -187,23 +187,24 @@
            focus:border-obsidian focus:bg-obsidian/[0.06];
   }
 
-  /* Product photos — day: multiply knocks white edges into sand; night: normal (multiply crushes photos) */
+  /*
+   * Product photos: fixed cream lightbox (never theme sand / never multiply).
+   * White or light JPEG edges sit on the same color — product pixels stay untouched.
+   */
   .catalog-photo-frame {
-    @apply relative isolate bg-sand;
-  }
-
-  .catalog-photo-blend {
-    @apply relative z-[1];
-    mix-blend-mode: multiply;
+    @apply relative overflow-hidden;
+    background-color: #f5f0e8;
   }
 
   :root[data-theme="night"] .catalog-photo-frame {
-    background-color: rgb(var(--color-sand-dark));
+    background-color: #f0ebe3;
+    border: 1px solid rgb(var(--color-border));
   }
 
-  :root[data-theme="night"] .catalog-photo-blend {
+  .catalog-photo-img {
+    @apply relative z-[1] h-full w-full;
     mix-blend-mode: normal;
-    filter: brightness(1.06) contrast(1.03);
+    opacity: 1;
   }
 
   .catalog-tile-image {

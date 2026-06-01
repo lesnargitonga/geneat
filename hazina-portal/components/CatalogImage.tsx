@@ -13,8 +13,8 @@ type Props = {
   imageClassName?: string;
   sizes?: string;
   /**
-   * warm = theme sand frame; multiply blend in day mode only (night keeps full photo visibility).
-   * default = flat tile background, no blend (full-bleed brand/scenic shots).
+   * warm = cream lightbox frame (white photo edges match; product at full brightness).
+   * default = flat tile background (full-bleed brand/scenic shots).
    */
   tone?: "default" | "warm";
   /** contain = show full product/box (collection heroes); cover = fill frame */
@@ -51,9 +51,9 @@ export function CatalogImage({
   const activeSrc = candidates[index];
   const showImage = Boolean(activeSrc) && !failed;
   const useNativeImg = Boolean(activeSrc && isLocalStaticPath(activeSrc));
-  const useProductBlend = tone === "warm";
+  const useLightbox = tone === "warm";
 
-  const frameClass = useProductBlend ? "catalog-photo-frame" : "bg-sand-dark";
+  const frameClass = useLightbox ? "catalog-photo-frame bg-[#f5f0e8]" : "bg-sand-dark";
 
   const handleError = () => {
     if (index < candidates.length - 1) {
@@ -65,8 +65,9 @@ export function CatalogImage({
 
   const fitClass =
     fit === "contain" ? "object-contain object-center p-2 md:p-3" : "object-cover object-center";
-  const blendClass = useProductBlend ? "catalog-photo-blend" : "";
-  const imgClass = [imageClassName || fitClass, blendClass].filter(Boolean).join(" ");
+  const imgClass = [imageClassName || fitClass, useLightbox ? "catalog-photo-img" : ""]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <div

@@ -24,23 +24,23 @@ export function CollectionCard({ box, className = "", priority }: Props) {
       className={`group flex flex-col card-luxury overflow-hidden ${className}`}
     >
       <Link href={`/collections/${box.id}`} className="block">
-        <div className="relative">
+        <div className="relative aspect-[4/3] catalog-photo-frame">
           <CatalogImage
             src={box.image}
             fallbackSrc={fallbackImage}
             alt={box.imageAlt || box.name}
             tone="warm"
             fit="contain"
-            className="aspect-[4/3]"
+            className="absolute inset-0"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
             priority={priority}
           />
-          <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+          <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-2 pointer-events-none">
             <span className="chip-dark">{box.lead_time_hours}h lead</span>
             {box.jkia_only && <span className="chip-bronze bg-sand/90">JKIA express</span>}
           </div>
           {itemCount > 0 && (
-            <div className="absolute bottom-4 left-4">
+            <div className="absolute bottom-4 left-4 z-10 pointer-events-none">
               <span className="chip-dark bg-black/70">
                 {itemCount} treasure{itemCount === 1 ? "" : "s"} inside
               </span>

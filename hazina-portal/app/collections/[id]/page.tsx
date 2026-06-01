@@ -67,18 +67,20 @@ export default function CollectionDetailPage({ params }: Props) {
         </SmartBackLink>
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 mt-8 items-start">
-          <CatalogImage
-            src={box.image}
-            fallbackSrc={
-              items.find((t) => t.category !== "packaging" && t.image)?.image ?? null
-            }
-            alt={box.imageAlt || box.name}
-            tone="warm"
-            fit="contain"
-            className="aspect-[4/5] shadow-editorial sticky top-24"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            priority
-          />
+          <div className="relative aspect-[4/5] catalog-photo-frame shadow-editorial sticky top-24">
+            <CatalogImage
+              src={box.image}
+              fallbackSrc={
+                items.find((t) => t.category !== "packaging" && t.image)?.image ?? null
+              }
+              alt={box.imageAlt || box.name}
+              tone="warm"
+              fit="contain"
+              className="absolute inset-0"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              priority
+            />
+          </div>
 
           <div className="space-y-8">
             <div>
