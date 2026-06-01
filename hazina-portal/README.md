@@ -110,3 +110,15 @@ Render service `hazina-portal` in `render.yaml` → `hazina.lesnarai.co.ke`.
 Env: `BACKEND_URL`, `NEXT_PUBLIC_HAZINA_WHATSAPP`, `NEXT_PUBLIC_HAZINA_PHONE`, partner vars above.
 
 If the live site looks like an old UI, redeploy after `git push` — local commits do not update production until Render rebuilds.
+
+### Site shows 500 or “Cannot find module './NN.js'”
+
+Stale `.next` from mixing `next dev` and `next start`. Fix:
+
+```bash
+make preview-hazina    # stable: rebuild + production server on :3004
+# or
+./scripts/dev-hazina.sh --clean
+```
+
+Do not run `next start` and `next dev` on the same port without deleting `.next` first.

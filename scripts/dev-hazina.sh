@@ -3,7 +3,8 @@
 #
 # Usage:
 #   ./scripts/dev-hazina.sh              # start next dev on :3004
-#   ./scripts/dev-hazina.sh --clean      # wipe .next then start (fix stale CSS)
+#   ./scripts/dev-hazina.sh --no-clean   # keep .next (only if already from next dev)
+#   ./scripts/dev-hazina.sh --clean      # force wipe .next (fix 500 / missing chunk errors)
 #   ./scripts/dev-hazina.sh --background # detach (logs: hazina-portal/.dev-hazina.log)
 #
 # Always: http://localhost:3004  (override: HAZINA_DEV_PORT=3005)
@@ -12,7 +13,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PORTAL="${ROOT}/hazina-portal"
 PORT="${HAZINA_DEV_PORT:-3004}"
-CLEAN=0
+CLEAN=1
 BACKGROUND=0
 
 for arg in "$@"; do
@@ -78,8 +79,9 @@ if [[ ! -d "${PORTAL}/node_modules" ]]; then
   (cd "${PORTAL}" && npm install)
 fi
 
+# next dev and next start produce incompatible .next output — wipe by default.
 if [[ "$CLEAN" -eq 1 ]]; then
-  echo "==> Removing ${PORTAL}/.next …"
+  echo "==> Removing ${PORTAL}/.next (fresh dev compile)…"
   rm -rf "${PORTAL}/.next"
 fi
 
@@ -89,7 +91,8 @@ wait_for_ready() {
   local url="http://127.0.0.1:${PORT}/"
   local i
   for i in $(seq 1 90); do
-    if curl -sf -o /dev/null "$url"; then
+    code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 3 "$url" 2>/dev/null || echo "000")
+    if [[ "$code" == "200" ]]; then
       echo ""
       echo "✓ Hazina portal (dev, hot reload): http://localhost:${PORT}"
       echo "  Edit files → save → refresh the browser (same port)."
