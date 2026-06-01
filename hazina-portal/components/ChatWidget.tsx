@@ -200,7 +200,7 @@ export function ChatWidget() {
                   <button
                     key={p}
                     onClick={() => send(p)}
-                    className="text-xs font-mono uppercase tracking-wide px-3 py-1.5 border border-border text-ink-mute hover:border-obsidian hover:text-obsidian transition-colors"
+                    className="text-sm font-mono uppercase tracking-[0.1em] px-3 py-1.5 border border-border text-ink-mute hover:border-obsidian hover:text-obsidian transition-colors"
                   >
                     {p}
                   </button>
@@ -226,7 +226,7 @@ export function ChatWidget() {
             <button
               onClick={() => send()}
               disabled={busy || !draft.trim()}
-              className="btn-dark !px-4 !py-2 text-xs"
+              className="btn-dark !px-4 !py-2 text-sm"
             >
               Send
             </button>
@@ -244,7 +244,7 @@ export function triggerConciergePrompt(prompt: string) {
 
 function Bubble({ m }: { m: MsgWithMedia }) {
   if (m.role === "system") {
-    return <div className="text-center text-xs text-ink-mute py-1">{m.text}</div>;
+    return <div className="text-center text-sm text-ink-mute py-1">{m.text}</div>;
   }
   const mine = m.role === "user";
   return (

@@ -12,12 +12,16 @@ type Props = {
 type DeliveryMode = "hotel" | "jkia" | "international";
 
 export function CollectionCheckout({ box }: Props) {
+  const [quantity, setQuantity] = useState(1);
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>(box.jkia_only ? "jkia" : "hotel");
   const [customerName, setCustomerName] = useState("");
   const [deliveryLocation, setDeliveryLocation] = useState("");
   const [deliveryWindow, setDeliveryWindow] = useState("");
   const [contact, setContact] = useState("");
   const [paymentCurrency, setPaymentCurrency] = useState<"USD" | "KES">("USD");
+
+  const totalUsd = box.price_usd * quantity;
+  const totalKes = box.price_kes * quantity;
 
   const canCheckout =
     customerName.trim().length >= 2 &&
@@ -27,6 +31,9 @@ export function CollectionCheckout({ box }: Props) {
 
   const message = buildCollectionCheckoutMessage({
     box,
+    quantity,
+    totalUsd,
+    totalKes,
     deliveryMode,
     customerName,
     deliveryLocation,
@@ -42,7 +49,7 @@ export function CollectionCheckout({ box }: Props) {
   };
 
   return (
-    <section id="checkout" className="border border-border bg-sand p-5 md:p-6 space-y-5">
+    <section id="checkout" className="border border-border bg-sand p-5 md:p-6 space-y-5 lg:max-h-[80vh] lg:overflow-y-auto">
       <div>
         <span className="label-mono">Automated checkout</span>
         <h2 className="font-serif text-2xl md:text-3xl text-obsidian mt-2">Reserve {box.name}</h2>
@@ -53,7 +60,33 @@ export function CollectionCheckout({ box }: Props) {
 
       <div className="flex items-center justify-between gap-4 border-y border-border py-3">
         <span className="text-sm text-ink-mute">{box.sku}</span>
-        <span className="font-mono text-sm text-bronze text-right">{formatDualPrice(box.price_usd, box.price_kes)}</span>
+        <span className="font-mono text-sm text-bronze text-right">{formatDualPrice(totalUsd, totalKes)}</span>
+      </div>
+
+      <div className="flex items-center justify-between gap-4 border border-border bg-sand-dark/40 px-3 py-2">
+        <div>
+          <p className="label-mono">Collection quantity</p>
+          <p className="text-sm text-ink-mute">Choose how many full boxes you need.</p>
+        </div>
+        <div className="inline-flex items-center border border-border rounded overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+            className="px-3 py-2 bg-sand text-obsidian"
+            aria-label="Decrease collection quantity"
+          >
+            −
+          </button>
+          <span className="px-3 py-2 font-mono text-base min-w-[44px] text-center">{quantity}</span>
+          <button
+            type="button"
+            onClick={() => setQuantity((q) => q + 1)}
+            className="px-3 py-2 bg-sand text-obsidian"
+            aria-label="Increase collection quantity"
+          >
+            +
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-2">
@@ -148,6 +181,9 @@ export function CollectionCheckout({ box }: Props) {
 
 function buildCollectionCheckoutMessage({
   box,
+  quantity,
+  totalUsd,
+  totalKes,
   deliveryMode,
   customerName,
   deliveryLocation,
@@ -156,6 +192,9 @@ function buildCollectionCheckoutMessage({
   paymentCurrency,
 }: {
   box: GiftBox;
+  quantity: number;
+  totalUsd: number;
+  totalKes: number;
   deliveryMode: DeliveryMode;
   customerName: string;
   deliveryLocation: string;
@@ -166,8 +205,9 @@ function buildCollectionCheckoutMessage({
   return [
     "Hello Hazina Nomads — automated collection checkout:",
     "",
-    `Collection: ${box.name} (${box.sku})`,
-    `Price: USD ${box.price_usd.toLocaleString("en-US")} / KES ${box.price_kes.toLocaleString("en-KE")}`,
+    `Collection: ${quantity}× ${box.name} (${box.sku})`,
+    `Unit price: USD ${box.price_usd.toLocaleString("en-US")} / KES ${box.price_kes.toLocaleString("en-KE")}`,
+    `Estimated total: USD ${totalUsd.toLocaleString("en-US")} / KES ${totalKes.toLocaleString("en-KE")}`,
     `Guest: ${customerName.trim()}`,
     `Delivery type: ${deliveryTypeLabel(deliveryMode)}`,
     `Delivery location: ${deliveryLocation.trim()}`,

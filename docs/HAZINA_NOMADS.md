@@ -1,11 +1,12 @@
-# Hazina Nomads — Master Blueprint & Implementation
+# Hazina Nomads — Master Blueprint & Implementation Appendix
 
-**Canonical launch document** for Hazina Nomads (premium tourist gift concierge).  
-Merges the user master blueprint with in-repo implementation status.  
+Implementation appendix for Hazina Nomads (premium tourist gift concierge).  
+Merges the user master blueprint with in-repo implementation detail.  
 **Target launch:** Q3 2026 · **Model:** Premium tourist gift concierge · **Stack:** WhatsApp AI + Next.js portal on existing multi-tenant platform.
 
-> Platform architecture remains in [README.md](../README.md). This doc owns Hazina-specific product, ops, and cutover truth.  
-> **Last doc sync:** 2026-05-31 · **Branch:** `main` (10 commits ahead of `origin/main` before this working-tree update) · **Latest local commit:** `84d3e0b`
+> Canonical source of truth is now [README.md](../README.md) for the entire system (Gen-Eat + Hazina + shared backend + open gaps).  
+> This file is detail-only and must not conflict with README.  
+> **Last doc sync:** 2026-06-01 · **Branch:** `main` · **Latest committed QA fix before this doc update:** `3ea5ccc`
 
 ---
 
@@ -65,8 +66,8 @@ Hazina Nomads is a **live multi-tenant configuration** on the existing Gen-Eat /
 | Asset pool | Count | Location | Used for |
 |---|---|---|---|
 | Source photography | 49+ | `docs/pictures/` | Master archive (original filenames preserved) |
-| Portal treasure images | 57 | `hazina-portal/public/treasures/` | Slug-renamed direct photos for web; generated composites removed |
-| Collection hero shots | **0 / 5 live** | `lib/products.ts` + `HAZINA_COLLECTION_IMAGES` | Generated/edited collection composites removed; exact Hazina photos needed |
+| Portal treasure images | 60 | `hazina-portal/public/treasures/` | Slug-renamed direct photos plus current collection hero placeholders for web |
+| Collection hero shots | **5 / 5 mapped placeholders** | `lib/products.ts` + `HAZINA_COLLECTION_IMAGES` | Portal and WhatsApp have working hero images; exact real Hazina photos still needed before premium launch |
 | Brand atmosphere | 1 direct brand image + reused treasure context images | `hazina-portal/public/brand/`, `public/treasures/` | Safari banner, atelier room, market context |
 | **menu_photos (seeded)** | **91** id/name/sku keys | `profile.menu_photos` via `build_hazina_menu_photos()` | Treasure photos only; collection/menu placeholders omitted until exact photos arrive |
 | AI composites | 0 live files | `public/treasures/generated/` removed | Not used in customer UI or WhatsApp photo maps |

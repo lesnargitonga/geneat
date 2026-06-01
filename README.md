@@ -1,6 +1,7 @@
-# Omnichannel AI Business Agent / Gen-Eat Platform
+# Omnichannel AI Business Agent / Gen-Eat + Hazina Platform
 
 This file is the single source of truth for the whole repository.
+It is the single source of truth for both Gen-Eat and Hazina.
 
 All other Markdown files in this repo should stay short and point back here.
 If the code or hosted setup changes, update this README first. The code is the
@@ -14,7 +15,7 @@ final authority, but this document is the canonical human map of:
 - what is still demo-only,
 - and what still needs hardening before anyone promises enterprise-grade uptime.
 
-Last reconciled with the codebase and local checks: **2026-05-31**.
+Last reconciled with the codebase and local checks: **2026-06-01**.
 Hosted live checks were last verified on **2026-05-26**.
 
 Security: See [SECURITY.md](SECURITY.md) for live-run findings and recommended mitigations.
@@ -45,6 +46,7 @@ Security: See [SECURITY.md](SECURITY.md) for live-run findings and recommended m
 22. Testing
 23. Scaling Notes And Known Gaps
 24. Documentation Policy
+25. Unified Open Work
 
 ## 1. Product In One Page
 
@@ -57,8 +59,8 @@ with retrieval and tools, persists the conversation and business objects, and
 then responds through the correct outbound transport.
 
 The current demo story is food ordering for USIU-Africa cafés (Gen-Eat).
-A parallel launch pivot — **Hazina Nomads** (premium tourist gift concierge) —
-is documented in [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md).
+Hazina Nomads is the premium tourist gift concierge surface built on the same
+backend and documented in this same README.
 
 - students browse a café page,
 - click through to WhatsApp or chat on the web,
@@ -120,8 +122,9 @@ Current Hazina production-routing path:
 - `/hosts-guides` is the host / guide partner landing page for QR-card and
   referral pilots,
 - the Hazina portal has its own Next.js app under `hazina-portal/`,
-- Hazina product and launch truth lives in
-  [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md).
+- Hazina implementation detail appendix lives in
+  [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md), while this README remains
+  canonical.
 
 Current Lily Pond live-demo path:
 
@@ -2696,15 +2699,20 @@ Still blocking production with real customer money:
 
 ## 24. Documentation Policy
 
-This README is the canonical **platform** document. Hazina Nomads product and
-launch truth lives in [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md).
+This README is the canonical document for the full system:
+
+- Gen-Eat,
+- Hazina Nomads,
+- shared backend/runtime,
+- deployment/ops,
+- and remaining gaps.
 
 **Active Markdown files (keep these small):**
 
 | File | Purpose |
 | --- | --- |
-| [README.md](README.md) | Platform architecture, deployment, ops, Gen-Eat demo |
-| [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md) | Hazina Nomads launch SSOT |
+| [README.md](README.md) | Canonical truth for architecture, product status, deployment, and open gaps |
+| [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md) | Hazina implementation appendix (detail only; never canonical) |
 | [SECURITY.md](SECURITY.md) | Security audit and hardening |
 | [admin-ui/README.md](admin-ui/README.md) | Admin SPA setup commands |
 | [gen-eat-portal/README.md](gen-eat-portal/README.md) | Portal setup commands |
@@ -2712,9 +2720,50 @@ launch truth lives in [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md).
 
 Rules:
 
-1. If the platform changes, update this README first.
-2. If Hazina product/ops changes, update `docs/HAZINA_NOMADS.md`.
-3. Keep package READMEs to setup commands + one link to the canonical doc.
-4. Do not reintroduce overlapping launch or deploy guides — merge into README
-   or HAZINA, or archive under `docs/archive/`.
+1. If anything in product, code, runtime, or deployment changes, update this README first.
+2. Keep package READMEs to setup commands plus a link back to this README.
+3. Use supplementary docs only as appendices; they must defer to this README.
+4. Do not create overlapping long-form launch/deploy guides; merge into README or archive.
 5. When reality and aspiration differ, document both and label live truth.
+
+## 25. Unified Open Work
+
+This is the one-place list of what is still not achieved.
+
+### 25.1 Must-fix before premium launch
+
+| Area | Current gap | Why it matters |
+| --- | --- | --- |
+| Hazina collection imagery | 5/5 curated collections still need exact real photos | Premium trust drops when hero pack images are missing or synthetic |
+| WhatsApp reply quality | Long threads can still degrade into generic/time-out behavior under load or provider lag | Customer confidence breaks after a few messages |
+| Live post-deploy rehearsal discipline | Real WhatsApp rehearsal is not yet consistently run after every deploy | Drift can pass code tests but fail live demos |
+| Performance under burst | DB/Redis pressure can still cause slower responses when concurrency rises | Mobile conversion depends on fast reply loops |
+| Dependency hardening | `pip-audit` vulnerabilities still pending package upgrades/compat tests | Security and stability risk in production |
+
+### 25.2 Media shot list still required (exact photos)
+
+Use these prompts as capture briefs for real photography:
+
+1. **The Kenya Edit full box**: premium rigid Hazina box open on neutral matte surface, all included items visible, top-down and 45-degree angle, soft daylight, no heavy filters, true color.
+2. **The Highland Treasure full box**: coffee, tea, honey, spoon fully arranged in finished packaging, clean luxury styling, sharp label readability, natural shadows.
+3. **The Nomad Leather Set full box**: passport holder, luggage tag, notebook arranged in-box and one out-of-box detail close-up, texture emphasis on leather grain.
+4. **The Safari Romance Box full box**: couple set laid out symmetrically with map and treats, warm premium mood, clear item separation, no stock overlays.
+5. **The Departure Drop full box**: fast-delivery set packed for handoff, airport-ready presentation, include sealed box shot and opened contents shot.
+
+Capture requirements for all five:
+
+- 4:5 portrait and 1:1 square versions
+- minimum 2000px on shortest edge
+- neutral background, no added text/watermarks
+- color-accurate lighting (no AI/generated compositing)
+
+### 25.3 Latest local Hazina QA pass
+
+Local QA on 2026-06-01 verified:
+
+- `hazina-portal` lint, typecheck, and production build pass after the offline-safe font update,
+- public portal routes and `/api/health` return `200` with FastAPI connected on `:8000`,
+- all referenced portal product and brand images resolve through Next image optimization,
+- Hazina menu photos return 93 backend keys, including collection and individual treasure keys,
+- mobile checks on home, collections, build, hosts/guides, and collection detail showed no horizontal overflow,
+- Hazina chat probes through both backend and portal proxy replied with Hazina-only copy and no Lily Pond references.

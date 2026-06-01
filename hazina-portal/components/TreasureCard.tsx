@@ -45,7 +45,9 @@ export function TreasureCard({ item, priority, compact, featured }: Props) {
           </span>
         </div>
         {!compact && (
-          <p className="text-ink-soft text-sm mt-4 leading-relaxed line-clamp-2">{item.description}</p>
+          <div className="mt-4 max-h-24 local-scroll">
+            <p className="text-ink-soft text-sm leading-relaxed">{item.description}</p>
+          </div>
         )}
         <span className="label-mono text-bronze mt-4 inline-block">View details →</span>
       </div>

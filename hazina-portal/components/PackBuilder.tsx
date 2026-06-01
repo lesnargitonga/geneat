@@ -197,7 +197,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
       </div>
 
       <aside className="lg:col-span-5">
-        <div className="lg:sticky lg:top-24 border border-border bg-sand p-6 md:p-8 space-y-6">
+        <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto border border-border bg-sand p-6 md:p-8 space-y-6">
           <div>
             <span className="label-mono">Your order</span>
             <h2 className="font-serif text-3xl text-obsidian mt-2">Choose treasures</h2>
@@ -269,7 +269,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
               <span className="text-ink-mute">Estimated total</span>
               <span className="text-obsidian text-right">{formatDualPrice(totalUsd, totalKes)}</span>
             </div>
-            <p className="text-xs text-ink-mute leading-relaxed">
+            <p className="text-sm text-ink-mute leading-relaxed">
               USD card is default for travellers; choose KES if you want M-Pesa STK.
             </p>
           </div>
@@ -376,7 +376,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
 
           {validationHints.length > 0 && (
             <div className="mt-3 text-sm text-ink-mute">
-              <p className="font-mono text-xs text-ink-mute">Needed before checkout:</p>
+              <p className="font-mono text-sm text-ink-mute">Needed before checkout:</p>
               <ul className="list-disc list-inside mt-1">
                 {validationHints.map((h) => (
                   <li key={h}>{h}</li>

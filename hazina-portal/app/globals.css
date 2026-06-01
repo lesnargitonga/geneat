@@ -114,7 +114,7 @@
   }
 
   .chip {
-    @apply inline-flex min-h-[38px] items-center gap-1 px-3 py-1.5 text-xs font-mono font-medium uppercase tracking-[0.12em];
+    @apply inline-flex min-h-[38px] items-center gap-1 px-3 py-1.5 text-sm font-mono font-medium uppercase tracking-[0.1em];
   }
   .chip-dark {
     @apply chip bg-black/90 text-white backdrop-blur-sm;
@@ -150,5 +150,10 @@
 
   .panel-luxury {
     @apply border border-border bg-sand shadow-soft;
+  }
+
+  .local-scroll {
+    @apply overflow-y-auto pr-1;
+    scrollbar-gutter: stable;
   }
 }

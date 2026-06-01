@@ -177,7 +177,9 @@ function TreasureResult({ item, priority }: { item: Treasure; priority?: boolean
             {formatDualPrice(item.price_usd, item.price_kes)}
           </span>
         </div>
-        <p className="text-sm text-ink-mute leading-relaxed mt-4 line-clamp-2">{item.description}</p>
+        <div className="mt-4 max-h-24 local-scroll">
+          <p className="text-sm text-ink-mute leading-relaxed">{item.description}</p>
+        </div>
         <div className="mt-auto pt-5 grid grid-cols-1 sm:grid-cols-3 gap-2">
           <Link href={`/build?add=${item.id}`} className="btn-dark !px-4 !py-2 w-full">
             Add to box
