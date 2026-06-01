@@ -1,21 +1,10 @@
 # Omnichannel AI Business Agent / Gen-Eat + Hazina Platform
 
-This file is the single source of truth for the whole repository.
-It is the single source of truth for both Gen-Eat and Hazina.
+> **Canonical (status, gaps, Hazina inventory):** [docs/SYSTEM.md](docs/SYSTEM.md) — keep it short; update on every material change.  
+> **This README:** architecture, API, data model, scaling — not live-status authority.  
+> Code wins if docs drift.
 
-All other Markdown files in this repo should stay short and point back here.
-If the code or hosted setup changes, update this README first. The code is the
-final authority, but this document is the canonical human map of:
-
-- what the system is,
-- how it works,
-- what is live right now,
-- how to run it locally,
-- how it is currently deployed,
-- what is still demo-only,
-- and what still needs hardening before anyone promises enterprise-grade uptime.
-
-Last reconciled with the codebase and local checks: **2026-06-01**.
+Last reconciled with the codebase and local checks: **2026-06-01**.  
 Hosted live checks were last verified on **2026-05-26**.
 
 Security: See [SECURITY.md](SECURITY.md) for live-run findings and recommended mitigations.
@@ -50,26 +39,9 @@ Security: See [SECURITY.md](SECURITY.md) for live-run findings and recommended m
 
 ## 1. Product In One Page
 
-This repository contains a multi-tenant AI operations platform for small
-businesses, with Gen-Eat as the flagship live demo.
-
-The platform receives inbound customer traffic from WhatsApp, voice, and mock
-/ web channels, resolves the correct tenant, runs a tenant-scoped AI assistant
-with retrieval and tools, persists the conversation and business objects, and
-then responds through the correct outbound transport.
-
-The current demo story is food ordering for USIU-Africa cafés (Gen-Eat).
-Hazina Nomads is the premium tourist gift concierge surface built on the same
-backend and documented in this same README.
-
-- students browse a café page,
-- click through to WhatsApp or chat on the web,
-- ask questions about the menu,
-- request pictures,
-- place an order,
-- receive an IntaSend-backed M-Pesa STK push,
-- pay,
-- and receive a follow-up confirmation message.
+Multi-tenant AI ops backend (FastAPI, Postgres, Redis, LangGraph, RAG, tools).  
+**Gen-Eat:** USIU café demo (`lily-pond-cafe`) · [geneat.lesnarai.co.ke](https://geneat.lesnarai.co.ke).  
+**Hazina Nomads:** premium gift concierge tenant (`hazina-nomads`) · same API · [SYSTEM.md](docs/SYSTEM.md) for live status.
 
 Current important public endpoints:
 
@@ -134,9 +106,8 @@ Current Hazina production-routing path:
   on `/build` only (`/treasures` → `/build`),
 - local portal dev is **`make dev-hazina`** on **http://localhost:3004**,
 - the Hazina portal has its own Next.js app under `hazina-portal/`,
-- **what exists vs gaps** (routes, catalog, payments, partners): see
-  [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md) **§0**; this README stays
-  platform-wide canonical.
+- **what exists vs gaps** (routes, catalog, payments, tracking, private brief):
+  [docs/SYSTEM.md](docs/SYSTEM.md) **§9–§11** (Hazina inventory, flaws, open work).
 
 Current Lily Pond live-demo path:
 
@@ -173,7 +144,8 @@ verification pass.
 | Git repository | present |
 | Tracked remote | `origin -> https://github.com/lesnargitonga/geneat.git` |
 | Deployment branch | `main`, auto-deployed by Render |
-| Root README role | single source of truth |
+| Canonical system doc | [docs/SYSTEM.md](docs/SYSTEM.md) |
+| Root README role | extended reference appendix |
 
 Notes:
 
@@ -2721,92 +2693,28 @@ Still blocking production with real customer money:
 
 ## 24. Documentation Policy
 
-This README is the canonical document for the full system:
-
-- Gen-Eat,
-- Hazina Nomads,
-- shared backend/runtime,
-- deployment/ops,
-- and remaining gaps.
-
-**Active Markdown files (keep these small):**
+**[docs/SYSTEM.md](docs/SYSTEM.md) is the only canonical document** for the full system (Gen-Eat + Hazina + shared backend + live status + gaps).
 
 | File | Purpose |
 | --- | --- |
-| [README.md](README.md) | Canonical truth for architecture, product status, deployment, and open gaps |
-| [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md) | Hazina implementation appendix (detail only; never canonical) |
+| [docs/SYSTEM.md](docs/SYSTEM.md) | **Single source of truth** — update first when anything material changes |
+| [README.md](README.md) | Extended reference (architecture, API, scaling); defers to SYSTEM.md for status |
+| [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md) | Hazina brand/ops deep appendix (SKU tables, launch playbook); defers to SYSTEM.md §9–§11 for status |
 | [SECURITY.md](SECURITY.md) | Security audit and hardening |
 | [admin-ui/README.md](admin-ui/README.md) | Admin SPA setup commands |
-| [gen-eat-portal/README.md](gen-eat-portal/README.md) | Portal setup commands |
-| [docs/archive/README.md](docs/archive/README.md) | Index of archived Gen-Eat / superseded guides |
+| [gen-eat-portal/README.md](gen-eat-portal/README.md) | Gen-Eat portal setup commands |
+| [hazina-portal/README.md](hazina-portal/README.md) | Hazina portal setup commands |
+| [docs/archive/README.md](docs/archive/README.md) | Archived / superseded guides |
 
 Rules:
 
-1. If anything in product, code, runtime, or deployment changes, update this README first.
-2. Keep package READMEs to setup commands plus a link back to this README.
-3. Use supplementary docs only as appendices; they must defer to this README.
-4. Do not create overlapping long-form launch/deploy guides; merge into README or archive.
-5. When reality and aspiration differ, document both and label live truth.
+1. Update **docs/SYSTEM.md** first when product, routing, deploy, or gaps change.
+2. Keep package READMEs to setup commands plus a link to **docs/SYSTEM.md**.
+3. Do not create a second “master” or “blueprint” doc — extend SYSTEM.md instead.
+4. When reality and aspiration differ, document both in SYSTEM.md and label live truth.
+5. This README may lag; reconcile status sections into SYSTEM.md when you touch them.
 
 ## 25. Unified Open Work
 
-This is the one-place list of what is still not achieved.
-
-### 25.1 Must-fix before premium launch
-
-| Area | Current gap | Why it matters |
-| --- | --- | --- |
-| Hazina collection imagery | 5/5 curated collections still need exact real photos | Premium trust drops when hero pack images are missing or synthetic |
-| WhatsApp reply quality | Long threads can still degrade into generic/time-out behavior under load or provider lag | Customer confidence breaks after a few messages |
-| Live post-deploy rehearsal discipline | Real WhatsApp rehearsal is not yet consistently run after every deploy | Drift can pass code tests but fail live demos |
-| Performance under burst | DB/Redis pressure can still cause slower responses when concurrency rises | Mobile conversion depends on fast reply loops |
-| Dependency hardening | `pip-audit` vulnerabilities still pending package upgrades/compat tests | Security and stability risk in production |
-
-### 25.2 Media shot list still required (exact photos)
-
-Use these prompts as capture briefs for real photography:
-
-1. **The Kenya Edit full box**: premium rigid Hazina box open on neutral matte surface, all included items visible, top-down and 45-degree angle, soft daylight, no heavy filters, true color.
-2. **The Highland Treasure full box**: coffee, tea, honey, spoon fully arranged in finished packaging, clean luxury styling, sharp label readability, natural shadows.
-3. **The Nomad Leather Set full box**: passport holder, luggage tag, notebook arranged in-box and one out-of-box detail close-up, texture emphasis on leather grain.
-4. **The Safari Romance Box full box**: couple set laid out symmetrically with map and treats, warm premium mood, clear item separation, no stock overlays.
-5. **The Departure Drop full box**: fast-delivery set packed for handoff, airport-ready presentation, include sealed box shot and opened contents shot.
-
-Capture requirements for all five:
-
-- 4:5 portrait and 1:1 square versions
-- minimum 2000px on shortest edge
-- neutral background, no added text/watermarks
-- color-accurate lighting (no AI/generated compositing)
-
-### 25.3 Latest local Hazina QA pass
-
-Local QA on 2026-06-01 verified:
-
-- `hazina-portal` lint, typecheck, and production build pass after the offline-safe font update,
-- public portal routes and `/api/health` return `200` with FastAPI connected on `:8000`,
-- all referenced portal product and brand images resolve through Next image optimization,
-- Hazina collection cards now use the stronger pack visuals again, with
-  optimized JPEG derivatives for mobile loading and direct card backgrounds to
-  avoid blank-looking hero frames,
-- Hazina menu photos return 108 backend keys, including collection and individual treasure keys,
-- mobile checks on home, build, and collection detail showed the collection rail,
-  builder cards, and collection imagery fitting phone-width screens without
-  horizontal page overflow,
-- Hazina chat probes through the backend replied with Hazina-only copy and no
-  Lily Pond references,
-- Hazina in-app chat now hides starter prompts after the first customer
-  message, uses guided action chips for checkout steps, and posts complete
-  order payloads to the backend only after customer confirmation,
-- collection checkout and custom-box "Create order" now open the guided chat
-  flow immediately; checkout no longer appears stuck because optional details
-  are missing from the page form,
-- draft checkout interruption was smoke-tested: a photo request during checkout
-  returns an image, and `cancel checkout` clears the draft instead of starting
-  payment,
-- live API `/version` reports commit `43779d8`; live Hazina backend probes for
-  catalog, collection photo, custom checkout, and checkout cancel passed after
-  Render promoted the commit,
-- `https://hazina.lesnarai.co.ke` did not resolve from this workspace on
-  2026-06-01, so portal DNS still needs final ops verification even though the
-  local production preview on `:3004` passes.
+**Canonical:** [docs/SYSTEM.md §9](docs/SYSTEM.md#9-gaps-flaws-actions) (gaps + flaws + P0/P1).  
+**Hazina photography briefs:** [HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md) §2 / §6 / §7.

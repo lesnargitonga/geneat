@@ -2,7 +2,7 @@
 
 Customer-facing Next.js 14 app for **hazina.lesnarai.co.ke**. Shares the repo API at `api.lesnarai.co.ke` (not the Gen-Eat `gen-eat-portal/` app).
 
-**Full system inventory (routes, catalog, WhatsApp, gaps):** [docs/HAZINA_NOMADS.md](../docs/HAZINA_NOMADS.md) — start at **§0**.
+**Status & ops:** [docs/SYSTEM.md](../docs/SYSTEM.md) · **Brand/SKU detail:** [docs/HAZINA_NOMADS.md](../docs/HAZINA_NOMADS.md) · **Portal commands:** below.
 
 ---
 

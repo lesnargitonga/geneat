@@ -1,7 +1,8 @@
 services:
-  - name: geneat-api
+  - name: hazina-api
     type: web
     runtime: docker
+    repo: https://github.com/lesnargitonga/geneat
     plan: starter
     region: frankfurt
     dockerfilePath: ./Dockerfile
@@ -9,8 +10,6 @@ services:
     autoDeployTrigger: commit
     healthCheckPath: /readyz
     preDeployCommand: alembic upgrade head
-    domains:
-      - api.lesnarai.co.ke
     envVars:
       - key: APP_ENV
         value: prod
@@ -40,6 +39,20 @@ services:
         value: "true"
       - key: OPENAI_STORE_RESPONSES
         value: "true"
+      - key: WHATSAPP_REENGAGEMENT_TEMPLATE_LANG
+        sync: false
+      - key: WHATSAPP_REENGAGEMENT_TEMPLATE
+        sync: false
+      - key: GEMINI_MODEL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        sync: false
+      - key: APP_PORT
+        sync: false
+      - key: APP_HOST
+        sync: false
       - key: OPENAI_EMBED_MODEL
         value: text-embedding-3-large
       - key: OPENAI_EMBED_DIMENSIONS
@@ -56,16 +69,16 @@ services:
         value: "false"
       - key: DATABASE_URL
         fromDatabase:
-          name: geneat-postgres
+          name: hazina-postgres
           property: connectionString
       - key: DATABASE_URL_SYNC
         fromDatabase:
-          name: geneat-postgres
+          name: hazina-postgres
           property: connectionString
       - key: REDIS_URL
         fromService:
           type: keyvalue
-          name: geneat-redis
+          name: hazina-redis
           property: connectionString
       - key: SECRET_KEY
         sync: false
@@ -112,10 +125,11 @@ services:
       - key: SENTRY_DSN
         sync: false
 
-  - name: geneat-redis
+  - name: hazina-redis
     type: keyvalue
     plan: starter
     region: frankfurt
+    ipAllowList: []
 
   - name: hazina-portal
     type: web
@@ -143,7 +157,7 @@ services:
         sync: false
 
 databases:
-  - name: geneat-postgres
+  - name: hazina-postgres
     plan: basic-256mb
     region: frankfurt
     databaseName: omni

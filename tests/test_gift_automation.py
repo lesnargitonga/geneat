@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from app.catalog.hazina_catalog import ENGRAVING_FEE_KES, ENGRAVING_SKU
 from app.services import gift_automation as ga
 
 
@@ -47,6 +48,38 @@ Estimated total: USD 125 / KES 16,300"""
     assert parsed.total_kes == 16300
     assert "HN-T-001" in parsed.skus
     assert "HN-T-070" in parsed.skus
+
+
+def test_parse_custom_box_handoff_monograms_and_bespoke() -> None:
+    msg = """Hello Hazina Nomads — private sourcing brief:
+
+• Leather Passport Holder (HN-T-020) — Monogram: J.K.
+• Lamu Carved Wood Keepsake Box (HN-T-071) — Monogram: Amina
+• Maasai Beaded Bracelet (HN-T-010)
+
+Bespoke requests:
+I am looking for a specific type of green malachite stone.
+
+Estimated total: USD 200 / KES 26,000"""
+    parsed = ga.parse_custom_box_handoff(msg)
+    assert parsed is not None
+    assert parsed.bespoke_request == "I am looking for a specific type of green malachite stone."
+    assert parsed.engravings == ("J.K.", "Amina")
+    # 95 + 65 + 45 treasure subtotal + 2 × USD 15 engraving
+    assert parsed.total_usd == 235
+    assert parsed.total_kes == 30550
+    engraving = next(item for item in parsed.items if ENGRAVING_SKU in item.sku_or_name)
+    assert engraving.qty == 2
+    assert engraving.unit_price == ENGRAVING_FEE_KES
+
+
+def test_engraving_order_line_item_dict() -> None:
+    row = ga._hazina_item_to_order_dict(ga._engraving_cafe_item(2))
+    assert row["id"] == ENGRAVING_SKU
+    assert row["name"] == "Bespoke Engraving Service"
+    assert row["quantity"] == 2
+    assert row["unit_price"] == 15
+    assert row["currency"] == "USD"
 
 
 def test_parse_custom_box_handoff_keeps_quantities() -> None:

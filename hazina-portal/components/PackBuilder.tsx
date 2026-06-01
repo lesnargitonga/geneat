@@ -6,6 +6,8 @@ import { CatalogImage } from "@/components/CatalogImage";
 import {
   ALL_CATEGORIES,
   CATEGORY_LABELS,
+  ENGRAVING_FEE_KES,
+  ENGRAVING_FEE_USD,
   MIN_CUSTOM_ITEMS,
   PACKAGING_FEE_KES,
   PACKAGING_FEE_USD,
@@ -45,6 +47,8 @@ export function PackBuilder({
   const [query, setQuery] = useState(initialQuery);
   const [sort, setSort] = useState<"curated" | "price-low" | "price-high" | "fastest">("curated");
   const [includePackaging, setIncludePackaging] = useState(false);
+  const [monograms, setMonograms] = useState<Map<string, string>>(() => new Map());
+  const [bespokeRequest, setBespokeRequest] = useState("");
   const [checkoutStep, setCheckoutStep] = useState<"browse" | "delivery">("browse");
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>("hotel");
   const [paymentCurrency, setPaymentCurrency] = useState<"USD" | "KES">("USD");
@@ -89,16 +93,42 @@ export function PackBuilder({
 
   const subtotalUsd = cartLines.reduce((s, { item, qty }) => s + item.price_usd * qty, 0);
   const subtotalKes = cartLines.reduce((s, { item, qty }) => s + item.price_kes * qty, 0);
+  const engravingLines = useMemo(
+    () =>
+      cartLines.filter(
+        ({ item }) => item.isEngravable && (monograms.get(item.id)?.trim().length ?? 0) > 0,
+      ),
+    [cartLines, monograms],
+  );
+  const engravingUsd = engravingLines.length * ENGRAVING_FEE_USD;
+  const engravingKes = engravingLines.length * ENGRAVING_FEE_KES;
   const packagingUsd = includePackaging ? PACKAGING_FEE_USD : 0;
   const packagingKes = includePackaging ? PACKAGING_FEE_KES : 0;
-  const totalUsd = subtotalUsd + packagingUsd;
-  const totalKes = subtotalKes + packagingKes;
+  const totalUsd = subtotalUsd + engravingUsd + packagingUsd;
+  const totalKes = subtotalKes + engravingKes + packagingKes;
 
   const setQty = (id: string, qty: number) => {
     setCart((prev) => {
       const next = new Map(prev);
-      if (qty <= 0) next.delete(id);
-      else next.set(id, qty);
+      if (qty <= 0) {
+        next.delete(id);
+        setMonograms((m) => {
+          if (!m.has(id)) return m;
+          const copy = new Map(m);
+          copy.delete(id);
+          return copy;
+        });
+      } else next.set(id, qty);
+      return next;
+    });
+  };
+
+  const setMonogram = (id: string, value: string) => {
+    setMonograms((prev) => {
+      const next = new Map(prev);
+      const trimmed = value.trim();
+      if (!trimmed) next.delete(id);
+      else next.set(id, trimmed);
       return next;
     });
   };
@@ -113,6 +143,8 @@ export function PackBuilder({
 
   const checkoutMessage = buildWhatsAppMessage({
     items: cartLines,
+    monograms,
+    bespokeRequest,
     packaging: includePackaging,
     totalKes,
     totalUsd,
@@ -136,7 +168,9 @@ export function PackBuilder({
               qty,
               price_usd: item.price_usd,
               price_kes: item.price_kes,
+              monogram: monograms.get(item.id)?.trim() || undefined,
             })),
+            bespokeRequest: bespokeRequest.trim() || undefined,
             includePackaging,
             totalUsd,
             totalKes,
@@ -247,46 +281,85 @@ export function PackBuilder({
               {cartLines.length === 0 ? (
                 <p className="text-ink-mute text-sm italic">Tap items to add them to your box.</p>
               ) : (
-                <ul className="space-y-3 max-h-64 overflow-y-auto local-scroll local-scroll--subtle">
+                <ul className="space-y-4 max-h-[22rem] overflow-y-auto local-scroll local-scroll--subtle">
                   {cartLines.map(({ item, qty }) => (
-                    <li key={item.id} className="flex items-center justify-between gap-3 text-sm border-b border-border/60 pb-2">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className="text-obsidian truncate">{item.name}</span>
-                        <div className="inline-flex items-center shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => decrement(item.id)}
-                            className="px-2 py-1 font-mono text-sm text-ink-mute hover:text-obsidian"
-                            aria-label={`Decrease quantity for ${item.name}`}
-                          >
-                            −
-                          </button>
-                          <span className="px-2 py-1 font-mono text-sm min-w-[2ch] text-center">{qty}</span>
-                          <button
-                            type="button"
-                            onClick={() => increment(item.id)}
-                            className="px-2 py-1 font-mono text-sm text-ink-mute hover:text-obsidian"
-                            aria-label={`Increase quantity for ${item.name}`}
-                          >
-                            +
-                          </button>
+                    <li key={item.id} className="border-b border-border/60 pb-3 space-y-2">
+                      <div className="flex items-center justify-between gap-3 text-sm">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className="text-obsidian truncate">{item.name}</span>
+                          <div className="inline-flex items-center shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => decrement(item.id)}
+                              className="px-2 py-1 font-mono text-sm text-ink-mute hover:text-obsidian"
+                              aria-label={`Decrease quantity for ${item.name}`}
+                            >
+                              −
+                            </button>
+                            <span className="px-2 py-1 font-mono text-sm min-w-[2ch] text-center">{qty}</span>
+                            <button
+                              type="button"
+                              onClick={() => increment(item.id)}
+                              className="px-2 py-1 font-mono text-sm text-ink-mute hover:text-obsidian"
+                              aria-label={`Increase quantity for ${item.name}`}
+                            >
+                              +
+                            </button>
+                          </div>
                         </div>
+                        <span className="font-mono text-sm text-ink-mute shrink-0 text-right leading-relaxed">
+                          {formatUSD(item.price_usd * qty)}
+                          <br />
+                          {formatKES(item.price_kes * qty)}
+                        </span>
                       </div>
-                      <span className="font-mono text-sm text-ink-mute shrink-0 text-right leading-relaxed">
-                        {formatUSD(item.price_usd * qty)}
-                        <br />
-                        {formatKES(item.price_kes * qty)}
-                      </span>
+                      {item.isEngravable && (
+                        <label className="block">
+                          <span className="sr-only">Monogram or engraving for {item.name}</span>
+                          <input
+                            type="text"
+                            value={monograms.get(item.id) ?? ""}
+                            onChange={(e) => setMonogram(item.id, e.target.value)}
+                            className="input-bespoke w-full"
+                            placeholder={`Add Monogram / Engraving (+${formatUSD(ENGRAVING_FEE_USD)})`}
+                          />
+                        </label>
+                      )}
                     </li>
                   ))}
                 </ul>
               )}
+
+              <div className="space-y-3 border-t border-border/60 pt-4">
+                <div>
+                  <h3 className="font-serif text-lg text-obsidian">Bespoke Requests</h3>
+                  <p className="text-ink-mute text-xs mt-1 leading-relaxed">
+                    Unlisted pieces, stones, or special commissions — describe what you are sourcing.
+                  </p>
+                </div>
+                <label className="block">
+                  <span className="sr-only">Bespoke sourcing requests</span>
+                  <textarea
+                    value={bespokeRequest}
+                    onChange={(e) => setBespokeRequest(e.target.value)}
+                    rows={3}
+                    className="input-bespoke resize-y min-h-[4.5rem]"
+                    placeholder="e.g. I am looking for a specific type of green malachite stone…"
+                  />
+                </label>
+                <p className="text-sm text-ink-mute/90 italic leading-relaxed">
+                  Have a reference photo? Submit this brief and send your images directly to our concierge via
+                  WhatsApp.
+                </p>
+              </div>
 
               {cartLines.length > 0 && (
                 <button
                   type="button"
                   onClick={() => {
                     setCart(new Map());
+                    setMonograms(new Map());
+                    setBespokeRequest("");
                     setIncludePackaging(false);
                   }}
                   className="label-mono text-left text-bronze hover:text-obsidian"
@@ -311,6 +384,12 @@ export function PackBuilder({
               </label>
 
               <div className="border-t border-border/60 pt-4 space-y-1">
+                {engravingLines.length > 0 && (
+                  <p className="text-xs text-ink-mute font-mono mb-2">
+                    Includes {engravingLines.length} bespoke engraving
+                    {engravingLines.length > 1 ? "s" : ""} ({formatUSD(engravingUsd)} / {formatKES(engravingKes)})
+                  </p>
+                )}
                 <div className="flex justify-between gap-4 items-baseline">
                   <span className="label-mono text-ink-mute">Estimated total</span>
                   <div className="text-right">
@@ -350,7 +429,9 @@ export function PackBuilder({
                 <p className="font-mono text-sm text-ink-mute">{formatKES(totalKes)}</p>
                 <p className="text-ink-mute text-sm mt-1">
                   {totalUnits} treasures
+                  {engravingLines.length > 0 ? ` · ${engravingLines.length} engraving(s)` : ""}
                   {includePackaging ? " · premium packaging" : ""}
+                  {bespokeRequest.trim() ? " · bespoke note" : ""}
                 </p>
               </div>
 
@@ -513,8 +594,24 @@ function SelectableTreasure({
   );
 }
 
+function formatItemLine({
+  item,
+  qty,
+  monogram,
+}: {
+  item: Treasure;
+  qty: number;
+  monogram?: string;
+}): string {
+  const base = `• ${qty > 1 ? `${qty}× ` : ""}${item.name} (${item.sku})`;
+  const trimmed = monogram?.trim();
+  return trimmed ? `${base} — Monogram: ${trimmed}` : base;
+}
+
 function buildWhatsAppMessage({
   items,
+  monograms,
+  bespokeRequest,
   packaging,
   totalKes,
   totalUsd,
@@ -522,6 +619,8 @@ function buildWhatsAppMessage({
   paymentCurrency,
 }: {
   items: { item: Treasure; qty: number }[];
+  monograms: Map<string, string>;
+  bespokeRequest: string;
   packaging: boolean;
   totalKes: number;
   totalUsd: number;
@@ -529,11 +628,17 @@ function buildWhatsAppMessage({
   paymentCurrency: "USD" | "KES";
 }): string {
   const lines = [
-    "Hello Hazina Nomads — automated custom gift box checkout:",
+    "Hello Hazina Nomads — private sourcing brief:",
     "",
-    ...items.map(({ item, qty }) => `• ${qty > 1 ? `${qty}× ` : ""}${item.name} (${item.sku})`),
+    ...items.map(({ item, qty }) =>
+      formatItemLine({ item, qty, monogram: monograms.get(item.id) }),
+    ),
   ];
   if (packaging) lines.push("• Premium packaging & story card");
+  const bespoke = bespokeRequest.trim();
+  if (bespoke) {
+    lines.push("", "Bespoke requests:", bespoke);
+  }
   lines.push("", `Estimated total: ${formatUSD(totalUsd)} / ${formatKES(totalKes)}`);
   lines.push(`Delivery type: ${deliveryTypeLabel(deliveryMode)}`);
   lines.push(`Preferred payment: ${paymentCurrency === "USD" ? "USD card link" : "KES M-Pesa STK"}`);

@@ -187,6 +187,12 @@
            focus:border-obsidian focus:bg-obsidian/[0.06];
   }
 
+  .input-bespoke {
+    @apply w-full border border-white/10 bg-transparent px-3 py-2 text-sm text-obsidian
+           placeholder:font-mono placeholder:text-ink-mute/55 transition-colors
+           focus:border-bronze focus:outline-none focus:ring-0;
+  }
+
   /*
    * Product photos: fixed cream lightbox (never theme sand / never multiply).
    * White or light JPEG edges sit on the same color — product pixels stay untouched.

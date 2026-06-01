@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BRAND, GIFT_BOXES, getGiftBox, type GiftBox } from "@/lib/products";
+import { ENGRAVING_FEE_KES, ENGRAVING_FEE_USD } from "@/lib/treasures";
 import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
 
 type Msg = { id: string; role: "user" | "ai" | "system"; text: string; ts: number };
@@ -26,6 +27,7 @@ type CheckoutItem = {
   qty: number;
   price_usd: number;
   price_kes: number;
+  monogram?: string;
 };
 
 type CheckoutStart =
@@ -43,6 +45,7 @@ type CheckoutStart =
   | {
       kind: "custom";
       items: CheckoutItem[];
+      bespokeRequest?: string;
       includePackaging?: boolean;
       totalUsd?: number;
       totalKes?: number;
@@ -62,6 +65,7 @@ type CheckoutFlow = {
   collectionSku?: string;
   quantity: number;
   items: CheckoutItem[];
+  bespokeRequest?: string;
   includePackaging?: boolean;
   totalUsd: number;
   totalKes: number;
@@ -214,7 +218,17 @@ function parseNavigationCommand(text: string): { action: "back" | "start_over" |
 function totalForItems(items: CheckoutItem[]) {
   const subtotalUsd = items.reduce((sum, item) => sum + item.price_usd * item.qty, 0);
   const subtotalKes = items.reduce((sum, item) => sum + item.price_kes * item.qty, 0);
-  return { totalUsd: subtotalUsd, totalKes: subtotalKes };
+  const engravingCount = items.filter((item) => item.monogram?.trim()).length;
+  return {
+    totalUsd: subtotalUsd + engravingCount * ENGRAVING_FEE_USD,
+    totalKes: subtotalKes + engravingCount * ENGRAVING_FEE_KES,
+  };
+}
+
+function formatCheckoutItemLine(item: CheckoutItem): string {
+  const base = `• ${item.qty > 1 ? `${item.qty}x ` : ""}${item.name} (${item.sku})`;
+  const monogram = item.monogram?.trim();
+  return monogram ? `${base} — Monogram: ${monogram}` : base;
 }
 
 function nextStep(flow: CheckoutFlow): CheckoutStep {
@@ -314,12 +328,13 @@ function buildBackendCheckoutMessage(flow: CheckoutFlow) {
   const lines =
     flow.kind === "custom"
       ? [
-          "Hello Hazina Nomads - automated custom gift box checkout:",
+          "Hello Hazina Nomads — private sourcing brief:",
           "",
-          ...flow.items.map(
-            (item) => `• ${item.qty > 1 ? `${item.qty}x ` : ""}${item.name} (${item.sku})`,
-          ),
+          ...flow.items.map((item) => formatCheckoutItemLine(item)),
           ...(flow.includePackaging ? ["• Premium packaging & story card"] : []),
+          ...(flow.bespokeRequest?.trim()
+            ? ["", "Bespoke requests:", flow.bespokeRequest.trim()]
+            : []),
           "",
           `Estimated total: ${formatUSD(flow.totalUsd)} / ${formatKES(flow.totalKes)}`,
         ]
@@ -379,9 +394,10 @@ function createCustomFlow(payload: Extract<CheckoutStart, { kind: "custom" }>): 
   const flow: CheckoutFlow = {
     kind: "custom",
     step: "name",
-    collectionName: "Custom Hazina box",
+    collectionName: "Private sourcing brief",
     quantity: payload.items.reduce((sum, item) => sum + item.qty, 0),
     items: payload.items,
+    bespokeRequest: payload.bespokeRequest,
     includePackaging: payload.includePackaging,
     totalUsd: totals.totalUsd,
     totalKes: totals.totalKes,

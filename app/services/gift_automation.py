@@ -16,6 +16,10 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.catalog.hazina_catalog import (
+    ENGRAVING_FEE_KES,
+    ENGRAVING_FEE_USD,
+    ENGRAVING_SERVICE_NAME,
+    ENGRAVING_SKU,
     HAZINA_COLLECTIONS,
     MIN_CUSTOM_ITEMS,
     PACKAGING_FEE_KES,
@@ -73,8 +77,20 @@ _DEPARTURE_RE = re.compile(
     re.IGNORECASE,
 )
 _CUSTOM_BOX_INTRO_RE = re.compile(
-    r"\b(custom gift box|build a custom|compose.*box|custom box)\b",
+    r"\b(custom gift box|build a custom|compose.*box|custom box|private sourcing brief)\b",
     re.IGNORECASE,
+)
+_MONOGRAM_INLINE_RE = re.compile(
+    r"\(HN-[A-Z0-9-]+\).*?\b(?:monogram|engraving)\s*:\s*(.+?)\s*$",
+    re.IGNORECASE | re.MULTILINE,
+)
+_MONOGRAM_PREFIX_RE = re.compile(
+    r"^\s*(?:[•*-]\s*)?(?:monogram|engraving)\s*:\s*(.+?)\s*$",
+    re.IGNORECASE | re.MULTILINE,
+)
+_BESPOKE_REQUESTS_RE = re.compile(
+    r"^\s*Bespoke requests:\s*\n([\s\S]*?)(?:\n\s*\nEstimated total:|\nEstimated total:)",
+    re.IGNORECASE | re.MULTILINE,
 )
 _CATALOG_RE = re.compile(
     r"\b(full menu|menu|catalogue|catalog|collections?|gift boxes?|what do you sell|"
@@ -121,6 +137,8 @@ class ParsedCustomBox:
     total_kes: float
     total_usd: float
     skus: list[str]
+    engravings: tuple[str, ...] = ()
+    bespoke_request: str | None = None
 
 
 @dataclass(frozen=True)
@@ -235,6 +253,91 @@ def _price_label(*, usd: float | int, kes: float | int) -> str:
     return f"USD {int(usd):,} / KES {int(kes):,}"
 
 
+def _extract_engravings(body: str) -> list[str]:
+    engravings: list[str] = []
+    for pattern in (_MONOGRAM_INLINE_RE, _MONOGRAM_PREFIX_RE):
+        for raw in pattern.findall(body or ""):
+            value = raw.strip()
+            if value and value not in engravings:
+                engravings.append(value)
+    return engravings
+
+
+def _engraving_cafe_item(qty: int) -> CafeOrderItem:
+    count = max(1, int(qty))
+    return CafeOrderItem(
+        sku_or_name=f"{ENGRAVING_SERVICE_NAME} ({ENGRAVING_SKU})",
+        qty=count,
+        unit_price=float(ENGRAVING_FEE_KES),
+    )
+
+
+def _hazina_item_to_order_dict(item: CafeOrderItem) -> dict[str, object]:
+    if ENGRAVING_SKU in item.sku_or_name.upper():
+        line_qty = int(item.qty or 1)
+        return {
+            "id": ENGRAVING_SKU,
+            "name": ENGRAVING_SERVICE_NAME,
+            "sku_or_name": f"{ENGRAVING_SERVICE_NAME} ({ENGRAVING_SKU})",
+            "qty": line_qty,
+            "quantity": line_qty,
+            "unit_price": float(ENGRAVING_FEE_USD),
+            "currency": "USD",
+        }
+    return item.to_order_dict()
+
+
+def _cafe_item_from_order_dict(row: dict[str, object]) -> CafeOrderItem:
+    line_id = str(row.get("id") or "").upper()
+    qty = int(row.get("qty") or row.get("quantity") or 1)
+    if line_id == ENGRAVING_SKU:
+        return _engraving_cafe_item(qty)
+    return CafeOrderItem(
+        sku_or_name=str(row.get("sku_or_name") or row.get("name") or ""),
+        qty=qty,
+        unit_price=float(row.get("unit_price") or 0),
+    )
+
+
+def _compute_custom_box_totals(items: list[CafeOrderItem]) -> tuple[float, float]:
+    total_kes = round(sum(item.line_total for item in items), 2)
+    total_usd = 0.0
+    for item in items:
+        if ENGRAVING_SKU in item.sku_or_name.upper():
+            total_usd += float(ENGRAVING_FEE_USD) * int(item.qty or 1)
+            continue
+        sku_match = re.search(r"\((HN-[A-Z0-9-]+)\)", item.sku_or_name, re.IGNORECASE)
+        if not sku_match:
+            continue
+        row = hazina_treasure_by_sku(sku_match.group(1))
+        if row:
+            total_usd += float(row["price_usd"]) * int(item.qty or 1)
+    return total_kes, round(total_usd, 2)
+
+
+def _parsed_custom_box_from_checkout_data(parsed_data: dict[str, object]) -> ParsedCustomBox:
+    items = [
+        _cafe_item_from_order_dict(row)
+        for row in (parsed_data.get("items") or [])
+        if isinstance(row, dict)
+    ]
+    engravings = tuple(str(v).strip() for v in (parsed_data.get("engravings") or []) if str(v).strip())
+    bespoke_raw = parsed_data.get("bespoke_request")
+    bespoke_request = str(bespoke_raw).strip() if bespoke_raw else None
+    total_kes = float(parsed_data.get("total_kes") or 0)
+    total_usd = float(parsed_data.get("total_usd") or 0)
+    if items and (total_kes <= 0 or total_usd <= 0):
+        total_kes, total_usd = _compute_custom_box_totals(items)
+    return ParsedCustomBox(
+        items=items,
+        total_kes=total_kes,
+        total_usd=total_usd,
+        skus=[str(s) for s in (parsed_data.get("skus") or [])],
+        engravings=engravings,
+        bespoke_request=bespoke_request or None,
+    )
+
+
 def parse_custom_box_handoff(text: str) -> ParsedCustomBox | None:
     body = text or ""
     sku_qty_rows = _SKU_QTY_LINE_RE.findall(body)
@@ -254,8 +357,6 @@ def parse_custom_box_handoff(text: str) -> ParsedCustomBox | None:
             sku_up = sku.upper()
             qty_by_sku[sku_up] = min(20, qty_by_sku.get(sku_up, 0) + 1)
     seen: set[str] = set()
-    total_kes = 0.0
-    total_usd = 0.0
     resolved_skus: list[str] = []
 
     for sku, qty in qty_by_sku.items():
@@ -271,8 +372,6 @@ def parse_custom_box_handoff(text: str) -> ParsedCustomBox | None:
                 unit_price=float(row["price_kes"]),
             )
         )
-        total_kes += float(row["price_kes"]) * qty
-        total_usd += float(row["price_usd"]) * qty
 
     if re.search(r"premium packaging", body, re.IGNORECASE) and "HN-T-070" not in seen:
         packaging = hazina_treasure_by_sku("HN-T-070")
@@ -286,12 +385,27 @@ def parse_custom_box_handoff(text: str) -> ParsedCustomBox | None:
                     unit_price=float(PACKAGING_FEE_KES),
                 )
             )
-            total_kes += float(PACKAGING_FEE_KES)
-            total_usd += float(PACKAGING_FEE_USD)
+
+    engravings = tuple(_extract_engravings(body))
+    if engravings:
+        items.append(_engraving_cafe_item(len(engravings)))
+
+    bespoke_match = _BESPOKE_REQUESTS_RE.search(body)
+    bespoke_request = bespoke_match.group(1).strip() if bespoke_match else None
+    if bespoke_request:
+        bespoke_request = re.sub(r"\n{3,}", "\n\n", bespoke_request).strip() or None
 
     if len(items) < MIN_CUSTOM_ITEMS:
         return None
-    return ParsedCustomBox(items=items, total_kes=total_kes, total_usd=total_usd, skus=resolved_skus)
+    total_kes, total_usd = _compute_custom_box_totals(items)
+    return ParsedCustomBox(
+        items=items,
+        total_kes=total_kes,
+        total_usd=total_usd,
+        skus=resolved_skus,
+        engravings=engravings,
+        bespoke_request=bespoke_request,
+    )
 
 
 def _structured_value(text: str, label: str) -> str | None:
@@ -428,11 +542,19 @@ def _ask_delivery_reply(product_id: str, *, is_sw: bool) -> str:
 def _ask_custom_delivery_reply(*, item_count: int, total_kes: float, total_usd: float, is_sw: bool) -> str:
     if is_sw:
         return (
-            f"Sanduku lako la desturi ({item_count} vitu, {_price_label(usd=total_usd, kes=total_kes)}) — "
-            "tutamaliza hatua kwa hatua. Kwanza, niweke jina gani kwa oda?"
+            f"Asante — tumepokea maelezo yako ya ununuzi wa kibinafsi ({item_count} vitu, "
+            f"{_price_label(usd=total_usd, kes=total_kes)}). "
+            "Ikiwa una picha za marejeo kwa maombi maalum, tafadhali pakia hapa sasa. "
+            "Baada ya uthibitisho, concierge wetu atahakikisha vitu vyako, uchoraji maalum, "
+            "na sanduku la Hazina.\n\n"
+            "Kwanza, niweke jina gani kwa oda?"
         )
     return (
-        f"Your custom box ({item_count} treasures, {_price_label(usd=total_usd, kes=total_kes)}) — "
+        "Hello — we've received your private sourcing brief. "
+        "If you have reference photos for your custom requests, please upload them here now. "
+        "Once confirmed, our concierge runner will secure your pieces, arrange any bespoke engravings, "
+        "and prepare your Hazina box for dispatch.\n\n"
+        f"Your selection ({item_count} treasures, {_price_label(usd=total_usd, kes=total_kes)}) — "
         "we will finish checkout one step at a time. First, what name should I put on the order?"
     )
 
@@ -833,6 +955,9 @@ async def _finalize_custom_order(
         details["departure_time_iso"] = departure_note
     details["order_type"] = "custom_box"
     details["treasure_skus"] = parsed.skus
+    details["engravings"] = list(parsed.engravings)
+    details["bespoke_request"] = parsed.bespoke_request
+    details["items"] = [_hazina_item_to_order_dict(item) for item in parsed.items]
     details["fulfillment_status"] = "pending_payment"
     order.details = details
     await db.flush()
@@ -1027,24 +1152,13 @@ async def try_hazina_automation(
 
             if checkout.get("order_type") == "custom_box":
                 parsed_data = checkout.get("custom_box") or {}
-                items = [
-                    CafeOrderItem(
-                        str(r.get("sku_or_name") or ""),
-                        qty=int(r.get("qty") or 1),
-                        unit_price=float(r.get("unit_price") or 0),
-                    )
-                    for r in (parsed_data.get("items") or [])
-                    if isinstance(r, dict)
-                ]
-                if len(items) < MIN_CUSTOM_ITEMS:
+                if not isinstance(parsed_data, dict):
                     await _clear_checkout(conversation_id)
                     return None
-                parsed = ParsedCustomBox(
-                    items=items,
-                    total_kes=float(parsed_data.get("total_kes") or 0),
-                    total_usd=float(parsed_data.get("total_usd") or 0),
-                    skus=list(parsed_data.get("skus") or []),
-                )
+                parsed = _parsed_custom_box_from_checkout_data(parsed_data)
+                if len(parsed.items) < MIN_CUSTOM_ITEMS:
+                    await _clear_checkout(conversation_id)
+                    return None
                 return await _finalize_custom_order(
                     db,
                     customer_id=customer.id,
@@ -1133,24 +1247,13 @@ async def try_hazina_automation(
                     departure = _parse_departure_iso(text) or location
                     location = str(checkout.get("delivery_location") or location)
                 parsed_data = checkout.get("custom_box") or {}
-                items = [
-                    CafeOrderItem(
-                        str(r.get("sku_or_name") or ""),
-                        qty=int(r.get("qty") or 1),
-                        unit_price=float(r.get("unit_price") or 0),
-                    )
-                    for r in (parsed_data.get("items") or [])
-                    if isinstance(r, dict)
-                ]
-                if len(items) < MIN_CUSTOM_ITEMS:
+                if not isinstance(parsed_data, dict):
                     await _clear_checkout(conversation_id)
                     return None
-                parsed = ParsedCustomBox(
-                    items=items,
-                    total_kes=float(parsed_data.get("total_kes") or 0),
-                    total_usd=float(parsed_data.get("total_usd") or 0),
-                    skus=list(parsed_data.get("skus") or []),
-                )
+                parsed = _parsed_custom_box_from_checkout_data(parsed_data)
+                if len(parsed.items) < MIN_CUSTOM_ITEMS:
+                    await _clear_checkout(conversation_id)
+                    return None
                 pay_cur = detect_payment_currency(text, checkout=checkout)
                 return await _finalize_custom_order(
                     db,
@@ -1249,10 +1352,12 @@ async def try_hazina_automation(
         draft_checkout = {
             "order_type": "custom_box",
             "custom_box": {
-                "items": [i.to_order_dict() for i in parsed_box.items],
+                "items": [_hazina_item_to_order_dict(i) for i in parsed_box.items],
                 "total_kes": parsed_box.total_kes,
                 "total_usd": parsed_box.total_usd,
                 "skus": parsed_box.skus,
+                "engravings": list(parsed_box.engravings),
+                "bespoke_request": parsed_box.bespoke_request,
             },
             "delivery_type": checkout_details.delivery_type,
             "delivery_location": checkout_details.delivery_location,

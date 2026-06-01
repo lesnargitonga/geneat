@@ -8,6 +8,10 @@ from typing import Any
 
 PACKAGING_FEE_USD = 45
 PACKAGING_FEE_KES = 5800
+ENGRAVING_FEE_USD = 15
+ENGRAVING_FEE_KES = 1950
+ENGRAVING_SKU = "HN-FEE-ENGRAVING"
+ENGRAVING_SERVICE_NAME = "Bespoke Engraving Service"
 MIN_CUSTOM_ITEMS = 2
 
 HAZINA_COLLECTIONS: list[dict[str, Any]] = [
@@ -107,11 +111,14 @@ HAZINA_TREASURES: list[dict[str, Any]] = [
     {"id": "maasai-bracelet", "sku": "HN-T-010", "name": "Maasai Beaded Bracelet", "category": "beadwork", "price_usd": 45, "price_kes": 5900, "description": "Hand-strung glass bead bracelet from Maasai Market.", "lead_time_hours": 12},
     {"id": "maasai-necklace", "sku": "HN-T-011", "name": "Maasai Beaded Necklace", "category": "beadwork", "price_usd": 85, "price_kes": 11000, "description": "Statement collar or layered necklace.", "lead_time_hours": 24},
     {"id": "maasai-earrings", "sku": "HN-T-012", "name": "Maasai Earrings", "category": "beadwork", "price_usd": 42, "price_kes": 5500, "description": "Lightweight beaded drop earrings.", "lead_time_hours": 12},
-    {"id": "leather-passport", "sku": "HN-T-020", "name": "Leather Passport Holder", "category": "leather", "price_usd": 95, "price_kes": 12300, "description": "Full-grain leather passport sleeve. Optional embossing.", "lead_time_hours": 24, "personalization": True},
-    {"id": "leather-luggage-tag", "sku": "HN-T-021", "name": "Leather Luggage Tag", "category": "leather", "price_usd": 45, "price_kes": 5900, "description": "Embossed leather tag with buckle strap.", "lead_time_hours": 24, "personalization": True},
-    {"id": "soapstone-big-five", "sku": "HN-T-030", "name": "Soapstone Big Five Carving", "category": "art-sculpture", "price_usd": 75, "price_kes": 9700, "description": "Compact soapstone Big Five sculpture.", "lead_time_hours": 24},
-    {"id": "antelope-carving", "sku": "HN-T-031", "name": "Antelope Wood Carving", "category": "wood-carving", "price_usd": 85, "price_kes": 11000, "description": "Hand-carved antelope in African hardwood.", "lead_time_hours": 24},
-    {"id": "wood-carving-set", "sku": "HN-T-032", "name": "Artisan Wood Carving", "category": "wood-carving", "price_usd": 75, "price_kes": 9700, "description": "Selected woodcarving piece.", "lead_time_hours": 24},
+    {"id": "leather-passport", "sku": "HN-T-020", "name": "Leather Passport Holder", "category": "leather", "price_usd": 95, "price_kes": 12300, "description": "Full-grain leather passport sleeve. Optional embossing.", "lead_time_hours": 24, "personalization": True, "is_engravable": True},
+    {"id": "leather-luggage-tag", "sku": "HN-T-021", "name": "Leather Luggage Tag", "category": "leather", "price_usd": 45, "price_kes": 5900, "description": "Embossed leather tag with buckle strap.", "lead_time_hours": 24, "personalization": True, "is_engravable": True},
+    {"id": "soapstone-big-five", "sku": "HN-T-030", "name": "Soapstone Big Five Carving", "category": "art-sculpture", "price_usd": 75, "price_kes": 9700, "description": "Compact soapstone Big Five sculpture.", "lead_time_hours": 24, "is_engravable": True},
+    {"id": "antelope-carving", "sku": "HN-T-031", "name": "Antelope Wood Carving", "category": "wood-carving", "price_usd": 85, "price_kes": 11000, "description": "Hand-carved antelope in African hardwood.", "lead_time_hours": 24, "is_engravable": True},
+    {"id": "wood-carving-set", "sku": "HN-T-032", "name": "Artisan Wood Carving", "category": "wood-carving", "price_usd": 75, "price_kes": 9700, "description": "Selected woodcarving piece.", "lead_time_hours": 24, "is_engravable": True},
+    {"id": "lamu-keepsake-box", "sku": "HN-T-071", "name": "Lamu Carved Wood Keepsake Box", "category": "swahili-coast", "price_usd": 65, "price_kes": 8450, "description": "Carved hardwood keepsake box with coastal brass inlay.", "lead_time_hours": 48, "is_engravable": True},
+    {"id": "coastal-kikoi", "sku": "HN-T-072", "name": "Hand-loomed Coastal Kikoi Textile", "category": "swahili-coast", "price_usd": 45, "price_kes": 5900, "description": "Hand-loomed coastal kikoi textile.", "lead_time_hours": 24},
+    {"id": "mombasa-brass-scoop", "sku": "HN-T-073", "name": "Mombasa Antiqued Brass Coffee Scoop", "category": "swahili-coast", "price_usd": 35, "price_kes": 4600, "description": "Antiqued brass coffee scoop, Mombasa metalwork.", "lead_time_hours": 24},
     {"id": "swahili-drums", "sku": "HN-T-033", "name": "Swahili Drum Set (3)", "category": "wood-carving", "price_usd": 120, "price_kes": 15600, "description": "Decorative coastal Swahili hand drums, set of three.", "lead_time_hours": 48},
     {"id": "rungu-clubs", "sku": "HN-T-034", "name": "Beaded Rungu Club Set", "category": "wood-carving", "price_usd": 110, "price_kes": 14300, "description": "Traditional Maasai rungu with beadwork, set of three.", "lead_time_hours": 24},
     {"id": "woven-basket", "sku": "HN-T-040", "name": "Hand-Woven Basket", "category": "baskets", "price_usd": 95, "price_kes": 12300, "description": "Medium sisal or banana-fibre basket.", "lead_time_hours": 48},
@@ -119,7 +126,7 @@ HAZINA_TREASURES: list[dict[str, Any]] = [
     {"id": "kitenge-fabric", "sku": "HN-T-050", "name": "Kitenge Fabric Length", "category": "textiles", "price_usd": 70, "price_kes": 9100, "description": "1.5m premium kitenge length.", "lead_time_hours": 24},
     {"id": "beaded-market-bag", "sku": "HN-T-051", "name": "Beaded Market Bag", "category": "textiles", "price_usd": 120, "price_kes": 15600, "description": "Statement tote with beadwork panel.", "lead_time_hours": 24},
     {"id": "maasai-sandals", "sku": "HN-T-052", "name": "Maasai Leather Sandals", "category": "leather", "price_usd": 85, "price_kes": 11000, "description": "Beaded leather sandals — size confirmed before dispatch.", "lead_time_hours": 48},
-    {"id": "wooden-combs", "sku": "HN-T-053", "name": "Carved Wooden Combs", "category": "wood-carving", "price_usd": 38, "price_kes": 4900, "description": "Set of two carved combs.", "lead_time_hours": 12},
+    {"id": "wooden-combs", "sku": "HN-T-053", "name": "Carved Wooden Combs", "category": "wood-carving", "price_usd": 38, "price_kes": 4900, "description": "Set of two carved combs.", "lead_time_hours": 12, "is_engravable": True},
     {"id": "african-wall-art", "sku": "HN-T-060", "name": "Contemporary African Art Print", "category": "art-sculpture", "price_usd": 150, "price_kes": 19500, "description": "Framed or unframed contemporary Kenyan art.", "lead_time_hours": 48},
     {"id": "sculpture-piece", "sku": "HN-T-061", "name": "Africa-Inspired Sculpture", "category": "art-sculpture", "price_usd": 180, "price_kes": 23400, "description": "Single sculptural piece.", "lead_time_hours": 48},
     {"id": "kitenge-umbrella", "sku": "HN-T-062", "name": "Kitenge Umbrella", "category": "textiles", "price_usd": 85, "price_kes": 11000, "description": "Vibrant kitenge canopy umbrella.", "lead_time_hours": 24},
@@ -128,7 +135,7 @@ HAZINA_TREASURES: list[dict[str, Any]] = [
     {"id": "maasai-market-tote", "sku": "HN-T-065", "name": "Maasai Market Tote", "category": "textiles", "price_usd": 110, "price_kes": 14300, "description": "Leather or canvas market bag.", "lead_time_hours": 24},
     {"id": "african-woven-mat", "sku": "HN-T-066", "name": "African Woven Mat", "category": "homeware", "price_usd": 85, "price_kes": 11000, "description": "Decorative woven mat for table, wall, or shelf styling.", "lead_time_hours": 24},
     {"id": "african-hand-broom", "sku": "HN-T-067", "name": "African Hand Broom", "category": "homeware", "price_usd": 45, "price_kes": 5900, "description": "Minimal hand broom made from natural fibres.", "lead_time_hours": 24},
-    {"id": "beaded-wood-containers", "sku": "HN-T-068", "name": "Beaded Wood Container Set", "category": "wood-carving", "price_usd": 140, "price_kes": 18200, "description": "Decorative beaded wooden containers, selected as a set.", "lead_time_hours": 48},
+    {"id": "beaded-wood-containers", "sku": "HN-T-068", "name": "Beaded Wood Container Set", "category": "wood-carving", "price_usd": 140, "price_kes": 18200, "description": "Decorative beaded wooden containers, selected as a set.", "lead_time_hours": 48, "is_engravable": True},
     {"id": "coconut-shell-plates-spoons", "sku": "HN-T-069", "name": "Coconut Shell Plate & Spoon Set", "category": "homeware", "price_usd": 90, "price_kes": 11700, "description": "Set of three coconut shell plates with wooden spoons.", "lead_time_hours": 24},
     {"id": "premium-packaging", "sku": "HN-T-070", "name": "Premium Gift Box & Tissue", "category": "packaging", "price_usd": 45, "price_kes": 5800, "description": "Matte rigid box, cream tissue, wax seal, brand story card.", "lead_time_hours": 12},
 ]
@@ -273,6 +280,9 @@ HAZINA_TREASURE_IMAGES: dict[str, str] = {
     "soapstone-big-five": "/treasures/big-five-sculpture.jpg",
     "antelope-carving": "/treasures/antelope-wood-carving.jpg",
     "wood-carving-set": "/treasures/handmade-woodcarvings.jpg",
+    "lamu-keepsake-box": "/treasures/beaded-wood-containers.jpg",
+    "coastal-kikoi": "/treasures/african-woven-mats.jpg",
+    "mombasa-brass-scoop": "/treasures/premium-tea-spoons.jpg",
     "swahili-drums": "/treasures/swahili-drums-set.jpg",
     "rungu-clubs": "/treasures/wooden-clubs-beaded.jpg",
     "woven-basket": "/treasures/basket-variety.jpg",

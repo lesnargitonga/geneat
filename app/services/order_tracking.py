@@ -100,8 +100,8 @@ def _display_lines(details: dict[str, Any]) -> list[dict[str, Any]]:
     for raw in details.get("items") or []:
         if not isinstance(raw, dict):
             continue
-        name = str(raw.get("sku_or_name") or raw.get("name") or "Item").strip()
-        qty = max(1, int(raw.get("qty") or 1))
+        name = str(raw.get("name") or raw.get("sku_or_name") or "Item").strip()
+        qty = max(1, int(raw.get("qty") or raw.get("quantity") or 1))
         unit = float(raw.get("unit_price") or 0)
         if unit <= 0 and details.get("amount_usd"):
             continue

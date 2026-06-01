@@ -3,6 +3,7 @@ export type TreasureCategory =
   | "beadwork"
   | "leather"
   | "wood-carving"
+  | "swahili-coast"
   | "textiles"
   | "art-sculpture"
   | "food"
@@ -24,6 +25,8 @@ export type Treasure = {
   origin?: string;
   lead_time_hours?: number;
   personalization?: boolean;
+  /** Suitable for bespoke monogram / engraving (+ENGRAVING_FEE_USD per line). */
+  isEngravable?: boolean;
 };
 
 export const CATEGORY_LABELS: Record<TreasureCategory, string> = {
@@ -31,6 +34,7 @@ export const CATEGORY_LABELS: Record<TreasureCategory, string> = {
   beadwork: "Beadwork & Jewellery",
   leather: "Leather & Travel",
   "wood-carving": "Wood & Carvings",
+  "swahili-coast": "Swahili Coast",
   textiles: "Textiles & Kitenge",
   "art-sculpture": "Art & Sculpture",
   food: "Honey & Pantry",
@@ -41,6 +45,8 @@ export const CATEGORY_LABELS: Record<TreasureCategory, string> = {
 
 export const PACKAGING_FEE_USD = 45;
 export const PACKAGING_FEE_KES = 5800;
+export const ENGRAVING_FEE_USD = 15;
+export const ENGRAVING_FEE_KES = 1950;
 export const MIN_CUSTOM_ITEMS = 2;
 
 /** Individual treasures — mix and match in /build or browse in /treasures */
@@ -142,6 +148,7 @@ export const TREASURES: Treasure[] = [
     origin: "Kariokor, Nairobi",
     lead_time_hours: 24,
     personalization: true,
+    isEngravable: true,
   },
   {
     id: "leather-luggage-tag",
@@ -156,6 +163,7 @@ export const TREASURES: Treasure[] = [
     description: "Embossed leather tag with secure buckle strap.",
     lead_time_hours: 24,
     personalization: true,
+    isEngravable: true,
   },
   {
     id: "soapstone-big-five",
@@ -170,6 +178,7 @@ export const TREASURES: Treasure[] = [
     description: "Compact soapstone sculpture — elephant, rhino, lion, leopard, buffalo.",
     origin: "Kisii soapstone artisans",
     lead_time_hours: 24,
+    isEngravable: true,
   },
   {
     id: "antelope-carving",
@@ -183,6 +192,7 @@ export const TREASURES: Treasure[] = [
     sourceImage: "antelope-wood-carving.jpg",
     description: "Hand-carved antelope figure in rich African hardwood.",
     lead_time_hours: 24,
+    isEngravable: true,
   },
   {
     id: "wood-carving-set",
@@ -195,6 +205,50 @@ export const TREASURES: Treasure[] = [
     imageAlt: "Assorted handmade Kenyan wood carvings",
     sourceImage: "handmade-woodcarvings.jpg",
     description: "Selected piece from our woodcarving partners — animal or abstract form.",
+    lead_time_hours: 24,
+    isEngravable: true,
+  },
+  {
+    id: "lamu-keepsake-box",
+    sku: "HN-T-071",
+    name: "Lamu Carved Wood Keepsake Box",
+    category: "swahili-coast",
+    price_usd: 65,
+    price_kes: 8450,
+    image: "/treasures/beaded-wood-containers.jpg",
+    imageAlt: "Hand-carved wooden keepsake box with coastal brass detail",
+    sourceImage: "beaded-wood-containers.jpg",
+    description: "Compact carved hardwood box — Lamu atelier work with brass inlay accents.",
+    origin: "Lamu Island",
+    lead_time_hours: 48,
+    isEngravable: true,
+  },
+  {
+    id: "coastal-kikoi",
+    sku: "HN-T-072",
+    name: "Hand-loomed Coastal Kikoi Textile",
+    category: "swahili-coast",
+    price_usd: 45,
+    price_kes: 5900,
+    image: "/treasures/african-woven-mats.jpg",
+    imageAlt: "Hand-loomed coastal kikoi textile in rich stripes",
+    sourceImage: "african-woven-mats.jpg",
+    description: "Soft hand-loomed kikoi — Mombasa & Lamu coastal palette, ideal for travel or display.",
+    origin: "Kenyan coast",
+    lead_time_hours: 24,
+  },
+  {
+    id: "mombasa-brass-scoop",
+    sku: "HN-T-073",
+    name: "Mombasa Antiqued Brass Coffee Scoop",
+    category: "swahili-coast",
+    price_usd: 35,
+    price_kes: 4600,
+    image: "/treasures/premium-tea-spoons.jpg",
+    imageAlt: "Antiqued brass coffee scoop with turned handle",
+    sourceImage: "premium-tea-spoons.jpg",
+    description: "Small antiqued brass scoop — Old Town Mombasa metalwork tradition.",
+    origin: "Mombasa Old Town",
     lead_time_hours: 24,
   },
   {
@@ -301,6 +355,7 @@ export const TREASURES: Treasure[] = [
     sourceImage: "wooden-combs.jpg",
     description: "Set of two carved combs — lightweight travel gift.",
     lead_time_hours: 12,
+    isEngravable: true,
   },
   {
     id: "african-wall-art",
@@ -418,6 +473,7 @@ export const TREASURES: Treasure[] = [
     sourceImage: "beaded-wood-containers.jpg",
     description: "Decorative beaded wooden containers, selected as a set.",
     lead_time_hours: 48,
+    isEngravable: true,
   },
   {
     id: "coconut-shell-plates-spoons",
