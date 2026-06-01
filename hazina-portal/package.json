@@ -6,7 +6,7 @@
     "dev": "next dev -p 3004",
     "dev:clean": "bash ../scripts/dev-hazina.sh --clean",
     "build": "next build",
-    "start": "next start -p 3004",
+    "start": "next start -p $PORT",
     "preview": "npm run build && next start -p 3004",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
