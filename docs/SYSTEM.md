@@ -14,7 +14,7 @@
 | Area | Code | Live | Blocker / note |
 |---|---|---|---|
 | Shared API | ✅ | 🟢 | `api.lesnarai.co.ke`; `make doctor-hazina-live` passed on 2026-06-01 |
-| Dedicated Hazina API service | ✅ | ◐ | `hazina-api.onrender.com` is same code but currently repair-gated by pgvector drift until migration `0013` deploys |
+| Dedicated Hazina API service | ✅ | ◐ | `hazina-api.onrender.com` is same code; schema/pgvector repaired, but existing service is still Frankfurt while Hazina DB/Redis are Oregon, so latency gate fails |
 | Tenant `hazina-nomads` | ✅ | ◐ | `DEFAULT_BUSINESS_SLUG`; Meta `phone_number_id` |
 | Gen-Eat portal | ✅ | 🟢 | `geneat.lesnarai.co.ke` |
 | Hazina portal | ✅ | ⬜ | `hazina.lesnarai.co.ke` DNS unverified 2026-06-01; local `:3004` |
@@ -25,7 +25,7 @@
 | Private sourcing brief `/build` | ✅ | ◐ | Monograms + bespoke; may need push/deploy |
 | Order tracking `HN-ORD-*?token=` | ✅ | ◐ | Needs `PUBLIC_HAZINA_PORTAL_URL` |
 | Ghost Ops `!dispatch` / `!delivered` | ✅ | ⬜ | `ADMIN_WA_NUMBERS` on API |
-| RAG / menu_photos | ✅ | ◐ | Shared API has pgvector + KB rows; dedicated Hazina DB needs `0013` repair + re-seed |
+| RAG / menu_photos | ✅ | 🟢 | Shared API has pgvector + KB rows; dedicated Hazina DB now has pgvector + Hazina KB after 2026-06-01 repair |
 | Courier integration | ⬜ | ⬜ | Manual ops only |
 | Partner payouts | ⬜ | ⬜ | Dashboard placeholder |
 | DHL live rates | ⬜ | ⬜ | Stub in `app/ai/tools.py` |
@@ -64,6 +64,12 @@ Portals (/api/chat, /api/orders) + Meta WA webhook
 **No separate Hazina codebase.** The dedicated `hazina-api` Render service runs
 the same FastAPI app and must pass the same `/health/deep` + Hazina doctor
 checks before it becomes the public API target.
+
+**Current API target:** keep Hazina portal and WhatsApp on
+`https://api.lesnarai.co.ke` until the dedicated Hazina API service is recreated
+in Oregon or otherwise co-located with its DB/Redis. `hazina-api` is functional
+after migration, but cross-region DB/Redis latency makes it unsuitable as the
+primary public endpoint.
 
 ---
 

@@ -2376,7 +2376,9 @@ make doctor-hazina-live
 # passed against https://api.lesnarai.co.ke
 
 make doctor-hazina-api
-# failed before migration 0013 deploy: pgvector missing and /mock/message 500
+# after manual migration + dockerCommand repair: deep health is OK and Hazina
+# replies work, but the latency gate still fails because the existing API
+# service is in Frankfurt while Hazina DB/Redis are in Oregon
 ```
 
 Additional safe no-money WhatsApp reply gate:

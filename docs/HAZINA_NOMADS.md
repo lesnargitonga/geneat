@@ -1115,9 +1115,10 @@ Current local verification on **2026-06-01**:
 - `make doctor-hazina-live` → passed on 2026-06-01 against `api.lesnarai.co.ke`
   with no payment confirmation; catalog reply, checkout start, and name →
   delivery step all passed
-- `make doctor-hazina-api` → failed before the `0013_repair_pgvector_extension`
-  deploy because `hazina-api.onrender.com` had `pgvector_extension_missing` and
-  `/mock/message` returned 500 despite `/readyz` being green
+- `make doctor-hazina-api` → after the 2026-06-01 manual migration and Render
+  `dockerCommand` repair, deep health is OK and Hazina replies work; the check
+  still fails the latency gate because the existing API service is Frankfurt
+  while Hazina DB/Redis are Oregon
 - `cd hazina-portal && npm run typecheck` → passed
 - `cd hazina-portal && npm run lint` → passed
 - `cd hazina-portal && npm run build` → passed, **51 routes** (static pages + API routes + middleware)
