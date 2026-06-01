@@ -113,9 +113,10 @@ Current Hazina production-routing path:
   Meta phone id, and sticky active Hazina conversations to protect against
   stale Lily Pond phone mappings,
 - Hazina pricing is USD-first with the KES equivalent shown everywhere,
-- curated collections and custom boxes now use guided checkout workflows on
-  the website before opening portal chat or WhatsApp, with Hotel, JKIA, and
-  DHL/export quote modes,
+- curated collections and custom boxes now start an in-app guided checkout
+  instead of dumping a long internal prompt into chat; the flow asks for guest
+  name, delivery mode, exact location, timing, payment choice, and contact one
+  step at a time before order creation,
 - all five collection image slots and all individual treasure image references
   resolve locally; collection images now use real available product/context
   photos instead of generated branded mockups, but exact no-watermark finished
@@ -238,8 +239,8 @@ Fresh local checks run during this reconciliation:
 
 | Check | Result |
 | --- | --- |
-| Fast focused backend suite | `165 passed, 1 warning` via `make test-fast` |
-| Hazina focused suite | `61 passed, 1 warning` via `make test-hazina` |
+| Fast focused backend suite | `167 passed, 1 warning` via `make test-fast` |
+| Hazina focused suite | `63 passed, 1 warning` via `make test-hazina` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -2339,7 +2340,7 @@ make test-fast
 Current result:
 
 ```text
-165 passed, 1 warning
+167 passed, 1 warning
 ```
 
 ### 22.2 Builds
@@ -2578,10 +2579,12 @@ This is the honest list, not the flattering list.
 - Hazina pricing now uses USD-first / KES-visible display across the backend
   catalog, WhatsApp menus, portal cards, collection details, treasure pages,
   and custom-box totals
-- Hazina curated collections and custom boxes now collect delivery location,
-  delivery window, contact, and payment preference in website workflows, then
-  send structured automation prompts that can create the order and start
-  Paystack/M-Pesa payment without vague concierge forwarding
+- Hazina curated collections and custom boxes now hand structured checkout
+  objects to the in-app chat; the customer sees a calm step-by-step flow, while
+  the backend receives the complete automation payload only after confirmation
+- Hazina WhatsApp/backend gift automation now holds draft checkouts in a
+  staged state and asks for one missing detail at a time instead of requesting
+  name, delivery address, time, payment, and contact in one crowded message
 - Hazina draft checkouts now allow interruption: photo requests, `no STK yet`,
   and `cancel checkout` no longer get misread as hotel/JKIA/DHL addresses or
   accidentally start payment
@@ -2792,6 +2795,12 @@ Local QA on 2026-06-01 verified:
   horizontal page overflow,
 - Hazina chat probes through the backend replied with Hazina-only copy and no
   Lily Pond references,
+- Hazina in-app chat now hides starter prompts after the first customer
+  message, uses guided action chips for checkout steps, and posts complete
+  order payloads to the backend only after customer confirmation,
+- collection checkout and custom-box "Create order" now open the guided chat
+  flow immediately; checkout no longer appears stuck because optional details
+  are missing from the page form,
 - draft checkout interruption was smoke-tested: a photo request during checkout
   returns an image, and `cancel checkout` clears the draft instead of starting
   payment,

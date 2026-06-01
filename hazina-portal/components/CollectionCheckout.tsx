@@ -14,20 +14,10 @@ type DeliveryMode = "hotel" | "jkia" | "international";
 export function CollectionCheckout({ box }: Props) {
   const [quantity, setQuantity] = useState(1);
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>(box.jkia_only ? "jkia" : "hotel");
-  const [customerName, setCustomerName] = useState("");
-  const [deliveryLocation, setDeliveryLocation] = useState("");
-  const [deliveryWindow, setDeliveryWindow] = useState("");
-  const [contact, setContact] = useState("");
   const [paymentCurrency, setPaymentCurrency] = useState<"USD" | "KES">("USD");
 
   const totalUsd = box.price_usd * quantity;
   const totalKes = box.price_kes * quantity;
-
-  const canCheckout =
-    customerName.trim().length >= 2 &&
-    deliveryLocation.trim().length >= 6 &&
-    deliveryWindow.trim().length >= 3 &&
-    contact.trim().length >= 5;
 
   const message = buildCollectionCheckoutMessage({
     box,
@@ -35,16 +25,23 @@ export function CollectionCheckout({ box }: Props) {
     totalUsd,
     totalKes,
     deliveryMode,
-    customerName,
-    deliveryLocation,
-    deliveryWindow,
-    contact,
     paymentCurrency,
   });
 
   const startAutomatedCheckout = () => {
-    if (!canCheckout) return;
-    window.dispatchEvent(new CustomEvent("hazina:chat-prompt", { detail: { prompt: message } }));
+    window.dispatchEvent(
+      new CustomEvent("hazina:chat-prompt", {
+        detail: {
+          checkout: {
+            kind: "collection",
+            collectionId: box.id,
+            quantity,
+            deliveryMode,
+            paymentCurrency,
+          },
+        },
+      }),
+    );
     window.location.hash = "chat";
   };
 
@@ -54,7 +51,7 @@ export function CollectionCheckout({ box }: Props) {
         <span className="label-mono">Automated checkout</span>
         <h2 className="font-serif text-2xl md:text-3xl text-obsidian mt-2">Reserve {box.name}</h2>
         <p className="text-sm text-ink-mute mt-2 leading-relaxed">
-          Complete the details here and Hazina will create the order and start payment in chat.
+          Start a guided checkout. Hazina will ask for one detail at a time before creating the order.
         </p>
       </div>
 
@@ -113,31 +110,11 @@ export function CollectionCheckout({ box }: Props) {
         </button>
       </div>
 
-      <div className="grid gap-3">
-        <input
-          value={customerName}
-          onChange={(e) => setCustomerName(e.target.value)}
-          className="input-luxury"
-          placeholder="Guest name"
-        />
-        <input
-          value={deliveryLocation}
-          onChange={(e) => setDeliveryLocation(e.target.value)}
-          className="input-luxury"
-          placeholder={deliveryLocationPlaceholder(deliveryMode)}
-        />
-        <input
-          value={deliveryWindow}
-          onChange={(e) => setDeliveryWindow(e.target.value)}
-          className="input-luxury"
-          placeholder={deliveryWindowPlaceholder(deliveryMode)}
-        />
-        <input
-          value={contact}
-          onChange={(e) => setContact(e.target.value)}
-          className="input-luxury"
-          placeholder={paymentCurrency === "USD" ? "Email for card checkout link" : "M-Pesa phone number"}
-        />
+      <div className="grid gap-2 border border-border bg-sand-dark/40 p-3 text-sm text-ink-mute">
+        <p className="text-obsidian">Checkout will collect:</p>
+        <p>1. Guest name</p>
+        <p>2. Exact delivery point</p>
+        <p>3. Timing, contact, and payment confirmation</p>
       </div>
 
       <div className="grid grid-cols-2 gap-2">
@@ -161,10 +138,9 @@ export function CollectionCheckout({ box }: Props) {
         <button
           type="button"
           onClick={startAutomatedCheckout}
-          disabled={!canCheckout}
-          className="btn-dark disabled:opacity-40"
+          className="btn-dark"
         >
-          Start checkout
+          Start guided checkout
         </button>
         <a
           href={whatsappLink(BRAND.whatsapp, message)}
@@ -185,10 +161,6 @@ function buildCollectionCheckoutMessage({
   totalUsd,
   totalKes,
   deliveryMode,
-  customerName,
-  deliveryLocation,
-  deliveryWindow,
-  contact,
   paymentCurrency,
 }: {
   box: GiftBox;
@@ -196,28 +168,18 @@ function buildCollectionCheckoutMessage({
   totalUsd: number;
   totalKes: number;
   deliveryMode: DeliveryMode;
-  customerName: string;
-  deliveryLocation: string;
-  deliveryWindow: string;
-  contact: string;
   paymentCurrency: "USD" | "KES";
 }): string {
   return [
-    "Hello Hazina Nomads — automated collection checkout:",
+    "Hello Hazina Nomads — I would like to reserve a collection.",
     "",
     `Collection: ${quantity}× ${box.name} (${box.sku})`,
     `Unit price: USD ${box.price_usd.toLocaleString("en-US")} / KES ${box.price_kes.toLocaleString("en-KE")}`,
     `Estimated total: USD ${totalUsd.toLocaleString("en-US")} / KES ${totalKes.toLocaleString("en-KE")}`,
-    `Guest: ${customerName.trim()}`,
     `Delivery type: ${deliveryTypeLabel(deliveryMode)}`,
-    `Delivery location: ${deliveryLocation.trim()}`,
-    `Delivery window: ${deliveryWindow.trim()}`,
-    `Contact/payment detail: ${contact.trim()}`,
     `Preferred payment: ${paymentCurrency === "USD" ? "USD card link" : "KES M-Pesa STK"}`,
     "",
-    deliveryMode === "international"
-      ? "Please confirm availability, quote insured DHL/export shipping before payment, then start checkout."
-      : "Please create the order, confirm availability, and start payment.",
+    "Please guide me step by step before creating the order.",
   ].join("\n");
 }
 
@@ -225,16 +187,4 @@ function deliveryTypeLabel(mode: DeliveryMode): string {
   if (mode === "jkia") return "JKIA terminal handoff";
   if (mode === "international") return "DHL/export shipping quote";
   return "Hotel delivery";
-}
-
-function deliveryLocationPlaceholder(mode: DeliveryMode): string {
-  if (mode === "jkia") return "Terminal + meeting point";
-  if (mode === "international") return "Country, city, full delivery address";
-  return "Hotel + room / front desk";
-}
-
-function deliveryWindowPlaceholder(mode: DeliveryMode): string {
-  if (mode === "jkia") return "Flight / departure time";
-  if (mode === "international") return "Needed by date + courier notes";
-  return "Preferred delivery window";
 }

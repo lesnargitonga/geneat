@@ -47,10 +47,6 @@ export function PackBuilder({
   const [includePackaging, setIncludePackaging] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState<"browse" | "delivery">("browse");
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>("hotel");
-  const [deliveryLocation, setDeliveryLocation] = useState("");
-  const [deliveryWindow, setDeliveryWindow] = useState("");
-  const [customerName, setCustomerName] = useState("");
-  const [contact, setContact] = useState("");
   const [paymentCurrency, setPaymentCurrency] = useState<"USD" | "KES">("USD");
 
   const filtered = useMemo(() => {
@@ -121,40 +117,42 @@ export function PackBuilder({
     totalKes,
     totalUsd,
     deliveryMode,
-    deliveryLocation,
-    deliveryWindow,
-    customerName,
-    contact,
     paymentCurrency,
   });
 
   const canOrder = totalUnits >= MIN_CUSTOM_ITEMS;
-  const canCheckout =
-    canOrder &&
-    deliveryLocation.trim().length >= 6 &&
-    deliveryWindow.trim().length >= 3 &&
-    contact.trim().length >= 5;
 
   const startAutomatedCheckout = () => {
-    if (!canCheckout) return;
-    window.dispatchEvent(new CustomEvent("hazina:chat-prompt", { detail: { prompt: checkoutMessage } }));
+    if (!canOrder) return;
+    window.dispatchEvent(
+      new CustomEvent("hazina:chat-prompt", {
+        detail: {
+          checkout: {
+            kind: "custom",
+            items: cartLines.map(({ item, qty }) => ({
+              id: item.id,
+              sku: item.sku,
+              name: item.name,
+              qty,
+              price_usd: item.price_usd,
+              price_kes: item.price_kes,
+            })),
+            includePackaging,
+            totalUsd,
+            totalKes,
+            deliveryMode,
+            paymentCurrency,
+          },
+        },
+      }),
+    );
     window.location.hash = "chat";
   };
 
   const validationHints: string[] = [];
   if (!canOrder) validationHints.push(`Choose ${MIN_CUSTOM_ITEMS} or more treasures`);
-  if (checkoutStep === "delivery") {
-    if (deliveryLocation.trim().length < 6) {
-      validationHints.push(`Delivery location: ${deliveryLocationPlaceholder(deliveryMode)}`);
-    }
-    if (deliveryWindow.trim().length < 3) {
-      validationHints.push(`Delivery window: ${deliveryWindowPlaceholder(deliveryMode)}`);
-    }
-    if (contact.trim().length < 5) {
-      validationHints.push(
-        paymentCurrency === "USD" ? "Contact: email or WhatsApp for checkout link" : "Contact: M-Pesa phone number",
-      );
-    }
+  if (checkoutStep === "delivery" && canOrder) {
+    validationHints.push("Hazina chat will collect name, exact location, time, and contact one at a time.");
   }
 
   return (
@@ -240,7 +238,7 @@ export function PackBuilder({
             <p className="text-ink-mute text-sm mt-2 leading-relaxed">
               {checkoutStep === "browse"
                 ? "Add items until you meet the minimum, then proceed to delivery."
-                : "Confirm where and when we should deliver, then checkout."}
+                : "Choose delivery and payment preference. Chat will collect the remaining details carefully."}
             </p>
           </div>
 
@@ -374,33 +372,6 @@ export function PackBuilder({
                   ))}
                 </div>
 
-                <input
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  className="input-soft"
-                  placeholder="Your name"
-                />
-                <input
-                  value={deliveryLocation}
-                  onChange={(e) => setDeliveryLocation(e.target.value)}
-                  className="input-soft"
-                  placeholder={deliveryLocationPlaceholder(deliveryMode)}
-                />
-                <input
-                  value={deliveryWindow}
-                  onChange={(e) => setDeliveryWindow(e.target.value)}
-                  className="input-soft"
-                  placeholder={deliveryWindowPlaceholder(deliveryMode)}
-                />
-                <input
-                  value={contact}
-                  onChange={(e) => setContact(e.target.value)}
-                  className="input-soft"
-                  placeholder={
-                    paymentCurrency === "USD" ? "Email or WhatsApp for checkout link" : "M-Pesa phone number"
-                  }
-                />
-
                 <div className="flex gap-6">
                   <button
                     type="button"
@@ -438,10 +409,10 @@ export function PackBuilder({
               <button
                 type="button"
                 onClick={startAutomatedCheckout}
-                disabled={!canCheckout}
+                disabled={!canOrder}
                 className="btn-dark w-full disabled:opacity-40"
               >
-                Create order
+                Continue guided checkout
               </button>
 
               <a
@@ -548,10 +519,6 @@ function buildWhatsAppMessage({
   totalKes,
   totalUsd,
   deliveryMode,
-  deliveryLocation,
-  deliveryWindow,
-  customerName,
-  contact,
   paymentCurrency,
 }: {
   items: { item: Treasure; qty: number }[];
@@ -559,10 +526,6 @@ function buildWhatsAppMessage({
   totalKes: number;
   totalUsd: number;
   deliveryMode: DeliveryMode;
-  deliveryLocation: string;
-  deliveryWindow: string;
-  customerName: string;
-  contact: string;
   paymentCurrency: "USD" | "KES";
 }): string {
   const lines = [
@@ -572,17 +535,11 @@ function buildWhatsAppMessage({
   ];
   if (packaging) lines.push("• Premium packaging & story card");
   lines.push("", `Estimated total: ${formatUSD(totalUsd)} / ${formatKES(totalKes)}`);
-  if (customerName.trim()) lines.push(`Guest: ${customerName.trim()}`);
   lines.push(`Delivery type: ${deliveryTypeLabel(deliveryMode)}`);
-  if (deliveryLocation.trim()) lines.push(`Delivery location: ${deliveryLocation.trim()}`);
-  if (deliveryWindow.trim()) lines.push(`Delivery window: ${deliveryWindow.trim()}`);
-  if (contact.trim()) lines.push(`Contact/payment detail: ${contact.trim()}`);
   lines.push(`Preferred payment: ${paymentCurrency === "USD" ? "USD card link" : "KES M-Pesa STK"}`);
   lines.push(
     "",
-    deliveryMode === "international"
-      ? "Please confirm availability, quote insured DHL/export shipping before payment, then start checkout."
-      : "Please create the order, confirm availability, and start payment.",
+    "Please guide me step by step before creating the order.",
   );
   return lines.join("\n");
 }
@@ -591,16 +548,4 @@ function deliveryTypeLabel(mode: DeliveryMode): string {
   if (mode === "jkia") return "JKIA terminal handoff";
   if (mode === "international") return "DHL/export shipping quote";
   return "Hotel delivery";
-}
-
-function deliveryLocationPlaceholder(mode: DeliveryMode): string {
-  if (mode === "jkia") return "Terminal + meeting point";
-  if (mode === "international") return "Country, city, full delivery address";
-  return "Hotel + room / front desk";
-}
-
-function deliveryWindowPlaceholder(mode: DeliveryMode): string {
-  if (mode === "jkia") return "Flight / departure time";
-  if (mode === "international") return "Needed by date + courier notes";
-  return "Preferred delivery window";
 }

@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { BRAND, GIFT_BOXES } from "@/lib/products";
 import { whatsappLink } from "@/lib/format";
 import { CollectionCard } from "@/components/CollectionCard";
-import { SmartBackLink } from "@/components/SmartBackLink";
 import { StickyWhatsAppCTA } from "@/components/StickyWhatsAppCTA";
 
 export const metadata: Metadata = {
@@ -55,14 +54,6 @@ export default function CollectionsPage() {
         </div>
       </section>
 
-      <p className="container-page text-center py-10">
-        <SmartBackLink
-          fallbackHref="/"
-          className="font-mono text-sm uppercase tracking-[0.1em] text-bronze hover:text-bronze-dark transition-colors"
-        >
-          ← Back to browsing
-        </SmartBackLink>
-      </p>
       <StickyWhatsAppCTA message={orderMessage} />
     </>
   );

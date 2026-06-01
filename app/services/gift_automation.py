@@ -223,6 +223,14 @@ def detect_payment_currency(text: str, *, checkout: dict | None = None) -> str:
     return "USD"
 
 
+def _explicit_payment_currency(text: str | None) -> str | None:
+    if _KES_PAY_RE.search(text or ""):
+        return "KES"
+    if _USD_PAY_RE.search(text or ""):
+        return "USD"
+    return None
+
+
 def _price_label(*, usd: float | int, kes: float | int) -> str:
     return f"USD {int(usd):,} / KES {int(kes):,}"
 
@@ -406,24 +414,14 @@ def _product_detail_reply(product_id: str, *, is_sw: bool) -> str:
 
 def _ask_delivery_reply(product_id: str, *, is_sw: bool) -> str:
     row = HAZINA_PRODUCTS[product_id]
-    if row.get("jkia_only"):
-        if is_sw:
-            return (
-                f"*{row['name']}* — {_price_label(usd=row['price_usd'], kes=row['price_kes'])}. "
-            "Niambie terminal ya JKIA (mf. 1A), muda wa ndege, au nchi/anwani ya DHL, na kama utalipa kwa card/USD au M-Pesa/KES."
-            )
-        return (
-            f"*{row['name']}* — {_price_label(usd=row['price_usd'], kes=row['price_kes'])}. "
-            "Share your JKIA terminal and flight time, or the international delivery address for a DHL quote. Then tell me USD card link or KES M-Pesa."
-        )
     if is_sw:
         return (
             f"*{row['name']}* — {_price_label(usd=row['price_usd'], kes=row['price_kes'])}. "
-            "Niambie hoteli + chumba, JKIA + terminal, au nchi/anwani ya DHL, muda unaopendelea, na card/USD au M-Pesa/KES."
+            "Tutamaliza hatua kwa hatua. Kwanza, niweke jina gani kwa oda?"
         )
     return (
         f"*{row['name']}* — {_price_label(usd=row['price_usd'], kes=row['price_kes'])}. "
-        "Where should we deliver? Include hotel + room, JKIA + terminal, or international address for DHL quote, plus timing and USD card or KES M-Pesa."
+        "I will collect the details one at a time. First, what name should I put on the order?"
     )
 
 
@@ -431,11 +429,11 @@ def _ask_custom_delivery_reply(*, item_count: int, total_kes: float, total_usd: 
     if is_sw:
         return (
             f"Sanduku lako la desturi ({item_count} vitu, {_price_label(usd=total_usd, kes=total_kes)}) — "
-            "nitakamilisha baada ya kupata jina la mgeni, mahali pa delivery (hoteli + chumba, JKIA + terminal, au anwani ya DHL), muda unaotaka, na email/card au M-Pesa."
+            "tutamaliza hatua kwa hatua. Kwanza, niweke jina gani kwa oda?"
         )
     return (
         f"Your custom box ({item_count} treasures, {_price_label(usd=total_usd, kes=total_kes)}) — "
-        "to finish checkout, send guest name, delivery location (hotel + room, JKIA + terminal, or DHL address), delivery window, and email/card or M-Pesa contact."
+        "we will finish checkout one step at a time. First, what name should I put on the order?"
     )
 
 
@@ -466,6 +464,116 @@ def _catalog_reply(*, is_sw: bool) -> str:
         "These are our signature collections:\n"
         + "\n".join(lines)
         + "\n\nPick one below, or send a custom box from /build with at least 2 treasures."
+    )
+
+
+def _delivery_type_from_text(text: str | None, *, fallback: str | None = None) -> str | None:
+    body = (text or "").lower()
+    if "dhl" in body or "export" in body or "international" in body or "abroad" in body:
+        return "DHL/export shipping quote"
+    if "jkia" in body or "airport" in body or "terminal" in body or "flight" in body:
+        return "JKIA terminal handoff"
+    if "hotel" in body or "room" in body or "front desk" in body or "lodge" in body or "camp" in body:
+        return "Hotel delivery"
+    if fallback:
+        low = fallback.lower()
+        if "dhl" in low or "export" in low or "international" in low:
+            return "DHL/export shipping quote"
+        if "jkia" in low or "airport" in low or "terminal" in low:
+            return "JKIA terminal handoff"
+        if "hotel" in low or "room" in low or "front desk" in low:
+            return "Hotel delivery"
+    return None
+
+
+def _checkout_next_step(checkout: dict) -> str | None:
+    if len(str(checkout.get("customer_name") or "").strip()) < 2:
+        return "name"
+    if not _delivery_type_from_text(None, fallback=str(checkout.get("delivery_type") or "")):
+        return "delivery_type"
+    if len(str(checkout.get("delivery_location") or "").strip()) < 5:
+        return "location"
+    if len(str(checkout.get("delivery_window") or "").strip()) < 3:
+        return "window"
+    if str(checkout.get("payment_currency") or "").upper() not in {"USD", "KES"}:
+        return "payment"
+    contact = str(checkout.get("contact") or "").strip()
+    if len(contact) < 5:
+        return "contact"
+    if str(checkout.get("payment_currency") or "").upper() == "KES":
+        digits = re.sub(r"\D", "", contact)
+        if len(digits) < 9:
+            return "contact"
+    return None
+
+
+def _checkout_prompt(checkout: dict, *, is_sw: bool) -> str:
+    step = str(checkout.get("step") or _checkout_next_step(checkout) or "confirm")
+    if step == "name":
+        return "Niweke jina gani kwa oda?" if is_sw else "What name should I put on the order?"
+    if step == "delivery_type":
+        return (
+            "Utataka hotel delivery, JKIA handoff, au DHL/export?"
+            if is_sw else
+            "Should this be hotel delivery, JKIA handoff, or a DHL/export quote?"
+        )
+    if step == "location":
+        dtype = _delivery_type_from_text(None, fallback=str(checkout.get("delivery_type") or ""))
+        if dtype and "JKIA" in dtype:
+            return (
+                "Ni terminal gani ya JKIA au meeting point gani?"
+                if is_sw else
+                "Which JKIA terminal or airport meeting point should we use?"
+            )
+        if dtype and "DHL" in dtype:
+            return (
+                "Ni nchi, mji, na anwani gani ya DHL?"
+                if is_sw else
+                "Which country, city, and delivery address should we quote for DHL?"
+            )
+        return (
+            "Ni hoteli gani, chumba, au front desk gani?"
+            if is_sw else
+            "Which hotel, room, or front desk name should we deliver to?"
+        )
+    if step == "window":
+        dtype = _delivery_type_from_text(None, fallback=str(checkout.get("delivery_type") or ""))
+        if dtype and "JKIA" in dtype:
+            return (
+                "Ndege inaondoka saa ngapi?"
+                if is_sw else
+                "What flight or departure time should we work around?"
+            )
+        if dtype and "DHL" in dtype:
+            return (
+                "Unahitaji parcel ifike au itumwe lini?"
+                if is_sw else
+                "When do you need the parcel delivered or dispatched?"
+            )
+        return "Unataka delivery lini?" if is_sw else "What delivery window works best?"
+    if step == "payment":
+        return "Utalipa kwa USD card link au KES M-Pesa?" if is_sw else "Would you like USD card link or KES M-Pesa?"
+    if step == "contact":
+        if str(checkout.get("payment_currency") or "").upper() == "KES":
+            return "Ni nambari gani ya M-Pesa ipokee STK?" if is_sw else "Which M-Pesa phone number should receive the STK prompt?"
+        return (
+            "Ni email au WhatsApp number gani ipokee secure card link?"
+            if is_sw else
+            "Which email or WhatsApp number should receive the secure card checkout link?"
+        )
+    return "Thibitisha tuanze checkout." if is_sw else "Confirm and I will create the order."
+
+
+async def _ask_next_checkout_step(conversation_id: uuid.UUID, checkout: dict, *, is_sw: bool) -> GiftAutomationResult:
+    next_step = _checkout_next_step(checkout)
+    if next_step is None:
+        checkout["step"] = "confirm"
+    else:
+        checkout["step"] = next_step
+    await _set_checkout(conversation_id, checkout)
+    return GiftAutomationResult(
+        reply=_checkout_prompt(checkout, is_sw=is_sw),
+        safety_flag=f"deterministic:hazina_need_{checkout['step']}",
     )
 
 
@@ -833,6 +941,168 @@ async def try_hazina_automation(
     if checkout and should_pause_checkout_for_customer_request(text):
         return None
 
+    if checkout and checkout.get("step") in {
+        "name",
+        "delivery_type",
+        "location",
+        "window",
+        "payment",
+        "contact",
+        "confirm",
+    }:
+        step = str(checkout.get("step") or "")
+        value = (text or "").strip()
+        if step == "name":
+            if len(value) < 2:
+                return GiftAutomationResult(
+                    reply=_checkout_prompt(checkout, is_sw=is_sw),
+                    safety_flag="deterministic:hazina_need_name",
+                )
+            checkout["customer_name"] = value
+        elif step == "delivery_type":
+            dtype = _delivery_type_from_text(value)
+            if not dtype:
+                return GiftAutomationResult(
+                    reply=_checkout_prompt(checkout, is_sw=is_sw),
+                    safety_flag="deterministic:hazina_need_delivery_type",
+                )
+            checkout["delivery_type"] = dtype
+        elif step == "location":
+            if len(value) < 5:
+                return GiftAutomationResult(
+                    reply=_checkout_prompt(checkout, is_sw=is_sw),
+                    safety_flag="deterministic:hazina_need_location",
+                )
+            checkout["delivery_location"] = value
+        elif step == "window":
+            if len(value) < 3:
+                return GiftAutomationResult(
+                    reply=_checkout_prompt(checkout, is_sw=is_sw),
+                    safety_flag="deterministic:hazina_need_window",
+                )
+            checkout["delivery_window"] = value
+        elif step == "payment":
+            pay_cur = _explicit_payment_currency(value)
+            if pay_cur not in {"USD", "KES"}:
+                return GiftAutomationResult(
+                    reply=_checkout_prompt(checkout, is_sw=is_sw),
+                    safety_flag="deterministic:hazina_need_payment",
+                )
+            checkout["payment_currency"] = pay_cur
+        elif step == "contact":
+            if len(value) < 5:
+                return GiftAutomationResult(
+                    reply=_checkout_prompt(checkout, is_sw=is_sw),
+                    safety_flag="deterministic:hazina_need_contact",
+                )
+            if str(checkout.get("payment_currency") or "").upper() == "KES":
+                digits = re.sub(r"\D", "", value)
+                if len(digits) < 9:
+                    return GiftAutomationResult(
+                        reply=_checkout_prompt(checkout, is_sw=is_sw),
+                        safety_flag="deterministic:hazina_need_contact",
+                    )
+            checkout["contact"] = value
+        elif step == "confirm":
+            if not re.search(r"\b(yes|confirm|go ahead|proceed|create|checkout|sawa|ndio)\b", value, re.I):
+                checkout["step"] = "name"
+                await _set_checkout(conversation_id, checkout)
+                return GiftAutomationResult(
+                    reply=(
+                        "Sawa, tutapitia maelezo tena. " + _checkout_prompt(checkout, is_sw=is_sw)
+                        if is_sw else
+                        "No problem, we can correct the details. " + _checkout_prompt(checkout, is_sw=is_sw)
+                    ),
+                    safety_flag="deterministic:hazina_checkout_edit",
+                )
+
+            contact = str(checkout.get("contact") or "")
+            email = (_EMAIL_RE.search(contact or "") or email_match)
+            payment_email = email.group(0) if email else payment_email
+            payment_currency = str(checkout.get("payment_currency") or "USD").upper()
+            delivery_location = str(checkout.get("delivery_location") or "")
+            departure_note = str(checkout.get("delivery_window") or "")
+            delivery_type = str(checkout.get("delivery_type") or "")
+            customer_name = str(checkout.get("customer_name") or getattr(customer, "name", None) or "")
+
+            if checkout.get("order_type") == "custom_box":
+                parsed_data = checkout.get("custom_box") or {}
+                items = [
+                    CafeOrderItem(
+                        str(r.get("sku_or_name") or ""),
+                        qty=int(r.get("qty") or 1),
+                        unit_price=float(r.get("unit_price") or 0),
+                    )
+                    for r in (parsed_data.get("items") or [])
+                    if isinstance(r, dict)
+                ]
+                if len(items) < MIN_CUSTOM_ITEMS:
+                    await _clear_checkout(conversation_id)
+                    return None
+                parsed = ParsedCustomBox(
+                    items=items,
+                    total_kes=float(parsed_data.get("total_kes") or 0),
+                    total_usd=float(parsed_data.get("total_usd") or 0),
+                    skus=list(parsed_data.get("skus") or []),
+                )
+                return await _finalize_custom_order(
+                    db,
+                    customer_id=customer.id,
+                    conversation_id=conversation_id,
+                    business_id=business_id,
+                    msisdn=customer.phone_number,
+                    parsed=parsed,
+                    delivery_location=delivery_location,
+                    departure_note=departure_note,
+                    delivery_type=delivery_type,
+                    customer_name=customer_name,
+                    is_sw=is_sw,
+                    payment_currency=payment_currency,
+                    payment_email=payment_email,
+                )
+
+            product_id = str(checkout.get("product_id") or "")
+            if product_id not in HAZINA_PRODUCTS:
+                await _clear_checkout(conversation_id)
+                return None
+            return await _finalize_order(
+                db,
+                customer_id=customer.id,
+                conversation_id=conversation_id,
+                business_id=business_id,
+                msisdn=customer.phone_number,
+                product_id=product_id,
+                quantity=int(checkout.get("quantity") or 1),
+                delivery_location=delivery_location,
+                departure_note=departure_note,
+                delivery_type=delivery_type,
+                customer_name=customer_name,
+                is_sw=is_sw,
+                payment_currency=payment_currency,
+                payment_email=payment_email,
+            )
+
+        next_step = _checkout_next_step(checkout)
+        if next_step is None:
+            checkout["step"] = "confirm"
+            await _set_checkout(conversation_id, checkout)
+            summary = (
+                f"Thibitisha: {checkout.get('customer_name')} - {checkout.get('delivery_type')} - "
+                f"{checkout.get('delivery_location')} - {checkout.get('delivery_window')} - "
+                f"{checkout.get('payment_currency')}. Andika 'confirm' tuanze checkout."
+                if is_sw else
+                f"Please confirm: {checkout.get('customer_name')} - {checkout.get('delivery_type')} - "
+                f"{checkout.get('delivery_location')} - {checkout.get('delivery_window')} - "
+                f"{checkout.get('payment_currency')}. Reply 'confirm' and I will create the order."
+            )
+            return GiftAutomationResult(reply=summary, safety_flag="deterministic:hazina_checkout_confirm")
+        checkout["step"] = next_step
+        await _set_checkout(conversation_id, checkout)
+        return GiftAutomationResult(
+            reply=_checkout_prompt(checkout, is_sw=is_sw),
+            safety_flag=f"deterministic:hazina_need_{next_step}",
+        )
+
     if checkout and checkout.get("step") in {"delivery", "departure", "custom_delivery"}:
         if checkout.get("order_type") == "custom_box":
             location = (text or "").strip()
@@ -958,7 +1228,9 @@ async def try_hazina_automation(
             checkout_details.delivery_window
             and len(checkout_details.delivery_window.strip()) >= 3
         )
-        if has_delivery and has_window:
+        has_name = bool(checkout_details.customer_name and checkout_details.customer_name.strip())
+        has_contact = bool(checkout_details.contact and checkout_details.contact.strip())
+        if has_delivery and has_window and has_name and has_contact:
             return await _finalize_custom_order(
                 db,
                 customer_id=customer.id,
@@ -974,28 +1246,33 @@ async def try_hazina_automation(
                 payment_currency=checkout_details.payment_currency or detect_payment_currency(text),
                 payment_email=payment_email,
             )
-        await _set_checkout(
-            conversation_id,
-            {
-                "order_type": "custom_box",
-                "step": "custom_delivery",
-                "custom_box": {
-                    "items": [i.to_order_dict() for i in parsed_box.items],
-                    "total_kes": parsed_box.total_kes,
-                    "total_usd": parsed_box.total_usd,
-                    "skus": parsed_box.skus,
-                },
-                "delivery_type": checkout_details.delivery_type,
-                "payment_currency": checkout_details.payment_currency or detect_payment_currency(text),
+        draft_checkout = {
+            "order_type": "custom_box",
+            "custom_box": {
+                "items": [i.to_order_dict() for i in parsed_box.items],
+                "total_kes": parsed_box.total_kes,
+                "total_usd": parsed_box.total_usd,
+                "skus": parsed_box.skus,
             },
+            "delivery_type": checkout_details.delivery_type,
+            "delivery_location": checkout_details.delivery_location,
+            "delivery_window": checkout_details.delivery_window,
+            "customer_name": checkout_details.customer_name,
+            "contact": checkout_details.contact,
+            "payment_currency": _explicit_payment_currency(text),
+        }
+        intro = _ask_custom_delivery_reply(
+            item_count=len(parsed_box.items),
+            total_kes=parsed_box.total_kes,
+            total_usd=parsed_box.total_usd,
+            is_sw=is_sw,
         )
+        next_step = _checkout_next_step(draft_checkout)
+        draft_checkout["step"] = next_step or "confirm"
+        await _set_checkout(conversation_id, draft_checkout)
+        prompt = _checkout_prompt(draft_checkout, is_sw=is_sw)
         return GiftAutomationResult(
-            reply=_ask_custom_delivery_reply(
-                item_count=len(parsed_box.items),
-                total_kes=parsed_box.total_kes,
-                total_usd=parsed_box.total_usd,
-                is_sw=is_sw,
-            ),
+            reply=prompt if next_step != "name" else intro,
             safety_flag="deterministic:hazina_custom_start",
         )
 
@@ -1021,7 +1298,9 @@ async def try_hazina_automation(
             checkout_details.delivery_window
             and len(checkout_details.delivery_window.strip()) >= 3
         )
-        if has_delivery and has_window:
+        has_name = bool(checkout_details.customer_name and checkout_details.customer_name.strip())
+        has_contact = bool(checkout_details.contact and checkout_details.contact.strip())
+        if has_delivery and has_window and has_name and has_contact:
             return await _finalize_order(
                 db,
                 customer_id=customer.id,
@@ -1038,18 +1317,24 @@ async def try_hazina_automation(
                 payment_currency=checkout_details.payment_currency or detect_payment_currency(text),
                 payment_email=payment_email,
             )
-        await _set_checkout(
-            conversation_id,
-            {
-                "product_id": pid,
-                "quantity": checkout_details.quantity,
-                "step": "delivery",
-                "delivery_type": checkout_details.delivery_type,
-                "payment_currency": checkout_details.payment_currency or detect_payment_currency(text),
-            },
-        )
+        draft_checkout = {
+            "product_id": pid,
+            "quantity": checkout_details.quantity,
+            "delivery_type": checkout_details.delivery_type,
+            "delivery_location": checkout_details.delivery_location,
+            "delivery_window": checkout_details.delivery_window,
+            "customer_name": checkout_details.customer_name,
+            "contact": checkout_details.contact,
+            "payment_currency": _explicit_payment_currency(text),
+        }
+        draft_checkout["step"] = _checkout_next_step(draft_checkout) or "confirm"
+        await _set_checkout(conversation_id, draft_checkout)
         return GiftAutomationResult(
-            reply=_ask_delivery_reply(pid, is_sw=is_sw),
+            reply=(
+                _ask_delivery_reply(pid, is_sw=is_sw)
+                if draft_checkout["step"] == "name"
+                else _checkout_prompt(draft_checkout, is_sw=is_sw)
+            ),
             safety_flag="deterministic:hazina_order_start",
         )
 

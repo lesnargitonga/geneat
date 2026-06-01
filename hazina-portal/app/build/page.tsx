@@ -20,7 +20,7 @@ export default function BuildPage({
         <span className="label-mono">Custom box</span>
         <h1 className="h-display text-5xl md:text-7xl mt-4 mb-5 text-obsidian">Pick what you want</h1>
         <p className="text-ink-mute max-w-2xl text-lg leading-relaxed">
-          Browse every treasure, add to your box, then enter delivery details when you are ready.
+          Browse every treasure, add to your box, then let guided chat collect delivery details one step at a time.
           Prefer a finished edit?{" "}
           <Link href="/collections" className="text-bronze hover:text-obsidian underline-offset-4 hover:underline">
             View collections

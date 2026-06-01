@@ -2,25 +2,93 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BRAND } from "@/lib/products";
-import { whatsappLink } from "@/lib/format";
+import { BRAND, GIFT_BOXES, getGiftBox, type GiftBox } from "@/lib/products";
+import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
 
 type Msg = { id: string; role: "user" | "ai" | "system"; text: string; ts: number };
 type MsgWithMedia = Msg & { imageUrl?: string | null; imageAlt?: string | null };
+
+type DeliveryMode = "hotel" | "jkia" | "international";
+type PaymentCurrency = "USD" | "KES";
+type CheckoutStep =
+  | "name"
+  | "delivery_mode"
+  | "location"
+  | "window"
+  | "payment"
+  | "contact"
+  | "confirm";
+
+type CheckoutItem = {
+  id?: string;
+  sku: string;
+  name: string;
+  qty: number;
+  price_usd: number;
+  price_kes: number;
+};
+
+type CheckoutStart =
+  | {
+      kind: "collection";
+      collectionId: string;
+      quantity?: number;
+      deliveryMode?: DeliveryMode;
+      paymentCurrency?: PaymentCurrency;
+      customerName?: string;
+      deliveryLocation?: string;
+      deliveryWindow?: string;
+      contact?: string;
+    }
+  | {
+      kind: "custom";
+      items: CheckoutItem[];
+      includePackaging?: boolean;
+      totalUsd?: number;
+      totalKes?: number;
+      deliveryMode?: DeliveryMode;
+      paymentCurrency?: PaymentCurrency;
+      customerName?: string;
+      deliveryLocation?: string;
+      deliveryWindow?: string;
+      contact?: string;
+    };
+
+type CheckoutFlow = {
+  kind: "collection" | "custom";
+  step: CheckoutStep;
+  collectionId?: string;
+  collectionName: string;
+  collectionSku?: string;
+  quantity: number;
+  items: CheckoutItem[];
+  includePackaging?: boolean;
+  totalUsd: number;
+  totalKes: number;
+  deliveryMode?: DeliveryMode;
+  paymentCurrency?: PaymentCurrency;
+  customerName?: string;
+  deliveryLocation?: string;
+  deliveryWindow?: string;
+  contact?: string;
+};
+
+type ChatAction = { label: string; value?: string; href?: string; primary?: boolean };
+type ChatPromptDetail = { prompt?: string; checkout?: CheckoutStart };
 
 const BUSINESS_SLUG = "hazina-nomads";
 const PHONE_KEY = "hazina.phone";
 const CHAT_TIMEOUT_MS = 30_000;
 
-const ASK_PROMPTS = [
-  "Show me your gift collections",
-  "I need JKIA delivery before my flight",
-  "Tell me about The Kenya Edit",
-  "Corporate gifting enquiry",
+const ASK_PROMPTS: ChatAction[] = [
+  { label: "Show me collections", value: "Show me your gift collections", primary: true },
+  { label: "JKIA delivery", value: "I need JKIA delivery before my flight" },
+  { label: "Build a custom box", value: "I want to build a custom gift box" },
+  { label: "Corporate gifts", value: "Corporate gifting enquiry" },
 ];
 
 const GREETING =
-  "Welcome to Hazina Nomads. I can help you choose a curated gift box and coordinate hotel delivery, JKIA handoff, or an insured DHL export quote. Where are you staying, and when do you depart?";
+  "Welcome to Hazina. I can guide you one step at a time: choose a box, confirm delivery, then start secure payment.";
 
 function getOrCreatePhone(): string {
   if (typeof window === "undefined") return "+254700000000";
@@ -42,14 +110,597 @@ function normalizeAssistantReply(reply: string, imageUrl?: string | null, imageA
   return trimmed;
 }
 
+function messageId() {
+  return crypto.randomUUID();
+}
+
+function isYes(text: string) {
+  return /\b(yes|yep|yeah|ok(?:ay)?|okay|confirm|confirmed|go ahead|proceed|start|create|checkout|sawa|ndio|fine|looks good|all good|sounds good)\b/i.test(text);
+}
+
+function isNo(text: string) {
+  return /\b(no|not yet|cancel|stop|abort|wait)\b/i.test(text);
+}
+
+function isGreeting(text: string) {
+  return /^(hi|hey|hello|sasa|niaje|mambo|habari|good\s+(morning|afternoon|evening))\b/i.test(text.trim());
+}
+
+function isCatalogRequest(text: string) {
+  return /\b(collections?|gift boxes?|catalog(?:ue)?|menu|what do you sell|show me|browse|shop)\b/i.test(text);
+}
+
+function isCustomBoxRequest(text: string) {
+  return /\b(custom|build|compose|pick individual|individual treasures)\b/i.test(text);
+}
+
+function parseDeliveryMode(text: string): DeliveryMode | undefined {
+  const lower = text.toLowerCase();
+  if (/\b(jkia|airport|terminal|flight|departure)\b/.test(lower)) return "jkia";
+  if (/\b(dhl|export|international|abroad|overseas|ship)\b/.test(lower)) return "international";
+  if (/\b(hotel|room|lodge|camp|villa|front desk|nairobi)\b/.test(lower)) return "hotel";
+  return undefined;
+}
+
+function parsePayment(text: string): PaymentCurrency | undefined {
+  const lower = text.toLowerCase();
+  if (/\b(kes|ksh|m-?pesa|mpesa|stk|paybill|till)\b/.test(lower)) return "KES";
+  if (/\b(usd|dollar|\$|card|visa|mastercard|paystack|apple pay|international)\b/.test(lower)) return "USD";
+  return undefined;
+}
+
+function contactLooksOk(text: string, paymentCurrency?: PaymentCurrency) {
+  const clean = text.trim();
+  if (clean.length < 5) return false;
+  if (/[\w.+-]+@[\w-]+\.[\w.-]+/.test(clean)) return true;
+  const digits = clean.replace(/\D/g, "");
+  if (paymentCurrency === "KES") return digits.length >= 9;
+  return digits.length >= 7 || clean.includes("@");
+}
+
+function resolveBoxFromText(text: string): GiftBox | undefined {
+  const lower = text.toLowerCase();
+  return GIFT_BOXES.find((box) => {
+    const tokens = [box.id, box.sku, box.name, box.name.replace(/^The\s+/i, "")];
+    return tokens.some((token) => lower.includes(token.toLowerCase()));
+  });
+}
+
+const STEP_ORDER: CheckoutStep[] = [
+  "name",
+  "delivery_mode",
+  "location",
+  "window",
+  "payment",
+  "contact",
+  "confirm",
+];
+
+function prevStepKey(step: CheckoutStep): CheckoutStep {
+  const i = STEP_ORDER.indexOf(step);
+  if (i <= 0) return "name";
+  return STEP_ORDER[i - 1];
+}
+
+function parseEditFieldCommand(text: string): CheckoutStep | null {
+  const t = (text || "").toLowerCase();
+  if (/\b(edit|change|update)\b.*\b(name|guest name|customer name)\b/.test(t)) return "name";
+  if (/\b(edit|change|update)\b.*\b(deliv|delivery|mode)\b/.test(t)) return "delivery_mode";
+  if (/\b(edit|change|update)\b.*\b(location|address|hotel|room)\b/.test(t)) return "location";
+  if (/\b(edit|change|update)\b.*\b(time|timing|window|flight|departure)\b/.test(t)) return "window";
+  if (/\b(edit|change|update)\b.*\b(payment|pay|mpesa|card|usd|kes)\b/.test(t)) return "payment";
+  if (/\b(edit|change|update)\b.*\b(contact|phone|email|whatsapp|number)\b/.test(t)) return "contact";
+  // Short forms like "edit name"
+  if (/^edit\s+name$/i.test(text) || /^change\s+name$/i.test(text)) return "name";
+  if (/^edit\s+delivery/i.test(text) || /^change\s+delivery/i.test(text)) return "delivery_mode";
+  if (/^edit\s+location/i.test(text) || /^change\s+location/i.test(text)) return "location";
+  if (/^edit\s+time/i.test(text) || /^change\s+time/i.test(text) || /^edit\s+timing/i.test(text)) return "window";
+  if (/^edit\s+payment/i.test(text) || /^change\s+payment/i.test(text)) return "payment";
+  if (/^edit\s+contact/i.test(text) || /^change\s+contact/i.test(text)) return "contact";
+  return null;
+}
+
+function parseNavigationCommand(text: string): { action: "back" | "start_over" | "edit"; field?: CheckoutStep } | null {
+  if (!text) return null;
+  const t = text.toLowerCase();
+  if (/\b(go back|back|previous|previous step|go to previous)\b/.test(t)) return { action: "back" };
+  if (/\b(start over|restart|reset|clear all)\b/.test(t)) return { action: "start_over" };
+  if (/\bedit details\b/.test(t) || /\bchange details\b/.test(t)) return { action: "edit" };
+  const f = parseEditFieldCommand(text);
+  if (f) return { action: "edit", field: f };
+  return null;
+}
+
+function totalForItems(items: CheckoutItem[]) {
+  const subtotalUsd = items.reduce((sum, item) => sum + item.price_usd * item.qty, 0);
+  const subtotalKes = items.reduce((sum, item) => sum + item.price_kes * item.qty, 0);
+  return { totalUsd: subtotalUsd, totalKes: subtotalKes };
+}
+
+function nextStep(flow: CheckoutFlow): CheckoutStep {
+  if (!flow.customerName || flow.customerName.trim().length < 2) return "name";
+  if (!flow.deliveryMode) return "delivery_mode";
+  if (!flow.deliveryLocation || flow.deliveryLocation.trim().length < 5) return "location";
+  if (!flow.deliveryWindow || flow.deliveryWindow.trim().length < 3) return "window";
+  if (!flow.paymentCurrency) return "payment";
+  if (!flow.contact || !contactLooksOk(flow.contact, flow.paymentCurrency)) return "contact";
+  return "confirm";
+}
+
+function flowIntro(flow: CheckoutFlow) {
+  if (flow.kind === "custom") {
+    return `Good. Your custom box has ${flow.items.reduce((sum, item) => sum + item.qty, 0)} treasure${
+      flow.items.reduce((sum, item) => sum + item.qty, 0) === 1 ? "" : "s"
+    } at ${formatUSD(flow.totalUsd)} / ${formatKES(flow.totalKes)}.`;
+  }
+  return `Good choice: ${flow.quantity} x ${flow.collectionName} at ${formatUSD(flow.totalUsd)} / ${formatKES(flow.totalKes)}.`;
+}
+
+function questionForStep(flow: CheckoutFlow): { text: string; actions?: ChatAction[] } {
+  switch (flow.step) {
+    case "name":
+      return { text: "First, what name should I put on the order?" };
+    case "delivery_mode":
+      return {
+        text: "How should we deliver it?",
+        actions: [
+          { label: "Hotel delivery", value: "Hotel delivery", primary: true },
+          { label: "JKIA handoff", value: "JKIA terminal handoff" },
+          { label: "DHL export quote", value: "DHL export shipping quote" },
+        ],
+      };
+    case "location":
+      if (flow.deliveryMode === "jkia") {
+        return { text: "Which terminal or airport meeting point should the concierge use?" };
+      }
+      if (flow.deliveryMode === "international") {
+        return { text: "Which country, city, and delivery address should we quote for DHL?" };
+      }
+      return { text: "Which hotel, room, or front desk name should we deliver to?" };
+    case "window":
+      if (flow.deliveryMode === "jkia") {
+        return { text: "What flight or departure time should we work around?" };
+      }
+      if (flow.deliveryMode === "international") {
+        return { text: "When do you need the parcel delivered or dispatched?" };
+      }
+      return { text: "What delivery window works best?" };
+    case "payment":
+      return {
+        text: "How would you like to start payment?",
+        actions: [
+          { label: "USD card link", value: "USD card link", primary: true },
+          { label: "KES M-Pesa", value: "KES M-Pesa" },
+        ],
+      };
+    case "contact":
+      return {
+        text:
+          flow.paymentCurrency === "KES"
+            ? "What M-Pesa phone number should receive the STK prompt?"
+            : "What email or WhatsApp number should receive the secure card checkout link?",
+      };
+    case "confirm":
+      return {
+        text: checkoutSummary(flow),
+        actions: [
+          { label: "Confirm checkout", value: "Confirm checkout", primary: true },
+          { label: "Edit details", value: "Edit details" },
+        ],
+      };
+  }
+}
+
+function deliveryLabel(mode?: DeliveryMode) {
+  if (mode === "jkia") return "JKIA terminal handoff";
+  if (mode === "international") return "DHL/export shipping quote";
+  return "Hotel delivery";
+}
+
+function checkoutSummary(flow: CheckoutFlow) {
+  const lines = [
+    "Please confirm these details:",
+    `${flow.kind === "custom" ? "Custom box" : flow.collectionName}: ${formatUSD(flow.totalUsd)} / ${formatKES(flow.totalKes)}`,
+    `Name: ${flow.customerName}`,
+    `Delivery: ${deliveryLabel(flow.deliveryMode)}`,
+    `Location: ${flow.deliveryLocation}`,
+    `Timing: ${flow.deliveryWindow}`,
+    `Payment: ${flow.paymentCurrency === "KES" ? "KES M-Pesa" : "USD card link"}`,
+  ];
+  return `${lines.join("\n")}\n\nIf this is correct, tap Confirm checkout.`;
+}
+
+function buildBackendCheckoutMessage(flow: CheckoutFlow) {
+  const lines =
+    flow.kind === "custom"
+      ? [
+          "Hello Hazina Nomads - automated custom gift box checkout:",
+          "",
+          ...flow.items.map(
+            (item) => `• ${item.qty > 1 ? `${item.qty}x ` : ""}${item.name} (${item.sku})`,
+          ),
+          ...(flow.includePackaging ? ["• Premium packaging & story card"] : []),
+          "",
+          `Estimated total: ${formatUSD(flow.totalUsd)} / ${formatKES(flow.totalKes)}`,
+        ]
+      : [
+          "Hello Hazina Nomads - automated collection checkout:",
+          "",
+          `Collection: ${flow.quantity}x ${flow.collectionName} (${flow.collectionSku})`,
+          `Estimated total: ${formatUSD(flow.totalUsd)} / ${formatKES(flow.totalKes)}`,
+        ];
+
+  lines.push(
+    `Guest: ${flow.customerName}`,
+    `Delivery type: ${deliveryLabel(flow.deliveryMode)}`,
+    `Delivery location: ${flow.deliveryLocation}`,
+    `Delivery window: ${flow.deliveryWindow}`,
+    `Contact/payment detail: ${flow.contact}`,
+    `Preferred payment: ${flow.paymentCurrency === "KES" ? "KES M-Pesa STK" : "USD card link"}`,
+    "",
+    flow.deliveryMode === "international"
+      ? "Please confirm availability, quote insured DHL/export shipping before payment, then start checkout."
+      : "Please create the order, confirm availability, and start payment.",
+  );
+  return lines.join("\n");
+}
+
+function createCollectionFlow(payload: Extract<CheckoutStart, { kind: "collection" }>): CheckoutFlow | null {
+  const box = getGiftBox(payload.collectionId);
+  if (!box) return null;
+  const quantity = Math.max(1, Math.min(20, Number(payload.quantity || 1)));
+  const flow: CheckoutFlow = {
+    kind: "collection",
+    step: "name",
+    collectionId: box.id,
+    collectionName: box.name,
+    collectionSku: box.sku,
+    quantity,
+    items: [],
+    totalUsd: box.price_usd * quantity,
+    totalKes: box.price_kes * quantity,
+    deliveryMode: payload.deliveryMode,
+    paymentCurrency: payload.paymentCurrency,
+    customerName: payload.customerName,
+    deliveryLocation: payload.deliveryLocation,
+    deliveryWindow: payload.deliveryWindow,
+    contact: payload.contact,
+  };
+  flow.step = nextStep(flow);
+  return flow;
+}
+
+function createCustomFlow(payload: Extract<CheckoutStart, { kind: "custom" }>): CheckoutFlow | null {
+  if (!payload.items.length) return null;
+  const totals =
+    typeof payload.totalUsd === "number" && typeof payload.totalKes === "number"
+      ? { totalUsd: payload.totalUsd, totalKes: payload.totalKes }
+      : totalForItems(payload.items);
+  const flow: CheckoutFlow = {
+    kind: "custom",
+    step: "name",
+    collectionName: "Custom Hazina box",
+    quantity: payload.items.reduce((sum, item) => sum + item.qty, 0),
+    items: payload.items,
+    includePackaging: payload.includePackaging,
+    totalUsd: totals.totalUsd,
+    totalKes: totals.totalKes,
+    deliveryMode: payload.deliveryMode,
+    paymentCurrency: payload.paymentCurrency,
+    customerName: payload.customerName,
+    deliveryLocation: payload.deliveryLocation,
+    deliveryWindow: payload.deliveryWindow,
+    contact: payload.contact,
+  };
+  flow.step = nextStep(flow);
+  return flow;
+}
+
 export function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<MsgWithMedia[]>([]);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
-  const [queuedPrompt, setQueuedPrompt] = useState<string | null>(null);
+  const [actions, setActions] = useState<ChatAction[]>([]);
+  const [flow, setFlow] = useState<CheckoutFlow | null>(null);
   const phone = useMemo(() => getOrCreatePhone(), []);
   const scrollerRef = useRef<HTMLDivElement>(null);
+
+  const append = useCallback((role: Msg["role"], text: string, media?: Partial<MsgWithMedia>) => {
+    setMessages((m) => [
+      ...m,
+      { id: messageId(), role, text, ts: Date.now(), ...media },
+    ]);
+  }, []);
+
+  const beginFlow = useCallback(
+    (nextFlow: CheckoutFlow) => {
+      const step = nextStep(nextFlow);
+      const ready = { ...nextFlow, step };
+      const question = questionForStep(ready);
+      setFlow(ready);
+      setActions(question.actions || []);
+      setOpen(true);
+      setMessages((current) => [
+        ...current,
+        { id: messageId(), role: "ai", text: flowIntro(ready), ts: Date.now() },
+        { id: messageId(), role: "ai", text: question.text, ts: Date.now() },
+      ]);
+    },
+    [],
+  );
+
+  const postBackend = useCallback(
+    async (text: string) => {
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), CHAT_TIMEOUT_MS);
+      try {
+        const r = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phone,
+            text,
+            business_slug: BUSINESS_SLUG,
+            language: "en",
+          }),
+          signal: controller.signal,
+        });
+        const ok = r.ok;
+        const body = await r.json().catch(() => ({}));
+        const reply = ok
+          ? normalizeAssistantReply(
+              body.reply || "(no reply)",
+              typeof body?.image_url === "string" ? body.image_url : null,
+              typeof body?.photo_item === "string" ? body.photo_item : null,
+            )
+          : `Couldn't reach the concierge right now - ${body?.detail || r.statusText}`;
+        append("ai", reply, {
+          imageUrl: typeof body?.image_url === "string" ? body.image_url : null,
+          imageAlt: typeof body?.photo_item === "string" ? body.photo_item : null,
+        });
+      } catch (e: unknown) {
+        const err = e as { name?: string; message?: string };
+        const timedOut = err?.name === "AbortError";
+        append(
+          "system",
+          timedOut
+            ? "The concierge line is taking longer than usual. You can continue here, or use WhatsApp for the fastest handoff."
+            : `The concierge line is temporarily unreachable: ${err?.message || "unknown"}`,
+        );
+      } finally {
+        window.clearTimeout(timeout);
+      }
+    },
+    [append, phone],
+  );
+
+  const submitFlow = useCallback(
+    async (ready: CheckoutFlow) => {
+      setBusy(true);
+      setActions([]);
+      append("ai", "Perfect. I am creating the order now and will return the payment step here.");
+      await postBackend(buildBackendCheckoutMessage(ready));
+      setFlow(null);
+      setBusy(false);
+    },
+    [append, postBackend],
+  );
+
+  const advanceFlow = useCallback(
+    async (rawText: string, current: CheckoutFlow) => {
+      const text = rawText.trim();
+      let updated: CheckoutFlow = { ...current };
+      setActions([]);
+      // Handle explicit navigation/edit commands first
+      const nav = parseNavigationCommand(text);
+      if (nav) {
+        if (nav.action === "back") {
+          const prev = prevStepKey(current.step);
+          updated = { ...current, step: prev };
+          const question = questionForStep(updated);
+          setFlow(updated);
+          setActions(question.actions || []);
+          append("ai", `Okay — going back. ${question.text}`);
+          return;
+        }
+        if (nav.action === "start_over") {
+          // reset editable fields but keep items/totals
+          updated = {
+            ...current,
+            step: "name",
+            customerName: undefined,
+            deliveryMode: undefined,
+            deliveryLocation: undefined,
+            deliveryWindow: undefined,
+            paymentCurrency: undefined,
+            contact: undefined,
+          };
+          const question = questionForStep(updated);
+          setFlow(updated);
+          setActions(question.actions || []);
+          append("ai", "Okay — starting over. " + question.text);
+          return;
+        }
+        if (nav.action === "edit") {
+          if (nav.field) {
+            updated = { ...current, step: nav.field };
+            const question = questionForStep(updated);
+            setFlow(updated);
+            setActions(question.actions || []);
+            append("ai", `Sure — let's update that detail.`);
+            append("ai", question.text);
+            return;
+          }
+          const editActions: ChatAction[] = [
+            { label: "Edit name", value: "Edit name" },
+            { label: "Edit delivery", value: "Edit delivery" },
+            { label: "Edit location", value: "Edit location" },
+            { label: "Edit timing", value: "Edit timing" },
+            { label: "Edit payment", value: "Edit payment" },
+            { label: "Edit contact", value: "Edit contact" },
+          ];
+          setActions(editActions);
+          append("ai", "Sure — which detail would you like to change? (Name, Delivery, Location, Timing, Payment, Contact)");
+          return;
+        }
+      }
+
+      if (current.step === "confirm") {
+        // If user responds negatively, offer targeted edit options rather than resetting everything
+        const editActions: ChatAction[] = [
+          { label: "Edit name", value: "Edit name" },
+          { label: "Edit delivery", value: "Edit delivery" },
+          { label: "Edit location", value: "Edit location" },
+          { label: "Edit timing", value: "Edit timing" },
+          { label: "Edit payment", value: "Edit payment" },
+          { label: "Edit contact", value: "Edit contact" },
+        ];
+        if (isNo(text)) {
+          setActions(editActions);
+          append("ai", "No problem. Tell me which detail to edit or tap one of the options.");
+          return;
+        }
+        if (!isYes(text)) {
+          const question = questionForStep(current);
+          setActions(question.actions || []);
+          append("ai", "Please confirm before I create the order, or tell me what to edit.");
+          return;
+        }
+        await submitFlow(current);
+        return;
+      }
+
+      if (current.step === "name") {
+        if (text.length < 2) {
+          append("ai", "Please send the guest name for the order.");
+          return;
+        }
+        updated.customerName = text;
+      } else if (current.step === "delivery_mode") {
+        const mode = parseDeliveryMode(text);
+        if (!mode) {
+          const question = questionForStep(current);
+          setActions(question.actions || []);
+          append("ai", "Choose hotel delivery, JKIA handoff, or DHL export quote.");
+          return;
+        }
+        updated.deliveryMode = mode;
+      } else if (current.step === "location") {
+        if (text.length < 5) {
+          append("ai", questionForStep(current).text);
+          return;
+        }
+        updated.deliveryLocation = text;
+      } else if (current.step === "window") {
+        if (text.length < 3) {
+          append("ai", questionForStep(current).text);
+          return;
+        }
+        updated.deliveryWindow = text;
+      } else if (current.step === "payment") {
+        const payment = parsePayment(text);
+        if (!payment) {
+          const question = questionForStep(current);
+          setActions(question.actions || []);
+          append("ai", "Choose USD card link or KES M-Pesa.");
+          return;
+        }
+        updated.paymentCurrency = payment;
+      } else if (current.step === "contact") {
+        if (!contactLooksOk(text, current.paymentCurrency)) {
+          append("ai", questionForStep(current).text);
+          return;
+        }
+        updated.contact = text;
+      }
+
+      updated.step = nextStep(updated);
+      const question = questionForStep(updated);
+      setFlow(updated);
+      setActions(question.actions || []);
+      append("ai", question.text);
+    },
+    [append, submitFlow],
+  );
+
+  const handleLocalIntent = useCallback(
+    (text: string) => {
+      if (isGreeting(text)) {
+        setActions(ASK_PROMPTS);
+        append("ai", "Hi. I can help you choose a collection, build a custom box, or arrange hotel, JKIA, and DHL delivery.");
+        return true;
+      }
+
+      if (isCustomBoxRequest(text)) {
+        setActions([{ label: "Open builder", href: "/build", primary: true }]);
+        append("ai", "For a custom box, use Build to pick at least two treasures. Once you are ready, I will collect delivery and payment details one at a time.");
+        return true;
+      }
+
+      const box = resolveBoxFromText(text);
+      if (box && /\b(order|buy|get|reserve|checkout|want|need|yes)\b/i.test(text)) {
+        const started = createCollectionFlow({ kind: "collection", collectionId: box.id });
+        if (started) beginFlow(started);
+        return true;
+      }
+
+      if (box) {
+        setActions([
+          { label: `Order ${box.name}`, value: `Order ${box.name}`, primary: true },
+          { label: "Show all collections", value: "Show me your gift collections" },
+        ]);
+        append(
+          "ai",
+          `${box.name} is ${formatUSD(box.price_usd)} / ${formatKES(box.price_kes)}. ${box.contents} Lead time: ${box.lead_time_hours}h.`,
+        );
+        return true;
+      }
+
+      if (isCatalogRequest(text)) {
+        setActions(
+          GIFT_BOXES.map((b, index) => ({
+            label: b.name.replace(/^The\s+/, ""),
+            value: `Order ${b.name}`,
+            primary: index === 0,
+          })),
+        );
+        append(
+          "ai",
+          [
+            "Our five collections are:",
+            ...GIFT_BOXES.map((b) => `${b.name}: ${formatUSD(b.price_usd)} / ${formatKES(b.price_kes)}`),
+            "Pick one and I will guide checkout step by step.",
+          ].join("\n"),
+        );
+        return true;
+      }
+
+      return false;
+    },
+    [append, beginFlow],
+  );
+
+  const send = useCallback(
+    async (textArg?: string) => {
+      const text = (textArg ?? draft).trim();
+      if (!text || busy) return;
+      append("user", text);
+      setDraft("");
+      setActions([]);
+
+      if (flow) {
+        await advanceFlow(text, flow);
+        return;
+      }
+      if (handleLocalIntent(text)) return;
+
+      setBusy(true);
+      await postBackend(text);
+      setBusy(false);
+    },
+    [advanceFlow, append, busy, draft, flow, handleLocalIntent, postBackend],
+  );
 
   useEffect(() => {
     const syncHash = () => {
@@ -62,9 +713,8 @@ export function ChatWidget() {
 
   useEffect(() => {
     if (open && messages.length === 0) {
-      setMessages([
-        { id: crypto.randomUUID(), role: "ai", text: GREETING, ts: Date.now() },
-      ]);
+      setMessages([{ id: messageId(), role: "ai", text: GREETING, ts: Date.now() }]);
+      setActions(ASK_PROMPTS);
     }
   }, [open, messages.length]);
 
@@ -72,163 +722,127 @@ export function ChatWidget() {
     scrollerRef.current?.scrollTo({ top: scrollerRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  const send = useCallback(
-    async (textArg?: string) => {
-      const text = (textArg ?? draft).trim();
-      if (!text || busy) return;
-      const userMsg: Msg = { id: crypto.randomUUID(), role: "user", text, ts: Date.now() };
-      setMessages((m) => [...m, userMsg]);
-      setDraft("");
-      setBusy(true);
-      try {
-        const controller = new AbortController();
-        const timeout = window.setTimeout(() => controller.abort(), CHAT_TIMEOUT_MS);
-        const r = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            phone,
-            text,
-            business_slug: BUSINESS_SLUG,
-            language: "en",
-          }),
-          signal: controller.signal,
-        });
-        window.clearTimeout(timeout);
-        const ok = r.ok;
-        const body = await r.json().catch(() => ({}));
-        const reply = ok
-          ? normalizeAssistantReply(
-              body.reply || "(no reply)",
-              typeof body?.image_url === "string" ? body.image_url : null,
-              typeof body?.photo_item === "string" ? body.photo_item : null,
-            )
-          : `Couldn't reach the concierge right now — ${body?.detail || r.statusText}`;
-        setMessages((m) => [
-          ...m,
-          {
-            id: crypto.randomUUID(),
-            role: "ai",
-            text: reply,
-            ts: Date.now(),
-            imageUrl: typeof body?.image_url === "string" ? body.image_url : null,
-            imageAlt: typeof body?.photo_item === "string" ? body.photo_item : null,
-          },
-        ]);
-      } catch (e: unknown) {
-        const err = e as { name?: string; message?: string };
-        const timedOut = err?.name === "AbortError";
-        setMessages((m) => [
-          ...m,
-          {
-            id: crypto.randomUUID(),
-            role: "system",
-            text: timedOut
-              ? "The concierge line is taking longer than usual. Try once more, or continue on WhatsApp for the fastest handoff."
-              : `The concierge line is temporarily unreachable: ${err?.message || "unknown"}`,
-            ts: Date.now(),
-          },
-        ]);
-      } finally {
-        setBusy(false);
-      }
-    },
-    [busy, draft, phone],
-  );
-
   useEffect(() => {
     const onPrompt = (event: Event) => {
-      const custom = event as CustomEvent<{ prompt?: string }>;
-      const prompt = custom.detail?.prompt?.trim();
-      if (!prompt) return;
+      const custom = event as CustomEvent<ChatPromptDetail>;
       setOpen(true);
-      setQueuedPrompt(prompt);
+      if (custom.detail?.checkout?.kind === "collection") {
+        const started = createCollectionFlow(custom.detail.checkout);
+        if (started) beginFlow(started);
+        return;
+      }
+      if (custom.detail?.checkout?.kind === "custom") {
+        const started = createCustomFlow(custom.detail.checkout);
+        if (started) beginFlow(started);
+        return;
+      }
+      const prompt = custom.detail?.prompt?.trim();
+      if (prompt) {
+        append("user", prompt);
+        setBusy(true);
+        void postBackend(prompt).finally(() => setBusy(false));
+      }
     };
     window.addEventListener("hazina:chat-prompt", onPrompt as EventListener);
     return () => window.removeEventListener("hazina:chat-prompt", onPrompt as EventListener);
-  }, []);
+  }, [append, beginFlow, postBackend]);
 
-  useEffect(() => {
-    if (!queuedPrompt || !open || busy) return;
-    void send(queuedPrompt);
-    setQueuedPrompt(null);
-  }, [busy, open, queuedPrompt, send]);
+  const hasUserMessages = messages.some((m) => m.role === "user");
+  const visibleActions = actions.length > 0 ? actions : !hasUserMessages && !busy ? ASK_PROMPTS : [];
 
   return (
     <>
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? "Close chat" : "Open chat"}
-        className={`fixed bottom-5 right-5 z-40 inline-flex items-center justify-center shadow-editorial active:scale-95 transition ${
+        className={`fixed bottom-5 right-4 z-50 inline-flex items-center justify-center shadow-editorial active:scale-95 transition md:bottom-6 md:right-6 ${
           open
-            ? "h-12 w-12 rounded-full bg-obsidian text-sand text-xl hover:bg-obsidian-soft"
-            : "min-h-[46px] rounded-full border border-white/20 bg-obsidian/92 px-5 text-sm font-medium text-sand backdrop-blur-md hover:bg-obsidian"
+            ? "h-12 w-12 rounded-full border border-border bg-sand text-obsidian text-xl hover:bg-sand-dark"
+            : "min-h-[52px] rounded-full border border-bronze/70 bg-bronze px-5 text-sm font-semibold text-obsidian backdrop-blur-md hover:bg-bronze-light"
         }`}
       >
-        {open ? "×" : "Chat with Concierge"}
+        {open ? "x" : "Chat in app"}
       </button>
 
       {open && (
-        <div className="fixed bottom-24 right-5 z-40 w-[min(400px,calc(100vw-2rem))] max-h-[min(78svh,680px)] flex flex-col bg-sand border border-border shadow-editorial overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 bg-obsidian text-sand">
+        <div className="fixed inset-x-3 bottom-20 z-50 flex max-h-[calc(100svh-7rem)] flex-col overflow-hidden border border-border bg-sand shadow-editorial md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:w-[min(420px,calc(100vw-2rem))] md:max-h-[calc(100svh-7rem)]">
+          <div className="flex items-center justify-between gap-3 border-b border-border bg-sand px-4 py-3 text-obsidian">
             <div>
-              <div className="label-mono text-sand/50">Concierge chat</div>
-              <div className="font-serif text-lg text-sand">{BRAND.name}</div>
+              <div className="label-mono text-ink-mute">Concierge chat</div>
+              <div className="font-serif text-xl text-obsidian">{BRAND.name}</div>
             </div>
             <a
-              href={whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like concierge help.")}
+              href={whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads - I'd like concierge help.")}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-medium text-sand/70 hover:text-sand"
+              className="shrink-0 text-sm font-medium text-bronze hover:text-obsidian"
             >
               WhatsApp
             </a>
           </div>
 
-          <div ref={scrollerRef} className="flex-1 overflow-auto local-scroll local-scroll--subtle p-3 space-y-2 bg-sand">
+          <div ref={scrollerRef} className="flex-1 overflow-auto local-scroll local-scroll--subtle bg-sand p-3 space-y-2">
             {messages.map((m) => (
               <Bubble key={m.id} m={m} />
             ))}
             {busy && (
               <div className="flex items-center gap-1 pl-2 py-1" aria-label="typing">
-                <span className="w-2 h-2 rounded-full bg-ink/30 animate-bounce" style={{ animationDelay: "0ms" }} />
-                <span className="w-2 h-2 rounded-full bg-ink/30 animate-bounce" style={{ animationDelay: "150ms" }} />
-                <span className="w-2 h-2 rounded-full bg-ink/30 animate-bounce" style={{ animationDelay: "300ms" }} />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-ink/30" style={{ animationDelay: "0ms" }} />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-ink/30" style={{ animationDelay: "150ms" }} />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-ink/30" style={{ animationDelay: "300ms" }} />
               </div>
             )}
-            {!busy && (
-              <div className="pt-2 flex flex-wrap gap-1.5">
-                {ASK_PROMPTS.map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => send(p)}
-                    className="text-sm px-3 py-1.5 border border-border text-ink-mute hover:border-obsidian hover:text-obsidian transition-colors"
-                  >
-                    {p}
-                  </button>
-                ))}
+            {!busy && visibleActions.length > 0 && (
+              <div className="pt-2 flex flex-wrap gap-2">
+                {visibleActions.map((p) =>
+                  p.href ? (
+                    <a
+                      key={`${p.label}-${p.href}`}
+                      href={p.href}
+                      className={`min-h-[40px] rounded-full px-3 py-2 text-sm transition-colors ${
+                        p.primary
+                          ? "bg-obsidian text-sand hover:bg-obsidian-soft"
+                          : "border border-border text-obsidian hover:border-obsidian"
+                      }`}
+                    >
+                      {p.label}
+                    </a>
+                  ) : (
+                    <button
+                      key={`${p.label}-${p.value || ""}`}
+                      onClick={() => send(p.value || p.label)}
+                      className={`min-h-[40px] rounded-full px-3 py-2 text-sm transition-colors ${
+                        p.primary
+                          ? "bg-obsidian text-sand hover:bg-obsidian-soft"
+                          : "border border-border text-obsidian hover:border-obsidian"
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  )
+                )}
               </div>
             )}
           </div>
 
-          <div className="p-2 border-t border-border bg-sand flex items-end gap-2">
+          <div className="flex items-end gap-2 border-t border-border bg-sand p-2">
             <textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
-                  send();
+                  void send();
                 }
               }}
               rows={1}
-              placeholder="Message Hazina concierge…"
-              className="flex-1 resize-none px-3 py-2 bg-sand-dark text-sm outline-none border border-border focus:border-obsidian"
+              placeholder={flow ? "Reply with one detail..." : "Message Hazina concierge..."}
+              className="min-h-[44px] flex-1 resize-none border border-border bg-sand-dark px-3 py-2 text-base text-obsidian outline-none focus:border-obsidian"
             />
             <button
-              onClick={() => send()}
+              onClick={() => void send()}
               disabled={busy || !draft.trim()}
-              className="btn-dark !px-4 !py-2 text-sm"
+              className="min-h-[44px] bg-obsidian px-4 py-2 font-mono text-sm uppercase tracking-[0.12em] text-sand disabled:opacity-40"
             >
               Send
             </button>
@@ -253,10 +867,10 @@ function Bubble({ m }: { m: MsgWithMedia }) {
     <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
       <div
         className={
-          "max-w-[84%] px-3 py-2 rounded-2xl text-base leading-relaxed whitespace-pre-wrap " +
+          "max-w-[88%] rounded-2xl px-3 py-2 text-base leading-relaxed whitespace-pre-wrap " +
           (mine
             ? "bg-obsidian text-sand"
-            : "bg-sand-dark border border-border text-obsidian")
+            : "border border-border bg-sand-dark text-obsidian")
         }
       >
         {!mine && m.imageUrl && (

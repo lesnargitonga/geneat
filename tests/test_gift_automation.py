@@ -111,6 +111,35 @@ def test_detect_payment_currency() -> None:
     assert ga.detect_payment_currency("ok", checkout={"payment_currency": "USD"}) == "USD"
 
 
+def test_hazina_checkout_step_sequence_collects_details_one_at_a_time() -> None:
+    checkout = {"product_id": "kenya-edit"}
+    assert ga._checkout_next_step(checkout) == "name"
+
+    checkout["customer_name"] = "Amina"
+    assert ga._checkout_next_step(checkout) == "delivery_type"
+
+    checkout["delivery_type"] = "Hotel delivery"
+    assert ga._checkout_next_step(checkout) == "location"
+
+    checkout["delivery_location"] = "Villa Rosa room 412"
+    assert ga._checkout_next_step(checkout) == "window"
+
+    checkout["delivery_window"] = "Today 7 pm"
+    assert ga._checkout_next_step(checkout) == "payment"
+
+    checkout["payment_currency"] = "KES"
+    assert ga._checkout_next_step(checkout) == "contact"
+
+    checkout["contact"] = "+254700000000"
+    assert ga._checkout_next_step(checkout) is None
+
+
+def test_hazina_checkout_does_not_default_to_usd_until_guest_chooses() -> None:
+    assert ga._explicit_payment_currency("order the Kenya Edit") is None
+    assert ga._explicit_payment_currency("send a USD card link") == "USD"
+    assert ga._explicit_payment_currency("M-Pesa please") == "KES"
+
+
 def test_is_custom_box_handoff() -> None:
     assert ga.is_custom_box_handoff("I'd like to build a custom gift box")
     assert ga.is_custom_box_handoff("• Coffee (HN-T-001)\n• Tea (HN-T-002)")
