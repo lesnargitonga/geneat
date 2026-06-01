@@ -149,7 +149,8 @@ def test_render_blueprint_sets_live_intasend_mode() -> None:
 
     api_service = next(
         service for service in blueprint["services"]
-        if service.get("name") == "geneat-api"
+        if service.get("type") == "web"
+        and service.get("runtime") == "docker"
     )
     env = {
         item["key"]: item.get("value")
@@ -168,7 +169,8 @@ def test_render_blueprint_uses_openai_primary_with_groq_fallback() -> None:
 
     api_service = next(
         service for service in blueprint["services"]
-        if service.get("name") == "geneat-api"
+        if service.get("type") == "web"
+        and service.get("runtime") == "docker"
     )
     env = {
         item["key"]: item.get("value")
