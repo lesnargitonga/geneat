@@ -1,6 +1,12 @@
 # Hazina Nomads portal
 
-## Local development (recommended)
+Customer-facing Next.js 14 app for **hazina.lesnarai.co.ke**. Shares the repo API at `api.lesnarai.co.ke` (not the Gen-Eat `gen-eat-portal/` app).
+
+**Full system inventory (routes, catalog, WhatsApp, gaps):** [docs/HAZINA_NOMADS.md](../docs/HAZINA_NOMADS.md) — start at **§0**.
+
+---
+
+## Local development
 
 One URL, hot reload — save a file and refresh the browser.
 
@@ -8,20 +14,99 @@ One URL, hot reload — save a file and refresh the browser.
 # from repo root
 make dev-hazina
 
+# foreground logs
+make dev-hazina-fg
+
 # or
 cd hazina-portal && npm run dev
 ```
 
-Open **http://localhost:3004** (always this port).
+Open **http://localhost:3004** (override: `HAZINA_DEV_PORT=3005`).
 
-Production-style preview (rebuild required after each change):
+For chat widget tests, run the API in another terminal:
 
 ```bash
-make preview-hazina
+make dev   # FastAPI on :8000
 ```
 
-## Partner / hosts (ghost pages)
+Production-style preview (rebuild after each change):
 
-- **`/hosts-guides`** — B2B pitch only; not in nav/footer; `noindex`. Share the URL directly with hosts.
-- **`/partners/login`** — Partner wall; set `PARTNER_PORTAL_EMAIL` and `PARTNER_PORTAL_PASSWORD` in env.
-- **`/partners/dashboard`** — Referral code and earnings (login required).
+```bash
+make preview-hazina   # next build + next start on :3004
+```
+
+---
+
+## Public site map (2026-06-01)
+
+| URL | In nav? | Notes |
+|---|---|---|
+| `/` | — | Hero + 4 path cards (no full product grid) |
+| `/collections` | ✅ | 5 curated boxes |
+| `/collections/[id]` | via cards | Checkout + inside-the-box |
+| `/build` | ✅ | Browse treasures + custom box cart |
+| `/treasures/[id]` | via build | Item detail; back → `/build` |
+| `/premium-safari-souvenirs-nairobi` | ✅ Safari | SEO landing |
+| `/about` | ✅ | Brand story |
+| `/treasures` | — | **301 → `/build`** |
+| `/last-minute-kenya-gifts-jkia` | — | **301 → `/collections/departure-drop`** |
+
+**Nav:** Collections · Build · Safari · About · Talk to Concierge (WhatsApp).
+
+---
+
+## Partner / hosts (not in public nav)
+
+| URL | Purpose |
+|---|---|
+| `/hosts-guides` | B2B pitch — `noindex`; share URL directly |
+| `/partners/login` | Sign-in wall |
+| `/partners/dashboard` | Referral code + placeholder earnings |
+
+Set in `.env` (see repo `.env.example`):
+
+```bash
+PARTNER_PORTAL_EMAIL=
+PARTNER_PORTAL_PASSWORD=
+PARTNER_REFERRAL_CODE=REF-HOST-001
+```
+
+**Not built yet:** real commission ledger, per-host accounts, payout API.
+
+---
+
+## Catalog source of truth
+
+1. Edit **`app/catalog/hazina_catalog.py`** (backend)
+2. Mirror **`lib/products.ts`** and **`lib/treasures.ts`**
+3. Re-seed: `PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py`
+
+Packaging fee: **USD 45 / KES 5,800**. Minimum custom items: **2**.
+
+---
+
+## Scripts
+
+```bash
+npm run dev          # next dev (:3004 via root script)
+npm run build        # production build
+npm run typecheck
+npm run lint
+```
+
+From repo root:
+
+```bash
+make test-hazina     # backend tests for Hazina flows
+python scripts/check_asset_images.py
+```
+
+---
+
+## Deploy
+
+Render service `hazina-portal` in `render.yaml` → `hazina.lesnarai.co.ke`.
+
+Env: `BACKEND_URL`, `NEXT_PUBLIC_HAZINA_WHATSAPP`, `NEXT_PUBLIC_HAZINA_PHONE`, partner vars above.
+
+If the live site looks like an old UI, redeploy after `git push` — local commits do not update production until Render rebuilds.

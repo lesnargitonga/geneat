@@ -124,12 +124,15 @@ Current Hazina production-routing path:
   shopper returns to the exact previous browsing position when possible,
 - mobile customer pages now prioritize `Order on WhatsApp`, visible trust
   cues, and sticky WhatsApp CTAs on collections and JKIA,
-- `/hosts-guides` is the host / guide partner landing page for QR-card and
-  referral pilots,
+- `/hosts-guides` is a **ghost** B2B page (`noindex`, not in nav); partners use
+  `/partners/login` + `/partners/dashboard` (env credentials),
+- JKIA SEO URL redirects to `/collections/departure-drop`; treasure browse lives
+  on `/build` only (`/treasures` → `/build`),
+- local portal dev is **`make dev-hazina`** on **http://localhost:3004**,
 - the Hazina portal has its own Next.js app under `hazina-portal/`,
-- Hazina implementation detail appendix lives in
-  [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md), while this README remains
-  canonical.
+- **what exists vs gaps** (routes, catalog, payments, partners): see
+  [docs/HAZINA_NOMADS.md](docs/HAZINA_NOMADS.md) **§0**; this README stays
+  platform-wide canonical.
 
 Current Lily Pond live-demo path:
 
@@ -233,7 +236,7 @@ Fresh local checks run during this reconciliation:
 | Check | Result |
 | --- | --- |
 | Fast focused backend suite | `158 passed, 1 warning` via `make test-fast` |
-| Hazina focused suite | `60 passed, 1 warning` via `make test-hazina` |
+| Hazina focused suite | `61 passed, 1 warning` via `make test-hazina` |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -2350,7 +2353,7 @@ Current result:
 - admin build passed
 - Gen-Eat portal build passed
 - Hazina portal typecheck passed
-- Hazina portal build passed with 49 routes
+- Hazina portal build passed with ~48 routes (see docs/HAZINA_NOMADS.md §9.1)
 
 ### 22.3 Live system doctor
 
