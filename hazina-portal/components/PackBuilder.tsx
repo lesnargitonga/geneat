@@ -14,15 +14,17 @@ import {
   type TreasureCategory,
 } from "@/lib/treasures";
 import { BRAND } from "@/lib/products";
-import { formatDualPrice, whatsappLink } from "@/lib/format";
+import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
 
 type DeliveryMode = "hotel" | "jkia" | "international";
 
+const BUILDABLE_TREASURES = TREASURES.filter((t) => t.category !== "packaging");
+
 export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }) {
-  const [selected, setSelected] = useState<Map<string, number>>(() => {
+  const [cart, setCart] = useState<Map<string, number>>(() => {
     const m = new Map<string, number>();
     for (const id of initialAddIds) {
-      if (TREASURES.some((t) => t.id === id)) m.set(id, 1);
+      if (BUILDABLE_TREASURES.some((t) => t.id === id)) m.set(id, 1);
     }
     return m;
   });
@@ -30,6 +32,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<"curated" | "price-low" | "price-high" | "fastest">("curated");
   const [includePackaging, setIncludePackaging] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState<"browse" | "delivery">("browse");
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>("hotel");
   const [deliveryLocation, setDeliveryLocation] = useState("");
   const [deliveryWindow, setDeliveryWindow] = useState("");
@@ -39,7 +42,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return TREASURES.map((item, index) => ({ item, index }))
+    return BUILDABLE_TREASURES.map((item, index) => ({ item, index }))
       .filter(({ item }) => {
         if (category !== "all" && item.category !== category) return false;
         if (!q) return true;
@@ -63,45 +66,44 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
       .map(({ item }) => item);
   }, [category, query, sort]);
 
-  const selectedItems = useMemo(() => TREASURES.filter((t) => selected.has(t.id)), [selected]);
+  const cartLines = useMemo(() => {
+    return BUILDABLE_TREASURES.filter((t) => (cart.get(t.id) ?? 0) > 0).map((item) => ({
+      item,
+      qty: cart.get(item.id) ?? 0,
+    }));
+  }, [cart]);
 
-  const totalUnits = useMemo(() => Array.from(selected.values()).reduce((a, b) => a + b, 0), [selected]);
+  const totalUnits = useMemo(
+    () => cartLines.reduce((sum, line) => sum + line.qty, 0),
+    [cartLines],
+  );
 
-  const subtotalKes = selectedItems.reduce((s, t) => s + t.price_kes * (selected.get(t.id) || 1), 0);
+  const subtotalUsd = cartLines.reduce((s, { item, qty }) => s + item.price_usd * qty, 0);
+  const subtotalKes = cartLines.reduce((s, { item, qty }) => s + item.price_kes * qty, 0);
+  const packagingUsd = includePackaging ? PACKAGING_FEE_USD : 0;
   const packagingKes = includePackaging ? PACKAGING_FEE_KES : 0;
+  const totalUsd = subtotalUsd + packagingUsd;
   const totalKes = subtotalKes + packagingKes;
-  const totalUsd = selectedItems.reduce((s, t) => s + t.price_usd * (selected.get(t.id) || 1), 0) + (includePackaging ? PACKAGING_FEE_USD : 0);
+
+  const setQty = (id: string, qty: number) => {
+    setCart((prev) => {
+      const next = new Map(prev);
+      if (qty <= 0) next.delete(id);
+      else next.set(id, qty);
+      return next;
+    });
+  };
 
   const toggle = (id: string) => {
-    setSelected((prev) => {
-      const next = new Map(prev);
-      if (next.has(id)) next.delete(id);
-      else next.set(id, 1);
-      return next;
-    });
+    const qty = cart.get(id) ?? 0;
+    setQty(id, qty > 0 ? 0 : 1);
   };
 
-  const increment = (id: string) => {
-    setSelected((prev) => {
-      const next = new Map(prev);
-      const cur = next.get(id) || 0;
-      next.set(id, cur + 1);
-      return next;
-    });
-  };
-
-  const decrement = (id: string) => {
-    setSelected((prev) => {
-      const next = new Map(prev);
-      const cur = next.get(id) || 0;
-      if (cur <= 1) next.delete(id);
-      else next.set(id, cur - 1);
-      return next;
-    });
-  };
+  const increment = (id: string) => setQty(id, (cart.get(id) ?? 0) + 1);
+  const decrement = (id: string) => setQty(id, (cart.get(id) ?? 0) - 1);
 
   const checkoutMessage = buildWhatsAppMessage({
-    items: selectedItems.map((t) => ({ item: t, qty: selected.get(t.id) || 1 })),
+    items: cartLines,
     packaging: includePackaging,
     totalKes,
     totalUsd,
@@ -112,7 +114,8 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
     contact,
     paymentCurrency,
   });
-  const canOrder = selected.size >= MIN_CUSTOM_ITEMS;
+
+  const canOrder = totalUnits >= MIN_CUSTOM_ITEMS;
   const canCheckout =
     canOrder &&
     deliveryLocation.trim().length >= 6 &&
@@ -127,9 +130,19 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
 
   const validationHints: string[] = [];
   if (!canOrder) validationHints.push(`Choose ${MIN_CUSTOM_ITEMS} or more treasures`);
-  if (deliveryLocation.trim().length < 6) validationHints.push(`Delivery location: ${deliveryLocationPlaceholder(deliveryMode)}`);
-  if (deliveryWindow.trim().length < 3) validationHints.push(`Delivery window: ${deliveryWindowPlaceholder(deliveryMode)}`);
-  if (contact.trim().length < 5) validationHints.push(paymentCurrency === "USD" ? "Contact: email or WhatsApp for checkout link" : "Contact: M-Pesa phone number");
+  if (checkoutStep === "delivery") {
+    if (deliveryLocation.trim().length < 6) {
+      validationHints.push(`Delivery location: ${deliveryLocationPlaceholder(deliveryMode)}`);
+    }
+    if (deliveryWindow.trim().length < 3) {
+      validationHints.push(`Delivery window: ${deliveryWindowPlaceholder(deliveryMode)}`);
+    }
+    if (contact.trim().length < 5) {
+      validationHints.push(
+        paymentCurrency === "USD" ? "Contact: email or WhatsApp for checkout link" : "Contact: M-Pesa phone number",
+      );
+    }
+  }
 
   return (
     <div className="grid lg:grid-cols-12 gap-10 lg:gap-14">
@@ -141,7 +154,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="input-luxury"
+                className="input-soft"
                 placeholder="Search by item, SKU, material, origin..."
               />
             </label>
@@ -150,7 +163,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as typeof sort)}
-                className="input-luxury"
+                className="input-soft"
               >
                 <option value="curated">Curated order</option>
                 <option value="price-low">Price low to high</option>
@@ -160,19 +173,27 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
             </label>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <FilterChip active={category === "all"} onClick={() => setCategory("all")} label="All" />
-            {ALL_CATEGORIES.map((c) => (
-              <FilterChip
-                key={c}
-                active={category === c}
-                onClick={() => setCategory(c)}
-                label={CATEGORY_LABELS[c]}
-              />
-            ))}
+          <div className="flex items-center gap-3">
+            <span className="label-mono shrink-0 text-ink-mute">Category</span>
+            <div className="-mx-1 flex-1 overflow-x-auto pb-1">
+              <div className="flex min-w-max gap-5 px-1">
+                <CategoryLink active={category === "all"} onClick={() => setCategory("all")} label="All" />
+                {ALL_CATEGORIES.filter((c) => c !== "packaging").map((c) => (
+                  <CategoryLink
+                    key={c}
+                    active={category === c}
+                    onClick={() => setCategory(c)}
+                    label={CATEGORY_LABELS[c]}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
 
-          <p className="label-mono">{filtered.length} available treasures · {selected.size} selected ({totalUnits} units)</p>
+          <p className="label-mono">
+            {filtered.length} available · {totalUnits} in your box
+            {cartLines.length > 0 ? ` (${cartLines.length} treasures)` : ""}
+          </p>
         </div>
 
         {filtered.length > 0 ? (
@@ -181,7 +202,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
               <SelectableTreasure
                 key={item.id}
                 item={item}
-                checked={selected.has(item.id)}
+                qty={cart.get(item.id) ?? 0}
                 onToggle={() => toggle(item.id)}
               />
             ))}
@@ -199,190 +220,234 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
       <aside className="lg:col-span-5">
         <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto border border-border bg-sand p-6 md:p-8 space-y-6">
           <div>
-            <span className="label-mono">Your order</span>
-            <h2 className="font-serif text-3xl text-obsidian mt-2">Choose treasures</h2>
+            <span className="label-mono">Your box</span>
+            <h2 className="font-serif text-3xl text-obsidian mt-2">
+              {checkoutStep === "browse" ? "Choose treasures" : "Delivery details"}
+            </h2>
             <p className="text-ink-mute text-sm mt-2 leading-relaxed">
-              Pick what you want. Add a gift box only if you need presentation packaging.
+              {checkoutStep === "browse"
+                ? "Add items until you meet the minimum, then proceed to delivery."
+                : "Confirm where and when we should deliver, then checkout."}
             </p>
           </div>
 
-          {selectedItems.length === 0 ? (
-            <p className="text-ink-mute text-sm italic">Tap items to add them to your box.</p>
-          ) : (
-            <ul className="space-y-3 max-h-64 overflow-y-auto">
-              {selectedItems.map((item) => (
-                <li key={item.id} className="flex items-center justify-between gap-3 text-sm border-b border-border pb-2">
-                  <div className="flex items-center gap-3">
-                    <span className="text-obsidian">{item.name}</span>
-                    <div className="inline-flex items-center border border-border rounded overflow-hidden">
-                      <button
-                        type="button"
-                        onClick={() => decrement(item.id)}
-                        className="px-3 py-1 bg-sand text-obsidian"
-                        aria-label={`Decrease quantity for ${item.name}`}
-                      >
-                        −
-                      </button>
-                      <span className="px-3 py-1 font-mono text-sm">{selected.get(item.id) || 1}</span>
-                      <button
-                        type="button"
-                        onClick={() => increment(item.id)}
-                        className="px-3 py-1 bg-sand text-obsidian"
-                        aria-label={`Increase quantity for ${item.name}`}
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                  <span className="font-mono text-sm text-ink-mute shrink-0 text-right">
-                    {formatDualPrice(item.price_usd * (selected.get(item.id) || 1), item.price_kes * (selected.get(item.id) || 1))}
+          {checkoutStep === "browse" && (
+            <>
+              {cartLines.length === 0 ? (
+                <p className="text-ink-mute text-sm italic">Tap items to add them to your box.</p>
+              ) : (
+                <ul className="space-y-3 max-h-64 overflow-y-auto local-scroll">
+                  {cartLines.map(({ item, qty }) => (
+                    <li key={item.id} className="flex items-center justify-between gap-3 text-sm border-b border-border/60 pb-2">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-obsidian truncate">{item.name}</span>
+                        <div className="inline-flex items-center shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => decrement(item.id)}
+                            className="px-2 py-1 font-mono text-sm text-ink-mute hover:text-obsidian"
+                            aria-label={`Decrease quantity for ${item.name}`}
+                          >
+                            −
+                          </button>
+                          <span className="px-2 py-1 font-mono text-sm min-w-[2ch] text-center">{qty}</span>
+                          <button
+                            type="button"
+                            onClick={() => increment(item.id)}
+                            className="px-2 py-1 font-mono text-sm text-ink-mute hover:text-obsidian"
+                            aria-label={`Increase quantity for ${item.name}`}
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                      <span className="font-mono text-xs text-ink-mute shrink-0 text-right leading-relaxed">
+                        {formatUSD(item.price_usd * qty)}
+                        <br />
+                        {formatKES(item.price_kes * qty)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {cartLines.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCart(new Map());
+                    setIncludePackaging(false);
+                  }}
+                  className="label-mono text-left text-bronze hover:text-obsidian"
+                >
+                  Clear selection
+                </button>
+              )}
+
+              <label className="flex items-start gap-3 cursor-pointer py-2">
+                <input
+                  type="checkbox"
+                  checked={includePackaging}
+                  onChange={(e) => setIncludePackaging(e.target.checked)}
+                  className="mt-1 accent-bronze"
+                />
+                <span className="text-sm text-ink-mute leading-relaxed">
+                  Premium gift box &amp; story card — {formatUSD(PACKAGING_FEE_USD)}
+                  <span className="block font-mono text-xs text-ink-mute/80 mt-0.5">
+                    {formatKES(PACKAGING_FEE_KES)}
                   </span>
-                </li>
-              ))}
-            </ul>
+                </span>
+              </label>
+
+              <div className="border-t border-border/60 pt-4 space-y-1">
+                <div className="flex justify-between gap-4 items-baseline">
+                  <span className="label-mono text-ink-mute">Estimated total</span>
+                  <div className="text-right">
+                    <p className="font-serif text-2xl text-obsidian leading-none">{formatUSD(totalUsd)}</p>
+                    <p className="font-mono text-sm text-ink-mute mt-1">{formatKES(totalKes)}</p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                disabled={!canOrder}
+                onClick={() => setCheckoutStep("delivery")}
+                className="btn-dark w-full disabled:opacity-40"
+              >
+                {canOrder ? "Enter delivery details" : `Select ${MIN_CUSTOM_ITEMS}+ treasures`}
+              </button>
+
+              {canOrder && (
+                <a
+                  href={whatsappLink(BRAND.whatsapp, checkoutMessage)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-center font-mono text-sm text-bronze underline-offset-4 hover:underline"
+                >
+                  Or continue in WhatsApp
+                </a>
+              )}
+            </>
           )}
 
-          {selectedItems.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setSelected(new Map())}
-              className="label-mono text-left text-bronze hover:text-obsidian"
-            >
-              Clear selection
-            </button>
-          )}
+          {checkoutStep === "delivery" && (
+            <>
+              <div className="rounded-sm bg-sand-dark/50 p-4 space-y-2 text-sm">
+                <p className="label-mono text-ink-mute">Order summary</p>
+                <p className="font-serif text-xl text-obsidian">{formatUSD(totalUsd)}</p>
+                <p className="font-mono text-xs text-ink-mute">{formatKES(totalKes)}</p>
+                <p className="text-ink-mute text-xs mt-1">
+                  {totalUnits} treasures
+                  {includePackaging ? " · premium packaging" : ""}
+                </p>
+              </div>
 
-          <label className="flex items-center gap-3 cursor-pointer border border-border bg-sand-dark/40 p-3">
-            <input
-              type="checkbox"
-              checked={includePackaging}
-              onChange={(e) => setIncludePackaging(e.target.checked)}
-              className="accent-obsidian"
-            />
-            <span className="text-sm text-ink-mute">
-              Add premium gift box &amp; story card (+{formatDualPrice(PACKAGING_FEE_USD, PACKAGING_FEE_KES)})
-            </span>
-          </label>
+              <div className="space-y-4">
+                <div className="flex gap-4">
+                  {(["hotel", "jkia", "international"] as const).map((mode) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setDeliveryMode(mode)}
+                      className={`font-mono text-xs uppercase tracking-[0.1em] pb-1 border-b-2 transition-colors ${
+                        deliveryMode === mode
+                          ? "border-obsidian text-obsidian"
+                          : "border-transparent text-ink-mute hover:text-obsidian"
+                      }`}
+                    >
+                      {mode === "hotel" ? "Hotel" : mode === "jkia" ? "JKIA" : "DHL"}
+                    </button>
+                  ))}
+                </div>
 
-          <div className="border-t border-border pt-4 space-y-1">
-            <div className="flex justify-between gap-4 font-mono text-sm">
-              <span className="text-ink-mute">Estimated total</span>
-              <span className="text-obsidian text-right">{formatDualPrice(totalUsd, totalKes)}</span>
-            </div>
-            <p className="text-sm text-ink-mute leading-relaxed">
-              USD card is default for travellers; choose KES if you want M-Pesa STK.
-            </p>
-          </div>
+                <input
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  className="input-soft"
+                  placeholder="Your name"
+                />
+                <input
+                  value={deliveryLocation}
+                  onChange={(e) => setDeliveryLocation(e.target.value)}
+                  className="input-soft"
+                  placeholder={deliveryLocationPlaceholder(deliveryMode)}
+                />
+                <input
+                  value={deliveryWindow}
+                  onChange={(e) => setDeliveryWindow(e.target.value)}
+                  className="input-soft"
+                  placeholder={deliveryWindowPlaceholder(deliveryMode)}
+                />
+                <input
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
+                  className="input-soft"
+                  placeholder={
+                    paymentCurrency === "USD" ? "Email or WhatsApp for checkout link" : "M-Pesa phone number"
+                  }
+                />
 
-          <div className="border-t border-border pt-5 space-y-4">
-            <div>
-              <span className="label-mono">Delivery details</span>
-              <p className="text-sm text-ink-mute mt-1 leading-relaxed">
-                Fill this once. The concierge creates the order and starts payment.
-              </p>
-            </div>
+                <div className="flex gap-6">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentCurrency("USD")}
+                    className={`font-mono text-xs uppercase tracking-[0.1em] pb-1 border-b-2 transition-colors ${
+                      paymentCurrency === "USD"
+                        ? "border-obsidian text-obsidian"
+                        : "border-transparent text-ink-mute hover:text-obsidian"
+                    }`}
+                  >
+                    USD card
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentCurrency("KES")}
+                    className={`font-mono text-xs uppercase tracking-[0.1em] pb-1 border-b-2 transition-colors ${
+                      paymentCurrency === "KES"
+                        ? "border-obsidian text-obsidian"
+                        : "border-transparent text-ink-mute hover:text-obsidian"
+                    }`}
+                  >
+                    KES M-Pesa
+                  </button>
+                </div>
+              </div>
 
-            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => setDeliveryMode("hotel")}
-                className={`chip justify-center border ${deliveryMode === "hotel" ? "bg-obsidian text-sand border-obsidian" : "border-border text-ink-mute"}`}
+                onClick={() => setCheckoutStep("browse")}
+                className="font-mono text-sm text-bronze hover:text-obsidian"
               >
-                Hotel
+                ← Edit selection
               </button>
+
               <button
                 type="button"
-                onClick={() => setDeliveryMode("jkia")}
-                className={`chip justify-center border ${deliveryMode === "jkia" ? "bg-obsidian text-sand border-obsidian" : "border-border text-ink-mute"}`}
+                onClick={startAutomatedCheckout}
+                disabled={!canCheckout}
+                className="btn-dark w-full disabled:opacity-40"
               >
-                JKIA
+                Create order
               </button>
-              <button
-                type="button"
-                onClick={() => setDeliveryMode("international")}
-                className={`chip justify-center border ${deliveryMode === "international" ? "bg-obsidian text-sand border-obsidian" : "border-border text-ink-mute"}`}
+
+              <a
+                href={whatsappLink(BRAND.whatsapp, checkoutMessage)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-outline w-full"
               >
-                DHL
-              </button>
-            </div>
+                Continue in WhatsApp
+              </a>
 
-            <input
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              className="input-luxury"
-              placeholder="Your name"
-            />
-            <input
-              value={deliveryLocation}
-              onChange={(e) => setDeliveryLocation(e.target.value)}
-              className="input-luxury"
-              placeholder={deliveryLocationPlaceholder(deliveryMode)}
-            />
-            <input
-              value={deliveryWindow}
-              onChange={(e) => setDeliveryWindow(e.target.value)}
-              className="input-luxury"
-              placeholder={deliveryWindowPlaceholder(deliveryMode)}
-            />
-            <input
-              value={contact}
-              onChange={(e) => setContact(e.target.value)}
-              className="input-luxury"
-              placeholder={paymentCurrency === "USD" ? "Email or WhatsApp for checkout link" : "M-Pesa phone number"}
-            />
-
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setPaymentCurrency("USD")}
-                className={`chip justify-center border ${paymentCurrency === "USD" ? "bg-obsidian text-sand border-obsidian" : "border-border text-ink-mute"}`}
-              >
-                USD card
-              </button>
-              <button
-                type="button"
-                onClick={() => setPaymentCurrency("KES")}
-                className={`chip justify-center border ${paymentCurrency === "KES" ? "bg-obsidian text-sand border-obsidian" : "border-border text-ink-mute"}`}
-              >
-                KES M-Pesa
-              </button>
-            </div>
-          </div>
-
-          {canCheckout ? (
-            <button type="button" onClick={startAutomatedCheckout} className="btn-dark w-full">
-              Create order
-            </button>
-          ) : (
-            <button type="button" disabled className="btn-dark w-full opacity-40">
-              {canOrder ? "Complete delivery details" : `Select ${MIN_CUSTOM_ITEMS}+ items`}
-            </button>
-          )}
-
-          {canOrder ? (
-            <a
-              href={whatsappLink(BRAND.whatsapp, checkoutMessage)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-outline w-full"
-            >
-              Continue in WhatsApp
-            </a>
-          ) : (
-            <button type="button" disabled className="btn-outline w-full opacity-40">
-              Select {MIN_CUSTOM_ITEMS}+ items
-            </button>
-          )}
-
-          {validationHints.length > 0 && (
-            <div className="mt-3 text-sm text-ink-mute">
-              <p className="font-mono text-sm text-ink-mute">Needed before checkout:</p>
-              <ul className="list-disc list-inside mt-1">
-                {validationHints.map((h) => (
-                  <li key={h}>{h}</li>
-                ))}
-              </ul>
-            </div>
+              {validationHints.length > 0 && (
+                <ul className="text-sm text-ink-mute list-disc list-inside space-y-1">
+                  {validationHints.map((h) => (
+                    <li key={h}>{h}</li>
+                  ))}
+                </ul>
+              )}
+            </>
           )}
 
           <p className="label-mono text-center">
@@ -397,7 +462,7 @@ export function PackBuilder({ initialAddIds = [] }: { initialAddIds?: string[] }
   );
 }
 
-function FilterChip({
+function CategoryLink({
   active,
   onClick,
   label,
@@ -410,8 +475,10 @@ function FilterChip({
     <button
       type="button"
       onClick={onClick}
-      className={`chip transition-colors ${
-        active ? "bg-obsidian text-sand" : "border border-border text-ink-mute hover:border-obsidian"
+      className={`shrink-0 font-mono text-xs uppercase tracking-[0.12em] whitespace-nowrap pb-1 border-b transition-colors ${
+        active
+          ? "text-obsidian border-obsidian"
+          : "text-ink-mute border-transparent hover:text-obsidian"
       }`}
     >
       {label}
@@ -421,37 +488,41 @@ function FilterChip({
 
 function SelectableTreasure({
   item,
-  checked,
+  qty,
   onToggle,
 }: {
   item: Treasure;
-  checked: boolean;
+  qty: number;
   onToggle: () => void;
 }) {
+  const inCart = qty > 0;
+
   return (
     <button
       type="button"
       onClick={onToggle}
       className={`text-left card-luxury overflow-hidden transition-all ${
-        checked ? "ring-2 ring-obsidian ring-offset-2 border-obsidian" : ""
+        inCart ? "ring-1 ring-obsidian ring-offset-2 ring-offset-sand" : ""
       }`}
     >
-      <div className="relative">
+      <div className="relative catalog-tile-image">
         <CatalogImage
           src={item.image}
           alt={item.imageAlt || item.name}
           className="aspect-square"
+          imageClassName="object-contain object-center p-4"
           sizes="200px"
         />
-        {checked && (
-          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-            <span className="chip-dark">Added</span>
+        {inCart && (
+          <div className="absolute top-3 right-3">
+            <span className="chip-dark text-xs">{qty > 1 ? `×${qty}` : "Added"}</span>
           </div>
         )}
       </div>
-      <div className="p-3">
+      <div className="p-3 border-t border-border/60">
         <p className="font-serif text-base text-obsidian leading-tight">{item.name}</p>
-        <p className="font-mono text-sm text-bronze mt-1">{formatDualPrice(item.price_usd, item.price_kes)}</p>
+        <p className="font-serif text-sm text-obsidian mt-1">{formatUSD(item.price_usd)}</p>
+        <p className="font-mono text-xs text-ink-mute">{formatKES(item.price_kes)}</p>
       </div>
     </button>
   );
@@ -483,10 +554,10 @@ function buildWhatsAppMessage({
   const lines = [
     "Hello Hazina Nomads — automated custom gift box checkout:",
     "",
-    ...items.map(({ item, qty }) => `• ${qty > 1 ? qty + '× ' : ''}${item.name} (${item.sku})`),
+    ...items.map(({ item, qty }) => `• ${qty > 1 ? `${qty}× ` : ""}${item.name} (${item.sku})`),
   ];
   if (packaging) lines.push("• Premium packaging & story card");
-  lines.push("", `Estimated total: USD ${totalUsd.toLocaleString("en-US")} / KES ${totalKes.toLocaleString("en-KE")}`);
+  lines.push("", `Estimated total: ${formatUSD(totalUsd)} / ${formatKES(totalKes)}`);
   if (customerName.trim()) lines.push(`Guest: ${customerName.trim()}`);
   lines.push(`Delivery type: ${deliveryTypeLabel(deliveryMode)}`);
   if (deliveryLocation.trim()) lines.push(`Delivery location: ${deliveryLocation.trim()}`);

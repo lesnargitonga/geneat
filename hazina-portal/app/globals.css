@@ -148,6 +148,16 @@
            placeholder:text-ink-mute/60 transition-colors focus:border-obsidian;
   }
 
+  .input-soft {
+    @apply w-full rounded-none border-0 border-b border-border/50 bg-obsidian/[0.04] px-1 py-3
+           text-base text-obsidian placeholder:text-ink-mute/50 transition-colors
+           focus:border-obsidian focus:bg-obsidian/[0.06];
+  }
+
+  .catalog-tile-image {
+    @apply bg-sand-dark;
+  }
+
   .panel-luxury {
     @apply border border-border bg-sand shadow-soft;
   }
