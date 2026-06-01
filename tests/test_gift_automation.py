@@ -17,6 +17,7 @@ def test_product_id_from_interactive() -> None:
 
 def test_hazina_intent_detectors() -> None:
     assert ga.looks_like_hazina_order_intent("order kenya edit")
+    assert not ga.looks_like_hazina_order_intent("send me a picture of The Kenya Edit")
     assert ga.looks_like_hazina_track("track my delivery")
     assert ga.looks_like_hazina_corporate("corporate gifting for our team")
     assert ga.looks_like_hazina_catalog_request("what do you sell?")

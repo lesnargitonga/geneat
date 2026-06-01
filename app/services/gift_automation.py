@@ -81,6 +81,7 @@ _CATALOG_RE = re.compile(
     r"show (?:me )?(?:your )?(?:gifts|boxes|collections)|shop|browse)\b",
     re.IGNORECASE,
 )
+_PHOTO_RE = re.compile(r"\b(photo|picture|pic|image|picha|show me)\b", re.IGNORECASE)
 _SKU_LINE_RE = re.compile(r"\((HN-[A-Z0-9-]+)\)", re.IGNORECASE)
 _SKU_QTY_LINE_RE = re.compile(
     r"^\s*(?:[•*-]\s*)?(?:(\d{1,2})\s*[x×]\s*)?.*?\((HN-[A-Z0-9-]+)\)",
@@ -164,6 +165,8 @@ def resolve_product_id(text: str, *, interactive_id: str | None = None) -> str |
 
 
 def looks_like_hazina_order_intent(text: str) -> bool:
+    if _PHOTO_RE.search(text or ""):
+        return False
     return bool(_ORDER_RE.search(text or "")) or resolve_product_id(text) is not None
 
 
