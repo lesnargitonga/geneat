@@ -19,8 +19,8 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "price_kes": 32400,
         "target": "Safari tourists, European/US visitors",
         "contents": (
-            "Premium Kenyan coffee (250g), handmade Maasai beadwork "
-            "(bracelet or necklace), small artisan soapstone carving, printed brand story card"
+            "Premium Kenyan coffee (250g), Maasai beaded bracelet, soapstone Big Five carving, "
+            "premium gift box with brand story card"
         ),
         "lead_time_hours": 24,
         "personalization": False,
@@ -34,12 +34,12 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "price_kes": 25900,
         "target": "General gifting, diaspora, colleagues",
         "contents": (
-            "Export-grade Kenyan coffee, premium Kenyan loose-leaf tea, "
-            "local raw honey, carved wooden tasting spoon"
+            "Export-grade Kenyan coffee, premium Kenyan loose-leaf tea with carved wooden tasting spoon, "
+            "local raw honey, premium gift box"
         ),
         "lead_time_hours": 24,
         "personalization": False,
-        "item_ids": ["premium-coffee-250g", "loose-leaf-tea", "raw-honey", "wooden-combs", "premium-packaging"],
+        "item_ids": ["premium-coffee-250g", "loose-leaf-tea", "raw-honey", "premium-packaging"],
     },
     {
         "id": "nomad-leather-set",
@@ -48,7 +48,10 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "price_usd": 329,
         "price_kes": 42800,
         "target": "Business travellers, wealthy tourists",
-        "contents": "Handmade leather passport holder, luggage tag, and travel notebook",
+        "contents": (
+            "Handmade leather passport holder and luggage tag in a premium gift box "
+            "(optional embossing)"
+        ),
         "lead_time_hours": 24,
         "personalization": True,
         "personalization_note": "Engraving requires 24-hour notice",
@@ -62,8 +65,8 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "price_kes": 58400,
         "target": "Honeymooners, anniversary trips",
         "contents": (
-            "Matching couple's beadwork, premium treats (chocolate/coffee), "
-            "framed minimalist safari route map, leather luggage tags"
+            "Maasai beaded necklace and bracelet, premium Kenyan coffee, Big Five safari print, "
+            "leather luggage tag, premium gift box"
         ),
         "lead_time_hours": 48,
         "personalization": True,
@@ -73,6 +76,7 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
             "premium-coffee-250g",
             "big-five-print",
             "leather-luggage-tag",
+            "premium-packaging",
         ],
     },
     {

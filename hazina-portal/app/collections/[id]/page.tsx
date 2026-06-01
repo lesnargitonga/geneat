@@ -2,8 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CatalogImage } from "@/components/CatalogImage";
-import { GIFT_BOXES, getGiftBox, BRAND } from "@/lib/products";
-import { getTreasuresByIds } from "@/lib/treasures";
+import {
+  GIFT_BOXES,
+  getGiftBox,
+  BRAND,
+  getCollectionTreasureItems,
+} from "@/lib/products";
 import { CollectionItemsPreview } from "@/components/CollectionCard";
 import { CollectionCheckout } from "@/components/CollectionCheckout";
 import { formatDualPrice, formatUSD, whatsappLink } from "@/lib/format";
@@ -46,7 +50,7 @@ export default function CollectionDetailPage({ params }: Props) {
   const box = getGiftBox(params.id);
   if (!box) notFound();
 
-  const items = getTreasuresByIds(box.itemIds ?? []);
+  const items = getCollectionTreasureItems(box);
   const itemsSubtotalKes = items.reduce((s, t) => s + t.price_kes, 0);
   const itemsSubtotalUsd = items.reduce((s, t) => s + t.price_usd, 0);
   const orderMessage = `Hello Hazina Nomads — I'd like to order ${box.name}.`;
@@ -65,7 +69,12 @@ export default function CollectionDetailPage({ params }: Props) {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 mt-8 items-start">
           <CatalogImage
             src={box.image}
+            fallbackSrc={
+              items.find((t) => t.category !== "packaging" && t.image)?.image ?? null
+            }
             alt={box.imageAlt || box.name}
+            tone="warm"
+            fit="contain"
             className="aspect-[4/5] shadow-editorial sticky top-24"
             sizes="(max-width: 1024px) 100vw, 50vw"
             priority
@@ -113,7 +122,7 @@ export default function CollectionDetailPage({ params }: Props) {
             <div>
               <span className="label-mono">What&apos;s inside</span>
               <h2 className="font-serif text-3xl text-obsidian mt-2">
-                {items.length} treasures in this box
+                {items.length} treasure{items.length === 1 ? "" : "s"} in this box
               </h2>
             </div>
             <p className="text-sm text-ink-mute">

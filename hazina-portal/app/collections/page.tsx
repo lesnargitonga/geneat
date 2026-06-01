@@ -32,21 +32,9 @@ export default function CollectionsPage() {
 
       <div className="container-page">
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
-          <div>
-            <CollectionCard box={GIFT_BOXES[0]} priority />
-          </div>
-          <div>
-            <CollectionCard box={GIFT_BOXES[1]} />
-          </div>
-          <div>
-            <CollectionCard box={GIFT_BOXES[2]} />
-          </div>
-          <div>
-            <CollectionCard box={GIFT_BOXES[3]} />
-          </div>
-          <div>
-            <CollectionCard box={GIFT_BOXES[4]} />
-          </div>
+          {GIFT_BOXES.map((box) => (
+            <CollectionCard key={box.id} box={box} priority />
+          ))}
         </div>
       </div>
 

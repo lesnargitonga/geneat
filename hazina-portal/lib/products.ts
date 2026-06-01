@@ -1,4 +1,6 @@
-// Hazina Nomads gift catalog — mirrors scripts/seed_hazina_nomads.py PRODUCTS.
+// Hazina Nomads gift catalog — mirrors app/catalog/hazina_catalog.py PRODUCTS.
+
+import { getTreasuresByIds, type Treasure } from "@/lib/treasures";
 
 export type GiftBox = {
   id: string;
@@ -47,7 +49,7 @@ export const GIFT_BOXES: GiftBox[] = [
     price_kes: 32400,
     target: "Safari tourists, European/US visitors",
     contents:
-      "Premium Kenyan coffee (250g), handmade Maasai beadwork (bracelet or necklace), small artisan soapstone carving, printed brand story card",
+      "Premium Kenyan coffee (250g), Maasai beaded bracelet, soapstone Big Five carving, premium gift box with brand story card",
     itemIds: ["premium-coffee-250g", "maasai-bracelet", "soapstone-big-five", "premium-packaging"],
     lead_time_hours: 24,
     emoji: "🎁",
@@ -63,8 +65,8 @@ export const GIFT_BOXES: GiftBox[] = [
     price_kes: 25900,
     target: "General gifting, diaspora, colleagues",
     contents:
-      "Export-grade Kenyan coffee, premium Kenyan loose-leaf tea, local raw honey, carved wooden tasting spoon",
-    itemIds: ["premium-coffee-250g", "loose-leaf-tea", "raw-honey", "wooden-combs", "premium-packaging"],
+      "Export-grade Kenyan coffee, premium Kenyan loose-leaf tea with carved wooden tasting spoon, local raw honey, premium gift box",
+    itemIds: ["premium-coffee-250g", "loose-leaf-tea", "raw-honey", "premium-packaging"],
     lead_time_hours: 24,
     emoji: "☕",
     image: "/treasures/highland-treasure-hero.png",
@@ -78,7 +80,8 @@ export const GIFT_BOXES: GiftBox[] = [
     price_usd: 329,
     price_kes: 42800,
     target: "Business travellers, wealthy tourists",
-    contents: "Handmade leather passport holder, luggage tag, and travel notebook",
+    contents:
+      "Handmade leather passport holder and luggage tag in a premium gift box (optional embossing)",
     itemIds: ["leather-passport", "leather-luggage-tag", "premium-packaging"],
     lead_time_hours: 24,
     personalization: true,
@@ -96,8 +99,15 @@ export const GIFT_BOXES: GiftBox[] = [
     price_kes: 58400,
     target: "Honeymooners, anniversary trips",
     contents:
-      "Matching couple's beadwork, premium treats (chocolate/coffee), framed minimalist safari route map, leather luggage tags",
-    itemIds: ["maasai-necklace", "maasai-bracelet", "premium-coffee-250g", "big-five-print", "leather-luggage-tag"],
+      "Maasai beaded necklace and bracelet, premium Kenyan coffee, Big Five safari print, leather luggage tag, premium gift box",
+    itemIds: [
+      "maasai-necklace",
+      "maasai-bracelet",
+      "premium-coffee-250g",
+      "big-five-print",
+      "leather-luggage-tag",
+      "premium-packaging",
+    ],
     lead_time_hours: 48,
     personalization: true,
     emoji: "💝",
@@ -125,4 +135,13 @@ export const GIFT_BOXES: GiftBox[] = [
 
 export function getGiftBox(id: string): GiftBox | undefined {
   return GIFT_BOXES.find((b) => b.id === id);
+}
+
+/** Treasures inside a curated box (excludes packaging SKU — shown separately). */
+export function getCollectionTreasureItems(box: GiftBox): Treasure[] {
+  return getTreasuresByIds(box.itemIds ?? []).filter((t) => t.category !== "packaging");
+}
+
+export function getCollectionPackaging(box: GiftBox): Treasure | undefined {
+  return getTreasuresByIds(box.itemIds ?? []).find((t) => t.category === "packaging");
 }

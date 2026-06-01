@@ -188,7 +188,7 @@ export function PackBuilder({
 
           <div className="flex items-center gap-3">
             <span className="label-mono shrink-0 text-ink-mute">Category</span>
-            <div className="-mx-1 flex-1 overflow-x-auto pb-1">
+            <div className="-mx-1 flex-1 overflow-x-auto pb-1 local-scroll-x">
               <div className="flex min-w-max gap-5 px-1">
                 <CategoryLink active={category === "all"} onClick={() => setCategory("all")} label="All" />
                 {ALL_CATEGORIES.filter((c) => c !== "packaging").map((c) => (
@@ -231,7 +231,7 @@ export function PackBuilder({
       </div>
 
       <aside className="lg:col-span-5">
-        <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto border border-border bg-sand p-6 md:p-8 space-y-6">
+        <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto local-scroll local-scroll--subtle border border-border bg-sand p-6 md:p-8 space-y-6">
           <div>
             <span className="label-mono">Your box</span>
             <h2 className="font-serif text-3xl text-obsidian mt-2">
@@ -249,7 +249,7 @@ export function PackBuilder({
               {cartLines.length === 0 ? (
                 <p className="text-ink-mute text-sm italic">Tap items to add them to your box.</p>
               ) : (
-                <ul className="space-y-3 max-h-64 overflow-y-auto local-scroll">
+                <ul className="space-y-3 max-h-64 overflow-y-auto local-scroll local-scroll--subtle">
                   {cartLines.map(({ item, qty }) => (
                     <li key={item.id} className="flex items-center justify-between gap-3 text-sm border-b border-border/60 pb-2">
                       <div className="flex items-center gap-3 min-w-0">
@@ -522,8 +522,9 @@ function SelectableTreasure({
         <CatalogImage
           src={item.image}
           alt={item.imageAlt || item.name}
+          tone="warm"
+          fit="contain"
           className="aspect-square"
-          imageClassName="object-contain object-center p-4"
           sizes="200px"
         />
         {inCart && (

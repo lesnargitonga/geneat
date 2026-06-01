@@ -185,7 +185,7 @@ export function ChatWidget() {
             </a>
           </div>
 
-          <div ref={scrollerRef} className="flex-1 overflow-auto p-3 space-y-2 bg-sand">
+          <div ref={scrollerRef} className="flex-1 overflow-auto local-scroll local-scroll--subtle p-3 space-y-2 bg-sand">
             {messages.map((m) => (
               <Bubble key={m.id} m={m} />
             ))}

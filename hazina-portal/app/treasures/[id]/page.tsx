@@ -43,6 +43,8 @@ export default function TreasureDetailPage({ params }: Props) {
           <CatalogImage
             src={item.image}
             alt={item.imageAlt || item.name}
+            tone="warm"
+            fit="contain"
             className="aspect-[4/5] shadow-editorial"
             sizes="(max-width: 1024px) 100vw, 50vw"
             priority
@@ -106,8 +108,9 @@ export default function TreasureDetailPage({ params }: Props) {
                   <CatalogImage
                     src={r.image}
                     alt={r.imageAlt || r.name}
+                    tone="warm"
+                    fit="contain"
                     className="aspect-square mb-2"
-                    imageClassName="object-cover group-hover:scale-105 transition-transform"
                     sizes="200px"
                   />
                   <p className="font-serif text-base leading-tight text-obsidian">{r.name}</p>

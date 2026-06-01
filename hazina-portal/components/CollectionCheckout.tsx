@@ -49,7 +49,7 @@ export function CollectionCheckout({ box }: Props) {
   };
 
   return (
-    <section id="checkout" className="border border-border bg-sand p-5 md:p-6 space-y-5 lg:max-h-[80vh] lg:overflow-y-auto">
+    <section id="checkout" className="border border-border bg-sand p-5 md:p-6 space-y-5 lg:max-h-[80vh] lg:overflow-y-auto local-scroll local-scroll--subtle">
       <div>
         <span className="label-mono">Automated checkout</span>
         <h2 className="font-serif text-2xl md:text-3xl text-obsidian mt-2">Reserve {box.name}</h2>

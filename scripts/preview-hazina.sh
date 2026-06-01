@@ -11,6 +11,8 @@ kill_port() {
   local p=$1
   pkill -f "next start -p ${p}" 2>/dev/null || true
   pkill -f "next dev -p ${p}" 2>/dev/null || true
+  pkill -f "${PORTAL}/node_modules/.bin/next" 2>/dev/null || true
+  pkill -f "next-server" 2>/dev/null || true
   if command -v fuser >/dev/null 2>&1; then
     fuser -k "${p}/tcp" 2>/dev/null || true
   fi

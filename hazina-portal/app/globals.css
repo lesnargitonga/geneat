@@ -40,6 +40,39 @@
   html {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--color-bronze) / 0.5) transparent;
+  }
+
+  /* Bronze thumb, transparent track — matches day/night tokens */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--color-bronze) / 0.45) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--color-bronze) / 0.38);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(var(--color-bronze) / 0.62);
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: transparent;
   }
   body {
     @apply bg-sand text-ink font-sans font-normal text-base leading-relaxed min-h-screen;
@@ -154,8 +187,17 @@
            focus:border-obsidian focus:bg-obsidian/[0.06];
   }
 
+  /* Product photos: knock out white margins into page sand (day + night tokens) */
+  .catalog-photo-frame {
+    @apply relative isolate bg-sand;
+  }
+
+  .catalog-photo-blend {
+    mix-blend-mode: multiply;
+  }
+
   .catalog-tile-image {
-    @apply bg-sand-dark;
+    @apply catalog-photo-frame;
   }
 
   .panel-luxury {
@@ -163,7 +205,31 @@
   }
 
   .local-scroll {
-    @apply overflow-y-auto pr-1;
+    @apply overflow-y-auto;
     scrollbar-gutter: stable;
+  }
+
+  /* Nested panels: thumb fades in until hover (less visual noise) */
+  .local-scroll--subtle::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--color-bronze) / 0.22);
+  }
+
+  .local-scroll--subtle:hover::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--color-bronze) / 0.5);
+  }
+
+  .local-scroll-x {
+    @apply overflow-x-auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--color-bronze) / 0.4) transparent;
+  }
+
+  .local-scroll-x::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .local-scroll-x::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--color-bronze) / 0.35);
+    border-radius: 999px;
   }
 }

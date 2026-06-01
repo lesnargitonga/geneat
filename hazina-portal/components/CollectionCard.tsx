@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { CatalogImage } from "@/components/CatalogImage";
 import type { GiftBox } from "@/lib/products";
-import { BRAND } from "@/lib/products";
-import { getTreasuresByIds } from "@/lib/treasures";
+import { BRAND, getCollectionPackaging, getCollectionTreasureItems } from "@/lib/products";
 import { formatUSD, whatsappLink } from "@/lib/format";
 
 type Props = {
@@ -12,10 +11,12 @@ type Props = {
 };
 
 export function CollectionCard({ box, className = "", priority }: Props) {
-  const itemCount = box.itemIds?.length ?? 0;
+  const treasures = getCollectionTreasureItems(box);
+  const itemCount = treasures.length;
+  const fallbackImage = treasures.find((t) => t.image)?.image ?? null;
   const waUrl = whatsappLink(
     BRAND.whatsapp,
-    `Hello Hazina Nomads — I'd like to reserve the ${box.name} collection.`
+    `Hello Hazina Nomads — I'd like to reserve the ${box.name} collection.`,
   );
 
   return (
@@ -26,9 +27,11 @@ export function CollectionCard({ box, className = "", priority }: Props) {
         <div className="relative">
           <CatalogImage
             src={box.image}
+            fallbackSrc={fallbackImage}
             alt={box.imageAlt || box.name}
-            className="aspect-[4/3] bg-sand-dark"
-            imageClassName="object-contain transition-transform duration-700 group-hover:scale-[1.02]"
+            tone="warm"
+            fit="contain"
+            className="aspect-[4/3]"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
             priority={priority}
           />
@@ -38,7 +41,9 @@ export function CollectionCard({ box, className = "", priority }: Props) {
           </div>
           {itemCount > 0 && (
             <div className="absolute bottom-4 left-4">
-              <span className="chip-dark bg-black/70">{itemCount} treasures inside</span>
+              <span className="chip-dark bg-black/70">
+                {itemCount} treasure{itemCount === 1 ? "" : "s"} inside
+              </span>
             </div>
           )}
         </div>
@@ -81,27 +86,37 @@ export function CollectionCard({ box, className = "", priority }: Props) {
 }
 
 export function CollectionItemsPreview({ box }: { box: GiftBox }) {
-  const items = getTreasuresByIds(box.itemIds ?? []);
-  if (!items.length) return null;
+  const treasures = getCollectionTreasureItems(box);
+  const packaging = getCollectionPackaging(box);
+  if (!treasures.length) return null;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {items.map((item) => (
-        <Link key={item.id} href={`/treasures/${item.id}`} className="group">
-          <CatalogImage
-            src={item.image}
-            alt={item.imageAlt || item.name}
-            className="aspect-square mb-3"
-            imageClassName="object-cover group-hover:scale-105 transition-transform duration-500"
-            sizes="200px"
-          />
-          <p className="font-serif text-base leading-tight text-obsidian">{item.name}</p>
-          <p className="font-serif text-base text-obsidian mt-1">{formatUSD(item.price_usd)}</p>
-          <p className="font-mono text-xs text-ink-mute mt-0.5">
-            KES {item.price_kes.toLocaleString("en-KE")}
-          </p>
-        </Link>
-      ))}
+    <div className="space-y-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {treasures.map((item) => (
+          <Link key={item.id} href={`/treasures/${item.id}`} className="group">
+            <CatalogImage
+              src={item.image}
+              alt={item.imageAlt || item.name}
+              tone="warm"
+              fit="contain"
+              className="aspect-square mb-3"
+              sizes="200px"
+            />
+            <p className="font-serif text-base leading-tight text-obsidian">{item.name}</p>
+            <p className="font-serif text-base text-obsidian mt-1">{formatUSD(item.price_usd)}</p>
+            <p className="font-mono text-xs text-ink-mute mt-0.5">
+              KES {item.price_kes.toLocaleString("en-KE")}
+            </p>
+          </Link>
+        ))}
+      </div>
+      {packaging && (
+        <p className="text-sm text-ink-mute border-t border-border pt-6 max-w-2xl leading-relaxed">
+          <span className="label-mono text-ink-soft block mb-1">Also included</span>
+          {packaging.name} — {packaging.description}
+        </p>
+      )}
     </div>
   );
 }

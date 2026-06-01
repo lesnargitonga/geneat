@@ -60,6 +60,7 @@ stop_repo_next() {
   pkill -f "${ROOT}/hazina-portal/node_modules/.bin/next start" 2>/dev/null || true
   pkill -f "next dev -p ${PORT}" 2>/dev/null || true
   pkill -f "next start -p ${PORT}" 2>/dev/null || true
+  pkill -f "next-server" 2>/dev/null || true
 }
 
 echo "==> Stopping anything on port ${PORT} (next dev / next start)…"
