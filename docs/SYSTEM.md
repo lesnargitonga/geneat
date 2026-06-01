@@ -18,8 +18,8 @@
 | Gen-Eat portal | ✅ | 🟢 | `geneat.lesnarai.co.ke` |
 | Hazina portal | ✅ | ⬜ | `hazina.lesnarai.co.ke` DNS unverified 2026-06-01; local `:3004` |
 | Hazina WA | ✅ | ◐ | `+1 555 657 8220` |
-| KES STK (IntaSend) | ✅ | ⬜ | Live keys; `PAYMENT_SIMULATOR=false` |
-| USD Paystack | ✅ | ⬜ | `PAYSTACK_SECRET_KEY` |
+| KES STK (IntaSend) | ✅ | 🟢 | Live keys; `PAYMENT_SIMULATOR=false`; primary M-Pesa rail |
+| USD/card checkout | ✅ | ◐ | Paystack preferred when keys exist; IntaSend hosted checkout is fallback for now |
 | Collections + guided checkout | ✅ | ◐ | Portal `ChatWidget` → structured payload |
 | Private sourcing brief `/build` | ✅ | ◐ | Monograms + bespoke; may need push/deploy |
 | Order tracking `HN-ORD-*?token=` | ✅ | ◐ | Needs `PUBLIC_HAZINA_PORTAL_URL` |
@@ -57,7 +57,7 @@ Portals (/api/chat, /api/orders) + Meta WA webhook
   → [Café] cafe_automation
   → else LangGraph + RAG + tools
   → Postgres (+ pgvector) · Redis (gift_checkout:*)
-  → IntaSend (KES) · Paystack (USD)
+  → IntaSend (KES M-Pesa + card-link fallback) · Paystack (preferred USD card)
 ```
 
 **No separate Hazina API.**
@@ -104,7 +104,7 @@ Deep API/model reference: [README.md §3–§20](../README.md).
 | CCY | Provider | Live requires |
 |---|---|---|
 | KES | IntaSend STK | `INTASEND_*`, `PAYMENT_SIMULATOR=false` |
-| USD | Paystack link | `PAYSTACK_SECRET_KEY` |
+| USD/card | Paystack link first, IntaSend checkout link fallback | `PAYSTACK_SECRET_KEY` or `INTASEND_API_TOKEN` |
 
 Resend: guest text `resend STK` / `resend link` → `channels/base.py`.  
 Order: `order.details.payment_currency`, `amount_usd`, `items`, `fulfillment_status`.
@@ -216,7 +216,7 @@ Same WA number as Hazina only if routing is confirmed — do not mix demos blind
 
 Courier webhook or ops UI · CI `len(HAZINA_TREASURES)` == portal `TREASURES.length`  
 
-**Not implied by “done”:** tracking page ≠ courier API · brief UI ≠ workshop WMS · automation code ≠ Paystack merchant approved  
+**Not implied by “done”:** tracking page ≠ courier API · brief UI ≠ workshop WMS · IntaSend card fallback ≠ Paystack merchant approved  
 
 ---
 

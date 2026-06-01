@@ -24,6 +24,10 @@ def _intasend_configured(settings) -> bool:
     return bool(val.strip())
 
 
+def _intasend_checkout_configured(settings) -> bool:
+    return _intasend_configured(settings)
+
+
 def resolve_payment_service(
     *,
     currency: str = "KES",
@@ -47,14 +51,18 @@ def resolve_payment_service(
             from app.integrations.payments.paystack import PaystackAdapter
 
             return PaystackAdapter()
+        if _intasend_checkout_configured(settings):
+            from app.integrations.payments.intasend import IntaSendAdapter
+
+            return IntaSendAdapter()
         provider = (getattr(settings, "payment_provider", "daraja") or "daraja").lower()
         if provider == "paystack":
             from app.integrations.payments.paystack import PaystackAdapter
 
             return PaystackAdapter()
         raise UpstreamError(
-            "USD card payments require Paystack keys (PAYSTACK_SECRET_KEY). "
-            "Apply at paystack.com and add keys to Render."
+            "Card checkout requires Paystack keys or IntaSend API credentials "
+            "(PAYSTACK_SECRET_KEY or INTASEND_API_TOKEN)."
         )
 
     if _intasend_configured(settings):

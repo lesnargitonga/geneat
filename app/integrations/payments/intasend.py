@@ -37,6 +37,14 @@ class IntaSendAdapter:
         token_value = token.get_secret_value() if hasattr(token, "get_secret_value") else str(token)
         return {"Authorization": f"Bearer {token_value}"}
 
+    def _checkout_headers(self) -> dict[str, str]:
+        s = get_settings()
+        public_key = (getattr(s, "intasend_publishable_key", "") or "").strip()
+        headers = self._auth_headers()
+        if public_key:
+            headers["X-IntaSend-Public-API-Key"] = public_key
+        return headers
+
     @retry(stop=stop_after_attempt(2), wait=wait_exponential_jitter(initial=0.5, max=3.0))
     async def request_payment(
         self,
@@ -48,6 +56,15 @@ class IntaSendAdapter:
         description: str = "Payment",
         email: Optional[str] = None,
     ) -> PaymentResult:
+        if (currency or "KES").upper() != "KES":
+            return await self.request_checkout_link(
+                msisdn=msisdn,
+                amount=amount,
+                reference=reference,
+                currency=currency,
+                description=description,
+                email=email,
+            )
         payload = {
             "amount": int(round(amount)),
             "phone_number": msisdn.lstrip("+"),
@@ -68,6 +85,55 @@ class IntaSendAdapter:
             provider=self.name,
             reference=str(data.get("invoice", {}).get("invoice_id") or data.get("id") or ""),
             status="pending",
+            raw=data,
+        )
+
+    @retry(stop=stop_after_attempt(2), wait=wait_exponential_jitter(initial=0.5, max=3.0))
+    async def request_checkout_link(
+        self,
+        *,
+        msisdn: str,
+        amount: float,
+        reference: str,
+        currency: str = "USD",
+        description: str = "Payment",
+        email: Optional[str] = None,
+    ) -> PaymentResult:
+        s = get_settings()
+        payload = {
+            "amount": round(float(amount), 2),
+            "currency": (currency or "USD").upper(),
+            "api_ref": reference[:32],
+            "comment": description[:120],
+            "email": email or f"{msisdn.lstrip('+')}@hazina-nomads.local",
+            "redirect_url": getattr(s, "public_hazina_portal_url", "https://hazina.lesnarai.co.ke"),
+        }
+        if msisdn:
+            payload["phone_number"] = msisdn.lstrip("+")
+        async with httpx.AsyncClient(timeout=15) as c:
+            r = await c.post(
+                f"{self._base()}/api/v1/checkout/",
+                json=payload,
+                headers=self._checkout_headers(),
+            )
+            if r.status_code >= 400:
+                raise UpstreamError(f"intasend checkout failed: {r.status_code} {r.text[:300]}")
+            data = r.json()
+        invoice = data.get("invoice") if isinstance(data.get("invoice"), dict) else data
+        link = (
+            data.get("url")
+            or data.get("checkout_url")
+            or data.get("redirect_url")
+            or data.get("authorization_url")
+            or invoice.get("url")
+            or invoice.get("checkout_url")
+            or invoice.get("redirect_url")
+        )
+        return PaymentResult(
+            provider=self.name,
+            reference=str(invoice.get("invoice_id") or invoice.get("id") or data.get("id") or reference),
+            status="pending",
+            redirect_url=link,
             raw=data,
         )
 

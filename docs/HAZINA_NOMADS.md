@@ -357,14 +357,14 @@ Guest / order context
 | `cafe_automation.request_order_payment` | Reads `order.details.payment_currency`, passes to resolver |
 | `gift_automation._finalize_order` / `_finalize_custom_order` | USD default for Hazina; KES only when guest asks for M-Pesa/STK/KES |
 | `ai/tools.request_mpesa_payment` | Accepts `currency`, `amount_usd`; returns `redirect_url` |
-| `channels/base._resend_pending_payment_reply` | Re-reads pending order currency; resends STK or fresh Paystack link |
+| `channels/base._resend_pending_payment_reply` | Re-reads pending order currency; resends STK or fresh secure card checkout link |
 
 ### 4.2 Order payment fields (`order.details`)
 
 | Field | Set by | Purpose |
 |---|---|---|
 | `payment_currency` | `create_order` tool, gift automation | `KES` or `USD` |
-| `amount_usd` | USD checkout path | Paystack charge amount |
+| `amount_usd` | USD/card checkout path | Card checkout charge amount |
 | `items` | All order paths | Line items with `sku_or_name`, `qty`, `unit_price` |
 | `delivery_location` | Automation / AI | Hotel or JKIA terminal |
 | `departure_time_iso` | JKIA flow | Flight departure capture |
@@ -385,9 +385,9 @@ Guest / order context
 | Rail | Provider | Status | Notes |
 |---|---|---|---|
 | KES M-Pesa STK | IntaSend | ✅ | `PAYMENT_PROVIDER=intasend` on Render |
-| USD cards | Paystack | ✅ Code wired | Add `PAYSTACK_SECRET_KEY` + `PAYSTACK_PUBLIC_KEY` on Render |
+| USD cards | Paystack first, IntaSend fallback | ✅ Code wired | Use Paystack when approved; IntaSend hosted checkout can carry card links for now |
 | Resend payment | Both | ✅ | "resend STK", "resend link", "checkout link", etc. |
-| Callback | `/payments/paystack/callback` | ✅ Adapter exists | Verify webhook in Paystack dashboard |
+| Callback | `/payments/intasend/callback`, `/payments/paystack/callback` | ✅ Adapters exist | Verify webhook secrets in provider dashboards |
 
 ### 4.4 Phase 2 — Scale ($5k–$10k/mo)
 
@@ -595,7 +595,7 @@ INTASEND_API_TOKEN=
 INTASEND_PUBLISHABLE_KEY=
 INTASEND_TEST_MODE=false
 INTASEND_WEBHOOK_SECRET=
-PAYSTACK_SECRET_KEY=                         # Required for USD checkout
+PAYSTACK_SECRET_KEY=                         # Preferred USD/card rail once approved
 PAYSTACK_PUBLIC_KEY=
 
 # ── hazina-portal/ (Render hazina-portal service) ──
@@ -605,7 +605,7 @@ NEXT_PUBLIC_BACKEND_URL=https://api.lesnarai.co.ke
 BACKEND_URL=https://api.lesnarai.co.ke
 ```
 
-**Render secrets (`sync: false`):** `PAYSTACK_SECRET_KEY`, `PAYSTACK_PUBLIC_KEY`, all Meta WA keys, IntaSend keys, `NEXT_PUBLIC_HAZINA_*`.
+**Render secrets (`sync: false`):** all Meta WA keys, IntaSend keys, Paystack keys when approved, `NEXT_PUBLIC_HAZINA_*`.
 
 ### 8.5 Pre-flight checklist
 
@@ -644,14 +644,14 @@ cd hazina-portal && npm run build
 3. `HAZINA_CLAIMS_META_PHONE=true` while Hazina owns the configured Meta number
 4. `ADMIN_CORS_ORIGINS` — include `https://hazina.lesnarai.co.ke`
 5. `NEXT_PUBLIC_HAZINA_WHATSAPP` / `NEXT_PUBLIC_HAZINA_PHONE` on `hazina-portal`
-6. `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` for USD
+6. `INTASEND_API_TOKEN` for STK + card-link fallback; `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` once Paystack is approved
 7. Re-run `scripts/seed_hazina_nomads.py` after Meta phone id is set
 
 **Smoke test after cutover:**
 
 1. Greet → Hazina main menu (Shop | Corporate | Concierge | Track)
 2. Shop → 5 collections → tap Kenya Edit → delivery prompt → STK
-3. `/build` handoff message with 2+ SKUs → delivery → STK or Paystack link
+3. `/build` handoff message with 2+ SKUs → delivery → STK or secure card checkout link
 4. "resend STK" / "resend link" on pending order
 5. Photo request during a draft checkout → photo reply, not payment start
 6. "cancel checkout" during a draft checkout → draft cleared
@@ -953,7 +953,7 @@ Also: auto-resend stale STK after timeout (`_auto_resend_stale_payment_reply`).
 
 1. *"Do you deliver to Hemingways Karen?"* → RAG + AI
 2. *"I'll take the Kenya Edit for room 412, pay by card"* → AI `create_order` with `payment_currency=USD`
-3. `finalize_checkout_from_ai` → Paystack link in reply
+3. `finalize_checkout_from_ai` → secure card checkout link in reply
 
 **WhatsApp — payment resend**
 
@@ -1033,7 +1033,7 @@ After successful `create_order` on Hazina tenant, `base.py` calls `finalize_chec
 | `order_reference` | First 8 chars of order UUID |
 | `msisdn` | Normalized Kenya number |
 | `currency` | Optional `KES` (default) or `USD` |
-| `amount_usd` | Required for USD Paystack amount |
+| `amount_usd` | Required for USD/card checkout amount |
 
 | Output (success) | Notes |
 |---|---|
@@ -1167,7 +1167,7 @@ make eval-whatsapp-local
 - [ ] "What do you sell?" / "menu" → 5-product list (no LLM)
 - [ ] Shop → 5 products → tap → delivery prompt
 - [ ] JKIA location → departure time prompt
-- [ ] STK arrives (KES) or Paystack link (USD)
+- [ ] STK arrives (KES) or secure card checkout link arrives (USD/card)
 - [ ] Custom box message with 2+ SKUs → automated checkout
 - [ ] During a draft checkout, ask for a collection photo → image reply, no payment attempt
 - [ ] During a draft checkout, send `cancel checkout` → draft cleared
@@ -1185,7 +1185,7 @@ make eval-whatsapp-local
 | # | Decision | Owner | Blocks |
 |---|---|---|---|
 | 1 | **Live WhatsApp number** + Meta `phone_number_id` | User | Real customer WA |
-| 2 | **Paystack merchant approval** + live keys on Render | User | USD checkout in production |
+| 2 | **Paystack merchant approval** + live keys on Render | User | Preferred USD/card rail; IntaSend checkout link covers interim card payments |
 | 3 | **Domain** `hazina.lesnarai.co.ke` DNS live | User | Public SEO / trust |
 | 4 | **Re-seed production KB** after deploy | Eng/Ops | RAG knows 33 treasures + brief policies |
 | 5 | **`ADMIN_WA_NUMBERS` on production API** | Ops | Ghost Ops dispatch from ops phone |

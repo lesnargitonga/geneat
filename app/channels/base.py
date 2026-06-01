@@ -1249,7 +1249,7 @@ async def _resend_pending_payment_reply(
             return (
                 f"Kiungo kipya cha malipo cha {summary} (USD {amt:.0f}): {attempt.redirect_url}"
                 if is_sw else
-                f"Fresh Paystack link for {summary} at USD {amt:.0f}: {attempt.redirect_url}"
+                f"Fresh secure card checkout link for {summary} at USD {amt:.0f}: {attempt.redirect_url}"
             )
         amount = int(float(order.amount or 0))
         return (

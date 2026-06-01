@@ -1491,9 +1491,9 @@ async def finalize_checkout_from_ai(
     if pay_cur == "USD" and payment.redirect_url:
         amt = float(details.get("amount_usd") or 0)
         reply = (
-            f"Kiungo cha malipo cha USD {amt:.0f}: {payment.redirect_url}"
+            f"Kiungo salama cha malipo cha USD {amt:.0f}: {payment.redirect_url}"
             if is_sw else
-            f"Paystack link for USD {amt:.0f}: {payment.redirect_url}"
+            f"Secure card checkout link for USD {amt:.0f}: {payment.redirect_url}"
         )
     else:
         amount = int(float(order.amount or 0))

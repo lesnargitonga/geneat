@@ -368,7 +368,7 @@ async def request_order_payment(
                 },
             )
         if pay_currency == "USD" and result.redirect_url:
-            message = f"Paystack checkout link ready for USD {pay_amount:.2f}."
+            message = f"Secure card checkout link ready for USD {pay_amount:.2f}."
         else:
             message = f"STK push sent to {msisdn} via {svc.name}."
             if result.redirect_url:

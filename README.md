@@ -1068,7 +1068,10 @@ Current live truth:
 
 - `PAYMENT_PROVIDER=intasend`
 - `PAYMENT_SIMULATOR=false`
-- STK push has already been proven in the WhatsApp demo path
+- IntaSend is the current live M-Pesa/STK rail
+- USD/card checkout prefers Paystack when live keys are present, and can fall
+  back to an IntaSend hosted checkout link while Paystack approval/keys are
+  pending
 - `make doctor-live` confirms payment provider reachability
 
 Important nuance on `/health/deep`:
@@ -2016,10 +2019,10 @@ Payments:
 | `PAYMENT_SIMULATOR` | keep `false` on live path |
 | `INTASEND_TEST_MODE` | must be `false` for real customer STK prompts |
 | `INTASEND_API_TOKEN` | IntaSend auth |
-| `INTASEND_PUBLISHABLE_KEY` | IntaSend frontend/public key where needed |
+| `INTASEND_PUBLISHABLE_KEY` | optional IntaSend hosted checkout public key where provider setup uses it |
 | `INTASEND_WEBHOOK_SECRET` | IntaSend callback verification |
-| `MPESA_*` | Daraja path |
-| `PAYSTACK_*` | Paystack path |
+| `MPESA_*` | direct Daraja path; not needed when current provider is IntaSend |
+| `PAYSTACK_*` | preferred USD/card hosted checkout path when approved |
 | `STRIPE_*` | Stripe path |
 
 Storage / telemetry:
@@ -2565,6 +2568,9 @@ This is the honest list, not the flattering list.
   unrelated catalog images
 - collection checkout quantities and custom-box item quantities are preserved
   end to end in the structured automation handoff,
+- USD/card payment requests now prefer Paystack when configured but fall back
+  to an IntaSend hosted checkout link, so card checkout does not dead-end while
+  Paystack keys are still pending,
 - Hazina collection prices were raised after a quick market benchmark against
   Nairobi premium hamper, coffee hamper, artisan beadwork, and leather travel
   good prices, so the offer fits a tourist/luxury concierge margin instead of
