@@ -33,6 +33,12 @@ ID_CORPORATE = "lp:corp"
 ID_CONCIERGE = "lp:concierge"
 ID_HAZINA_COLLECTIONS = "lp:hazina:collections"
 ID_HAZINA_BRIEF = "lp:hazina:brief"
+ID_HAZINA_LOGISTICS = "lp:hazina:logistics"
+ID_HAZINA_LOG_JKIA = "lp:hazina:log:jkia"
+ID_HAZINA_LOG_DHL = "lp:hazina:log:dhl"
+ID_HAZINA_LOG_HOTEL = "lp:hazina:log:hotel"
+ID_HAZINA_ORDER_PREFIX = "lp:hazina:order:"
+ID_HAZINA_PHOTO_PREFIX = "lp:hazina:photo:"
 ID_PRODUCT_PREFIX = "lp:prod:"
 
 HAZINA_NOMADS_SLUG = "hazina-nomads"
@@ -44,6 +50,11 @@ CMD_EXIT = "__exit__"
 CMD_ORDERS = "__my_orders__"
 CMD_HAZINA_COLLECTIONS = "__hazina_collections__"
 CMD_HAZINA_BRIEF = "__hazina_brief__"
+CMD_HAZINA_LOGISTICS = "__hazina_logistics__"
+CMD_HAZINA_PRODUCT_PREVIEW = "__hazina_product_preview__"
+CMD_HAZINA_LOG_JKIA = "__hazina_log_jkia__"
+CMD_HAZINA_LOG_DHL = "__hazina_log_dhl__"
+CMD_HAZINA_LOG_HOTEL = "__hazina_log_hotel__"
 SPECIAL_COMMANDS = {
     CMD_STAFF,
     CMD_HOME,
@@ -51,6 +62,11 @@ SPECIAL_COMMANDS = {
     CMD_ORDERS,
     CMD_HAZINA_COLLECTIONS,
     CMD_HAZINA_BRIEF,
+    CMD_HAZINA_LOGISTICS,
+    CMD_HAZINA_PRODUCT_PREVIEW,
+    CMD_HAZINA_LOG_JKIA,
+    CMD_HAZINA_LOG_DHL,
+    CMD_HAZINA_LOG_HOTEL,
 }
 
 _INTERACTIVE_ID_RE = re.compile(r"\[(lp:[a-z0-9:_-]+)\]\s*$", re.IGNORECASE)
@@ -134,9 +150,22 @@ def command_for_interactive_id(interactive_id: str | None) -> str | None:
         return CMD_EXIT
     if lid == ID_ORDERS:
         return CMD_ORDERS
-    if lid.startswith(ID_PRODUCT_PREFIX):
-        suffix = lid[len(ID_PRODUCT_PREFIX):]
+    if lid.startswith(ID_HAZINA_ORDER_PREFIX):
+        suffix = lid[len(ID_HAZINA_ORDER_PREFIX):]
         return f"order {suffix.replace('-', ' ')}"
+    if lid.startswith(ID_HAZINA_PHOTO_PREFIX):
+        suffix = lid[len(ID_HAZINA_PHOTO_PREFIX):]
+        return f"photo {suffix.replace('-', ' ')}"
+    if lid.startswith(ID_PRODUCT_PREFIX):
+        return CMD_HAZINA_PRODUCT_PREVIEW
+    if lid == ID_HAZINA_LOGISTICS:
+        return CMD_HAZINA_LOGISTICS
+    if lid == ID_HAZINA_LOG_JKIA:
+        return CMD_HAZINA_LOG_JKIA
+    if lid == ID_HAZINA_LOG_DHL:
+        return CMD_HAZINA_LOG_DHL
+    if lid == ID_HAZINA_LOG_HOTEL:
+        return CMD_HAZINA_LOG_HOTEL
     if lid.startswith(ID_CATEGORY_PREFIX):
         suffix = lid[len(ID_CATEGORY_PREFIX):]
         return _CATEGORY_COMMAND.get(suffix, suffix)
@@ -213,6 +242,16 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
                             "title": "Custom Sourcing",
                             "description": "Tengeneza brief ya kibinafsi",
                         },
+                        {
+                            "id": ID_CORPORATE,
+                            "title": "Corporate Gifting",
+                            "description": "Oda za timu na matukio",
+                        },
+                        {
+                            "id": ID_HAZINA_LOGISTICS,
+                            "title": "Delivery Options",
+                            "description": "Hotel, JKIA, DHL export",
+                        },
                     ],
                 },
                 {
@@ -261,6 +300,16 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
                         "id": ID_HAZINA_BRIEF,
                         "title": "Custom Sourcing",
                         "description": "Build a personalized brief",
+                    },
+                    {
+                        "id": ID_CORPORATE,
+                        "title": "Corporate Gifting",
+                        "description": "Team & event commissions",
+                    },
+                    {
+                        "id": ID_HAZINA_LOGISTICS,
+                        "title": "Delivery Options",
+                        "description": "Hotel, JKIA, DHL export",
                     },
                 ],
             },
@@ -338,6 +387,108 @@ def product_list_payload(*, language: str | None) -> dict:
         "button_text": ("Chagua" if is_sw else "Choose"),
         "sections": [{"title": ("Sanduku" if is_sw else "Gift boxes"), "rows": rows}],
     }
+
+
+def hazina_logistics_list_payload(*, language: str | None) -> dict:
+    is_sw = _is_swahili(language)
+    rows = [
+        {
+            "id": ID_HAZINA_LOG_HOTEL,
+            "title": ("\U0001F3E8 Hotel delivery" if not is_sw else "\U0001F3E8 Hotel delivery")[:24],
+            "description": ("Lodge, camp, front desk" if not is_sw else "Hoteli, camp, front desk")[:72],
+        },
+        {
+            "id": ID_HAZINA_LOG_JKIA,
+            "title": ("\u2708\uFE0F JKIA handoff" if not is_sw else "\u2708\uFE0F JKIA handoff")[:24],
+            "description": ("Terminal pickup before flight" if not is_sw else "Ukabidhiaji terminal")[:72],
+        },
+        {
+            "id": ID_HAZINA_LOG_DHL,
+            "title": ("\U0001F4E6 DHL / export" if not is_sw else "\U0001F4E6 DHL / export")[:24],
+            "description": ("International insured shipping" if not is_sw else "Usafirishaji wa kimataifa")[:72],
+        },
+        {
+            "id": ID_HOME,
+            "title": ("\U0001F3E0 Main menu" if not is_sw else "\U0001F3E0 Menu kuu")[:24],
+            "description": ("Back to concierge services" if not is_sw else "Rudi huduma za concierge")[:72],
+        },
+    ]
+    return {
+        "type": "list",
+        "header": ("Delivery Options" if not is_sw else "Chaguo za Uwasilishaji")[:60],
+        "body": (
+            "Chagua aina ya uwasilishaji:"
+            if is_sw else
+            "Select how you would like your collection delivered:"
+        ),
+        "button_text": ("Chagua" if is_sw else "Choose"),
+        "sections": [{"title": ("Uwasilishaji" if is_sw else "Delivery"), "rows": rows}],
+    }
+
+
+def hazina_collection_buttons_payload(*, product_id: str, language: str | None) -> dict:
+    """Reply buttons after a collection is selected from the list."""
+    from app.catalog.hazina_catalog import hazina_collection_by_id
+
+    row = hazina_collection_by_id(product_id) or {}
+    name = str(row.get("name") or product_id.replace("-", " ").title())[:40]
+    is_sw = _is_swahili(language)
+    return {
+        "type": "buttons",
+        "body": (
+            f"Ungependa kuendelea na {name}?"
+            if is_sw else
+            f"How would you like to proceed with {name}?"
+        ),
+        "buttons": [
+            {
+                "id": f"{ID_HAZINA_ORDER_PREFIX}{product_id}",
+                "title": ("\U0001F6D2 Start brief" if not is_sw else "\U0001F6D2 Anza brief")[:20],
+            },
+            {
+                "id": f"{ID_HAZINA_PHOTO_PREFIX}{product_id}",
+                "title": ("\U0001F4F7 Photo" if not is_sw else "\U0001F4F7 Picha")[:20],
+            },
+            {
+                "id": ID_HAZINA_COLLECTIONS,
+                "title": ("\U0001F381 Collections" if not is_sw else "\U0001F381 Mkusanyiko")[:20],
+            },
+        ],
+    }
+
+
+def hazina_track_prompt_body(*, language: str | None) -> str:
+    if _is_swahili(language):
+        return (
+            "Tafadhali tuma nambari yako ya oda (mfano HN-ORD-A1B2C3D4), "
+            "au chagua *My Orders* kutoka menu kuu."
+        )
+    return (
+        "Please send your Hazina order reference (e.g. HN-ORD-A1B2C3D4), "
+        "or choose *My Orders* from the main concierge menu."
+    )
+
+
+def hazina_discovery_body(*, language: str | None) -> str:
+    if _is_swahili(language):
+        return (
+            "Ninaweza kukusaidia kuchagua collection, kuanza brief ya custom, "
+            "kufuatilia oda, au kuunganisha na concierge. Chagua chaguo hapa chini."
+        )
+    return (
+        "I can help you browse collections, start a custom brief, track an order, "
+        "or connect you with a concierge. Choose an option below."
+    )
+
+
+def product_id_from_hazina_interactive(interactive_id: str | None) -> str | None:
+    if not interactive_id:
+        return None
+    lid = interactive_id.lower()
+    for prefix in (ID_PRODUCT_PREFIX, ID_HAZINA_ORDER_PREFIX, ID_HAZINA_PHOTO_PREFIX):
+        if lid.startswith(prefix):
+            return lid[len(prefix):].strip() or None
+    return None
 
 
 def hazina_brief_portal_reply(*, language: str | None, portal_url: str) -> str:

@@ -72,7 +72,8 @@ def test_command_for_hazina_interactive_ids() -> None:
     assert wm.command_for_interactive_id(wm.ID_HAZINA_BRIEF) == wm.CMD_HAZINA_BRIEF
     assert wm.command_for_interactive_id("lp:corp") == "corporate gifting"
     assert wm.command_for_interactive_id("lp:concierge") == wm.CMD_STAFF
-    assert wm.command_for_interactive_id("lp:prod:kenya-edit") == "order kenya edit"
+    assert wm.command_for_interactive_id("lp:prod:kenya-edit") == wm.CMD_HAZINA_PRODUCT_PREVIEW
+    assert wm.command_for_interactive_id("lp:hazina:order:kenya-edit") == "order kenya edit"
 
 
 def test_main_menu_payload_is_a_list_with_core_actions() -> None:

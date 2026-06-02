@@ -37,11 +37,17 @@ from app.services.whatsapp_menus import (
     HAZINA_NOMADS_SLUG,
     ID_HAZINA_BRIEF,
     ID_HAZINA_COLLECTIONS,
+    ID_HAZINA_LOGISTICS,
+    ID_HAZINA_ORDER_PREFIX,
     ID_PRODUCT_PREFIX,
+    back_to_menu_payload,
     hazina_brief_portal_reply,
+    hazina_collection_buttons_payload,
+    hazina_logistics_list_payload,
     hazina_welcome_body,
     main_menu_payload,
     product_list_payload,
+    product_id_from_hazina_interactive,
 )
 
 HAZINA_SLUG = HAZINA_NOMADS_SLUG
@@ -273,6 +279,8 @@ def looks_like_hazina_logistics_question(text: str) -> str | None:
         return "dhl"
     if _JKIA_RE.search(body):
         return "jkia"
+    if re.search(r"\b(hotel|room|front desk|lodge|camp)\b", body):
+        return "hotel"
     return None
 
 
@@ -666,6 +674,12 @@ def _logistics_reply(kind: str, *, is_sw: bool) -> str:
             "Tunaweza kupanga JKIA terminal handoff kwa collection yako baada ya kuthibitisha dirisha la kuondoka."
             if is_sw
             else "We can coordinate a JKIA terminal handoff for your collection once we confirm your departure window."
+        )
+    if kind == "hotel":
+        return (
+            "Tunatoa hotel, lodge, na front-desk delivery — niambie jina la hoteli, chumba, na dirisha la wakati."
+            if is_sw
+            else "We deliver to hotels, lodges, and front desks — share the property name, room, and preferred window."
         )
     return (
         "Tunatoa DHL/export shipping kwa mpangilio wa concierge. Tunathibitisha gharama na muda kabla ya malipo."
@@ -1173,7 +1187,34 @@ async def try_hazina_automation(
                 portal_url=get_settings().public_hazina_portal_url,
             ),
             safety_flag="deterministic:hazina_custom_brief",
+            interactive=back_to_menu_payload(language=language, business_slug=business_slug),
         )
+
+    if lid == ID_HAZINA_LOGISTICS:
+        return GiftAutomationResult(
+            reply=(
+                "Chagua aina ya uwasilishaji:"
+                if is_sw else
+                "Select a delivery channel:"
+            ),
+            interactive=hazina_logistics_list_payload(language=language),
+            safety_flag="deterministic:hazina_logistics_menu",
+        )
+
+    from app.services.hazina_whatsapp_router import try_hazina_router_extras
+
+    router_extra = await try_hazina_router_extras(
+        db,
+        text=text or "",
+        interactive_id=interactive_id,
+        customer_id=customer.id,
+        business_id=business_id,
+        conversation_id=conversation_id,
+        language=language,
+        business_slug=business_slug,
+    )
+    if router_extra is not None:
+        return router_extra
 
     from app.services.hazina_customer_fallbacks import (
         looks_like_hazina_price_negotiation,
@@ -1239,9 +1280,17 @@ async def try_hazina_automation(
                 reply=track,
                 safety_flag=greeter.safety_flag,
             )
+        menu = None
+        if greeter.safety_flag.startswith("deterministic:hazina_greeter"):
+            menu = main_menu_payload(
+                business_name="Hazina Nomads",
+                language=language,
+                business_slug=business_slug,
+            )
         return GiftAutomationResult(
             reply=greeter.reply,
             safety_flag=greeter.safety_flag,
+            interactive=menu,
         )
 
     checkout = await _get_checkout(conversation_id)
@@ -1693,16 +1742,41 @@ async def try_hazina_automation(
         )
 
     product_id = resolve_product_id(text, interactive_id=interactive_id)
-    tapped = product_id_from_interactive_id(interactive_id) is not None
+    lid_lower = (interactive_id or "").lower()
+    tapped_list = (
+        product_id_from_interactive_id(interactive_id) is not None
+        and lid_lower.startswith(ID_PRODUCT_PREFIX)
+        and not lid_lower.startswith(ID_HAZINA_ORDER_PREFIX)
+    )
+    tapped_order = lid_lower.startswith(ID_HAZINA_ORDER_PREFIX)
+    photo_request = lid_lower.startswith("lp:hazina:photo:") or (
+        product_id and re.search(r"\b(?:photo|picture|picha)\b", text or "", re.I)
+    )
 
-    if product_id and re.search(r"\b(?:about|tell me|what is|details|bei)\b", text or "", re.I) and not tapped:
+    if photo_request and product_id:
+        photo = await _checkout_product_photo_reply(
+            db,
+            business_id=business_id,
+            checkout={"product_id": product_id},
+            is_sw=is_sw,
+        )
+        return GiftAutomationResult(
+            reply=photo.reply,
+            safety_flag=photo.safety_flag,
+            interactive=hazina_collection_buttons_payload(product_id=product_id, language=language),
+        )
+
+    if tapped_list:
+        return None
+
+    if product_id and re.search(r"\b(?:about|tell me|what is|details|bei)\b", text or "", re.I) and not tapped_order:
         return GiftAutomationResult(
             reply=_product_detail_reply(product_id, is_sw=is_sw),
             safety_flag="deterministic:hazina_product_info",
         )
 
-    if tapped or (product_id and looks_like_hazina_order_intent(text)):
-        pid = product_id or product_id_from_interactive_id(interactive_id)
+    if tapped_order or (product_id and looks_like_hazina_order_intent(text)):
+        pid = product_id or product_id_from_hazina_interactive(interactive_id)
         if not pid:
             return None
         checkout_details = parse_checkout_details(text)

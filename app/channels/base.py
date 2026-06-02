@@ -68,6 +68,11 @@ from app.services.whatsapp_menus import (
     CMD_HOME,
     CMD_HAZINA_BRIEF,
     CMD_HAZINA_COLLECTIONS,
+    CMD_HAZINA_LOGISTICS,
+    CMD_HAZINA_LOG_DHL,
+    CMD_HAZINA_LOG_HOTEL,
+    CMD_HAZINA_LOG_JKIA,
+    CMD_HAZINA_PRODUCT_PREVIEW,
     CMD_ORDERS,
     CMD_STAFF,
     ID_SHOP,
@@ -1787,6 +1792,78 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 escalated=False,
                 interactive=control_interactive,
             )
+        if interactive_command == CMD_HAZINA_PRODUCT_PREVIEW and is_hazina_slug(_biz_slug):
+            from app.services.hazina_whatsapp_router import try_hazina_product_preview
+
+            preview = await try_hazina_product_preview(
+                interactive_id=interactive_id,
+                language=effective_lang,
+                business_slug=_biz_slug,
+            )
+            if preview is not None:
+                await append_message(
+                    db,
+                    conversation=conv,
+                    sender=Sender.ai,
+                    content=preview.reply,
+                    safety_flags=[preview.safety_flag],
+                )
+                await db.commit()
+                return TurnResult(
+                    reply=preview.reply,
+                    conversation_id=conv.id,
+                    escalated=False,
+                    interactive=preview.interactive,
+                )
+        if interactive_command == CMD_HAZINA_LOGISTICS and is_hazina_slug(_biz_slug):
+            from app.services.whatsapp_menus import hazina_logistics_list_payload
+
+            is_sw = _customer_prefers_swahili(effective_lang)
+            control_reply = (
+                "Chagua aina ya uwasilishaji:"
+                if is_sw else
+                "Select a delivery channel:"
+            )
+            control_interactive = hazina_logistics_list_payload(language=effective_lang)
+            await append_message(
+                db, conversation=conv, sender=Sender.ai, content=control_reply,
+                safety_flags=["deterministic:hazina_logistics_menu"],
+            )
+            await db.commit()
+            return TurnResult(
+                reply=control_reply,
+                conversation_id=conv.id,
+                escalated=False,
+                interactive=control_interactive,
+            )
+        if interactive_command in (
+            CMD_HAZINA_LOG_JKIA,
+            CMD_HAZINA_LOG_DHL,
+            CMD_HAZINA_LOG_HOTEL,
+        ) and is_hazina_slug(_biz_slug):
+            from app.services.gift_automation import _logistics_reply
+
+            kind = {
+                CMD_HAZINA_LOG_JKIA: "jkia",
+                CMD_HAZINA_LOG_DHL: "dhl",
+                CMD_HAZINA_LOG_HOTEL: "hotel",
+            }[interactive_command]
+            is_sw = _customer_prefers_swahili(effective_lang)
+            control_reply = _logistics_reply(kind, is_sw=is_sw)
+            control_interactive = back_to_menu_payload(
+                language=effective_lang, business_slug=_biz_slug,
+            )
+            await append_message(
+                db, conversation=conv, sender=Sender.ai, content=control_reply,
+                safety_flags=[f"deterministic:hazina_log_{kind}"],
+            )
+            await db.commit()
+            return TurnResult(
+                reply=control_reply,
+                conversation_id=conv.id,
+                escalated=False,
+                interactive=control_interactive,
+            )
         if interactive_command == CMD_HAZINA_BRIEF and is_hazina_slug(_biz_slug):
             from app.core.config import get_settings
 
@@ -1856,6 +1933,37 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 interactive=control_interactive,
             )
         if is_hazina_slug(_biz_slug):
+            from app.services.hazina_whatsapp_router import (
+                looks_like_hazina_vague_discovery,
+                try_hazina_router_extras,
+            )
+
+            if looks_like_hazina_vague_discovery(turn.text or ""):
+                vague = await try_hazina_router_extras(
+                    db,
+                    text=turn.text or "",
+                    interactive_id=interactive_id,
+                    customer_id=customer.id,
+                    business_id=business_id,
+                    conversation_id=conv.id,
+                    language=effective_lang,
+                    business_slug=_biz_slug,
+                )
+                if vague is not None:
+                    await append_message(
+                        db,
+                        conversation=conv,
+                        sender=Sender.ai,
+                        content=vague.reply,
+                        safety_flags=[vague.safety_flag],
+                    )
+                    await db.commit()
+                    return TurnResult(
+                        reply=vague.reply,
+                        conversation_id=conv.id,
+                        escalated=False,
+                        interactive=vague.interactive,
+                    )
             hazina_result = await try_hazina_automation(
                 db,
                 text=turn.text,
@@ -2424,7 +2532,12 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         # Final sanitiser: strip CoT/tool-call/markdown leakage. Voice channel
         # gets a plain-prose variant (no asterisks, no URLs).
         from app.services.output_sanitizer import sanitize_reply
-        sanitiser_channel = "voice" if turn.channel == Channel.voice else "whatsapp"
+        if turn.channel == Channel.voice:
+            sanitiser_channel = "voice"
+        elif is_hazina_slug(_biz_slug):
+            sanitiser_channel = "hazina_whatsapp"
+        else:
+            sanitiser_channel = "whatsapp"
         reply = sanitize_reply(result["reply"], channel=sanitiser_channel)
         recovered = _payment_tool_recovery_reply(result, msisdn=msisdn)
         if recovered and (_looks_like_sanitizer_fallback(reply) or _promises_ready_before_payment(reply)):
