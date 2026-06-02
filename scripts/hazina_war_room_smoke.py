@@ -410,7 +410,7 @@ async def run_stateful_checkout(report: RunReport, client: httpx.AsyncClient) ->
         ("delivery", "Hotel delivery", ("hotel", "room"), (), False),
         ("location", "Villa Rosa Kempinski room 412", ("delivery window",), (), False),
         ("timing", "Today at 7 pm", ("USD", "KES"), (), False),
-        ("pause.photo", "Can I see a picture first?", ("picture",), (), True),
+        ("pause.photo", "Can I see a picture first?", ("The Kenya Edit",), (), True),
         ("cancel", "Cancel checkout", ("cancel",), ("checkout link", "enter your pin", "stk"), False),
     )
     for idx, (label, text, must, forbid, allow_image) in enumerate(steps):

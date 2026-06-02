@@ -269,15 +269,20 @@ PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py
   backend `/version`/`/readyz`/`/health/deep`, Hazina chat scenarios,
   no-money stateful checkout, leakage into Lily Pond/café behavior, and
   moderate page/chat burst latency.
-- 2026-06-02 pre-deploy war-room baseline against `hazina.lesnarai.co.ke`:
+- 2026-06-02 pre-fix war-room baseline against `hazina.lesnarai.co.ke`:
   `161/164` passed; pages p95 about `423ms`, assets p95 about `154ms`,
   stateful checkout p95 about `402ms`, burst chat p95 about `17.4s`.
   The main defect found was a café-style prompt (`Do you sell croissants?`)
   falling through to slow generic fallback under burst load.
-- Current code adds deterministic Hazina logistics replies for DHL/export and
-  JKIA handoff, plus a deterministic café-boundary reply for croissant/flat
-  white/espresso-style café questions so those prompts do not wait for the
-  LLM.
+- 2026-06-02 post-fix war-room run on API commit `977f51a`: `166/166`
+  passed. Pages p95 about `423ms`, assets p95 about `333ms`, backend p95
+  about `797ms`, stateful checkout p95 about `394ms`, chat scenarios p95
+  about `2.0s`, burst chat p95 about `1.8s`.
+- Current code has deterministic Hazina logistics replies for DHL/export and
+  JKIA handoff, a deterministic café-boundary reply for croissant/flat
+  white/espresso-style café questions, and checkout-context photo replies so
+  "Can I see a picture first?" returns the active collection photo without
+  moving checkout toward payment.
 
 ### Env (minimum)
 

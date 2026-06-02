@@ -658,6 +658,9 @@ Run first:
 make smoke-hazina-war-room
 ```
 
+Latest public-domain result on 2026-06-02: `166/166` passed against
+`hazina.lesnarai.co.ke` + `api.lesnarai.co.ke` with no real payment trigger.
+
 Then manually rehearse:
 
 1. Greet → Hazina main menu (Shop | Corporate | Concierge | Track)
