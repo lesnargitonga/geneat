@@ -19,7 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import db_session
 from app.core.config import get_settings
 from app.core.exceptions import RateLimited, UpstreamError
-from app.core.logging import get_logger
+from app.core.logging import get_logger, order_log_context
 from app.core.redis_client import claim_idempotency
 from app.core.security import normalize_msisdn, verify_mpesa_source_ip
 from app.db.models import AuditEvent, Business, Conversation, Customer, Order, PaymentStatus
@@ -293,6 +293,24 @@ async def _notify_order_customer(order: Order, msg: str) -> None:
 
 
 async def _apply_provider_payment_result(
+    db: AsyncSession,
+    *,
+    order: Order,
+    provider: str,
+    status: str,
+    raw: dict | None = None,
+) -> tuple[bool, str | None, uuid.UUID | None]:
+    with order_log_context(order):
+        return await _apply_provider_payment_result_inner(
+            db,
+            order=order,
+            provider=provider,
+            status=status,
+            raw=raw,
+        )
+
+
+async def _apply_provider_payment_result_inner(
     db: AsyncSession,
     *,
     order: Order,

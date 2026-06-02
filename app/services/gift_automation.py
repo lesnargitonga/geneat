@@ -26,6 +26,7 @@ from app.catalog.hazina_catalog import (
     PACKAGING_FEE_USD,
     hazina_treasure_by_sku,
 )
+from app.core.logging import bind_order_log_context
 from app.services.cafe_automation import (
     CafeOrderItem,
     create_order_and_request_payment,
@@ -867,6 +868,7 @@ async def _finalize_order(
         payment_email=payment_email,
     )
     order = result.order
+    bind_order_log_context(order)
     details = dict(order.details or {})
     details["delivery_location"] = delivery_location
     if delivery_type:
@@ -891,6 +893,7 @@ async def _finalize_order(
     from app.services.whatsapp_menus import order_actions_payload
 
     await ensure_order_tracking(db, order)
+    bind_order_log_context(order)
     reply = _payment_success_reply(
         summary=order_items_summary(items) or row["name"],
         amount_kes=int(float(row["price_kes"]) * quantity),
@@ -947,6 +950,7 @@ async def _finalize_custom_order(
         payment_email=payment_email,
     )
     order = result.order
+    bind_order_log_context(order)
     details = dict(order.details or {})
     details["delivery_location"] = delivery_location
     if delivery_type:
@@ -966,6 +970,7 @@ async def _finalize_custom_order(
     from app.services.order_tracking import ensure_order_tracking, tracking_link_line
 
     await ensure_order_tracking(db, order)
+    bind_order_log_context(order)
     summary = order_items_summary(parsed.items) or "your custom box"
     if result.payment and not result.payment.ok:
         msg = (

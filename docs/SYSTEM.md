@@ -53,7 +53,7 @@
 
 ```
 Portals (/api/chat, /api/orders) + Meta WA webhook
-  → FastAPI → tenant resolve → Redis lock/idempotency
+  → FastAPI → `whatsapp.inbound` durable job (ACK within 3s) → tenant resolve → Redis lock/idempotency
   → [Hazina] ops_automation → gift_automation → pay resend
   → [Café] cafe_automation
   → else LangGraph + RAG + tools
@@ -220,6 +220,7 @@ Same WA number as Hazina only if routing is confirmed — do not mix demos blind
 2. `PAYMENT_SIMULATOR=false` · live keys · one KES + one USD order  
 3. `ADMIN_WA_NUMBERS` · ops trained on Ghost Ops  
 4. Prod seed · real collection/coastal images or label provisional  
+5. **Observability (mandatory on API service):** `SENTRY_DSN` · `sentry_traces_sample_rate=0.2` · log drain to your aggregator (Render → Axiom/Datadog/etc.)
 
 ### P1 (month one)
 
@@ -255,6 +256,9 @@ PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py
 | `ADMIN_WA_NUMBERS` | API | Ghost Ops |
 | `PAYMENT_SIMULATOR` | API | `false` for real money |
 | `INTASEND_*` `PAYSTACK_*` | API | Payments |
+| `SENTRY_DSN` | API | Error tracking — **required P0** |
+| `SENTRY_TRACES_SAMPLE_RATE` | API | `0.2` recommended at launch |
+| `ADMIN_API_TOKEN` | API + portal (server) | Admin console; **portal `/api/chat` proxy** in prod |
 | `BACKEND_URL` | Portal | `https://api.lesnarai.co.ke` |
 | `NEXT_PUBLIC_HAZINA_WHATSAPP` | Portal | CTA |
 
