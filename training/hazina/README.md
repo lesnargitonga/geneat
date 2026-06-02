@@ -47,12 +47,22 @@ bash scripts/hazina_runpod_pack.sh
 
 On the GPU pod:
 
+**RunPod secret (recommended):** In the pod editor → **Environment variables** → add:
+
+| Name | Value |
+|------|--------|
+| `HF_TOKEN` | `{{ RUNPOD_SECRET_hazina }}` |
+
+Use the key icon in the RunPod UI to bind secret `hazina` (stores your Hugging Face token). Restart the pod after saving.
+
 ```bash
 mkdir -p /workspace/hazina && cd /workspace/hazina
 # upload hazina-finetune-runpod.tar.gz (scp / Runpod volume)
 tar -xzf hazina-finetune-runpod.tar.gz
 bash scripts/hazina_runpod_train.sh
 ```
+
+Verify inside the pod: `test -n "$HF_TOKEN" && echo "HF_TOKEN set"` (do not `echo $HF_TOKEN`).
 
 Download back to your API host:
 

@@ -5,7 +5,9 @@
 #   1. bash scripts/hazina_runpod_pack.sh
 #   2. Download pod SSH private key from Runpod → Connect → SSH
 #   3. export RUNPOD_SSH_KEY=~/.ssh/runpod_yawning_maroon_buzzard
-#   4. export HF_TOKEN=hf_...   (for meta-llama base model)
+#   4. HF_TOKEN on the pod — either:
+#        - RunPod env: HF_TOKEN = {{ RUNPOD_SECRET_hazina }}  (secret "hazina")
+#        - or export HF_TOKEN=hf_... before this script (local ssh path)
 #
 # Usage:
 #   export RUNPOD_HOST=213.173.102.179 RUNPOD_PORT=37808

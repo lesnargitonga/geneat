@@ -8,6 +8,9 @@ if ! command -v nvidia-smi >/dev/null 2>&1; then
   echo "nvidia-smi not found — this script needs a CUDA GPU." >&2
   exit 1
 fi
+if [[ -z "${HF_TOKEN:-}" ]]; then
+  echo "WARNING: HF_TOKEN is empty — set RunPod env HF_TOKEN={{ RUNPOD_SECRET_hazina }} or export HF_TOKEN." >&2
+fi
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 
 PYTHON="${PYTHON:-python3}"
