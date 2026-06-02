@@ -1970,6 +1970,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 db,
                 text=turn.text,
                 interactive_id=interactive_id,
+                interactive_command=interactive_command,
                 business_slug=_biz_slug,
                 customer=customer,
                 conversation_id=conv.id,
@@ -2142,12 +2143,17 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 # Category / price / availability answer — offer navigation back.
                 control_interactive = back_to_menu_payload(language=effective_lang, business_slug=_biz_slug)
         elif _looks_like_greeting(turn.text):
-            control_reply = _greeting_reply(business_name=_biz_name, language=effective_lang)
+            if is_hazina_slug(_biz_slug):
+                from app.services.whatsapp_menus import hazina_welcome_body
+
+                control_reply = hazina_welcome_body(language=effective_lang)
+            else:
+                control_reply = _greeting_reply(business_name=_biz_name, language=effective_lang)
             control_flag = "deterministic:greeting"
             control_interactive = main_menu_payload(
                 business_name=_biz_name, language=effective_lang, business_slug=_biz_slug,
             )
-        else:
+        elif not is_hazina_slug(_biz_slug):
             control_reply = await _affirmative_followup_reply(
                 db,
                 customer=customer,
@@ -2204,6 +2210,10 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                             language=effective_lang,
                         )
                         control_flag = "deterministic:pending_order_status" if control_reply else None
+
+        elif is_hazina_slug(_biz_slug):
+            # Hazina never uses café STK repeat dumps — gate + try_hazina_automation own payment UX.
+            pass
 
         if control_reply:
             await append_message(

@@ -40,6 +40,10 @@ ID_HAZINA_LOG_HOTEL = "lp:hazina:log:hotel"
 ID_HAZINA_ORDER_PREFIX = "lp:hazina:order:"
 ID_HAZINA_PHOTO_PREFIX = "lp:hazina:photo:"
 ID_PRODUCT_PREFIX = "lp:prod:"
+# Hazina deterministic router (Meta + portal); also accepted as hz_cmd:* taps.
+ID_HAZINA_SEND_STK = "hz_cmd_send_stk"
+ID_HAZINA_CLEAR_CART = "hz_cmd_clear_cart"
+ID_HAZINA_COASTAL = "hz_cmd_coastal"
 
 HAZINA_NOMADS_SLUG = "hazina-nomads"
 
@@ -55,6 +59,9 @@ CMD_HAZINA_PRODUCT_PREVIEW = "__hazina_product_preview__"
 CMD_HAZINA_LOG_JKIA = "__hazina_log_jkia__"
 CMD_HAZINA_LOG_DHL = "__hazina_log_dhl__"
 CMD_HAZINA_LOG_HOTEL = "__hazina_log_hotel__"
+CMD_HAZINA_SEND_STK = "__hazina_send_stk__"
+CMD_HAZINA_CLEAR_CART = "__hazina_clear_cart__"
+CMD_HAZINA_COASTAL = "__hazina_coastal__"
 SPECIAL_COMMANDS = {
     CMD_STAFF,
     CMD_HOME,
@@ -67,9 +74,15 @@ SPECIAL_COMMANDS = {
     CMD_HAZINA_LOG_JKIA,
     CMD_HAZINA_LOG_DHL,
     CMD_HAZINA_LOG_HOTEL,
+    CMD_HAZINA_SEND_STK,
+    CMD_HAZINA_CLEAR_CART,
+    CMD_HAZINA_COASTAL,
 }
 
-_INTERACTIVE_ID_RE = re.compile(r"\[(lp:[a-z0-9:_-]+)\]\s*$", re.IGNORECASE)
+_INTERACTIVE_ID_RE = re.compile(
+    r"\[((?:lp:[a-z0-9:_-]+)|(?:hz_cmd[a-z0-9_]+))\]\s*$",
+    re.IGNORECASE,
+)
 
 # Map a category id suffix to the plain text the deterministic menu router
 # already classifies (see app/ai/quick_replies.py category hints).
@@ -158,6 +171,12 @@ def command_for_interactive_id(interactive_id: str | None) -> str | None:
         return f"photo {suffix.replace('-', ' ')}"
     if lid.startswith(ID_PRODUCT_PREFIX):
         return CMD_HAZINA_PRODUCT_PREVIEW
+    if lid == ID_HAZINA_SEND_STK:
+        return CMD_HAZINA_SEND_STK
+    if lid == ID_HAZINA_CLEAR_CART:
+        return CMD_HAZINA_CLEAR_CART
+    if lid == ID_HAZINA_COASTAL:
+        return CMD_HAZINA_COASTAL
     if lid == ID_HAZINA_LOGISTICS:
         return CMD_HAZINA_LOGISTICS
     if lid == ID_HAZINA_LOG_JKIA:
@@ -232,6 +251,11 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
                             "title": "Signature Collections",
                             "description": "Sanduku za zawadi za premium",
                         },
+                        {
+                            "id": ID_HAZINA_COASTAL,
+                            "title": "Swahili Coast",
+                            "description": "Lamu na vipande vya pwani",
+                        },
                     ],
                 },
                 {
@@ -290,6 +314,11 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
                         "id": ID_HAZINA_COLLECTIONS,
                         "title": "Signature Collections",
                         "description": "Curated premium gift boxes",
+                    },
+                    {
+                        "id": ID_HAZINA_COASTAL,
+                        "title": "Swahili Coast",
+                        "description": "Lamu & coastal artisan pieces",
                     },
                 ],
             },
@@ -353,6 +382,74 @@ def main_menu_payload(
     if _is_hazina(business_slug):
         return _hazina_main_menu_payload(business_name=business_name, language=language)
     return _cafe_main_menu_payload(business_name=business_name, language=language)
+
+
+def hazina_cart_recovery_payload(*, cart_total_kes: int, language: str | None) -> dict:
+    """Button reply when a pending Hazina order blocks discovery — no raw STK dumps."""
+    is_sw = _is_swahili(language)
+    total = f"{int(cart_total_kes):,}"
+    body = (
+        f"Karibu tena. Una oda ya Hazina inayosubiri malipo (jumla: KES {total}).\n\n"
+        "Nitume STK ya M-Pesa, au ufute oda uanze upya?"
+        if is_sw else
+        f"Welcome back. You have a pending Hazina collection ready for checkout (Total: KES {total}).\n\n"
+        "Would you like me to send the M-Pesa prompt, or clear this order and start over?"
+    )
+    return {
+        "type": "buttons",
+        "body": body,
+        "buttons": [
+            {
+                "id": ID_HAZINA_SEND_STK,
+                "title": ("Tuma STK" if is_sw else "Send M-Pesa STK")[:20],
+            },
+            {
+                "id": ID_HAZINA_CLEAR_CART,
+                "title": ("Futa oda" if is_sw else "Clear order")[:20],
+            },
+        ],
+    }
+
+
+def hazina_coastal_list_payload(*, language: str | None) -> dict:
+    """Swahili Coast artisan treasures — deterministic list, no LLM."""
+    from app.catalog.hazina_catalog import HAZINA_TREASURES
+
+    is_sw = _is_swahili(language)
+    rows = []
+    for row in HAZINA_TREASURES:
+        if str(row.get("category") or "") != "swahili-coast":
+            continue
+        title = str(row["name"])[:24]
+        desc = f"USD {row['price_usd']} · KES {int(row['price_kes']):,}"[:72]
+        rows.append({
+            "id": f"{ID_PRODUCT_PREFIX}{row['id']}",
+            "title": title,
+            "description": desc,
+        })
+        if len(rows) >= 9:
+            break
+    rows.append({
+        "id": ID_HAZINA_COLLECTIONS,
+        "title": ("\U0001F381 Collections" if not is_sw else "\U0001F381 Mkusanyiko")[:24],
+        "description": ("Gift boxes" if not is_sw else "Sanduku za zawadi")[:72],
+    })
+    rows.append({
+        "id": ID_HOME,
+        "title": ("\U0001F3E0 Main menu" if not is_sw else "\U0001F3E0 Menu kuu")[:24],
+        "description": ("Concierge home" if not is_sw else "Huduma za concierge")[:72],
+    })
+    return {
+        "type": "list",
+        "header": ("Swahili Coast" if not is_sw else "Pwani ya Kiswahili")[:60],
+        "body": (
+            "Chagua kipande cha ufundi kutoka pwani:"
+            if is_sw else
+            "Select a coastal artisan piece:"
+        ),
+        "button_text": ("Chagua" if is_sw else "Choose"),
+        "sections": [{"title": ("Vipande" if is_sw else "Pieces"), "rows": rows}],
+    }
 
 
 def product_list_payload(*, language: str | None) -> dict:

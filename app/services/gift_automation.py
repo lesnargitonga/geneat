@@ -1154,10 +1154,27 @@ async def try_hazina_automation(
     conversation_id: uuid.UUID,
     business_id: uuid.UUID | None,
     language: str | None,
+    interactive_command: str | None = None,
 ) -> GiftAutomationResult | None:
     """Return a deterministic reply for Hazina, or None to fall through to café/AI."""
     if not is_hazina_slug(business_slug):
         return None
+
+    from app.services.hazina_deterministic_gate import try_hazina_deterministic_gate
+
+    gate = await try_hazina_deterministic_gate(
+        db,
+        text=text or "",
+        interactive_id=interactive_id,
+        interactive_command=interactive_command,
+        business_slug=business_slug,
+        customer=customer,
+        conversation_id=conversation_id,
+        business_id=business_id,
+        language=language,
+    )
+    if gate is not None:
+        return gate
 
     from app.core.config import get_settings
 
@@ -1170,16 +1187,6 @@ async def try_hazina_automation(
         payment_email = email_match.group(0)
 
     lid = (interactive_id or "").lower()
-    if lid in (ID_HAZINA_COLLECTIONS, "lp:shop"):
-        return GiftAutomationResult(
-            reply=(
-                "Hizi ndizo signature collections zetu — chagua moja:"
-                if is_sw else
-                "Here are our signature collections — select one to begin:"
-            ),
-            interactive=product_list_payload(language=language),
-            safety_flag="deterministic:hazina_collections_list",
-        )
     if lid == ID_HAZINA_BRIEF:
         return GiftAutomationResult(
             reply=hazina_brief_portal_reply(
@@ -1266,7 +1273,10 @@ async def try_hazina_automation(
         is_sw=is_sw,
     )
     if greeter is not None:
-        if greeter.handle_resend_payment and looks_like_greeter_payment_followup(text or ""):
+        if greeter.handle_resend_payment:
+            if looks_like_greeter_payment_followup(text or ""):
+                return None
+            # Pending payment + greeting: gate already serves cart buttons.
             return None
         if greeter.handle_eta:
             track = await _track_delivery_reply(
@@ -1294,30 +1304,6 @@ async def try_hazina_automation(
         )
 
     checkout = await _get_checkout(conversation_id)
-
-    from app.services.whatsapp_menus import CMD_HOME
-
-    if (text or "").strip() == CMD_HOME:
-        return GiftAutomationResult(
-            reply=hazina_welcome_body(language=language),
-            interactive=main_menu_payload(
-                business_name="Hazina Nomads",
-                language=language,
-                business_slug=business_slug,
-            ),
-            safety_flag="deterministic:hazina_router_menu",
-        )
-
-    if not checkout and _ROUTER_GREETING_RE.match(text or ""):
-        return GiftAutomationResult(
-            reply=hazina_welcome_body(language=language),
-            interactive=main_menu_payload(
-                business_name="Hazina Nomads",
-                language=language,
-                business_slug=business_slug,
-            ),
-            safety_flag="deterministic:hazina_router_menu",
-        )
 
     logistics_kind = looks_like_hazina_logistics_question(text)
     if logistics_kind:
