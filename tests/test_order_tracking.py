@@ -79,6 +79,29 @@ def test_build_payload_quality_check_timeline_label() -> None:
     assert active["label"] == "Quality check"
 
 
+def test_build_payload_includes_issue_lifecycle_fields() -> None:
+    order = SimpleNamespace(
+        id=uuid.uuid4(),
+        amount=32400,
+        currency="KES",
+        payment_status=PaymentStatus.pending,
+        created_at=datetime(2026, 6, 2, 14, 32, tzinfo=timezone.utc),
+        appointment_time=None,
+        details={
+            "public_reference": "HN-ORD-ISSUE99",
+            "product_id": "kenya-edit",
+            "fulfillment_status": "issue_pending",
+            "issue_type": "item_unavailable",
+            "issue_status": "open",
+            "issue_note": "Alternative offered",
+        },
+    )
+    payload = build_public_order_payload(order)
+    assert payload["issue_type"] == "item_unavailable"
+    assert payload["issue_status"] == "open"
+    assert payload["issue_note"] == "Alternative offered"
+
+
 @pytest.mark.asyncio
 async def test_ensure_order_tracking_writes_credentials() -> None:
     order = SimpleNamespace(

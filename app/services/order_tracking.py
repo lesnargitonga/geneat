@@ -170,6 +170,10 @@ def build_public_order_payload(order: Order) -> dict[str, Any]:
             if courier:
                 step["courier_note"] = str(courier)
 
+    issue_type = str(details.get("issue_type") or "").strip()
+    issue_status = str(details.get("issue_status") or "").strip()
+    issue_note = str(details.get("issue_note") or "").strip()
+
     return {
         "reference": ref,
         "placed_at": placed_at,
@@ -181,6 +185,9 @@ def build_public_order_payload(order: Order) -> dict[str, Any]:
         "payment_status": order.payment_status.value,
         "fulfillment_status": fulfillment,
         "timeline": timeline,
+        "issue_type": issue_type or None,
+        "issue_status": issue_status or None,
+        "issue_note": issue_note or None,
     }
 
 
