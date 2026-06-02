@@ -31,6 +31,14 @@ class KBQuery(BaseModel):
     k: int = Field(5, ge=1, le=10)
 
 
+class CatalogSearchArgs(BaseModel):
+    query: str = Field(
+        "",
+        description="Optional filter hint (category name, SKU fragment, or product name). "
+        "Leave empty to return the full read-only catalog.",
+    )
+
+
 class OrderItem(BaseModel):
     sku_or_name: str
     qty: int = Field(1, ge=1)
@@ -140,6 +148,7 @@ def build_tools(
     *,
     msisdn: str | None = None,
     channel: str | None = None,
+    business_slug: str | None = None,
 ):
 
     async def _audit(name: str, args: dict, result: Any, ok: bool, t0: float):
@@ -171,6 +180,47 @@ def build_tools(
         await _audit("knowledge_lookup", {"query": query, "k": k},
                      {"hits": len(chunks)}, True, t0)
         return out
+
+    # ── search_catalog (Hazina deterministic catalog — no hallucinated SKUs) ──
+    async def search_catalog(query: str = "") -> dict:
+        from app.services.business_service import HAZINA_NOMADS_SLUG
+        from app.catalog.hazina_catalog import hazina_catalog_search_payload
+
+        t0 = time.perf_counter()
+        slug = (business_slug or "").strip().lower()
+        if slug != HAZINA_NOMADS_SLUG:
+            result = {
+                "ok": False,
+                "error": "catalog_unavailable",
+                "message": "search_catalog is only available for Hazina Nomads.",
+            }
+            await _audit("search_catalog", {"query": query}, result, False, t0)
+            return result
+
+        payload = hazina_catalog_search_payload()
+        hint = (query or "").strip().lower()
+        if hint:
+            filtered_collections = [
+                row for row in payload["collections"]
+                if hint in row["name"].lower()
+                or hint in row["sku"].lower()
+                or hint in str(row.get("contents") or "").lower()
+            ]
+            filtered_treasures = [
+                row for row in payload["treasures"]
+                if hint in row["name"].lower()
+                or hint in row["sku"].lower()
+                or hint in str(row.get("category") or "").lower()
+            ]
+            payload = {
+                **payload,
+                "collections": filtered_collections,
+                "treasures": filtered_treasures,
+                "filter": hint,
+            }
+        result = {"ok": True, "read_only": True, "catalog": payload}
+        await _audit("search_catalog", {"query": query}, result, True, t0)
+        return result
 
     # ── create_order (stub: writes to DB but no payment yet) ──
     async def create_order(
@@ -755,7 +805,7 @@ def build_tools(
         await _audit("calculate_dhl_shipping", args.model_dump(), result, True, t0)
         return result
 
-    return [
+    tool_list = [
         StructuredTool.from_function(coroutine=knowledge_lookup, name="knowledge_lookup",
                                      description="Search the business knowledge base (menu, prices, hours, FAQs).",
                                      args_schema=KBQuery),
@@ -815,3 +865,17 @@ def build_tools(
             args_schema=DhlShippingArgs,
         ),
     ]
+    if (business_slug or "").strip().lower() == "hazina-nomads":
+        tool_list.insert(
+            1,
+            StructuredTool.from_function(
+                coroutine=search_catalog,
+                name="search_catalog",
+                description=(
+                    "Return the authoritative read-only Hazina catalog (collections + treasures). "
+                    "CALL before recommending any product, SKU, or price."
+                ),
+                args_schema=CatalogSearchArgs,
+            ),
+        )
+    return tool_list

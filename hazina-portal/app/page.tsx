@@ -52,7 +52,7 @@ export default function HomePage() {
 
           <div className="-mx-5 overflow-x-auto px-5 pb-2 local-scroll-x lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0">
             <div className="glass-strip flex min-w-max gap-4 p-3 lg:grid lg:min-w-0 lg:grid-cols-5">
-              {GIFT_BOXES.map((box) => (
+              {GIFT_BOXES.map((box, index) => (
                 <Link
                   key={box.id}
                   href={`/collections/${box.id}`}
@@ -65,7 +65,8 @@ export default function HomePage() {
                       tone="warm"
                       fit="cover"
                       className="h-52 w-full lg:h-56"
-                      sizes="300px"
+                      sizes="(max-width: 1024px) 78vw, 280px"
+                      priority={index < 2}
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/5" />

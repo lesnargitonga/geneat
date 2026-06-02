@@ -181,14 +181,25 @@ async def _set_fulfillment(
     *,
     status: str,
     courier_note: str | None = None,
-) -> None:
+    notify_customer: bool = True,
+) -> str:
     details = dict(order.details or {})
+    previous = normalize_fulfillment_status(details.get("fulfillment_status"))
     details["fulfillment_status"] = status
     details["fulfillment_updated_at"] = datetime.now(timezone.utc).isoformat()
     if courier_note is not None:
         details["courier_note"] = courier_note.strip()
     order.details = details
     await db.flush()
+    if notify_customer and previous != status:
+        from app.services.fulfillment_notifications import schedule_fulfillment_customer_notification
+
+        schedule_fulfillment_customer_notification(
+            order_id=order.id,
+            previous_status=previous,
+            new_status=status,
+        )
+    return previous
 
 
 def _append_ops_audit(

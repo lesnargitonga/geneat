@@ -367,3 +367,41 @@ def build_hazina_menu_photos(portal_base_url: str = "https://hazina.lesnarai.co.
         out[row["name"].lower()] = url
         out[row["sku"].lower()] = url
     return out
+
+
+def hazina_catalog_search_payload() -> dict[str, Any]:
+    """Read-only catalog JSON for the search_catalog agent tool."""
+    collections = [
+        {
+            "id": row["id"],
+            "sku": row["sku"],
+            "name": row["name"],
+            "price_usd": row["price_usd"],
+            "price_kes": row["price_kes"],
+            "lead_time_hours": row["lead_time_hours"],
+            "personalization": bool(row.get("personalization")),
+            "jkia_only": bool(row.get("jkia_only")),
+            "contents": row.get("contents"),
+        }
+        for row in HAZINA_COLLECTIONS
+    ]
+    treasures = [
+        {
+            "id": row["id"],
+            "sku": row["sku"],
+            "name": row["name"],
+            "price_usd": row["price_usd"],
+            "price_kes": row["price_kes"],
+            "category": row.get("category"),
+            "is_engravable": bool(row.get("is_engravable")),
+        }
+        for row in HAZINA_TREASURES
+    ]
+    categories = sorted({str(r.get("category") or "treasure") for r in HAZINA_TREASURES})
+    return {
+        "source": "HAZINA_COLLECTIONS+HAZINA_TREASURES",
+        "read_only": True,
+        "categories": categories,
+        "collections": collections,
+        "treasures": treasures,
+    }

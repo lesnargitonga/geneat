@@ -20,6 +20,7 @@ a penthouse). Per-vertical playbooks fix this.
 from __future__ import annotations
 
 from .general import GENERAL_PLAYBOOK
+from .gift_concierge import GIFT_CONCIERGE_PLAYBOOK
 from .hospitality import HOSPITALITY_PLAYBOOK
 from .restaurant import RESTAURANT_PLAYBOOK
 from .retail import RETAIL_PLAYBOOK
@@ -31,6 +32,8 @@ _PLAYBOOKS: dict[str, str] = {
     "restaurant":  RESTAURANT_PLAYBOOK,
     "retail":      RETAIL_PLAYBOOK,
     "salon":       SALON_PLAYBOOK,
+    "gift-concierge": GIFT_CONCIERGE_PLAYBOOK,
+    "gift_concierge": GIFT_CONCIERGE_PLAYBOOK,
     "general":     GENERAL_PLAYBOOK,
 }
 

@@ -87,6 +87,8 @@ log = get_logger("channel")
 # a minute for a fallback.
 AI_TURN_TIMEOUT_SECONDS = 30.0
 AI_TURN_RETRY_TIMEOUT_SECONDS = 10.0
+WHATSAPP_AI_TURN_TIMEOUT_SECONDS = 18.0
+WHATSAPP_AI_TURN_RETRY_TIMEOUT_SECONDS = 6.0
 MAX_AI_INPUT_CHARS = 2000
 PAYMENT_AUTO_RESEND_AFTER_SECONDS = 90.0
 _DEGRADED_FALLBACK_MARKERS = (
@@ -1789,6 +1791,17 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             if hazina_result is not None:
                 if hazina_result.escalated:
                     await escalate(db, conv, reason="hazina:corporate_gifting")
+                    from app.core.event_bus import EVT_ESCALATION_OPENED, publish
+
+                    await publish(
+                        EVT_ESCALATION_OPENED,
+                        target=str(conv.id),
+                        payload={
+                            "conversation_id": str(conv.id),
+                            "business_id": str(business_id) if business_id else None,
+                            "reason": "hazina:corporate_gifting",
+                        },
+                    )
                 await append_message(
                     db,
                     conversation=conv,
@@ -2088,6 +2101,9 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
 
         turn_timeout = _ai_timeout_seconds("ai_turn_timeout_seconds", AI_TURN_TIMEOUT_SECONDS)
         turn_retry_timeout = _ai_timeout_seconds("ai_turn_retry_timeout_seconds", AI_TURN_RETRY_TIMEOUT_SECONDS)
+        if turn.channel == Channel.whatsapp:
+            turn_timeout = min(turn_timeout, WHATSAPP_AI_TURN_TIMEOUT_SECONDS)
+            turn_retry_timeout = min(turn_retry_timeout, WHATSAPP_AI_TURN_RETRY_TIMEOUT_SECONDS)
         ai_user_text = _bounded_ai_input(turn.text)
         if len((turn.text or "").strip()) > len(ai_user_text):
             log.info(
@@ -2203,19 +2219,34 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     prefix = "Kutoka kwa menu:\n\n" if is_sw else "From the menu:\n\n"
                     reply = prefix + kb_reply
                 elif escalated:
-                    _contact = getattr(_biz_profile, "contact_phone", None) if _biz_profile else None
-                    if is_sw:
-                        _urgent = f" Kama ni ya haraka, piga simu {_contact}." if _contact else " Kama ni ya haraka, piga simu kwa cafe moja kwa moja."
-                        reply = (
-                            "Samahani, sijaweza kumaliza hilo sasa hivi. "
-                            "Nimemwarifu mtu wa timu akague mazungumzo haya." + _urgent
+                    if is_hazina_slug(_biz_slug):
+                        from app.services.hazina_escalation import (
+                            hazina_desk_reply,
+                            open_hazina_desk_issue,
                         )
+
+                        await open_hazina_desk_issue(
+                            db,
+                            customer_id=customer.id,
+                            business_id=business_id,
+                            reason="failed_turn_threshold",
+                            msisdn=msisdn,
+                        )
+                        reply = hazina_desk_reply(is_sw=is_sw)
                     else:
-                        _urgent = f" If it's urgent, call {_contact}." if _contact else " If it's urgent, please call the café directly."
-                        reply = (
-                            "Sorry, I couldn't finish that just now. "
-                            "I've flagged this chat for a team member to check." + _urgent
-                        )
+                        _contact = getattr(_biz_profile, "contact_phone", None) if _biz_profile else None
+                        if is_sw:
+                            _urgent = f" Kama ni ya haraka, piga simu {_contact}." if _contact else " Kama ni ya haraka, piga simu kwa cafe moja kwa moja."
+                            reply = (
+                                "Samahani, sijaweza kumaliza hilo sasa hivi. "
+                                "Nimemwarifu mtu wa timu akague mazungumzo haya." + _urgent
+                            )
+                        else:
+                            _urgent = f" If it's urgent, call {_contact}." if _contact else " If it's urgent, please call the café directly."
+                            reply = (
+                                "Sorry, I couldn't finish that just now. "
+                                "I've flagged this chat for a team member to check." + _urgent
+                            )
                 else:
                     reply = (
                         "Samahani, hilo halijapita vizuri kwangu. Tafadhali tuma tena, "

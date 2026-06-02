@@ -11,7 +11,7 @@ export function StickyWhatsAppCTA({
   const href = whatsappLink(BRAND.whatsapp, message);
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/15 bg-[#111111]/72 px-3 py-2 shadow-editorial backdrop-blur-md md:hidden">
+    <div className="sticky-wa-cta fixed inset-x-0 bottom-0 z-40 border-t border-white/15 bg-[#111111]/72 px-3 py-2 shadow-editorial backdrop-blur-md transition-opacity duration-300 md:hidden">
       <a
         href={href}
         target="_blank"

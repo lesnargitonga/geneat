@@ -15,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Awaitable, Callable
 
 import sentry_sdk
-from sqlalchemy import and_, or_, select, update
+from sqlalchemy import and_, case, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
@@ -29,7 +29,7 @@ Handler = Callable[["JobSnapshot"], Awaitable[None]]
 _handlers: dict[str, Handler] = {}
 _runner_task: asyncio.Task | None = None
 _worker_id = f"job-pid-{os.getpid()}"
-_poll_interval = 2.0
+_poll_interval = 0.5
 _lease_seconds = 10 * 60
 _default_job_ttl_seconds = 24 * 60 * 60
 
@@ -143,7 +143,13 @@ async def _claim_due_jobs(limit: int) -> list[JobSnapshot]:
                     and_(BackgroundJob.expires_at.is_(None), BackgroundJob.created_at > ttl_cutoff),
                 )
             )
-            .order_by(BackgroundJob.run_at.asc(), BackgroundJob.created_at.asc())
+            .order_by(
+                # Drain WhatsApp webhooks before bulk/admin work so customers
+                # are not stuck behind lower-priority queued jobs.
+                case((BackgroundJob.kind == "whatsapp.inbound", 0), else_=1),
+                BackgroundJob.run_at.asc(),
+                BackgroundJob.created_at.asc(),
+            )
             .limit(limit)
             .with_for_update(skip_locked=True)
         )

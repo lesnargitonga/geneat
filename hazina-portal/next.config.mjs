@@ -2,6 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    formats: ["image/avif", "image/webp"],
+    deviceSizes: [384, 640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [128, 180, 256, 300, 384],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "source.unsplash.com" },
@@ -15,6 +19,12 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.hazina.lesnarai.co.ke" }],
+        destination: "https://hazina.lesnarai.co.ke/:path*",
+        permanent: true,
+      },
       { source: "/treasures", destination: "/build", permanent: true },
       {
         source: "/last-minute-kenya-gifts-jkia",

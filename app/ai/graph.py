@@ -35,7 +35,7 @@ from app.ai.tools import build_tools
 from app.core.config import get_settings
 from app.core.logging import get_logger
 from app.api.metrics import record_llm_latency, record_rag_latency
-from app.services.business_service import BusinessProfile, get_business_for_turn
+from app.services.business_service import HAZINA_NOMADS_SLUG, BusinessProfile, get_business_for_turn
 from app.services.language import language_instruction
 
 log = get_logger("graph")
@@ -137,6 +137,12 @@ def _build_system_instruction(
             "Do not reset the conversation or dump a fresh long menu."
         )
 
+    if profile and (profile.slug or "").strip().lower() == HAZINA_NOMADS_SLUG:
+        sections.append(
+            "HAZINA_CATALOG_MODE: active. You MUST call search_catalog before recommending "
+            "any collection, treasure, SKU, or price. Never invent inventory."
+        )
+
     return SystemMessage(content="\n\n".join(section for section in sections if section))
 
 
@@ -182,9 +188,11 @@ async def _agent_node(state: AgentState, *, db: AsyncSession) -> dict:
     profile: BusinessProfile | None = state.get("business_profile")
     biz_id = profile.id if profile else state.get("business_id")
 
+    biz_slug = profile.slug if profile else None
     tools = build_tools(
         db, state.get("conversation_id"), biz_id,
         msisdn=state.get("msisdn"), channel=state.get("channel"),
+        business_slug=biz_slug,
     )
 
     # Detect whether this is the very first AI turn for this conversation.
@@ -274,6 +282,7 @@ def build_graph(
     conversation_id: uuid.UUID | None = None,
     msisdn: str | None = None,
     channel: str | None = None,
+    business_slug: str | None = None,
 ):
     """Compile a LangGraph runnable bound to this DB session.
 
@@ -287,6 +296,7 @@ def build_graph(
         business_id=business_id,
         msisdn=msisdn,
         channel=channel,
+        business_slug=business_slug,
     )
     tool_node = ToolNode(tools) if ToolNode is not None else None  # tools are async StructuredTools
 
@@ -402,12 +412,14 @@ async def run_turn(
     customer_language: str | None = None,
 ) -> dict:
     """Run a single turn. Returns dict with `reply` (str) and `tool_calls`."""
+    profile = await get_business_for_turn(db, business_id=business_id)
     graph = build_graph(
         db,
         business_id=business_id,
         conversation_id=conversation_id,
         msisdn=msisdn,
         channel=channel,
+        business_slug=profile.slug if profile else None,
     )
     initial: AgentState = {
         "msisdn": msisdn,

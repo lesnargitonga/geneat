@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { CatalogImage } from "@/components/CatalogImage";
+import { openConciergeChat } from "@/components/ChatWidget";
 import {
   ALL_CATEGORIES,
   CATEGORY_LABELS,
@@ -156,6 +157,7 @@ export function PackBuilder({
 
   const startAutomatedCheckout = () => {
     if (!canOrder) return;
+    openConciergeChat();
     window.dispatchEvent(
       new CustomEvent("hazina:chat-prompt", {
         detail: {
@@ -180,7 +182,6 @@ export function PackBuilder({
         },
       }),
     );
-    window.location.hash = "chat";
   };
 
   const validationHints: string[] = [];

@@ -2,7 +2,18 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { PARTNER_COOKIE, PARTNER_COOKIE_VALUE } from "@/lib/partner-session";
 
+const APEX_HOST = "hazina.lesnarai.co.ke";
+const WWW_HOST = `www.${APEX_HOST}`;
+
 export function middleware(request: NextRequest) {
+  const host = (request.headers.get("host") || "").toLowerCase();
+  if (host === WWW_HOST) {
+    const url = request.nextUrl.clone();
+    url.host = APEX_HOST;
+    url.protocol = "https:";
+    return NextResponse.redirect(url, 308);
+  }
+
   const { pathname } = request.nextUrl;
   const isPartnerAuthed =
     request.cookies.get(PARTNER_COOKIE)?.value === PARTNER_COOKIE_VALUE;
@@ -24,5 +35,7 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/partners/login", "/partners/dashboard"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+  ],
 };

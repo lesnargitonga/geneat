@@ -31,7 +31,9 @@ async def run_whatsapp_inbound(job: JobSnapshot) -> None:
         return
     from app.api.whatsapp import process_whatsapp_payload
 
-    await process_whatsapp_payload(body)
+    had_failures = await process_whatsapp_payload(body)
+    if had_failures:
+        raise RuntimeError("one or more WhatsApp messages failed during processing")
 
 
 async def _publish_broadcast_progress(bc: Broadcast) -> None:

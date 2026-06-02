@@ -10,6 +10,7 @@ Security:
 For audio messages we download the media + transcribe with Whisper before
 handing the text to the AI brain. The reply is sent back as a WA text message.
 """
+import asyncio
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -87,7 +88,19 @@ async def inbound(
         payload={"payload": payload},
     )
     await db.commit()
+    # Meta ACKs immediately; nudge the in-process runner so replies are not
+    # stuck behind the poll interval or lower-priority queued jobs.
+    asyncio.create_task(_drain_whatsapp_jobs())
     return Response(status_code=200)
+
+
+async def _drain_whatsapp_jobs() -> None:
+    try:
+        from app.jobs.runner import run_due_jobs_once
+
+        await run_due_jobs_once(limit=20)
+    except Exception as e:
+        log.warning("wa_job_drain_failed", error=str(e))
 
 
 def _sender_wa_ids(payload: dict) -> list[str]:
@@ -113,9 +126,15 @@ def _sender_wa_ids(payload: dict) -> list[str]:
 
 # ── Processing (durable job + legacy import) ─────────────────────────
 
-async def process_whatsapp_payload(payload: dict) -> None:
-    """Walk Meta's nested structure → flatten to one InboundTurn per message."""
+async def process_whatsapp_payload(payload: dict) -> bool:
+    """Walk Meta's nested structure → flatten to one InboundTurn per message.
+
+    Returns True when at least one inbound message failed so the durable job
+    can retry instead of being marked done with no customer reply.
+    """
     from app.db.session import SessionLocal
+
+    had_failures = False
     try:
         for entry in payload.get("entry", []) or []:
             if not isinstance(entry, dict):
@@ -137,9 +156,20 @@ async def process_whatsapp_payload(payload: dict) -> None:
                 for msg in value.get("messages", []) or []:
                     if not isinstance(msg, dict):
                         continue
-                    await _handle_one_message(SessionLocal, msg, contacts, phone_number_id)
+                    try:
+                        await _handle_one_message(SessionLocal, msg, contacts, phone_number_id)
+                    except Exception as e:
+                        had_failures = True
+                        log.exception(
+                            "wa_message_failed",
+                            error=str(e),
+                            msg_id=msg.get("id"),
+                            msg_type=msg.get("type"),
+                        )
     except Exception as e:
         log.exception("wa_process_failed", error=str(e))
+        return True
+    return had_failures
 
 
 def _log_status(status: dict, phone_number_id: str | None) -> None:
@@ -181,8 +211,11 @@ async def _handle_one_message(SessionLocal, msg: dict, contacts: dict, phone_num
         media_id = (msg.get("audio") or {}).get("id")
         if media_id:
             try:
-                audio, mime = await whatsapp_client.download_media(media_id)
-                text = await transcription.transcribe(audio, mime_type=mime)
+                async def _audio_pipeline() -> str:
+                    audio, mime = await whatsapp_client.download_media(media_id)
+                    return await transcription.transcribe(audio, mime_type=mime)
+
+                text = await asyncio.wait_for(_audio_pipeline(), timeout=12.0)
                 media_url = f"wa-media:{media_id}"
             except Exception as e:
                 log.warning("wa_audio_handle_failed", error=str(e))
@@ -195,24 +228,27 @@ async def _handle_one_message(SessionLocal, msg: dict, contacts: dict, phone_num
             # the LLM has actual semantic content to reason over.
             try:
                 from app.services import media as media_svc
-                binary, mime = await whatsapp_client.download_media(media_id)
-                public_url = await media_svc.upload_to_r2(
-                    binary, mime, prefix="wa-inbound",
-                )
-                description: str | None = None
-                if public_url and public_url.startswith(("http://", "https://")):
-                    description = await media_svc.describe_image(
-                        public_url, caption=caption or None,
+
+                async def _image_pipeline() -> tuple[str, str | None]:
+                    binary, mime = await whatsapp_client.download_media(media_id)
+                    public_url = await media_svc.upload_to_r2(
+                        binary, mime, prefix="wa-inbound",
                     )
-                parts: list[str] = []
-                if caption:
-                    parts.append(f'Customer caption: "{caption}"')
-                if description:
-                    parts.append(f"Image description: {description}")
-                if not parts:
-                    parts.append("[image received — no description available]")
-                text = "\n".join(parts)
-                media_url = public_url or f"wa-media:{media_id}"
+                    description: str | None = None
+                    if public_url and public_url.startswith(("http://", "https://")):
+                        description = await media_svc.describe_image(
+                            public_url, caption=caption or None,
+                        )
+                    parts: list[str] = []
+                    if caption:
+                        parts.append(f'Customer caption: "{caption}"')
+                    if description:
+                        parts.append(f"Image description: {description}")
+                    if not parts:
+                        parts.append("[image received — no description available]")
+                    return "\n".join(parts), public_url or f"wa-media:{media_id}"
+
+                text, media_url = await asyncio.wait_for(_image_pipeline(), timeout=15.0)
             except Exception as e:
                 log.warning("wa_image_handle_failed", error=str(e))
                 text = caption or "[image received]"
@@ -262,43 +298,54 @@ async def _handle_one_message(SessionLocal, msg: dict, contacts: dict, phone_num
             log.exception("wa_reengagement_template_failed", error=str(e))
         return
 
-    async with SessionLocal() as db:
-        # Tenant routing: which business owns this WhatsApp number?
-        from app.services.business_service import get_business_for_turn
-        business = await get_business_for_turn(db, phone_number_id=phone_number_id)
-        result = await handle_inbound(db, InboundTurn(
-            msisdn_raw=normalize_msisdn("+" + wa_id), text=text, channel=Channel.whatsapp,
-            customer_name=profile_name, media_url=media_url,
-            provider_message_id=msg_id,
-            business_id=business.id if business else None,
-            meta_phone_number_id=phone_number_id,
-        ))
-    if result.duplicate:
-        return
-    reply = (result.reply or "").strip()
-    if not reply:
-        log.warning(
-            "wa_empty_reply_fallback",
-            conv=str(result.conversation_id),
-            escalated=result.escalated,
-        )
-        reply = (
-            "Sorry — I hit a snag on that one. "
-            "Please try again, or ask about the menu, prices, or an order."
-        )
     try:
+        async with SessionLocal() as db:
+            # Tenant routing: which business owns this WhatsApp number?
+            from app.services.business_service import get_business_for_turn
+            business = await get_business_for_turn(db, phone_number_id=phone_number_id)
+            result = await handle_inbound(db, InboundTurn(
+                msisdn_raw=normalize_msisdn("+" + wa_id), text=text, channel=Channel.whatsapp,
+                customer_name=profile_name, media_url=media_url,
+                provider_message_id=msg_id,
+                business_id=business.id if business else None,
+                meta_phone_number_id=phone_number_id,
+            ))
+        if result.duplicate:
+            return
+        reply = (result.reply or "").strip()
+        if not reply:
+            log.warning(
+                "wa_empty_reply_fallback",
+                conv=str(result.conversation_id),
+                escalated=result.escalated,
+            )
+            reply = (
+                "Sorry — I hit a snag on that one. "
+                "Please try again, or ask about the menu, prices, or an order."
+            )
         from app.channels import whatsapp as wa_channel
         sent = await wa_channel.send_text("+" + wa_id, reply)
         if not sent.get("ok", True):
             log.warning("wa_reply_send_retry", error=sent.get("error"))
-            await wa_channel.send_text("+" + wa_id, reply)
+            retry = await wa_channel.send_text("+" + wa_id, reply)
+            if not retry.get("ok", True):
+                raise RuntimeError(str(retry.get("error") or sent.get("error") or "send_failed"))
         # Follow the authoritative text with tappable controls (Meta only;
         # the channel module degrades to plain text for other providers).
         interactive = getattr(result, "interactive", None)
         if interactive and isinstance(interactive, dict):
             await _send_interactive("+" + wa_id, interactive, wa_channel)
     except Exception as e:
-        log.exception("wa_reply_send_failed", error=str(e))
+        log.exception("wa_reply_send_failed", error=str(e), msg_id=msg_id)
+        try:
+            from app.channels import whatsapp as wa_channel
+            await wa_channel.send_text(
+                "+" + wa_id,
+                "Our concierge line is catching up. Please send your message again in a moment.",
+            )
+        except Exception as apology_exc:
+            log.exception("wa_apology_send_failed", error=str(apology_exc))
+        raise
 
 
 async def _send_interactive(to_msisdn: str, interactive: dict, wa_channel) -> None:

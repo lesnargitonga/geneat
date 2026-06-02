@@ -107,6 +107,8 @@ python scripts/check_asset_images.py
 
 Render service `hazina-portal` in `render.yaml` → `hazina.lesnarai.co.ke`.
 
+**www alias:** In Vercel (or your DNS host), add `www.hazina.lesnarai.co.ke` as a domain alias pointing at the same project. Middleware + `next.config` redirect `www` → apex. Without the DNS record, `www` will not resolve for guests.
+
 Env: `BACKEND_URL`, `PUBLIC_HAZINA_PORTAL_URL`, `NEXT_PUBLIC_HAZINA_WHATSAPP`, `NEXT_PUBLIC_HAZINA_PHONE`, partner vars above.
 
 ### Order tracking (magic links)

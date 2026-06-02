@@ -83,6 +83,18 @@ type ChatPromptDetail = { prompt?: string; checkout?: CheckoutStart };
 const BUSINESS_SLUG = "hazina-nomads";
 const PHONE_KEY = "hazina.phone";
 const CHAT_TIMEOUT_MS = 30_000;
+const CHAT_OPEN_EVENT = "hazina:chat-open";
+const CHAT_CLOSE_EVENT = "hazina:chat-close";
+
+export function openConciergeChat() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(CHAT_OPEN_EVENT));
+}
+
+export function closeConciergeChat() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(CHAT_CLOSE_EVENT));
+}
 
 const ASK_PROMPTS: ChatAction[] = [
   { label: "Show me collections", value: "Show me your gift collections", primary: true },
@@ -422,6 +434,25 @@ export function ChatWidget() {
   const phone = useMemo(() => getOrCreatePhone(), []);
   const scrollerRef = useRef<HTMLDivElement>(null);
 
+  const setChatOpen = useCallback((next: boolean) => {
+    setOpen(next);
+    if (typeof document !== "undefined") {
+      if (next) document.body.dataset.chatOpen = "true";
+      else delete document.body.dataset.chatOpen;
+    }
+    if (typeof window === "undefined") return;
+    const base = `${window.location.pathname}${window.location.search}`;
+    if (next) {
+      if (window.location.hash !== "#chat") {
+        window.history.pushState(null, "", `${base}#chat`);
+      }
+      return;
+    }
+    if (window.location.hash === "#chat") {
+      window.history.replaceState(null, "", base);
+    }
+  }, []);
+
   const append = useCallback((role: Msg["role"], text: string, media?: Partial<MsgWithMedia>) => {
     setMessages((m) => [
       ...m,
@@ -436,14 +467,14 @@ export function ChatWidget() {
       const question = questionForStep(ready);
       setFlow(ready);
       setActions(question.actions || []);
-      setOpen(true);
+      setChatOpen(true);
       setMessages((current) => [
         ...current,
         { id: messageId(), role: "ai", text: flowIntro(ready), ts: Date.now() },
         { id: messageId(), role: "ai", text: question.text, ts: Date.now() },
       ]);
     },
-    [],
+    [setChatOpen],
   );
 
   const postBackend = useCallback(
@@ -719,13 +750,20 @@ export function ChatWidget() {
   );
 
   useEffect(() => {
-    const syncHash = () => {
-      if (window.location.hash === "#chat") setOpen(true);
+    if (window.location.hash === "#chat") setChatOpen(true);
+    const onHash = () => setChatOpen(window.location.hash === "#chat");
+    const onOpen = () => setChatOpen(true);
+    const onClose = () => setChatOpen(false);
+    window.addEventListener("hashchange", onHash);
+    window.addEventListener(CHAT_OPEN_EVENT, onOpen);
+    window.addEventListener(CHAT_CLOSE_EVENT, onClose);
+    return () => {
+      window.removeEventListener("hashchange", onHash);
+      window.removeEventListener(CHAT_OPEN_EVENT, onOpen);
+      window.removeEventListener(CHAT_CLOSE_EVENT, onClose);
+      delete document.body.dataset.chatOpen;
     };
-    syncHash();
-    window.addEventListener("hashchange", syncHash);
-    return () => window.removeEventListener("hashchange", syncHash);
-  }, []);
+  }, [setChatOpen]);
 
   useEffect(() => {
     if (open && messages.length === 0) {
@@ -741,7 +779,7 @@ export function ChatWidget() {
   useEffect(() => {
     const onPrompt = (event: Event) => {
       const custom = event as CustomEvent<ChatPromptDetail>;
-      setOpen(true);
+      setChatOpen(true);
       if (custom.detail?.checkout?.kind === "collection") {
         const started = createCollectionFlow(custom.detail.checkout);
         if (started) beginFlow(started);
@@ -761,43 +799,63 @@ export function ChatWidget() {
     };
     window.addEventListener("hazina:chat-prompt", onPrompt as EventListener);
     return () => window.removeEventListener("hazina:chat-prompt", onPrompt as EventListener);
-  }, [append, beginFlow, postBackend]);
+  }, [append, beginFlow, postBackend, setChatOpen]);
 
   const hasUserMessages = messages.some((m) => m.role === "user");
   const visibleActions = actions.length > 0 ? actions : !hasUserMessages && !busy ? ASK_PROMPTS : [];
 
   return (
     <>
-      <button
-        onClick={() => setOpen((v) => !v)}
-        aria-label={open ? "Close chat" : "Open chat"}
-        className={`fixed bottom-5 right-4 z-50 inline-flex items-center justify-center shadow-editorial active:scale-95 transition md:bottom-6 md:right-6 ${
-          open
-            ? "h-12 w-12 rounded-full border border-white/20 bg-[#111111]/95 text-white text-xl hover:bg-[#1a1a1a]"
-            : "min-h-[52px] rounded-full border border-white/25 bg-[#141414]/90 px-5 font-mono text-[11px] uppercase tracking-[0.14em] text-white backdrop-blur-md hover:bg-[#1b1b1b]"
-        }`}
-      >
-        {open ? "x" : "Private chat"}
-      </button>
+      {!open && (
+        <button
+          type="button"
+          onClick={() => setChatOpen(true)}
+          aria-label="Open private concierge chat"
+          className="fixed bottom-[4.75rem] right-4 z-[100] inline-flex min-h-[50px] items-center gap-2 rounded-full border border-[#caa777]/35 bg-[#101010]/92 px-4 font-mono text-[10px] uppercase tracking-[0.16em] text-white shadow-editorial backdrop-blur-md transition hover:bg-[#181818] active:scale-[0.98] md:bottom-6"
+        >
+          <span className="font-serif text-sm normal-case tracking-normal text-[#e8d4b4]">Concierge</span>
+        </button>
+      )}
 
       {open && (
-        <div className="fixed inset-x-3 bottom-20 z-50 flex max-h-[calc(100svh-7rem)] flex-col overflow-hidden rounded-md border border-[#2b2b2b] bg-[#f4efe6] shadow-editorial md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:w-[min(420px,calc(100vw-2rem))] md:max-h-[calc(100svh-7rem)]">
-          <div className="flex items-center justify-between gap-3 border-b border-[#2b2b2b] bg-[#111111] px-4 py-3 text-white">
+        <div
+          className="concierge-shell fixed inset-x-3 bottom-[4.75rem] z-[100] flex max-h-[min(72svh,640px)] flex-col md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:max-h-[calc(100svh-7rem)] md:w-[min(440px,calc(100vw-2rem))]"
+          role="dialog"
+          aria-label="Hazina private concierge"
+        >
+          <div className="concierge-header flex items-start justify-between gap-3 px-4 py-4 text-white">
             <div>
-              <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-[#caa777]">Private sourcing desk</div>
-              <div className="font-serif text-xl tracking-[-0.01em] text-white">Hazina Private Concierge</div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#caa777]">
+                Private sourcing desk
+              </div>
+              <div className="mt-1 font-serif text-2xl leading-tight tracking-[-0.02em] text-white">
+                Hazina Private Concierge
+              </div>
+              <p className="mt-2 max-w-[16rem] text-xs leading-relaxed text-white/62">
+                Curated collections, delivery windows, and secure checkout — one step at a time.
+              </p>
             </div>
-            <a
-              href={whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads - I'd like concierge help.")}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="shrink-0 font-mono text-[11px] uppercase tracking-[0.14em] text-[#d6b387] hover:text-white"
-            >
-              WhatsApp
-            </a>
+            <div className="flex shrink-0 flex-col items-end gap-2">
+              <button
+                type="button"
+                onClick={() => setChatOpen(false)}
+                aria-label="Close concierge chat"
+                className="inline-flex h-9 w-9 items-center justify-center border border-white/20 text-lg text-white/85 hover:border-[#caa777]/50 hover:text-white"
+              >
+                ×
+              </button>
+              <a
+                href={whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads - I'd like concierge help.")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#d6b387] hover:text-white"
+              >
+                WhatsApp
+              </a>
+            </div>
           </div>
 
-          <div ref={scrollerRef} className="flex-1 space-y-2 overflow-auto bg-[#f4efe6] p-3 local-scroll local-scroll--subtle">
+          <div ref={scrollerRef} className="concierge-canvas flex-1 space-y-3 overflow-auto p-4 local-scroll local-scroll--subtle">
             {messages.map((m) => (
               <Bubble key={m.id} m={m} />
             ))}
@@ -809,28 +867,29 @@ export function ChatWidget() {
               </div>
             )}
             {!busy && visibleActions.length > 0 && (
-              <div className="pt-2 flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 border-t border-[#d8cfc0]/70 pt-3">
                 {visibleActions.map((p) =>
                   p.href ? (
                     <a
                       key={`${p.label}-${p.href}`}
                       href={p.href}
-                      className={`min-h-[38px] rounded-md px-3 py-2 font-mono text-[11px] uppercase tracking-[0.12em] transition-colors ${
+                      className={`min-h-[36px] rounded-[4px] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.13em] transition-colors ${
                         p.primary
-                          ? "bg-[#1a1a1a] text-white hover:bg-black"
-                          : "border border-[#c8c0b2] text-[#2a2622] hover:border-[#1a1a1a]"
+                          ? "bg-[#121212] text-[#f4efe6] hover:bg-black"
+                          : "border border-[#c8c0b2] bg-white/35 text-[#2a2622] hover:border-[#121212]"
                       }`}
                     >
                       {p.label}
                     </a>
                   ) : (
                     <button
+                      type="button"
                       key={`${p.label}-${p.value || ""}`}
                       onClick={() => send(p.value || p.label)}
-                      className={`min-h-[38px] rounded-md px-3 py-2 font-mono text-[11px] uppercase tracking-[0.12em] transition-colors ${
+                      className={`min-h-[36px] rounded-[4px] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.13em] transition-colors ${
                         p.primary
-                          ? "bg-[#1a1a1a] text-white hover:bg-black"
-                          : "border border-[#c8c0b2] text-[#2a2622] hover:border-[#1a1a1a]"
+                          ? "bg-[#121212] text-[#f4efe6] hover:bg-black"
+                          : "border border-[#c8c0b2] bg-white/35 text-[#2a2622] hover:border-[#121212]"
                       }`}
                     >
                       {p.label}
@@ -841,7 +900,7 @@ export function ChatWidget() {
             )}
           </div>
 
-          <div className="flex items-end gap-2 border-t border-[#d6cdbf] bg-[#efe9de]/85 p-2 backdrop-blur-sm">
+          <div className="concierge-composer flex items-end gap-2 p-3">
             <textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
@@ -852,13 +911,14 @@ export function ChatWidget() {
                 }
               }}
               rows={1}
-              placeholder={flow ? "Detail one requirement..." : "Detail your request..."}
-              className="min-h-[42px] flex-1 resize-none rounded-md border border-transparent bg-white/35 px-3 py-2 text-base text-[#1f1d1a] placeholder:text-[#6b655d] outline-none focus:border-[#b4966f] focus:bg-white/45"
+              placeholder={flow ? "Detail one requirement..." : "Message your concierge..."}
+              className="min-h-[44px] flex-1 resize-none rounded-[4px] border border-transparent bg-white/45 px-3 py-2.5 text-[15px] leading-relaxed text-[#1a1815] placeholder:font-serif placeholder:text-[#7a7268] placeholder:italic outline-none focus:border-[#b4966f]/70 focus:bg-white/65"
             />
             <button
+              type="button"
               onClick={() => void send()}
               disabled={busy || !draft.trim()}
-              className="min-h-[42px] rounded-md bg-[#1a1a1a] px-4 py-2 font-mono text-[11px] uppercase tracking-[0.14em] text-white disabled:opacity-40"
+              className="min-h-[44px] rounded-[4px] bg-[#101010] px-4 py-2 font-mono text-[10px] uppercase tracking-[0.16em] text-[#f4efe6] disabled:opacity-40"
             >
               Send
             </button>
@@ -871,22 +931,25 @@ export function ChatWidget() {
 
 export function triggerConciergePrompt(prompt: string) {
   if (typeof window === "undefined") return;
+  openConciergeChat();
   window.dispatchEvent(new CustomEvent("hazina:chat-prompt", { detail: { prompt } }));
 }
 
 function Bubble({ m }: { m: MsgWithMedia }) {
   if (m.role === "system") {
-    return <div className="py-1 text-center text-sm text-[#6f675d]">{m.text}</div>;
+    return (
+      <div className="py-1 text-center font-mono text-[11px] uppercase tracking-[0.1em] text-[#7a7268]">
+        {m.text}
+      </div>
+    );
   }
   const mine = m.role === "user";
   return (
     <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
       <div
         className={
-          "max-w-[88%] rounded-[8px] px-3 py-2 text-base leading-relaxed whitespace-pre-wrap " +
-          (mine
-            ? "bg-[#ebe4d7] text-[#1f1d1a]"
-            : "bg-[#1a1a1a] text-white")
+          "max-w-[88%] px-3.5 py-2.5 text-[15px] leading-relaxed whitespace-pre-wrap " +
+          (mine ? "concierge-bubble-user" : "concierge-bubble-ai")
         }
       >
         {!mine && m.imageUrl && (

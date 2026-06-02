@@ -83,6 +83,10 @@ _CONCIERGE_HELP_RE = re.compile(
     r"help me choose(?:\b|\s*(?:[.!?])?$| (?:a|an|the)? ?(?:gift|gifts|box|boxes|collection|collections|treasure|treasures)\b))",
     re.IGNORECASE,
 )
+_SIMPLE_GREETING_RE = re.compile(
+    r"^\s*(hi|hello|hey|sasa|niaje|mambo|habari)(?:\s+there)?\s*[!?.]*\s*$",
+    re.IGNORECASE,
+)
 _JKIA_RE = re.compile(r"\bjkia\b|terminal\s*\d", re.IGNORECASE)
 _DEPARTURE_RE = re.compile(
     r"\b(?:depart|departure|flight|leave|fly)\b.{0,30}\b(\d{1,2}[:\.]\d{2}|\d{1,2}\s*(?:am|pm)|today|tomorrow)",
@@ -856,14 +860,6 @@ def _safe_payment_start_error(*, is_sw: bool) -> str:
     )
 
 
-def _safe_payment_start_error(*, is_sw: bool) -> str:
-    return (
-        "Sijaweza kuanzisha malipo sasa hivi. Jaribu tena baada ya muda mfupi."
-        if is_sw
-        else "I could not start payment right now. Please try again in a moment."
-    )
-
-
 async def _track_delivery_reply(
     db: AsyncSession,
     *,
@@ -1150,10 +1146,70 @@ async def try_hazina_automation(
         payment_email = email_match.group(0)
 
     if looks_like_hazina_corporate(text):
+        from app.services.hazina_escalation import hazina_desk_reply, open_hazina_desk_issue
+
+        await open_hazina_desk_issue(
+            db,
+            customer_id=customer.id,
+            business_id=business_id,
+            reason="corporate_gifting",
+            msisdn=getattr(customer, "phone_number", None),
+        )
         return GiftAutomationResult(
-            reply=_corporate_reply(is_sw=is_sw),
+            reply=hazina_desk_reply(is_sw=is_sw),
             escalated=True,
             safety_flag="deterministic:hazina_corporate",
+        )
+
+    from app.services.state_aware_greeter import (
+        looks_like_greeter_payment_followup,
+        try_state_aware_greeter,
+    )
+
+    greeter = await try_state_aware_greeter(
+        db,
+        text=text or "",
+        customer_id=customer.id,
+        business_id=business_id,
+        conversation_id=conversation_id,
+        is_sw=is_sw,
+    )
+    if greeter is not None:
+        if greeter.handle_resend_payment and looks_like_greeter_payment_followup(text or ""):
+            return None
+        if greeter.handle_eta:
+            track = await _track_delivery_reply(
+                db,
+                customer_id=customer.id,
+                conversation_id=conversation_id,
+                business_id=business_id,
+                is_sw=is_sw,
+            )
+            return GiftAutomationResult(
+                reply=track,
+                safety_flag=greeter.safety_flag,
+            )
+        return GiftAutomationResult(
+            reply=greeter.reply,
+            safety_flag=greeter.safety_flag,
+        )
+
+    checkout = await _get_checkout(conversation_id)
+
+    if not checkout and _SIMPLE_GREETING_RE.match(text or ""):
+        reply = (
+            "Karibu Hazina Nomads. Chagua chaguo hapa chini — nitakusaidia haraka."
+            if is_sw else
+            "Welcome to Hazina Nomads. Choose an option below and I'll help you quickly."
+        )
+        return GiftAutomationResult(
+            reply=reply,
+            interactive=main_menu_payload(
+                business_name="Hazina Nomads",
+                language=language,
+                business_slug=business_slug,
+            ),
+            safety_flag="deterministic:hazina_greeting",
         )
 
     logistics_kind = looks_like_hazina_logistics_question(text)
@@ -1185,8 +1241,6 @@ async def try_hazina_automation(
             interactive=back_to_menu_payload(language=language, business_slug=business_slug),
             safety_flag="deterministic:hazina_track",
         )
-
-    checkout = await _get_checkout(conversation_id)
 
     if checkout and _PHOTO_RE.search(text or ""):
         photo = await _checkout_product_photo_reply(

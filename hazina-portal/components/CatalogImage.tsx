@@ -78,7 +78,9 @@ export function CatalogImage({
           className={imgClass}
           sizes={sizes}
           priority={priority}
-          quality={82}
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
+          quality={priority ? 80 : 68}
           onError={handleError}
         />
       ) : (

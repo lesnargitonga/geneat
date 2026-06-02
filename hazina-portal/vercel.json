@@ -7,6 +7,14 @@
   "env": {
     "BACKEND_URL": "https://api.lesnarai.co.ke"
   },
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.hazina.lesnarai.co.ke" }],
+      "destination": "https://hazina.lesnarai.co.ke/:path*",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

@@ -27,6 +27,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+      <head>
+        <link rel="preload" href="/brand/safari-sunset.jpg" as="image" />
+      </head>
       <body className="min-h-screen flex flex-col bg-sand text-ink font-sans font-normal antialiased">
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <SiteChrome>{children}</SiteChrome>

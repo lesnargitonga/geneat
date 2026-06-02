@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { openConciergeChat } from "@/components/ChatWidget";
 import type { GiftBox } from "@/lib/products";
 import { BRAND } from "@/lib/products";
 import { formatDualPrice, whatsappLink } from "@/lib/format";
@@ -29,6 +30,7 @@ export function CollectionCheckout({ box }: Props) {
   });
 
   const startAutomatedCheckout = () => {
+    openConciergeChat();
     window.dispatchEvent(
       new CustomEvent("hazina:chat-prompt", {
         detail: {
@@ -42,7 +44,6 @@ export function CollectionCheckout({ box }: Props) {
         },
       }),
     );
-    window.location.hash = "chat";
   };
 
   return (

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { openConciergeChat } from "@/components/ChatWidget";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BRAND } from "@/lib/products";
 import { whatsappLink } from "@/lib/format";
@@ -114,13 +115,16 @@ export function Nav() {
             >
               Order on WhatsApp
             </a>
-            <Link
-              href="/#chat"
+            <button
+              type="button"
               className="btn-outline w-full"
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setOpen(false);
+                openConciergeChat();
+              }}
             >
               Chat in app
-            </Link>
+            </button>
           </nav>
         </div>
       )}
