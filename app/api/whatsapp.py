@@ -22,10 +22,11 @@ from app.channels.base import InboundTurn, handle_inbound
 from app.core.config import get_settings
 from app.core.logging import get_logger
 from app.core.rate_limit import limiter, try_consume
-from app.core.security import hash_msisdn, verify_meta_signature
+from app.core.security import hash_msisdn, normalize_msisdn, verify_meta_signature
 from app.jobs.runner import enqueue_job
 from app.db.models import Channel
 from app.integrations import transcription, whatsapp_client
+from app.schemas.webhooks import MetaWebhookPayload
 
 log = get_logger("wa.webhook")
 settings = get_settings()
@@ -60,7 +61,13 @@ async def inbound(
         log.warning("wa_signature_invalid")
         raise HTTPException(status_code=401, detail="signature invalid")
 
-    payload = await request.json()
+    payload_raw = await request.json()
+    try:
+        payload = MetaWebhookPayload.model_validate(payload_raw).model_dump(exclude_none=True)
+    except Exception as exc:
+        log.warning("wa_payload_validation_failed", error=str(exc))
+        # ACK malformed payloads to avoid retry storms on unrecoverable shape errors.
+        return Response(status_code=200)
     for wa_id in _sender_wa_ids(payload):
         allowed = await try_consume(
             f"wa:inbound:{wa_id}",
@@ -87,10 +94,16 @@ def _sender_wa_ids(payload: dict) -> list[str]:
     """Unique Meta ``from`` ids in an inbound webhook batch."""
     seen: set[str] = set()
     out: list[str] = []
-    for entry in payload.get("entry", []):
-        for change in entry.get("changes", []):
+    for entry in payload.get("entry", []) or []:
+        if not isinstance(entry, dict):
+            continue
+        for change in entry.get("changes", []) or []:
+            if not isinstance(change, dict):
+                continue
             value = change.get("value") or {}
-            for msg in value.get("messages", []):
+            for msg in value.get("messages", []) or []:
+                if not isinstance(msg, dict):
+                    continue
                 wa_id = str(msg.get("from") or "").strip()
                 if wa_id and wa_id not in seen:
                     seen.add(wa_id)
@@ -104,14 +117,26 @@ async def process_whatsapp_payload(payload: dict) -> None:
     """Walk Meta's nested structure → flatten to one InboundTurn per message."""
     from app.db.session import SessionLocal
     try:
-        for entry in payload.get("entry", []):
-            for change in entry.get("changes", []):
+        for entry in payload.get("entry", []) or []:
+            if not isinstance(entry, dict):
+                continue
+            for change in entry.get("changes", []) or []:
+                if not isinstance(change, dict):
+                    continue
                 value = change.get("value", {})
                 phone_number_id = (value.get("metadata") or {}).get("phone_number_id")
-                contacts = {c["wa_id"]: c for c in value.get("contacts", [])}
-                for status in value.get("statuses", []):
+                contacts = {
+                    str(c.get("wa_id")): c
+                    for c in (value.get("contacts", []) or [])
+                    if isinstance(c, dict) and c.get("wa_id")
+                }
+                for status in value.get("statuses", []) or []:
+                    if not isinstance(status, dict):
+                        continue
                     _log_status(status, phone_number_id)
-                for msg in value.get("messages", []):
+                for msg in value.get("messages", []) or []:
+                    if not isinstance(msg, dict):
+                        continue
                     await _handle_one_message(SessionLocal, msg, contacts, phone_number_id)
     except Exception as e:
         log.exception("wa_process_failed", error=str(e))
@@ -140,7 +165,9 @@ def _log_status(status: dict, phone_number_id: str | None) -> None:
 
 
 async def _handle_one_message(SessionLocal, msg: dict, contacts: dict, phone_number_id: str | None) -> None:
-    wa_id = msg.get("from", "")          # e.g. "254712345678"
+    wa_id = str(msg.get("from", "") or "").strip()          # e.g. "254712345678"
+    if not wa_id:
+        return
     msg_id = msg.get("id")
     msg_type = msg.get("type", "text")
     contact = contacts.get(wa_id, {})
@@ -240,7 +267,7 @@ async def _handle_one_message(SessionLocal, msg: dict, contacts: dict, phone_num
         from app.services.business_service import get_business_for_turn
         business = await get_business_for_turn(db, phone_number_id=phone_number_id)
         result = await handle_inbound(db, InboundTurn(
-            msisdn_raw="+" + wa_id, text=text, channel=Channel.whatsapp,
+            msisdn_raw=normalize_msisdn("+" + wa_id), text=text, channel=Channel.whatsapp,
             customer_name=profile_name, media_url=media_url,
             provider_message_id=msg_id,
             business_id=business.id if business else None,
