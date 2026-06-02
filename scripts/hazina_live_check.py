@@ -19,6 +19,7 @@ import httpx
 
 
 DEFAULT_BASE_URL = "https://api.lesnarai.co.ke"
+DEFAULT_PORTAL_URL = "https://hazina.lesnarai.co.ke"
 HAZINA_API_URL = "https://hazina-api.onrender.com"
 HAZINA_SLUG = "hazina-nomads"
 
@@ -70,6 +71,32 @@ async def _get_json(client: httpx.AsyncClient, url: str) -> tuple[int, Any, floa
         body: Any = response.json()
     except json.JSONDecodeError:
         body = response.text[:500]
+    return response.status_code, body, elapsed
+
+
+async def _post_portal_chat(
+    client: httpx.AsyncClient,
+    portal_url: str,
+    *,
+    phone: str,
+    text: str,
+) -> tuple[int, dict[str, Any], float]:
+    """Customer-path chat via portal proxy (server-side ADMIN_API_TOKEN on Render)."""
+    start = time.perf_counter()
+    response = await client.post(
+        f"{portal_url.rstrip('/')}/api/chat",
+        json={
+            "phone": phone,
+            "business_slug": HAZINA_SLUG,
+            "text": text,
+            "language": "en",
+        },
+    )
+    elapsed = time.perf_counter() - start
+    try:
+        body = response.json()
+    except json.JSONDecodeError:
+        body = {"reply": response.text[:500]}
     return response.status_code, body, elapsed
 
 
@@ -143,9 +170,24 @@ async def check_base(
     timeout: float,
     skip_deep: bool,
     admin_token: str | None,
+    portal_url: str,
+    direct_mock: bool,
 ) -> list[Check]:
     base_url = base_url.rstrip("/")
+    portal_url = portal_url.rstrip("/")
     results: list[Check] = []
+
+    async def _chat(phone: str, text: str) -> tuple[int, dict[str, Any], float]:
+        if direct_mock:
+            return await _post_mock(
+                client,
+                base_url,
+                phone=phone,
+                text=text,
+                admin_token=admin_token,
+            )
+        return await _post_portal_chat(client, portal_url, phone=phone, text=text)
+
     phone = f"+254799{int(time.time()) % 1000000:06d}"
     async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
         for route in ("/version", "/readyz"):
@@ -172,13 +214,7 @@ async def check_base(
             except Exception as exc:
                 results.append(Check("health.deep", False, f"{type(exc).__name__}: {exc}"))
 
-        status, body, elapsed = await _post_mock(
-            client,
-            base_url,
-            phone=phone,
-            text="What do you sell?",
-            admin_token=admin_token,
-        )
+        status, body, elapsed = await _chat(phone, "What do you sell?")
         reply = str(body.get("reply") or "")
         ok, detail = _reply_ok(
             reply,
@@ -188,13 +224,7 @@ async def check_base(
         )
         results.append(Check("hazina.catalog_reply", status < 400 and ok, f"status={status}; {detail}"))
 
-        status, body, elapsed = await _post_mock(
-            client,
-            base_url,
-            phone=phone,
-            text="I want to order The Kenya Edit",
-            admin_token=admin_token,
-        )
+        status, body, elapsed = await _chat(phone, "I want to order The Kenya Edit")
         reply = str(body.get("reply") or "")
         ok, detail = _reply_ok(
             reply,
@@ -211,13 +241,7 @@ async def check_base(
             )
         )
 
-        status, body, elapsed = await _post_mock(
-            client,
-            base_url,
-            phone=phone,
-            text="Lesnar",
-            admin_token=admin_token,
-        )
+        status, body, elapsed = await _chat(phone, "Lesnar")
         reply = str(body.get("reply") or "")
         ok, detail = _reply_ok(
             reply,
@@ -237,11 +261,23 @@ async def main_async() -> int:
     parser.add_argument("--timeout", type=float, default=45.0)
     parser.add_argument("--skip-deep", action="store_true")
     parser.add_argument(
+        "--portal-url",
+        default=os.environ.get("PUBLIC_HAZINA_PORTAL_URL")
+        or os.environ.get("HAZINA_PORTAL_URL")
+        or DEFAULT_PORTAL_URL,
+        help="Hazina portal for /api/chat checks (default customer path).",
+    )
+    parser.add_argument(
+        "--direct-mock",
+        action="store_true",
+        help="Hit API /mock/message directly (requires --admin-token matching production).",
+    )
+    parser.add_argument(
         "--admin-token",
         default=os.environ.get("HAZINA_DOCTOR_ADMIN_TOKEN")
         or os.environ.get("ADMIN_API_TOKEN")
         or _env_file_value("ADMIN_API_TOKEN"),
-        help="Bearer token for production /mock/message checks. Defaults to HAZINA_DOCTOR_ADMIN_TOKEN, ADMIN_API_TOKEN, then local .env.",
+        help="Bearer for --direct-mock only. Portal checks use the portal's server-side token.",
     )
     args = parser.parse_args()
 
@@ -260,6 +296,8 @@ async def main_async() -> int:
             timeout=args.timeout,
             skip_deep=args.skip_deep,
             admin_token=args.admin_token.strip() or None,
+            portal_url=args.portal_url,
+            direct_mock=args.direct_mock,
         )
         for check in checks:
             print(_line(check))
