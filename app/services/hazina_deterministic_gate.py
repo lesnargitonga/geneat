@@ -10,7 +10,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models import PaymentStatus
 from app.services.conversation_context import HazinaSessionContext, load_hazina_session_context
 from app.services.fulfillment_status import PENDING_PAYMENT
-from app.services.gift_automation import GiftAutomationResult, is_hazina_slug
+from app.services.gift_automation import (
+    GiftAutomationResult,
+    checkout_in_progress,
+    clear_hazina_checkout_state,
+    is_hazina_slug,
+)
 from app.services.whatsapp_menus import (
     CMD_HAZINA_CLEAR_CART,
     CMD_HAZINA_COASTAL,
@@ -102,6 +107,7 @@ async def try_hazina_deterministic_gate(
     lid = (interactive_id or "").lower()
     body = (text or "").strip()
     cmd = interactive_command or command_for_interactive_id(interactive_id)
+    in_checkout = await checkout_in_progress(conversation_id)
 
     # Pending cart: structured recovery (fixes raw STK status leaks).
     if cmd == CMD_HAZINA_SEND_STK or (
@@ -139,6 +145,7 @@ async def try_hazina_deterministic_gate(
             text=body or "cancel order",
             language=language,
         )
+        await clear_hazina_checkout_state(conversation_id)
         return GiftAutomationResult(
             reply=reply,
             interactive=main_menu_payload(
@@ -150,7 +157,8 @@ async def try_hazina_deterministic_gate(
         )
 
     if (
-        _awaiting_payment(ctx)
+        not in_checkout
+        and _awaiting_payment(ctx)
         and re.search(r"\b(yes|yep|yeah|ndio|sawa|okay)\b", body, re.IGNORECASE)
     ):
         reply = await _hazina_resend_payment(
@@ -162,29 +170,32 @@ async def try_hazina_deterministic_gate(
             language=language,
         )
         total = int(float(ctx.order.amount or 0)) if ctx.order else 0
+        payload = hazina_cart_recovery_payload(cart_total_kes=total, language=language)
+        stk_body = str(payload.get("body") or "").strip()
+        merged = f"{stk_body}\n\n{reply}" if reply.strip() else stk_body
         return GiftAutomationResult(
-            reply=reply,
-            interactive=hazina_cart_recovery_payload(cart_total_kes=total, language=language),
+            reply=merged,
+            interactive=payload,
             safety_flag="deterministic:hazina_send_stk_affirmative",
         )
 
-    if _awaiting_payment(ctx) and not _explicit_hazina_navigation(body, interactive_id):
+    if (
+        not in_checkout
+        and _awaiting_payment(ctx)
+        and not _explicit_hazina_navigation(body, interactive_id)
+    ):
         order = ctx.order
         total = int(float(order.amount or 0)) if order else 0
-        summary = _order_summary(order)
-        short = (
-            f"Una {summary} (KES {total:,}) inayosubiri malipo. Chagua kitendo hapa chini."
-            if is_sw else
-            f"You have {summary} (KES {total:,}) awaiting payment. Choose an action below."
-        )
+        payload = hazina_cart_recovery_payload(cart_total_kes=total, language=language)
         return GiftAutomationResult(
-            reply=short,
-            interactive=hazina_cart_recovery_payload(cart_total_kes=total, language=language),
+            reply=str(payload.get("body") or "").strip(),
+            interactive=payload,
             safety_flag="deterministic:hazina_cart_recovery",
         )
 
-    # Top-of-funnel menus (zero LLM).
+    # Top-of-funnel menus (zero LLM) — always reset stale checkout state.
     if cmd == CMD_HAZINA_COASTAL or lid == ID_HAZINA_COASTAL:
+        await clear_hazina_checkout_state(conversation_id)
         return GiftAutomationResult(
             reply=(
                 "Hizi ni vipande vya Pwani ya Kiswahili — chagua kimoja:"
@@ -196,6 +207,7 @@ async def try_hazina_deterministic_gate(
         )
 
     if cmd == CMD_HOME or body == CMD_HOME or _TOP_FUNNEL_GREETING_RE.match(body):
+        await clear_hazina_checkout_state(conversation_id)
         return GiftAutomationResult(
             reply=hazina_welcome_body(language=language),
             interactive=main_menu_payload(
@@ -207,6 +219,7 @@ async def try_hazina_deterministic_gate(
         )
 
     if lid in (ID_HAZINA_COLLECTIONS, "lp:shop") or cmd == CMD_HAZINA_COLLECTIONS:
+        await clear_hazina_checkout_state(conversation_id)
         return GiftAutomationResult(
             reply=(
                 "Hizi ndizo signature collections zetu — chagua moja:"

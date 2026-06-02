@@ -583,6 +583,20 @@ async def _clear_checkout(conv_id: uuid.UUID) -> None:
         pass
 
 
+async def clear_hazina_checkout_state(conversation_id: uuid.UUID) -> None:
+    """Drop in-progress Redis checkout when the guest uses top-level navigation."""
+    await _clear_checkout(conversation_id)
+
+
+async def checkout_in_progress(conversation_id: uuid.UUID) -> bool:
+    """True when a multi-step Hazina brief/checkout is active in Redis."""
+    data = await _get_checkout(conversation_id)
+    if not data:
+        return False
+    step = str(data.get("step") or "").strip().lower()
+    return bool(step)
+
+
 def _product_detail_reply(product_id: str, *, is_sw: bool) -> str:
     row = HAZINA_PRODUCTS[product_id]
     name = row["name"]
@@ -844,6 +858,44 @@ async def _ask_next_checkout_step(conversation_id: uuid.UUID, checkout: dict, *,
     )
 
 
+def _hazina_pending_payment_turn(
+    order,
+    *,
+    language: str | None,
+    is_sw: bool,
+    payment=None,
+    track_line: str | None = None,
+    safety_flag: str = "deterministic:hazina_cart_recovery",
+) -> GiftAutomationResult:
+    """One WhatsApp surface: reply text matches interactive body (no double-fire)."""
+    from app.services.whatsapp_menus import hazina_cart_recovery_payload
+
+    total = int(float(order.amount or 0))
+    payload = hazina_cart_recovery_payload(cart_total_kes=total, language=language)
+    body = str(payload.get("body") or "").strip()
+    details = order.details if isinstance(order.details, dict) else {}
+    pay_cur = str(details.get("payment_currency") or "KES").upper()
+    if pay_cur == "USD" and payment and getattr(payment, "redirect_url", None):
+        body = (
+            f"Oda imehifadhiwa. Lipa hapa: {payment.redirect_url}"
+            if is_sw else
+            f"Your order is saved. Pay securely here: {payment.redirect_url}"
+        )
+    elif payment and getattr(payment, "ok", False) and pay_cur == "KES":
+        body = (
+            f"{body}\n\nSTK imetumwa — angalia simu yako na weka PIN."
+            if is_sw else
+            f"{body}\n\nM-Pesa STK sent — check your phone and enter your PIN."
+        )
+    if track_line:
+        body = f"{body}\n\n{track_line}"
+    return GiftAutomationResult(
+        reply=body,
+        interactive=payload if pay_cur != "USD" or not (payment and payment.redirect_url) else None,
+        safety_flag=safety_flag,
+    )
+
+
 def _payment_success_reply(
     *,
     summary: str,
@@ -1038,24 +1090,16 @@ async def _finalize_order(
         return GiftAutomationResult(reply=msg, safety_flag="deterministic:hazina_payment_failed")
 
     from app.services.order_tracking import ensure_order_tracking, tracking_link_line
-    from app.services.whatsapp_menus import order_actions_payload
 
     await ensure_order_tracking(db, order)
     bind_order_log_context(order)
-    reply = _payment_success_reply(
-        summary=order_items_summary(items) or row["name"],
-        amount_kes=int(float(row["price_kes"]) * quantity),
-        amount_usd=float(row["price_usd"]) * quantity,
-        delivery_location=delivery_location,
-        payment=result.payment,
-        is_sw=is_sw,
-    )
     track = tracking_link_line(order, is_sw=is_sw)
-    if track:
-        reply = f"{reply}\n\n{track}"
-    return GiftAutomationResult(
-        reply=reply,
-        interactive=order_actions_payload(language="sw" if is_sw else "en", business_slug=HAZINA_SLUG),
+    return _hazina_pending_payment_turn(
+        order,
+        language="sw" if is_sw else "en",
+        is_sw=is_sw,
+        payment=result.payment,
+        track_line=track or None,
         safety_flag="deterministic:hazina_checkout",
     )
 
@@ -1124,22 +1168,13 @@ async def _finalize_custom_order(
         msg = _safe_payment_start_error(is_sw=is_sw)
         return GiftAutomationResult(reply=msg, safety_flag="deterministic:hazina_custom_payment_failed")
 
-    from app.services.whatsapp_menus import order_actions_payload
-
-    reply = _payment_success_reply(
-        summary=summary,
-        amount_kes=int(parsed.total_kes),
-        amount_usd=parsed.total_usd,
-        delivery_location=delivery_location,
-        payment=result.payment,
-        is_sw=is_sw,
-    )
     track = tracking_link_line(order, is_sw=is_sw)
-    if track:
-        reply = f"{reply}\n\n{track}"
-    return GiftAutomationResult(
-        reply=reply,
-        interactive=order_actions_payload(language="sw" if is_sw else "en", business_slug=HAZINA_SLUG),
+    return _hazina_pending_payment_turn(
+        order,
+        language="sw" if is_sw else "en",
+        is_sw=is_sw,
+        payment=result.payment,
+        track_line=track or None,
         safety_flag="deterministic:hazina_custom_checkout",
     )
 
@@ -1753,6 +1788,7 @@ async def try_hazina_automation(
     )
 
     if photo_request and product_id:
+        # Photo is a side path — do not advance checkout step; collections/menu clear state.
         photo = await _checkout_product_photo_reply(
             db,
             business_id=business_id,
@@ -1778,6 +1814,7 @@ async def try_hazina_automation(
         pid = product_id or product_id_from_hazina_interactive(interactive_id)
         if not pid:
             return None
+        await clear_hazina_checkout_state(conversation_id)
         checkout_details = parse_checkout_details(text)
         has_delivery = (
             checkout_details.delivery_location
