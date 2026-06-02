@@ -128,6 +128,23 @@ Please create the order, confirm availability, and start payment."""
     assert details.quantity == 1
 
 
+def test_portal_collection_checkout_not_catalog_request() -> None:
+    msg = """Hello Hazina Nomads - automated collection checkout:
+
+Collection: 1x The Highland Treasure (highland-treasure)
+Estimated total: USD 199 / KES 25,900
+Guest: lesnar
+Delivery type: Hotel delivery
+Delivery location: sarova
+Delivery window: 1200
+Contact/payment detail: +254712345678
+Preferred payment: KES M-Pesa STK
+
+Please create the order, confirm availability, and start payment."""
+    assert ga.looks_like_portal_collection_checkout(msg)
+    assert not ga.looks_like_hazina_catalog_request(msg)
+
+
 def test_parse_collection_checkout_quantity() -> None:
     msg = """Hello Hazina Nomads - automated collection checkout:
 
