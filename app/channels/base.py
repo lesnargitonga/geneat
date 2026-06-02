@@ -1385,6 +1385,8 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
     # router already understands so taps and typed text share one code path.
     interactive_id = extract_interactive_id(turn.text)
     interactive_command = command_for_interactive_id(interactive_id)
+    if not interactive_command and (turn.text or "").strip() == CMD_HOME:
+        interactive_command = CMD_HOME
     if interactive_command and interactive_command not in SPECIAL_COMMANDS:
         turn.text = interactive_command
 

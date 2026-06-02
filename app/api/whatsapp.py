@@ -303,11 +303,13 @@ async def _handle_one_message(SessionLocal, msg: dict, contacts: dict, phone_num
             # Tenant routing: which business owns this WhatsApp number?
             from app.services.business_service import get_business_for_turn
             business = await get_business_for_turn(db, phone_number_id=phone_number_id)
+            business_slug = business.slug if business else None
             result = await handle_inbound(db, InboundTurn(
                 msisdn_raw=normalize_msisdn("+" + wa_id), text=text, channel=Channel.whatsapp,
                 customer_name=profile_name, media_url=media_url,
                 provider_message_id=msg_id,
                 business_id=business.id if business else None,
+                business_slug=business_slug,
                 meta_phone_number_id=phone_number_id,
             ))
         if result.duplicate:

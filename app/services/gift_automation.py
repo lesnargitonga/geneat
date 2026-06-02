@@ -1295,6 +1295,19 @@ async def try_hazina_automation(
 
     checkout = await _get_checkout(conversation_id)
 
+    from app.services.whatsapp_menus import CMD_HOME
+
+    if (text or "").strip() == CMD_HOME:
+        return GiftAutomationResult(
+            reply=hazina_welcome_body(language=language),
+            interactive=main_menu_payload(
+                business_name="Hazina Nomads",
+                language=language,
+                business_slug=business_slug,
+            ),
+            safety_flag="deterministic:hazina_router_menu",
+        )
+
     if not checkout and _ROUTER_GREETING_RE.match(text or ""):
         return GiftAutomationResult(
             reply=hazina_welcome_body(language=language),

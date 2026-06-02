@@ -52,12 +52,23 @@ class MockMessageIn(BaseModel):
     )
 
 
+class PortalChatAction(BaseModel):
+    label: str
+    value: str
+    primary: bool = False
+    interactive_id: str | None = None
+
+
 class MockMessageOut(BaseModel):
     reply: str
     conversation_id: str
     escalated: bool
     image_url: Optional[str] = None
     photo_item: Optional[str] = None
+    actions: list[PortalChatAction] = Field(
+        default_factory=list,
+        description="Hazina automation chips (same follow-ups as WhatsApp list/buttons).",
+    )
 
 
 def _clean_reply(reply: str, image_url: str | None, photo_item: str | None) -> str:
@@ -92,12 +103,18 @@ async def post_message(
     res = await handle_inbound(db, turn)
     image_url = res.image_url
     photo_item = res.photo_item
+    from app.services.hazina_portal_actions import portal_actions_from_interactive
+
+    portal_actions = portal_actions_from_interactive(
+        getattr(res, "interactive", None),
+    )
     return MockMessageOut(
         reply=_clean_reply(res.reply, image_url, photo_item),
         conversation_id=str(res.conversation_id),
         escalated=res.escalated,
         image_url=image_url,
         photo_item=photo_item,
+        actions=[PortalChatAction(**row) for row in portal_actions],
     )
 
 
@@ -158,10 +175,16 @@ async def post_image(
     res = await handle_inbound(db, turn)
     image_url = res.image_url
     photo_item = res.photo_item
+    from app.services.hazina_portal_actions import portal_actions_from_interactive
+
+    portal_actions = portal_actions_from_interactive(
+        getattr(res, "interactive", None),
+    )
     return MockMessageOut(
         reply=_clean_reply(res.reply, image_url, photo_item),
         conversation_id=str(res.conversation_id),
         escalated=res.escalated,
         image_url=image_url,
         photo_item=photo_item,
+        actions=[PortalChatAction(**row) for row in portal_actions],
     )

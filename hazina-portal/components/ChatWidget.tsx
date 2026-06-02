@@ -79,6 +79,15 @@ type CheckoutFlow = {
 
 type ChatAction = { label: string; value?: string; href?: string; primary?: boolean };
 type ChatPromptDetail = { prompt?: string; checkout?: CheckoutStart };
+type ApiChatAction = { label: string; value: string; primary?: boolean; interactive_id?: string | null };
+type ApiChatResponse = {
+  reply?: string;
+  image_url?: string | null;
+  photo_item?: string | null;
+  actions?: ApiChatAction[];
+};
+
+const MAIN_MENU_CMD = "__main_menu__";
 
 const BUSINESS_SLUG = "hazina-nomads";
 const PHONE_KEY = "hazina.phone";
@@ -96,15 +105,14 @@ export function closeConciergeChat() {
   window.dispatchEvent(new CustomEvent(CHAT_CLOSE_EVENT));
 }
 
-const ASK_PROMPTS: ChatAction[] = [
-  { label: "Show me collections", value: "Show me your gift collections", primary: true },
-  { label: "JKIA delivery", value: "I need JKIA delivery before my flight" },
-  { label: "Build a custom box", value: "I want to build a custom gift box" },
-  { label: "Corporate gifts", value: "Corporate gifting enquiry" },
-];
-
-const GREETING =
-  "Welcome to Hazina. I can guide you one step at a time: choose a box, confirm delivery, then start secure payment.";
+function mapApiActions(raw: ApiChatAction[] | undefined): ChatAction[] {
+  if (!raw?.length) return [];
+  return raw.map((action, index) => ({
+    label: action.label,
+    value: action.value,
+    primary: action.primary ?? index === 0,
+  }));
+}
 
 function getOrCreatePhone(): string {
   if (typeof window === "undefined") return "+254700000000";
@@ -433,6 +441,7 @@ export function ChatWidget() {
   const [flow, setFlow] = useState<CheckoutFlow | null>(null);
   const phone = useMemo(() => getOrCreatePhone(), []);
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const automationBootstrapped = useRef(false);
 
   const setChatOpen = useCallback((next: boolean) => {
     setOpen(next);
@@ -478,7 +487,7 @@ export function ChatWidget() {
   );
 
   const postBackend = useCallback(
-    async (text: string) => {
+    async (text: string): Promise<ApiChatResponse | null> => {
       const controller = new AbortController();
       const timeout = window.setTimeout(() => controller.abort(), CHAT_TIMEOUT_MS);
       try {
@@ -494,7 +503,7 @@ export function ChatWidget() {
           signal: controller.signal,
         });
         const ok = r.ok;
-        const body = await r.json().catch(() => ({}));
+        const body = (await r.json().catch(() => ({}))) as ApiChatResponse & { detail?: string };
         const reply = ok
           ? normalizeAssistantReply(
               body.reply || "(no reply)",
@@ -506,6 +515,12 @@ export function ChatWidget() {
           imageUrl: typeof body?.image_url === "string" ? body.image_url : null,
           imageAlt: typeof body?.photo_item === "string" ? body.photo_item : null,
         });
+        if (ok) {
+          setActions(mapApiActions(body.actions));
+          return body;
+        }
+        setActions([]);
+        return null;
       } catch (e: unknown) {
         const err = e as { name?: string; message?: string };
         const timedOut = err?.name === "AbortError";
@@ -515,12 +530,20 @@ export function ChatWidget() {
             ? "The concierge line is taking longer than usual. You can continue here, or use WhatsApp for the fastest handoff."
             : `The concierge line is temporarily unreachable: ${err?.message || "unknown"}`,
         );
+        setActions([]);
+        return null;
       } finally {
         window.clearTimeout(timeout);
       }
     },
     [append, phone],
   );
+
+  const bootstrapAutomation = useCallback(async () => {
+    setBusy(true);
+    await postBackend(MAIN_MENU_CMD);
+    setBusy(false);
+  }, [postBackend]);
 
   const submitFlow = useCallback(
     async (ready: CheckoutFlow) => {
@@ -673,10 +696,8 @@ export function ChatWidget() {
 
   const handleLocalIntent = useCallback(
     (text: string) => {
-      if (isGreeting(text)) {
-        setActions(ASK_PROMPTS);
-        append("ai", "Hi. I can help you choose a collection, build a custom box, or arrange hotel, JKIA, and DHL delivery.");
-        return true;
+      if (isGreeting(text) || isCatalogRequest(text)) {
+        return false;
       }
 
       if (isCustomBoxRequest(text)) {
@@ -700,25 +721,6 @@ export function ChatWidget() {
         append(
           "ai",
           `${box.name} is ${formatUSD(box.price_usd)} / ${formatKES(box.price_kes)}. ${box.contents} Lead time: ${box.lead_time_hours}h.`,
-        );
-        return true;
-      }
-
-      if (isCatalogRequest(text)) {
-        setActions(
-          GIFT_BOXES.map((b, index) => ({
-            label: b.name.replace(/^The\s+/, ""),
-            value: `Order ${b.name}`,
-            primary: index === 0,
-          })),
-        );
-        append(
-          "ai",
-          [
-            "Our five collections are:",
-            ...GIFT_BOXES.map((b) => `${b.name}: ${formatUSD(b.price_usd)} / ${formatKES(b.price_kes)}`),
-            "Pick one and I will guide checkout step by step.",
-          ].join("\n"),
         );
         return true;
       }
@@ -766,11 +768,15 @@ export function ChatWidget() {
   }, [setChatOpen]);
 
   useEffect(() => {
-    if (open && messages.length === 0) {
-      setMessages([{ id: messageId(), role: "ai", text: GREETING, ts: Date.now() }]);
-      setActions(ASK_PROMPTS);
+    if (!open) {
+      automationBootstrapped.current = false;
+      return;
     }
-  }, [open, messages.length]);
+    if (messages.length === 0 && !automationBootstrapped.current && !flow) {
+      automationBootstrapped.current = true;
+      void bootstrapAutomation();
+    }
+  }, [bootstrapAutomation, flow, messages.length, open]);
 
   useEffect(() => {
     scrollerRef.current?.scrollTo({ top: scrollerRef.current.scrollHeight, behavior: "smooth" });
