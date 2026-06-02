@@ -61,7 +61,13 @@ def main() -> int:
     parser.add_argument("--lr", type=float, default=2e-4)
     parser.add_argument("--lora-r", type=int, default=16)
     parser.add_argument("--lora-alpha", type=int, default=16)
+    parser.add_argument("--grad-accum", type=int, default=4)
+    parser.add_argument("--warmup-steps", type=int, default=10)
     args = parser.parse_args()
+
+    if args.epochs > 3:
+        print("Warning: epochs > 3 risks overfitting on concierge tone — capping at 3.", file=sys.stderr)
+        args.epochs = 3
 
     if not args.train.is_file():
         print(f"Missing {args.train} — run hazina_generate_finetune_dataset.py first.", file=sys.stderr)
@@ -83,6 +89,7 @@ def main() -> int:
     rows = [_format_row(r) for r in _load_jsonl(args.train)]
     dataset = Dataset.from_list(rows)
 
+    # QLoRA: 4-bit base + rank-16 adapters on all linear layers (Unsloth defaults).
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=args.base_model,
         max_seq_length=args.max_seq_length,
@@ -123,8 +130,8 @@ def main() -> int:
         max_seq_length=args.max_seq_length,
         args=TrainingArguments(
             per_device_train_batch_size=args.batch_size,
-            gradient_accumulation_steps=4,
-            warmup_steps=10,
+            gradient_accumulation_steps=args.grad_accum,
+            warmup_steps=args.warmup_steps,
             num_train_epochs=args.epochs,
             learning_rate=args.lr,
             fp16=False,
@@ -133,7 +140,28 @@ def main() -> int:
             output_dir=str(args.output),
             optim="adamw_8bit",
             seed=42,
+            save_strategy="epoch",
         ),
+    )
+    train_config = {
+        "base_model": args.base_model,
+        "max_seq_length": args.max_seq_length,
+        "load_in_4bit": True,
+        "lora_r": args.lora_r,
+        "lora_alpha": args.lora_alpha,
+        "target_modules": [
+            "q_proj", "k_proj", "v_proj", "o_proj",
+            "gate_proj", "up_proj", "down_proj",
+        ],
+        "per_device_train_batch_size": args.batch_size,
+        "gradient_accumulation_steps": args.grad_accum,
+        "num_train_epochs": args.epochs,
+        "learning_rate": args.lr,
+        "train_rows": len(rows),
+    }
+    (args.output / "train_config.json").write_text(
+        json.dumps(train_config, indent=2),
+        encoding="utf-8",
     )
     trainer.train()
     model.save_pretrained(str(args.output))

@@ -7,11 +7,14 @@ Hybrid architecture: **deterministic gate** (`hazina_deterministic_gate.py`) han
 - Ollama: `llama3.1:latest` (~4.9 GB) — same family as `meta-llama/Meta-Llama-3.1-8B-Instruct`
 - Production LLM switch: `LLM_PROVIDER=local` + `LOCAL_LLM_MODEL=…` in `app/ai/llm.py`
 
-## Phase 1 — Dataset (start here)
+## Phase 1 — Golden dataset (80/20 rule)
+
+1. Curate tone in `training/hazina/golden.jsonl` (~50 hand-written rows shipped in repo).
+2. Expand synthetically (golden rows repeated 8× for anchoring):
 
 ```bash
 cd "/home/lesnar/Documents/ai model"
-python3 scripts/hazina_generate_finetune_dataset.py --target-count 800
+.venv/bin/python scripts/hazina_generate_finetune_dataset.py --target-count 1000 --golden-multiplier 8
 ```
 
 Outputs:
@@ -33,19 +36,26 @@ Curated categories generated automatically:
 
 Target **500–1000** rows: rerun with `--target-count 1000` after adding more lines to `golden.jsonl`.
 
-## Phase 2 — Fine-tune (Runpod or local GPU)
+## Phase 2 — Unsloth QLoRA (Runpod 4090 / A100)
 
-On a machine with **24GB+ VRAM** (A100, 4090, or Runpod pod):
+Locked hyperparameters in `scripts/hazina_finetune_unsloth.py`:
+
+| Param | Value |
+|-------|--------|
+| `load_in_4bit` | true |
+| `max_seq_length` | 2048 |
+| `lora_r` / `lora_alpha` | 16 / 16 |
+| `target_modules` | all 7 linear projections |
+| `batch_size` × `grad_accum` | 2 × 4 (effective batch 8) |
+| `epochs` | 1–2 (script warns if >3) |
 
 ```bash
 pip install -r requirements-finetune.txt
-python3 scripts/hazina_finetune_unsloth.py \
+python scripts/hazina_finetune_unsloth.py \
   --train training/hazina/out/train.jsonl \
   --output training/hazina/out/lora-hazina \
   --epochs 2
 ```
-
-Uses QLoRA on `unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit` (~2–4 hours on a single 4090).
 
 ## Phase 3 — Ollama (dev) or vLLM (prod)
 
@@ -55,12 +65,15 @@ Uses QLoRA on `unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit` (~2–4 hours on a s
 bash scripts/hazina_export_ollama.sh training/hazina/out/lora-hazina/merged-16bit
 ```
 
-Then in `.env`:
+Then in `.env` (Hazina open-ended only; menus stay deterministic):
 
 ```
 LLM_PROVIDER=local
-LOCAL_LLM_MODEL=hazina-concierge
+LOCAL_LLM_MODEL=llama3.1
+HAZINA_LLM_MODEL=hazina-concierge
 ```
+
+When `business_slug=hazina-nomads`, LangGraph uses `HAZINA_LLM_MODEL` if set.
 
 **Runpod vLLM:** deploy merged weights; set `LOCAL_LLM_BASE_URL=https://<pod>/v1` (OpenAI-compatible). LangGraph and tools unchanged.
 

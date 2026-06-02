@@ -242,7 +242,7 @@ async def _agent_node(state: AgentState, *, db: AsyncSession) -> dict:
                         },
                     }
 
-    llm = get_chat_chain(tools)
+    llm = get_chat_chain(tools, business_slug=biz_slug)
     system = _build_system_instruction(
         state,
         profile=profile,

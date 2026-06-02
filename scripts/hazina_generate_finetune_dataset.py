@@ -311,11 +311,13 @@ def _load_golden() -> list[dict]:
     return rows
 
 
-def generate_dataset(*, target_count: int, seed: int) -> list[dict]:
+def generate_dataset(*, target_count: int, seed: int, golden_multiplier: int = 8) -> list[dict]:
     random.seed(seed)
     system_base = _load_system_base()
     rows: list[dict] = []
-    rows.extend(_load_golden())
+    golden = _load_golden()
+    for _ in range(max(1, golden_multiplier)):
+        rows.extend(golden)
     rows.extend(_gen_persona(system_base))
     rows.extend(_gen_catalog(system_base))
     rows.extend(_gen_strictness(system_base))
@@ -325,8 +327,10 @@ def generate_dataset(*, target_count: int, seed: int) -> list[dict]:
 
     # Paraphrase pool expansion until target_count.
     paraphrase_openers = ["Hi", "Hello", "Quick question", "Please advise", "Good evening"]
+    synth_start = len(golden) * max(1, golden_multiplier)
     while len(rows) < target_count:
-        base = random.choice(rows[len(_load_golden()) :])
+        pool = rows[synth_start:] if len(rows) > synth_start else rows
+        base = random.choice(pool)
         msgs = base["messages"]
         user = msgs[1]["content"]
         opener = random.choice(paraphrase_openers)
@@ -347,10 +351,20 @@ def main() -> int:
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--val-ratio", type=float, default=0.05)
+    parser.add_argument(
+        "--golden-multiplier",
+        type=int,
+        default=8,
+        help="Repeat each golden row N times before synthetic expansion (tone anchoring).",
+    )
     args = parser.parse_args()
 
     args.out.mkdir(parents=True, exist_ok=True)
-    rows = generate_dataset(target_count=args.target_count, seed=args.seed)
+    rows = generate_dataset(
+        target_count=args.target_count,
+        seed=args.seed,
+        golden_multiplier=args.golden_multiplier,
+    )
     n_val = max(1, int(len(rows) * args.val_ratio))
     val_rows = rows[:n_val]
     train_rows = rows[n_val:]
@@ -368,6 +382,7 @@ def main() -> int:
         "train_count": len(train_rows),
         "val_count": len(val_rows),
         "golden_count": len(_load_golden()),
+        "golden_multiplier": args.golden_multiplier,
         "system_prompt": str(SYSTEM_PATH),
         "base_model_ollama": "llama3.1",
         "hf_base_suggested": "meta-llama/Meta-Llama-3.1-8B-Instruct",

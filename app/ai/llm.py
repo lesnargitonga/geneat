@@ -36,9 +36,23 @@ def _is_openai_reasoning_model(model: str) -> bool:
     return name.startswith(("gpt-5", "o1", "o3", "o4"))
 
 
+def _resolve_local_llm_model(s: Settings, business_slug: str | None) -> str:
+    """Hazina open-ended turns can use a dedicated fine-tuned Ollama model."""
+    slug = (business_slug or "").strip().lower()
+    hazina_model = (getattr(s, "hazina_llm_model", None) or "").strip()
+    if hazina_model and slug == "hazina-nomads":
+        return hazina_model
+    return s.local_llm_model
+
+
 def _build_provider(
-    provider: str, s: Settings, *, temperature: float, streaming: bool,
+    provider: str,
+    s: Settings,
+    *,
+    temperature: float,
+    streaming: bool,
     is_fallback: bool = False,
+    business_slug: str | None = None,
 ) -> BaseChatModel | None:
     """Build a single chat model for the given provider. Returns None if the
     provider can't be constructed (missing key / misconfigured) — caller
@@ -108,9 +122,16 @@ def _build_provider(
             base = s.local_llm_base_url.rstrip("/")
             if base.endswith("/v1"):
                 base = base[:-3]
-            log.info("llm_built", provider="local", model=s.local_llm_model, fallback=is_fallback)
+            local_model = _resolve_local_llm_model(s, business_slug)
+            log.info(
+                "llm_built",
+                provider="local",
+                model=local_model,
+                fallback=is_fallback,
+                business_slug=business_slug,
+            )
             return ChatOllama(
-                base_url=base, model=s.local_llm_model,
+                base_url=base, model=local_model,
                 temperature=temperature, num_predict=512,
                 async_client_kwargs={"timeout": 30},
                 sync_client_kwargs={"timeout": 30},
@@ -146,6 +167,7 @@ def get_chat_chain(
     *,
     temperature: float = 0.2,
     streaming: bool = False,
+    business_slug: str | None = None,
 ) -> Runnable:
     """Return a tool-bound Runnable with automatic provider failover.
 
@@ -161,7 +183,13 @@ def get_chat_chain(
     primary_provider = s.llm_provider
 
     # Build the primary.
-    primary = _build_provider(primary_provider, s, temperature=temperature, streaming=streaming)
+    primary = _build_provider(
+        primary_provider,
+        s,
+        temperature=temperature,
+        streaming=streaming,
+        business_slug=business_slug,
+    )
 
     # Build fallbacks: parse comma-separated list, dedupe vs primary, drop
     # providers we can't build (missing keys).
@@ -174,7 +202,14 @@ def get_chat_chain(
 
     fallback_specs: list[tuple[str, BaseChatModel]] = []
     for p in fb_order:
-        m = _build_provider(p, s, temperature=temperature, streaming=streaming, is_fallback=True)
+        m = _build_provider(
+            p,
+            s,
+            temperature=temperature,
+            streaming=streaming,
+            is_fallback=True,
+            business_slug=business_slug,
+        )
         if m is not None:
             fallback_specs.append((p, m))
 
