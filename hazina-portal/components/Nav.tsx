@@ -22,7 +22,6 @@ export function Nav() {
   const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like to order a gift box.");
   const isActive = (href: string) =>
     pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
-  const onHero = pathname === "/" && !showStickyCta;
 
   useEffect(() => {
     if (pathname !== "/") {
@@ -39,28 +38,12 @@ export function Nav() {
   }, [pathname]);
 
   return (
-    <header
-      className={`sticky top-0 z-30 backdrop-blur-md transition-colors duration-500 ${
-        onHero
-          ? "border-b border-white/5 bg-black/25"
-          : "border-b border-border bg-sand/85"
-      }`}
-    >
+    <header className="sticky top-0 z-30 border-b border-border bg-sand/85 backdrop-blur-md">
       <div className="container-page flex items-center justify-between h-16 md:h-[4.5rem]">
         <Link href="/" className="group leading-none" onClick={() => setOpen(false)}>
-          <span
-            className={`font-serif text-xl md:text-2xl uppercase tracking-wide ${
-              onHero ? "text-stone-200" : "text-obsidian"
-            }`}
-          >
+          <span className="font-serif text-xl md:text-2xl uppercase tracking-wide text-obsidian">
             Hazina{" "}
-            <span
-              className={`italic normal-case tracking-normal ${
-                onHero ? "text-stone-400" : "text-bronze"
-              }`}
-            >
-              Nomads
-            </span>
+            <span className="italic normal-case text-bronze tracking-normal">Nomads</span>
           </span>
         </Link>
         <nav className="hidden md:flex items-center gap-8">
@@ -69,40 +52,27 @@ export function Nav() {
               key={n.href}
               href={n.href}
               aria-current={isActive(n.href) ? "page" : undefined}
-              className={`relative py-2 font-mono text-xs font-medium uppercase tracking-[0.2em] transition-colors duration-300 ${
-                onHero
-                  ? isActive(n.href)
-                    ? "text-stone-200 after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-px after:bg-white/30"
-                    : "text-stone-400 hover:text-stone-200"
-                  : isActive(n.href)
-                    ? "text-obsidian after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-px after:bg-bronze"
-                    : "text-ink-soft hover:text-obsidian"
+              className={`relative py-2 font-mono text-sm font-medium uppercase tracking-[0.1em] transition-colors ${
+                isActive(n.href)
+                  ? "text-obsidian after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-px after:bg-bronze"
+                  : "text-ink-soft hover:text-obsidian"
               }`}
             >
               {n.label}
             </Link>
           ))}
         </nav>
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-5">
           <ThemeToggle compact />
-          <button
-            type="button"
-            onClick={openConciergeChat}
-            className={onHero ? "btn-hero-link !min-h-0 !py-2" : "btn-ghost !min-h-0 !py-2.5 !px-4"}
-          >
-            Chat in app
-          </button>
           <a
             href={wa}
             target="_blank"
             rel="noopener noreferrer"
-            className={
-              onHero
-                ? "btn-hero-glass !min-h-0 !py-2.5 !px-5"
-                : showStickyCta
-                  ? "btn-bronze py-2.5 px-5"
-                  : "btn-hero-link !min-h-0 !py-2"
-            }
+            className={`font-mono text-sm uppercase tracking-[0.12em] transition-all duration-300 ${
+              showStickyCta
+                ? "btn-bronze py-2.5 px-5 translate-y-0 opacity-100"
+                : "text-ink-soft hover:text-obsidian translate-y-0.5 opacity-90"
+            }`}
           >
             Order on WhatsApp
           </a>

@@ -177,21 +177,12 @@
   }
 
   .glass-strip {
-    @apply rounded-2xl border border-white/10 bg-black/40 shadow-none backdrop-blur-md;
+    @apply rounded-2xl border border-white/10 shadow-editorial;
+    background: rgba(20, 20, 20, 0.58);
+    backdrop-filter: blur(12px);
   }
 
-  /* Hero — quiet luxury over photography (homepage) */
-  .btn-hero-glass {
-    @apply inline-flex min-h-[44px] items-center justify-center gap-2 px-6 py-3
-           font-mono text-xs font-medium uppercase tracking-[0.2em]
-           border border-white/10 bg-white/5 text-stone-200 backdrop-blur-lg
-           transition-all duration-500 hover:bg-white/10 active:scale-[0.98];
-  }
-  .btn-hero-link {
-    @apply inline-flex min-h-[44px] items-center justify-center gap-2 px-2 py-3
-           font-mono text-xs font-medium uppercase tracking-[0.2em]
-           text-stone-400 transition-colors duration-300 hover:text-stone-200;
-  }
+  /* Hero — darken bright photography (sun hotspot) without changing layout */
   .hero-overlay {
     @apply bg-gradient-to-b from-black/70 via-black/50 to-[#111111];
   }

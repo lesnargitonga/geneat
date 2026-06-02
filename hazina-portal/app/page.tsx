@@ -25,25 +25,25 @@ export default function HomePage() {
 
         <div className="relative container-page min-h-[86svh] py-16 md:py-24 flex flex-col justify-between gap-12">
           <div className="max-w-4xl pt-8 md:pt-16">
-            <span className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-stone-400">
+            <span className="font-mono text-sm font-medium uppercase tracking-[0.12em] text-white/70">
               Nairobi hotel delivery · JKIA handoff · DHL export quotes
             </span>
-            <h1 className="mt-5 font-serif text-5xl md:text-7xl lg:text-8xl leading-[0.92] tracking-tight text-[#EBE8E0]">
+            <h1 className="mt-5 font-serif text-5xl md:text-7xl lg:text-8xl leading-[0.9] tracking-[-0.02em] text-white">
               Treasures, delivered to your journey.
             </h1>
-            <p className="mt-6 max-w-2xl text-lg md:text-xl leading-[1.85] text-stone-400">
+            <p className="mt-6 max-w-2xl text-lg md:text-xl leading-[1.85] text-white/84">
               Premium Kenyan gift collections for travellers who want something more considered than a
               souvenir run.
             </p>
-            <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <Link href="/collections" className="btn-hero-glass">
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/collections" className="btn-bronze">
                 View collections
               </Link>
               <a
                 href={wa}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-hero-link"
+                className="btn-outline border-white/60 text-white hover:bg-white hover:text-black"
               >
                 Order on WhatsApp
               </a>
@@ -51,12 +51,12 @@ export default function HomePage() {
           </div>
 
           <div className="-mx-5 overflow-x-auto px-5 pb-2 local-scroll-x lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0">
-            <div className="glass-strip flex min-w-max gap-3 p-3 lg:grid lg:min-w-0 lg:grid-cols-5">
+            <div className="glass-strip flex min-w-max gap-4 p-3 lg:grid lg:min-w-0 lg:grid-cols-5">
               {GIFT_BOXES.map((box, index) => (
                 <Link
                   key={box.id}
                   href={`/collections/${box.id}`}
-                  className="group relative w-[min(78vw,300px)] shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-black/40 text-stone-200 backdrop-blur-md transition duration-500 hover:-translate-y-0.5 hover:border-white/20 lg:w-auto"
+                  className="group relative w-[min(78vw,300px)] shrink-0 overflow-hidden rounded-2xl text-white transition duration-500 hover:-translate-y-1 lg:w-auto"
                 >
                   <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.05]">
                     <CatalogImage
@@ -69,12 +69,12 @@ export default function HomePage() {
                       priority={index < 2}
                     />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/5" />
                   <span className="relative z-10 flex h-52 flex-col justify-end p-4 lg:h-56">
-                    <span className="block font-serif text-lg leading-tight text-stone-200 group-hover:text-[#EBE8E0]">
+                    <span className="block font-serif text-lg leading-tight text-white group-hover:text-bronze-light">
                       {box.name}
                     </span>
-                    <span className="mt-1 block font-mono text-xs leading-relaxed tracking-wide text-stone-400">
+                    <span className="mt-1 block font-mono text-sm leading-relaxed text-white/85">
                       {formatUSD(box.price_usd)} · {formatKES(box.price_kes)}
                     </span>
                   </span>
@@ -83,7 +83,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="grid gap-5 border-t border-white/10 pt-6 sm:grid-cols-3 md:max-w-4xl">
+          <div className="grid gap-5 border-t border-white/20 pt-6 text-white/80 sm:grid-cols-3 md:max-w-4xl">
             <HeroNote title="Hotel delivery" body="Westlands · Kilimani · Karen" icon="hotel" />
             <HeroNote title="JKIA handoff" body="Terminal-aware departure gifts" icon="jkia" />
             <HeroNote title="DHL export" body="Insured quotes before payment" icon="dhl" />
@@ -171,10 +171,10 @@ function HeroNote({
   icon: "hotel" | "jkia" | "dhl";
 }) {
   return (
-    <div className="sm:border-l sm:border-white/10 sm:pl-5 first:border-l-0 first:pl-0">
+    <div className="sm:border-l sm:border-white/20 sm:pl-5 first:border-l-0 first:pl-0">
       <ServiceIcon kind={icon} />
-      <p className="font-mono text-xs uppercase tracking-[0.2em] text-stone-400">{title}</p>
-      <p className="mt-2 text-sm md:text-base leading-relaxed text-stone-500">{body}</p>
+      <p className="font-mono text-[13px] uppercase tracking-[0.14em] text-bronze-light">{title}</p>
+      <p className="mt-2 text-sm md:text-base leading-relaxed text-white/72">{body}</p>
     </div>
   );
 }
@@ -185,7 +185,7 @@ function ServiceIcon({ kind }: { kind: "hotel" | "jkia" | "dhl" }) {
       <svg
         aria-hidden="true"
         viewBox="0 0 24 24"
-        className="mb-2 h-5 w-5 text-stone-500"
+        className="mb-2 h-5 w-5 text-bronze-light/90"
         fill="none"
         stroke="currentColor"
         strokeWidth="1.35"
@@ -201,7 +201,7 @@ function ServiceIcon({ kind }: { kind: "hotel" | "jkia" | "dhl" }) {
       <svg
         aria-hidden="true"
         viewBox="0 0 24 24"
-        className="mb-2 h-5 w-5 text-stone-500"
+        className="mb-2 h-5 w-5 text-bronze-light/90"
         fill="none"
         stroke="currentColor"
         strokeWidth="1.35"
@@ -216,7 +216,7 @@ function ServiceIcon({ kind }: { kind: "hotel" | "jkia" | "dhl" }) {
     <svg
       aria-hidden="true"
       viewBox="0 0 24 24"
-      className="mb-2 h-5 w-5 text-stone-500"
+      className="mb-2 h-5 w-5 text-bronze-light/90"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.35"
