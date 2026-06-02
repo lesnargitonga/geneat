@@ -142,6 +142,8 @@ class GiftAutomationResult:
     interactive: dict | None = None
     escalated: bool = False
     safety_flag: str = "deterministic:gift_automation"
+    image_url: str | None = None
+    photo_item: str | None = None
 
 
 @dataclass(frozen=True)
@@ -872,6 +874,61 @@ async def _track_delivery_reply(
     )
 
 
+async def _checkout_product_photo_reply(
+    db: AsyncSession,
+    *,
+    business_id: uuid.UUID | None,
+    checkout: dict,
+    is_sw: bool,
+) -> GiftAutomationResult:
+    product_id = str(checkout.get("product_id") or "")
+    row = HAZINA_PRODUCTS.get(product_id)
+    if not row:
+        return GiftAutomationResult(
+            reply=(
+                "Upload any reference photo here, then we will continue checkout one step at a time."
+                if not is_sw else
+                "Pakia picha yoyote ya mfano hapa, kisha tutaendelea na checkout hatua kwa hatua."
+            ),
+            safety_flag="deterministic:hazina_checkout_photo_note",
+        )
+
+    from app.db.models import Business
+    from app.services.menu_photos import find_photo
+
+    custom_photos: dict[str, str] = {}
+    if business_id is not None:
+        business = await db.get(Business, business_id)
+        profile = business.profile if business is not None and isinstance(business.profile, dict) else {}
+        raw = profile.get("menu_photos") if isinstance(profile, dict) else None
+        if isinstance(raw, dict):
+            custom_photos = {str(k): str(v) for k, v in raw.items() if v}
+
+    name = str(row["name"])
+    matched, url = find_photo(HAZINA_SLUG, name, custom_photos)
+    if url:
+        reply = (
+            f"Here is {name}. We can continue checkout when you're ready."
+            if not is_sw else
+            f"Hii hapa {name}. Tutaendelea na checkout ukiwa tayari."
+        )
+        return GiftAutomationResult(
+            reply=reply,
+            image_url=url,
+            photo_item=matched or name,
+            safety_flag="deterministic:hazina_checkout_photo",
+        )
+
+    return GiftAutomationResult(
+        reply=(
+            f"I do not have a clean photo for {name} yet. We can still continue checkout, or you can choose another collection."
+            if not is_sw else
+            f"Sina picha safi ya {name} bado. Tunaweza kuendelea na checkout, au uchague collection nyingine."
+        ),
+        safety_flag="deterministic:hazina_checkout_photo_missing",
+    )
+
+
 def _parse_departure_iso(text: str) -> str | None:
     if not _DEPARTURE_RE.search(text or ""):
         return None
@@ -1120,6 +1177,14 @@ async def try_hazina_automation(
         )
 
     checkout = await _get_checkout(conversation_id)
+
+    if checkout and _PHOTO_RE.search(text or "") and not looks_like_hazina_catalog_request(text):
+        return await _checkout_product_photo_reply(
+            db,
+            business_id=business_id,
+            checkout=checkout,
+            is_sw=is_sw,
+        )
 
     if looks_like_hazina_catalog_request(text):
         if checkout:

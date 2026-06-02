@@ -194,6 +194,24 @@ def test_hazina_cafe_boundary_reply_points_to_gifts() -> None:
     assert "gift collections" in reply
 
 
+@pytest.mark.asyncio
+async def test_checkout_photo_uses_active_product_context(db, monkeypatch) -> None:
+    def fake_find_photo(_slug, item_query, _custom):
+        assert item_query == "The Kenya Edit"
+        return "kenya edit", "https://example.test/kenya-edit.jpg"
+
+    monkeypatch.setattr("app.services.menu_photos.find_photo", fake_find_photo)
+    result = await ga._checkout_product_photo_reply(
+        db,
+        business_id=None,
+        checkout={"product_id": "kenya-edit"},
+        is_sw=False,
+    )
+    assert result.image_url == "https://example.test/kenya-edit.jpg"
+    assert "The Kenya Edit" in result.reply
+    assert result.safety_flag == "deterministic:hazina_checkout_photo"
+
+
 def test_is_custom_box_handoff() -> None:
     assert ga.is_custom_box_handoff("I'd like to build a custom gift box")
     assert ga.is_custom_box_handoff("• Coffee (HN-T-001)\n• Tea (HN-T-002)")
