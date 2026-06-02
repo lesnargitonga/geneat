@@ -178,7 +178,7 @@
 
   /* Hero — anchor typography over dimmed photography */
   .hero-overlay {
-    @apply bg-gradient-to-b from-transparent via-black/40 to-[#111111];
+    @apply bg-gradient-to-b from-black/20 via-black/60 to-[#111111];
   }
 
   .input-luxury {

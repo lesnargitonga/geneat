@@ -16,7 +16,7 @@ export default function HomePage() {
             src={BRAND_IMAGES.safariSunset}
             alt="Serene Kenyan safari landscape at sunset"
             fill
-            className="object-cover brightness-[0.35] saturate-[0.6] contrast-[1.1]"
+            className="object-cover object-bottom brightness-[0.48] saturate-[0.75] contrast-[1.05]"
             sizes="100vw"
             priority
           />
