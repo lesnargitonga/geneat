@@ -17,7 +17,7 @@
 | Dedicated Hazina API service | ✅ | ◐ | `hazina-api.onrender.com` is same code; schema/pgvector repaired, but existing service is still Frankfurt while Hazina DB/Redis are Oregon, so latency gate fails |
 | Tenant `hazina-nomads` | ✅ | ◐ | `DEFAULT_BUSINESS_SLUG`; Meta `phone_number_id` |
 | Gen-Eat portal | ✅ | 🟢 | `geneat.lesnarai.co.ke` |
-| Hazina portal | ✅ | ◐ | Vercel production deploy ready and aliased; Cloudflare still needs `A hazina 76.76.21.21` |
+| Hazina portal | ✅ | 🟢 | `hazina.lesnarai.co.ke` resolves, TLS verifies, and serves the Vercel production portal |
 | Hazina WA | ✅ | ◐ | `+1 555 657 8220` |
 | KES STK (IntaSend) | ✅ | 🟢 | Live keys; `PAYMENT_SIMULATOR=false`; health OK; real STK blood test still needs explicit phone/amount |
 | USD/card checkout | ✅ | ◐ | Paystack preferred when keys exist; IntaSend hosted checkout is fallback; real card-link blood test still needs explicit email/order |
@@ -40,7 +40,7 @@
 | API | `https://api.lesnarai.co.ke` |
 | Health | `/healthz` `/readyz` `/health/deep` `/version` |
 | Gen-Eat portal | `https://geneat.lesnarai.co.ke` · `gen-eat-portal/` |
-| Hazina portal | Target `https://hazina.lesnarai.co.ke`; current public Vercel alias `https://hazina-portal.vercel.app`; `hazina-portal/`; dev `make dev-hazina` → `:3004` |
+| Hazina portal | `https://hazina.lesnarai.co.ke`; Vercel fallback `https://hazina-portal.vercel.app`; `hazina-portal/`; dev `make dev-hazina` → `:3004` |
 | Hazina tracking | `{PUBLIC_HAZINA_PORTAL_URL}/orders/HN-ORD-{id8}?token={secret}` |
 | Public order API | `GET /api/public/orders/{ref}?token=` |
 | Git | `github.com/lesnargitonga/geneat` · branch `main` → Render |
@@ -250,12 +250,15 @@ PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py
   `57c1157` on service `geneat-2`.
 - `hazina-api.onrender.com` is live on the same commit, but remains secondary
   because its cross-region DB/Redis latency is worse than the shared API.
-- Vercel `hazina-portal` production deploy succeeded and was aliased to
-  `hazina.lesnarai.co.ke`.
-- DNS is still not live from this workspace. Cloudflare must add:
-  `A hazina 76.76.21.21`.
-- Until DNS is fixed, use `https://hazina-portal.vercel.app/?ref=REF-HOST-001`
-  for partner QR pilot testing.
+- Vercel `hazina-portal` production deploy succeeded and serves
+  `https://hazina.lesnarai.co.ke`.
+- Cloudflare DNS is live: `hazina.lesnarai.co.ke A 76.76.21.21`.
+- Vercel TLS certificate for `hazina.lesnarai.co.ke` verifies.
+- Partner QR pilot target:
+  `https://hazina.lesnarai.co.ke/?ref=REF-HOST-001`.
+- Measured from this workspace after DNS/cert: homepage about 0.23s, warm
+  collections about 0.23s, portal `/api/health` about 0.42-0.47s, and shared
+  API `/readyz` about 0.51-0.57s.
 - Vercel server env includes `ADMIN_API_TOKEN` synced from the live API so
   `/api/chat` can proxy to production `/mock/message`.
 - `make doctor-hazina-live` now requires that token; the script reads

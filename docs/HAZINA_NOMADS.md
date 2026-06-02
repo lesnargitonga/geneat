@@ -1122,8 +1122,11 @@ Current local/live verification on **2026-06-02**:
   is OK and Hazina replies work; the check still fails the latency gate because
   the existing API service is Frankfurt while Hazina DB/Redis are Oregon
 - live API `/version` after push → commit `57c1157`
-- `https://hazina.lesnarai.co.ke` DNS did not resolve from this workspace on
-  2026-06-02; Cloudflare must add `A hazina 76.76.21.21`
+- `https://hazina.lesnarai.co.ke` resolves from this workspace on 2026-06-02,
+  TLS verifies, and the Vercel portal returns HTTP 200
+- measured after DNS/cert: homepage about 0.23s, warm collections about
+  0.23s, portal `/api/health` about 0.42-0.47s, and shared API `/readyz`
+  about 0.51-0.57s
 - Vercel server env has `ADMIN_API_TOKEN` synced from the live API so in-app
   chat can reach locked production `/mock/message`
 - `npm audit --omit=dev` → 2 production vulnerabilities: `next` critical
@@ -1201,7 +1204,7 @@ make eval-whatsapp-local
 |---|---|---|---|
 | 1 | **Live WhatsApp number** + Meta `phone_number_id` | User | Real customer WA |
 | 2 | **Paystack merchant approval** + live keys on Render | User | Preferred USD/card rail; IntaSend checkout link covers interim card payments |
-| 3 | **Domain** `hazina.lesnarai.co.ke` DNS live | User/Ops | Public SEO / trust; add Cloudflare `A hazina 76.76.21.21` |
+| 3 | **Domain** `hazina.lesnarai.co.ke` DNS live | Done | Public SEO / trust |
 | 4 | **Re-seed production KB** after catalog/portal changes | Eng/Ops | RAG knows 33 treasures + brief policies |
 | 5 | **`ADMIN_WA_NUMBERS` on production API** | Ops | Ghost Ops dispatch from ops phone |
 | 6 | **Commit + push luxury brief + catalog** | Eng | Production `/build` and parser parity |
@@ -1253,7 +1256,7 @@ Use before any production tag or Hazina cutover (§8.6).
 - [ ] Set Render secrets: Meta WA, IntaSend, Paystack, `NEXT_PUBLIC_HAZINA_*`, `ADMIN_WA_NUMBERS`
 - [ ] Smoke `/build` brief with monogram + bespoke → WhatsApp ack + tracking link after pay
 - [ ] Add `https://hazina.lesnarai.co.ke` to `ADMIN_CORS_ORIGINS`
-- [ ] Add Cloudflare DNS: `A hazina 76.76.21.21`
+- [x] Add Cloudflare DNS: `A hazina 76.76.21.21`
 - [ ] Live smoke: menu → order → KES STK + USD link rehearsal with explicit real-money targets
 - [ ] Tag release and publish changelog
 
