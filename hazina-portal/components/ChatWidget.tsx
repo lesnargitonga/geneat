@@ -89,6 +89,13 @@ type ApiChatResponse = {
 
 const MAIN_MENU_CMD = "__main_menu__";
 
+const ASK_PROMPTS: ChatAction[] = [
+  { label: "Show me collections", value: "Show me your gift collections", primary: true },
+  { label: "JKIA delivery", value: "I need JKIA delivery before my flight" },
+  { label: "Build a custom box", value: "I want to build a custom gift box" },
+  { label: "Corporate gifts", value: "Corporate gifting enquiry" },
+];
+
 const BUSINESS_SLUG = "hazina-nomads";
 const PHONE_KEY = "hazina.phone";
 const CHAT_TIMEOUT_MS = 30_000;
