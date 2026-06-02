@@ -16,7 +16,7 @@ export default function HomePage() {
             src={BRAND_IMAGES.safariSunset}
             alt="Serene Kenyan safari landscape at sunset"
             fill
-            className="object-cover"
+            className="object-cover brightness-[0.35] saturate-[0.6] contrast-[1.1]"
             sizes="100vw"
             priority
           />
@@ -51,12 +51,12 @@ export default function HomePage() {
           </div>
 
           <div className="-mx-5 overflow-x-auto px-5 pb-2 local-scroll-x lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0">
-            <div className="glass-strip flex min-w-max gap-4 p-3 lg:grid lg:min-w-0 lg:grid-cols-5">
+            <div className="flex min-w-max gap-4 lg:grid lg:min-w-0 lg:grid-cols-5">
               {GIFT_BOXES.map((box, index) => (
                 <Link
                   key={box.id}
                   href={`/collections/${box.id}`}
-                  className="group relative w-[min(78vw,300px)] shrink-0 overflow-hidden rounded-2xl text-white transition duration-500 hover:-translate-y-1 lg:w-auto"
+                  className="group relative w-[min(78vw,300px)] shrink-0 overflow-hidden border border-white/20 shadow-[0_10px_28px_rgba(0,0,0,0.4)] text-white transition duration-500 hover:-translate-y-1 lg:w-auto"
                 >
                   <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.05]">
                     <CatalogImage

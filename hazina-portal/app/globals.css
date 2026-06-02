@@ -176,15 +176,9 @@
            hover:border-obsidian/20 hover:shadow-editorial;
   }
 
-  .glass-strip {
-    @apply rounded-2xl border border-white/10 shadow-editorial;
-    background: rgba(20, 20, 20, 0.58);
-    backdrop-filter: blur(12px);
-  }
-
-  /* Hero — darken bright photography (sun hotspot) without changing layout */
+  /* Hero — anchor typography over dimmed photography */
   .hero-overlay {
-    @apply bg-gradient-to-b from-black/70 via-black/50 to-[#111111];
+    @apply bg-gradient-to-b from-transparent via-black/40 to-[#111111];
   }
 
   .input-luxury {
