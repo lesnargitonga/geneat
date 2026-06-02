@@ -88,6 +88,10 @@ _EMBED_REMOTE = Histogram(
     "Remote embedder call latency in seconds.",
     buckets=(0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0),
 )
+_AI_INPUT_TRUNCATED = Counter(
+    "omni_ai_input_truncated_total",
+    "Inbound turns where AI input was truncated to budget.",
+)
 _DB_POOL_SIZE = Gauge("omni_db_pool_size", "Configured SQLAlchemy DB pool size.")
 _DB_POOL_CHECKED_OUT = Gauge("omni_db_pool_checked_out", "Currently checked-out DB connections.")
 _DB_POOL_CHECKED_IN = Gauge("omni_db_pool_checked_in", "Currently idle DB connections in the pool.")
@@ -128,6 +132,13 @@ def record_embed_remote(seconds: float) -> None:
         _EMBED_REMOTE.observe(float(seconds))
     except Exception as exc:
         log.debug("embed_remote_metric_failed", error=str(exc))
+
+
+def record_ai_input_truncated() -> None:
+    try:
+        _AI_INPUT_TRUNCATED.inc()
+    except Exception as exc:
+        log.debug("ai_input_truncated_metric_failed", error=str(exc))
 
 
 def record_tool(tool: str, ok: bool) -> None:

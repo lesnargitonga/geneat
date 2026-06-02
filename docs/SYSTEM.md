@@ -2,7 +2,7 @@
 
 **Scope:** Gen-Eat platform + Hazina Nomads + shared API (`api.lesnarai.co.ke`).  
 **Maintain:** edit this file first when product, routing, catalog, deploy, or gaps change. Code wins if docs drift.  
-**Verified:** 2026-06-02 · `git log -1 --oneline` · `git status -sb`
+**Verified:** 2026-06-01 · `git log -1 --oneline` · `git status -sb`  
 **Security:** [SECURITY.md](../SECURITY.md)
 
 **Legend:** ✅ shipped in code · 🟢 verified live · ⬜ not done · ◐ partial
@@ -13,18 +13,18 @@
 
 | Area | Code | Live | Blocker / note |
 |---|---|---|---|
-| Shared API | ✅ | 🟢 | `api.lesnarai.co.ke`; commit `57c1157`; `make doctor-hazina-live` passed on 2026-06-02 |
+| Shared API | ✅ | 🟢 | `api.lesnarai.co.ke`; `make doctor-hazina-live` passed on 2026-06-01 |
 | Dedicated Hazina API service | ✅ | ◐ | `hazina-api.onrender.com` is same code; schema/pgvector repaired, but existing service is still Frankfurt while Hazina DB/Redis are Oregon, so latency gate fails |
 | Tenant `hazina-nomads` | ✅ | ◐ | `DEFAULT_BUSINESS_SLUG`; Meta `phone_number_id` |
 | Gen-Eat portal | ✅ | 🟢 | `geneat.lesnarai.co.ke` |
-| Hazina portal | ✅ | 🟢 | `hazina.lesnarai.co.ke` resolves, TLS verifies, and serves the Vercel production portal |
+| Hazina portal | ✅ | ⬜ | `hazina.lesnarai.co.ke` DNS unverified 2026-06-01; local `:3004` |
 | Hazina WA | ✅ | ◐ | `+1 555 657 8220` |
-| KES STK (IntaSend) | ✅ | 🟢 | Live keys; `PAYMENT_SIMULATOR=false`; health OK; real STK blood test still needs explicit phone/amount |
-| USD/card checkout | ✅ | ◐ | Paystack preferred when keys exist; IntaSend hosted checkout is fallback; real card-link blood test still needs explicit email/order |
+| KES STK (IntaSend) | ✅ | 🟢 | Live keys; `PAYMENT_SIMULATOR=false`; primary M-Pesa rail |
+| USD/card checkout | ✅ | ◐ | Paystack preferred when keys exist; IntaSend hosted checkout is fallback for now |
 | Collections + guided checkout | ✅ | ◐ | Portal `ChatWidget` → structured payload |
 | Private sourcing brief `/build` | ✅ | ◐ | Monograms + bespoke; may need push/deploy |
 | Order tracking `HN-ORD-*?token=` | ✅ | ◐ | Needs `PUBLIC_HAZINA_PORTAL_URL` |
-| Ghost Ops `!dispatch` / `!delivered` | ✅ | ⬜ | `ADMIN_WA_NUMBERS` still needs production value + live ops phone smoke |
+| Ghost Ops `!dispatch` / `!delivered` | ✅ | ⬜ | `ADMIN_WA_NUMBERS` on API |
 | RAG / menu_photos | ✅ | 🟢 | Shared API has pgvector + KB rows; dedicated Hazina DB now has pgvector + Hazina KB after 2026-06-01 repair |
 | Courier integration | ⬜ | ⬜ | Manual ops only |
 | Partner payouts | ⬜ | ⬜ | Dashboard placeholder |
@@ -40,7 +40,7 @@
 | API | `https://api.lesnarai.co.ke` |
 | Health | `/healthz` `/readyz` `/health/deep` `/version` |
 | Gen-Eat portal | `https://geneat.lesnarai.co.ke` · `gen-eat-portal/` |
-| Hazina portal | `https://hazina.lesnarai.co.ke`; Vercel fallback `https://hazina-portal.vercel.app`; `hazina-portal/`; dev `make dev-hazina` → `:3004` |
+| Hazina portal | `https://hazina.lesnarai.co.ke` · `hazina-portal/` · dev `make dev-hazina` → `:3004` |
 | Hazina tracking | `{PUBLIC_HAZINA_PORTAL_URL}/orders/HN-ORD-{id8}?token={secret}` |
 | Public order API | `GET /api/public/orders/{ref}?token=` |
 | Git | `github.com/lesnargitonga/geneat` · branch `main` → Render |
@@ -221,6 +221,7 @@ Same WA number as Hazina only if routing is confirmed — do not mix demos blind
 3. `ADMIN_WA_NUMBERS` · ops trained on Ghost Ops  
 4. Prod seed · real collection/coastal images or label provisional  
 5. **Observability (mandatory on API service):** `SENTRY_DSN` · `sentry_traces_sample_rate=0.2` · log drain to your aggregator (Render → Axiom/Datadog/etc.)
+* `omni_ai_input_truncated_total` (Counter): Tracks how frequently inbound user messages exceed the `2000` character limit and are truncated before LLM inference. High spikes indicate potential prompt-stuffing attacks or bot spam.
 
 ### P1 (month one)
 
@@ -239,50 +240,10 @@ make preview-hazina   # prod build — CSS QA
 make test-hazina
 make doctor-hazina-live   # safe no-money Hazina check against api.lesnarai.co.ke
 make doctor-hazina-api    # same check against hazina-api.onrender.com
-make smoke-hazina-war-room # public portal/API/chat/load battery, no real payment trigger
 PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py
 ```
 
-**Deploy:** `alembic upgrade head` → seed → `make test-hazina` → portal build → push → check `/version` → `make doctor-hazina-live` → portal deploy → DNS record → smoke order + brief + tracking + `!dispatch`.
-
-**Current cutover status (2026-06-02):**
-
-- `origin/main` includes `57c1157`; `api.lesnarai.co.ke/version` reports
-  `57c1157` on service `geneat-2`.
-- `hazina-api.onrender.com` is live on the same commit, but remains secondary
-  because its cross-region DB/Redis latency is worse than the shared API.
-- Vercel `hazina-portal` production deploy succeeded and serves
-  `https://hazina.lesnarai.co.ke`.
-- Cloudflare DNS is live: `hazina.lesnarai.co.ke A 76.76.21.21`.
-- Vercel TLS certificate for `hazina.lesnarai.co.ke` verifies.
-- Partner QR pilot target:
-  `https://hazina.lesnarai.co.ke/?ref=REF-HOST-001`.
-- Measured from this workspace after DNS/cert: homepage about 0.23s, warm
-  collections about 0.23s, portal `/api/health` about 0.42-0.47s, and shared
-  API `/readyz` about 0.51-0.57s.
-- Vercel server env includes `ADMIN_API_TOKEN` synced from the live API so
-  `/api/chat` can proxy to production `/mock/message`.
-- `make doctor-hazina-live` now requires that token; the script reads
-  `HAZINA_DOCTOR_ADMIN_TOKEN`, `ADMIN_API_TOKEN`, or local `.env`.
-- `scripts/hazina_war_room_smoke.py` is the high-pressure public-domain
-  launch battery. It checks DNS, TLS, pages, key images, `/api/health`,
-  backend `/version`/`/readyz`/`/health/deep`, Hazina chat scenarios,
-  no-money stateful checkout, leakage into Lily Pond/café behavior, and
-  moderate page/chat burst latency.
-- 2026-06-02 pre-fix war-room baseline against `hazina.lesnarai.co.ke`:
-  `161/164` passed; pages p95 about `423ms`, assets p95 about `154ms`,
-  stateful checkout p95 about `402ms`, burst chat p95 about `17.4s`.
-  The main defect found was a café-style prompt (`Do you sell croissants?`)
-  falling through to slow generic fallback under burst load.
-- 2026-06-02 post-fix war-room run on API commit `977f51a`: `166/166`
-  passed. Pages p95 about `423ms`, assets p95 about `333ms`, backend p95
-  about `797ms`, stateful checkout p95 about `394ms`, chat scenarios p95
-  about `2.0s`, burst chat p95 about `1.8s`.
-- Current code has deterministic Hazina logistics replies for DHL/export and
-  JKIA handoff, a deterministic café-boundary reply for croissant/flat
-  white/espresso-style café questions, and checkout-context photo replies so
-  "Can I see a picture first?" returns the active collection photo without
-  moving checkout toward payment.
+**Deploy:** `alembic upgrade head` → seed → `make test-hazina` → portal build → push → check `/version` → `make doctor-hazina-live` → secrets below → smoke order + brief + tracking + `!dispatch`.
 
 ### Env (minimum)
 

@@ -86,6 +86,7 @@ log = get_logger("channel")
 # a minute for a fallback.
 AI_TURN_TIMEOUT_SECONDS = 30.0
 AI_TURN_RETRY_TIMEOUT_SECONDS = 10.0
+MAX_AI_INPUT_CHARS = 2000
 PAYMENT_AUTO_RESEND_AFTER_SECONDS = 90.0
 _DEGRADED_FALLBACK_MARKERS = (
     "pulling our team",
@@ -357,6 +358,16 @@ def _ai_timeout_seconds(attr: str, default: float) -> float:
     except Exception:
         return default
     return max(1.0, value)
+
+
+def _bounded_ai_input(text: str, *, max_chars: int = MAX_AI_INPUT_CHARS) -> str:
+    """Cap LLM/RAG input size to protect latency and token costs."""
+    body = (text or "").strip()
+    if len(body) <= max_chars:
+        return body
+    trimmed = body[:max_chars]
+    # Keep a clean suffix so responses don't quote a broken trailing token.
+    return trimmed.rsplit(" ", 1)[0].strip() + " ..."
 
 
 def _customer_prefers_swahili(language: str | None) -> bool:
@@ -1788,8 +1799,6 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     conversation_id=conv.id,
                     escalated=hazina_result.escalated,
                     interactive=hazina_result.interactive,
-                    image_url=hazina_result.image_url,
-                    photo_item=hazina_result.photo_item,
                 )
 
         if (
@@ -2076,13 +2085,25 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
 
         turn_timeout = _ai_timeout_seconds("ai_turn_timeout_seconds", AI_TURN_TIMEOUT_SECONDS)
         turn_retry_timeout = _ai_timeout_seconds("ai_turn_retry_timeout_seconds", AI_TURN_RETRY_TIMEOUT_SECONDS)
+        ai_user_text = _bounded_ai_input(turn.text)
+        if len((turn.text or "").strip()) > len(ai_user_text):
+            log.info(
+                "ai_input_truncated",
+                original_chars=len((turn.text or "").strip()),
+                bounded_chars=len(ai_user_text),
+            )
+            try:
+                from app.api.metrics import record_ai_input_truncated
+                record_ai_input_truncated()
+            except Exception:
+                pass
 
         async def _run_ai_once(timeout_seconds: float = turn_timeout) -> dict:
             return await asyncio.wait_for(
                 run_turn(
                     db,
                     msisdn=msisdn,
-                    user_text=turn.text,
+                    user_text=ai_user_text,
                     channel=turn.channel.value,
                     conversation_id=conv.id,
                     customer_id=customer.id,
@@ -2160,7 +2181,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 ):
                     try:
                         from app.ai.rag import keyword_search
-                        hits = await keyword_search(db, turn.text, business_id=business_id, k=3)
+                        hits = await keyword_search(db, ai_user_text, business_id=business_id, k=3)
                         if hits:
                             for hit in hits:
                                 snippet = _customer_safe_kb_snippet(hit.content)
