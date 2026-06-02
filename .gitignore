@@ -21,6 +21,9 @@ logs/
 *.log
 seed_output.log
 lily_pond_training_*.jsonl
+training/hazina/out/*.jsonl
+training/hazina/out/lora-hazina/
+training/hazina/out/**/merged-16bit/
 
 # Frontend build/deps
 node_modules/

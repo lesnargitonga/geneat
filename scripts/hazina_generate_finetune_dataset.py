@@ -1,0 +1,383 @@
+#!/usr/bin/env python3
+"""Generate Hazina Nomads instruction-tuning JSONL from catalog + golden examples.
+
+Output: ShareGPT-style ``messages`` rows for Unsloth / Axolotl / TRL.
+
+Usage:
+  python scripts/hazina_generate_finetune_dataset.py
+  python scripts/hazina_generate_finetune_dataset.py --target-count 1000 --out training/hazina/out
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import random
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from app.ai.playbooks.gift_concierge import GIFT_CONCIERGE_PLAYBOOK  # noqa: E402
+from app.catalog.hazina_catalog import (  # noqa: E402
+    HAZINA_COLLECTIONS,
+    HAZINA_TREASURES,
+    MIN_CUSTOM_ITEMS,
+    PACKAGING_FEE_USD,
+)
+BRAND_VOICE = (
+    "Professional, calm, high-end hotel concierge. You curate premium Kenyan gift "
+    "boxes for travellers — never a discount souvenir shop. Keep replies concise "
+    "(1–3 sentences), use the guest's name when known, and never use slang or "
+    "campus-café tone. Confirm delivery location (hotel name and room, JKIA "
+    "terminal, or international address for DHL/export quote) and timing before "
+    "promising dispatch."
+)
+
+TRAINING_DIR = ROOT / "training" / "hazina"
+DEFAULT_OUT = TRAINING_DIR / "out"
+GOLDEN_PATH = TRAINING_DIR / "golden.jsonl"
+SYSTEM_PATH = TRAINING_DIR / "system_prompt.txt"
+
+OFF_TOPIC_USER = [
+    "Write me a haiku about elephants.",
+    "What's the weather in Mombasa tomorrow?",
+    "Help me debug my Python FastAPI app.",
+    "Tell me a joke about coffee.",
+    "Who won the Premier League last season?",
+    "Book me a safari at Maasai Mara for $50.",
+    "Translate this email to French for me.",
+    "What's the capital of Tanzania?",
+]
+
+CAFE_CONFUSION_USER = [
+    "I'll have a flat white and a croissant.",
+    "Do you have oat milk for lattes?",
+    "Table for two on the terrace please.",
+    "Is the kitchen still open for brunch?",
+]
+
+CORPORATE_USER = [
+    "We need 200 gift boxes for a bank AGM — can you do 30% off?",
+    "Corporate retreat for 80 guests — negotiate bulk pricing.",
+    "Invoice our company in USD with NET-30 terms?",
+    "Can procurement get a wholesale rate sheet?",
+]
+
+IMPOSSIBLE_TIMELINE_USER = [
+    "Custom engraved leather by 6am tomorrow.",
+    "I need 50 bespoke necklaces delivered tonight.",
+    "Can you source a one-of-a-kind carving in two hours?",
+]
+
+HALLUCINATION_BAIT = [
+    "Do you have Apple AirPods in stock?",
+    "Sell me a Samsung TV for my hotel room.",
+    "I want Nike running shoes size 44.",
+    "Do you carry Swiss watches?",
+]
+
+
+def _load_system_base() -> str:
+    if SYSTEM_PATH.is_file():
+        return SYSTEM_PATH.read_text(encoding="utf-8").strip()
+    return (
+        f"{BRAND_VOICE}\n\n"
+        f"{GIFT_CONCIERGE_PLAYBOOK[:800]}"
+    )
+
+
+def _example(*, system: str, user: str, assistant: str) -> dict:
+    return {
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+            {"role": "assistant", "content": assistant},
+        ]
+    }
+
+
+def _catalog_context(*rows: dict) -> str:
+    parts = []
+    for row in rows:
+        name = row["name"]
+        usd = row["price_usd"]
+        kes = int(row["price_kes"])
+        lead = row.get("lead_time_hours", 24)
+        parts.append(f"{name} (USD {usd} / KES {kes:,}; lead {lead}h)")
+    return "[Catalog context: " + "; ".join(parts) + "]"
+
+
+def _gen_persona(system_base: str) -> list[dict]:
+    out: list[dict] = []
+    for user in OFF_TOPIC_USER:
+        out.append(
+            _example(
+                system=system_base,
+                user=user,
+                assistant=(
+                    "I focus exclusively on Hazina Nomads private sourcing and luxury gifting. "
+                    "May I help you select a curated collection, open a custom brief, or arrange delivery?"
+                ),
+            )
+        )
+    for user in CAFE_CONFUSION_USER:
+        out.append(
+            _example(
+                system=system_base,
+                user=user,
+                assistant=(
+                    "We are a premium gift concierge — not a café. I can guide you through our "
+                    "signature collections, a custom treasure box, or hotel/JKIA/DHL delivery."
+                ),
+            )
+        )
+    return out
+
+
+def _gen_catalog(system_base: str) -> list[dict]:
+    out: list[dict] = []
+    for col in HAZINA_COLLECTIONS:
+        ctx = _catalog_context(col)
+        sys = f"{system_base}\n\n{ctx}"
+        name = col["name"]
+        usd, kes = col["price_usd"], int(col["price_kes"])
+        lead = col["lead_time_hours"]
+        contents = (col.get("contents") or "")[:120]
+        out.append(
+            _example(
+                system=sys,
+                user=f"Tell me about {name}.",
+                assistant=(
+                    f"*{name}* is USD {usd} / KES {kes:,} with a {lead}-hour lead time. "
+                    f"It includes {contents}. Where should we deliver — hotel, JKIA, or export?"
+                ),
+            )
+        )
+        out.append(
+            _example(
+                system=sys,
+                user=f"Is {name} available for a safari lodge in Karen tomorrow?",
+                assistant=(
+                    f"*{name}* is in our ready-to-ship catalog at USD {usd} / KES {kes:,} "
+                    f"(typical lead {lead}h). Share lodge name, room, and preferred window — "
+                    f"I will confirm dispatch before payment."
+                ),
+            )
+        )
+        if col.get("jkia_only"):
+            out.append(
+                _example(
+                    system=sys,
+                    user="I'm at the airport — will this work?",
+                    assistant=(
+                        f"*{name}* is reserved for JKIA handoffs with approximately {lead}-hour "
+                        f"dispatch (USD {usd} / KES {kes:,}). Send terminal and departure time to confirm."
+                    ),
+                )
+            )
+    for treasure in random.sample(HAZINA_TREASURES, min(20, len(HAZINA_TREASURES))):
+        ctx = _catalog_context(treasure)
+        sys = f"{system_base}\n\n{ctx}"
+        out.append(
+            _example(
+                system=sys,
+                user=f"Do you have {treasure['name']}?",
+                assistant=(
+                    f"Yes — {treasure['name']} is USD {treasure['price_usd']} / "
+                    f"KES {int(treasure['price_kes']):,} in our treasure catalog "
+                    f"({treasure.get('lead_time_hours', 24)}h lead). "
+                    f"It can anchor a custom box (minimum {MIN_CUSTOM_ITEMS} treasures) or complement a collection."
+                ),
+            )
+        )
+    return out
+
+
+def _gen_strictness(system_base: str) -> list[dict]:
+    out: list[dict] = []
+    highland = next(c for c in HAZINA_COLLECTIONS if c["id"] == "highland-treasure")
+    ctx = _catalog_context(highland)
+    sys = f"{system_base}\n\n{ctx}"
+    for user in IMPOSSIBLE_TIMELINE_USER:
+        out.append(
+            _example(
+                system=sys,
+                user=user,
+                assistant=(
+                    f"Our ready-to-ship line includes *{highland['name']}* at USD {highland['price_usd']} / "
+                    f"KES {int(highland['price_kes']):,}. Bespoke commissions require a custom brief — "
+                    f"standard field lead time is seven days, not same-day. Shall I open the brief?"
+                ),
+            )
+        )
+    for user in HALLUCINATION_BAIT:
+        ctx2 = _catalog_context(highland)
+        out.append(
+            _example(
+                system=f"{system_base}\n\n{ctx2}",
+                user=user,
+                assistant=(
+                    "That item is outside our Kenyan sourcing portfolio. "
+                    f"I can recommend *{highland['name']}* or submit a custom sourcing request — "
+                    "what occasion and delivery point should I note?"
+                ),
+            )
+        )
+    multi = _catalog_context(*HAZINA_COLLECTIONS[:3])
+    out.append(
+        _example(
+            system=f"{system_base}\n\n{multi}",
+            user="What collections do you have and which is best for a honeymoon?",
+            assistant=(
+                "From today's catalog: "
+                + ", ".join(
+                    f"*{c['name']}* (USD {c['price_usd']})" for c in HAZINA_COLLECTIONS[:3]
+                )
+                + ". For honeymoons our team often suggests *The Safari Romance Box* when it appears in your catalog search — shall I confirm it is available for your dates?"
+            ),
+        )
+    )
+    return out
+
+
+def _gen_escalation(system_base: str) -> list[dict]:
+    out: list[dict] = []
+    for user in CORPORATE_USER:
+        out.append(
+            _example(
+                system=system_base,
+                user=user,
+                assistant=(
+                    "Corporate and volume pricing is managed by our senior concierge desk. "
+                    "I have flagged your request — a specialist will contact you on this thread shortly."
+                ),
+            )
+        )
+    return out
+
+
+def _gen_logistics(system_base: str) -> list[dict]:
+    templates = [
+        (
+            "Deliver to Four Seasons room 512 tonight.",
+            "Noted — hotel delivery to Four Seasons, room 512. Which collection or custom brief should I attach, and what is your latest acceptable handoff time?",
+        ),
+        (
+            "I'm departing JKIA Terminal 1A at 22:40 — what fits?",
+            "For terminal handoffs share gate/ meeting point — *The Departure Drop* is built for short JKIA windows when it is in your catalog. I will confirm stock before STK or card checkout.",
+        ),
+        (
+            "Need DHL to Munich Germany — how do you quote?",
+            "Export moves on an insured DHL quote before payment. Send full address, desired delivery date, and your chosen collection — we return shipping separately from the box total.",
+        ),
+    ]
+    return [
+        _example(system=system_base, user=u, assistant=a) for u, a in templates
+    ]
+
+
+def _gen_custom_box(system_base: str) -> list[dict]:
+    return [
+        _example(
+            system=system_base,
+            user="I want to pick my own items — how does that work?",
+            assistant=(
+                f"Compose a custom box from at least {MIN_CUSTOM_ITEMS} individual treasures; "
+                f"optional premium packaging is USD {PACKAGING_FEE_USD}. "
+                "Use our build brief or list the pieces here and I will confirm totals and lead time."
+            ),
+        ),
+        _example(
+            system=system_base,
+            user="Can I add monogram on two items?",
+            assistant=(
+                "Engraving is available on eligible leather and select pieces — "
+                "typically twenty-four hours' notice per line. List the SKUs and initials and I will confirm feasibility."
+            ),
+        ),
+    ]
+
+
+def _load_golden() -> list[dict]:
+    if not GOLDEN_PATH.is_file():
+        return []
+    rows: list[dict] = []
+    for line in GOLDEN_PATH.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line:
+            rows.append(json.loads(line))
+    return rows
+
+
+def generate_dataset(*, target_count: int, seed: int) -> list[dict]:
+    random.seed(seed)
+    system_base = _load_system_base()
+    rows: list[dict] = []
+    rows.extend(_load_golden())
+    rows.extend(_gen_persona(system_base))
+    rows.extend(_gen_catalog(system_base))
+    rows.extend(_gen_strictness(system_base))
+    rows.extend(_gen_escalation(system_base))
+    rows.extend(_gen_logistics(system_base))
+    rows.extend(_gen_custom_box(system_base))
+
+    # Paraphrase pool expansion until target_count.
+    paraphrase_openers = ["Hi", "Hello", "Quick question", "Please advise", "Good evening"]
+    while len(rows) < target_count:
+        base = random.choice(rows[len(_load_golden()) :])
+        msgs = base["messages"]
+        user = msgs[1]["content"]
+        opener = random.choice(paraphrase_openers)
+        variant = _example(
+            system=msgs[0]["content"],
+            user=f"{opener} — {user[0].lower()}{user[1:]}" if user else user,
+            assistant=msgs[2]["content"],
+        )
+        rows.append(variant)
+
+    random.shuffle(rows)
+    return rows[:target_count]
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Generate Hazina fine-tune JSONL")
+    parser.add_argument("--target-count", type=int, default=800)
+    parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--val-ratio", type=float, default=0.05)
+    args = parser.parse_args()
+
+    args.out.mkdir(parents=True, exist_ok=True)
+    rows = generate_dataset(target_count=args.target_count, seed=args.seed)
+    n_val = max(1, int(len(rows) * args.val_ratio))
+    val_rows = rows[:n_val]
+    train_rows = rows[n_val:]
+
+    train_path = args.out / "train.jsonl"
+    val_path = args.out / "val.jsonl"
+    all_path = args.out / "all.jsonl"
+
+    for path, part in ((train_path, train_rows), (val_path, val_rows), (all_path, rows)):
+        with path.open("w", encoding="utf-8") as f:
+            for row in part:
+                f.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+    meta = {
+        "train_count": len(train_rows),
+        "val_count": len(val_rows),
+        "golden_count": len(_load_golden()),
+        "system_prompt": str(SYSTEM_PATH),
+        "base_model_ollama": "llama3.1",
+        "hf_base_suggested": "meta-llama/Meta-Llama-3.1-8B-Instruct",
+    }
+    (args.out / "dataset_meta.json").write_text(
+        json.dumps(meta, indent=2), encoding="utf-8",
+    )
+    print(f"Wrote {len(train_rows)} train + {len(val_rows)} val rows → {args.out}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

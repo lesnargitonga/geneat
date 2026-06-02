@@ -159,6 +159,8 @@ class Settings(BaseSettings):
     use_local_llm: bool = False
     local_llm_base_url: str = "http://localhost:11434/v1"   # Ollama
     local_llm_model: str = "llama3"
+    # When set, Hazina Nomads open-ended turns prefer this Ollama/vLLM model name.
+    hazina_llm_model: str = ""
     use_local_stt: bool = False                              # faster-whisper
     use_local_tts: bool = False                              # Kokoro / XTTS
 
