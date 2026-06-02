@@ -2,7 +2,7 @@
 
 **Scope:** Gen-Eat platform + Hazina Nomads + shared API (`api.lesnarai.co.ke`).  
 **Maintain:** edit this file first when product, routing, catalog, deploy, or gaps change. Code wins if docs drift.  
-**Verified:** 2026-06-02 · `git log -1 --oneline` · `git status -sb`  
+**Verified:** 2026-06-02 · `124d257` · `git status -sb`  
 **Security:** [SECURITY.md](../SECURITY.md)
 
 **Legend:** ✅ shipped in code · 🟢 verified live · ⬜ not done · ◐ partial
@@ -27,6 +27,10 @@
 | Ghost Ops `!dispatch` / `!delivered` | ✅ | ⬜ | `ADMIN_WA_NUMBERS` on API |
 | RAG / menu_photos | ✅ | 🟢 | Shared API has pgvector + KB rows; dedicated Hazina DB now has pgvector + Hazina KB after 2026-06-01 repair |
 | Resilience contracts (Sections 1-4) | ✅ | 🟢 | Routing, payload boundary, AI timeout/input budget, and user-facing error sanitization are enforced by pytest suites + pre-commit |
+| State-aware greeter (Redis + order) | ✅ | ⬜ | `state_aware_greeter` before LLM on Hazina `Hi` / payment·ETA follow-ups |
+| Catalog `search_catalog` straitjacket | ✅ | ⬜ | Hazina-only tool + `gift_concierge` playbook |
+| Proactive fulfillment WA (Ghost Ops) | ✅ | ⬜ | `fulfillment_notifications` on `ready_for_dispatch` / `out_for_delivery` |
+| Desk escalation + admin WA alert | ✅ | ⬜ | `hazina_escalation` · corporate + failed-turn threshold |
 | Courier integration | ⬜ | ⬜ | Manual ops only |
 | Partner payouts | ⬜ | ⬜ | Dashboard placeholder |
 | DHL live rates | ⬜ | ⬜ | Stub in `app/ai/tools.py` |
@@ -175,7 +179,7 @@ Order: `order.details.payment_currency`, `amount_usd`, `items`, `fulfillment_sta
 
 **Brief intro line:** `Hello Hazina Nomads — private sourcing brief:`
 
-**WA channel order:** `ops_automation` → `gift_automation` → payment resend → LLM.
+**WA channel order:** `ops_automation` → `gift_automation` (state-aware greeter → catalog/corporate) → payment resend → LLM (`search_catalog` when recommending SKUs).
 
 Brand copy, full SKU table, launch playbook: [HAZINA_NOMADS.md](HAZINA_NOMADS.md).
 
