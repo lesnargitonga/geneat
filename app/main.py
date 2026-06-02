@@ -7,7 +7,9 @@ from hashlib import sha256
 
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+import sentry_sdk
+import structlog
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -247,6 +249,25 @@ async def app_error_handler(_: Request, exc: AppError):
 @app.exception_handler(RateLimitExceeded)
 async def rate_limit_handler(_: Request, exc: RateLimitExceeded):
     return JSONResponse(status_code=429, content={"error": "rate_limited", "message": str(exc)})
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    """Last-resort catcher — Sentry + structured log; never leak internals to clients."""
+    if isinstance(exc, HTTPException):
+        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+    sentry_sdk.capture_exception(exc)
+    structlog.get_logger("app").error(
+        "unhandled_api_exception",
+        error=str(exc),
+        path=request.url.path,
+    )
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": "An internal error occurred. Our engineering team has been notified.",
+        },
+    )
 
 
 app.include_router(health_router)

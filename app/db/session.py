@@ -11,10 +11,12 @@ settings = get_settings()
 
 _engine_kwargs: dict = {"echo": False}
 if not settings.database_url.startswith("sqlite"):
+    # Defensive pooling for cloud Postgres (network drops, idle timeouts).
     _engine_kwargs.update(
-        pool_size=settings.db_pool_size,
-        max_overflow=settings.db_max_overflow,
-        pool_pre_ping=settings.db_pool_pre_ping,
+        pool_pre_ping=True,
+        pool_recycle=300,
+        pool_size=5,
+        max_overflow=10,
     )
 
 engine = create_async_engine(settings.database_url, **_engine_kwargs)

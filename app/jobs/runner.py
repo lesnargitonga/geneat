@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Awaitable, Callable
 
+import sentry_sdk
 from sqlalchemy import and_, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -173,6 +174,7 @@ async def _mark_done(job_id: uuid.UUID) -> None:
 
 
 async def _mark_failed_or_retry(job: JobSnapshot, error: Exception) -> None:
+    sentry_sdk.capture_exception(error)
     now = datetime.now(timezone.utc)
     delay = min(300, 2 ** max(0, job.attempts - 1) * 15)
     async with SessionLocal() as db:
@@ -210,7 +212,14 @@ async def _run_one(job: JobSnapshot) -> None:
     try:
         await handler(job)
     except Exception as e:  # noqa: BLE001
-        log.exception("job_failed", job_id=str(job.id), kind=job.kind, error=str(e))
+        sentry_sdk.capture_exception(e)
+        log.exception(
+            "job_failed",
+            job_id=str(job.id),
+            kind=job.kind,
+            error=str(e),
+            attempts=job.attempts,
+        )
         await _mark_failed_or_retry(job, e)
         return
     await _mark_done(job.id)
@@ -219,7 +228,25 @@ async def _run_one(job: JobSnapshot) -> None:
 async def run_due_jobs_once(*, limit: int = 10) -> int:
     jobs = await _claim_due_jobs(limit)
     for job in jobs:
-        await _run_one(job)
+        try:
+            await _run_one(job)
+        except Exception as e:  # noqa: BLE001 — safety net; _run_one should not raise
+            sentry_sdk.capture_exception(e)
+            log.exception(
+                "job_runner_safety_net",
+                job_id=str(job.id),
+                kind=job.kind,
+                error=str(e),
+            )
+            try:
+                await _mark_failed_or_retry(job, e)
+            except Exception as mark_exc:  # pragma: no cover
+                sentry_sdk.capture_exception(mark_exc)
+                log.exception(
+                    "job_mark_failed_error",
+                    job_id=str(job.id),
+                    error=str(mark_exc),
+                )
     return len(jobs)
 
 
