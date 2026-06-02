@@ -2,7 +2,7 @@
 
 **Scope:** Gen-Eat platform + Hazina Nomads + shared API (`api.lesnarai.co.ke`).  
 **Maintain:** edit this file first when product, routing, catalog, deploy, or gaps change. Code wins if docs drift.  
-**Verified:** 2026-06-01 · `git log -1 --oneline` · `git status -sb`  
+**Verified:** 2026-06-02 · `git log -1 --oneline` · `git status -sb`  
 **Security:** [SECURITY.md](../SECURITY.md)
 
 **Legend:** ✅ shipped in code · 🟢 verified live · ⬜ not done · ◐ partial
@@ -26,6 +26,7 @@
 | Order tracking `HN-ORD-*?token=` | ✅ | ◐ | Needs `PUBLIC_HAZINA_PORTAL_URL` |
 | Ghost Ops `!dispatch` / `!delivered` | ✅ | ⬜ | `ADMIN_WA_NUMBERS` on API |
 | RAG / menu_photos | ✅ | 🟢 | Shared API has pgvector + KB rows; dedicated Hazina DB now has pgvector + Hazina KB after 2026-06-01 repair |
+| Resilience contracts (Sections 1-4) | ✅ | 🟢 | Routing, payload boundary, AI timeout/input budget, and user-facing error sanitization are enforced by pytest suites + pre-commit |
 | Courier integration | ⬜ | ⬜ | Manual ops only |
 | Partner payouts | ⬜ | ⬜ | Dashboard placeholder |
 | DHL live rates | ⬜ | ⬜ | Stub in `app/ai/tools.py` |
@@ -70,6 +71,13 @@ checks before it becomes the public API target.
 in Oregon or otherwise co-located with its DB/Redis. `hazina-api` is functional
 after migration, but cross-region DB/Redis latency makes it unsuitable as the
 primary public endpoint.
+
+**Resilience armor in code (current):**
+- Meta webhook ACK is decoupled via durable `whatsapp.inbound` jobs.
+- AI turn execution is bounded with `asyncio.wait_for` and one retry window.
+- Inbound AI text is truncated to `2000` chars before inference (`_bounded_ai_input`).
+- User-facing 500 responses are sanitized by global exception handler (no traceback leakage).
+- Public order tracking requires tokenized access (`/api/public/orders/{ref}?token=...`).
 
 ---
 
@@ -267,7 +275,7 @@ Full: `.env.example` · [README.md §19](../README.md).
 
 ### Tests
 
-`test_gift_automation` · `test_order_tracking` · `test_ops_automation` · `test_payment_routing` · `test_channel_fallbacks`
+`test_routing_contract` · `test_payload_contract` · `test_resilience_contract` · `test_resiliency_user_facing` · `test_gift_automation` · `test_order_tracking` · `test_ops_automation` · `test_payment_routing` · `test_channel_fallbacks`
 
 ---
 
