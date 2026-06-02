@@ -123,6 +123,8 @@ services:
         sync: false
       - key: SENTRY_DSN
         sync: false
+      - key: SENTRY_TRACES_SAMPLE_RATE
+        value: "0.2"
 
   - name: hazina-redis
     type: keyvalue
@@ -153,6 +155,8 @@ services:
       - key: NEXT_PUBLIC_HAZINA_WHATSAPP
         sync: false
       - key: NEXT_PUBLIC_HAZINA_PHONE
+        sync: false
+      - key: ADMIN_API_TOKEN
         sync: false
 
 databases:

@@ -13,7 +13,7 @@ handing the text to the AI brain. The reply is sent back as a WA text message.
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from fastapi.responses import PlainTextResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,8 +21,9 @@ from app.api.deps import db_session
 from app.channels.base import InboundTurn, handle_inbound
 from app.core.config import get_settings
 from app.core.logging import get_logger
-from app.core.rate_limit import limiter
-from app.core.security import verify_meta_signature
+from app.core.rate_limit import limiter, try_consume
+from app.core.security import hash_msisdn, verify_meta_signature
+from app.jobs.runner import enqueue_job
 from app.db.models import Channel
 from app.integrations import transcription, whatsapp_client
 
@@ -47,10 +48,9 @@ async def verify(
 # ── Inbound webhook ──────────────────────────────────────────────────
 
 @router.post("")
-@limiter.limit("600/minute")
+@limiter.limit("120/minute")
 async def inbound(
     request: Request,
-    bg: BackgroundTasks,
     db: AsyncSession = Depends(db_session),
     x_hub_signature_256: Optional[str] = Header(None),
 ):
@@ -61,15 +61,46 @@ async def inbound(
         raise HTTPException(status_code=401, detail="signature invalid")
 
     payload = await request.json()
-    # Hand off the (potentially slow) processing to a background task so we ACK
-    # Meta within the required 5 seconds.
-    bg.add_task(_process_payload, payload)
+    for wa_id in _sender_wa_ids(payload):
+        allowed = await try_consume(
+            f"wa:inbound:{wa_id}",
+            capacity=10,
+            refill_per_sec=8.0 / 60.0,
+        )
+        if not allowed:
+            log.warning(
+                "wa_inbound_edge_rate_limited",
+                sender_hash=hash_msisdn("+" + wa_id)[:16],
+            )
+            return Response(status_code=200)
+
+    await enqueue_job(
+        db,
+        kind="whatsapp.inbound",
+        payload={"payload": payload},
+    )
+    await db.commit()
     return Response(status_code=200)
 
 
-# ── Processing ───────────────────────────────────────────────────────
+def _sender_wa_ids(payload: dict) -> list[str]:
+    """Unique Meta ``from`` ids in an inbound webhook batch."""
+    seen: set[str] = set()
+    out: list[str] = []
+    for entry in payload.get("entry", []):
+        for change in entry.get("changes", []):
+            value = change.get("value") or {}
+            for msg in value.get("messages", []):
+                wa_id = str(msg.get("from") or "").strip()
+                if wa_id and wa_id not in seen:
+                    seen.add(wa_id)
+                    out.append(wa_id)
+    return out
 
-async def _process_payload(payload: dict) -> None:
+
+# ── Processing (durable job + legacy import) ─────────────────────────
+
+async def process_whatsapp_payload(payload: dict) -> None:
     """Walk Meta's nested structure → flatten to one InboundTurn per message."""
     from app.db.session import SessionLocal
     try:

@@ -6,15 +6,37 @@ POST /mock/message  { "phone": "+254...", "text": "...", "language": "sw" }
 from typing import Optional
 import uuid as _uuid
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import db_session
 from app.channels.mock import Channel, InboundTurn, handle_inbound
+from app.core.config import get_settings
 from app.core.rate_limit import limiter
 
 router = APIRouter(prefix="/mock", tags=["mock"])
+
+
+def _enforce_mock_chat_access(request: Request) -> None:
+    """Block unauthenticated mock chat in staging/prod (portal uses ADMIN_API_TOKEN)."""
+    env = get_settings().app_env
+    if env in ("dev", "test"):
+        return
+    token = get_settings().admin_api_token.get_secret_value()
+    if not token:
+        raise HTTPException(
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Mock chat disabled — set ADMIN_API_TOKEN on the API service.",
+        )
+    auth = (request.headers.get("authorization") or "").strip()
+    if not auth.lower().startswith("bearer "):
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED,
+            detail="Mock chat requires Authorization: Bearer <ADMIN_API_TOKEN>.",
+        )
+    if auth[7:].strip() != token:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Invalid mock chat bearer token.")
 
 
 class MockMessageIn(BaseModel):
@@ -57,6 +79,7 @@ async def post_message(
     payload: MockMessageIn,
     db: AsyncSession = Depends(db_session),
 ) -> MockMessageOut:
+    _enforce_mock_chat_access(request)
     turn = InboundTurn(
         msisdn_raw=payload.phone,
         text=payload.text,
@@ -92,9 +115,8 @@ async def post_image(
     payload: MockImageIn,
     db: AsyncSession = Depends(db_session),
 ) -> MockMessageOut:
-    """Simulate a WhatsApp image: download the URL, mirror to R2 (presigned
-    URL → publicly fetchable by Groq), vision-describe, then run the normal
-    turn pipeline. Lets us test the full vision path end-to-end without WA."""
+    """Simulate a WhatsApp image: download the URL, mirror to R2, vision-describe, then run the turn pipeline."""
+    _enforce_mock_chat_access(request)
     import httpx
     from app.services import media as media_svc
 

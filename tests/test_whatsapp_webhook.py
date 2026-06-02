@@ -26,6 +26,11 @@ def client(monkeypatch):
     async def _send(to, text): return {"stub": True, "to": to, "chars": len(text)}
     monkeypatch.setattr("app.integrations.whatsapp_client.send_text", _send)
     monkeypatch.setattr("app.channels.whatsapp.send_text", _send)
+
+    async def _enqueue(db, **kwargs):
+        return type("Job", (), {"id": "test-job"})()
+
+    monkeypatch.setattr("app.api.whatsapp.enqueue_job", _enqueue)
     return TestClient(app)
 
 
@@ -58,6 +63,27 @@ def test_wa_signature_accepted(client):
     r = client.post("/webhooks/whatsapp", content=body,
                     headers={"content-type": "application/json", "x-hub-signature-256": sig})
     assert r.status_code == 200
+
+
+def test_wa_inbound_enqueues_durable_job(client, monkeypatch):
+    captured: dict = {}
+
+    async def _fake_enqueue(db, **kwargs):
+        captured.update(kwargs)
+        return type("Job", (), {"id": "job-1"})()
+
+    monkeypatch.setattr("app.api.whatsapp.enqueue_job", _fake_enqueue)
+    payload = {"entry": []}
+    body = json.dumps(payload).encode()
+    sig = "sha256=" + hmac.new(TEST_META_WA_APP_SECRET.encode(), body, hashlib.sha256).hexdigest()
+    r = client.post(
+        "/webhooks/whatsapp",
+        content=body,
+        headers={"content-type": "application/json", "x-hub-signature-256": sig},
+    )
+    assert r.status_code == 200
+    assert captured.get("kind") == "whatsapp.inbound"
+    assert captured.get("payload") == {"payload": payload}
 
 
 def test_stale_customer_message_detection():

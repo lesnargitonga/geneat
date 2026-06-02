@@ -22,6 +22,18 @@ from app.jobs.runner import JobSnapshot, enqueue_job, job_handler
 log = get_logger("jobs.handlers")
 
 
+@job_handler("whatsapp.inbound")
+async def run_whatsapp_inbound(job: JobSnapshot) -> None:
+    """Process a Meta WhatsApp webhook payload off the HTTP request thread."""
+    body = job.payload.get("payload") if isinstance(job.payload, dict) else None
+    if not isinstance(body, dict):
+        log.warning("wa_inbound_job_bad_payload", job_id=str(job.id))
+        return
+    from app.api.whatsapp import process_whatsapp_payload
+
+    await process_whatsapp_payload(body)
+
+
 async def _publish_broadcast_progress(bc: Broadcast) -> None:
     try:
         await publish(

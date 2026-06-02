@@ -13,10 +13,16 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ detail: "Invalid JSON body" }, { status: 400 });
   }
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const adminToken = process.env.ADMIN_API_TOKEN?.trim();
+  if (adminToken) {
+    headers.Authorization = `Bearer ${adminToken}`;
+  }
+
   try {
     const r = await fetch(`${base}/mock/message`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(50_000),
     });

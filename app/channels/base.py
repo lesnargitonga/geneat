@@ -1363,6 +1363,28 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             log.info("duplicate_webhook_ignored", provider_id=turn.provider_message_id)
             return TurnResult(reply="", conversation_id=uuid.uuid4(), escalated=False, duplicate=True)
 
+    # Per-MSISDN cost control before session lock / tenant resolution / LLM.
+    try:
+        from app.core.rate_limit import try_consume
+
+        msisdn_allowed = await try_consume(
+            f"chat:msisdn:{hash_msisdn(msisdn)[:16]}",
+            capacity=10,
+            refill_per_sec=8.0 / 60.0,
+        )
+    except Exception:
+        msisdn_allowed = True
+    if not msisdn_allowed:
+        log.info("chat_msisdn_rate_limited_early", msisdn_hash=hash_msisdn(msisdn))
+        return TurnResult(
+            reply=(
+                "Whoa, slow down a moment — I'm catching up. "
+                "Please send your message again in a few seconds."
+            ),
+            conversation_id=uuid.uuid4(),
+            escalated=False,
+        )
+
     # Cross-channel interleaving guard: if the caller is mid-voice-call,
     # deflect text messages with a brief acknowledgement rather than
     # racing the same conversation row. The voice session refreshes its
@@ -1465,29 +1487,6 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 reply=(
                     "I'm not able to keep chatting right now. If you "
                     "believe this is a mistake, contact the café directly."
-                ),
-                conversation_id=uuid.uuid4(),
-                escalated=False,
-            )
-
-        # ── Per-MSISDN rate limit (Redis token bucket): protects
-        # against single-actor cost-bleed even when the source IP rotates.
-        # 12 msgs / minute average, burst up to 20.
-        try:
-            from app.core.rate_limit import try_consume
-            allowed = await try_consume(
-                f"chat:msisdn:{hash_msisdn(msisdn)[:16]}",
-                capacity=20, refill_per_sec=12.0 / 60.0,
-            )
-        except Exception:
-            allowed = True  # never block on Redis hiccups
-        if not allowed:
-            log.info("chat_msisdn_rate_limited", msisdn_hash=hash_msisdn(msisdn))
-            await db.commit()
-            return TurnResult(
-                reply=(
-                    "Whoa, slow down a moment — I'm catching up. "
-                    "Please send your message again in a few seconds."
                 ),
                 conversation_id=uuid.uuid4(),
                 escalated=False,
