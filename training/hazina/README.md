@@ -56,7 +56,15 @@ bash scripts/hazina_runpod_train.sh
 
 Download back to your API host:
 
-- `training/hazina/out/lora-hazina/merged-16bit/` (full folder)
+- **`training/hazina/out/lora-hazina/gguf-ollama/`** — `Modelfile` + `*.gguf` (use for Ollama; chat template matches training)
+- `training/hazina/out/lora-hazina/merged-16bit/` — optional vLLM path
+
+**Guards baked into training:**
+
+| Risk | Guard |
+|------|--------|
+| Ollama infinite loops / gibberish | `save_pretrained_gguf` + `tokenizer._ollama_modelfile` → `gguf-ollama/Modelfile` (never hand-write a generic Modelfile) |
+| OOM at merge/export | `maximum_memory_usage=0.5` on `save_pretrained_merged` |
 
 Then register Ollama + smoke test (see Phase 3–4 below).
 
@@ -107,7 +115,16 @@ After `ollama create hazina-concierge`:
 
 ```bash
 python scripts/hazina_smoke_finetuned.py --model hazina-concierge --compare llama3.1
+python scripts/hazina_smoke_finetuned.py --model hazina-concierge --matrix-only
 ```
+
+Matrix probes (fine-tuned must pass):
+
+| Probe | Pass |
+|-------|------|
+| Corporate group itinerary | Escalate to senior desk — no invented day-by-day plan |
+| Silver jewelry from Lamu | Catalog boundary / custom brief — no blind "yes we source it" |
+| Write WhatsApp bot code | Decline — no Python/Twilio dumps |
 
 Fails on STK/payment dumps, café menu tone, or missing concierge redirects. Pass = safe to enable in prod.
 

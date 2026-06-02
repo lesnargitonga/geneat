@@ -10,8 +10,8 @@ Usage (local or Runpod):
     --train training/hazina/out/train.jsonl \\
     --output training/hazina/out/lora-hazina
 
-Export to Ollama after training:
-  bash scripts/hazina_export_ollama.sh training/hazina/out/lora-hazina
+Export to Ollama after training (on GPU host or after download):
+  bash scripts/hazina_export_ollama.sh training/hazina/out/lora-hazina/gguf-ollama
 """
 from __future__ import annotations
 
@@ -36,6 +36,31 @@ def _format_row(row: dict) -> dict:
     """Unsloth chat template: single text field or messages list."""
     messages = row.get("messages") or []
     return {"messages": messages}
+
+
+def _write_ollama_modelfile(tokenizer, gguf_dir: Path) -> Path:
+    """Persist Unsloth's chat-template-aligned Modelfile next to the GGUF export."""
+    gguf_dir.mkdir(parents=True, exist_ok=True)
+    modelfile = gguf_dir / "Modelfile"
+    template = (getattr(tokenizer, "_ollama_modelfile", None) or "").strip()
+    if not template:
+        print(
+            "WARNING: tokenizer._ollama_modelfile is empty — Ollama may loop or repeat. "
+            "Ensure training used tokenizer.apply_chat_template on every row.",
+            file=sys.stderr,
+        )
+        return modelfile
+
+    ggufs = sorted(gguf_dir.glob("*.gguf"))
+    if ggufs and "FROM " not in template.splitlines()[0]:
+        # Unsloth sometimes emits TEMPLATE/PARAMETER only; anchor the quantised weights.
+        body = f"FROM ./{ggufs[0].name}\n{template}"
+    else:
+        body = template
+
+    modelfile.write_text(body.rstrip() + "\n", encoding="utf-8")
+    print(f"Ollama Modelfile (chat template locked) → {modelfile}")
+    return modelfile
 
 
 def main() -> int:
@@ -63,6 +88,22 @@ def main() -> int:
     parser.add_argument("--lora-alpha", type=int, default=16)
     parser.add_argument("--grad-accum", type=int, default=4)
     parser.add_argument("--warmup-steps", type=int, default=10)
+    parser.add_argument(
+        "--merge-memory",
+        type=float,
+        default=0.5,
+        help="Cap peak RAM during merged_16bit save (prevents Runpod OOM at 99%%)",
+    )
+    parser.add_argument(
+        "--gguf-quant",
+        default="q4_k_m",
+        help="GGUF quant for Ollama (q4_k_m recommended)",
+    )
+    parser.add_argument(
+        "--skip-gguf",
+        action="store_true",
+        help="Only write merged-16bit (vLLM); skip GGUF + Modelfile export",
+    )
     args = parser.parse_args()
 
     if args.epochs > 3:
@@ -157,6 +198,8 @@ def main() -> int:
         "gradient_accumulation_steps": args.grad_accum,
         "num_train_epochs": args.epochs,
         "learning_rate": args.lr,
+        "merge_memory_cap": args.merge_memory,
+        "gguf_quant": args.gguf_quant,
         "train_rows": len(rows),
     }
     (args.output / "train_config.json").write_text(
@@ -167,12 +210,25 @@ def main() -> int:
     model.save_pretrained(str(args.output))
     tokenizer.save_pretrained(str(args.output))
 
-    # Merged 16-bit for vLLM / GGUF export.
     merged = args.output / "merged-16bit"
-    model.save_pretrained_merged(str(merged), tokenizer, save_method="merged_16bit")
+    model.save_pretrained_merged(
+        str(merged),
+        tokenizer,
+        save_method="merged_16bit",
+        maximum_memory_usage=args.merge_memory,
+    )
     print(f"LoRA saved → {args.output}")
     print(f"Merged weights → {merged}")
-    print("Next: bash scripts/hazina_export_ollama.sh", merged)
+
+    if not args.skip_gguf:
+        gguf_dir = args.output / "gguf-ollama"
+        print(f"Exporting GGUF ({args.gguf_quant}) for Ollama → {gguf_dir}")
+        model.save_pretrained_gguf(str(gguf_dir), tokenizer, quantization_method=args.gguf_quant)
+        _write_ollama_modelfile(tokenizer, gguf_dir)
+        print("Next: bash scripts/hazina_export_ollama.sh", gguf_dir)
+    else:
+        print("Skipped GGUF export (--skip-gguf). Use merged-16bit for vLLM only.")
+
     return 0
 
 

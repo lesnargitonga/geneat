@@ -1,26 +1,49 @@
 #!/usr/bin/env bash
-# Merge LoRA into GGUF and register a local Ollama model for Hazina open-ended turns.
+# Register Hazina fine-tune in Ollama using Unsloth's training-time Modelfile (chat template locked).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-MERGED="${1:-$ROOT/training/hazina/out/lora-hazina/merged-16bit}"
+INPUT="${1:-$ROOT/training/hazina/out/lora-hazina/gguf-ollama}"
 MODEL_NAME="${HAZINA_OLLAMA_MODEL:-hazina-concierge}"
 
-if [[ ! -d "$MERGED" ]]; then
-  echo "Missing merged weights at $MERGED — run hazina_finetune_unsloth.py first." >&2
+# Accept gguf-ollama dir or legacy merged-16bit parent.
+if [[ -d "$INPUT/gguf-ollama" ]]; then
+  GGUF_DIR="$INPUT/gguf-ollama"
+elif [[ -f "$INPUT/Modelfile" ]] || ls "$INPUT"/*.gguf >/dev/null 2>&1; then
+  GGUF_DIR="$INPUT"
+else
+  GGUF_DIR="$ROOT/training/hazina/out/lora-hazina/gguf-ollama"
+fi
+
+if [[ ! -d "$GGUF_DIR" ]]; then
+  echo "Missing $GGUF_DIR — run hazina_finetune_unsloth.py on a GPU host first." >&2
+  echo "Training writes GGUF + Modelfile to training/hazina/out/lora-hazina/gguf-ollama/" >&2
   exit 1
 fi
 
-# Requires llama.cpp convert script or unsloth GGUF export on the training machine.
-# Minimal path: point Ollama Modelfile at HF merged folder if ollama supports it.
-MODEFILE="$ROOT/training/hazina/Modelfile"
-cat > "$MODEFILE" <<EOF
-FROM $MERGED
-PARAMETER temperature 0.15
-PARAMETER num_predict 512
-SYSTEM $(tr '\n' ' ' < "$ROOT/training/hazina/system_prompt.txt")
-EOF
+MODEFILE="$GGUF_DIR/Modelfile"
+if [[ ! -f "$MODEFILE" ]]; then
+  echo "No Modelfile in $GGUF_DIR." >&2
+  echo "Re-run training export (do NOT hand-write a generic Modelfile — chat template must match)." >&2
+  exit 1
+fi
 
-ollama create "$MODEL_NAME" -f "$MODEFILE"
+if ! ls "$GGUF_DIR"/*.gguf >/dev/null 2>&1; then
+  echo "No .gguf weights in $GGUF_DIR — re-run hazina_finetune_unsloth.py export." >&2
+  exit 1
+fi
+
+echo "Using Unsloth Modelfile (TEMPLATE + stop tokens from training):"
+head -n 20 "$MODEFILE"
+echo "…"
+
+cd "$GGUF_DIR"
+ollama create "$MODEL_NAME" -f Modelfile
+echo ""
 echo "Created Ollama model: $MODEL_NAME"
-echo "Set in .env: LOCAL_LLM_MODEL=$MODEL_NAME  LLM_PROVIDER=local"
-echo "Optional Hazina-only override (after API wiring): HAZINA_LLM_MODEL=$MODEL_NAME"
+echo "Smoke test:"
+echo "  python scripts/hazina_smoke_finetuned.py --model $MODEL_NAME --compare llama3.1 --matrix-only"
+echo ""
+echo "API .env:"
+echo "  LLM_PROVIDER=local"
+echo "  LOCAL_LLM_MODEL=llama3.1"
+echo "  HAZINA_LLM_MODEL=$MODEL_NAME"
