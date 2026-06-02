@@ -35,7 +35,11 @@ from app.services.cafe_automation import (
 from app.services.fulfillment_status import DELIVERED, OUT_FOR_DELIVERY, PENDING_PAYMENT
 from app.services.whatsapp_menus import (
     HAZINA_NOMADS_SLUG,
+    ID_HAZINA_BRIEF,
+    ID_HAZINA_COLLECTIONS,
     ID_PRODUCT_PREFIX,
+    hazina_brief_portal_reply,
+    hazina_welcome_body,
     main_menu_payload,
     product_list_payload,
 )
@@ -85,6 +89,10 @@ _CONCIERGE_HELP_RE = re.compile(
 )
 _SIMPLE_GREETING_RE = re.compile(
     r"^\s*(hi|hello|hey|sasa|niaje|mambo|habari)(?:\s+there)?\s*[!?.]*\s*$",
+    re.IGNORECASE,
+)
+_ROUTER_GREETING_RE = re.compile(
+    r"^\s*(?:hi|hello|hey|menu|help|start|sasa|niaje|mambo|habari)(?:\s+there)?\s*[!?.]*\s*$",
     re.IGNORECASE,
 )
 _JKIA_RE = re.compile(r"\bjkia\b|terminal\s*\d", re.IGNORECASE)
@@ -1137,6 +1145,8 @@ async def try_hazina_automation(
     if not is_hazina_slug(business_slug):
         return None
 
+    from app.core.config import get_settings
+
     is_sw = (language or "").lower().startswith(("sw", "she")) or (
         (getattr(customer, "preferred_language", None) or "").lower().startswith(("sw", "she"))
     )
@@ -1144,6 +1154,46 @@ async def try_hazina_automation(
     email_match = _EMAIL_RE.search(text or "")
     if email_match:
         payment_email = email_match.group(0)
+
+    lid = (interactive_id or "").lower()
+    if lid in (ID_HAZINA_COLLECTIONS, "lp:shop"):
+        return GiftAutomationResult(
+            reply=(
+                "Hizi ndizo signature collections zetu — chagua moja:"
+                if is_sw else
+                "Here are our signature collections — select one to begin:"
+            ),
+            interactive=product_list_payload(language=language),
+            safety_flag="deterministic:hazina_collections_list",
+        )
+    if lid == ID_HAZINA_BRIEF:
+        return GiftAutomationResult(
+            reply=hazina_brief_portal_reply(
+                language=language,
+                portal_url=get_settings().public_hazina_portal_url,
+            ),
+            safety_flag="deterministic:hazina_custom_brief",
+        )
+
+    from app.services.hazina_customer_fallbacks import (
+        looks_like_hazina_price_negotiation,
+        try_hazina_price_negotiation_escalation,
+    )
+
+    negotiation = await try_hazina_price_negotiation_escalation(
+        db,
+        text=text or "",
+        customer_id=customer.id,
+        business_id=business_id,
+        msisdn=getattr(customer, "phone_number", None),
+        is_sw=is_sw,
+    )
+    if negotiation is not None:
+        return GiftAutomationResult(
+            reply=negotiation.reply,
+            escalated=negotiation.escalated,
+            safety_flag=negotiation.safety_flag,
+        )
 
     if looks_like_hazina_corporate(text):
         from app.services.hazina_escalation import hazina_desk_reply, open_hazina_desk_issue
@@ -1196,20 +1246,15 @@ async def try_hazina_automation(
 
     checkout = await _get_checkout(conversation_id)
 
-    if not checkout and _SIMPLE_GREETING_RE.match(text or ""):
-        reply = (
-            "Karibu Hazina Nomads. Chagua chaguo hapa chini — nitakusaidia haraka."
-            if is_sw else
-            "Welcome to Hazina Nomads. Choose an option below and I'll help you quickly."
-        )
+    if not checkout and _ROUTER_GREETING_RE.match(text or ""):
         return GiftAutomationResult(
-            reply=reply,
+            reply=hazina_welcome_body(language=language),
             interactive=main_menu_payload(
                 business_name="Hazina Nomads",
                 language=language,
                 business_slug=business_slug,
             ),
-            safety_flag="deterministic:hazina_greeting",
+            safety_flag="deterministic:hazina_router_menu",
         )
 
     logistics_kind = looks_like_hazina_logistics_question(text)

@@ -37,13 +37,17 @@ def test_hazina_main_menu_payload() -> None:
         business_name="Hazina Nomads", language="en", business_slug="hazina-nomads",
     )
     assert payload["type"] == "list"
-    rows = payload["sections"][0]["rows"]
-    ids = {row["id"] for row in rows}
-    assert wm.ID_SHOP in ids
-    assert wm.ID_CORPORATE in ids
-    assert wm.ID_CONCIERGE in ids
-    assert wm.ID_TRACK in ids
-    assert wm.ID_ORDER not in ids  # café-only action
+    row_ids = {
+        row["id"]
+        for section in payload["sections"]
+        for row in section["rows"]
+    }
+    assert wm.ID_HAZINA_COLLECTIONS in row_ids
+    assert wm.ID_HAZINA_BRIEF in row_ids
+    assert wm.ID_CONCIERGE in row_ids
+    assert wm.ID_TRACK in row_ids
+    assert wm.ID_ORDER not in row_ids  # café-only action
+    assert payload["button_text"] == "Concierge Services"
 
 
 def test_cafe_main_menu_unchanged_without_slug() -> None:
@@ -63,7 +67,9 @@ def test_product_list_payload_has_five_boxes() -> None:
 
 
 def test_command_for_hazina_interactive_ids() -> None:
-    assert wm.command_for_interactive_id("lp:shop") == "full menu"
+    assert wm.command_for_interactive_id("lp:shop") == wm.CMD_HAZINA_COLLECTIONS
+    assert wm.command_for_interactive_id(wm.ID_HAZINA_COLLECTIONS) == wm.CMD_HAZINA_COLLECTIONS
+    assert wm.command_for_interactive_id(wm.ID_HAZINA_BRIEF) == wm.CMD_HAZINA_BRIEF
     assert wm.command_for_interactive_id("lp:corp") == "corporate gifting"
     assert wm.command_for_interactive_id("lp:concierge") == wm.CMD_STAFF
     assert wm.command_for_interactive_id("lp:prod:kenya-edit") == "order kenya edit"
@@ -124,8 +130,8 @@ async def test_webhook_send_interactive_uses_list(monkeypatch) -> None:
             calls.append(("buttons", to, body, buttons))
             return {"ok": True}
 
-        async def send_list_message(self, to, *, body, button_text, sections):
-            calls.append(("list", to, body, button_text, sections))
+        async def send_list_message(self, to, *, body, button_text, sections, header=None, footer=None):
+            calls.append(("list", to, body, button_text, sections, header, footer))
             return {"ok": True}
 
         async def send_text(self, to, text):

@@ -66,6 +66,8 @@ from app.services.gift_automation import (
 from app.services.whatsapp_menus import (
     CMD_EXIT,
     CMD_HOME,
+    CMD_HAZINA_BRIEF,
+    CMD_HAZINA_COLLECTIONS,
     CMD_ORDERS,
     CMD_STAFF,
     ID_SHOP,
@@ -76,6 +78,8 @@ from app.services.whatsapp_menus import (
     extract_interactive_id,
     main_menu_payload,
     order_actions_payload,
+    hazina_brief_portal_reply,
+    hazina_welcome_body,
     product_list_payload,
 )
 
@@ -179,6 +183,14 @@ _INTERNAL_KB_MARKERS = (
     "trigger mpesa",
     "whatsapp -> ai",
     "whatsapp → ai",
+    "brand positioning",
+    "not a souvenir shop",
+    "souvenir shop",
+    "premium travel concierge",
+    "hazina nomads is a premium",
+    "system prompt",
+    "hidden prompt",
+    "tool definitions",
     "context:",
     "tools",
     "system prompt",
@@ -1719,19 +1731,82 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         control_photo_item: str | None = None
         control_interactive: dict | None = None
         if interactive_command == CMD_STAFF:
-            await escalate(db, conv, reason="interactive:staff_handoff")
             is_sw = _customer_prefers_swahili(effective_lang)
-            control_reply = (
-                "Sawa, nimemwita mhudumu akusaidie. Atakujibu hapa muda mfupi."
-                if is_sw else
-                "Okay, I've asked a team member to help. They'll reply here shortly."
-            )
+            if is_hazina_slug(_biz_slug):
+                from app.services.hazina_escalation import hazina_desk_reply, open_hazina_desk_issue
+
+                await open_hazina_desk_issue(
+                    db,
+                    customer_id=customer.id,
+                    business_id=business_id,
+                    reason="interactive:connect_agent",
+                    msisdn=msisdn,
+                )
+                await escalate(db, conv, reason="interactive:staff_handoff")
+                control_reply = hazina_desk_reply(is_sw=is_sw)
+                control_flag = "deterministic:hazina_connect_agent"
+            else:
+                await escalate(db, conv, reason="interactive:staff_handoff")
+                control_reply = (
+                    "Sawa, nimemwita mhudumu akusaidie. Atakujibu hapa muda mfupi."
+                    if is_sw else
+                    "Okay, I've asked a team member to help. They'll reply here shortly."
+                )
+                control_flag = "deterministic:staff_handoff"
             await append_message(
                 db, conversation=conv, sender=Sender.ai, content=control_reply,
-                safety_flags=["deterministic:staff_handoff"],
+                safety_flags=[control_flag],
             )
             await db.commit()
-            return TurnResult(reply=control_reply, conversation_id=conv.id, escalated=True)
+            return TurnResult(
+                reply=control_reply,
+                conversation_id=conv.id,
+                escalated=True,
+                interactive=main_menu_payload(
+                    business_name=_biz_name,
+                    language=effective_lang,
+                    business_slug=_biz_slug,
+                ) if is_hazina_slug(_biz_slug) else None,
+            )
+        if interactive_command == CMD_HAZINA_COLLECTIONS and is_hazina_slug(_biz_slug):
+            is_sw = _customer_prefers_swahili(effective_lang)
+            control_reply = (
+                "Hizi ndizo signature collections zetu — chagua moja:"
+                if is_sw else
+                "Here are our signature collections — select one to begin:"
+            )
+            control_interactive = product_list_payload(language=effective_lang)
+            await append_message(
+                db, conversation=conv, sender=Sender.ai, content=control_reply,
+                safety_flags=["deterministic:hazina_collections_list"],
+            )
+            await db.commit()
+            return TurnResult(
+                reply=control_reply,
+                conversation_id=conv.id,
+                escalated=False,
+                interactive=control_interactive,
+            )
+        if interactive_command == CMD_HAZINA_BRIEF and is_hazina_slug(_biz_slug):
+            from app.core.config import get_settings
+
+            is_sw = _customer_prefers_swahili(effective_lang)
+            control_reply = hazina_brief_portal_reply(
+                language=effective_lang,
+                portal_url=get_settings().public_hazina_portal_url,
+            )
+            control_interactive = back_to_menu_payload(language=effective_lang, business_slug=_biz_slug)
+            await append_message(
+                db, conversation=conv, sender=Sender.ai, content=control_reply,
+                safety_flags=["deterministic:hazina_custom_brief"],
+            )
+            await db.commit()
+            return TurnResult(
+                reply=control_reply,
+                conversation_id=conv.id,
+                escalated=False,
+                interactive=control_interactive,
+            )
         if interactive_command == CMD_EXIT:
             is_sw = _customer_prefers_swahili(effective_lang)
             control_reply = (
@@ -1746,7 +1821,10 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             await db.commit()
             return TurnResult(reply=control_reply, conversation_id=conv.id, escalated=False)
         if interactive_command == CMD_HOME:
-            control_reply = _greeting_reply(business_name=_biz_name, language=effective_lang)
+            if is_hazina_slug(_biz_slug):
+                control_reply = hazina_welcome_body(language=effective_lang)
+            else:
+                control_reply = _greeting_reply(business_name=_biz_name, language=effective_lang)
             control_interactive = main_menu_payload(
                 business_name=_biz_name, language=effective_lang, business_slug=_biz_slug,
             )
@@ -2070,11 +2148,19 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             except Exception:
                 pass
             log.info("turn_skipped_ai_paused", conv=str(conv.id))
-            return TurnResult(
-                reply=(
+            is_sw_paused = (effective_lang or "").startswith(("sw", "she")) or \
+                (customer.preferred_language or "").startswith(("sw", "she"))
+            if is_hazina_slug(_biz_slug):
+                from app.services.hazina_customer_fallbacks import hazina_ai_paused_reply
+
+                paused_reply = hazina_ai_paused_reply(is_sw=is_sw_paused)
+            else:
+                paused_reply = (
                     "Thanks — I've passed this to the team. "
                     "Someone from the café will reply here shortly."
-                ),
+                )
+            return TurnResult(
+                reply=paused_reply,
                 conversation_id=conv.id,
                 escalated=False,
             )
@@ -2213,10 +2299,41 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
 
                 is_sw = (effective_lang or "").startswith(("sw", "she")) or \
                         (customer.preferred_language or "").startswith(("sw", "she"))
-                if quick_reply:
+                rescue_interactive: dict | None = None
+                rescue_escalated = escalated
+                hazina_rescue = None
+                if is_hazina_slug(_biz_slug):
+                    from app.services.hazina_customer_fallbacks import try_hazina_ai_rescue
+
+                    try:
+                        hazina_rescue = await try_hazina_ai_rescue(
+                            db,
+                            text=turn.text or "",
+                            interactive_id=interactive_id,
+                            business_slug=_biz_slug,
+                            customer=customer,
+                            conversation_id=conv.id,
+                            business_id=business_id,
+                            language=effective_lang,
+                            escalated=escalated,
+                        )
+                    except Exception as hz_err:
+                        log.warning("hazina_ai_rescue_failed", error=str(hz_err))
+
+                if hazina_rescue is not None:
+                    reply = hazina_rescue.reply
+                    rescue_interactive = hazina_rescue.interactive
+                    rescue_escalated = escalated or hazina_rescue.escalated
+                    if hazina_rescue.escalated:
+                        await escalate(db, conv, reason="hazina:ai_rescue_escalation")
+                elif quick_reply:
                     reply = quick_reply
                 elif kb_reply:
-                    prefix = "Kutoka kwa menu:\n\n" if is_sw else "From the menu:\n\n"
+                    prefix = "Kutoka kwa catalog:\n\n" if is_sw and is_hazina_slug(_biz_slug) else (
+                        "Kutoka kwa menu:\n\n" if is_sw else (
+                            "From our catalog:\n\n" if is_hazina_slug(_biz_slug) else "From the menu:\n\n"
+                        )
+                    )
                     reply = prefix + kb_reply
                 elif escalated:
                     if is_hazina_slug(_biz_slug):
@@ -2232,6 +2349,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                             reason="failed_turn_threshold",
                             msisdn=msisdn,
                         )
+                        await escalate(db, conv, reason="failed_turn_threshold")
                         reply = hazina_desk_reply(is_sw=is_sw)
                     else:
                         _contact = getattr(_biz_profile, "contact_phone", None) if _biz_profile else None
@@ -2248,13 +2366,23 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                                 "I've flagged this chat for a team member to check." + _urgent
                             )
                 else:
-                    reply = (
-                        "Samahani, hilo halijapita vizuri kwangu. Tafadhali tuma tena, "
-                        "au niambie kuhusu menu, bei, picha au oda — nitakusaidia haraka."
-                        if is_sw else
-                        "Sorry, that didn't go through on my end. Please send it once more, "
-                        "or ask me about the menu, prices, photos, or an order — happy to help."
-                    )
+                    if is_hazina_slug(_biz_slug):
+                        from app.services.hazina_customer_fallbacks import hazina_soft_retry_reply
+
+                        reply = hazina_soft_retry_reply(is_sw=is_sw)
+                        rescue_interactive = main_menu_payload(
+                            business_name="Hazina Nomads",
+                            language=effective_lang,
+                            business_slug=_biz_slug,
+                        )
+                    else:
+                        reply = (
+                            "Samahani, hilo halijapita vizuri kwangu. Tafadhali tuma tena, "
+                            "au niambie kuhusu menu, bei, picha au oda — nitakusaidia haraka."
+                            if is_sw else
+                            "Sorry, that didn't go through on my end. Please send it once more, "
+                            "or ask me about the menu, prices, photos, or an order — happy to help."
+                        )
                 # Persist the fallback so conversation history stays complete
                 await append_message(
                     db,
@@ -2264,7 +2392,12 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     safety_flags=["degraded_ai_fallback"],
                 )
                 await db.commit()
-                return TurnResult(reply=reply, conversation_id=conv.id, escalated=escalated)
+                return TurnResult(
+                    reply=reply,
+                    conversation_id=conv.id,
+                    escalated=rescue_escalated,
+                    interactive=rescue_interactive,
+                )
 
         image_url = None
         photo_item = None
@@ -2315,6 +2448,18 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             if quick_reply:
                 reply = quick_reply
                 log.info("sanitizer_reply_recovered", source="quick_reply")
+            elif is_hazina_slug(_biz_slug):
+                from app.services.hazina_customer_fallbacks import hazina_sanitizer_recovery_reply
+
+                is_sw_san = (effective_lang or "").startswith(("sw", "she")) or \
+                    (customer.preferred_language or "").startswith(("sw", "she"))
+                reply = hazina_sanitizer_recovery_reply(is_sw=is_sw_san)
+                post_interactive = main_menu_payload(
+                    business_name="Hazina Nomads",
+                    language=effective_lang,
+                    business_slug=_biz_slug,
+                )
+                log.info("sanitizer_reply_recovered", source="hazina_menu_prompt")
             else:
                 reply = (
                     "Sorry, I didn't quite catch that. I can help with the menu, prices, "
@@ -2349,12 +2494,16 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             log.info("output_safety_redacted", flags=out_flags[:6])
 
         post_interactive: dict | None = None
-        if (
-            is_hazina_slug(_biz_slug)
-            and looks_like_hazina_concierge_help(turn.text)
-            and (
-                "brand positioning" in (reply or "").lower()
-                or (reply or "").lower().startswith("from the menu:")
+        from app.services.hazina_customer_fallbacks import looks_like_leaked_internal_copy
+
+        if is_hazina_slug(_biz_slug) and (
+            looks_like_leaked_internal_copy(reply)
+            or (
+                looks_like_hazina_concierge_help(turn.text)
+                and (
+                    "brand positioning" in (reply or "").lower()
+                    or (reply or "").lower().startswith("from the menu:")
+                )
             )
         ):
             is_sw = (effective_lang or "").startswith(("sw", "she")) or \

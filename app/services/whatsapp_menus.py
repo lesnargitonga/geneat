@@ -31,6 +31,8 @@ ID_CATEGORY_PREFIX = "lp:cat:"
 ID_SHOP = "lp:shop"
 ID_CORPORATE = "lp:corp"
 ID_CONCIERGE = "lp:concierge"
+ID_HAZINA_COLLECTIONS = "lp:hazina:collections"
+ID_HAZINA_BRIEF = "lp:hazina:brief"
 ID_PRODUCT_PREFIX = "lp:prod:"
 
 HAZINA_NOMADS_SLUG = "hazina-nomads"
@@ -40,7 +42,16 @@ CMD_STAFF = "__staff_handoff__"
 CMD_HOME = "__main_menu__"
 CMD_EXIT = "__exit__"
 CMD_ORDERS = "__my_orders__"
-SPECIAL_COMMANDS = {CMD_STAFF, CMD_HOME, CMD_EXIT, CMD_ORDERS}
+CMD_HAZINA_COLLECTIONS = "__hazina_collections__"
+CMD_HAZINA_BRIEF = "__hazina_brief__"
+SPECIAL_COMMANDS = {
+    CMD_STAFF,
+    CMD_HOME,
+    CMD_EXIT,
+    CMD_ORDERS,
+    CMD_HAZINA_COLLECTIONS,
+    CMD_HAZINA_BRIEF,
+}
 
 _INTERACTIVE_ID_RE = re.compile(r"\[(lp:[a-z0-9:_-]+)\]\s*$", re.IGNORECASE)
 
@@ -103,8 +114,10 @@ def command_for_interactive_id(interactive_id: str | None) -> str | None:
     if not interactive_id:
         return None
     lid = interactive_id.lower()
-    if lid in (ID_MENU, ID_ORDER, ID_SHOP):
-        return "full menu"
+    if lid in (ID_MENU, ID_ORDER, ID_SHOP, ID_HAZINA_COLLECTIONS):
+        return CMD_HAZINA_COLLECTIONS if lid in (ID_SHOP, ID_HAZINA_COLLECTIONS) else "full menu"
+    if lid == ID_HAZINA_BRIEF:
+        return CMD_HAZINA_BRIEF
     if lid == ID_CORPORATE:
         return "corporate gifting"
     if lid == ID_CONCIERGE:
@@ -173,39 +186,112 @@ def _cafe_main_menu_payload(*, business_name: str | None, language: str | None) 
 
 
 def _hazina_main_menu_payload(*, business_name: str | None, language: str | None) -> dict:
-    """Hazina Nomads gift-concierge main menu."""
-    name = (business_name or "Hazina Nomads")[:60]
+    """Hazina top-of-funnel interactive list — zero-LLM router."""
     if _is_swahili(language):
-        rows = [
-            {"id": ID_SHOP, "title": "\U0001F381 The Kenya Edit", "description": "Angalia mkusanyiko wetu wa zawadi"},
-            {"id": ID_CORPORATE, "title": "\U0001F3E2 Zawadi za kampuni", "description": "Oda za biashara na wafanyakazi"},
-            {"id": ID_CONCIERGE, "title": "\U0001F9D1\u200D\U0001F4BC Ongea na concierge", "description": "Msaada wa kibinafsi"},
-            {"id": ID_TRACK, "title": "\U0001F4E6 Fuata uwasilishaji", "description": "Hali ya oda yako"},
-            {"id": ID_ORDERS, "title": "\U0001F9FE Oda zangu", "description": "Oda za hivi karibuni"},
-            {"id": ID_EXIT, "title": "\u2716\uFE0F Toka", "description": "Maliza mazungumzo"},
-        ]
         return {
             "type": "list",
-            "header": name,
-            "body": "Chagua chaguo:",
-            "button_text": "Chagua",
-            "sections": [{"title": "Concierge", "rows": rows}],
+            "header": "Hazina Private Sourcing"[:60],
+            "body": "Karibu kwa concierge wako wa kibinafsi. Chagua huduma:",
+            "footer": "Gusa kitufe hapa chini kuchagua.",
+            "button_text": "Huduma za Concierge",
+            "sections": [
+                {
+                    "title": "Mkusanyiko Tayari",
+                    "rows": [
+                        {
+                            "id": ID_HAZINA_COLLECTIONS,
+                            "title": "Signature Collections",
+                            "description": "Sanduku za zawadi za premium",
+                        },
+                    ],
+                },
+                {
+                    "title": "Huduma Maalum",
+                    "rows": [
+                        {
+                            "id": ID_HAZINA_BRIEF,
+                            "title": "Custom Sourcing",
+                            "description": "Tengeneza brief ya kibinafsi",
+                        },
+                    ],
+                },
+                {
+                    "title": "Msaada wa Mteja",
+                    "rows": [
+                        {
+                            "id": ID_TRACK,
+                            "title": "Track Order",
+                            "description": "Angalia hali ya uwasilishaji",
+                        },
+                        {
+                            "id": ID_CONCIERGE,
+                            "title": "Connect with Agent",
+                            "description": "Ongea na timu yetu",
+                        },
+                        {
+                            "id": ID_ORDERS,
+                            "title": "My Orders",
+                            "description": "Oda za hivi karibuni",
+                        },
+                    ],
+                },
+            ],
         }
-    rows = [
-        {"id": ID_SHOP, "title": "\U0001F381 Shop The Kenya Edit", "description": "Browse our curated gift collections"},
-        {"id": ID_CORPORATE, "title": "\U0001F3E2 Corporate Gifting", "description": "Bulk orders for teams & events"},
-        {"id": ID_CONCIERGE, "title": "\U0001F9D1\u200D\U0001F4BC Talk to Concierge", "description": "Personal assistance"},
-        {"id": ID_TRACK, "title": "\U0001F4E6 Track Delivery", "description": "Where is my gift box?"},
-        {"id": ID_ORDERS, "title": "\U0001F9FE My orders", "description": "Recent orders & receipts"},
-        {"id": ID_EXIT, "title": "\u2716\uFE0F Exit", "description": "End this chat"},
-    ]
     return {
         "type": "list",
-        "header": name,
-        "body": "Tap an option below:",
-        "button_text": "Choose",
-        "sections": [{"title": "Concierge", "rows": rows}],
+        "header": "Hazina Private Sourcing",
+        "body": "Welcome to your private concierge. How may we assist you today?",
+        "footer": "Tap the button below to select an option.",
+        "button_text": "Concierge Services",
+        "sections": [
+            {
+                "title": "Ready-to-Ship Curations",
+                "rows": [
+                    {
+                        "id": ID_HAZINA_COLLECTIONS,
+                        "title": "Signature Collections",
+                        "description": "Curated premium gift boxes",
+                    },
+                ],
+            },
+            {
+                "title": "Bespoke Services",
+                "rows": [
+                    {
+                        "id": ID_HAZINA_BRIEF,
+                        "title": "Custom Sourcing",
+                        "description": "Build a personalized brief",
+                    },
+                ],
+            },
+            {
+                "title": "Client Support",
+                "rows": [
+                    {
+                        "id": ID_TRACK,
+                        "title": "Track Order",
+                        "description": "Check delivery status",
+                    },
+                    {
+                        "id": ID_CONCIERGE,
+                        "title": "Connect with Agent",
+                        "description": "Speak to our team directly",
+                    },
+                    {
+                        "id": ID_ORDERS,
+                        "title": "My Orders",
+                        "description": "Recent orders & receipts",
+                    },
+                ],
+            },
+        ],
     }
+
+
+def hazina_welcome_body(*, language: str | None) -> str:
+    if _is_swahili(language):
+        return "Karibu kwa concierge wako wa kibinafsi. Chagua huduma hapa chini."
+    return "Welcome to your private concierge. How may we assist you today?"
 
 
 def main_menu_payload(
@@ -221,10 +307,20 @@ def main_menu_payload(
 
 
 def product_list_payload(*, language: str | None) -> dict:
-    """Hazina gift-box drill-down list (shown after Shop)."""
+    """Hazina signature collections list — prices from catalog source of truth."""
+    from app.catalog.hazina_catalog import HAZINA_COLLECTIONS
+
     is_sw = _is_swahili(language)
+    emoji_by_id = {pid: emoji for pid, emoji, _, _ in _HAZINA_PRODUCTS}
+
     rows = []
-    for pid, emoji, title, desc in _HAZINA_PRODUCTS:
+    for row in HAZINA_COLLECTIONS:
+        pid = str(row["id"])
+        emoji = emoji_by_id.get(pid, "\U0001F381")
+        title = str(row["name"])
+        desc = f"USD {row['price_usd']} · KES {int(row['price_kes']):,}"
+        if row.get("jkia_only"):
+            desc = (desc + " · JKIA 4h")[:72]
         rows.append({
             "id": f"{ID_PRODUCT_PREFIX}{pid}",
             "title": f"{emoji} {title}"[:24],
@@ -237,11 +333,25 @@ def product_list_payload(*, language: str | None) -> dict:
     })
     return {
         "type": "list",
-        "header": ("Mkusanyiko" if is_sw else "Collections"),
-        "body": ("Chagua sanduku:" if is_sw else "Pick a gift box:"),
+        "header": ("Signature Collections" if not is_sw else "Mkusanyiko Maalum")[:60],
+        "body": ("Chagua sanduku la zawadi:" if is_sw else "Select a curated gift box:"),
         "button_text": ("Chagua" if is_sw else "Choose"),
         "sections": [{"title": ("Sanduku" if is_sw else "Gift boxes"), "rows": rows}],
     }
+
+
+def hazina_brief_portal_reply(*, language: str | None, portal_url: str) -> str:
+    url = (portal_url or "https://hazina.lesnarai.co.ke").rstrip("/")
+    build_url = f"{url}/build"
+    if _is_swahili(language):
+        return (
+            f"Ili kuanza brief ya custom sourcing, tumia portal yetu salama:\n{build_url}\n\n"
+            "Ukimaliza, nitakusaidia kukamilisha checkout hapa."
+        )
+    return (
+        f"To begin a custom sourcing brief, use our secure portal:\n{build_url}\n\n"
+        "Once you submit it here, I will guide you through checkout."
+    )
 
 
 def category_list_payload(category_names: Sequence[str], *, language: str | None) -> dict | None:

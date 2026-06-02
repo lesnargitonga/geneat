@@ -365,6 +365,8 @@ async def _send_interactive(to_msisdn: str, interactive: dict, wa_channel) -> No
                     body=body,
                     button_text=interactive.get("button_text") or "Choose",
                     sections=sections,
+                    header=interactive.get("header"),
+                    footer=interactive.get("footer"),
                 )
     except Exception as e:
         log.warning("wa_interactive_send_failed", error=str(e), kind=kind)
