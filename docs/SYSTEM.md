@@ -239,6 +239,7 @@ make preview-hazina   # prod build — CSS QA
 make test-hazina
 make doctor-hazina-live   # safe no-money Hazina check against api.lesnarai.co.ke
 make doctor-hazina-api    # same check against hazina-api.onrender.com
+make smoke-hazina-war-room # public portal/API/chat/load battery, no real payment trigger
 PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py
 ```
 
@@ -263,6 +264,20 @@ PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py
   `/api/chat` can proxy to production `/mock/message`.
 - `make doctor-hazina-live` now requires that token; the script reads
   `HAZINA_DOCTOR_ADMIN_TOKEN`, `ADMIN_API_TOKEN`, or local `.env`.
+- `scripts/hazina_war_room_smoke.py` is the high-pressure public-domain
+  launch battery. It checks DNS, TLS, pages, key images, `/api/health`,
+  backend `/version`/`/readyz`/`/health/deep`, Hazina chat scenarios,
+  no-money stateful checkout, leakage into Lily Pond/café behavior, and
+  moderate page/chat burst latency.
+- 2026-06-02 pre-deploy war-room baseline against `hazina.lesnarai.co.ke`:
+  `161/164` passed; pages p95 about `423ms`, assets p95 about `154ms`,
+  stateful checkout p95 about `402ms`, burst chat p95 about `17.4s`.
+  The main defect found was a café-style prompt (`Do you sell croissants?`)
+  falling through to slow generic fallback under burst load.
+- Current code adds deterministic Hazina logistics replies for DHL/export and
+  JKIA handoff, plus a deterministic café-boundary reply for croissant/flat
+  white/espresso-style café questions so those prompts do not wait for the
+  LLM.
 
 ### Env (minimum)
 

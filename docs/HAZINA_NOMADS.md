@@ -620,10 +620,13 @@ python scripts/tenant_go_live_check.py --slug hazina-nomads --live --chat
 # 3. Hazina unit tests
 make test-hazina
 
-# 4. WhatsApp reply matrix
+# 4. Public-domain war-room battery, no real payment trigger
+make smoke-hazina-war-room
+
+# 5. WhatsApp reply matrix
 make eval-whatsapp-local
 
-# 5. Portal build (51 routes — see §9.1)
+# 6. Portal build (51 routes — see §9.1)
 cd hazina-portal && npm run build
 ```
 
@@ -648,6 +651,14 @@ cd hazina-portal && npm run build
 7. Re-run `scripts/seed_hazina_nomads.py` after Meta phone id is set
 
 **Smoke test after cutover:**
+
+Run first:
+
+```bash
+make smoke-hazina-war-room
+```
+
+Then manually rehearse:
 
 1. Greet → Hazina main menu (Shop | Corporate | Concierge | Track)
 2. Shop → 5 collections → tap Kenya Edit → delivery prompt → STK
@@ -875,6 +886,8 @@ Tap → `order {product}` → `gift_automation` checkout.
 |---|---|
 | `try_hazina_automation` | Main entry — returns reply or None (fall through to AI) |
 | `looks_like_hazina_catalog_request` | "menu", "catalog", "what do you sell", "shop", etc. → product list |
+| `looks_like_hazina_logistics_question` | DHL/export and JKIA questions → deterministic trust reply |
+| `looks_like_cafe_menu_question` | Café-food prompts like croissants/flat whites/espresso → Hazina boundary reply |
 | `resolve_product_id` | Text/interactive → collection id |
 | `parse_custom_box_handoff` | Brief → SKU lines, monogram fees, bespoke note |
 | `ParsedCustomBox` | `bespoke_note`, `monogram_notes` on dataclass |

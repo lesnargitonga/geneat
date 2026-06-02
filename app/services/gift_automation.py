@@ -73,6 +73,14 @@ _CORPORATE_RE = re.compile(
     re.IGNORECASE,
 )
 _JKIA_RE = re.compile(r"\bjkia\b|terminal\s*\d", re.IGNORECASE)
+_DHL_INFO_RE = re.compile(
+    r"\b(dhl|ship abroad|shipping abroad|international shipping|export|outside kenya|leave kenya)\b",
+    re.IGNORECASE,
+)
+_JKIA_INFO_RE = re.compile(
+    r"\b(jkia|airport|terminal\s*\d|flight|departure\s+(?:gift|handoff|time|flight))\b",
+    re.IGNORECASE,
+)
 _DEPARTURE_RE = re.compile(
     r"\b(?:depart|departure|flight|leave|fly)\b.{0,30}\b(\d{1,2}[:\.]\d{2}|\d{1,2}\s*(?:am|pm)|today|tomorrow)",
     re.IGNORECASE,
@@ -96,6 +104,10 @@ _BESPOKE_REQUESTS_RE = re.compile(
 _CATALOG_RE = re.compile(
     r"\b(full menu|menu|catalogue|catalog|collections?|gift boxes?|what do you sell|"
     r"show (?:me )?(?:your )?(?:gifts|boxes|collections)|shop|browse)\b",
+    re.IGNORECASE,
+)
+_CAFE_ITEM_RE = re.compile(
+    r"\b(croissants?|flat\s+white|cappuccino|latte|espresso|mandazi|masala\s+chai|pain\s+au\s+chocolat|brownies?)\b",
     re.IGNORECASE,
 )
 _PHOTO_RE = re.compile(r"\b(photo|picture|pic|image|picha|show me)\b", re.IGNORECASE)
@@ -206,8 +218,21 @@ def looks_like_hazina_corporate(text: str) -> bool:
     return bool(_CORPORATE_RE.search(text or ""))
 
 
+def looks_like_hazina_logistics_question(text: str) -> str | None:
+    body = text or ""
+    if _DHL_INFO_RE.search(body):
+        return "dhl"
+    if _JKIA_INFO_RE.search(body):
+        return "jkia"
+    return None
+
+
 def looks_like_hazina_catalog_request(text: str) -> bool:
     return bool(_CATALOG_RE.search(text or ""))
+
+
+def looks_like_cafe_menu_question(text: str) -> bool:
+    return bool(_CAFE_ITEM_RE.search(text or ""))
 
 
 def looks_like_checkout_cancel(text: str) -> bool:
@@ -590,6 +615,40 @@ def _catalog_reply(*, is_sw: bool) -> str:
     )
 
 
+def _cafe_boundary_reply(*, is_sw: bool) -> str:
+    if is_sw:
+        return (
+            "Hazina Nomads si cafe; tunauza premium Kenyan gift collections, leather, beadwork, carvings, coffee/tea gifts, na custom boxes. "
+            "Nikikuonyeshe collections zetu?"
+        )
+    return (
+        "Hazina Nomads is not a cafe. We curate premium Kenyan gift collections: leather, beadwork, carvings, coffee/tea gifts, and custom boxes. "
+        "Would you like to see the collections?"
+    )
+
+
+def _logistics_reply(kind: str, *, is_sw: bool) -> str:
+    if kind == "dhl":
+        if is_sw:
+            return (
+                "Ndiyo — tunaweza kupanga DHL/export shipping. Tunatoa quote kabla ya malipo kwa sababu gharama hutegemea nchi, mji, uzito, na muda. "
+                "Niambie nchi na mji wa kutuma, kisha collection unayotaka."
+            )
+        return (
+            "Yes — we can arrange DHL/export shipping. We quote it before payment because cost depends on country, city, weight, and timing. "
+            "Send the destination country/city and the collection you want, and I will guide the next step."
+        )
+    if is_sw:
+        return (
+            "Ndiyo — tunaweza kupanga JKIA terminal handoff kwa zawadi za departure. "
+            "Kwa oda mpya, niambie collection unayotaka, terminal, na muda wa flight au handoff."
+        )
+    return (
+        "Yes — we can arrange JKIA terminal handoff for departure gifts. "
+        "For a new order, tell me the collection, terminal, and flight or handoff time."
+    )
+
+
 def _delivery_type_from_text(text: str | None, *, fallback: str | None = None) -> str | None:
     body = (text or "").lower()
     if "dhl" in body or "export" in body or "international" in body or "abroad" in body:
@@ -753,9 +812,9 @@ async def _track_delivery_reply(
     orders = (await db.execute(stmt)).scalars().all()
     if not orders:
         return (
-            "Bado sina oda yako. Chagua sanduku kutoka menu au niambie unachotaka kuagiza."
+            "Bado sina tracking ya oda yako. Chagua sanduku kutoka menu au niambie unachotaka kuagiza."
             if is_sw else
-            "I don't have an order on file yet. Pick a gift box from the menu or tell me what you'd like."
+            "I don't have tracking for an order yet. Pick a gift box from the menu or tell me what you'd like."
         )
     order = orders[0]
     details = order.details if isinstance(order.details, dict) else {}
@@ -1023,11 +1082,25 @@ async def try_hazina_automation(
     if email_match:
         payment_email = email_match.group(0)
 
+    if looks_like_cafe_menu_question(text):
+        return GiftAutomationResult(
+            reply=_cafe_boundary_reply(is_sw=is_sw),
+            interactive=product_list_payload(language=language),
+            safety_flag="deterministic:hazina_cafe_boundary",
+        )
+
     if looks_like_hazina_corporate(text):
         return GiftAutomationResult(
             reply=_corporate_reply(is_sw=is_sw),
             escalated=True,
             safety_flag="deterministic:hazina_corporate",
+        )
+
+    logistics_kind = looks_like_hazina_logistics_question(text)
+    if logistics_kind:
+        return GiftAutomationResult(
+            reply=_logistics_reply(logistics_kind, is_sw=is_sw),
+            safety_flag=f"deterministic:hazina_logistics_{logistics_kind}",
         )
 
     if looks_like_hazina_track(text):

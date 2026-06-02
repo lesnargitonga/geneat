@@ -21,8 +21,13 @@ def test_hazina_intent_detectors() -> None:
     assert not ga.looks_like_hazina_order_intent("send me a picture of The Kenya Edit")
     assert ga.looks_like_hazina_track("track my delivery")
     assert ga.looks_like_hazina_corporate("corporate gifting for our team")
+    assert ga.looks_like_hazina_logistics_question("do you ship abroad?") == "dhl"
+    assert ga.looks_like_hazina_logistics_question("can you deliver to JKIA Terminal 1A?") == "jkia"
+    assert ga.looks_like_hazina_logistics_question("I want the Departure Drop") is None
     assert ga.looks_like_hazina_catalog_request("what do you sell?")
     assert ga.looks_like_hazina_catalog_request("show me your gift boxes")
+    assert ga.looks_like_cafe_menu_question("do you sell croissants?")
+    assert ga.looks_like_cafe_menu_question("can I get a flat white?")
     assert ga.should_pause_checkout_for_customer_request("send me a picture of The Kenya Edit")
     assert ga.should_pause_checkout_for_customer_request("no stk yet")
     assert ga.looks_like_checkout_cancel("cancel this checkout please")
@@ -171,6 +176,22 @@ def test_hazina_checkout_does_not_default_to_usd_until_guest_chooses() -> None:
     assert ga._explicit_payment_currency("order the Kenya Edit") is None
     assert ga._explicit_payment_currency("send a USD card link") == "USD"
     assert ga._explicit_payment_currency("M-Pesa please") == "KES"
+
+
+def test_hazina_logistics_replies_are_deterministic() -> None:
+    dhl = ga._logistics_reply("dhl", is_sw=False)
+    assert "DHL/export shipping" in dhl
+    assert "before payment" in dhl
+
+    jkia = ga._logistics_reply("jkia", is_sw=False)
+    assert "JKIA terminal handoff" in jkia
+    assert "collection" in jkia
+
+
+def test_hazina_cafe_boundary_reply_points_to_gifts() -> None:
+    reply = ga._cafe_boundary_reply(is_sw=False)
+    assert "not a cafe" in reply
+    assert "gift collections" in reply
 
 
 def test_is_custom_box_handoff() -> None:
