@@ -55,6 +55,9 @@ async def test_dispatch_updates_order(admin_env, monkeypatch) -> None:
     assert "OUT FOR DELIVERY" in reply
     assert order.details["fulfillment_status"] == "out_for_delivery"
     assert order.details["courier_note"] == "Express Messengers (KCA 123G)"
+    assert isinstance(order.details.get("ops_audit"), list)
+    assert order.details["ops_audit"][-1]["command"] == "dispatch"
+    assert order.details["ops_audit"][-1]["new_status"] == "out_for_delivery"
     db.commit.assert_awaited()
 
 
@@ -73,3 +76,100 @@ async def test_delivered_not_found(admin_env, monkeypatch) -> None:
         tenant_slug="hazina-nomads",
     )
     assert reply == "❌ Order not found: HN-ORD-MISSING"
+
+
+@pytest.mark.asyncio
+async def test_accept_updates_order(admin_env, monkeypatch) -> None:
+    order = SimpleNamespace(
+        id=uuid.uuid4(),
+        details={"public_reference": "HN-ORD-ACCEPT1"},
+    )
+
+    async def fake_find(db, ref):
+        assert ref == "HN-ORD-ACCEPT1"
+        return order
+
+    monkeypatch.setattr(ops, "find_order_by_public_reference", fake_find)
+    db = AsyncMock()
+    reply = await ops.try_handle_ops_command(
+        db,
+        text="!accept hn-ord-accept1",
+        sender="+254700000099",
+        tenant_slug="hazina-nomads",
+    )
+    assert "SOURCING APPROVED" in (reply or "")
+    assert order.details["fulfillment_status"] == "sourcing_approved"
+    db.commit.assert_awaited()
+
+
+@pytest.mark.asyncio
+async def test_runner_assigns_runner_details(admin_env, monkeypatch) -> None:
+    order = SimpleNamespace(
+        id=uuid.uuid4(),
+        details={"public_reference": "HN-ORD-RUNNER1"},
+    )
+
+    monkeypatch.setattr(
+        ops,
+        "find_order_by_public_reference",
+        AsyncMock(return_value=order),
+    )
+    db = AsyncMock()
+    reply = await ops.try_handle_ops_command(
+        db,
+        text="!runner HN-ORD-RUNNER1 James +254700000012",
+        sender="+254700000099",
+        tenant_slug="hazina-nomads",
+    )
+    assert "runner assigned" in (reply or "").lower()
+    assert order.details["fulfillment_status"] == "runner_assigned"
+    assert order.details["runner_name"] == "James"
+    assert order.details["runner_phone"] == "+254700000012"
+
+
+@pytest.mark.asyncio
+async def test_issue_sets_issue_pending_with_note(admin_env, monkeypatch) -> None:
+    order = SimpleNamespace(
+        id=uuid.uuid4(),
+        details={"public_reference": "HN-ORD-ISSUE01"},
+    )
+    monkeypatch.setattr(
+        ops,
+        "find_order_by_public_reference",
+        AsyncMock(return_value=order),
+    )
+    db = AsyncMock()
+    reply = await ops.try_handle_ops_command(
+        db,
+        text="!issue HN-ORD-ISSUE01 Item unavailable; offered alternative",
+        sender="+254700000099",
+        tenant_slug="hazina-nomads",
+    )
+    assert "ISSUE PENDING" in (reply or "")
+    assert order.details["fulfillment_status"] == "issue_pending"
+    assert "unavailable" in order.details["issue_note"].lower()
+    assert order.details["ops_audit"][-1]["command"] == "issue"
+    assert order.details["ops_audit"][-1]["new_status"] == "issue_pending"
+
+
+@pytest.mark.asyncio
+async def test_cancel_sets_cancelled_with_reason(admin_env, monkeypatch) -> None:
+    order = SimpleNamespace(
+        id=uuid.uuid4(),
+        details={"public_reference": "HN-ORD-CANCEL1"},
+    )
+    monkeypatch.setattr(
+        ops,
+        "find_order_by_public_reference",
+        AsyncMock(return_value=order),
+    )
+    db = AsyncMock()
+    reply = await ops.try_handle_ops_command(
+        db,
+        text="!cancel HN-ORD-CANCEL1 customer requested cancel",
+        sender="+254700000099",
+        tenant_slug="hazina-nomads",
+    )
+    assert "CANCELLED" in (reply or "")
+    assert order.details["fulfillment_status"] == "cancelled"
+    assert "customer requested cancel" in order.details["cancel_reason"]

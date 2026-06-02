@@ -260,7 +260,19 @@ _FORBIDDEN_OUTPUT_PHRASES: tuple[re.Pattern[str], ...] = tuple(
         # Don't leak rules
         r"\bmy (?:system|hidden) prompt\b",
         r"\bsafety (?:rules?|instructions?)\b",
+        # No-overpromise guardrails (ops must confirm these claims first).
+        r"\byour items? (?:are|is) reserved\b",
+        r"\bdelivery (?:is )?guaranteed\b",
+        r"\bthis exact (?:item|piece) is available\b",
+        r"\bwe (?:have|ve) secured your items?\b",
+        r"\b(?:we can|i can) deliver\b",
+        r"\bit will arrive by\b",
     )
+)
+
+_SUBSTITUTION_SIGNAL = re.compile(
+    r"\b(unavailable|out of stock|alternative|substitution|equivalent|replace(?:ment)?)\b",
+    re.IGNORECASE,
 )
 
 
@@ -297,10 +309,25 @@ def evaluate_outbound(
     flags: list[str] = []
     out = reply or ""
 
+    no_overpromise_hit = False
+    substitution_signal_hit = False
+
     # Strip forbidden phrases (replace with empty + flag)
     for pat in _FORBIDDEN_OUTPUT_PHRASES:
         if pat.search(out):
             flags.append(f"forbidden_phrase:{pat.pattern[:32]}")
+            if any(
+                marker in pat.pattern
+                for marker in (
+                    "reserved",
+                    "guaranteed",
+                    "exact (?:item|piece)",
+                    "secured your items",
+                    "(?:we can|i can) deliver",
+                    "arrive by",
+                )
+            ):
+                no_overpromise_hit = True
             out = pat.sub("", out)
 
     # Price validation: if a price is mentioned that isn't in the KB, redact.
@@ -323,6 +350,26 @@ def evaluate_outbound(
     if len(out) > 2000:
         flags.append("truncated")
         out = out[:2000].rstrip() + "…"
+
+    if no_overpromise_hit:
+        flags.append("promise_control_redacted")
+        out = out.strip()
+        if out:
+            out += " "
+        out += (
+            "Our concierge will confirm availability, delivery timing, and dispatch once sourcing checks are complete."
+        )
+
+    if _SUBSTITUTION_SIGNAL.search(out):
+        substitution_signal_hit = True
+
+    if substitution_signal_hit:
+        flags.append("substitution_approval_required")
+        out = (
+            "One selected piece is unavailable in the exact finish shown. "
+            "We can offer a matching alternative of equal or higher standard. "
+            "Would you like us to proceed with the replacement before dispatch?"
+        )
 
     return out, flags
 

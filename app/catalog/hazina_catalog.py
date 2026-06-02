@@ -141,6 +141,43 @@ HAZINA_TREASURES: list[dict[str, Any]] = [
 ]
 
 
+def _apply_catalog_contract_defaults() -> None:
+    """Normalize catalog rows to the operational contract surface.
+
+    This keeps legacy rows compatible while we progressively move all writers
+    and mirrors to the strict schema.
+    """
+    for row in HAZINA_COLLECTIONS:
+        row.setdefault("category", "collection")
+        row.setdefault("is_engravable", bool(row.get("personalization")))
+        row.setdefault("is_jkia_allowed", bool(row.get("jkia_only")))
+        row.setdefault("is_custom_allowed", True)
+        row.setdefault("availability_mode", "source_24h")
+        row.setdefault("substitution_allowed", True)
+        row.setdefault(
+            "image_disclaimer",
+            "Images represent curation standards; final pieces may vary slightly by artisan availability.",
+        )
+        row.setdefault("source_type", "private_sourcing")
+        row.setdefault("included_item_ids", list(row.get("item_ids") or []))
+
+    for row in HAZINA_TREASURES:
+        row.setdefault("is_engravable", bool(row.get("is_engravable")))
+        row.setdefault("is_jkia_allowed", True)
+        row.setdefault("is_custom_allowed", True)
+        row.setdefault("availability_mode", "source_24h")
+        row.setdefault("substitution_allowed", True)
+        row.setdefault(
+            "image_disclaimer",
+            "Images represent curation standards; final pieces may vary slightly by artisan availability.",
+        )
+        row.setdefault("source_type", "private_sourcing")
+        row.setdefault("included_item_ids", [])
+
+
+_apply_catalog_contract_defaults()
+
+
 def hazina_collection_by_id(product_id: str) -> dict[str, Any] | None:
     for row in HAZINA_COLLECTIONS:
         if row["id"] == product_id:

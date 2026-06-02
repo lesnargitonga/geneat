@@ -26,7 +26,7 @@ check-routing:
 
 check-contracts:
 	@echo "Validating system boundary contracts..."
-	$(PYTHON) -m pytest -v tests/test_routing_contract.py tests/test_payload_contract.py tests/test_resilience_contract.py tests/test_resiliency_user_facing.py
+	$(PYTHON) -m pytest -v tests/test_routing_contract.py tests/test_payload_contract.py tests/test_resilience_contract.py tests/test_resiliency_user_facing.py tests/test_catalog_contract.py
 
 doctor-local:
 	$(PYTHON) scripts/lily_pond_demo_check.py --chat --photo

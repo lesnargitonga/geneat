@@ -279,7 +279,341 @@ Full: `.env.example` · [README.md §19](../README.md).
 
 ---
 
-## 11. Other docs
+## 11. Operational hardening (Hazina OS)
+
+**Purpose:** bulletproof field execution (catalog truth, sourcing, fulfillment, messaging, tracking, and fallbacks), not just backend features.
+
+### 11.1 Core failure modes to prevent
+
+1. Customer sees one thing, receives another.
+2. Website/catalog/backend prices drift.
+3. AI overpromises availability, delivery, or exact products.
+4. Runner sourcing cannot keep pace with demand windows.
+5. Quality outcomes are inconsistent.
+6. Delivery coordination fails or arrives late.
+7. Ops loses lifecycle visibility per order.
+8. Premium online brand is not matched by offline execution.
+
+### 11.2 Catalog contract (P0)
+
+Every item/collection should be representable with these canonical fields:
+
+- `id`
+- `sku`
+- `name`
+- `category`
+- `price_usd`
+- `price_kes`
+- `lead_time_hours`
+- `is_engravable`
+- `is_jkia_allowed`
+- `is_custom_allowed`
+- `availability_mode`
+- `substitution_allowed`
+- `image_disclaimer`
+- `source_type`
+- `included_item_ids`
+
+Required CI checks before deploy:
+
+- Python catalog count must equal portal catalog count.
+- Every TS SKU must exist in Python source.
+- Collection price must match frontend/backend.
+- Every product must have USD and KES price.
+- Every collection must have lead time.
+- Frontend image paths must resolve.
+- Engravable flags must match frontend/backend.
+- Deprecated SKUs must not appear in WhatsApp menus.
+
+Minimum contract:
+
+- `HAZINA_COLLECTIONS` and portal `GIFT_BOXES` must match by SKU, name, price, and lead time.
+
+### 11.3 AI promise-control policy (P0)
+
+Rule: AI can collect intent; it cannot guarantee fulfillment until ops confirmation.
+
+Allowed phrasing examples:
+
+- "We can prepare a sourcing brief."
+- "Our concierge will confirm availability."
+- "Delivery is subject to confirmation of location, timing, and item availability."
+
+Disallowed phrasing examples (unless system-confirmed):
+
+- "Your items are reserved."
+- "Delivery is guaranteed."
+- "This exact piece is available."
+- "We have secured your items."
+
+RAG/brand guardrail requirement:
+
+- Images reflect curation standards, not guaranteed identical stock.
+- Final pieces may vary by artisan availability/material/finish.
+- Concierge confirms availability before dispatch.
+
+### 11.4 Substitution policy (P0)
+
+Customer-facing baseline:
+
+- Hazina is private sourcing; final pieces can vary slightly by color/finish/pattern/material.
+- If a selected item is unavailable, concierge offers equivalent or higher-standard alternative before dispatch.
+
+Internal substitution rules:
+
+- Beadwork: similar pattern/value, same type.
+- Coffee/tea: same or higher grade, similar size.
+- Leather: same item type/grade, same personalization ability.
+- Carvings: similar object/size/value range.
+- Textiles: similar quality; customer approves major pattern changes.
+- Art: confirm before substitution.
+- Engraved items: no substitution after engraving starts.
+
+Pre-dispatch customer check:
+
+- "One item has a sourcing alternative available. Would you like to approve the replacement before we proceed?"
+
+### 11.5 Fulfillment state machine (P0)
+
+Recommended operational states:
+
+1. `brief_received`
+2. `awaiting_confirmation`
+3. `sourcing_approved`
+4. `runner_assigned`
+5. `sourcing_in_progress`
+6. `quality_check`
+7. `packing`
+8. `ready_for_dispatch`
+9. `out_for_delivery`
+10. `delivered`
+11. `issue_pending`
+12. `cancelled`
+
+Tracking copy should stay premium and human-readable (e.g., "Sourcing in progress", "Quality check", "Ready for dispatch"), not raw internal codes.
+
+### 11.6 Ghost Ops expansion (P0/P1)
+
+Current command set is MVP. Target command set:
+
+- `!orders`
+- `!order HN-ORD-...`
+- `!accept HN-ORD-...`
+- `!runner HN-ORD-... <name> <phone>`
+- `!sourcing HN-ORD-...`
+- `!qc HN-ORD-...`
+- `!packing HN-ORD-...`
+- `!ready HN-ORD-...`
+- `!dispatch HN-ORD-... <courier> <driver>`
+- `!delivered HN-ORD-...`
+- `!issue HN-ORD-... <note>`
+- `!cancel HN-ORD-... <reason>`
+
+Hard requirements:
+
+- Strict admin whitelist enforcement (`ADMIN_WA_NUMBERS`).
+- Audit log per command: admin number, command, order ref, previous status, new status, timestamp, note.
+
+### 11.7 Ops dashboard MVP (P1)
+
+Build functional admin UI (not design-heavy) with queues:
+
+- New briefs
+- Accepted
+- Sourcing
+- Quality check
+- Ready for dispatch
+- Out for delivery
+- Issues
+- Delivered today
+
+Order card baseline:
+
+- order ref, customer, WhatsApp, location, window/departure, items/SKUs, personalization notes, total, payment status, fulfillment status, runner, courier, internal note, customer-visible note.
+
+Actions baseline:
+
+- Accept, assign runner, mark sourcing/QC/packing/ready/dispatched/delivered/issue, send WhatsApp update.
+
+### 11.8 Fulfillment SOP + sourcing discipline (P0/P1)
+
+Codify and run every order through SOP:
+
+- Brief intake checks (zone, hotel/terminal, timing, feasibility, personalization).
+- Accept/escalate gates (JKIA urgency, rare items, high value, outside zone, exact-match requests).
+- Runner assignment with sourcing constraints and quality notes.
+- Quality checklist before packing.
+- Packaging checklist + pre-seal photo.
+- Dispatch instructions and closeout (delivery confirmation + review request).
+
+Runner sourcing sheet should exist per SKU with:
+
+- target photo
+- acceptable alternatives
+- max wholesale cost
+- quality floor
+- reject conditions
+- preferred/back-up vendors
+- expected sourcing time
+
+### 11.9 Supplier scorecards (P1)
+
+Track supplier quality/speed/reliability from day one:
+
+- `quality_score`, `speed_score`, `reliability_score`, defects, replacement behavior, last order date.
+- Tiering model: A (preferred), B (backup), C (emergency), banned.
+
+### 11.10 Delivery and expectation controls (P0)
+
+Delivery rules must be enforceable in automation and human playbooks:
+
+- No JKIA under 4h without human override.
+- No same-day outside-zone promises.
+- No engraving under 24h without override.
+- No Safari Romance under 48h without override.
+- No dispatch after 20:00 without explicit late confirmation.
+- No acceptance without reachable WhatsApp contact.
+- No hotel delivery without hotel + room/front desk note.
+- No terminal delivery without terminal + departure time.
+
+Customer-facing FAQ must explicitly cover:
+
+- photo/stock variance
+- substitution approval flow
+- urgency windows
+- private sourcing model
+- human handoff path
+
+### 11.11 Incident taxonomy + message templates (P0/P1)
+
+Track issues by category:
+
+- `item_unavailable`
+- `customer_unreachable`
+- `delivery_delay`
+- `supplier_quality_reject`
+- `wrong_location`
+- `engraving_error`
+- `courier_failed`
+- `customer_changed_time`
+- `outside_zone_request`
+- `substitution_declined`
+- `refund_requested`
+
+Each issue should carry internal note, customer-visible note, owner, and resolution status.
+
+Maintain approved customer templates for:
+
+- brief received
+- accepted
+- substitution request
+- quality check
+- ready
+- dispatched
+- delayed
+- delivered
+
+### 11.12 Observability + anti-confusion routing (P0)
+
+Minimum watchlist:
+
+- 5xx spike
+- webhook durable-job failures
+- AI timeout rate
+- order creation failures
+- catalog mismatch failures
+- Ghost Ops unauthorized attempts
+- token-invalid tracking spike
+- DB latency spike
+- Redis unavailability
+- portal build/deploy failures
+
+Tenant safety must remain continuously tested:
+
+- Hazina never leaks café menus.
+- Demo tenant never leaks Hazina catalog.
+- Portal `business_slug` scoping remains strict.
+- Stale mappings cannot override cutover intent.
+- RAG/order/tracking remain tenant-scoped.
+
+### 11.13 Rehearsal protocol (before real-money scale)
+
+Run recurring operational rehearsals:
+
+- Normal hotel order end-to-end.
+- JKIA urgent order in valid window.
+- JKIA invalid timing refusal/escalation.
+- Item unavailable with substitution approval.
+- Customer unreachable -> `issue_pending`.
+- Engraving request with lead-time rule.
+- Outside-zone request without overpromise.
+- Tenant safety under mixed-intent prompts.
+
+### 11.14 Roadmap (non-payment hardening)
+
+P0 (before broader pilot):
+
+1. Catalog sync CI contract.
+2. AI no-overpromise policy enforcement.
+3. Substitution policy published + enforced.
+4. Expanded order state machine.
+5. Ghost Ops command expansion (`accept/runner/issue/ready` minimum).
+6. Premium tracking labels.
+7. Sentry + log drain + resilience alerts.
+8. Fulfillment SOP in active use.
+9. Real sample-box proof assets.
+
+P1 (month one):
+
+1. Functional ops dashboard.
+2. Supplier scorecards.
+3. Runner sourcing sheets.
+4. Admin notes + customer-visible notes.
+5. Delivery proof workflow.
+6. Message template rollout.
+7. Partner/referral capture.
+
+P2 (post-pilot scale):
+
+1. Courier API/webhooks.
+2. Partner ledger.
+3. RLS completion.
+4. Tracking-token rotation.
+5. Real DHL integration.
+6. Cost/margin automation.
+7. Availability dashboard.
+8. Multi-city expansion logic.
+
+### 11.15 Execution tracker (daily operating control)
+
+Use this tracker in standups; update `Status`, `Owner`, and `Last update` continuously.
+
+| Workstream | Control | Status | Owner | Last update | Evidence |
+|---|---|---|---|---|---|
+| Catalog truth | Python/TS parity CI green | ✅ | Eng | 2026-06-02 | `tests/test_catalog_contract.py` + `make check-contracts` |
+| AI promise control | No-overpromise policy enforced in prompts/guards | ✅ | Eng + Ops | 2026-06-02 | `app/ai/safety.py` + `tests/test_safety.py` |
+| Substitution policy | Public policy published + WA approval flow active | ⬜ | Ops | 2026-06-02 | portal FAQ + sample WA transcript |
+| Fulfillment states | 12-state machine mapped to order lifecycle | ⬜ | Eng | 2026-06-02 | schema/service diff + tracking screenshot |
+| Ghost Ops expansion | `!accept !runner !sourcing !qc !packing !ready !issue !cancel` live | ◐ | Eng + Ops | 2026-06-02 | `app/services/ops_automation.py` + `tests/test_ops_automation.py` |
+| Tracking UX | Premium labels and customer-safe copy only | ✅ | Eng + Brand | 2026-06-02 | `app/services/order_tracking.py` + `tests/test_order_tracking.py` |
+| SOP discipline | SOP actively used on every order | ⬜ | Ops lead | 2026-06-02 | SOP checklist records |
+| Runner sourcing | SKU-level sourcing sheets in use | ⬜ | Ops | 2026-06-02 | sourcing sheets |
+| Supplier reliability | Scorecards + tiering (A/B/C/Banned) active | ⬜ | Ops | 2026-06-02 | supplier register |
+| Observability | Sentry + alert set + log drain verified | ⬜ | Eng | 2026-06-02 | alert config + test alert |
+| Tenant safety | Anti-confusion routing tests always green | ✅ | Eng | 2026-06-02 | routing contract suite |
+| Rehearsals | 8 scenario drills completed and signed off | ⬜ | Ops + Eng | 2026-06-02 | rehearsal runbook + outcomes |
+
+Daily checklist:
+
+- [ ] Review failures from `check-contracts` and webhook/job logs.
+- [ ] Confirm no unresolved `issue_pending` older than SLA.
+- [ ] Confirm today’s dispatch plan has assigned runner/courier per order.
+- [ ] Confirm customer-visible messages used approved templates.
+- [ ] Confirm any substitution had explicit customer approval.
+
+---
+
+## 12. Other docs
 
 | File | Use |
 |---|---|

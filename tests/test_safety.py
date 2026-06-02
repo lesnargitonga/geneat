@@ -158,6 +158,44 @@ class TestOutboundLengthCap:
         assert "truncated" in flags
 
 
+class TestOutboundNoOverpromise:
+    def test_binding_promises_are_redacted(self) -> None:
+        text = (
+            "Your items are reserved and delivery is guaranteed. "
+            "It will arrive by 4 PM."
+        )
+        cleaned, flags = evaluate_outbound(text, allowed_prices=None)
+        lowered = cleaned.lower()
+        assert "reserved" not in lowered
+        assert "delivery is guaranteed" not in lowered
+        assert "arrive by 4 pm" not in lowered
+        assert "concierge will confirm availability" in lowered
+        assert "promise_control_redacted" in flags
+
+    def test_non_binding_language_is_allowed(self) -> None:
+        text = "Our concierge will confirm availability and delivery timing shortly."
+        cleaned, flags = evaluate_outbound(text, allowed_prices=None)
+        assert cleaned == text
+        assert "promise_control_redacted" not in flags
+
+
+class TestOutboundSubstitutionControl:
+    def test_substitution_signal_forces_approval_prompt(self) -> None:
+        text = (
+            "One item is unavailable now, but we can use an equivalent alternative and proceed."
+        )
+        cleaned, flags = evaluate_outbound(text, allowed_prices=None)
+        lowered = cleaned.lower()
+        assert "would you like us to proceed with the replacement before dispatch?" in lowered
+        assert "substitution_approval_required" in flags
+
+    def test_normal_reply_not_rewritten_as_substitution(self) -> None:
+        text = "Your brief was received. Our concierge will confirm timing shortly."
+        cleaned, flags = evaluate_outbound(text, allowed_prices=None)
+        assert cleaned == text
+        assert "substitution_approval_required" not in flags
+
+
 class TestOutboundShapes:
     """SafetyDecision contract — fields the channel handler reads."""
 

@@ -55,8 +55,28 @@ def test_build_payload_collection_single_line() -> None:
     assert payload["lines"][0]["price_usd"] == 249.0
     assert payload["total_usd"] == 249.0
     active = [s for s in payload["timeline"] if s["status"] == "active"][0]
-    assert active["label"] == "Out for Delivery"
+    assert active["label"] == "On the way"
     assert active.get("courier_note") == "Express Messengers (KCA 123G)"
+
+
+def test_build_payload_quality_check_timeline_label() -> None:
+    order = SimpleNamespace(
+        id=uuid.uuid4(),
+        amount=32400,
+        currency="KES",
+        payment_status=PaymentStatus.pending,
+        created_at=datetime(2026, 6, 2, 14, 32, tzinfo=timezone.utc),
+        appointment_time=None,
+        details={
+            "public_reference": "HN-ORD-TRACKQC",
+            "product_id": "kenya-edit",
+            "fulfillment_status": "quality_check",
+            "delivery_location": "Villa Rosa Kempinski, Room 412",
+        },
+    )
+    payload = build_public_order_payload(order)
+    active = [s for s in payload["timeline"] if s["status"] == "active"][0]
+    assert active["label"] == "Quality check"
 
 
 @pytest.mark.asyncio

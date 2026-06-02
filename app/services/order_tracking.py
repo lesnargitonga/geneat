@@ -15,9 +15,12 @@ from app.db.models import Order
 _COLLECTION_BY_ID = {row["id"]: row for row in HAZINA_COLLECTIONS}
 
 _TIMELINE_LABELS = (
-    ("confirmed", "Order Confirmed"),
-    ("packed", "Curated & Packed"),
-    ("delivery", "Out for Delivery"),
+    ("brief", "Brief received"),
+    ("sourcing", "Sourcing in progress"),
+    ("quality", "Quality check"),
+    ("packing", "Being packaged"),
+    ("ready", "Ready for dispatch"),
+    ("delivery", "On the way"),
     ("delivered", "Delivered"),
 )
 
@@ -62,14 +65,20 @@ def tracking_link_line(order: Order, *, is_sw: bool = False) -> str:
 
 def _timeline_steps(fulfillment: str) -> list[dict[str, Any]]:
     status = (fulfillment or "pending_payment").strip().lower()
-    if status == "delivered":
-        active_index = 4
-    elif status == "out_for_delivery":
-        active_index = 2
-    elif status in {"preparing", "ready"}:
-        active_index = 1
-    else:
-        active_index = 0
+    active_index_map = {
+        "brief_received": 0,
+        "awaiting_confirmation": 0,
+        "pending_payment": 0,
+        "sourcing_approved": 1,
+        "runner_assigned": 1,
+        "sourcing_in_progress": 1,
+        "quality_check": 2,
+        "packing": 3,
+        "ready_for_dispatch": 4,
+        "out_for_delivery": 5,
+        "delivered": 6,
+    }
+    active_index = active_index_map.get(status, 0)
 
     steps: list[dict[str, Any]] = []
     for idx, (step_id, label) in enumerate(_TIMELINE_LABELS):
@@ -81,6 +90,13 @@ def _timeline_steps(fulfillment: str) -> list[dict[str, Any]]:
             step_status = "upcoming"
         if status == "delivered":
             step_status = "complete"
+        if status in {"issue_pending", "cancelled"}:
+            if idx < 1:
+                step_status = "complete"
+            elif idx == 1:
+                step_status = "active"
+            else:
+                step_status = "upcoming"
         steps.append({"id": step_id, "label": label, "status": step_status})
     return steps
 
