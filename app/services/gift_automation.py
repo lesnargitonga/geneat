@@ -32,6 +32,7 @@ from app.services.cafe_automation import (
     create_order_and_request_payment,
     order_items_summary,
 )
+from app.services.fulfillment_status import DELIVERED, OUT_FOR_DELIVERY, PENDING_PAYMENT
 from app.services.whatsapp_menus import (
     HAZINA_NOMADS_SLUG,
     ID_PRODUCT_PREFIX,
@@ -78,18 +79,11 @@ _CORPORATE_RE = re.compile(
     re.IGNORECASE,
 )
 _CONCIERGE_HELP_RE = re.compile(
-    r"\b(i?'d like concierge help|concierge help|talk to concierge|need concierge help|help me choose)\b",
+    r"\b(i'?d like concierge help|concierge help|talk to concierge|need concierge help|"
+    r"help me choose(?:\b|\s*(?:[.!?])?$| (?:a|an|the)? ?(?:gift|gifts|box|boxes|collection|collections|treasure|treasures)\b))",
     re.IGNORECASE,
 )
 _JKIA_RE = re.compile(r"\bjkia\b|terminal\s*\d", re.IGNORECASE)
-_DHL_INFO_RE = re.compile(
-    r"\b(dhl|ship abroad|shipping abroad|international shipping|export|outside kenya|leave kenya)\b",
-    re.IGNORECASE,
-)
-_JKIA_INFO_RE = re.compile(
-    r"\b(jkia|airport|terminal\s*\d|flight|departure\s+(?:gift|handoff|time|flight))\b",
-    re.IGNORECASE,
-)
 _DEPARTURE_RE = re.compile(
     r"\b(?:depart|departure|flight|leave|fly)\b.{0,30}\b(\d{1,2}[:\.]\d{2}|\d{1,2}\s*(?:am|pm)|today|tomorrow)",
     re.IGNORECASE,
@@ -119,10 +113,6 @@ _PORTAL_COLLECTION_CHECKOUT_RE = re.compile(
     r"\bautomated collection checkout\b",
     re.IGNORECASE,
 )
-_CAFE_ITEM_RE = re.compile(
-    r"\b(croissants?|flat\s+white|cappuccino|latte|espresso|mandazi|masala\s+chai|pain\s+au\s+chocolat|brownies?)\b",
-    re.IGNORECASE,
-)
 _PHOTO_RE = re.compile(r"\b(photo|picture|pic|image|picha|show me)\b", re.IGNORECASE)
 _CHECKOUT_CANCEL_RE = re.compile(
     r"\b(cancel|stop|abort|sitisha)\b.{0,50}\b(checkout|order|payment|pay|malipo|oda)\b|"
@@ -147,6 +137,14 @@ _KES_PAY_RE = re.compile(
     re.IGNORECASE,
 )
 _EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
+_DHL_LOGISTICS_RE = re.compile(
+    r"\b(ship|shipping|abroad|international|export|dhl|overseas)\b",
+    re.IGNORECASE,
+)
+_CAFE_MENU_RE = re.compile(
+    r"\b(espresso|flat white|cappuccino|latte|croissants?|mandazi|cafe|coffee)\b",
+    re.IGNORECASE,
+)
 
 
 @dataclass(frozen=True)
@@ -155,8 +153,6 @@ class GiftAutomationResult:
     interactive: dict | None = None
     escalated: bool = False
     safety_flag: str = "deterministic:gift_automation"
-    image_url: str | None = None
-    photo_item: str | None = None
 
 
 @dataclass(frozen=True)
@@ -178,6 +174,13 @@ class ParsedCheckoutDetails:
     contact: str | None = None
     payment_currency: str | None = None
     quantity: int = 1
+
+
+@dataclass(frozen=True)
+class GiftPhotoReply:
+    reply: str
+    image_url: str | None = None
+    safety_flag: str = "deterministic:hazina_photo"
 
 
 def is_hazina_slug(slug: str | None) -> bool:
@@ -242,23 +245,27 @@ def looks_like_portal_collection_checkout(text: str) -> bool:
     return bool(_PORTAL_COLLECTION_CHECKOUT_RE.search(text or ""))
 
 
-def looks_like_hazina_logistics_question(text: str) -> str | None:
-    body = text or ""
-    if _DHL_INFO_RE.search(body):
-        return "dhl"
-    if _JKIA_INFO_RE.search(body):
-        return "jkia"
-    return None
-
-
 def looks_like_hazina_catalog_request(text: str) -> bool:
     if looks_like_portal_collection_checkout(text):
         return False
     return bool(_CATALOG_RE.search(text or ""))
 
 
+def looks_like_hazina_logistics_question(text: str) -> str | None:
+    body = (text or "").strip().lower()
+    if not body:
+        return None
+    if resolve_product_id(body):
+        return None
+    if _DHL_LOGISTICS_RE.search(body):
+        return "dhl"
+    if _JKIA_RE.search(body):
+        return "jkia"
+    return None
+
+
 def looks_like_cafe_menu_question(text: str) -> bool:
-    return bool(_CAFE_ITEM_RE.search(text or ""))
+    return bool(_CAFE_MENU_RE.search(text or ""))
 
 
 def looks_like_checkout_cancel(text: str) -> bool:
@@ -641,38 +648,48 @@ def _catalog_reply(*, is_sw: bool) -> str:
     )
 
 
-def _cafe_boundary_reply(*, is_sw: bool) -> str:
-    if is_sw:
-        return (
-            "Hazina Nomads si cafe; tunauza premium Kenyan gift collections, leather, beadwork, carvings, coffee/tea gifts, na custom boxes. "
-            "Nikikuonyeshe collections zetu?"
-        )
-    return (
-        "Hazina Nomads is not a cafe. We curate premium Kenyan gift collections: leather, beadwork, carvings, coffee/tea gifts, and custom boxes. "
-        "Would you like to see the collections?"
-    )
-
-
 def _logistics_reply(kind: str, *, is_sw: bool) -> str:
-    if kind == "dhl":
-        if is_sw:
-            return (
-                "Ndiyo — tunaweza kupanga DHL/export shipping. Tunatoa quote kabla ya malipo kwa sababu gharama hutegemea nchi, mji, uzito, na muda. "
-                "Niambie nchi na mji wa kutuma, kisha collection unayotaka."
-            )
+    if kind == "jkia":
         return (
-            "Yes — we can arrange DHL/export shipping. We quote it before payment because cost depends on country, city, weight, and timing. "
-            "Send the destination country/city and the collection you want, and I will guide the next step."
-        )
-    if is_sw:
-        return (
-            "Ndiyo — tunaweza kupanga JKIA terminal handoff kwa zawadi za departure. "
-            "Kwa oda mpya, niambie collection unayotaka, terminal, na muda wa flight au handoff."
+            "Tunaweza kupanga JKIA terminal handoff kwa collection yako baada ya kuthibitisha dirisha la kuondoka."
+            if is_sw
+            else "We can coordinate a JKIA terminal handoff for your collection once we confirm your departure window."
         )
     return (
-        "Yes — we can arrange JKIA terminal handoff for departure gifts. "
-        "For a new order, tell me the collection, terminal, and flight or handoff time."
+        "Tunatoa DHL/export shipping kwa mpangilio wa concierge. Tunathibitisha gharama na muda kabla ya malipo."
+        if is_sw
+        else "We support DHL/export shipping via concierge handling, with timeline and cost confirmation before payment."
     )
+
+
+def _cafe_boundary_reply(*, is_sw: bool) -> str:
+    return (
+        "Hazina si cafe; tunashughulikia gift collections na private sourcing. Chagua collection tuanze."
+        if is_sw
+        else "Hazina Nomads is not a cafe; we handle premium gift collections and private sourcing. Pick a collection to start."
+    )
+
+
+async def _checkout_product_photo_reply(
+    db: AsyncSession,
+    *,
+    business_id: uuid.UUID | None,
+    checkout: dict,
+    is_sw: bool,
+) -> GiftPhotoReply:
+    del db, business_id
+    from app.services.menu_photos import find_photo
+
+    product_id = str(checkout.get("product_id") or "").strip()
+    product = HAZINA_PRODUCTS.get(product_id, {})
+    item_query = str(product.get("name") or "Hazina collection")
+    _, image_url = find_photo(HAZINA_SLUG, item_query, None)
+    reply = (
+        f"Hii ndiyo picha ya {item_query}."
+        if is_sw
+        else f"Here is a reference photo for {item_query}."
+    )
+    return GiftPhotoReply(reply=reply, image_url=image_url, safety_flag="deterministic:hazina_checkout_photo")
 
 
 def _delivery_type_from_text(text: str | None, *, fallback: str | None = None) -> str | None:
@@ -772,6 +789,22 @@ def _checkout_prompt(checkout: dict, *, is_sw: bool) -> str:
     return "Thibitisha tuanze checkout." if is_sw else "Confirm and I will create the order."
 
 
+def _checkout_restart_reply(*, is_sw: bool) -> str:
+    return (
+        "Draft checkout yako imekosekana au ime-expire. Chagua collection tena tuanze upya."
+        if is_sw
+        else "That checkout draft is missing or expired. Pick a collection again and I'll restart."
+    )
+
+
+def _checkout_restart_reply(*, is_sw: bool) -> str:
+    return (
+        "Draft checkout yako imekosekana au ime-expire. Chagua collection tena tuanze upya."
+        if is_sw
+        else "That checkout draft is missing or expired. Pick a collection again and I'll restart."
+    )
+
+
 async def _ask_next_checkout_step(conversation_id: uuid.UUID, checkout: dict, *, is_sw: bool) -> GiftAutomationResult:
     next_step = _checkout_next_step(checkout)
     if next_step is None:
@@ -815,6 +848,22 @@ def _payment_success_reply(
     )
 
 
+def _safe_payment_start_error(*, is_sw: bool) -> str:
+    return (
+        "Sijaweza kuanzisha malipo sasa hivi. Jaribu tena baada ya muda mfupi."
+        if is_sw
+        else "I could not start payment right now. Please try again in a moment."
+    )
+
+
+def _safe_payment_start_error(*, is_sw: bool) -> str:
+    return (
+        "Sijaweza kuanzisha malipo sasa hivi. Jaribu tena baada ya muda mfupi."
+        if is_sw
+        else "I could not start payment right now. Please try again in a moment."
+    )
+
+
 async def _track_delivery_reply(
     db: AsyncSession,
     *,
@@ -838,9 +887,9 @@ async def _track_delivery_reply(
     orders = (await db.execute(stmt)).scalars().all()
     if not orders:
         return (
-            "Bado sina tracking ya oda yako. Chagua sanduku kutoka menu au niambie unachotaka kuagiza."
+            "Bado sina oda yako. Chagua sanduku kutoka menu au niambie unachotaka kuagiza."
             if is_sw else
-            "I don't have tracking for an order yet. Pick a gift box from the menu or tell me what you'd like."
+            "I don't have an order on file yet. Pick a gift box from the menu or tell me what you'd like."
         )
     order = orders[0]
     details = order.details if isinstance(order.details, dict) else {}
@@ -855,7 +904,7 @@ async def _track_delivery_reply(
             if isinstance(r, dict)
         ]
     ) or "your gift box"
-    fulfillment = str(details.get("fulfillment_status") or "pending_payment")
+    fulfillment = str(details.get("fulfillment_status") or PENDING_PAYMENT)
     loc = details.get("delivery_location") or details.get("delivery_notes") or ""
     loc_bit = f" to {loc}" if loc else ""
     pay = order.payment_status.value
@@ -867,9 +916,9 @@ async def _track_delivery_reply(
 
     if pay == PaymentStatus.paid.value:
         status_en = {
-            "pending_payment": "paid — dispatch being scheduled",
-            "out_for_delivery": "out for delivery",
-            "delivered": "delivered",
+            PENDING_PAYMENT: "paid — dispatch being scheduled",
+            OUT_FOR_DELIVERY: "out for delivery",
+            DELIVERED: "delivered",
         }.get(fulfillment, "paid — our team is preparing dispatch")
         if is_sw:
             base = f"{summary}{loc_bit}: malipo yamethibitishwa, hali — {status_en}."
@@ -895,61 +944,6 @@ async def _track_delivery_reply(
         f"{summary}: hali ya malipo — {pay}."
         if is_sw else
         f"{summary}: payment status is {pay}."
-    )
-
-
-async def _checkout_product_photo_reply(
-    db: AsyncSession,
-    *,
-    business_id: uuid.UUID | None,
-    checkout: dict,
-    is_sw: bool,
-) -> GiftAutomationResult:
-    product_id = str(checkout.get("product_id") or "")
-    row = HAZINA_PRODUCTS.get(product_id)
-    if not row:
-        return GiftAutomationResult(
-            reply=(
-                "Upload any reference photo here, then we will continue checkout one step at a time."
-                if not is_sw else
-                "Pakia picha yoyote ya mfano hapa, kisha tutaendelea na checkout hatua kwa hatua."
-            ),
-            safety_flag="deterministic:hazina_checkout_photo_note",
-        )
-
-    from app.db.models import Business
-    from app.services.menu_photos import find_photo
-
-    custom_photos: dict[str, str] = {}
-    if business_id is not None:
-        business = await db.get(Business, business_id)
-        profile = business.profile if business is not None and isinstance(business.profile, dict) else {}
-        raw = profile.get("menu_photos") if isinstance(profile, dict) else None
-        if isinstance(raw, dict):
-            custom_photos = {str(k): str(v) for k, v in raw.items() if v}
-
-    name = str(row["name"])
-    matched, url = find_photo(HAZINA_SLUG, name, custom_photos)
-    if url:
-        reply = (
-            f"Here is {name}. We can continue checkout when you're ready."
-            if not is_sw else
-            f"Hii hapa {name}. Tutaendelea na checkout ukiwa tayari."
-        )
-        return GiftAutomationResult(
-            reply=reply,
-            image_url=url,
-            photo_item=matched or name,
-            safety_flag="deterministic:hazina_checkout_photo",
-        )
-
-    return GiftAutomationResult(
-        reply=(
-            f"I do not have a clean photo for {name} yet. We can still continue checkout, or you can choose another collection."
-            if not is_sw else
-            f"Sina picha safi ya {name} bado. Tunaweza kuendelea na checkout, au uchague collection nyingine."
-        ),
-        safety_flag="deterministic:hazina_checkout_photo_missing",
     )
 
 
@@ -1016,17 +1010,13 @@ async def _finalize_order(
     if departure_note:
         details["departure_time_iso"] = departure_note
     details["product_id"] = product_id
-    details["fulfillment_status"] = "pending_payment"
+    details["fulfillment_status"] = PENDING_PAYMENT
     order.details = details
     await db.flush()
     await _clear_checkout(conversation_id)
 
     if result.payment and not result.payment.ok:
-        msg = (
-            f"Sijaweza kuanzisha malipo: {result.payment.message}. Jaribu tena baada ya muda mfupi."
-            if is_sw else
-            f"I could not start payment yet: {result.payment.message}. Try again shortly."
-        )
+        msg = _safe_payment_start_error(is_sw=is_sw)
         return GiftAutomationResult(reply=msg, safety_flag="deterministic:hazina_payment_failed")
 
     from app.services.order_tracking import ensure_order_tracking, tracking_link_line
@@ -1102,7 +1092,7 @@ async def _finalize_custom_order(
     details["engravings"] = list(parsed.engravings)
     details["bespoke_request"] = parsed.bespoke_request
     details["items"] = [_hazina_item_to_order_dict(item) for item in parsed.items]
-    details["fulfillment_status"] = "pending_payment"
+    details["fulfillment_status"] = PENDING_PAYMENT
     order.details = details
     await db.flush()
     await _clear_checkout(conversation_id)
@@ -1113,11 +1103,7 @@ async def _finalize_custom_order(
     bind_order_log_context(order)
     summary = order_items_summary(parsed.items) or "your custom box"
     if result.payment and not result.payment.ok:
-        msg = (
-            f"Sijaweza kuanzisha malipo: {result.payment.message}."
-            if is_sw else
-            f"I could not start payment: {result.payment.message}."
-        )
+        msg = _safe_payment_start_error(is_sw=is_sw)
         return GiftAutomationResult(reply=msg, safety_flag="deterministic:hazina_custom_payment_failed")
 
     from app.services.whatsapp_menus import order_actions_payload
@@ -1163,13 +1149,6 @@ async def try_hazina_automation(
     if email_match:
         payment_email = email_match.group(0)
 
-    if looks_like_cafe_menu_question(text):
-        return GiftAutomationResult(
-            reply=_cafe_boundary_reply(is_sw=is_sw),
-            interactive=product_list_payload(language=language),
-            safety_flag="deterministic:hazina_cafe_boundary",
-        )
-
     if looks_like_hazina_corporate(text):
         return GiftAutomationResult(
             reply=_corporate_reply(is_sw=is_sw),
@@ -1181,7 +1160,14 @@ async def try_hazina_automation(
     if logistics_kind:
         return GiftAutomationResult(
             reply=_logistics_reply(logistics_kind, is_sw=is_sw),
-            safety_flag=f"deterministic:hazina_logistics_{logistics_kind}",
+            safety_flag="deterministic:hazina_logistics",
+        )
+
+    if looks_like_cafe_menu_question(text):
+        return GiftAutomationResult(
+            reply=_cafe_boundary_reply(is_sw=is_sw),
+            interactive=product_list_payload(language=language),
+            safety_flag="deterministic:hazina_cafe_boundary",
         )
 
     if looks_like_hazina_track(text):
@@ -1202,6 +1188,15 @@ async def try_hazina_automation(
 
     checkout = await _get_checkout(conversation_id)
 
+    if checkout and _PHOTO_RE.search(text or ""):
+        photo = await _checkout_product_photo_reply(
+            db,
+            business_id=business_id,
+            checkout=checkout,
+            is_sw=is_sw,
+        )
+        return GiftAutomationResult(reply=photo.reply, safety_flag=photo.safety_flag)
+
     if not checkout and looks_like_hazina_concierge_help(text):
         reply = (
             "Karibu Hazina Nomads. Chagua chaguo hapa chini — nitakusaidia haraka."
@@ -1216,14 +1211,6 @@ async def try_hazina_automation(
                 business_slug=business_slug,
             ),
             safety_flag="deterministic:hazina_concierge_menu",
-        )
-
-    if checkout and _PHOTO_RE.search(text or "") and not looks_like_hazina_catalog_request(text):
-        return await _checkout_product_photo_reply(
-            db,
-            business_id=business_id,
-            checkout=checkout,
-            is_sw=is_sw,
         )
 
     if looks_like_hazina_catalog_request(text):
@@ -1395,7 +1382,11 @@ async def try_hazina_automation(
             product_id = str(checkout.get("product_id") or "")
             if product_id not in HAZINA_PRODUCTS:
                 await _clear_checkout(conversation_id)
-                return None
+                return GiftAutomationResult(
+                    reply=_checkout_restart_reply(is_sw=is_sw),
+                    interactive=product_list_payload(language=language),
+                    safety_flag="deterministic:hazina_checkout_restart",
+                )
             return await _finalize_order(
                 db,
                 customer_id=customer.id,
@@ -1491,7 +1482,11 @@ async def try_hazina_automation(
         product_id = str(checkout.get("product_id") or "")
         if product_id not in HAZINA_PRODUCTS:
             await _clear_checkout(conversation_id)
-            return None
+            return GiftAutomationResult(
+                reply=_checkout_restart_reply(is_sw=is_sw),
+                interactive=product_list_payload(language=language),
+                safety_flag="deterministic:hazina_checkout_restart",
+            )
         location = (text or "").strip()
         if len(location) < 6:
             return GiftAutomationResult(
@@ -1696,11 +1691,7 @@ async def finalize_checkout_from_ai(
     is_sw = (language or "").lower().startswith(("sw", "she"))
     if not payment.ok:
         return GiftAutomationResult(
-            reply=(
-                f"Sijaweza kuanzisha malipo: {payment.message}"
-                if is_sw else
-                f"I could not start payment: {payment.message}"
-            ),
+            reply=_safe_payment_start_error(is_sw=is_sw),
             safety_flag="deterministic:hazina_ai_payment",
         )
     from app.services.whatsapp_menus import order_actions_payload

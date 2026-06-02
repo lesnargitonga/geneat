@@ -176,6 +176,12 @@
            hover:border-obsidian/20 hover:shadow-editorial;
   }
 
+  .glass-strip {
+    @apply rounded-2xl border border-white/10 shadow-editorial;
+    background: rgba(20, 20, 20, 0.58);
+    backdrop-filter: blur(12px);
+  }
+
   .input-luxury {
     @apply w-full border border-border bg-sand px-4 py-3 text-base text-obsidian
            placeholder:text-ink-mute/60 transition-colors focus:border-obsidian;

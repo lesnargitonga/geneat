@@ -20,6 +20,7 @@ from app.ai.quick_replies import MenuOrderMatch, match_order_item_from_chunks
 from app.core.exceptions import RateLimited, UpstreamError
 from app.db.models import Conversation, Order, PaymentStatus
 from app.integrations.payments import get_payment_service, resolve_payment_service
+from app.services.fulfillment_status import PENDING_PAYMENT
 
 
 @dataclass(frozen=True)
@@ -268,7 +269,7 @@ async def create_pending_order(
     details: dict[str, object] = {
         "items": [item.to_order_dict() for item in items],
         "delivery_notes": delivery_notes,
-        "fulfillment_status": "pending_payment",
+        "fulfillment_status": PENDING_PAYMENT,
     }
     if delivery_location:
         details["delivery_location"] = delivery_location
@@ -350,7 +351,7 @@ async def request_order_payment(
     try:
         order.mpesa_checkout_id = result.reference
         details = dict(order.details or {})
-        details["fulfillment_status"] = "pending_payment"
+        details["fulfillment_status"] = PENDING_PAYMENT
         order.details = details
         await db.flush()
         if svc.name == "intasend":

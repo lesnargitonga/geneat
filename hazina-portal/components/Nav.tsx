@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BRAND } from "@/lib/products";
 import { whatsappLink } from "@/lib/format";
@@ -17,9 +17,25 @@ const NAV = [
 export function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [showStickyCta, setShowStickyCta] = useState(pathname !== "/");
   const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like to order a gift box.");
   const isActive = (href: string) =>
     pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
+
+  useEffect(() => {
+    if (pathname !== "/") {
+      setShowStickyCta(true);
+      return;
+    }
+    const onScroll = () => {
+      const threshold = Math.max(420, Math.round(window.innerHeight * 0.62));
+      setShowStickyCta(window.scrollY > threshold);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [pathname]);
+
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-sand/85 backdrop-blur-md">
       <div className="container-page flex items-center justify-between h-16 md:h-[4.5rem]">
@@ -45,12 +61,18 @@ export function Nav() {
             </Link>
           ))}
         </nav>
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-5">
           <ThemeToggle compact />
-          <Link href="/#chat" className="btn-outline py-2.5 px-5">
-            Chat in app
-          </Link>
-          <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-bronze py-2.5 px-5">
+          <a
+            href={wa}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`font-mono text-sm uppercase tracking-[0.12em] transition-all duration-300 ${
+              showStickyCta
+                ? "btn-bronze py-2.5 px-5 translate-y-0 opacity-100"
+                : "text-ink-soft hover:text-obsidian translate-y-0.5 opacity-90"
+            }`}
+          >
             Order on WhatsApp
           </a>
         </div>

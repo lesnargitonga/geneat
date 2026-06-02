@@ -20,7 +20,7 @@ export default function HomePage() {
             sizes="100vw"
             priority
           />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.18)_0%,rgba(0,0,0,0.38)_42%,rgba(14,13,12,0.86)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.55)_45%,rgba(7,7,6,0.88)_100%)]" />
         </div>
 
         <div className="relative container-page min-h-[86svh] py-16 md:py-24 flex flex-col justify-between gap-12">
@@ -28,22 +28,16 @@ export default function HomePage() {
             <span className="font-mono text-sm font-medium uppercase tracking-[0.12em] text-white/70">
               Nairobi hotel delivery · JKIA handoff · DHL export quotes
             </span>
-            <h1 className="mt-5 font-serif text-5xl md:text-7xl lg:text-8xl leading-[0.92] tracking-tight text-white">
+            <h1 className="mt-5 font-serif text-5xl md:text-7xl lg:text-8xl leading-[0.9] tracking-[-0.02em] text-white">
               Treasures, delivered to your journey.
             </h1>
-            <p className="mt-6 max-w-2xl text-lg md:text-xl leading-relaxed text-white/85">
+            <p className="mt-6 max-w-2xl text-lg md:text-xl leading-[1.85] text-white/84">
               Premium Kenyan gift collections for travellers who want something more considered than a
               souvenir run.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/collections" className="btn-bronze">
                 View collections
-              </Link>
-              <Link
-                href="/#chat"
-                className="btn-outline border-white/60 text-white hover:bg-white hover:text-black"
-              >
-                Chat in app
               </Link>
               <a
                 href={wa}
@@ -57,26 +51,29 @@ export default function HomePage() {
           </div>
 
           <div className="-mx-5 overflow-x-auto px-5 pb-2 local-scroll-x lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0">
-            <div className="flex min-w-max gap-3 lg:grid lg:min-w-0 lg:grid-cols-5">
+            <div className="glass-strip flex min-w-max gap-4 p-3 lg:grid lg:min-w-0 lg:grid-cols-5">
               {GIFT_BOXES.map((box) => (
                 <Link
                   key={box.id}
                   href={`/collections/${box.id}`}
-                  className="group grid w-[min(78vw,300px)] shrink-0 grid-cols-[76px_1fr] gap-3 border border-white/18 bg-black/34 p-2.5 text-white backdrop-blur-sm transition hover:border-bronze-light hover:bg-black/48 lg:w-auto lg:grid-cols-1"
+                  className="group relative w-[min(78vw,300px)] shrink-0 overflow-hidden rounded-2xl text-white transition duration-500 hover:-translate-y-1 lg:w-auto"
                 >
-                  <CatalogImage
-                    src={box.image}
-                    alt={box.imageAlt || box.name}
-                    tone="warm"
-                    fit="cover"
-                    className="h-[76px] w-[76px] lg:h-24 lg:w-full"
-                    sizes="180px"
-                  />
-                  <span className="min-w-0 self-center">
-                    <span className="block font-serif text-base leading-tight text-white group-hover:text-bronze-light">
+                  <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.05]">
+                    <CatalogImage
+                      src={box.image}
+                      alt={box.imageAlt || box.name}
+                      tone="warm"
+                      fit="cover"
+                      className="h-52 w-full lg:h-56"
+                      sizes="300px"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/5" />
+                  <span className="relative z-10 flex h-52 flex-col justify-end p-4 lg:h-56">
+                    <span className="block font-serif text-lg leading-tight text-white group-hover:text-bronze-light">
                       {box.name}
                     </span>
-                    <span className="mt-1 block font-mono text-sm leading-relaxed text-white/76">
+                    <span className="mt-1 block font-mono text-sm leading-relaxed text-white/85">
                       {formatUSD(box.price_usd)} · {formatKES(box.price_kes)}
                     </span>
                   </span>
@@ -86,9 +83,9 @@ export default function HomePage() {
           </div>
 
           <div className="grid gap-5 border-t border-white/20 pt-6 text-white/80 sm:grid-cols-3 md:max-w-4xl">
-            <HeroNote title="Hotel delivery" body="Westlands · Kilimani · Karen" />
-            <HeroNote title="JKIA handoff" body="Terminal-aware departure gifts" />
-            <HeroNote title="DHL export" body="Insured quotes before payment" />
+            <HeroNote title="Hotel delivery" body="Westlands · Kilimani · Karen" icon="hotel" />
+            <HeroNote title="JKIA handoff" body="Terminal-aware departure gifts" icon="jkia" />
+            <HeroNote title="DHL export" body="Insured quotes before payment" icon="dhl" />
           </div>
         </div>
       </section>
@@ -163,11 +160,69 @@ function PathCard({
   );
 }
 
-function HeroNote({ title, body }: { title: string; body: string }) {
+function HeroNote({
+  title,
+  body,
+  icon,
+}: {
+  title: string;
+  body: string;
+  icon: "hotel" | "jkia" | "dhl";
+}) {
   return (
     <div className="sm:border-l sm:border-white/20 sm:pl-5 first:border-l-0 first:pl-0">
+      <ServiceIcon kind={icon} />
       <p className="font-mono text-[13px] uppercase tracking-[0.14em] text-bronze-light">{title}</p>
       <p className="mt-2 text-sm md:text-base leading-relaxed text-white/72">{body}</p>
     </div>
+  );
+}
+
+function ServiceIcon({ kind }: { kind: "hotel" | "jkia" | "dhl" }) {
+  if (kind === "hotel") {
+    return (
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        className="mb-2 h-5 w-5 text-bronze-light/90"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.35"
+      >
+        <path d="M3 19v-7h18v7" />
+        <path d="M6 12V7h12v5" />
+        <path d="M9 10h.01M15 10h.01" />
+      </svg>
+    );
+  }
+  if (kind === "jkia") {
+    return (
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        className="mb-2 h-5 w-5 text-bronze-light/90"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.35"
+      >
+        <path d="M4 19h16" />
+        <path d="M3 14l9-2 9 2" />
+        <path d="M12 5v7" />
+      </svg>
+    );
+  }
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="mb-2 h-5 w-5 text-bronze-light/90"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.35"
+    >
+      <path d="M4 8h16v10H4z" />
+      <path d="M4 12h16" />
+      <path d="M9 8l3 4 3-4" />
+    </svg>
   );
 }

@@ -11,6 +11,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.catalog.hazina_catalog import HAZINA_COLLECTIONS
 from app.core.config import get_settings
 from app.db.models import Order
+from app.services.fulfillment_status import (
+    AWAITING_CONFIRMATION,
+    BRIEF_RECEIVED,
+    CANCELLED,
+    DELIVERED,
+    ISSUE_PENDING,
+    OUT_FOR_DELIVERY,
+    PACKING,
+    PENDING_PAYMENT,
+    QUALITY_CHECK,
+    READY_FOR_DISPATCH,
+    RUNNER_ASSIGNED,
+    SOURCING_APPROVED,
+    SOURCING_IN_PROGRESS,
+    normalize_fulfillment_status,
+)
 
 _COLLECTION_BY_ID = {row["id"]: row for row in HAZINA_COLLECTIONS}
 
@@ -64,19 +80,19 @@ def tracking_link_line(order: Order, *, is_sw: bool = False) -> str:
 
 
 def _timeline_steps(fulfillment: str) -> list[dict[str, Any]]:
-    status = (fulfillment or "pending_payment").strip().lower()
+    status = normalize_fulfillment_status(fulfillment)
     active_index_map = {
-        "brief_received": 0,
-        "awaiting_confirmation": 0,
-        "pending_payment": 0,
-        "sourcing_approved": 1,
-        "runner_assigned": 1,
-        "sourcing_in_progress": 1,
-        "quality_check": 2,
-        "packing": 3,
-        "ready_for_dispatch": 4,
-        "out_for_delivery": 5,
-        "delivered": 6,
+        BRIEF_RECEIVED: 0,
+        AWAITING_CONFIRMATION: 0,
+        PENDING_PAYMENT: 0,
+        SOURCING_APPROVED: 1,
+        RUNNER_ASSIGNED: 1,
+        SOURCING_IN_PROGRESS: 1,
+        QUALITY_CHECK: 2,
+        PACKING: 3,
+        READY_FOR_DISPATCH: 4,
+        OUT_FOR_DELIVERY: 5,
+        DELIVERED: 6,
     }
     active_index = active_index_map.get(status, 0)
 
@@ -88,9 +104,9 @@ def _timeline_steps(fulfillment: str) -> list[dict[str, Any]]:
             step_status = "active"
         else:
             step_status = "upcoming"
-        if status == "delivered":
+        if status == DELIVERED:
             step_status = "complete"
-        if status in {"issue_pending", "cancelled"}:
+        if status in {ISSUE_PENDING, CANCELLED}:
             if idx < 1:
                 step_status = "complete"
             elif idx == 1:
@@ -130,7 +146,7 @@ def _display_lines(details: dict[str, Any]) -> list[dict[str, Any]]:
 
 def build_public_order_payload(order: Order) -> dict[str, Any]:
     details = order.details if isinstance(order.details, dict) else {}
-    fulfillment = str(details.get("fulfillment_status") or "pending_payment")
+    fulfillment = normalize_fulfillment_status(details.get("fulfillment_status"))
     ref = str(details.get("public_reference") or public_reference_for(order.id))
 
     pay_cur = str(details.get("payment_currency") or order.currency or "KES").upper()

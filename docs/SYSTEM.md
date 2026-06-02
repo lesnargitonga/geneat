@@ -593,8 +593,8 @@ Use this tracker in standups; update `Status`, `Owner`, and `Last update` contin
 | Catalog truth | Python/TS parity CI green | ✅ | Eng | 2026-06-02 | `tests/test_catalog_contract.py` + `make check-contracts` |
 | AI promise control | No-overpromise policy enforced in prompts/guards | ✅ | Eng + Ops | 2026-06-02 | `app/ai/safety.py` + `tests/test_safety.py` |
 | Substitution policy | Public policy published + WA approval flow active | ⬜ | Ops | 2026-06-02 | portal FAQ + sample WA transcript |
-| Fulfillment states | 12-state machine mapped to order lifecycle | ⬜ | Eng | 2026-06-02 | schema/service diff + tracking screenshot |
-| Ghost Ops expansion | `!accept !runner !sourcing !qc !packing !ready !issue !cancel` live | ◐ | Eng + Ops | 2026-06-02 | `app/services/ops_automation.py` + `tests/test_ops_automation.py` |
+| Fulfillment states | 12-state machine mapped to order lifecycle | ◐ | Eng | 2026-06-02 | transition guardrails + premium timeline labels are live; DB-level canonical enum/state table still pending |
+| Ghost Ops expansion | `!orders !order !accept !runner !sourcing !qc !packing !ready !dispatch !delivered !issue !cancel` live | ✅ | Eng + Ops | 2026-06-02 | `app/services/ops_automation.py` + `tests/test_ops_automation.py` |
 | Tracking UX | Premium labels and customer-safe copy only | ✅ | Eng + Brand | 2026-06-02 | `app/services/order_tracking.py` + `tests/test_order_tracking.py` |
 | SOP discipline | SOP actively used on every order | ⬜ | Ops lead | 2026-06-02 | SOP checklist records |
 | Runner sourcing | SKU-level sourcing sheets in use | ⬜ | Ops | 2026-06-02 | sourcing sheets |

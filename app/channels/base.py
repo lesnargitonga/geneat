@@ -60,6 +60,7 @@ from app.services.ops_automation import try_handle_ops_command
 from app.services.gift_automation import (
     finalize_checkout_from_ai,
     is_hazina_slug,
+    looks_like_hazina_concierge_help,
     try_hazina_automation,
 )
 from app.services.whatsapp_menus import (
@@ -180,6 +181,8 @@ _INTERNAL_KB_MARKERS = (
     "tools",
     "system prompt",
     "playbook",
+    "brand positioning",
+    "not a souvenir shop",
 )
 
 
@@ -495,6 +498,14 @@ def _payment_tool_recovery_reply(result: dict, *, msisdn: str) -> str | None:
             "Tell me to send the STK prompt and I'll try again."
         )
     return None
+
+
+def _safe_payment_start_error(*, is_sw: bool) -> str:
+    return (
+        "Sijaweza kuanzisha malipo sasa hivi. Jaribu tena baada ya muda mfupi."
+        if is_sw
+        else "I could not start payment right now. Please try again in a moment."
+    )
 
 
 def _looks_like_sanitizer_fallback(reply: str) -> bool:
@@ -847,11 +858,7 @@ async def _demo_espresso_fast_order_reply(
         fast_path="demo_espresso",
     )
     if result.payment and not result.payment.ok:
-        payment_reply = (
-            f"Sijaweza kutuma STK bado: {result.payment.message}. Jaribu tena baada ya muda mfupi."
-            if is_sw else
-            f"I could not send the STK yet: {result.payment.message}. Please try again in a moment."
-        )
+        payment_reply = _safe_payment_start_error(is_sw=is_sw)
     elif result.payment is None and not result.created:
         payment_reply = await _pending_order_repeat_reply(
             db,
@@ -963,11 +970,7 @@ async def _simple_menu_order_reply(
         fast_path="simple_menu_order",
     )
     if result.payment and not result.payment.ok:
-        return (
-            f"Sijaweza kutuma STK bado: {result.payment.message}. Jaribu tena baada ya muda mfupi."
-            if is_sw else
-            f"I could not send the STK yet: {result.payment.message}. Please try again in a moment."
-        )
+        return _safe_payment_start_error(is_sw=is_sw)
     if result.payment is None and not result.created:
         return await _pending_order_repeat_reply(
             db,
@@ -2315,6 +2318,27 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             log.info("output_safety_redacted", flags=out_flags[:6])
 
         post_interactive: dict | None = None
+        if (
+            is_hazina_slug(_biz_slug)
+            and looks_like_hazina_concierge_help(turn.text)
+            and (
+                "brand positioning" in (reply or "").lower()
+                or (reply or "").lower().startswith("from the menu:")
+            )
+        ):
+            is_sw = (effective_lang or "").startswith(("sw", "she")) or \
+                    (customer.preferred_language or "").startswith(("sw", "she"))
+            reply = (
+                "Karibu Hazina Nomads. Chagua chaguo hapa chini — nitakusaidia haraka."
+                if is_sw else
+                "Welcome to Hazina Nomads. Choose an option below and I'll help you quickly."
+            )
+            post_interactive = main_menu_payload(
+                business_name="Hazina Nomads",
+                language=effective_lang,
+                business_slug=_biz_slug,
+            )
+            out_flags = list(out_flags or []) + ["deterministic:hazina_concierge_recover"]
         if is_hazina_slug(_biz_slug):
             ai_order = _latest_tool_result(result, "create_order")
             if ai_order.get("ok") and not ai_order.get("deduped"):

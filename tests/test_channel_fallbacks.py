@@ -21,6 +21,7 @@ from app.channels.base import (
     _offer_options_from_text,
     _payment_tool_recovery_reply,
     _promises_ready_before_payment,
+    _safe_payment_start_error,
     _specific_photo_reply,
     _unresolved_business_slug_reply,
 )
@@ -88,6 +89,17 @@ def test_payment_cancel_intent_and_internal_kb_filter() -> None:
         "LIVE DEMO - Demo Espresso KES 10. This is the tiny proof item for WhatsApp order + M-Pesa STK demos during pitches."
     ) is None
     assert _customer_safe_kb_snippet("PASTRIES - Butter Croissant KES 180.")
+    assert _customer_safe_kb_snippet(
+        "BRAND POSITIONING — Hazina Nomads is a premium travel concierge, not a souvenir shop."
+    ) is None
+
+
+def test_safe_payment_error_message_hides_provider_exception() -> None:
+    en = _safe_payment_start_error(is_sw=False)
+    sw = _safe_payment_start_error(is_sw=True)
+    assert "RetryError" not in en
+    assert "Traceback" not in en
+    assert "RetryError" not in sw
 
 
 def test_demo_espresso_fast_path_detects_order_with_name() -> None:

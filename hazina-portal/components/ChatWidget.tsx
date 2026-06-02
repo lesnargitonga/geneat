@@ -773,31 +773,31 @@ export function ChatWidget() {
         aria-label={open ? "Close chat" : "Open chat"}
         className={`fixed bottom-5 right-4 z-50 inline-flex items-center justify-center shadow-editorial active:scale-95 transition md:bottom-6 md:right-6 ${
           open
-            ? "h-12 w-12 rounded-full border border-border bg-sand text-obsidian text-xl hover:bg-sand-dark"
-            : "min-h-[52px] rounded-full border border-bronze/70 bg-bronze px-5 text-sm font-semibold text-obsidian backdrop-blur-md hover:bg-bronze-light"
+            ? "h-12 w-12 rounded-full border border-white/20 bg-[#111111]/95 text-white text-xl hover:bg-[#1a1a1a]"
+            : "min-h-[52px] rounded-full border border-white/25 bg-[#141414]/90 px-5 font-mono text-[11px] uppercase tracking-[0.14em] text-white backdrop-blur-md hover:bg-[#1b1b1b]"
         }`}
       >
-        {open ? "x" : "Chat in app"}
+        {open ? "x" : "Private chat"}
       </button>
 
       {open && (
-        <div className="fixed inset-x-3 bottom-20 z-50 flex max-h-[calc(100svh-7rem)] flex-col overflow-hidden border border-border bg-sand shadow-editorial md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:w-[min(420px,calc(100vw-2rem))] md:max-h-[calc(100svh-7rem)]">
-          <div className="flex items-center justify-between gap-3 border-b border-border bg-sand px-4 py-3 text-obsidian">
+        <div className="fixed inset-x-3 bottom-20 z-50 flex max-h-[calc(100svh-7rem)] flex-col overflow-hidden rounded-md border border-[#2b2b2b] bg-[#f4efe6] shadow-editorial md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:w-[min(420px,calc(100vw-2rem))] md:max-h-[calc(100svh-7rem)]">
+          <div className="flex items-center justify-between gap-3 border-b border-[#2b2b2b] bg-[#111111] px-4 py-3 text-white">
             <div>
-              <div className="label-mono text-ink-mute">Concierge chat</div>
-              <div className="font-serif text-xl text-obsidian">{BRAND.name}</div>
+              <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-[#caa777]">Private sourcing desk</div>
+              <div className="font-serif text-xl tracking-[-0.01em] text-white">Hazina Private Concierge</div>
             </div>
             <a
               href={whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads - I'd like concierge help.")}
               target="_blank"
               rel="noopener noreferrer"
-              className="shrink-0 text-sm font-medium text-bronze hover:text-obsidian"
+              className="shrink-0 font-mono text-[11px] uppercase tracking-[0.14em] text-[#d6b387] hover:text-white"
             >
               WhatsApp
             </a>
           </div>
 
-          <div ref={scrollerRef} className="flex-1 overflow-auto local-scroll local-scroll--subtle bg-sand p-3 space-y-2">
+          <div ref={scrollerRef} className="flex-1 space-y-2 overflow-auto bg-[#f4efe6] p-3 local-scroll local-scroll--subtle">
             {messages.map((m) => (
               <Bubble key={m.id} m={m} />
             ))}
@@ -815,10 +815,10 @@ export function ChatWidget() {
                     <a
                       key={`${p.label}-${p.href}`}
                       href={p.href}
-                      className={`min-h-[40px] rounded-full px-3 py-2 text-sm transition-colors ${
+                      className={`min-h-[38px] rounded-md px-3 py-2 font-mono text-[11px] uppercase tracking-[0.12em] transition-colors ${
                         p.primary
-                          ? "bg-obsidian text-sand hover:bg-obsidian-soft"
-                          : "border border-border text-obsidian hover:border-obsidian"
+                          ? "bg-[#1a1a1a] text-white hover:bg-black"
+                          : "border border-[#c8c0b2] text-[#2a2622] hover:border-[#1a1a1a]"
                       }`}
                     >
                       {p.label}
@@ -827,10 +827,10 @@ export function ChatWidget() {
                     <button
                       key={`${p.label}-${p.value || ""}`}
                       onClick={() => send(p.value || p.label)}
-                      className={`min-h-[40px] rounded-full px-3 py-2 text-sm transition-colors ${
+                      className={`min-h-[38px] rounded-md px-3 py-2 font-mono text-[11px] uppercase tracking-[0.12em] transition-colors ${
                         p.primary
-                          ? "bg-obsidian text-sand hover:bg-obsidian-soft"
-                          : "border border-border text-obsidian hover:border-obsidian"
+                          ? "bg-[#1a1a1a] text-white hover:bg-black"
+                          : "border border-[#c8c0b2] text-[#2a2622] hover:border-[#1a1a1a]"
                       }`}
                     >
                       {p.label}
@@ -841,7 +841,7 @@ export function ChatWidget() {
             )}
           </div>
 
-          <div className="flex items-end gap-2 border-t border-border bg-sand p-2">
+          <div className="flex items-end gap-2 border-t border-[#d6cdbf] bg-[#efe9de]/85 p-2 backdrop-blur-sm">
             <textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
@@ -852,13 +852,13 @@ export function ChatWidget() {
                 }
               }}
               rows={1}
-              placeholder={flow ? "Reply with one detail..." : "Message Hazina concierge..."}
-              className="min-h-[44px] flex-1 resize-none border border-border bg-sand-dark px-3 py-2 text-base text-obsidian outline-none focus:border-obsidian"
+              placeholder={flow ? "Detail one requirement..." : "Detail your request..."}
+              className="min-h-[42px] flex-1 resize-none rounded-md border border-transparent bg-white/35 px-3 py-2 text-base text-[#1f1d1a] placeholder:text-[#6b655d] outline-none focus:border-[#b4966f] focus:bg-white/45"
             />
             <button
               onClick={() => void send()}
               disabled={busy || !draft.trim()}
-              className="min-h-[44px] bg-obsidian px-4 py-2 font-mono text-sm uppercase tracking-[0.12em] text-sand disabled:opacity-40"
+              className="min-h-[42px] rounded-md bg-[#1a1a1a] px-4 py-2 font-mono text-[11px] uppercase tracking-[0.14em] text-white disabled:opacity-40"
             >
               Send
             </button>
@@ -876,17 +876,17 @@ export function triggerConciergePrompt(prompt: string) {
 
 function Bubble({ m }: { m: MsgWithMedia }) {
   if (m.role === "system") {
-    return <div className="text-center text-sm text-ink-mute py-1">{m.text}</div>;
+    return <div className="py-1 text-center text-sm text-[#6f675d]">{m.text}</div>;
   }
   const mine = m.role === "user";
   return (
     <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
       <div
         className={
-          "max-w-[88%] rounded-2xl px-3 py-2 text-base leading-relaxed whitespace-pre-wrap " +
+          "max-w-[88%] rounded-[8px] px-3 py-2 text-base leading-relaxed whitespace-pre-wrap " +
           (mine
-            ? "bg-obsidian text-sand"
-            : "border border-border bg-sand-dark text-obsidian")
+            ? "bg-[#ebe4d7] text-[#1f1d1a]"
+            : "bg-[#1a1a1a] text-white")
         }
       >
         {!mine && m.imageUrl && (
@@ -895,7 +895,7 @@ function Bubble({ m }: { m: MsgWithMedia }) {
             alt={m.imageAlt || "Product photo"}
             width={240}
             height={160}
-            className="mb-2 w-full max-w-[240px] rounded-xl object-cover"
+            className="mb-2 w-full max-w-[240px] rounded-md object-cover"
             unoptimized
           />
         )}
