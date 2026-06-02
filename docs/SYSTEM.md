@@ -2,7 +2,7 @@
 
 **Scope:** Gen-Eat platform + Hazina Nomads + shared API (`api.lesnarai.co.ke`).  
 **Maintain:** edit this file first when product, routing, catalog, deploy, or gaps change. Code wins if docs drift.  
-**Verified:** 2026-06-01 · `git log -1 --oneline` · `git status -sb`  
+**Verified:** 2026-06-02 · `git log -1 --oneline` · `git status -sb`
 **Security:** [SECURITY.md](../SECURITY.md)
 
 **Legend:** ✅ shipped in code · 🟢 verified live · ⬜ not done · ◐ partial
@@ -13,18 +13,18 @@
 
 | Area | Code | Live | Blocker / note |
 |---|---|---|---|
-| Shared API | ✅ | 🟢 | `api.lesnarai.co.ke`; `make doctor-hazina-live` passed on 2026-06-01 |
+| Shared API | ✅ | 🟢 | `api.lesnarai.co.ke`; commit `57c1157`; `make doctor-hazina-live` passed on 2026-06-02 |
 | Dedicated Hazina API service | ✅ | ◐ | `hazina-api.onrender.com` is same code; schema/pgvector repaired, but existing service is still Frankfurt while Hazina DB/Redis are Oregon, so latency gate fails |
 | Tenant `hazina-nomads` | ✅ | ◐ | `DEFAULT_BUSINESS_SLUG`; Meta `phone_number_id` |
 | Gen-Eat portal | ✅ | 🟢 | `geneat.lesnarai.co.ke` |
-| Hazina portal | ✅ | ⬜ | `hazina.lesnarai.co.ke` DNS unverified 2026-06-01; local `:3004` |
+| Hazina portal | ✅ | ◐ | Vercel production deploy ready and aliased; Cloudflare still needs `A hazina 76.76.21.21` |
 | Hazina WA | ✅ | ◐ | `+1 555 657 8220` |
-| KES STK (IntaSend) | ✅ | 🟢 | Live keys; `PAYMENT_SIMULATOR=false`; primary M-Pesa rail |
-| USD/card checkout | ✅ | ◐ | Paystack preferred when keys exist; IntaSend hosted checkout is fallback for now |
+| KES STK (IntaSend) | ✅ | 🟢 | Live keys; `PAYMENT_SIMULATOR=false`; health OK; real STK blood test still needs explicit phone/amount |
+| USD/card checkout | ✅ | ◐ | Paystack preferred when keys exist; IntaSend hosted checkout is fallback; real card-link blood test still needs explicit email/order |
 | Collections + guided checkout | ✅ | ◐ | Portal `ChatWidget` → structured payload |
 | Private sourcing brief `/build` | ✅ | ◐ | Monograms + bespoke; may need push/deploy |
 | Order tracking `HN-ORD-*?token=` | ✅ | ◐ | Needs `PUBLIC_HAZINA_PORTAL_URL` |
-| Ghost Ops `!dispatch` / `!delivered` | ✅ | ⬜ | `ADMIN_WA_NUMBERS` on API |
+| Ghost Ops `!dispatch` / `!delivered` | ✅ | ⬜ | `ADMIN_WA_NUMBERS` still needs production value + live ops phone smoke |
 | RAG / menu_photos | ✅ | 🟢 | Shared API has pgvector + KB rows; dedicated Hazina DB now has pgvector + Hazina KB after 2026-06-01 repair |
 | Courier integration | ⬜ | ⬜ | Manual ops only |
 | Partner payouts | ⬜ | ⬜ | Dashboard placeholder |
@@ -40,7 +40,7 @@
 | API | `https://api.lesnarai.co.ke` |
 | Health | `/healthz` `/readyz` `/health/deep` `/version` |
 | Gen-Eat portal | `https://geneat.lesnarai.co.ke` · `gen-eat-portal/` |
-| Hazina portal | `https://hazina.lesnarai.co.ke` · `hazina-portal/` · dev `make dev-hazina` → `:3004` |
+| Hazina portal | Target `https://hazina.lesnarai.co.ke`; current public Vercel alias `https://hazina-portal.vercel.app`; `hazina-portal/`; dev `make dev-hazina` → `:3004` |
 | Hazina tracking | `{PUBLIC_HAZINA_PORTAL_URL}/orders/HN-ORD-{id8}?token={secret}` |
 | Public order API | `GET /api/public/orders/{ref}?token=` |
 | Git | `github.com/lesnargitonga/geneat` · branch `main` → Render |
@@ -242,7 +242,24 @@ make doctor-hazina-api    # same check against hazina-api.onrender.com
 PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py
 ```
 
-**Deploy:** `alembic upgrade head` → seed → `make test-hazina` → portal build → push → check `/version` → `make doctor-hazina-live` → secrets below → smoke order + brief + tracking + `!dispatch`.
+**Deploy:** `alembic upgrade head` → seed → `make test-hazina` → portal build → push → check `/version` → `make doctor-hazina-live` → portal deploy → DNS record → smoke order + brief + tracking + `!dispatch`.
+
+**Current cutover status (2026-06-02):**
+
+- `origin/main` includes `57c1157`; `api.lesnarai.co.ke/version` reports
+  `57c1157` on service `geneat-2`.
+- `hazina-api.onrender.com` is live on the same commit, but remains secondary
+  because its cross-region DB/Redis latency is worse than the shared API.
+- Vercel `hazina-portal` production deploy succeeded and was aliased to
+  `hazina.lesnarai.co.ke`.
+- DNS is still not live from this workspace. Cloudflare must add:
+  `A hazina 76.76.21.21`.
+- Until DNS is fixed, use `https://hazina-portal.vercel.app/?ref=REF-HOST-001`
+  for partner QR pilot testing.
+- Vercel server env includes `ADMIN_API_TOKEN` synced from the live API so
+  `/api/chat` can proxy to production `/mock/message`.
+- `make doctor-hazina-live` now requires that token; the script reads
+  `HAZINA_DOCTOR_ADMIN_TOKEN`, `ADMIN_API_TOKEN`, or local `.env`.
 
 ### Env (minimum)
 

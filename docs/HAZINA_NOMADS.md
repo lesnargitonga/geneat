@@ -1108,23 +1108,27 @@ Routes through `resolve_payment_service(currency=…)`.
 
 ### 13.1 Automated tests
 
-Current local verification on **2026-06-01**:
+Current local/live verification on **2026-06-02**:
 
 - `make test-hazina` → **76 passed**, 1 warning
-- `make test-fast` → **172 passed**, 1 warning (broader suite)
-- `make doctor-hazina-live` → passed on 2026-06-01 against `api.lesnarai.co.ke`
+- `cd hazina-portal && npm run lint && npm run typecheck` → passed
+- `cd hazina-portal && npm run build` → passed, **55 generated pages**
+- Vercel production deploy → ready and aliased to `hazina.lesnarai.co.ke`
+- `make doctor-hazina-live` → passed on 2026-06-02 against `api.lesnarai.co.ke`
   with no payment confirmation; catalog reply, checkout start, and name →
   delivery step all passed
 - `make doctor-hazina-api` → after the 2026-06-01 manual migration and clearing
   the Render `dockerCommand` override so the Dockerfile `CMD` runs, deep health
   is OK and Hazina replies work; the check still fails the latency gate because
   the existing API service is Frankfurt while Hazina DB/Redis are Oregon
-- `cd hazina-portal && npm run typecheck` → passed
-- `cd hazina-portal && npm run lint` → passed
-- `cd hazina-portal && npm run build` → passed, **51 routes** (static pages + API routes + middleware)
-- live API `/version` after push → commit `43779d8`; live Hazina backend probes for catalog, collection photo, custom checkout, and checkout cancel passed
-- `https://hazina.lesnarai.co.ke` DNS did not resolve from this workspace on 2026-06-01; fix DNS / portal deploy before public launch
-- `npm audit --omit=dev` → `next@14.2.18` advisories; major upgrade before hardened prod
+- live API `/version` after push → commit `57c1157`
+- `https://hazina.lesnarai.co.ke` DNS did not resolve from this workspace on
+  2026-06-02; Cloudflare must add `A hazina 76.76.21.21`
+- Vercel server env has `ADMIN_API_TOKEN` synced from the live API so in-app
+  chat can reach locked production `/mock/message`
+- `npm audit --omit=dev` → 2 production vulnerabilities: `next` critical
+  advisory and transitive `postcss` moderate advisory; plan a controlled Next
+  upgrade before hardened public production
 - `scripts/check_asset_images.py` → image ref audit
 - Manual QA pages: `/`, `/collections`, `/collections/kenya-edit`, `/build`, `/premium-safari-souvenirs-nairobi`, `/hosts-guides` (ghost), `/partners/login`; confirm `/treasures` and `/last-minute-kenya-gifts-jkia` redirect
 
@@ -1197,11 +1201,12 @@ make eval-whatsapp-local
 |---|---|---|---|
 | 1 | **Live WhatsApp number** + Meta `phone_number_id` | User | Real customer WA |
 | 2 | **Paystack merchant approval** + live keys on Render | User | Preferred USD/card rail; IntaSend checkout link covers interim card payments |
-| 3 | **Domain** `hazina.lesnarai.co.ke` DNS live | User | Public SEO / trust |
-| 4 | **Re-seed production KB** after deploy | Eng/Ops | RAG knows 33 treasures + brief policies |
+| 3 | **Domain** `hazina.lesnarai.co.ke` DNS live | User/Ops | Public SEO / trust; add Cloudflare `A hazina 76.76.21.21` |
+| 4 | **Re-seed production KB** after catalog/portal changes | Eng/Ops | RAG knows 33 treasures + brief policies |
 | 5 | **`ADMIN_WA_NUMBERS` on production API** | Ops | Ghost Ops dispatch from ops phone |
 | 6 | **Commit + push luxury brief + catalog** | Eng | Production `/build` and parser parity |
-| 7 | **Push local commits + redeploy** | Eng/Ops | Production may lag until `origin/main` updated |
+| 7 | **Live KES blood test target** | User/Ops | Provide phone + exact amount before triggering real STK |
+| 14 | **Live USD blood test target** | User/Ops | Provide checkout email/order before sending real payment link |
 | 8 | **Product photography** in physical boxes | User | Fulfillment quality |
 | 9 | **Courier contract** | User | Last-mile SLA |
 | 10 | **Terracotta vs bronze hex** alignment | Design | Brand consistency |
@@ -1239,7 +1244,7 @@ Use before any production tag or Hazina cutover (§8.6).
 - [ ] Run `make doctor-hazina-api` before pointing public Hazina traffic at the
       dedicated API service
 - [ ] Run `make eval-whatsapp-local`
-- [ ] `cd hazina-portal && npm run build` — confirm 51 routes (§9.1)
+- [ ] `cd hazina-portal && npm run build` — confirm generated route count (§9.1)
 - [ ] Confirm redirects: `/treasures` → `/build`, JKIA URL → departure-drop
 - [ ] Set `PARTNER_PORTAL_*` on Render if using partner dashboard
 - [ ] `cd hazina-portal && npm run lint` — no errors
@@ -1248,7 +1253,8 @@ Use before any production tag or Hazina cutover (§8.6).
 - [ ] Set Render secrets: Meta WA, IntaSend, Paystack, `NEXT_PUBLIC_HAZINA_*`, `ADMIN_WA_NUMBERS`
 - [ ] Smoke `/build` brief with monogram + bespoke → WhatsApp ack + tracking link after pay
 - [ ] Add `https://hazina.lesnarai.co.ke` to `ADMIN_CORS_ORIGINS`
-- [ ] Live smoke: menu → order → STK + USD link rehearsal
+- [ ] Add Cloudflare DNS: `A hazina 76.76.21.21`
+- [ ] Live smoke: menu → order → KES STK + USD link rehearsal with explicit real-money targets
 - [ ] Tag release and publish changelog
 
 ---

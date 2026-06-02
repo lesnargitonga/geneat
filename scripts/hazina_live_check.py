@@ -9,6 +9,8 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import os
+from pathlib import Path
 import time
 from dataclasses import dataclass
 from typing import Any
@@ -77,10 +79,15 @@ async def _post_mock(
     *,
     phone: str,
     text: str,
+    admin_token: str | None = None,
 ) -> tuple[int, dict[str, Any], float]:
     start = time.perf_counter()
+    headers: dict[str, str] = {}
+    if admin_token:
+        headers["Authorization"] = f"Bearer {admin_token}"
     response = await client.post(
         f"{base_url.rstrip('/')}/mock/message",
+        headers=headers,
         json={
             "phone": phone,
             "business_slug": HAZINA_SLUG,
@@ -94,6 +101,19 @@ async def _post_mock(
     except json.JSONDecodeError:
         body = {"reply": response.text[:500]}
     return response.status_code, body, elapsed
+
+
+def _env_file_value(key: str) -> str:
+    env_path = Path(__file__).resolve().parents[1] / ".env"
+    if not env_path.exists():
+        return ""
+    prefix = f"{key}="
+    for line in env_path.read_text(errors="ignore").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or not stripped.startswith(prefix):
+            continue
+        return stripped.split("=", 1)[1].strip().strip('"').strip("'")
+    return ""
 
 
 def _reply_ok(
@@ -117,7 +137,13 @@ def _reply_ok(
     return not missing and not leak and elapsed <= max_seconds, "; ".join(parts)
 
 
-async def check_base(base_url: str, *, timeout: float, skip_deep: bool) -> list[Check]:
+async def check_base(
+    base_url: str,
+    *,
+    timeout: float,
+    skip_deep: bool,
+    admin_token: str | None,
+) -> list[Check]:
     base_url = base_url.rstrip("/")
     results: list[Check] = []
     phone = f"+254799{int(time.time()) % 1000000:06d}"
@@ -151,6 +177,7 @@ async def check_base(base_url: str, *, timeout: float, skip_deep: bool) -> list[
             base_url,
             phone=phone,
             text="What do you sell?",
+            admin_token=admin_token,
         )
         reply = str(body.get("reply") or "")
         ok, detail = _reply_ok(
@@ -166,6 +193,7 @@ async def check_base(base_url: str, *, timeout: float, skip_deep: bool) -> list[
             base_url,
             phone=phone,
             text="I want to order The Kenya Edit",
+            admin_token=admin_token,
         )
         reply = str(body.get("reply") or "")
         ok, detail = _reply_ok(
@@ -188,6 +216,7 @@ async def check_base(base_url: str, *, timeout: float, skip_deep: bool) -> list[
             base_url,
             phone=phone,
             text="Lesnar",
+            admin_token=admin_token,
         )
         reply = str(body.get("reply") or "")
         ok, detail = _reply_ok(
@@ -207,6 +236,13 @@ async def main_async() -> int:
     parser.add_argument("--both", action="store_true", help="check api.lesnarai.co.ke and hazina-api")
     parser.add_argument("--timeout", type=float, default=45.0)
     parser.add_argument("--skip-deep", action="store_true")
+    parser.add_argument(
+        "--admin-token",
+        default=os.environ.get("HAZINA_DOCTOR_ADMIN_TOKEN")
+        or os.environ.get("ADMIN_API_TOKEN")
+        or _env_file_value("ADMIN_API_TOKEN"),
+        help="Bearer token for production /mock/message checks. Defaults to HAZINA_DOCTOR_ADMIN_TOKEN, ADMIN_API_TOKEN, then local .env.",
+    )
     args = parser.parse_args()
 
     targets = [args.base_url]
@@ -219,7 +255,12 @@ async def main_async() -> int:
     for target in targets:
         print()
         print(f"== Hazina check: {target.rstrip('/')} ==")
-        checks = await check_base(target, timeout=args.timeout, skip_deep=args.skip_deep)
+        checks = await check_base(
+            target,
+            timeout=args.timeout,
+            skip_deep=args.skip_deep,
+            admin_token=args.admin_token.strip() or None,
+        )
         for check in checks:
             print(_line(check))
             if not check.ok:
