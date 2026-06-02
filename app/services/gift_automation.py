@@ -32,7 +32,12 @@ from app.services.cafe_automation import (
     create_order_and_request_payment,
     order_items_summary,
 )
-from app.services.whatsapp_menus import HAZINA_NOMADS_SLUG, ID_PRODUCT_PREFIX, product_list_payload
+from app.services.whatsapp_menus import (
+    HAZINA_NOMADS_SLUG,
+    ID_PRODUCT_PREFIX,
+    main_menu_payload,
+    product_list_payload,
+)
 
 HAZINA_SLUG = HAZINA_NOMADS_SLUG
 
@@ -70,6 +75,10 @@ _TRACK_RE = re.compile(
 )
 _CORPORATE_RE = re.compile(
     r"\b(corporate|bulk|team gift|company gift|event gift|zawadi za kampuni)\b",
+    re.IGNORECASE,
+)
+_CONCIERGE_HELP_RE = re.compile(
+    r"\b(i?'d like concierge help|concierge help|talk to concierge|need concierge help|help me choose)\b",
     re.IGNORECASE,
 )
 _JKIA_RE = re.compile(r"\bjkia\b|terminal\s*\d", re.IGNORECASE)
@@ -224,6 +233,15 @@ def looks_like_hazina_corporate(text: str) -> bool:
     return bool(_CORPORATE_RE.search(text or ""))
 
 
+def looks_like_hazina_concierge_help(text: str) -> bool:
+    return bool(_CONCIERGE_HELP_RE.search(text or ""))
+
+
+def looks_like_portal_collection_checkout(text: str) -> bool:
+    """Structured checkout payload from hazina-portal ``ChatWidget``."""
+    return bool(_PORTAL_COLLECTION_CHECKOUT_RE.search(text or ""))
+
+
 def looks_like_hazina_logistics_question(text: str) -> str | None:
     body = text or ""
     if _DHL_INFO_RE.search(body):
@@ -231,11 +249,6 @@ def looks_like_hazina_logistics_question(text: str) -> str | None:
     if _JKIA_INFO_RE.search(body):
         return "jkia"
     return None
-
-
-def looks_like_portal_collection_checkout(text: str) -> bool:
-    """Structured checkout payload from hazina-portal ``ChatWidget``."""
-    return bool(_PORTAL_COLLECTION_CHECKOUT_RE.search(text or ""))
 
 
 def looks_like_hazina_catalog_request(text: str) -> bool:
@@ -1188,6 +1201,22 @@ async def try_hazina_automation(
         )
 
     checkout = await _get_checkout(conversation_id)
+
+    if not checkout and looks_like_hazina_concierge_help(text):
+        reply = (
+            "Karibu Hazina Nomads. Chagua chaguo hapa chini — nitakusaidia haraka."
+            if is_sw else
+            "Welcome to Hazina Nomads. Choose an option below and I'll help you quickly."
+        )
+        return GiftAutomationResult(
+            reply=reply,
+            interactive=main_menu_payload(
+                business_name="Hazina Nomads",
+                language=language,
+                business_slug=business_slug,
+            ),
+            safety_flag="deterministic:hazina_concierge_menu",
+        )
 
     if checkout and _PHOTO_RE.search(text or "") and not looks_like_hazina_catalog_request(text):
         return await _checkout_product_photo_reply(

@@ -21,6 +21,7 @@ def test_hazina_intent_detectors() -> None:
     assert not ga.looks_like_hazina_order_intent("send me a picture of The Kenya Edit")
     assert ga.looks_like_hazina_track("track my delivery")
     assert ga.looks_like_hazina_corporate("corporate gifting for our team")
+    assert ga.looks_like_hazina_concierge_help("Hello Hazina Nomads - I'd like concierge help.")
     assert ga.looks_like_hazina_logistics_question("do you ship abroad?") == "dhl"
     assert ga.looks_like_hazina_logistics_question("can you deliver to JKIA Terminal 1A?") == "jkia"
     assert ga.looks_like_hazina_logistics_question("I want the Departure Drop") is None
