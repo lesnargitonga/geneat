@@ -141,15 +141,41 @@ async def test_issue_sets_issue_pending_with_note(admin_env, monkeypatch) -> Non
     db = AsyncMock()
     reply = await ops.try_handle_ops_command(
         db,
-        text="!issue HN-ORD-ISSUE01 Item unavailable; offered alternative",
+        text="!issue HN-ORD-ISSUE01 item_unavailable: offered alternative",
         sender="+254700000099",
         tenant_slug="hazina-nomads",
     )
     assert "ISSUE PENDING" in (reply or "")
+    assert "Type: item_unavailable" in (reply or "")
     assert order.details["fulfillment_status"] == "issue_pending"
-    assert "unavailable" in order.details["issue_note"].lower()
+    assert order.details["issue_type"] == "item_unavailable"
+    assert order.details["issue_status"] == "open"
+    assert order.details["issue_owner"] == "+254700000099"
+    assert "alternative" in order.details["issue_note"].lower()
     assert order.details["ops_audit"][-1]["command"] == "issue"
     assert order.details["ops_audit"][-1]["new_status"] == "issue_pending"
+
+
+@pytest.mark.asyncio
+async def test_issue_without_taxonomy_defaults_to_issue_pending(admin_env, monkeypatch) -> None:
+    order = SimpleNamespace(
+        id=uuid.uuid4(),
+        details={"public_reference": "HN-ORD-ISSUE02"},
+    )
+    monkeypatch.setattr(
+        ops,
+        "find_order_by_public_reference",
+        AsyncMock(return_value=order),
+    )
+    db = AsyncMock()
+    reply = await ops.try_handle_ops_command(
+        db,
+        text="!issue HN-ORD-ISSUE02 customer says they cannot be reached now",
+        sender="+254700000099",
+        tenant_slug="hazina-nomads",
+    )
+    assert "Type: issue_pending" in (reply or "")
+    assert order.details["issue_type"] == "issue_pending"
 
 
 @pytest.mark.asyncio

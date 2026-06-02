@@ -39,6 +39,21 @@ _CANCEL_RE = re.compile(
     re.IGNORECASE,
 )
 
+_ISSUE_TYPES = {
+    "item_unavailable",
+    "customer_unreachable",
+    "delivery_delay",
+    "supplier_quality_reject",
+    "wrong_location",
+    "engraving_error",
+    "payment_pending",
+    "courier_failed",
+    "customer_changed_time",
+    "outside_zone_request",
+    "refund_requested",
+    "substitution_declined",
+}
+
 
 def _admin_msisdns() -> frozenset[str]:
     raw = get_settings().admin_wa_numbers.strip()
@@ -151,6 +166,26 @@ async def _resolve_order_or_error(db: AsyncSession, ref: str) -> tuple[Order | N
     if order is None:
         return None, f"❌ Order not found: {ref}"
     return order, None
+
+
+def _parse_issue_note(raw: str) -> tuple[str, str]:
+    """
+    Parse issue text into (issue_type, issue_note).
+
+    Accepted styles:
+    - "<issue_type>: note"
+    - "<issue_type> note..."
+    Falls back to `issue_pending` type when unknown.
+    """
+    text = (raw or "").strip()
+    if not text:
+        return "issue_pending", ""
+    token, _, rest = text.partition(":")
+    first = token.strip().split()[0].lower() if token.strip() else ""
+    if first in _ISSUE_TYPES:
+        note = rest.strip() if rest else text[len(first) :].strip()
+        return first, note or "Issue logged by ops."
+    return "issue_pending", text
 
 
 async def try_handle_ops_command(
@@ -344,7 +379,8 @@ async def try_handle_ops_command(
     issue_match = _ISSUE_RE.match(body)
     if issue_match:
         ref = issue_match.group("ref").upper()
-        note = issue_match.group("note").strip()
+        raw_note = issue_match.group("note").strip()
+        issue_type, note = _parse_issue_note(raw_note)
         order, err = await _resolve_order_or_error(db, ref)
         if err:
             return err
@@ -353,6 +389,9 @@ async def try_handle_ops_command(
         await _set_fulfillment(db, order, status="issue_pending")
         details = dict(order.details or {})
         details["issue_note"] = note
+        details["issue_type"] = issue_type
+        details["issue_status"] = "open"
+        details["issue_owner"] = sender
         order.details = details
         _append_ops_audit(
             order,
@@ -360,10 +399,10 @@ async def try_handle_ops_command(
             command="issue",
             prev_status=prev_status,
             new_status="issue_pending",
-            note=note,
+            note=f"{issue_type}: {note}",
         )
         await db.commit()
-        return f"⚠️ {ref} marked ISSUE PENDING.\nNote: {note}"
+        return f"⚠️ {ref} marked ISSUE PENDING.\nType: {issue_type}\nNote: {note}"
 
     cancel_match = _CANCEL_RE.match(body)
     if cancel_match:
