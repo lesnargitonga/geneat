@@ -73,6 +73,14 @@ _CORPORATE_RE = re.compile(
     re.IGNORECASE,
 )
 _JKIA_RE = re.compile(r"\bjkia\b|terminal\s*\d", re.IGNORECASE)
+_DHL_INFO_RE = re.compile(
+    r"\b(dhl|ship abroad|shipping abroad|international shipping|export|outside kenya|leave kenya)\b",
+    re.IGNORECASE,
+)
+_JKIA_INFO_RE = re.compile(
+    r"\b(jkia|airport|terminal\s*\d|flight|departure\s+(?:gift|handoff|time|flight))\b",
+    re.IGNORECASE,
+)
 _DEPARTURE_RE = re.compile(
     r"\b(?:depart|departure|flight|leave|fly)\b.{0,30}\b(\d{1,2}[:\.]\d{2}|\d{1,2}\s*(?:am|pm)|today|tomorrow)",
     re.IGNORECASE,
@@ -100,6 +108,10 @@ _CATALOG_RE = re.compile(
 )
 _PORTAL_COLLECTION_CHECKOUT_RE = re.compile(
     r"\bautomated collection checkout\b",
+    re.IGNORECASE,
+)
+_CAFE_ITEM_RE = re.compile(
+    r"\b(croissants?|flat\s+white|cappuccino|latte|espresso|mandazi|masala\s+chai|pain\s+au\s+chocolat|brownies?)\b",
     re.IGNORECASE,
 )
 _PHOTO_RE = re.compile(r"\b(photo|picture|pic|image|picha|show me)\b", re.IGNORECASE)
@@ -134,6 +146,8 @@ class GiftAutomationResult:
     interactive: dict | None = None
     escalated: bool = False
     safety_flag: str = "deterministic:gift_automation"
+    image_url: str | None = None
+    photo_item: str | None = None
 
 
 @dataclass(frozen=True)
@@ -210,6 +224,15 @@ def looks_like_hazina_corporate(text: str) -> bool:
     return bool(_CORPORATE_RE.search(text or ""))
 
 
+def looks_like_hazina_logistics_question(text: str) -> str | None:
+    body = text or ""
+    if _DHL_INFO_RE.search(body):
+        return "dhl"
+    if _JKIA_INFO_RE.search(body):
+        return "jkia"
+    return None
+
+
 def looks_like_portal_collection_checkout(text: str) -> bool:
     """Structured checkout payload from hazina-portal ``ChatWidget``."""
     return bool(_PORTAL_COLLECTION_CHECKOUT_RE.search(text or ""))
@@ -219,6 +242,10 @@ def looks_like_hazina_catalog_request(text: str) -> bool:
     if looks_like_portal_collection_checkout(text):
         return False
     return bool(_CATALOG_RE.search(text or ""))
+
+
+def looks_like_cafe_menu_question(text: str) -> bool:
+    return bool(_CAFE_ITEM_RE.search(text or ""))
 
 
 def looks_like_checkout_cancel(text: str) -> bool:
@@ -601,6 +628,40 @@ def _catalog_reply(*, is_sw: bool) -> str:
     )
 
 
+def _cafe_boundary_reply(*, is_sw: bool) -> str:
+    if is_sw:
+        return (
+            "Hazina Nomads si cafe; tunauza premium Kenyan gift collections, leather, beadwork, carvings, coffee/tea gifts, na custom boxes. "
+            "Nikikuonyeshe collections zetu?"
+        )
+    return (
+        "Hazina Nomads is not a cafe. We curate premium Kenyan gift collections: leather, beadwork, carvings, coffee/tea gifts, and custom boxes. "
+        "Would you like to see the collections?"
+    )
+
+
+def _logistics_reply(kind: str, *, is_sw: bool) -> str:
+    if kind == "dhl":
+        if is_sw:
+            return (
+                "Ndiyo — tunaweza kupanga DHL/export shipping. Tunatoa quote kabla ya malipo kwa sababu gharama hutegemea nchi, mji, uzito, na muda. "
+                "Niambie nchi na mji wa kutuma, kisha collection unayotaka."
+            )
+        return (
+            "Yes — we can arrange DHL/export shipping. We quote it before payment because cost depends on country, city, weight, and timing. "
+            "Send the destination country/city and the collection you want, and I will guide the next step."
+        )
+    if is_sw:
+        return (
+            "Ndiyo — tunaweza kupanga JKIA terminal handoff kwa zawadi za departure. "
+            "Kwa oda mpya, niambie collection unayotaka, terminal, na muda wa flight au handoff."
+        )
+    return (
+        "Yes — we can arrange JKIA terminal handoff for departure gifts. "
+        "For a new order, tell me the collection, terminal, and flight or handoff time."
+    )
+
+
 def _delivery_type_from_text(text: str | None, *, fallback: str | None = None) -> str | None:
     body = (text or "").lower()
     if "dhl" in body or "export" in body or "international" in body or "abroad" in body:
@@ -764,9 +825,9 @@ async def _track_delivery_reply(
     orders = (await db.execute(stmt)).scalars().all()
     if not orders:
         return (
-            "Bado sina oda yako. Chagua sanduku kutoka menu au niambie unachotaka kuagiza."
+            "Bado sina tracking ya oda yako. Chagua sanduku kutoka menu au niambie unachotaka kuagiza."
             if is_sw else
-            "I don't have an order on file yet. Pick a gift box from the menu or tell me what you'd like."
+            "I don't have tracking for an order yet. Pick a gift box from the menu or tell me what you'd like."
         )
     order = orders[0]
     details = order.details if isinstance(order.details, dict) else {}
@@ -821,6 +882,61 @@ async def _track_delivery_reply(
         f"{summary}: hali ya malipo — {pay}."
         if is_sw else
         f"{summary}: payment status is {pay}."
+    )
+
+
+async def _checkout_product_photo_reply(
+    db: AsyncSession,
+    *,
+    business_id: uuid.UUID | None,
+    checkout: dict,
+    is_sw: bool,
+) -> GiftAutomationResult:
+    product_id = str(checkout.get("product_id") or "")
+    row = HAZINA_PRODUCTS.get(product_id)
+    if not row:
+        return GiftAutomationResult(
+            reply=(
+                "Upload any reference photo here, then we will continue checkout one step at a time."
+                if not is_sw else
+                "Pakia picha yoyote ya mfano hapa, kisha tutaendelea na checkout hatua kwa hatua."
+            ),
+            safety_flag="deterministic:hazina_checkout_photo_note",
+        )
+
+    from app.db.models import Business
+    from app.services.menu_photos import find_photo
+
+    custom_photos: dict[str, str] = {}
+    if business_id is not None:
+        business = await db.get(Business, business_id)
+        profile = business.profile if business is not None and isinstance(business.profile, dict) else {}
+        raw = profile.get("menu_photos") if isinstance(profile, dict) else None
+        if isinstance(raw, dict):
+            custom_photos = {str(k): str(v) for k, v in raw.items() if v}
+
+    name = str(row["name"])
+    matched, url = find_photo(HAZINA_SLUG, name, custom_photos)
+    if url:
+        reply = (
+            f"Here is {name}. We can continue checkout when you're ready."
+            if not is_sw else
+            f"Hii hapa {name}. Tutaendelea na checkout ukiwa tayari."
+        )
+        return GiftAutomationResult(
+            reply=reply,
+            image_url=url,
+            photo_item=matched or name,
+            safety_flag="deterministic:hazina_checkout_photo",
+        )
+
+    return GiftAutomationResult(
+        reply=(
+            f"I do not have a clean photo for {name} yet. We can still continue checkout, or you can choose another collection."
+            if not is_sw else
+            f"Sina picha safi ya {name} bado. Tunaweza kuendelea na checkout, au uchague collection nyingine."
+        ),
+        safety_flag="deterministic:hazina_checkout_photo_missing",
     )
 
 
@@ -1034,11 +1150,25 @@ async def try_hazina_automation(
     if email_match:
         payment_email = email_match.group(0)
 
+    if looks_like_cafe_menu_question(text):
+        return GiftAutomationResult(
+            reply=_cafe_boundary_reply(is_sw=is_sw),
+            interactive=product_list_payload(language=language),
+            safety_flag="deterministic:hazina_cafe_boundary",
+        )
+
     if looks_like_hazina_corporate(text):
         return GiftAutomationResult(
             reply=_corporate_reply(is_sw=is_sw),
             escalated=True,
             safety_flag="deterministic:hazina_corporate",
+        )
+
+    logistics_kind = looks_like_hazina_logistics_question(text)
+    if logistics_kind:
+        return GiftAutomationResult(
+            reply=_logistics_reply(logistics_kind, is_sw=is_sw),
+            safety_flag=f"deterministic:hazina_logistics_{logistics_kind}",
         )
 
     if looks_like_hazina_track(text):
@@ -1058,6 +1188,14 @@ async def try_hazina_automation(
         )
 
     checkout = await _get_checkout(conversation_id)
+
+    if checkout and _PHOTO_RE.search(text or "") and not looks_like_hazina_catalog_request(text):
+        return await _checkout_product_photo_reply(
+            db,
+            business_id=business_id,
+            checkout=checkout,
+            is_sw=is_sw,
+        )
 
     if looks_like_hazina_catalog_request(text):
         if checkout:
