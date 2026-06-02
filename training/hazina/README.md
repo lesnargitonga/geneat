@@ -36,6 +36,30 @@ Curated categories generated automatically:
 
 Target **500–1000** rows: rerun with `--target-count 1000` after adding more lines to `golden.jsonl`.
 
+## Runpod quick path (pack → train → download)
+
+On your laptop (repo root):
+
+```bash
+bash scripts/hazina_runpod_pack.sh
+# → training/hazina/hazina-finetune-runpod.tar.gz (~2–4 MB)
+```
+
+On the GPU pod:
+
+```bash
+mkdir -p /workspace/hazina && cd /workspace/hazina
+# upload hazina-finetune-runpod.tar.gz (scp / Runpod volume)
+tar -xzf hazina-finetune-runpod.tar.gz
+bash scripts/hazina_runpod_train.sh
+```
+
+Download back to your API host:
+
+- `training/hazina/out/lora-hazina/merged-16bit/` (full folder)
+
+Then register Ollama + smoke test (see Phase 3–4 below).
+
 ## Phase 2 — Unsloth QLoRA (Runpod 4090 / A100)
 
 Locked hyperparameters in `scripts/hazina_finetune_unsloth.py`:
@@ -77,11 +101,27 @@ When `business_slug=hazina-nomads`, LangGraph uses `HAZINA_LLM_MODEL` if set.
 
 **Runpod vLLM:** deploy merged weights; set `LOCAL_LLM_BASE_URL=https://<pod>/v1` (OpenAI-compatible). LangGraph and tools unchanged.
 
-## Phase 4 — API integration (after eval)
+## Phase 4 — Smoke test + API switch
 
-1. Run `val.jsonl` prompts through base vs fine-tuned model; reject leaks (STK dumps, café tone, invented SKUs).  
-2. Add tenant-aware model selection in `get_chat_chain()` when `business_slug=hazina-nomads`.  
-3. Keep `search_catalog` tool mandatory in graph — fine-tune is persona, not inventory source of truth.
+After `ollama create hazina-concierge`:
+
+```bash
+python scripts/hazina_smoke_finetuned.py --model hazina-concierge --compare llama3.1
+```
+
+Fails on STK/payment dumps, café menu tone, or missing concierge redirects. Pass = safe to enable in prod.
+
+API env (already wired in `app/ai/llm.py` — Hazina slug only):
+
+```
+LLM_PROVIDER=local
+LOCAL_LLM_MODEL=llama3.1
+HAZINA_LLM_MODEL=hazina-concierge
+```
+
+Restart API, then send **open-ended** WhatsApp/portal text (not menu buttons). Menus/cart/checkout stay deterministic.
+
+Keep `search_catalog` in LangGraph — fine-tune is persona, not inventory source of truth.
 
 ## Recommended workflow
 
