@@ -1,6 +1,6 @@
 PYTHON ?= ./.venv/bin/python
 
-.PHONY: dev dev-hazina preview-hazina test-fast test-hazina doctor-local doctor-live doctor-hazina-live doctor-hazina-api smoke-hazina-war-room smoke-providers publish-demo-photos bootstrap-demo generate-lily-training eval-whatsapp-live eval-whatsapp-local pre-demo-local pre-demo-live
+.PHONY: dev dev-hazina preview-hazina test-fast test-hazina check-routing doctor-local doctor-live doctor-hazina-live doctor-hazina-api smoke-hazina-war-room smoke-providers publish-demo-photos bootstrap-demo generate-lily-training eval-whatsapp-live eval-whatsapp-local pre-demo-local pre-demo-live
 
 dev-hazina:
 	./scripts/dev-hazina.sh --background
@@ -19,6 +19,10 @@ test-fast:
 
 test-hazina:
 	$(PYTHON) -m pytest -q tests/test_business_service.py tests/test_whatsapp_menus.py tests/test_gift_automation.py tests/test_payment_routing.py tests/test_ai_tools_payment.py tests/test_channel_fallbacks.py tests/test_payments_hardening.py tests/test_order_tracking.py tests/test_ops_automation.py
+
+check-routing:
+	@echo "Validating intent routing matrix rules..."
+	$(PYTHON) -m pytest -v tests/test_routing_contract.py
 
 doctor-local:
 	$(PYTHON) scripts/lily_pond_demo_check.py --chat --photo
