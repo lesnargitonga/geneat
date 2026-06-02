@@ -1,7 +1,8 @@
 {
-  "train_count": 570,
-  "val_count": 30,
-  "golden_count": 10,
+  "train_count": 950,
+  "val_count": 50,
+  "golden_count": 52,
+  "golden_multiplier": 8,
   "system_prompt": "/home/lesnar/Documents/ai model/training/hazina/system_prompt.txt",
   "base_model_ollama": "llama3.1",
   "hf_base_suggested": "meta-llama/Meta-Llama-3.1-8B-Instruct"
