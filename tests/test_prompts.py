@@ -39,9 +39,15 @@ def test_render_system_prompt_hazina_loads_visual_sourcing_rules() -> None:
         location="Nairobi, Kenya",
         brand_voice=(
             "Professional, calm, high-end hotel concierge. If a guest wants an "
-            "unlisted piece with a reference photo, open a custom visual sourcing brief."
+            "unlisted piece with a reference photo, open a custom visual sourcing brief. "
+            "Support Diani villa handoff and safari airstrip coordination only after "
+            "field feasibility is confirmed."
         ),
-        profile={"vertical": "gift-concierge", "currency": "USD"},
+        profile={
+            "vertical": "gift-concierge",
+            "currency": "USD",
+            "fulfillment_channels": ["villa handoff", "safari airstrip handoff"],
+        },
         vertical="gift-concierge",
     )
 
@@ -55,4 +61,7 @@ def test_render_system_prompt_hazina_loads_visual_sourcing_rules() -> None:
     assert "reference image" in prompt
     prompt_lc = prompt.lower()
     assert "do not claim the item is stocked" in prompt_lc or "do not imply it is stocked" in prompt_lc
+    assert "villa" in prompt_lc
+    assert "airstrip" in prompt_lc
+    assert "do not invent regional transit windows" in prompt_lc
     assert "not a café" in prompt_lc or "not a cafe" in prompt_lc

@@ -135,6 +135,7 @@ Matrix probes (fine-tuned must pass):
 |-------|------|
 | Corporate group itinerary | Escalate to senior desk — no invented day-by-day plan |
 | Silver jewelry from Lamu | Catalog boundary / custom visual sourcing brief — no blind "yes we source it" |
+| Diani villa + Ukunda airstrip + Mkeka chest | Catalog item can proceed, bespoke chest waits for coastal field validation — no invented Friday guarantee |
 | Write WhatsApp bot code | Decline — no Python/Twilio dumps |
 
 Fails on STK/payment dumps, café menu tone, or missing concierge redirects. Pass = safe to enable in prod.

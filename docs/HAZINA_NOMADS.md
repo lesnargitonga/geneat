@@ -235,6 +235,7 @@ Reference sources: [The Stems hampers](https://thestemsflowers.co.ke/collections
 - Optional premium packaging (+USD 45 / KES 5,800) — SKU `HN-T-070`.
 - **Monogram:** per engravable line (+USD 15 / KES 1,950 each when text is present).
 - **Bespoke requests:** free-text block; reference photos are collected on **WhatsApp** after submit (not in-browser upload). Unlisted pieces become a custom visual sourcing brief; the assistant must not promise price, authenticity, stock, or delivery timing until the field team validates the reference.
+- **Regional concierge fulfillment:** premium Nairobi residences, coastal villa handoffs (Diani, Watamu, Lamu), safari airstrip/lodge handoffs (Maasai Mara, Nanyuki), JKIA departure terminal handoff, and DHL export quotes are supported as logistics channels. The assistant must confirm exact property/terminal/airstrip, recipient, date, and time window before promising dispatch.
 - Running total in sidebar includes engraving lines; USD first with KES visible.
 - **Start guided checkout** → portal chat collects name, delivery mode, location, timing, payment, contact **one turn at a time**, then posts the full structured payload.
 - **Continue in WhatsApp** pre-fills the brief below; automation replies with photo-upload ack then step-by-step checkout.
@@ -518,7 +519,9 @@ Guest / order context
 | `payment_methods` | array | M-Pesa (IntaSend), Paystack USD |
 | `custom_orders` | bool | `true` |
 | `corporate_gifting` | bool | `true` |
-| `delivery_zones` | array | Westlands, Kilimani, Karen, JKIA, DHL export quote |
+| `delivery_zones` | array | Westlands, Kilimani, Karen, Diani Beach, Watamu, Lamu, Nanyuki, Maasai Mara airstrips, Ukunda airstrip, JKIA, DHL export quote |
+| `fulfillment_channels` | array | hotel delivery, private residence delivery, villa handoff, JKIA departure terminal, safari airstrip handoff, DHL export quote |
+| `regional_fulfillment` | object | enabled, premium zones, requires feasibility confirmation before promises |
 | `international_shipping` | object | enabled, carrier preference, quote-before-payment |
 | `jkia_delivery_window_hours` | int | 4 |
 | `late_dispatch_fee_usd` | int | 15 |

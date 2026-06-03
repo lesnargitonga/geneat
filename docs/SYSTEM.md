@@ -2,7 +2,7 @@
 
 **Scope:** Gen-Eat platform + Hazina Nomads + shared API (`api.lesnarai.co.ke`).  
 **Maintain:** edit this file first when product, routing, catalog, deploy, or gaps change. Code wins if docs drift.  
-**Verified:** 2026-06-02 · `124d257` · `git status -sb`  
+**Verified:** 2026-06-03 · `ba2198b` plus pending regional-fulfillment guardrail updates · local tests
 **Security:** [SECURITY.md](../SECURITY.md)
 
 **Legend:** ✅ shipped in code · 🟢 verified live · ⬜ not done · ◐ partial
@@ -174,6 +174,8 @@ Order: `order.details.payment_currency`, `amount_usd`, `items`, `fulfillment_sta
 | Photos | **WhatsApp only** after brief (no portal upload) |
 | Tracking | `ensure_order_tracking` → link in payment reply |
 | Ghost Ops | `!dispatch HN-ORD-… <courier>` · `!delivered HN-ORD-…` · needs `ADMIN_WA_NUMBERS` |
+| Regional fulfillment | Nairobi premium zones, Diani/Watamu/Lamu coastal villa handoffs, Maasai Mara/Nanyuki safari-airstrip handoffs, JKIA departure terminal, DHL export quote; exact location/date/time and field feasibility must be confirmed before dispatch promises |
+| Visual sourcing | Unlisted pieces with reference photos become custom visual sourcing briefs; do not promise exact item, price, authenticity, stock, or timing until field-team validation |
 
 **Engravable IDs:** `leather-passport`, `leather-luggage-tag`, `soapstone-big-five`, `antelope-carving`, `wood-carving-set`, `wooden-combs`, `beaded-wood-containers`, `lamu-keepsake-box`.
 

@@ -31,10 +31,13 @@ BRAND_VOICE = (
     "boxes for travellers — never a discount souvenir shop. Keep replies concise "
     "(1–3 sentences), use the guest's name when known, and never use slang or "
     "campus-café tone. Confirm delivery location (hotel name and room, JKIA "
-    "terminal, or international address for DHL/export quote) and timing before "
-    "promising dispatch. If a guest wants an unlisted item and has a reference "
-    "image, open a custom visual sourcing brief; do not imply it is stocked, "
-    "priced, authentic, or deliverable until the field team confirms."
+    "terminal, villa handoff, safari airstrip, or international address for "
+    "DHL/export quote) and timing before promising dispatch. Support premium "
+    "residential zones, coastal enclaves, and safari-airstrip handoffs, but "
+    "never invent regional transit windows. If a guest wants an unlisted item "
+    "and has a reference image, open a custom visual sourcing brief; do not "
+    "imply it is stocked, priced, authentic, or deliverable until the field "
+    "team confirms."
 )
 
 TRAINING_DIR = ROOT / "training" / "hazina"
@@ -304,8 +307,10 @@ def _gen_custom_box(system_base: str) -> list[dict]:
 
 def _gen_visual_sourcing(system_base: str) -> list[dict]:
     highland = next(c for c in HAZINA_COLLECTIONS if c["id"] == "highland-treasure")
+    kenya_edit = next(c for c in HAZINA_COLLECTIONS if c["id"] == "kenya-edit")
     ctx = _catalog_context(highland)
     sys = f"{system_base}\n\n{ctx}"
+    coastal_sys = f"{system_base}\n\n{_catalog_context(kenya_edit, highland)}"
     return [
         _example(
             system=sys,
@@ -326,6 +331,22 @@ def _gen_visual_sourcing(system_base: str) -> list[dict]:
             assistant=(
                 "Those cufflinks are outside the catalog shown for this turn. "
                 "Please send the reference image and I will open a custom visual sourcing brief for field-team validation before we quote price or timing."
+            ),
+        ),
+        _example(
+            system=coastal_sys,
+            user=(
+                "We are staying at Alfajiri Villas in Diani Beach and flying to London "
+                "from Ukunda airstrip on Sunday morning. We want The Kenya Edit, and "
+                "we have a photo of a hand-woven Swahili coastal Mkeka chest from a "
+                "boutique lounge. Can you buy that exact chest and deliver all of it "
+                "by Friday night?"
+            ),
+            assistant=(
+                f"*{kenya_edit['name']}* is in today's catalog at USD {kenya_edit['price_usd']} / "
+                f"KES {int(kenya_edit['price_kes']):,} with a {kenya_edit['lead_time_hours']}-hour collection lead time; "
+                "Diani villa handoff and Ukunda airstrip coordination are concierge logistics channels, but I need the exact Friday-night window before confirming dispatch. "
+                "The Mkeka chest is outside the listed catalog, so I cannot promise the exact piece, price, authenticity, stock, or Friday delivery yet; please send the photo and I will open a custom visual sourcing brief for our coastal field team."
             ),
         ),
     ]

@@ -32,7 +32,10 @@ from app.services.hazina_kb import KB_CATALOG, sync_hazina_knowledge_base
 SLUG = "hazina-nomads"
 NAME = "Hazina Nomads"
 INDUSTRY = "gift-concierge"
-LOCATION = "Nairobi, Kenya — Westlands, Kilimani, Karen & JKIA delivery"
+LOCATION = (
+    "Kenya — Nairobi premium zones, coastal villas, safari airstrips, JKIA, "
+    "and DHL export quotes"
+)
 CONTACT_PHONE = "+15556578220"
 CONTACT_EMAIL = "concierge@hazina-nomads.com"
 LANG_PRIMARY = "en"
@@ -44,8 +47,10 @@ BRAND_VOICE = (
     "Professional, calm, high-end hotel concierge. You curate premium Kenyan gift "
     "boxes for travellers — never a discount souvenir shop. Keep replies concise "
     "(1–3 sentences), use the guest's name when known, and never use slang or "
-    "campus-café tone. Confirm delivery location (hotel name and room, JKIA "
-    "terminal, or international address for DHL/export quote) and timing before promising dispatch. Display USD first "
+    "campus-café tone. Support premium hotel, private residence, villa, JKIA, "
+    "coastal, safari-airstrip, and DHL export handoffs, but confirm the exact "
+    "property/room or villa, airstrip/terminal, timing, and field feasibility "
+    "before promising dispatch. Display USD first "
     "for tourist clarity, with KES visible for local M-Pesa settlement. Guests may order "
     "five curated collections or compose a custom box from individual treasures "
     f"(minimum {MIN_CUSTOM_ITEMS} items plus optional packaging USD {PACKAGING_FEE_USD}). "
@@ -80,7 +85,39 @@ PROFILE: dict = {
     "custom_orders": True,
     "corporate_gifting": True,
     "timezone": "Africa/Nairobi",
-    "delivery_zones": ["Westlands", "Kilimani", "Karen", "JKIA", "DHL export quote"],
+    "delivery_zones": [
+        "Westlands",
+        "Kilimani",
+        "Karen",
+        "Diani Beach",
+        "Watamu",
+        "Lamu",
+        "Nanyuki",
+        "Maasai Mara airstrips",
+        "Ukunda airstrip",
+        "JKIA",
+        "DHL export quote",
+    ],
+    "fulfillment_channels": [
+        "hotel delivery",
+        "private residence delivery",
+        "villa handoff",
+        "JKIA departure terminal",
+        "safari airstrip handoff",
+        "DHL export quote",
+    ],
+    "regional_fulfillment": {
+        "enabled": True,
+        "requires_feasibility_confirmation": True,
+        "premium_zones": [
+            "Nairobi",
+            "Diani Beach",
+            "Watamu",
+            "Lamu",
+            "Nanyuki",
+            "Maasai Mara",
+        ],
+    },
     "international_shipping": {
         "enabled": True,
         "carrier_preference": "DHL Express or equivalent insured courier",

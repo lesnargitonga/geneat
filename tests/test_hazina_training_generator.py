@@ -24,3 +24,7 @@ def test_hazina_training_generator_includes_visual_sourcing_case() -> None:
     assert "custom visual sourcing brief" in replies
     assert "cannot promise stock" in replies
     assert "tomorrow delivery yet" in replies
+    assert "alfajiri villas" in blob.lower()
+    assert "ukunda airstrip" in blob.lower()
+    assert "mkeka chest" in blob.lower()
+    assert "cannot promise the exact piece" in replies
