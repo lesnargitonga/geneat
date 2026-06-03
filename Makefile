@@ -1,6 +1,6 @@
 PYTHON ?= ./.venv/bin/python
 
-.PHONY: dev dev-hazina preview-hazina test-fast test-hazina check-routing check-contracts doctor-local doctor-live doctor-hazina-live doctor-hazina-api smoke-hazina-war-room smoke-providers publish-demo-photos bootstrap-demo generate-lily-training eval-whatsapp-live eval-whatsapp-local pre-demo-local pre-demo-live
+.PHONY: dev dev-hazina preview-hazina test-fast test-hazina check-routing check-contracts doctor-local doctor-live doctor-hazina-live doctor-hazina-api audit-render-regions smoke-hazina-war-room smoke-providers publish-demo-photos bootstrap-demo generate-lily-training eval-whatsapp-live eval-whatsapp-local pre-demo-local pre-demo-live
 
 dev-hazina:
 	./scripts/dev-hazina.sh --background
@@ -39,6 +39,9 @@ doctor-hazina-live:
 
 doctor-hazina-api:
 	$(PYTHON) scripts/hazina_live_check.py --hazina-api
+
+audit-render-regions:
+	$(PYTHON) scripts/render_region_audit.py
 
 smoke-hazina-war-room:
 	$(PYTHON) scripts/hazina_war_room_smoke.py

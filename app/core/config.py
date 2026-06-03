@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     app_port: int = 8000
     log_level: str = "INFO"
     log_format: Literal["auto", "json", "console"] = "auto"
+    expected_render_region: str = ""
+    database_region: str = ""
+    redis_region: str = ""
     secret_key: SecretStr = Field(default=SecretStr("change-me"))
     phone_hash_pepper: SecretStr = Field(default=SecretStr("change-me"))
 

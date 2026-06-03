@@ -1136,10 +1136,14 @@ Current local/live verification on **2026-06-02**:
 - `make doctor-hazina-live` → passed on 2026-06-02 against `api.lesnarai.co.ke`
   with no payment confirmation; catalog reply, checkout start, and name →
   delivery step all passed
+- `make audit-render-regions` → must report `hazina-api`, `hazina-portal`,
+  `hazina-postgres-fra`, and `hazina-redis-fra` all in Frankfurt before
+  dedicated Hazina traffic is cut over
 - `make doctor-hazina-api` → after the 2026-06-01 manual migration and clearing
   the Render `dockerCommand` override so the Dockerfile `CMD` runs, deep health
-  is OK and Hazina replies work; the check still fails the latency gate because
-  the existing API service is Frankfurt while Hazina DB/Redis are Oregon
+  is OK and Hazina replies work; the old failure mode was cross-region latency
+  from a Frankfurt API to Oregon DB/Redis. The target fix is Frankfurt
+  co-location for API, Postgres, and Key Value.
 - live API `/version` after push → commit `57c1157`
 - `https://hazina.lesnarai.co.ke` resolves from this workspace on 2026-06-02,
   TLS verifies, and the Vercel portal returns HTTP 200
@@ -1163,6 +1167,7 @@ make test-fast
 # safe hosted Hazina checks; these do not trigger STK/card payment
 make doctor-hazina-live
 make doctor-hazina-api
+make audit-render-regions
 
 # portal
 cd hazina-portal && npm run typecheck && npm run lint && npm run build

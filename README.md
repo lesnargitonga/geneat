@@ -1594,6 +1594,7 @@ make doctor-local
 make doctor-live
 make doctor-hazina-live
 make doctor-hazina-api
+make audit-render-regions
 make smoke-providers
 make test-fast
 python scripts/tenant_go_live_check.py --slug <business-slug> --chat
@@ -1612,9 +1613,10 @@ Meaning:
   on `api.lesnarai.co.ke` without confirming an order or triggering money
   movement
 - `doctor-hazina-api` runs the same check against the dedicated
-  `hazina-api.onrender.com` service; as of the pre-fix probe on 2026-06-01 it
-  exposed `pgvector_extension_missing` plus `/mock/message` 500s, so this gate
-  must pass before routing public traffic there
+  `hazina-api.onrender.com` service; this gate must pass before routing public
+  traffic there
+- `audit-render-regions` verifies the dedicated Hazina API, portal, Postgres,
+  and Key Value resources are co-located in the target Render region
 - `test-fast` includes the focused payment-race, Redis fail-closed, safety,
   fallback, and webhook-signature regressions that protect the live demo path
 - `tenant_go_live_check.py` is the reusable onboarding gate for a new café; it
@@ -2376,10 +2378,9 @@ make doctor-hazina-live
 # passed against https://api.lesnarai.co.ke
 
 make doctor-hazina-api
-# after manual migration + clearing the Render dockerCommand override: deep
-# health is OK and Hazina replies work, but the latency gate still fails
-# because the existing API service is in Frankfurt while Hazina DB/Redis are
-# in Oregon
+make audit-render-regions
+# dedicated Hazina cutover requires API, Postgres, and Redis/Key Value in one
+# Render region. Current target: Frankfurt.
 ```
 
 Additional safe no-money WhatsApp reply gate:

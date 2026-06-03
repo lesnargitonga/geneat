@@ -4,7 +4,7 @@ services:
     runtime: docker
     repo: https://github.com/lesnargitonga/geneat
     plan: starter
-    region: oregon
+    region: frankfurt
     dockerfilePath: ./Dockerfile
     dockerContext: .
     autoDeployTrigger: commit
@@ -20,6 +20,12 @@ services:
         value: hazina-nomads
       - key: HAZINA_CLAIMS_META_PHONE
         value: "true"
+      - key: EXPECTED_RENDER_REGION
+        value: frankfurt
+      - key: DATABASE_REGION
+        value: frankfurt
+      - key: REDIS_REGION
+        value: frankfurt
       - key: PUBLIC_HAZINA_PORTAL_URL
         value: https://hazina.lesnarai.co.ke
       - key: DEMO_BUSINESS_SLUG
@@ -68,16 +74,16 @@ services:
         value: "false"
       - key: DATABASE_URL
         fromDatabase:
-          name: hazina-postgres
+          name: hazina-postgres-fra
           property: connectionString
       - key: DATABASE_URL_SYNC
         fromDatabase:
-          name: hazina-postgres
+          name: hazina-postgres-fra
           property: connectionString
       - key: REDIS_URL
         fromService:
           type: keyvalue
-          name: hazina-redis
+          name: hazina-redis-fra
           property: connectionString
       - key: SECRET_KEY
         sync: false
@@ -126,17 +132,17 @@ services:
       - key: SENTRY_TRACES_SAMPLE_RATE
         value: "0.2"
 
-  - name: hazina-redis
+  - name: hazina-redis-fra
     type: keyvalue
     plan: starter
-    region: oregon
+    region: frankfurt
     ipAllowList: []
 
   - name: hazina-portal
     type: web
     runtime: node
     plan: starter
-    region: oregon
+    region: frankfurt
     rootDir: hazina-portal
     buildCommand: npm install && npm run build
     startCommand: npm start
@@ -147,9 +153,9 @@ services:
       - key: NODE_ENV
         value: production
       - key: BACKEND_URL
-        value: https://api.lesnarai.co.ke
+        value: https://hazina-api.onrender.com
       - key: NEXT_PUBLIC_BACKEND_URL
-        value: https://api.lesnarai.co.ke
+        value: https://hazina-api.onrender.com
       - key: PUBLIC_HAZINA_PORTAL_URL
         value: https://hazina.lesnarai.co.ke
       - key: NEXT_PUBLIC_HAZINA_WHATSAPP
@@ -160,8 +166,8 @@ services:
         sync: false
 
 databases:
-  - name: hazina-postgres
+  - name: hazina-postgres-fra
     plan: basic-256mb
-    region: oregon
+    region: frankfurt
     databaseName: omni
     diskSizeGB: 15

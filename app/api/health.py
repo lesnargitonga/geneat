@@ -53,6 +53,7 @@ def _git_sha_from_worktree() -> str:
 
 
 def build_info() -> dict:
+    settings = get_settings()
     commit = (
         os.getenv("RENDER_GIT_COMMIT")
         or os.getenv("APP_BUILD_SHA")
@@ -71,13 +72,18 @@ def build_info() -> dict:
     )
     instance = os.getenv("RENDER_INSTANCE_ID") or os.getenv("DYNO") or os.getenv("HOSTNAME") or ""
     return {
-        "app": get_settings().app_name,
+        "app": settings.app_name,
         "version": _APP_VERSION,
-        "env": get_settings().app_env,
+        "env": settings.app_env,
         "commit": _short_sha(commit),
         "commit_full": commit.strip() if commit else "",
         "service": service,
         "instance": instance,
+        "render": bool(os.getenv("RENDER")),
+        "render_external_hostname": os.getenv("RENDER_EXTERNAL_HOSTNAME", ""),
+        "expected_region": settings.expected_render_region,
+        "database_region": settings.database_region,
+        "redis_region": settings.redis_region,
         "python": platform.python_version(),
     }
 

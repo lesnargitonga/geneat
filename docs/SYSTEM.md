@@ -1,8 +1,8 @@
 # SYSTEM — single source of truth
 
-**Scope:** Gen-Eat platform + Hazina Nomads + shared API (`api.lesnarai.co.ke`).  
-**Maintain:** edit this file first when product, routing, catalog, deploy, or gaps change. Code wins if docs drift.  
-**Verified:** 2026-06-03 · `ba2198b` plus pending regional-fulfillment guardrail updates · local tests
+**Scope:** Gen-Eat platform + Hazina Nomads + shared API (`api.lesnarai.co.ke`).
+**Maintain:** edit this file first when product, routing, catalog, deploy, or gaps change. Code wins if docs drift.
+**Verified:** 2026-06-03 · local tests · Frankfurt co-location target pending live audit
 **Security:** [SECURITY.md](../SECURITY.md)
 
 **Legend:** ✅ shipped in code · 🟢 verified live · ⬜ not done · ◐ partial
@@ -14,7 +14,7 @@
 | Area | Code | Live | Blocker / note |
 |---|---|---|---|
 | Shared API | ✅ | 🟢 | `api.lesnarai.co.ke`; `make doctor-hazina-live` passed on 2026-06-01 |
-| Dedicated Hazina API service | ✅ | ◐ | `hazina-api.onrender.com` is same code; schema/pgvector repaired, but existing service is still Frankfurt while Hazina DB/Redis are Oregon, so latency gate fails |
+| Dedicated Hazina API service | ✅ | ◐ | Target is Frankfurt API + Frankfurt Postgres + Frankfurt Key Value; old Oregon datastores must not be used for cutover |
 | Tenant `hazina-nomads` | ✅ | ◐ | `DEFAULT_BUSINESS_SLUG`; Meta `phone_number_id` |
 | Gen-Eat portal | ✅ | 🟢 | `geneat.lesnarai.co.ke` |
 | Hazina portal | ✅ | ⬜ | `hazina.lesnarai.co.ke` DNS unverified 2026-06-01; local `:3004` |
@@ -71,10 +71,12 @@ the same FastAPI app and must pass the same `/health/deep` + Hazina doctor
 checks before it becomes the public API target.
 
 **Current API target:** keep Hazina portal and WhatsApp on
-`https://api.lesnarai.co.ke` until the dedicated Hazina API service is recreated
-in Oregon or otherwise co-located with its DB/Redis. `hazina-api` is functional
-after migration, but cross-region DB/Redis latency makes it unsuitable as the
-primary public endpoint.
+`https://api.lesnarai.co.ke` until `make audit-render-regions` and
+`make doctor-hazina-api` both pass against a co-located dedicated stack.
+For Kenya/Europe-facing traffic, the target region is Frankfurt:
+`hazina-api` + `hazina-postgres-fra` + `hazina-redis-fra`. Render does not move
+existing resources between regions, so old Oregon datastores are migration
+sources only, not the final traffic target.
 
 **Resilience armor in code (current):**
 - Meta webhook ACK is decoupled via durable `whatsapp.inbound` jobs.
@@ -254,6 +256,7 @@ make preview-hazina   # prod build — CSS QA
 make test-hazina
 make doctor-hazina-live   # safe no-money Hazina check against api.lesnarai.co.ke
 make doctor-hazina-api    # same check against hazina-api.onrender.com
+make audit-render-regions # Render API: API, portal, Postgres, Redis all Frankfurt
 PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py
 ```
 
