@@ -23,8 +23,9 @@ SSH_OPTS=(-p "$PORT" -o StrictHostKeyChecking=accept-new)
 TAR="$ROOT/training/hazina/hazina-finetune-runpod.tar.gz"
 [[ -f "$TAR" ]] || bash "$ROOT/scripts/hazina_runpod_pack.sh"
 
-echo "→ Uploading $TAR to root@$HOST:$PORT:/workspace/"
-scp "${SSH_OPTS[@]}" "$TAR" "root@$HOST:/workspace/"
+echo "→ Uploading $TAR to root@$HOST:$PORT:/workspace/hazina/"
+ssh "${SSH_OPTS[@]}" "root@$HOST" "mkdir -p /workspace/hazina"
+scp "${SSH_OPTS[@]}" "$TAR" "root@$HOST:/workspace/hazina/"
 
 REMOTE=$(cat <<'EOS'
 set -euo pipefail
