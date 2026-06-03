@@ -132,6 +132,8 @@ def _hazina_profile_defaults(portal_base_url: str) -> dict:
     return {
         "vertical": "retail",
         "tagline": "Curated treasures for the modern nomad.",
+        "brand_pillars": ["Bespoke Curation", "Seamless Logistics", "Global Export"],
+        "triad": "Bespoke Curation · Seamless Logistics · Global Export",
         "currency": "USD",
         "currency_display": "USD first, KES equivalent",
         "usd_pricing": True,
@@ -224,19 +226,22 @@ async def ensure_hazina_business(
 
     biz.name = "Hazina Nomads"
     biz.industry = "gift-concierge"
-    biz.location = "Nairobi, Kenya - Westlands, Kilimani, Karen, JKIA and DHL export quotes"
+    biz.location = "Kenya - bespoke curation, seamless logistics, and global export"
     biz.contact_phone = "+15556578220"
     biz.contact_email = "concierge@hazina-nomads.com"
     biz.brand_voice = (
-        "Professional, calm, high-end hotel concierge. Curate premium Kenyan "
-        "gift boxes for travellers, hotels, guides, and international delivery. "
+        "Professional, calm, high-end hotel concierge. The Hazina Triad is "
+        "Bespoke Curation, Seamless Logistics, and Global Export. Curate "
+        "premium Kenyan gift boxes and private sourcing briefs for travellers, "
+        "hosts, guides, and international delivery. Do not list locations "
+        "unprompted; say Hazina offers seamless nationwide and global logistics. "
         "Keep replies concise, quote USD first with KES visible, and collect "
-        "delivery location, timing, contact, and payment preference before checkout."
+        "handoff channel, exact location, timing, contact, and payment preference before checkout."
     )
     biz.greeting_template = (
-        "Welcome to Hazina Nomads - curated treasures for the modern nomad. "
-        "I can help you choose a collection, build a custom box, arrange hotel "
-        "or JKIA delivery, or quote DHL export shipping."
+        "Welcome to Hazina Nomads. We offer bespoke curation, seamless logistics, "
+        "and global export for premium Kenyan heritage items. Would you like to "
+        "view our signature collections, or initialize a private sourcing brief?"
     )
     biz.language_primary = "en"
     biz.language_secondary = "sw"

@@ -146,8 +146,9 @@ def test_greeting_reply_does_not_promise_readiness() -> None:
     assert "pickup" not in reply.lower()
     assert "queue" not in reply.lower()
     hazina = _greeting_reply(business_name="Hazina Nomads", language="en")
-    assert "gift collection" in hazina
-    assert "DHL" in hazina
+    assert "bespoke curation" in hazina.lower()
+    assert "seamless logistics" in hazina.lower()
+    assert "global export" in hazina.lower()
     assert "cafe" not in hazina.lower()
 
 

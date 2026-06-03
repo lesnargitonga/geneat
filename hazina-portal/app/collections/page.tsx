@@ -8,7 +8,7 @@ import { StickyWhatsAppCTA } from "@/components/StickyWhatsAppCTA";
 export const metadata: Metadata = {
   title: "Gift Collections · Hazina Nomads",
   description:
-    "Five curated Kenyan gift boxes for travellers — from safari keepsakes to JKIA departure drops.",
+    "Five curated Kenyan gift boxes for travellers, backed by bespoke curation, seamless logistics, and global export.",
 };
 
 export default function CollectionsPage() {
@@ -25,7 +25,8 @@ export default function CollectionsPage() {
           <Link href="/build" className="text-bronze hover:text-obsidian underline-offset-4 hover:underline">
             choose individual treasures
           </Link>{" "}
-          instead. Each card shows price, lead time, and what is inside.
+          instead. Each card shows price, lead time, and what is inside, with fulfillment
+          guided by the Hazina Triad.
         </p>
       </header>
 

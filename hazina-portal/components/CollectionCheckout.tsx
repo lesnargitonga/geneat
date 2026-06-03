@@ -93,21 +93,21 @@ export function CollectionCheckout({ box }: Props) {
           onClick={() => setDeliveryMode("hotel")}
           className={`chip justify-center border ${deliveryMode === "hotel" ? "bg-obsidian text-sand border-obsidian" : "border-border text-ink-mute"}`}
         >
-          Hotel
+          Local handoff
         </button>
         <button
           type="button"
           onClick={() => setDeliveryMode("jkia")}
           className={`chip justify-center border ${deliveryMode === "jkia" ? "bg-obsidian text-sand border-obsidian" : "border-border text-ink-mute"}`}
         >
-          JKIA
+          Departure
         </button>
         <button
           type="button"
           onClick={() => setDeliveryMode("international")}
           className={`chip justify-center border ${deliveryMode === "international" ? "bg-obsidian text-sand border-obsidian" : "border-border text-ink-mute"}`}
         >
-          DHL
+          Global export
         </button>
       </div>
 
@@ -185,7 +185,7 @@ function buildCollectionCheckoutMessage({
 }
 
 function deliveryTypeLabel(mode: DeliveryMode): string {
-  if (mode === "jkia") return "JKIA terminal handoff";
-  if (mode === "international") return "DHL/export shipping quote";
-  return "Hotel delivery";
+  if (mode === "jkia") return "Seamless logistics - departure handoff";
+  if (mode === "international") return "Global export - insured courier quote";
+  return "Seamless logistics - local handoff";
 }

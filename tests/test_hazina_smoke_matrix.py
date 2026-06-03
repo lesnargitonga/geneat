@@ -30,7 +30,7 @@ def test_finetuned_pass_examples() -> None:
 
     decline = (
         "I am a luxury gifting concierge and cannot help with bot development. "
-        "May I suggest a collection or JKIA handoff instead?"
+        "May I suggest a collection, bespoke curation, or seamless logistics instead?"
     )
     assert EXPECT_HINTS["matrix_decline_code"].search(decline)
     assert not FORBIDDEN_BY_HINT["matrix_decline_code"][0].search(decline)

@@ -26,14 +26,15 @@ export default function HomePage() {
         <div className="relative container-page min-h-[86svh] py-16 md:py-24 flex flex-col justify-between gap-12">
           <div className="max-w-4xl pt-8 md:pt-16">
             <span className="font-mono text-sm font-medium uppercase tracking-[0.12em] text-white/70">
-              Nairobi hotel delivery · JKIA handoff · DHL export quotes
+              BESPOKE CURATION <span className="mx-2 opacity-50">·</span> SEAMLESS LOGISTICS{" "}
+              <span className="mx-2 opacity-50">·</span> GLOBAL EXPORT
             </span>
             <h1 className="mt-5 font-serif text-5xl md:text-7xl lg:text-8xl leading-[0.9] tracking-[-0.02em] text-white">
               Treasures, delivered to your journey.
             </h1>
             <p className="mt-6 max-w-2xl text-lg md:text-xl leading-[1.85] text-white/84">
-              Premium Kenyan gift collections for travellers who want something more considered than a
-              souvenir run.
+              Premium Kenyan heritage collections and private sourcing for travellers who expect a
+              coordinated concierge, not a souvenir run.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/collections" className="btn-bronze">
@@ -84,9 +85,21 @@ export default function HomePage() {
           </div>
 
           <div className="grid gap-5 border-t border-white/20 pt-6 text-white/80 sm:grid-cols-3 md:max-w-4xl">
-            <HeroNote title="Hotel delivery" body="Westlands · Kilimani · Karen" icon="hotel" />
-            <HeroNote title="JKIA handoff" body="Terminal-aware departure gifts" icon="jkia" />
-            <HeroNote title="DHL export" body="Insured quotes before payment" icon="dhl" />
+            <HeroNote
+              title="Bespoke Curation"
+              body="Unlisted artifacts and signature regional collections through private artisan and estate networks."
+              icon="curation"
+            />
+            <HeroNote
+              title="Seamless Logistics"
+              body="Discreet nationwide fulfillment to metropolitan residences, coastal villas, and wilderness lodges."
+              icon="logistics"
+            />
+            <HeroNote
+              title="Global Export"
+              body="International transit and customs-ready export quotes for verified heritage pieces."
+              icon="export"
+            />
           </div>
         </div>
       </section>
@@ -108,7 +121,7 @@ export default function HomePage() {
             href="/premium-safari-souvenirs-nairobi"
             label="Safari travellers"
             title="Premium safari souvenirs"
-            body="Editorial Nairobi curation for guests after the Mara — hotel delivery or insured export."
+            body="Editorial Kenyan curation for guests after safari — coordinated through the same concierge desk."
           />
           <PathCard
             href="/collections"
@@ -120,13 +133,13 @@ export default function HomePage() {
             href="/build"
             label="Custom box"
             title="Pick your own treasures"
-            body="Select items, set quantities, add packaging only if you need it, then enter delivery details."
+            body="Select items, set quantities, add packaging only if needed, then shape a private sourcing brief."
           />
           <PathCard
             href="/collections/departure-drop"
             label="Flying from JKIA"
             title="Departure Drop · 4h lead"
-            body="Pre-packed for last-minute terminal handoff — our express collection for departing guests."
+            body="Pre-packed for departure handoff — our express collection for travellers on a fixed clock."
           />
         </div>
       </section>
@@ -168,7 +181,7 @@ function HeroNote({
 }: {
   title: string;
   body: string;
-  icon: "hotel" | "jkia" | "dhl";
+  icon: "curation" | "logistics" | "export";
 }) {
   return (
     <div className="sm:border-l sm:border-white/20 sm:pl-5 first:border-l-0 first:pl-0">
@@ -179,8 +192,8 @@ function HeroNote({
   );
 }
 
-function ServiceIcon({ kind }: { kind: "hotel" | "jkia" | "dhl" }) {
-  if (kind === "hotel") {
+function ServiceIcon({ kind }: { kind: "curation" | "logistics" | "export" }) {
+  if (kind === "curation") {
     return (
       <svg
         aria-hidden="true"
@@ -196,7 +209,7 @@ function ServiceIcon({ kind }: { kind: "hotel" | "jkia" | "dhl" }) {
       </svg>
     );
   }
-  if (kind === "jkia") {
+  if (kind === "logistics") {
     return (
       <svg
         aria-hidden="true"

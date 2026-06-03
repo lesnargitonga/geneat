@@ -36,6 +36,18 @@
 | DHL live rates | ⬜ | ⬜ | Stub in `app/ai/tools.py` |
 | Collection/coastal photography | ◐ | ⬜ | Provisional heroes — brand risk |
 
+## 1.1 Hazina Triad
+
+Hazina's customer-facing source of truth is:
+
+**Bespoke Curation · Seamless Logistics · Global Export**
+
+Use this Triad across the portal, WhatsApp greetings, deterministic automation,
+RAG policy chunks, physical cards, and fine-tuning data. Specific places and
+carriers such as hotels, villas, JKIA, airstrips, and DHL are execution details
+under the pillars; do not list them unprompted as the headline value
+proposition.
+
 ---
 
 ## 2. Endpoints
@@ -176,7 +188,8 @@ Order: `order.details.payment_currency`, `amount_usd`, `items`, `fulfillment_sta
 | Photos | **WhatsApp only** after brief (no portal upload) |
 | Tracking | `ensure_order_tracking` → link in payment reply |
 | Ghost Ops | `!dispatch HN-ORD-… <courier>` · `!delivered HN-ORD-…` · needs `ADMIN_WA_NUMBERS` |
-| Regional fulfillment | Nairobi premium zones, Diani/Watamu/Lamu coastal villa handoffs, Maasai Mara/Nanyuki safari-airstrip handoffs, JKIA departure terminal, DHL export quote; exact location/date/time and field feasibility must be confirmed before dispatch promises |
+| Regional fulfillment | **Seamless Logistics** for verified local, residential, villa, lodge, and departure handoffs; exact location/date/time and field feasibility must be confirmed before dispatch promises |
+| International fulfillment | **Global Export** by insured courier quote before payment; exact country/city/address and customs feasibility must be confirmed before dispatch promises |
 | Visual sourcing | Unlisted pieces with reference photos become custom visual sourcing briefs; do not promise exact item, price, authenticity, stock, or timing until field-team validation |
 
 **Engravable IDs:** `leather-passport`, `leather-luggage-tag`, `soapstone-big-five`, `antelope-carving`, `wood-carving-set`, `wooden-combs`, `beaded-wood-containers`, `lamu-keepsake-box`.

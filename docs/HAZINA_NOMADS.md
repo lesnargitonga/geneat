@@ -37,6 +37,20 @@ You are **not** a souvenir shop — you are a **premium travel concierge**. Valu
 | **Voice** | Professional, calm, high-end hotel concierge. 1–3 sentences. Zero campus-café slang. Confirm delivery location + departure before promising dispatch. |
 | **Custom orders** | ✅ **On** — custom box from 2+ treasures via `/build` + WhatsApp SKU handoff; corporate / high-budget → human escalation |
 
+### 1.1 Hazina Triad
+
+Single customer-facing capability line:
+
+```text
+Bespoke Curation · Seamless Logistics · Global Export
+```
+
+This exact Triad is the source of truth for website hero copy, footer columns,
+WhatsApp welcome text, RAG policy chunks, fine-tuning prompts, and physical
+business-card language. Specific places and carriers such as hotels, villas,
+JKIA, airstrips, and DHL remain supported execution details, but the assistant
+and website should not list them unprompted as the headline pitch.
+
 ### Visual identity (portal — editorial luxury)
 
 Implemented in `hazina-portal/tailwind.config.ts` and `app/globals.css`:
@@ -235,7 +249,12 @@ Reference sources: [The Stems hampers](https://thestemsflowers.co.ke/collections
 - Optional premium packaging (+USD 45 / KES 5,800) — SKU `HN-T-070`.
 - **Monogram:** per engravable line (+USD 15 / KES 1,950 each when text is present).
 - **Bespoke requests:** free-text block; reference photos are collected on **WhatsApp** after submit (not in-browser upload). Unlisted pieces become a custom visual sourcing brief; the assistant must not promise price, authenticity, stock, or delivery timing until the field team validates the reference.
-- **Regional concierge fulfillment:** premium Nairobi residences, coastal villa handoffs (Diani, Watamu, Lamu), safari airstrip/lodge handoffs (Maasai Mara, Nanyuki), JKIA departure terminal handoff, and DHL export quotes are supported as logistics channels. The assistant must confirm exact property/terminal/airstrip, recipient, date, and time window before promising dispatch.
+- **Seamless Logistics:** local, residential, villa, lodge, and departure
+  handoffs are supported after exact property/terminal/airstrip, recipient,
+  date, and time window are confirmed.
+- **Global Export:** international courier quotes are supported after country,
+  city, address, carrier feasibility, and customs constraints are confirmed
+  before payment.
 - Running total in sidebar includes engraving lines; USD first with KES visible.
 - **Start guided checkout** → portal chat collects name, delivery mode, location, timing, payment, contact **one turn at a time**, then posts the full structured payload.
 - **Continue in WhatsApp** pre-fills the brief below; automation replies with photo-upload ack then step-by-step checkout.
@@ -499,7 +518,7 @@ Guest / order context
 | **Slug** | `hazina-nomads` |
 | **Name** | Hazina Nomads |
 | **Industry** | `gift-concierge` |
-| **Location** | Nairobi — Westlands, Kilimani, Karen, JKIA delivery, DHL export quote |
+| **Location** | Kenya — bespoke curation, seamless logistics, and global export |
 | **Phone** | `+1 555 657 8220` (current Meta/AI automation route) |
 | **Email** | `concierge@hazina-nomads.com` |
 | **Languages** | `en` primary, `sw` secondary |
@@ -512,6 +531,8 @@ Guest / order context
 |---|---|---|
 | `vertical` | string | `"retail"` |
 | `tagline` | string | Curated treasures… |
+| `brand_pillars` | array | Bespoke Curation, Seamless Logistics, Global Export |
+| `triad` | string | Bespoke Curation · Seamless Logistics · Global Export |
 | `brand` | object | name, meaning, legacy color hexes |
 | `currency` | string | `"USD"` |
 | `currency_display` | string | `"USD first, KES equivalent"` |
@@ -984,7 +1005,7 @@ Also: auto-resend stale STK after timeout (`_auto_resend_stale_payment_reply`).
 
 1. Draft collection/custom checkout is awaiting delivery details
 2. Guest asks for a photo, says `no STK yet`, or cancels checkout
-3. Automation does not treat that message as a hotel/JKIA/DHL address; photo/status/cancel paths handle it first
+3. Automation does not treat that message as a logistics address; photo/status/cancel paths handle it first
 
 ### 10.5 Hybrid automation architecture
 

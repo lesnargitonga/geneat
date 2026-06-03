@@ -228,7 +228,7 @@ def build_hazina_kb_catalog() -> list[str]:
     chunks.append(
         "CUSTOM BOX BUILDER — Guests may compose their own box from individual treasures "
         f"(minimum {MIN_CUSTOM_ITEMS} items plus optional premium packaging USD {PACKAGING_FEE_USD}). "
-        "Confirm each SKU, delivery location, delivery mode (hotel, JKIA, or DHL/export quote), "
+        "Confirm each SKU, delivery channel, exact location, timing, "
         "and payment method (M-Pesa or USD card)."
     )
     chunks.append(
@@ -249,8 +249,16 @@ def build_hazina_kb_catalog() -> list[str]:
 
 HAZINA_KB_POLICIES: list[str] = [
     (
-        "DELIVERY ZONES — We deliver to Westlands, Kilimani, Karen, and JKIA "
-        "(all terminals). We do not dispatch to other Nairobi neighbourhoods at MVP launch."
+        "HAZINA TRIAD — Hazina Nomads operates through Bespoke Curation, "
+        "Seamless Logistics, and Global Export. Use these three pillars when "
+        "explaining what Hazina does."
+    ),
+    (
+        "SEAMLESS LOGISTICS — Hazina offers seamless nationwide fulfillment for "
+        "premium hotels, metropolitan residences, coastal villas, wilderness "
+        "lodges, departure handoffs, and other verified delivery points. Do not "
+        "list locations unprompted; ask for the exact property, recipient, date, "
+        "and handoff window before promising dispatch."
     ),
     (
         "JKIA DELIVERIES — Require at least 4 hours lead time before the guest's "
@@ -267,11 +275,11 @@ HAZINA_KB_POLICIES: list[str] = [
         "4-hour window rule without the late fee if feasible."
     ),
     (
-        "INTERNATIONAL SHIPPING — If a traveller has already left Kenya or needs "
-        "delivery outside the country, offer a DHL Express or equivalent insured "
-        "courier quote. Collect destination country, city, full address, recipient "
-        "name, phone/email, and deadline. Quote courier, customs risk, and ETA "
-        "before taking payment."
+        "GLOBAL EXPORT — If a traveller has already left Kenya or needs delivery "
+        "outside the country, offer an insured DHL Express or equivalent courier "
+        "quote. Collect destination country, city, full address, recipient name, "
+        "phone/email, and deadline. Quote courier, customs risk, and ETA before "
+        "taking payment."
     ),
     (
         "CUSTOM BOXES — Guests may compose their own gift box from individual treasures "

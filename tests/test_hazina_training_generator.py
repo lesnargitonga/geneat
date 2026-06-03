@@ -28,3 +28,6 @@ def test_hazina_training_generator_includes_visual_sourcing_case() -> None:
     assert "ukunda airstrip" in blob.lower()
     assert "mkeka chest" in blob.lower()
     assert "cannot promise the exact piece" in replies
+    assert "bespoke curation" in blob.lower()
+    assert "seamless logistics" in blob.lower()
+    assert "global export" in blob.lower()

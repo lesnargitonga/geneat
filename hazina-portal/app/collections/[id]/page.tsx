@@ -24,13 +24,13 @@ const COLLECTION_SEO: Record<string, { title: string; description: string; keywo
   "kenya-edit": {
     title: "The Kenya Edit · Premium Safari Souvenirs Nairobi",
     description:
-      "Curated Kenyan safari souvenirs for discerning travellers — coffee, Maasai beadwork, soapstone. Hotel delivery in Nairobi or insured DHL export quote.",
+      "Curated Kenyan safari souvenirs for discerning travellers — coffee, Maasai beadwork, soapstone, seamless logistics, and global export.",
     keywords: ["safari souvenirs Nairobi", "Kenya travel gifts", "The Kenya Edit"],
   },
   "departure-drop": {
     title: "The Departure Drop · Last-Minute JKIA Gifts",
     description:
-      "Premium Kenyan gift box delivered to JKIA in 4 hours. Coffee, beadwork, leather — curated for departing travellers, not airport trinkets.",
+      "Premium Kenyan gift box for departure handoffs. Coffee, beadwork, leather — curated for departing travellers, not airport trinkets.",
     keywords: ["JKIA gifts", "last minute souvenirs Nairobi", "airport gift delivery Kenya"],
   },
 };

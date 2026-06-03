@@ -91,8 +91,8 @@ const MAIN_MENU_CMD = "__main_menu__";
 
 const ASK_PROMPTS: ChatAction[] = [
   { label: "Show me collections", value: "Show me your gift collections", primary: true },
-  { label: "JKIA delivery", value: "I need JKIA delivery before my flight" },
-  { label: "Build a custom box", value: "I want to build a custom gift box" },
+  { label: "Seamless logistics", value: "How does seamless logistics work?" },
+  { label: "Bespoke curation", value: "I want to initialize a private sourcing brief" },
   { label: "Corporate gifts", value: "Corporate gifting enquiry" },
 ];
 
@@ -169,7 +169,7 @@ function parseDeliveryMode(text: string): DeliveryMode | undefined {
   const lower = text.toLowerCase();
   if (/\b(jkia|airport|terminal|flight|departure)\b/.test(lower)) return "jkia";
   if (/\b(dhl|export|international|abroad|overseas|ship)\b/.test(lower)) return "international";
-  if (/\b(hotel|room|lodge|camp|villa|front desk|nairobi)\b/.test(lower)) return "hotel";
+  if (/\b(hotel|room|lodge|camp|villa|front desk|nairobi|local handoff|seamless logistics)\b/.test(lower)) return "hotel";
   return undefined;
 }
 
@@ -283,11 +283,11 @@ function questionForStep(flow: CheckoutFlow): { text: string; actions?: ChatActi
       return { text: "First, what name should I put on the order?" };
     case "delivery_mode":
       return {
-        text: "How should we deliver it?",
+        text: "Which fulfillment pillar should we use?",
         actions: [
-          { label: "Hotel delivery", value: "Hotel delivery", primary: true },
-          { label: "JKIA handoff", value: "JKIA terminal handoff" },
-          { label: "DHL export quote", value: "DHL export shipping quote" },
+          { label: "Local handoff", value: "Seamless logistics - local handoff / hotel delivery", primary: true },
+          { label: "Departure handoff", value: "Seamless logistics - JKIA departure handoff" },
+          { label: "Global export", value: "Global export - DHL export shipping quote" },
         ],
       };
     case "location":
@@ -295,9 +295,9 @@ function questionForStep(flow: CheckoutFlow): { text: string; actions?: ChatActi
         return { text: "Which terminal or airport meeting point should the concierge use?" };
       }
       if (flow.deliveryMode === "international") {
-        return { text: "Which country, city, and delivery address should we quote for DHL?" };
+        return { text: "Which country, city, and delivery address should we quote for global export?" };
       }
-      return { text: "Which hotel, room, or front desk name should we deliver to?" };
+      return { text: "Which property, room, front desk, villa, or residence should we deliver to?" };
     case "window":
       if (flow.deliveryMode === "jkia") {
         return { text: "What flight or departure time should we work around?" };
@@ -333,9 +333,9 @@ function questionForStep(flow: CheckoutFlow): { text: string; actions?: ChatActi
 }
 
 function deliveryLabel(mode?: DeliveryMode) {
-  if (mode === "jkia") return "JKIA terminal handoff";
-  if (mode === "international") return "DHL/export shipping quote";
-  return "Hotel delivery";
+  if (mode === "jkia") return "Seamless logistics - departure handoff";
+  if (mode === "international") return "Global export - insured courier quote";
+  return "Seamless logistics - local handoff";
 }
 
 function checkoutSummary(flow: CheckoutFlow) {
@@ -381,7 +381,7 @@ function buildBackendCheckoutMessage(flow: CheckoutFlow) {
     `Preferred payment: ${flow.paymentCurrency === "KES" ? "KES M-Pesa STK" : "USD card link"}`,
     "",
     flow.deliveryMode === "international"
-      ? "Please confirm availability, quote insured DHL/export shipping before payment, then start checkout."
+      ? "Please confirm availability, quote insured global export before payment, then start checkout."
       : "Please create the order, confirm availability, and start payment.",
   );
   return lines.join("\n");
@@ -659,7 +659,7 @@ export function ChatWidget() {
         if (!mode) {
           const question = questionForStep(current);
           setActions(question.actions || []);
-          append("ai", "Choose hotel delivery, JKIA handoff, or DHL export quote.");
+          append("ai", "Choose seamless nationwide logistics or global export; I will collect the exact handoff details step by step.");
           return;
         }
         updated.deliveryMode = mode;

@@ -449,7 +449,11 @@ export function PackBuilder({
                           : "border-transparent text-ink-mute hover:text-obsidian"
                       }`}
                     >
-                      {mode === "hotel" ? "Hotel" : mode === "jkia" ? "JKIA" : "DHL"}
+                      {mode === "hotel"
+                        ? "Local handoff"
+                        : mode === "jkia"
+                          ? "Departure"
+                          : "Global export"}
                     </button>
                   ))}
                 </div>
@@ -651,7 +655,7 @@ function buildWhatsAppMessage({
 }
 
 function deliveryTypeLabel(mode: DeliveryMode): string {
-  if (mode === "jkia") return "JKIA terminal handoff";
-  if (mode === "international") return "DHL/export shipping quote";
-  return "Hotel delivery";
+  if (mode === "jkia") return "Seamless logistics - departure handoff";
+  if (mode === "international") return "Global export - insured courier quote";
+  return "Seamless logistics - local handoff";
 }

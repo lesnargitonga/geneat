@@ -48,6 +48,10 @@ def test_hazina_main_menu_payload() -> None:
     assert wm.ID_TRACK in row_ids
     assert wm.ID_ORDER not in row_ids  # café-only action
     assert payload["button_text"] == "Concierge Services"
+    body = payload["body"].lower()
+    assert "bespoke curation" in body
+    assert "seamless logistics" in body
+    assert "global export" in body
 
 
 def test_cafe_main_menu_unchanged_without_slug() -> None:

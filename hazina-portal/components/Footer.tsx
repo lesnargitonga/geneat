@@ -11,15 +11,19 @@ export function Footer() {
             <span className="italic normal-case text-bronze-light tracking-normal">Nomads</span>
           </div>
           <p className="text-sand/70 max-w-sm leading-relaxed">
-            {BRAND.tagline} A premium travel concierge — curated Kenyan treasures
-            delivered to your hotel, JKIA terminal, or quoted for insured DHL export.
+            {BRAND.tagline} A premium travel concierge for bespoke curation,
+            seamless logistics, and global export of Kenyan heritage pieces.
           </p>
           <p className="label-mono text-sand/40">
-            Nairobi · Hotels · JKIA · DHL export quotes
+            {BRAND.triad}
           </p>
         </div>
         <div className="md:col-span-3">
-          <h4 className="label-mono text-sand/50 mb-4">Collections</h4>
+          <h4 className="label-mono text-sand/50 mb-4">Bespoke Curation</h4>
+          <p className="text-sm leading-relaxed text-sand/70">
+            Sourcing unlisted artifacts and signature regional collections through our private
+            network of artisans and estates.
+          </p>
           <ul className="space-y-2.5 text-sm text-sand/70">
             <li>
               <Link className="hover:text-sand transition-colors" href="/collections">
@@ -57,15 +61,30 @@ export function Footer() {
           </ul>
         </div>
         <div className="md:col-span-4">
-          <h4 className="label-mono text-sand/50 mb-4">Concierge</h4>
-          <ul className="space-y-2.5 text-sm text-sand/70">
+          <div className="grid gap-8 sm:grid-cols-2">
+            <div>
+              <h4 className="label-mono text-sand/50 mb-4">Seamless Logistics</h4>
+              <p className="text-sm leading-relaxed text-sand/70">
+                Discreet, nationwide fulfillment directly to your metropolitan residence,
+                coastal villa, or private wilderness lodge.
+              </p>
+            </div>
+            <div>
+              <h4 className="label-mono text-sand/50 mb-4">Global Export</h4>
+              <p className="text-sm leading-relaxed text-sand/70">
+                End-to-end international transit and customs-ready export quotes, delivering
+                verified heritage pieces to your home or corporate headquarters.
+              </p>
+            </div>
+          </div>
+          <ul className="mt-8 space-y-2.5 text-sm text-sand/70">
             <li>
               <a className="hover:text-sand transition-colors" href={`mailto:${BRAND.email}`}>
                 {BRAND.email}
               </a>
             </li>
             <li>{BRAND.phone}</li>
-            <li className="label-mono text-sand/40 pt-1">Dispatch 08:00–20:00 EAT · Export by quote</li>
+            <li className="label-mono text-sand/40 pt-1">Concierge desk 08:00–20:00 EAT · Export by quote</li>
           </ul>
         </div>
       </div>

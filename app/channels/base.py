@@ -253,12 +253,13 @@ def _greeting_reply(*, business_name: str | None, language: str | None) -> str:
     if "hazina" in name.lower():
         if _customer_prefers_swahili(language):
             return (
-                f"Karibu {name}. Naweza kukusaidia kuchagua gift collection, "
-                "kuunda custom box, kupanga hotel/JKIA delivery, au kuomba quote ya DHL."
+                f"Karibu {name}. Tuna Bespoke Curation, Seamless Logistics, na "
+                "Global Export kwa vipande vya premium vya Kenya."
             )
         return (
-            f"Welcome to {name}. I can help you choose a gift collection, "
-            "build a custom box, arrange hotel or JKIA delivery, or quote DHL export shipping."
+            f"Welcome to {name}. We offer bespoke curation, seamless logistics, "
+            "and global export for premium Kenyan heritage items. Would you like "
+            "to view our signature collections, or initialize a private sourcing brief?"
         )
     if _customer_prefers_swahili(language):
         return (

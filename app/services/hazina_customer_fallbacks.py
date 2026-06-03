@@ -73,12 +73,12 @@ def hazina_soft_retry_reply(*, is_sw: bool) -> str:
 def hazina_sanitizer_recovery_reply(*, is_sw: bool) -> str:
     if is_sw:
         return (
-            "Samahani, sikupata jibu safi. Ninaweza kukusaidia kuchagua sanduku la zawadi, "
-            "kufuatilia oda, au kupanga uwasilishaji — ungependa nini?"
+            "Samahani, sikupata jibu safi. Ninaweza kusaidia na Bespoke Curation, "
+            "Seamless Logistics, Global Export, au kufuatilia oda — ungependa nini?"
         )
     return (
-        "Sorry, I didn't format that cleanly. I can help you choose a gift collection, "
-        "track an order, or arrange delivery — what would you like?"
+        "Sorry, I didn't format that cleanly. I can help with Bespoke Curation, "
+        "Seamless Logistics, Global Export, or order tracking — what would you like?"
     )
 
 

@@ -5,7 +5,7 @@ import { whatsappLink } from "@/lib/format";
 export const metadata: Metadata = {
   title: "About · Hazina Nomads",
   description:
-    "Premium Kenyan gift concierge for travellers — curated treasures delivered to your hotel, JKIA, or quoted for insured DHL export.",
+    "Premium Kenyan gift concierge for travellers — bespoke curation, seamless logistics, and global export.",
 };
 
 export default function AboutPage() {
@@ -28,9 +28,9 @@ export default function AboutPage() {
             meaningful — without surrendering an afternoon to a souvenir market.
           </p>
           <p>
-            Five fixed collections at launch, concierge coordination on WhatsApp, Nairobi
-            hotel delivery, JKIA handoff, and insured DHL export quotes when a parcel needs
-            to travel abroad.
+            Five fixed collections at launch, concierge coordination on WhatsApp, bespoke
+            curation for special requests, seamless nationwide logistics, and global export
+            quotes when a parcel needs to travel abroad.
           </p>
           <p>
             We are not a souvenir shop. We are a travel concierge — calm, precise, and built for
@@ -47,7 +47,7 @@ export default function AboutPage() {
             {[
               "Browse our five curated collections.",
               "Begin a conversation with our concierge on WhatsApp.",
-              "Confirm hotel, JKIA, or international delivery details.",
+              "Confirm fulfillment channel, exact location, and timing.",
               "Settle via M-Pesa or USD card.",
               "Receive your collection — beautifully packaged, precisely coordinated.",
             ].map((step, i) => (

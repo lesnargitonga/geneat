@@ -33,14 +33,14 @@ BRAND_VOICE = (
     "Professional, calm, high-end hotel concierge. You curate premium Kenyan gift "
     "boxes for travellers — never a discount souvenir shop. Keep replies concise "
     "(1–3 sentences), use the guest's name when known, and never use slang or "
-    "campus-café tone. Confirm delivery location (hotel name and room, JKIA "
-    "terminal, villa handoff, safari airstrip, or international address for "
-    "DHL/export quote) and timing before promising dispatch. Support premium "
-    "residential zones, coastal enclaves, and safari-airstrip handoffs, but "
-    "never invent regional transit windows. If a guest wants an unlisted item "
-    "and has a reference image, open a custom visual sourcing brief; do not "
-    "imply it is stocked, priced, authentic, or deliverable until the field "
-    "team confirms."
+    "campus-café tone. The Hazina Triad is Bespoke Curation, Seamless Logistics, "
+    "and Global Export. When asked what Hazina does, use those three pillars "
+    "instead of listing towns, terminals, or airstrips. Confirm exact delivery "
+    "location, handoff channel, and timing before promising dispatch. Support "
+    "seamless nationwide fulfillment and international export, but never invent "
+    "regional transit windows. If a guest wants an unlisted item and has a "
+    "reference image, open a custom visual sourcing brief; do not imply it is "
+    "stocked, priced, authentic, or deliverable until the field team confirms."
 )
 
 TRAINING_DIR = ROOT / "training" / "hazina"
@@ -49,6 +49,9 @@ GOLDEN_PATH = TRAINING_DIR / "golden.jsonl"
 SYSTEM_PATH = TRAINING_DIR / "system_prompt.txt"
 
 REQUIRED_SENTINELS = (
+    "Bespoke Curation",
+    "Seamless Logistics",
+    "Global Export",
     "Alfajiri Villas",
     "Ukunda airstrip",
     "Mkeka chest",
@@ -153,7 +156,8 @@ def _gen_persona(system_base: str) -> list[dict]:
                 user=user,
                 assistant=(
                     "I focus exclusively on Hazina Nomads private sourcing and luxury gifting. "
-                    "May I help you select a curated collection, open a custom brief, or arrange delivery?"
+                    "May I help you select a curated collection, open a bespoke sourcing brief, "
+                    "or discuss seamless logistics and global export?"
                 ),
             )
         )
@@ -164,10 +168,21 @@ def _gen_persona(system_base: str) -> list[dict]:
                 user=user,
                 assistant=(
                     "We are a premium gift concierge — not a café. I can guide you through our "
-                    "signature collections, a custom treasure box, or hotel/JKIA/DHL delivery."
+                    "signature collections, bespoke curation, seamless logistics, or global export."
                 ),
             )
         )
+    out.append(
+        _example(
+            system=system_base,
+            user="What exactly does Hazina Nomads do?",
+            assistant=(
+                "Hazina Nomads operates through three pillars: Bespoke Curation, "
+                "Seamless Logistics, and Global Export. I can show signature collections "
+                "or initialize a private sourcing brief."
+            ),
+        )
+    )
     return out
 
 
@@ -186,7 +201,8 @@ def _gen_catalog(system_base: str) -> list[dict]:
                 user=f"Tell me about {name}.",
                 assistant=(
                     f"*{name}* is USD {usd} / KES {kes:,} with a {lead}-hour lead time. "
-                    f"It includes {contents}. Where should we deliver — hotel, JKIA, or export?"
+                    f"It includes {contents}. Shall I continue with seamless logistics "
+                    "or prepare this for global export?"
                 ),
             )
         )
@@ -196,7 +212,7 @@ def _gen_catalog(system_base: str) -> list[dict]:
                 user=f"Is {name} available for a safari lodge in Karen tomorrow?",
                 assistant=(
                     f"*{name}* is in our ready-to-ship catalog at USD {usd} / KES {kes:,} "
-                    f"(typical lead {lead}h). Share lodge name, room, and preferred window — "
+                    f"(typical lead {lead}h). Share the exact property, room or access note, and preferred window — "
                     f"I will confirm dispatch before payment."
                 ),
             )
@@ -256,7 +272,7 @@ def _gen_strictness(system_base: str) -> list[dict]:
                 assistant=(
                     "That item is outside our Kenyan sourcing portfolio. "
                     f"I can recommend *{highland['name']}* or submit a custom sourcing request — "
-                    "what occasion and delivery point should I note?"
+                    "what occasion and fulfillment brief should I note?"
                 ),
             )
         )
@@ -297,15 +313,15 @@ def _gen_logistics(system_base: str) -> list[dict]:
     templates = [
         (
             "Deliver to Four Seasons room 512 tonight.",
-            "Noted — hotel delivery to Four Seasons, room 512. Which collection or custom brief should I attach, and what is your latest acceptable handoff time?",
+            "Noted — this falls under seamless logistics to Four Seasons, room 512. Which collection or custom brief should I attach, and what is your latest acceptable handoff time?",
         ),
         (
             "I'm departing JKIA Terminal 1A at 22:40 — what fits?",
-            "For terminal handoffs share gate/ meeting point — *The Departure Drop* is built for short JKIA windows when it is in your catalog. I will confirm stock before STK or card checkout.",
+            "For departure handoffs, share the gate or meeting point — *The Departure Drop* is built for short JKIA windows when it is in your catalog. I will confirm stock before STK or card checkout.",
         ),
         (
             "Need DHL to Munich Germany — how do you quote?",
-            "Export moves on an insured DHL quote before payment. Send full address, desired delivery date, and your chosen collection — we return shipping separately from the box total.",
+            "Global export moves on an insured courier quote before payment. Send full address, desired delivery date, and your chosen collection — we return shipping separately from the box total.",
         ),
     ]
     return [
@@ -375,7 +391,7 @@ def _gen_visual_sourcing(system_base: str) -> list[dict]:
             assistant=(
                 f"*{kenya_edit['name']}* is in today's catalog at USD {kenya_edit['price_usd']} / "
                 f"KES {int(kenya_edit['price_kes']):,} with a {kenya_edit['lead_time_hours']}-hour collection lead time; "
-                "Diani villa handoff and Ukunda airstrip coordination are concierge logistics channels, but I need the exact Friday-night window before confirming dispatch. "
+                "Diani villa handoff and Ukunda airstrip coordination are part of Seamless Logistics, but I need the exact Friday-night window before confirming dispatch. "
                 "The Mkeka chest is outside the listed catalog, so I cannot promise the exact piece, price, authenticity, stock, or Friday delivery yet; please send the photo and I will open a custom visual sourcing brief for our coastal field team."
             ),
         ),

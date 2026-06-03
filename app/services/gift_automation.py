@@ -610,12 +610,12 @@ def _product_detail_reply(product_id: str, *, is_sw: bool) -> str:
         return (
             f"*{name}* — {_price_label(usd=usd, kes=kes)}. {blurb}{extra} "
             f"Wakati wa kuandaa: saa {row['lead_time_hours']}. "
-            "Niambie mahali pa kufikishia (hotel + chumba, au JKIA + terminal) ili tuendelee."
+            "Niambie handoff channel, eneo kamili, na muda ili tuendelee."
         )
     return (
         f"*{name}* — {_price_label(usd=usd, kes=kes)}. {blurb}{extra} "
         f"Lead time: {row['lead_time_hours']}h. "
-            "Tell me your delivery spot (hotel + room, JKIA + terminal, or international address for a DHL quote) and I'll lock in your order."
+        "Tell me the handoff channel, exact location, and timing, and I will continue the order."
     )
 
 
@@ -656,11 +656,11 @@ def _corporate_reply(*, is_sw: bool) -> str:
     if is_sw:
         return (
             "Zawadi za kampuni — tunashughulikia oda za timu na matukio. "
-            "Nimemwita concierge wa binafsi atakujibu hapa muda mfupi na bei za kundi."
+            "Nimearifu senior concierge desk ili waendelee na bei na ratiba za kundi."
         )
     return (
-        "Corporate gifting — we handle team and event orders with curated packaging. "
-        "I've asked a concierge to join this chat shortly with bulk pricing and timelines."
+        "Corporate gifting sits under Bespoke Curation for teams and events. "
+        "I have notified the senior concierge desk to handle volume pricing and timelines."
     )
 
 
@@ -685,28 +685,28 @@ def _catalog_reply(*, is_sw: bool) -> str:
 def _logistics_reply(kind: str, *, is_sw: bool) -> str:
     if kind == "jkia":
         return (
-            "Tunaweza kupanga JKIA terminal handoff kwa collection yako baada ya kuthibitisha dirisha la kuondoka."
+            "Hii ni Seamless Logistics: tunaweza kupanga departure handoff baada ya kuthibitisha dirisha la kuondoka."
             if is_sw
-            else "We can coordinate a JKIA terminal handoff for your collection once we confirm your departure window."
+            else "This falls under Seamless Logistics: we can coordinate a departure handoff once we confirm your departure window."
         )
     if kind == "hotel":
         return (
-            "Tunatoa hotel, lodge, na front-desk delivery — niambie jina la hoteli, chumba, na dirisha la wakati."
+            "Hii ni Seamless Logistics: niambie property, chumba/front desk, na dirisha la wakati."
             if is_sw
-            else "We deliver to hotels, lodges, and front desks — share the property name, room, and preferred window."
+            else "This falls under Seamless Logistics: share the property, room or front-desk note, and preferred window."
         )
     return (
-        "Tunatoa DHL/export shipping kwa mpangilio wa concierge. Tunathibitisha gharama na muda kabla ya malipo."
+        "Hii ni Global Export: tunathibitisha carrier, gharama, na muda kabla ya malipo."
         if is_sw
-        else "We support DHL/export shipping via concierge handling, with timeline and cost confirmation before payment."
+        else "This falls under Global Export: we confirm carrier, cost, and timeline before payment."
     )
 
 
 def _cafe_boundary_reply(*, is_sw: bool) -> str:
     return (
-        "Hazina si cafe; tunashughulikia gift collections na private sourcing. Chagua collection tuanze."
+        "Hazina si cafe; tunashughulikia Bespoke Curation, Seamless Logistics, na Global Export. Chagua collection tuanze."
         if is_sw
-        else "Hazina Nomads is not a cafe; we handle premium gift collections and private sourcing. Pick a collection to start."
+        else "Hazina Nomads is not a cafe; we handle Bespoke Curation, Seamless Logistics, and Global Export. Pick a collection to start."
     )
 
 
@@ -735,19 +735,19 @@ async def _checkout_product_photo_reply(
 def _delivery_type_from_text(text: str | None, *, fallback: str | None = None) -> str | None:
     body = (text or "").lower()
     if "dhl" in body or "export" in body or "international" in body or "abroad" in body:
-        return "DHL/export shipping quote"
+        return "Global Export - DHL/insured courier quote"
     if "jkia" in body or "airport" in body or "terminal" in body or "flight" in body:
-        return "JKIA terminal handoff"
-    if "hotel" in body or "room" in body or "front desk" in body or "lodge" in body or "camp" in body:
-        return "Hotel delivery"
+        return "Seamless Logistics - JKIA terminal handoff"
+    if "hotel" in body or "room" in body or "front desk" in body or "lodge" in body or "camp" in body or "villa" in body or "residence" in body:
+        return "Seamless Logistics - local handoff"
     if fallback:
         low = fallback.lower()
         if "dhl" in low or "export" in low or "international" in low:
-            return "DHL/export shipping quote"
+            return "Global Export - DHL/insured courier quote"
         if "jkia" in low or "airport" in low or "terminal" in low:
-            return "JKIA terminal handoff"
-        if "hotel" in low or "room" in low or "front desk" in low:
-            return "Hotel delivery"
+            return "Seamless Logistics - JKIA terminal handoff"
+        if "hotel" in low or "room" in low or "front desk" in low or "villa" in low or "residence" in low:
+            return "Seamless Logistics - local handoff"
     return None
 
 
@@ -778,9 +778,9 @@ def _checkout_prompt(checkout: dict, *, is_sw: bool) -> str:
         return "Niweke jina gani kwa oda?" if is_sw else "What name should I put on the order?"
     if step == "delivery_type":
         return (
-            "Utataka hotel delivery, JKIA handoff, au DHL/export?"
+            "Utataka local handoff, departure handoff, au Global Export?"
             if is_sw else
-            "Should this be hotel delivery, JKIA handoff, or a DHL/export quote?"
+            "Should this be local handoff, departure handoff, or Global Export?"
         )
     if step == "location":
         dtype = _delivery_type_from_text(None, fallback=str(checkout.get("delivery_type") or ""))
@@ -792,14 +792,14 @@ def _checkout_prompt(checkout: dict, *, is_sw: bool) -> str:
             )
         if dtype and "DHL" in dtype:
             return (
-                "Ni nchi, mji, na anwani gani ya DHL?"
+                "Ni nchi, mji, na anwani gani ya Global Export?"
                 if is_sw else
-                "Which country, city, and delivery address should we quote for DHL?"
+                "Which country, city, and delivery address should we quote for Global Export?"
             )
         return (
-            "Ni hoteli gani, chumba, au front desk gani?"
+            "Ni property gani, chumba/front desk, villa, au residence gani?"
             if is_sw else
-            "Which hotel, room, or front desk name should we deliver to?"
+            "Which property, room, front desk, villa, or residence should we deliver to?"
         )
     if step == "window":
         dtype = _delivery_type_from_text(None, fallback=str(checkout.get("delivery_type") or ""))
@@ -1614,9 +1614,9 @@ async def try_hazina_automation(
                 if len(location) < 6:
                     return GiftAutomationResult(
                         reply=(
-                            "Tafadhali niambie hoteli + chumba, JKIA + terminal, au nchi/anwani ya DHL."
+                            "Tafadhali niambie handoff channel, eneo kamili, na muda."
                             if is_sw else
-                            "Please share hotel + room, JKIA + terminal, or international address for DHL quote."
+                            "Please share the handoff channel, exact location, and timing."
                         ),
                         safety_flag="deterministic:hazina_custom_need_location",
                     )
@@ -1673,9 +1673,9 @@ async def try_hazina_automation(
         if len(location) < 6:
             return GiftAutomationResult(
                 reply=(
-                    "Tafadhali niambie hoteli + chumba, JKIA + terminal, au nchi/anwani ya DHL."
+                    "Tafadhali niambie handoff channel, eneo kamili, na muda."
                     if is_sw else
-                    "Please share hotel + room, JKIA + terminal, or international address for DHL quote."
+                    "Please share the handoff channel, exact location, and timing."
                 ),
                 safety_flag="deterministic:hazina_need_location",
             )

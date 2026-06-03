@@ -4,7 +4,7 @@
 > **This README:** architecture, API, data model, scaling — not live-status authority.  
 > Code wins if docs drift.
 
-Last reconciled with the codebase and local checks: **2026-06-01**.  
+Last reconciled with the codebase and local checks: **2026-06-03**.
 Hosted live checks were last verified on **2026-05-26**.
 
 Security: See [SECURITY.md](SECURITY.md) for live-run findings and recommended mitigations.
@@ -67,6 +67,12 @@ Current demo tenants:
 
 Current Hazina production-routing path:
 
+- the customer-facing Hazina brand system is the **Hazina Triad**:
+  **Bespoke Curation · Seamless Logistics · Global Export**,
+- website copy, WhatsApp greetings, deterministic automation, seed data, RAG
+  policy chunks, and fine-tuning prompts should use the Triad as the headline
+  capability language; specific places and carriers such as hotels, JKIA, and
+  DHL are operational details under those pillars, not the default pitch,
 - `DEFAULT_BUSINESS_SLUG=hazina-nomads`,
 - Hazina uses the same shared API, WhatsApp ingress, RAG, order, and payment
   machinery as Gen-Eat,
@@ -2593,7 +2599,7 @@ This is the honest list, not the flattering list.
   staged state and asks for one missing detail at a time instead of requesting
   name, delivery address, time, payment, and contact in one crowded message
 - Hazina draft checkouts now allow interruption: photo requests, `no STK yet`,
-  and `cancel checkout` no longer get misread as hotel/JKIA/DHL addresses or
+  and `cancel checkout` no longer get misread as logistics addresses or
   accidentally start payment
 - Hazina collection photo replies now use the corrected collection/context
   photo map and unknown specific photo requests no longer substitute random

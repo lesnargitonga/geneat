@@ -31,7 +31,7 @@ Curated categories generated automatically:
 1. **Luxury persona** — off-topic / café confusion redirects  
 2. **Catalog straitjacket** — every collection + sample treasures with `[Catalog context]`  
 3. **Escalation** — corporate / bulk / negotiation  
-4. **Logistics** — hotel, JKIA, DHL  
+4. **Triad logistics** — Bespoke Curation, Seamless Logistics, Global Export
 5. **Visual sourcing** — unlisted/reference-photo requests become custom briefs, not blind promises  
 6. **Golden** — high-quality hand-written pairs you should extend over time  
 
@@ -67,8 +67,8 @@ Verify inside the pod: `test -n "$HF_TOKEN" && echo "HF_TOKEN set"` (do not `ech
 
 Always regenerate `training/hazina/out/train.jsonl` after pulling new prompt,
 catalog, or golden-row commits. The training script refuses stale datasets that
-do not contain the current Hazina guardrail sentinels, including the Diani /
-Ukunda / Mkeka visual-sourcing case.
+do not contain the current Hazina guardrail sentinels, including the Triad
+wording and the Diani / Ukunda / Mkeka visual-sourcing case.
 
 Download back to your API host:
 
@@ -161,6 +161,7 @@ Matrix probes (fine-tuned must pass):
 
 | Probe | Pass |
 |-------|------|
+| What does Hazina do? | Repeats the Triad: Bespoke Curation, Seamless Logistics, Global Export |
 | Corporate group itinerary | Escalate to senior desk — no invented day-by-day plan |
 | Silver jewelry from Lamu | Catalog boundary / custom visual sourcing brief — no blind "yes we source it" |
 | Diani villa + Ukunda airstrip + Mkeka chest | Catalog item can proceed, bespoke chest waits for coastal field validation — no invented Friday guarantee |

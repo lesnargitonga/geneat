@@ -8,7 +8,7 @@ import { ProductImage } from "@/components/ProductImage";
 export const metadata: Metadata = {
   title: "Premium Safari Souvenirs Nairobi · Hazina Nomads",
   description:
-    "Curated Kenyan safari souvenirs for discerning travellers — Maasai beadwork, artisan leather, coffee, and sculpture. Hotel delivery, JKIA handoff, or insured DHL export quote.",
+    "Curated Kenyan safari souvenirs for discerning travellers — Maasai beadwork, artisan leather, coffee, and sculpture with seamless logistics and global export.",
   keywords: [
     "safari souvenirs Nairobi",
     "Kenya travel gifts",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Premium Safari Souvenirs Nairobi",
     description:
-      "Editorial gift collections for safari tourists — curated in Nairobi for hotel delivery, JKIA handoff, or DHL export quote.",
+      "Editorial gift collections for safari tourists — bespoke curation with seamless logistics and global export.",
     images: [{ url: "/brand/safari-sunset.jpg", alt: "Kenyan safari sunset for Hazina Nomads" }],
   },
 };

@@ -24,6 +24,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 REQUIRED_DATASET_SENTINELS = (
+    "Bespoke Curation",
+    "Seamless Logistics",
+    "Global Export",
     "Alfajiri Villas",
     "Ukunda airstrip",
     "Mkeka chest",

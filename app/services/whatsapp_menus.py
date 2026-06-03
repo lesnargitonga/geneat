@@ -239,7 +239,10 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
         return {
             "type": "list",
             "header": "Hazina Private Sourcing"[:60],
-            "body": "Karibu kwa concierge wako wa kibinafsi. Chagua huduma:",
+            "body": (
+                "Karibu Hazina Nomads. Tunatoa bespoke curation, seamless logistics, "
+                "na global export kwa vipande vya premium vya Kenya. Chagua huduma:"
+            ),
             "footer": "Gusa kitufe hapa chini kuchagua.",
             "button_text": "Huduma za Concierge",
             "sections": [
@@ -263,7 +266,7 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
                     "rows": [
                         {
                             "id": ID_HAZINA_BRIEF,
-                            "title": "Custom Sourcing",
+                            "title": "Bespoke Curation",
                             "description": "Tengeneza brief ya kibinafsi",
                         },
                         {
@@ -273,8 +276,8 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
                         },
                         {
                             "id": ID_HAZINA_LOGISTICS,
-                            "title": "Delivery Options",
-                            "description": "Hotel, JKIA, DHL export",
+                            "title": "Seamless Logistics",
+                            "description": "Nationwide handoff",
                         },
                     ],
                 },
@@ -303,7 +306,11 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
     return {
         "type": "list",
         "header": "Hazina Private Sourcing",
-        "body": "Welcome to your private concierge. How may we assist you today?",
+        "body": (
+            "Welcome to Hazina Nomads. We offer bespoke curation, seamless logistics, "
+            "and global export for premium Kenyan heritage items. Would you like "
+            "to view our signature collections, or initialize a private sourcing brief?"
+        ),
         "footer": "Tap the button below to select an option.",
         "button_text": "Concierge Services",
         "sections": [
@@ -327,7 +334,7 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
                 "rows": [
                     {
                         "id": ID_HAZINA_BRIEF,
-                        "title": "Custom Sourcing",
+                        "title": "Bespoke Curation",
                         "description": "Build a personalized brief",
                     },
                     {
@@ -337,8 +344,8 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
                     },
                     {
                         "id": ID_HAZINA_LOGISTICS,
-                        "title": "Delivery Options",
-                        "description": "Hotel, JKIA, DHL export",
+                        "title": "Seamless Logistics",
+                        "description": "Nationwide handoff",
                     },
                 ],
             },
@@ -368,8 +375,14 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
 
 def hazina_welcome_body(*, language: str | None) -> str:
     if _is_swahili(language):
-        return "Karibu kwa concierge wako wa kibinafsi. Chagua huduma hapa chini."
-    return "Welcome to your private concierge. How may we assist you today?"
+        return (
+            "Karibu Hazina Nomads. Tunatoa bespoke curation, seamless logistics, "
+            "na global export kwa vipande vya premium vya Kenya."
+        )
+    return (
+        "Welcome to Hazina Nomads. We offer bespoke curation, seamless logistics, "
+        "and global export for premium Kenyan heritage items."
+    )
 
 
 def main_menu_payload(
@@ -491,18 +504,18 @@ def hazina_logistics_list_payload(*, language: str | None) -> dict:
     rows = [
         {
             "id": ID_HAZINA_LOG_HOTEL,
-            "title": ("\U0001F3E8 Hotel delivery" if not is_sw else "\U0001F3E8 Hotel delivery")[:24],
-            "description": ("Lodge, camp, front desk" if not is_sw else "Hoteli, camp, front desk")[:72],
+            "title": ("\U0001F3E8 Local handoff" if not is_sw else "\U0001F3E8 Local handoff")[:24],
+            "description": ("Hotels, villas, residences" if not is_sw else "Hoteli, villa, residence")[:72],
         },
         {
             "id": ID_HAZINA_LOG_JKIA,
-            "title": ("\u2708\uFE0F JKIA handoff" if not is_sw else "\u2708\uFE0F JKIA handoff")[:24],
-            "description": ("Terminal pickup before flight" if not is_sw else "Ukabidhiaji terminal")[:72],
+            "title": ("\u2708\uFE0F Departure handoff" if not is_sw else "\u2708\uFE0F Departure handoff")[:24],
+            "description": ("JKIA terminal timing" if not is_sw else "JKIA na muda wa ndege")[:72],
         },
         {
             "id": ID_HAZINA_LOG_DHL,
-            "title": ("\U0001F4E6 DHL / export" if not is_sw else "\U0001F4E6 DHL / export")[:24],
-            "description": ("International insured shipping" if not is_sw else "Usafirishaji wa kimataifa")[:72],
+            "title": ("\U0001F4E6 Global export" if not is_sw else "\U0001F4E6 Global export")[:24],
+            "description": ("DHL/insured courier quote" if not is_sw else "DHL/insured courier")[:72],
         },
         {
             "id": ID_HOME,
@@ -512,11 +525,11 @@ def hazina_logistics_list_payload(*, language: str | None) -> dict:
     ]
     return {
         "type": "list",
-        "header": ("Delivery Options" if not is_sw else "Chaguo za Uwasilishaji")[:60],
+        "header": ("Seamless Logistics" if not is_sw else "Seamless Logistics")[:60],
         "body": (
-            "Chagua aina ya uwasilishaji:"
+            "Chagua fulfillment pillar:"
             if is_sw else
-            "Select how you would like your collection delivered:"
+            "Choose the fulfillment pillar for this order:"
         ),
         "button_text": ("Chagua" if is_sw else "Choose"),
         "sections": [{"title": ("Uwasilishaji" if is_sw else "Delivery"), "rows": rows}],

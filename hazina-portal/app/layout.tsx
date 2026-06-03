@@ -15,9 +15,9 @@ const themeInitScript = `(() => {
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.PUBLIC_HAZINA_PORTAL_URL || "https://hazina.lesnarai.co.ke"),
-  title: "Hazina Nomads · Curated Kenyan gift boxes",
+  title: "Hazina Nomads · Private Sourcing Concierge",
   description:
-    "Premium gift concierge for travellers in Nairobi. Curated Kenyan treasures delivered to your hotel, JKIA, or quoted for insured DHL export.",
+    "Premium Kenyan heritage concierge for travellers: bespoke curation, seamless logistics, and global export.",
 };
 
 export const viewport: Viewport = {

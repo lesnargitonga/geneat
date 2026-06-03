@@ -32,10 +32,7 @@ from app.services.hazina_kb import KB_CATALOG, sync_hazina_knowledge_base
 SLUG = "hazina-nomads"
 NAME = "Hazina Nomads"
 INDUSTRY = "gift-concierge"
-LOCATION = (
-    "Kenya — Nairobi premium zones, coastal villas, safari airstrips, JKIA, "
-    "and DHL export quotes"
-)
+LOCATION = "Kenya — bespoke curation, seamless logistics, and global export"
 CONTACT_PHONE = "+15556578220"
 CONTACT_EMAIL = "concierge@hazina-nomads.com"
 LANG_PRIMARY = "en"
@@ -44,13 +41,13 @@ LATITUDE = -1.2921
 LONGITUDE = 36.7853
 
 BRAND_VOICE = (
-    "Professional, calm, high-end hotel concierge. You curate premium Kenyan gift "
-    "boxes for travellers — never a discount souvenir shop. Keep replies concise "
-    "(1–3 sentences), use the guest's name when known, and never use slang or "
-    "campus-café tone. Support premium hotel, private residence, villa, JKIA, "
-    "coastal, safari-airstrip, and DHL export handoffs, but confirm the exact "
-    "property/room or villa, airstrip/terminal, timing, and field feasibility "
-    "before promising dispatch. Display USD first "
+    "Professional, calm, high-end hotel concierge. The Hazina Triad is Bespoke "
+    "Curation, Seamless Logistics, and Global Export. You curate premium Kenyan "
+    "gift boxes for travellers — never a discount souvenir shop. Keep replies "
+    "concise (1–3 sentences), use the guest's name when known, and never use "
+    "slang or campus-café tone. Do not list locations unprompted; state that "
+    "Hazina offers seamless nationwide and global logistics. Confirm the exact "
+    "handoff channel, location, timing, and field feasibility before promising dispatch. Display USD first "
     "for tourist clarity, with KES visible for local M-Pesa settlement. Guests may order "
     "five curated collections or compose a custom box from individual treasures "
     f"(minimum {MIN_CUSTOM_ITEMS} items plus optional packaging USD {PACKAGING_FEE_USD}). "
@@ -60,14 +57,16 @@ BRAND_VOICE = (
 )
 
 GREETING_TEMPLATE = (
-    "Welcome to Hazina Nomads — curated treasures for the modern nomad. "
-    "I can help you shop our gift collections, build a custom box, arrange hotel/JKIA delivery, "
-    "or quote DHL export shipping. How may I assist you today?"
+    "Welcome to Hazina Nomads. We offer bespoke curation, seamless logistics, "
+    "and global export for premium Kenyan heritage items. Would you like to view "
+    "our signature collections, or initialize a private sourcing brief?"
 )
 
 PROFILE: dict = {
     "vertical": "gift-concierge",
     "tagline": "Curated treasures for the modern nomad.",
+    "brand_pillars": ["Bespoke Curation", "Seamless Logistics", "Global Export"],
+    "triad": "Bespoke Curation · Seamless Logistics · Global Export",
     "brand": {
         "name": "Hazina Nomads",
         "meaning": "Hazina = treasure (Swahili)",

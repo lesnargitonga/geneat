@@ -198,18 +198,18 @@ def test_hazina_checkout_does_not_default_to_usd_until_guest_chooses() -> None:
 
 def test_hazina_logistics_replies_are_deterministic() -> None:
     dhl = ga._logistics_reply("dhl", is_sw=False)
-    assert "DHL/export shipping" in dhl
+    assert "Global Export" in dhl
     assert "before payment" in dhl
 
     jkia = ga._logistics_reply("jkia", is_sw=False)
-    assert "JKIA terminal handoff" in jkia
-    assert "collection" in jkia
+    assert "Seamless Logistics" in jkia
+    assert "departure handoff" in jkia
 
 
 def test_hazina_cafe_boundary_reply_points_to_gifts() -> None:
     reply = ga._cafe_boundary_reply(is_sw=False)
     assert "not a cafe" in reply
-    assert "gift collections" in reply
+    assert "Bespoke Curation" in reply
 
 
 @pytest.mark.asyncio
