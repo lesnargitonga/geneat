@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# GPU-safe fine-tune deps for Runpod (Unsloth + pinned transformers/trl — do not upgrade past zoo limits).
+# GPU-safe fine-tune deps for Runpod (Unsloth + pinned transformers/trl).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
@@ -12,20 +12,23 @@ fi
 # shellcheck disable=SC1091
 source .venv/bin/activate
 
+export PIP_PROGRESS_BAR=on
 pip install -U pip wheel
 
-echo "→ Purge conflicting packages…"
+echo "[$(date +%H:%M:%S)] → Purge conflicting packages…"
 pip uninstall -y torch torchvision torchaudio triton xformers \
   transformers trl datasets peft accelerate bitsandbytes unsloth unsloth-zoo 2>/dev/null || true
 SITE="$(python3 -c 'import site; print(site.getsitepackages()[0])')"
 rm -rf "${SITE}"/torch "${SITE}"/torch-* "${SITE}"/transformers* "${SITE}"/trl* "${SITE}"/unsloth* 2>/dev/null || true
 
-echo "→ CUDA PyTorch 2.5.1 (cu124)…"
-pip install --no-cache-dir torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 \
+echo "[$(date +%H:%M:%S)] → CUDA PyTorch 2.5.1 (cu124) — may take 5–15 min, no output is normal…"
+pip install --no-cache-dir --progress-bar on \
+  torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 \
   --index-url https://download.pytorch.org/whl/cu124
+python3 -c "import torch; print('torch OK', torch.__version__, 'cuda', torch.cuda.is_available())"
 
-echo "→ Versions compatible with unsloth-zoo 2026.5.x…"
-pip install --no-cache-dir \
+echo "[$(date +%H:%M:%S)] → transformers / trl / datasets (pinned for unsloth-zoo)…"
+pip install --no-cache-dir --progress-bar on \
   "transformers>=4.51.3,<=5.5.0" \
   "trl>=0.18.2,<=0.24.0" \
   "datasets>=3.0.0" \
@@ -33,10 +36,10 @@ pip install --no-cache-dir \
   "accelerate>=0.34.0" \
   "bitsandbytes>=0.44.0"
 
-echo "→ Unsloth (no upgrade of transformers/trl after this)…"
-pip install --no-cache-dir unsloth unsloth-zoo
+echo "[$(date +%H:%M:%S)] → Unsloth…"
+pip install --no-cache-dir --progress-bar on unsloth unsloth-zoo
 
-echo "→ Verifying…"
+echo "[$(date +%H:%M:%S)] → Verifying…"
 python3 <<'PY'
 import torch
 import transformers
