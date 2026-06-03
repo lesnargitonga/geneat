@@ -20,7 +20,7 @@ fi
 # shellcheck disable=SC1091
 source .venv/bin/activate
 pip install -U pip
-pip install -r requirements-finetune.txt
+bash scripts/hazina_install_finetune_deps.sh
 
 EPOCHS="${EPOCHS:-2}"
 "$PYTHON" scripts/hazina_finetune_unsloth.py \
