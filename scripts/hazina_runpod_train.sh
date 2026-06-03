@@ -23,13 +23,19 @@ pip install -U pip
 bash scripts/hazina_install_finetune_deps.sh
 
 EPOCHS="${EPOCHS:-2}"
+EXTRA_ARGS=()
+if [[ "${SKIP_MERGE:-false}" == "true" ]]; then
+  EXTRA_ARGS+=(--skip-merge)
+fi
 "$PYTHON" scripts/hazina_finetune_unsloth.py \
   --train training/hazina/out/train.jsonl \
   --output training/hazina/out/lora-hazina \
-  --epochs "$EPOCHS"
+  --epochs "$EPOCHS" \
+  "${EXTRA_ARGS[@]}"
 
 echo ""
 echo "Training complete. Download from the pod:"
+echo "  training/hazina/out/lora-hazina/              (LoRA adapter + tokenizer — always saved first)"
 echo "  training/hazina/out/lora-hazina/gguf-ollama/   (Modelfile + *.gguf — use for Ollama)"
 echo "  training/hazina/out/lora-hazina/merged-16bit/  (optional — vLLM)"
 echo ""

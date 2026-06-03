@@ -76,6 +76,7 @@ Download back to your API host:
 |------|--------|
 | Ollama infinite loops / gibberish | `save_pretrained_gguf` + `tokenizer._ollama_modelfile` → `gguf-ollama/Modelfile` (never hand-write a generic Modelfile) |
 | OOM at merge/export | `maximum_memory_usage=0.5` on `save_pretrained_merged` |
+| Hugging Face shard download hangs after training | LoRA is already saved before merge; stop the process and rerun future training with `SKIP_MERGE=true` or `--skip-merge`, then export after the base model cache is healthy |
 
 Then register Ollama + smoke test (see Phase 3–4 below).
 
@@ -98,6 +99,28 @@ python scripts/hazina_finetune_unsloth.py \
   --train training/hazina/out/train.jsonl \
   --output training/hazina/out/lora-hazina \
   --epochs 2
+```
+
+If training finishes but export sits at `Unsloth: Preparing safetensor model
+files`, it is no longer training — it is downloading/merging full base-model
+shards. The adapter should already exist in `training/hazina/out/lora-hazina/`.
+You can stop the process after confirming `adapter_model.safetensors` exists:
+
+```bash
+ls -lh training/hazina/out/lora-hazina/adapter_model.safetensors
+```
+
+For adapter-only recovery/future runs:
+
+```bash
+SKIP_MERGE=true bash scripts/hazina_runpod_train.sh
+
+# or direct:
+python scripts/hazina_finetune_unsloth.py \
+  --train training/hazina/out/train.jsonl \
+  --output training/hazina/out/lora-hazina \
+  --epochs 2 \
+  --skip-merge
 ```
 
 ## Phase 3 — Ollama (dev) or vLLM (prod)

@@ -104,6 +104,14 @@ def main() -> int:
         action="store_true",
         help="Only write merged-16bit (vLLM); skip GGUF + Modelfile export",
     )
+    parser.add_argument(
+        "--skip-merge",
+        action="store_true",
+        help=(
+            "Stop after saving the LoRA adapter/tokenizer. Use this when Runpod "
+            "cannot download full base-model shards for merged/GGUF export."
+        ),
+    )
     args = parser.parse_args()
 
     if args.epochs > 3:
@@ -209,6 +217,11 @@ def main() -> int:
     trainer.train()
     model.save_pretrained(str(args.output))
     tokenizer.save_pretrained(str(args.output))
+    print(f"LoRA saved → {args.output}")
+
+    if args.skip_merge:
+        print("Skipped merged/GGUF export (--skip-merge). Adapter is safe for later export.")
+        return 0
 
     merged = args.output / "merged-16bit"
     model.save_pretrained_merged(
@@ -217,7 +230,6 @@ def main() -> int:
         save_method="merged_16bit",
         maximum_memory_usage=args.merge_memory,
     )
-    print(f"LoRA saved → {args.output}")
     print(f"Merged weights → {merged}")
 
     if not args.skip_gguf:
