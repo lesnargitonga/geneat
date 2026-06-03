@@ -14,9 +14,14 @@ source .venv/bin/activate
 
 pip install -U pip wheel
 
-echo "→ Installing CUDA PyTorch (cu124) before Unsloth…"
-pip uninstall -y torch torchvision torchaudio unsloth unsloth-zoo 2>/dev/null || true
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+echo "→ Removing broken torch / unsloth installs…"
+pip uninstall -y torch torchvision torchaudio triton xformers unsloth unsloth-zoo 2>/dev/null || true
+SITE="$(python3 -c 'import site; print(site.getsitepackages()[0])')"
+rm -rf "${SITE}"/torch "${SITE}"/torch-* "${SITE}"/unsloth* 2>/dev/null || true
+
+echo "→ Installing CUDA PyTorch (cu124, clean, no cache)…"
+pip install --no-cache-dir torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 \
+  --index-url https://download.pytorch.org/whl/cu124
 
 echo "→ Installing Unsloth (pulls matching zoo + bitsandbytes)…"
 pip install -U "unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git" 2>/dev/null \
