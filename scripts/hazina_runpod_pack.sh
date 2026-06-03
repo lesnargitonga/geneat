@@ -7,7 +7,9 @@ OUT="${1:-$ROOT/training/hazina/hazina-finetune-runpod.tar.gz}"
 cd "$ROOT"
 tar -czf "$OUT" \
   requirements-finetune.txt \
+  requirements-finetune-runpod.txt \
   scripts/hazina_generate_finetune_dataset.py \
+  scripts/hazina_install_finetune_deps.sh \
   scripts/hazina_finetune_unsloth.py \
   scripts/hazina_export_ollama.sh \
   scripts/hazina_runpod_train.sh \

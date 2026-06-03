@@ -15,17 +15,32 @@ source .venv/bin/activate
 export PIP_PROGRESS_BAR=on
 pip install -U pip wheel
 
+DRIVER_MAJOR="$(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -n1 | cut -d. -f1 | tr -dc '0-9')"
+TORCH_CUDA_INDEX="${TORCH_CUDA_INDEX:-cu124}"
+if [[ -n "$DRIVER_MAJOR" && "$DRIVER_MAJOR" -lt 550 && "${TORCH_CUDA_INDEX}" == "cu124" ]]; then
+  echo "[$(date +%H:%M:%S)] → NVIDIA driver ${DRIVER_MAJOR}.x detected; using PyTorch cu121 wheels for compatibility."
+  TORCH_CUDA_INDEX="cu121"
+fi
+TORCH_INDEX_URL="https://download.pytorch.org/whl/${TORCH_CUDA_INDEX}"
+
 echo "[$(date +%H:%M:%S)] → Purge conflicting packages…"
 pip uninstall -y torch torchvision torchaudio triton xformers \
   transformers trl datasets peft accelerate bitsandbytes unsloth unsloth-zoo 2>/dev/null || true
 SITE="$(python3 -c 'import site; print(site.getsitepackages()[0])')"
 rm -rf "${SITE}"/torch "${SITE}"/torch-* "${SITE}"/transformers* "${SITE}"/trl* "${SITE}"/unsloth* 2>/dev/null || true
 
-echo "[$(date +%H:%M:%S)] → CUDA PyTorch 2.5.1 (cu124) — may take 5–15 min, no output is normal…"
+echo "[$(date +%H:%M:%S)] → CUDA PyTorch 2.5.1 (${TORCH_CUDA_INDEX}) — may take 5–15 min, no output is normal…"
 pip install --no-cache-dir --progress-bar on \
   torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 \
-  --index-url https://download.pytorch.org/whl/cu124
-python3 -c "import torch; print('torch OK', torch.__version__, 'cuda', torch.cuda.is_available())"
+  --index-url "$TORCH_INDEX_URL"
+python3 <<'PY'
+import sys
+import torch
+print("torch OK", torch.__version__, "torch_cuda", torch.version.cuda, "cuda_available", torch.cuda.is_available())
+if not torch.cuda.is_available():
+    raise SystemExit("Torch installed but CUDA is not available. Use a GPU pod and match TORCH_CUDA_INDEX to the pod driver.")
+print("gpu", torch.cuda.get_device_name(0))
+PY
 
 echo "[$(date +%H:%M:%S)] → transformers / trl / datasets (pinned for unsloth-zoo)…"
 pip install --no-cache-dir --progress-bar on \
