@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# GPU-safe fine-tune deps for Runpod (fixes Unsloth "no torch accelerator" when cuda: True).
+# GPU-safe fine-tune deps for Runpod (Unsloth + pinned transformers/trl — do not upgrade past zoo limits).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
@@ -14,28 +14,36 @@ source .venv/bin/activate
 
 pip install -U pip wheel
 
-echo "→ Removing broken torch / unsloth installs…"
-pip uninstall -y torch torchvision torchaudio triton xformers unsloth unsloth-zoo 2>/dev/null || true
+echo "→ Purge conflicting packages…"
+pip uninstall -y torch torchvision torchaudio triton xformers \
+  transformers trl datasets peft accelerate bitsandbytes unsloth unsloth-zoo 2>/dev/null || true
 SITE="$(python3 -c 'import site; print(site.getsitepackages()[0])')"
-rm -rf "${SITE}"/torch "${SITE}"/torch-* "${SITE}"/unsloth* 2>/dev/null || true
+rm -rf "${SITE}"/torch "${SITE}"/torch-* "${SITE}"/transformers* "${SITE}"/trl* "${SITE}"/unsloth* 2>/dev/null || true
 
-echo "→ Installing CUDA PyTorch (cu124, clean, no cache)…"
+echo "→ CUDA PyTorch 2.5.1 (cu124)…"
 pip install --no-cache-dir torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 \
   --index-url https://download.pytorch.org/whl/cu124
 
-echo "→ Installing Unsloth (pulls matching zoo + bitsandbytes)…"
-pip install -U "unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git" 2>/dev/null \
-  || pip install -U unsloth
+echo "→ Versions compatible with unsloth-zoo 2026.5.x…"
+pip install --no-cache-dir \
+  "transformers>=4.51.3,<=5.5.0" \
+  "trl>=0.18.2,<=0.24.0" \
+  "datasets>=3.0.0" \
+  "peft>=0.13.0" \
+  "accelerate>=0.34.0" \
+  "bitsandbytes>=0.44.0"
 
-echo "→ Remaining training libs…"
-pip install -U datasets transformers trl peft accelerate bitsandbytes
+echo "→ Unsloth (no upgrade of transformers/trl after this)…"
+pip install --no-cache-dir unsloth unsloth-zoo
 
-echo "→ Verifying GPU + Unsloth import…"
+echo "→ Verifying…"
 python3 <<'PY'
 import torch
+import transformers
+import trl
 print("torch", torch.__version__, "cuda", torch.cuda.is_available())
-if hasattr(torch, "accelerator"):
-    print("torch.accelerator.is_available()", torch.accelerator.is_available())
+print("transformers", transformers.__version__)
+print("trl", trl.__version__)
 from unsloth import FastLanguageModel
 print("Unsloth OK")
 PY

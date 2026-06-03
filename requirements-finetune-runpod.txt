@@ -1,0 +1,13 @@
+# Runpod GPU fine-tune — pin versions unsloth-zoo accepts (do not pip install -U transformers trl).
+--extra-index-url https://download.pytorch.org/whl/cu124
+torch==2.5.1
+torchvision==0.20.1
+torchaudio==2.5.1
+transformers>=4.51.3,<=5.5.0
+trl>=0.18.2,<=0.24.0
+datasets>=3.0.0
+peft>=0.13.0
+accelerate>=0.34.0
+bitsandbytes>=0.44.0
+unsloth
+unsloth-zoo
