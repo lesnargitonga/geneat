@@ -28,3 +28,31 @@ def test_render_system_prompt_sanitizes_unsafe_branded_greeting() -> None:
     assert "Order in 10 sec, ready in 5" not in prompt
     assert "I can help with the menu, prices, item photos, or an order." in prompt
     assert "quote only after payment is confirmed" in prompt
+
+
+def test_render_system_prompt_hazina_loads_visual_sourcing_rules() -> None:
+    profile = BusinessProfile(
+        id=uuid.uuid4(),
+        slug="hazina-nomads",
+        name="Hazina Nomads",
+        industry="gift-concierge",
+        location="Nairobi, Kenya",
+        brand_voice=(
+            "Professional, calm, high-end hotel concierge. If a guest wants an "
+            "unlisted piece with a reference photo, open a custom visual sourcing brief."
+        ),
+        profile={"vertical": "gift-concierge", "currency": "USD"},
+        vertical="gift-concierge",
+    )
+
+    prompt = render_system_prompt(
+        profile,
+        "2026-06-03",
+        now_local=datetime(2026, 6, 3, 20, 0, tzinfo=timezone.utc),
+    )
+
+    assert "custom visual sourcing brief" in prompt
+    assert "reference image" in prompt
+    prompt_lc = prompt.lower()
+    assert "do not claim the item is stocked" in prompt_lc or "do not imply it is stocked" in prompt_lc
+    assert "not a café" in prompt_lc or "not a cafe" in prompt_lc

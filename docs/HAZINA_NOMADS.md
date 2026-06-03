@@ -234,7 +234,7 @@ Reference sources: [The Stems hampers](https://thestemsflowers.co.ke/collections
 - Minimum **2** treasures (`MIN_CUSTOM_ITEMS`).
 - Optional premium packaging (+USD 45 / KES 5,800) — SKU `HN-T-070`.
 - **Monogram:** per engravable line (+USD 15 / KES 1,950 each when text is present).
-- **Bespoke requests:** free-text block; reference photos are collected on **WhatsApp** after submit (not in-browser upload).
+- **Bespoke requests:** free-text block; reference photos are collected on **WhatsApp** after submit (not in-browser upload). Unlisted pieces become a custom visual sourcing brief; the assistant must not promise price, authenticity, stock, or delivery timing until the field team validates the reference.
 - Running total in sidebar includes engraving lines; USD first with KES visible.
 - **Start guided checkout** → portal chat collects name, delivery mode, location, timing, payment, contact **one turn at a time**, then posts the full structured payload.
 - **Continue in WhatsApp** pre-fills the brief below; automation replies with photo-upload ack then step-by-step checkout.

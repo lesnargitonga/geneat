@@ -32,7 +32,9 @@ BRAND_VOICE = (
     "(1–3 sentences), use the guest's name when known, and never use slang or "
     "campus-café tone. Confirm delivery location (hotel name and room, JKIA "
     "terminal, or international address for DHL/export quote) and timing before "
-    "promising dispatch."
+    "promising dispatch. If a guest wants an unlisted item and has a reference "
+    "image, open a custom visual sourcing brief; do not imply it is stocked, "
+    "priced, authentic, or deliverable until the field team confirms."
 )
 
 TRAINING_DIR = ROOT / "training" / "hazina"
@@ -300,6 +302,35 @@ def _gen_custom_box(system_base: str) -> list[dict]:
     ]
 
 
+def _gen_visual_sourcing(system_base: str) -> list[dict]:
+    highland = next(c for c in HAZINA_COLLECTIONS if c["id"] == "highland-treasure")
+    ctx = _catalog_context(highland)
+    sys = f"{system_base}\n\n{ctx}"
+    return [
+        _example(
+            system=sys,
+            user=(
+                "I like The Highland Treasure, but my wife wants silver filigree earrings "
+                "from Lamu. I have a magazine photo. Can you add them by tomorrow?"
+            ),
+            assistant=(
+                f"*{highland['name']}* is in today's catalog at USD {highland['price_usd']} / "
+                f"KES {int(highland['price_kes']):,} with a {highland['lead_time_hours']}-hour lead time. "
+                "The Lamu silver earrings are outside the listed catalog, so I cannot promise stock, price, "
+                "authenticity, or tomorrow delivery yet; send the reference photo and I will open a custom visual sourcing brief."
+            ),
+        ),
+        _example(
+            system=sys,
+            user="I saw carved silver cufflinks in a hotel magazine. Can your runner get the exact pair?",
+            assistant=(
+                "Those cufflinks are outside the catalog shown for this turn. "
+                "Please send the reference image and I will open a custom visual sourcing brief for field-team validation before we quote price or timing."
+            ),
+        ),
+    ]
+
+
 def _load_golden() -> list[dict]:
     if not GOLDEN_PATH.is_file():
         return []
@@ -324,6 +355,7 @@ def generate_dataset(*, target_count: int, seed: int, golden_multiplier: int = 8
     rows.extend(_gen_escalation(system_base))
     rows.extend(_gen_logistics(system_base))
     rows.extend(_gen_custom_box(system_base))
+    rows.extend(_gen_visual_sourcing(system_base))
 
     # Paraphrase pool expansion until target_count.
     paraphrase_openers = ["Hi", "Hello", "Quick question", "Please advise", "Good evening"]

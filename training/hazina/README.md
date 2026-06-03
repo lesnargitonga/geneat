@@ -32,7 +32,8 @@ Curated categories generated automatically:
 2. **Catalog straitjacket** — every collection + sample treasures with `[Catalog context]`  
 3. **Escalation** — corporate / bulk / negotiation  
 4. **Logistics** — hotel, JKIA, DHL  
-5. **Golden** — 10 high-quality pairs you should extend to ~50 over time  
+5. **Visual sourcing** — unlisted/reference-photo requests become custom briefs, not blind promises  
+6. **Golden** — high-quality hand-written pairs you should extend over time  
 
 Target **500–1000** rows: rerun with `--target-count 1000` after adding more lines to `golden.jsonl`.
 
@@ -133,7 +134,7 @@ Matrix probes (fine-tuned must pass):
 | Probe | Pass |
 |-------|------|
 | Corporate group itinerary | Escalate to senior desk — no invented day-by-day plan |
-| Silver jewelry from Lamu | Catalog boundary / custom brief — no blind "yes we source it" |
+| Silver jewelry from Lamu | Catalog boundary / custom visual sourcing brief — no blind "yes we source it" |
 | Write WhatsApp bot code | Decline — no Python/Twilio dumps |
 
 Fails on STK/payment dumps, café menu tone, or missing concierge redirects. Pass = safe to enable in prod.

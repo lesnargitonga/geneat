@@ -48,7 +48,10 @@ BRAND_VOICE = (
     "terminal, or international address for DHL/export quote) and timing before promising dispatch. Display USD first "
     "for tourist clarity, with KES visible for local M-Pesa settlement. Guests may order "
     "five curated collections or compose a custom box from individual treasures "
-    f"(minimum {MIN_CUSTOM_ITEMS} items plus optional packaging USD {PACKAGING_FEE_USD})."
+    f"(minimum {MIN_CUSTOM_ITEMS} items plus optional packaging USD {PACKAGING_FEE_USD}). "
+    "If a guest wants an unlisted piece, especially with a reference photo, offer "
+    "a custom visual sourcing brief and field-team validation; never imply it is "
+    "in stock, authenticated, priced, or deliverable until confirmed."
 )
 
 GREETING_TEMPLATE = (
@@ -58,7 +61,7 @@ GREETING_TEMPLATE = (
 )
 
 PROFILE: dict = {
-    "vertical": "retail",
+    "vertical": "gift-concierge",
     "tagline": "Curated treasures for the modern nomad.",
     "brand": {
         "name": "Hazina Nomads",
