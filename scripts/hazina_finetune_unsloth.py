@@ -17,10 +17,18 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+REQUIRED_DATASET_SENTINELS = (
+    "Alfajiri Villas",
+    "Ukunda airstrip",
+    "Mkeka chest",
+    "Diani villa handoff",
+)
 
 
 def _load_jsonl(path: Path) -> list[dict]:
@@ -36,6 +44,49 @@ def _format_row(row: dict) -> dict:
     """Unsloth chat template: single text field or messages list."""
     messages = row.get("messages") or []
     return {"messages": messages}
+
+
+def _git_commit() -> str:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=1.0,
+        )
+        return result.stdout.strip()
+    except Exception:
+        return "unknown"
+
+
+def _load_dataset_meta(train_path: Path) -> dict:
+    meta_path = train_path.parent / "dataset_meta.json"
+    if not meta_path.is_file():
+        return {}
+    try:
+        return json.loads(meta_path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _assert_dataset_is_current(rows: list[dict], train_path: Path) -> None:
+    blob = json.dumps(rows, ensure_ascii=False).lower()
+    missing = [term for term in REQUIRED_DATASET_SENTINELS if term.lower() not in blob]
+    if missing:
+        meta = _load_dataset_meta(train_path)
+        print(
+            "Dataset is stale for current Hazina training guardrails.\n"
+            f"Missing sentinel(s): {', '.join(missing)}\n"
+            f"Train file: {train_path}\n"
+            f"Dataset commit: {meta.get('source_commit', 'unknown')}\n"
+            f"Current commit: {_git_commit()}\n"
+            "Regenerate with:\n"
+            "  python scripts/hazina_generate_finetune_dataset.py --target-count 4000 --golden-multiplier 12",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
 
 
 def _write_ollama_modelfile(tokenizer, gguf_dir: Path) -> Path:
@@ -122,6 +173,17 @@ def main() -> int:
         print(f"Missing {args.train} — run hazina_generate_finetune_dataset.py first.", file=sys.stderr)
         return 1
 
+    rows = [_format_row(r) for r in _load_jsonl(args.train)]
+    _assert_dataset_is_current(rows, args.train)
+    dataset_meta = _load_dataset_meta(args.train)
+    print(
+        "Hazina training dataset:",
+        f"rows={len(rows)}",
+        f"dataset_commit={dataset_meta.get('source_commit', 'unknown')}",
+        f"current_commit={_git_commit()}",
+        f"sha={str(dataset_meta.get('dataset_sha256', 'unknown'))[:12]}",
+    )
+
     try:
         from datasets import Dataset
         from unsloth import FastLanguageModel
@@ -135,7 +197,6 @@ def main() -> int:
         )
         return 1
 
-    rows = [_format_row(r) for r in _load_jsonl(args.train)]
     dataset = Dataset.from_list(rows)
 
     # QLoRA: 4-bit base + rank-16 adapters on all linear layers (Unsloth defaults).
@@ -209,6 +270,8 @@ def main() -> int:
         "merge_memory_cap": args.merge_memory,
         "gguf_quant": args.gguf_quant,
         "train_rows": len(rows),
+        "source_commit": _git_commit(),
+        "dataset_meta": dataset_meta,
     }
     (args.output / "train_config.json").write_text(
         json.dumps(train_config, indent=2),

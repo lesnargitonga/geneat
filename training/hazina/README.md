@@ -65,6 +65,11 @@ bash scripts/hazina_runpod_train.sh
 
 Verify inside the pod: `test -n "$HF_TOKEN" && echo "HF_TOKEN set"` (do not `echo $HF_TOKEN`).
 
+Always regenerate `training/hazina/out/train.jsonl` after pulling new prompt,
+catalog, or golden-row commits. The training script refuses stale datasets that
+do not contain the current Hazina guardrail sentinels, including the Diani /
+Ukunda / Mkeka visual-sourcing case.
+
 Download back to your API host:
 
 - **`training/hazina/out/lora-hazina/gguf-ollama/`** — `Modelfile` + `*.gguf` (use for Ollama; chat template matches training)

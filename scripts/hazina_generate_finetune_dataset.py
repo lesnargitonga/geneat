@@ -10,8 +10,11 @@ Usage:
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
+import hashlib
 import json
 import random
+import subprocess
 import sys
 from pathlib import Path
 
@@ -44,6 +47,13 @@ TRAINING_DIR = ROOT / "training" / "hazina"
 DEFAULT_OUT = TRAINING_DIR / "out"
 GOLDEN_PATH = TRAINING_DIR / "golden.jsonl"
 SYSTEM_PATH = TRAINING_DIR / "system_prompt.txt"
+
+REQUIRED_SENTINELS = (
+    "Alfajiri Villas",
+    "Ukunda airstrip",
+    "Mkeka chest",
+    "Diani villa handoff",
+)
 
 OFF_TOPIC_USER = [
     "Write me a haiku about elephants.",
@@ -91,6 +101,26 @@ def _load_system_base() -> str:
         f"{BRAND_VOICE}\n\n"
         f"{GIFT_CONCIERGE_PLAYBOOK[:800]}"
     )
+
+
+def _git_commit() -> str:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=1.0,
+        )
+        return result.stdout.strip()
+    except Exception:
+        return "unknown"
+
+
+def _rows_fingerprint(rows: list[dict]) -> str:
+    payload = "\n".join(json.dumps(row, sort_keys=True, ensure_ascii=False) for row in rows)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _example(*, system: str, user: str, assistant: str) -> dict:
@@ -437,6 +467,10 @@ def main() -> int:
         "golden_count": len(_load_golden()),
         "golden_multiplier": args.golden_multiplier,
         "system_prompt": str(SYSTEM_PATH),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "source_commit": _git_commit(),
+        "dataset_sha256": _rows_fingerprint(rows),
+        "required_sentinels": list(REQUIRED_SENTINELS),
         "base_model_ollama": "llama3.1",
         "hf_base_suggested": "meta-llama/Meta-Llama-3.1-8B-Instruct",
     }
