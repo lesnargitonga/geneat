@@ -11,7 +11,7 @@ import { whatsappLink } from "@/lib/format";
 const NAV = [
   { href: "/collections", label: "Collections" },
   { href: "/build", label: "Build" },
-  { href: "/premium-safari-souvenirs-nairobi", label: "Safari" },
+  { href: "/premium-safari-souvenirs-nairobi", label: "Curation" },
   { href: "/about", label: "About" },
 ];
 
@@ -19,7 +19,7 @@ export function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [showStickyCta, setShowStickyCta] = useState(pathname !== "/");
-  const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like to order a gift box.");
+  const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like help with bespoke curation.");
   const isActive = (href: string) =>
     pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
 

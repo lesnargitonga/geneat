@@ -6,21 +6,21 @@ import { formatDualPrice, whatsappLink } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
 
 export const metadata: Metadata = {
-  title: "Premium Safari Souvenirs Nairobi · Hazina Nomads",
+  title: "Bespoke Curation · Hazina Nomads",
   description:
-    "Curated Kenyan safari souvenirs for discerning travellers — Maasai beadwork, artisan leather, coffee, and sculpture with seamless logistics and global export.",
+    "Private Kenyan heritage curation for discerning travellers — signature collections, bespoke sourcing, seamless logistics, and global export.",
   keywords: [
     "safari souvenirs Nairobi",
     "Kenya travel gifts",
     "Maasai beadwork Nairobi",
     "luxury Kenyan souvenirs",
-    "safari gift box Kenya",
+    "bespoke Kenyan collection",
     "The Kenya Edit",
   ],
   openGraph: {
-    title: "Premium Safari Souvenirs Nairobi",
+    title: "Bespoke Curation · Hazina Nomads",
     description:
-      "Editorial gift collections for safari tourists — bespoke curation with seamless logistics and global export.",
+      "Private Kenyan heritage sourcing through bespoke curation, seamless logistics, and global export.",
     images: [{ url: "/brand/safari-sunset.jpg", alt: "Kenyan safari sunset for Hazina Nomads" }],
   },
 };
@@ -29,7 +29,7 @@ export default function SafariSouvenirsPage() {
   const kenyaEdit = getGiftBox("kenya-edit")!;
   const wa = whatsappLink(
     BRAND.whatsapp,
-    "Hi — I'm looking for premium safari souvenirs in Nairobi. Can you help me choose a collection?",
+    "Hi — I'm looking for bespoke Kenyan heritage curation. Can you help me choose a collection?",
   );
 
   return (
@@ -56,7 +56,7 @@ export default function SafariSouvenirsPage() {
           </div>
           <div className="relative z-10 flex min-h-[520px] lg:min-h-[70vh] items-end p-8 md:p-12">
             <div className="max-w-md rounded-sm bg-black/45 backdrop-blur-[2px] p-6 md:p-8 border border-white/10">
-              <span className="label-mono !text-white/70">Safari edit · 24h lead</span>
+              <span className="label-mono !text-white/70">Bespoke curation · 24h lead</span>
               <h2 className="font-serif text-3xl md:text-4xl text-white mt-2 drop-shadow-sm">
                 {kenyaEdit.name}
               </h2>
@@ -85,16 +85,15 @@ export default function SafariSouvenirsPage() {
 
         <div className="container-page lg:px-12 xl:px-16 py-12 md:py-16 lg:py-20 flex flex-col justify-center space-y-10 border-l border-border/80">
           <header>
-            <span className="chip-bronze">Nairobi curation</span>
+            <span className="chip-bronze">Private curation</span>
             <h1 className="h-display text-4xl md:text-5xl lg:text-6xl mt-5 mb-6 leading-[1.05] text-obsidian">
-              Premium safari souvenirs in Nairobi
+              Private Kenyan heritage, curated with intent
             </h1>
             <p className="text-lg text-ink-mute leading-relaxed max-w-lg">
-              After the plains and the Mara, you deserve more than airport trinkets. Hazina Nomads
-              assembles editorial gift collections from trusted Nairobi artisans — coffee from the
-              highlands, Maasai beadwork, leather from Kariokor, and soapstone from Kisii — delivered
-              to your hotel in Westlands, Kilimani, or Karen before you fly home, or quoted for
-              insured export if the parcel must follow you abroad.
+              Hazina Nomads assembles editorial gift collections from trusted Kenyan makers —
+              coffee from the highlands, Maasai beadwork, artisan leather, and Kisii soapstone —
+              with bespoke curation, seamless logistics, and global export when the parcel must
+              follow you abroad.
             </p>
           </header>
 
@@ -109,7 +108,7 @@ export default function SafariSouvenirsPage() {
           </div>
 
           <div className="editorial-rule space-y-3">
-            <h3 className="font-serif text-xl text-obsidian">Collections for safari travellers</h3>
+            <h3 className="font-serif text-xl text-obsidian">Collections for considered gifting</h3>
             <p className="text-ink-mute text-sm leading-relaxed">
               Browse our full{" "}
               <Link href="/collections" className="text-bronze hover:text-obsidian transition-colors">
@@ -119,12 +118,12 @@ export default function SafariSouvenirsPage() {
               <Link href="/build" className="text-bronze hover:text-obsidian transition-colors">
                 build a custom box
               </Link>{" "}
-              from individual treasures. Flying out soon? See the{" "}
+              from individual treasures. Travelling soon? See the{" "}
               <Link
                 href="/collections/departure-drop"
                 className="text-bronze hover:text-obsidian transition-colors"
               >
-                JKIA Departure Drop
+                departure-ready edit
               </Link>
               .
             </p>
@@ -136,7 +135,7 @@ export default function SafariSouvenirsPage() {
       <section className="relative w-full min-h-[38vh] md:min-h-[46vh]">
         <Image
           src="/brand/safari-sunset.jpg"
-          alt="Kenyan safari at sunset — curated souvenirs for the journey home"
+          alt="Kenyan sunset for Hazina Nomads private curation"
           fill
           className="object-cover object-center"
           sizes="100vw"
@@ -159,16 +158,16 @@ export default function SafariSouvenirsPage() {
         <div className="container-page">
           <span className="label-mono">The distinction</span>
           <h2 className="h-display text-3xl md:text-4xl mt-3 mb-10 text-obsidian">
-            Why safari guests choose Hazina
+            Why discerning guests choose Hazina
           </h2>
           <div className="grid md:grid-cols-3 gap-10 md:gap-12">
             <Reason
               title="Curated, never generic"
-              body="Real Kenyan coffee, Maasai beadwork, and artisan leather — assembled with intention for European and US visitors."
+              body="Real Kenyan coffee, Maasai beadwork, and artisan leather — assembled with intention for premium travellers and hosts."
             />
             <Reason
-              title="Hotel delivery Nairobi"
-              body="Westlands, Kilimani, and Karen within 24 hours. Personalisation on select leather pieces."
+              title="Seamless handoff"
+              body="Property, residence, departure, and onward-travel handoffs are confirmed before payment. Personalisation on select leather pieces."
             />
             <Reason
               title="Concierge on WhatsApp"

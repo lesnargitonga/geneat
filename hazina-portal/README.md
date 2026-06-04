@@ -46,12 +46,12 @@ make preview-hazina   # next build + next start on :3004
 | `/collections/[id]` | via cards | Checkout + inside-the-box |
 | `/build` | ✅ | Browse treasures + custom box cart |
 | `/treasures/[id]` | via build | Item detail; back → `/build` |
-| `/premium-safari-souvenirs-nairobi` | ✅ Safari | SEO landing |
+| `/premium-safari-souvenirs-nairobi` | ✅ Curation | Legacy SEO landing, Triad-aligned copy |
 | `/about` | ✅ | Brand story |
 | `/treasures` | — | **301 → `/build`** |
 | `/last-minute-kenya-gifts-jkia` | — | **301 → `/collections/departure-drop`** |
 
-**Nav:** Collections · Build · Safari · About · Chat in app · Order on WhatsApp.
+**Nav:** Collections · Build · Curation · About · Chat in app · Order on WhatsApp.
 
 ---
 

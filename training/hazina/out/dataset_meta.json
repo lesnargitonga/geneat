@@ -1,9 +1,19 @@
 {
   "train_count": 950,
   "val_count": 50,
-  "golden_count": 52,
+  "golden_count": 55,
   "golden_multiplier": 8,
   "system_prompt": "/home/lesnar/Documents/ai model/training/hazina/system_prompt.txt",
+  "generated_at": "2026-06-04T06:27:44.957548+00:00",
+  "source_commit": "212da59ea3374de347dd60af1beeaa53c064c64a",
+  "dataset_sha256": "97b48da79fcdbd74d5e936a840c8eef26fe8426d1b83a72c8a4e9b3653b0471d",
+  "required_sentinels": [
+    "Bespoke Curation",
+    "Seamless Logistics",
+    "Global Export",
+    "Mkeka chest",
+    "custom visual sourcing brief"
+  ],
   "base_model_ollama": "llama3.1",
   "hf_base_suggested": "meta-llama/Meta-Llama-3.1-8B-Instruct"
 }

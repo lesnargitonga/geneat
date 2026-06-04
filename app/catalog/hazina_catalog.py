@@ -21,7 +21,7 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "name": "The Kenya Edit",
         "price_usd": 249,
         "price_kes": 32400,
-        "target": "Safari tourists, European/US visitors",
+        "target": "Bespoke Curation for travellers seeking a refined Kenyan edit",
         "contents": (
             "Premium Kenyan coffee (250g), Maasai beaded bracelet, soapstone Big Five carving, "
             "premium gift box with brand story card"
@@ -36,7 +36,7 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "name": "The Highland Treasure",
         "price_usd": 199,
         "price_kes": 25900,
-        "target": "General gifting, diaspora, colleagues",
+        "target": "Bespoke Curation for thoughtful premium gifting",
         "contents": (
             "Export-grade Kenyan coffee, premium Kenyan loose-leaf tea with carved wooden tasting spoon, "
             "local raw honey, premium gift box"
@@ -51,7 +51,7 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "name": "The Nomad Leather Set",
         "price_usd": 329,
         "price_kes": 42800,
-        "target": "Business travellers, wealthy tourists",
+        "target": "Bespoke Curation for executive travel and personalisation",
         "contents": (
             "Handmade leather passport holder and luggage tag in a premium gift box "
             "(optional embossing)"
@@ -67,7 +67,7 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "name": "The Safari Romance Box",
         "price_usd": 449,
         "price_kes": 58400,
-        "target": "Honeymooners, anniversary trips",
+        "target": "Bespoke Curation for romantic journeys and milestone stays",
         "contents": (
             "Maasai beaded necklace and bracelet, premium Kenyan coffee, Big Five safari print, "
             "leather luggage tag, premium gift box"
@@ -89,7 +89,7 @@ HAZINA_COLLECTIONS: list[dict[str, Any]] = [
         "name": "The Departure Drop",
         "price_usd": 349,
         "price_kes": 45400,
-        "target": "Last-minute JKIA departures",
+        "target": "Seamless Logistics for departure-sensitive gifting",
         "contents": "Pre-packed fast-moving items: coffee, tea, un-personalized leather, beadwork",
         "lead_time_hours": 4,
         "personalization": False,
@@ -217,7 +217,7 @@ def build_hazina_kb_catalog() -> list[str]:
     for row in HAZINA_COLLECTIONS:
         extra = ""
         if row.get("jkia_only"):
-            extra = " JKIA-optimised 4-hour delivery window."
+            extra = " Departure-sensitive 4-hour handoff window."
         if row.get("personalization_note"):
             extra += f" {row['personalization_note']}"
         chunks.append(
@@ -261,18 +261,20 @@ HAZINA_KB_POLICIES: list[str] = [
         "and handoff window before promising dispatch."
     ),
     (
-        "JKIA DELIVERIES — Require at least 4 hours lead time before the guest's "
-        "departure, the customer's terminal number (e.g. 1A, 1E), and a reachable "
-        "phone number. The Departure Drop is optimised for this use case."
+        "SEAMLESS LOGISTICS - DEPARTURE HANDOFFS — Require at least 4 hours lead "
+        "time before the guest's departure, a precise meeting point or terminal "
+        "when relevant, and a reachable phone number. The Departure Drop is "
+        "optimised for departure-sensitive use cases."
     ),
     (
-        "HOTEL DELIVERIES — Collect hotel name, room number (or front-desk hold), "
-        "and preferred delivery window. Confirm the guest's name on the order."
+        "SEAMLESS LOGISTICS - PROPERTY HANDOFFS — Collect property name, room or "
+        "front-desk/access note, and preferred delivery window. Confirm the guest's "
+        "name on the order."
     ),
     (
         "LATE DISPATCH — Deliveries requested after 20:00 East Africa Time incur a "
-        "USD 15 late-dispatch fee. Same-day JKIA requests before 20:00 follow the "
-        "4-hour window rule without the late fee if feasible."
+        "USD 15 late-dispatch fee. Same-day departure-sensitive requests before "
+        "20:00 follow the 4-hour window rule without the late fee if feasible."
     ),
     (
         "GLOBAL EXPORT — If a traveller has already left Kenya or needs delivery "

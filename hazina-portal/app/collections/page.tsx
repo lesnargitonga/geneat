@@ -8,7 +8,7 @@ import { StickyWhatsAppCTA } from "@/components/StickyWhatsAppCTA";
 export const metadata: Metadata = {
   title: "Gift Collections · Hazina Nomads",
   description:
-    "Five curated Kenyan gift boxes for travellers, backed by bespoke curation, seamless logistics, and global export.",
+    "Five curated Kenyan heritage collections for travellers, backed by bespoke curation, seamless logistics, and global export.",
 };
 
 export default function CollectionsPage() {
@@ -18,8 +18,8 @@ export default function CollectionsPage() {
   return (
     <>
       <header className="container-page pt-10 md:pt-16 mb-10 md:mb-12">
-        <span className="label-mono">Five ready-to-order boxes</span>
-        <h1 className="h-display text-5xl md:text-7xl mt-4 mb-5 text-obsidian">Choose a box</h1>
+        <span className="label-mono">Five ready-to-order collections</span>
+        <h1 className="h-display text-5xl md:text-7xl mt-4 mb-5 text-obsidian">Choose a collection</h1>
         <p className="text-ink-mute max-w-2xl text-lg leading-relaxed">
           Pick a finished collection, or{" "}
           <Link href="/build" className="text-bronze hover:text-obsidian underline-offset-4 hover:underline">

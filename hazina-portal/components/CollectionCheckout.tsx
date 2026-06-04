@@ -14,7 +14,7 @@ type DeliveryMode = "hotel" | "jkia" | "international";
 
 export function CollectionCheckout({ box }: Props) {
   const [quantity, setQuantity] = useState(1);
-  const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>(box.jkia_only ? "jkia" : "hotel");
+  const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>(box.express_departure ? "jkia" : "hotel");
   const [paymentCurrency, setPaymentCurrency] = useState<"USD" | "KES">("USD");
 
   const totalUsd = box.price_usd * quantity;

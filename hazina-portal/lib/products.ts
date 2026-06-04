@@ -15,7 +15,7 @@ export type GiftBox = {
   lead_time_hours: number;
   personalization?: boolean;
   personalization_note?: string;
-  jkia_only?: boolean;
+  express_departure?: boolean;
   emoji: string;
   image: string | null;
   imageAlt?: string;
@@ -31,7 +31,7 @@ export const BRAND_IMAGES = {
 
 export const BRAND = {
   name: "Hazina Nomads",
-  tagline: "Curated treasures for the modern nomad.",
+  tagline: "Private sourcing concierge for premium Kenyan heritage.",
   triad: "Bespoke Curation · Seamless Logistics · Global Export",
   pillars: ["Bespoke Curation", "Seamless Logistics", "Global Export"],
   meaning: "Hazina = treasure (Swahili)",
@@ -40,7 +40,7 @@ export const BRAND = {
   email: "concierge@hazina-nomads.com",
 };
 
-export const DELIVERY_ZONES = ["Westlands", "Kilimani", "Karen", "JKIA", "DHL export quote"] as const;
+export const FULFILLMENT_PILLARS = ["Bespoke Curation", "Seamless Logistics", "Global Export"] as const;
 
 export const GIFT_BOXES: GiftBox[] = [
   {
@@ -49,14 +49,14 @@ export const GIFT_BOXES: GiftBox[] = [
     name: "The Kenya Edit",
     price_usd: 249,
     price_kes: 32400,
-    target: "Safari tourists, European/US visitors",
+    target: "Bespoke Curation for travellers seeking a refined Kenyan edit",
     contents:
       "Premium Kenyan coffee (250g), Maasai beaded bracelet, soapstone Big Five carving, premium gift box with brand story card",
     itemIds: ["premium-coffee-250g", "maasai-bracelet", "soapstone-big-five", "premium-packaging"],
     lead_time_hours: 24,
     emoji: "🎁",
     image: "/treasures/kenya-edit-hero.jpg",
-    imageAlt: "Open Hazina gift box with Kenyan coffee, beadwork, story card, and safari carving",
+    imageAlt: "Open Hazina collection with Kenyan coffee, beadwork, story card, and heritage carving",
     sourceImage: "kenya-edit-hero.jpg",
   },
   {
@@ -65,7 +65,7 @@ export const GIFT_BOXES: GiftBox[] = [
     name: "The Highland Treasure",
     price_usd: 199,
     price_kes: 25900,
-    target: "General gifting, diaspora, colleagues",
+    target: "Bespoke Curation for thoughtful premium gifting",
     contents:
       "Export-grade Kenyan coffee, premium Kenyan loose-leaf tea with carved wooden tasting spoon, local raw honey, premium gift box",
     itemIds: ["premium-coffee-250g", "loose-leaf-tea", "raw-honey", "premium-packaging"],
@@ -81,7 +81,7 @@ export const GIFT_BOXES: GiftBox[] = [
     name: "The Nomad Leather Set",
     price_usd: 329,
     price_kes: 42800,
-    target: "Business travellers, wealthy tourists",
+    target: "Bespoke Curation for executive travel and personalisation",
     contents:
       "Handmade leather passport holder and luggage tag in a premium gift box (optional embossing)",
     itemIds: ["leather-passport", "leather-luggage-tag", "premium-packaging"],
@@ -99,7 +99,7 @@ export const GIFT_BOXES: GiftBox[] = [
     name: "The Safari Romance Box",
     price_usd: 449,
     price_kes: 58400,
-    target: "Honeymooners, anniversary trips",
+    target: "Bespoke Curation for romantic journeys and milestone stays",
     contents:
       "Maasai beaded necklace and bracelet, premium Kenyan coffee, Big Five safari print, leather luggage tag, premium gift box",
     itemIds: [
@@ -123,11 +123,11 @@ export const GIFT_BOXES: GiftBox[] = [
     name: "The Departure Drop",
     price_usd: 349,
     price_kes: 45400,
-    target: "Last-minute JKIA departures",
+    target: "Seamless Logistics for departure-sensitive gifting",
     contents: "Pre-packed fast-moving items: coffee, tea, un-personalized leather, beadwork",
     itemIds: ["premium-coffee-250g", "loose-leaf-tea", "leather-passport", "maasai-bracelet", "premium-packaging"],
     lead_time_hours: 4,
-    jkia_only: true,
+    express_departure: true,
     emoji: "✈️",
     image: "/treasures/departure-drop-hero.jpg",
     imageAlt: "Hazina Departure Drop box with leather, tea, coffee, honey, and travel gifts",

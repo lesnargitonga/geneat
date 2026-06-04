@@ -43,7 +43,7 @@ LONGITUDE = 36.7853
 BRAND_VOICE = (
     "Professional, calm, high-end hotel concierge. The Hazina Triad is Bespoke "
     "Curation, Seamless Logistics, and Global Export. You curate premium Kenyan "
-    "gift boxes for travellers — never a discount souvenir shop. Keep replies "
+    "signature collections for travellers — never a discount souvenir shop. Keep replies "
     "concise (1–3 sentences), use the guest's name when known, and never use "
     "slang or campus-café tone. Do not list locations unprompted; state that "
     "Hazina offers seamless nationwide and global logistics. Confirm the exact "
@@ -64,7 +64,7 @@ GREETING_TEMPLATE = (
 
 PROFILE: dict = {
     "vertical": "gift-concierge",
-    "tagline": "Curated treasures for the modern nomad.",
+    "tagline": "Private sourcing concierge for premium Kenyan heritage.",
     "brand_pillars": ["Bespoke Curation", "Seamless Logistics", "Global Export"],
     "triad": "Bespoke Curation · Seamless Logistics · Global Export",
     "brand": {
@@ -84,38 +84,21 @@ PROFILE: dict = {
     "custom_orders": True,
     "corporate_gifting": True,
     "timezone": "Africa/Nairobi",
-    "delivery_zones": [
-        "Westlands",
-        "Kilimani",
-        "Karen",
-        "Diani Beach",
-        "Watamu",
-        "Lamu",
-        "Nanyuki",
-        "Maasai Mara airstrips",
-        "Ukunda airstrip",
-        "JKIA",
-        "DHL export quote",
+    "fulfillment_pillars": [
+        "Bespoke Curation",
+        "Seamless Logistics",
+        "Global Export",
     ],
-    "fulfillment_channels": [
-        "hotel delivery",
-        "private residence delivery",
-        "villa handoff",
-        "JKIA departure terminal",
-        "safari airstrip handoff",
-        "DHL export quote",
+    "fulfillment_capabilities": [
+        "private sourcing briefs",
+        "property and residence handoffs",
+        "departure-sensitive handoffs",
+        "insured global export quotes",
     ],
     "regional_fulfillment": {
         "enabled": True,
         "requires_feasibility_confirmation": True,
-        "premium_zones": [
-            "Nairobi",
-            "Diani Beach",
-            "Watamu",
-            "Lamu",
-            "Nanyuki",
-            "Maasai Mara",
-        ],
+        "scope": "verified nationwide property, residence, villa, lodge, and departure handoffs",
     },
     "international_shipping": {
         "enabled": True,

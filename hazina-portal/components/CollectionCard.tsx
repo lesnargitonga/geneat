@@ -39,7 +39,7 @@ export function CollectionCard({ box, className = "", priority }: Props) {
           />
           <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-2 pointer-events-none">
             <span className="chip-dark">{box.lead_time_hours}h lead</span>
-            {box.jkia_only && <span className="chip-bronze bg-sand/90">JKIA express</span>}
+            {box.express_departure && <span className="chip-bronze bg-sand/90">Departure ready</span>}
           </div>
           {itemCount > 0 && (
             <div className="absolute bottom-4 left-4 z-10 pointer-events-none">

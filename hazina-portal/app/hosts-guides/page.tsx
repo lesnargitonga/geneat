@@ -6,7 +6,7 @@ import { BRAND_IMAGES } from "@/lib/products";
 export const metadata: Metadata = {
   title: "For Hosts & Guides · Hazina Nomads",
   description:
-    "A premium Kenyan gift concierge for hotels, Airbnb hosts, safari guides, and travel planners serving guests in Nairobi.",
+    "A private sourcing concierge for hospitality hosts, guides, transfer partners, and travel planners serving premium guests.",
   robots: {
     index: false,
     follow: false,
@@ -20,12 +20,12 @@ export default function HostsGuidesPage() {
       <section className="container-page pt-10 md:pt-16 pb-12 md:pb-16">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <div className="space-y-6">
-            <span className="label-mono">For hosts, guides, drivers &amp; agents</span>
+            <span className="label-mono">For hosts, guides, transfer partners &amp; agents</span>
             <h1 className="h-display text-5xl md:text-7xl leading-[0.95] text-obsidian">
               Earn when guests buy premium Kenyan gifts.
             </h1>
             <p className="text-lg text-ink-mute leading-relaxed max-w-xl">
-              Share a QR or WhatsApp link. We curate, collect payment, package, and deliver.
+              Share a QR or WhatsApp link. We curate, collect payment, package, and fulfil.
               You earn a commission without holding stock.
             </p>
             <div className="grid grid-cols-3 border border-border">
@@ -65,12 +65,12 @@ export default function HostsGuidesPage() {
         <div className="container-page">
           <div className="max-w-2xl mb-8">
             <span className="label-mono text-sand/40">Who it is for</span>
-            <h2 className="h-display text-3xl md:text-5xl text-sand mt-3">Built around tourist moments</h2>
+            <h2 className="h-display text-3xl md:text-5xl text-sand mt-3">Built around premium guest moments</h2>
           </div>
           <div className="grid md:grid-cols-4 gap-4">
-            <PartnerCard title="Airbnb hosts" body="Welcome-card QR in apartments across Kilimani, Westlands, Karen." />
-            <PartnerCard title="Safari guides" body="Offer gifts on the drive back to Nairobi or before JKIA." />
-            <PartnerCard title="Drivers" body="Commission on last-minute orders from guests heading to flights." />
+            <PartnerCard title="Residence hosts" body="Welcome-card QR for furnished apartments, serviced villas, and private homes." />
+            <PartnerCard title="Experience hosts" body="Offer curated pieces after a memorable itinerary moment, without holding stock." />
+            <PartnerCard title="Transfer partners" body="Commission on departure-sensitive orders for guests moving between stays or flights." />
             <PartnerCard title="Travel agents" body="Add curated Kenyan gifts to itineraries and honeymoon packs." />
           </div>
         </div>
@@ -89,7 +89,7 @@ export default function HostsGuidesPage() {
           <div className="grid md:grid-cols-3 border border-border">
             <PayoutStep n="01" title="Share code" body="QR card, WhatsApp link, or printed itinerary." />
             <PayoutStep n="02" title="Guest pays" body="USD card or KES M-Pesa handled by Hazina." />
-            <PayoutStep n="03" title="You earn" body="15% host commission on eligible gift-box sales." />
+            <PayoutStep n="03" title="You earn" body="15% host commission on eligible collection sales." />
           </div>
         </div>
       </section>

@@ -106,11 +106,11 @@ _CATEGORY_LABEL = {
 
 # Hazina gift-box product ids (mirror seed_hazina_nomads.py).
 _HAZINA_PRODUCTS = (
-    ("kenya-edit", "\U0001F381", "The Kenya Edit", "USD 249 · safari keepsake"),
+    ("kenya-edit", "\U0001F381", "The Kenya Edit", "USD 249 · refined edit"),
     ("highland-treasure", "\u2615", "Highland Treasure", "USD 199 · tea & honey"),
     ("nomad-leather-set", "\U0001F9F3", "Nomad Leather Set", "USD 329 · passport & tag"),
     ("safari-romance-box", "\U0001F48D", "Safari Romance Box", "USD 449 · couples"),
-    ("departure-drop", "\u2708\uFE0F", "Departure Drop", "USD 349 · 4h JKIA"),
+    ("departure-drop", "\u2708\uFE0F", "Departure Drop", "USD 349 · 4h handoff"),
 )
 
 
@@ -252,7 +252,7 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
                         {
                             "id": ID_HAZINA_COLLECTIONS,
                             "title": "Signature Collections",
-                            "description": "Sanduku za zawadi za premium",
+                            "description": "Signature curated edits",
                         },
                         {
                             "id": ID_HAZINA_COASTAL,
@@ -320,7 +320,7 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
                     {
                         "id": ID_HAZINA_COLLECTIONS,
                         "title": "Signature Collections",
-                        "description": "Curated premium gift boxes",
+                        "description": "Signature curated edits",
                     },
                     {
                         "id": ID_HAZINA_COASTAL,
@@ -445,7 +445,7 @@ def hazina_coastal_list_payload(*, language: str | None) -> dict:
     rows.append({
         "id": ID_HAZINA_COLLECTIONS,
         "title": ("\U0001F381 Collections" if not is_sw else "\U0001F381 Mkusanyiko")[:24],
-        "description": ("Gift boxes" if not is_sw else "Sanduku za zawadi")[:72],
+        "description": ("Signature curated edits" if not is_sw else "Curated edits")[:72],
     })
     rows.append({
         "id": ID_HOME,
@@ -479,7 +479,7 @@ def product_list_payload(*, language: str | None) -> dict:
         title = str(row["name"])
         desc = f"USD {row['price_usd']} · KES {int(row['price_kes']):,}"
         if row.get("jkia_only"):
-            desc = (desc + " · JKIA 4h")[:72]
+            desc = (desc + " · 4h handoff")[:72]
         rows.append({
             "id": f"{ID_PRODUCT_PREFIX}{pid}",
             "title": f"{emoji} {title}"[:24],
@@ -493,9 +493,9 @@ def product_list_payload(*, language: str | None) -> dict:
     return {
         "type": "list",
         "header": ("Signature Collections" if not is_sw else "Mkusanyiko Maalum")[:60],
-        "body": ("Chagua sanduku la zawadi:" if is_sw else "Select a curated gift box:"),
+        "body": ("Chagua curated edit:" if is_sw else "Select a signature curated edit:"),
         "button_text": ("Chagua" if is_sw else "Choose"),
-        "sections": [{"title": ("Sanduku" if is_sw else "Gift boxes"), "rows": rows}],
+        "sections": [{"title": ("Curated edits" if is_sw else "Curated edits"), "rows": rows}],
     }
 
 
@@ -510,7 +510,7 @@ def hazina_logistics_list_payload(*, language: str | None) -> dict:
         {
             "id": ID_HAZINA_LOG_JKIA,
             "title": ("\u2708\uFE0F Departure handoff" if not is_sw else "\u2708\uFE0F Departure handoff")[:24],
-            "description": ("JKIA terminal timing" if not is_sw else "JKIA na muda wa ndege")[:72],
+            "description": ("Departure timing" if not is_sw else "Muda wa departure")[:72],
         },
         {
             "id": ID_HAZINA_LOG_DHL,

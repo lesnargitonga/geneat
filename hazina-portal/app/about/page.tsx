@@ -24,7 +24,7 @@ export default function AboutPage() {
         <section className="space-y-6 text-ink-mute text-lg leading-relaxed">
           <p>
             <em className="text-obsidian not-italic font-serif text-xl">Hazina</em> means treasure
-            in Swahili. We curate premium Kenyan gift boxes for travellers who seek something
+            in Swahili. We curate premium Kenyan heritage collections for travellers who seek something
             meaningful — without surrendering an afternoon to a souvenir market.
           </p>
           <p>
@@ -64,7 +64,7 @@ export default function AboutPage() {
 
       <section className="container-page py-16 md:py-20 max-w-3xl space-y-6">
         <span className="label-mono">Our philosophy</span>
-        <h2 className="h-display text-3xl text-obsidian">Built for the modern nomad</h2>
+        <h2 className="h-display text-3xl text-obsidian">Built around the Hazina Triad</h2>
         <p className="text-ink-mute leading-relaxed">
           Hazina Nomads exists at the intersection of Kenyan craftsmanship and international
           travel. Every collection is assembled by hand, every delivery coordinated with the

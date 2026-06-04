@@ -52,10 +52,8 @@ REQUIRED_SENTINELS = (
     "Bespoke Curation",
     "Seamless Logistics",
     "Global Export",
-    "Alfajiri Villas",
-    "Ukunda airstrip",
     "Mkeka chest",
-    "Diani villa handoff",
+    "custom visual sourcing brief",
 )
 
 OFF_TOPIC_USER = [
@@ -209,7 +207,7 @@ def _gen_catalog(system_base: str) -> list[dict]:
         out.append(
             _example(
                 system=sys,
-                user=f"Is {name} available for a safari lodge in Karen tomorrow?",
+                user=f"Is {name} available for my private lodge tomorrow?",
                 assistant=(
                     f"*{name}* is in our ready-to-ship catalog at USD {usd} / KES {kes:,} "
                     f"(typical lead {lead}h). Share the exact property, room or access note, and preferred window — "
@@ -221,10 +219,10 @@ def _gen_catalog(system_base: str) -> list[dict]:
             out.append(
                 _example(
                     system=sys,
-                    user="I'm at the airport — will this work?",
+                    user="I'm leaving soon — will this work?",
                     assistant=(
-                        f"*{name}* is reserved for JKIA handoffs with approximately {lead}-hour "
-                        f"dispatch (USD {usd} / KES {kes:,}). Send terminal and departure time to confirm."
+                        f"*{name}* is reserved for departure-sensitive handoffs with approximately {lead}-hour "
+                        f"dispatch (USD {usd} / KES {kes:,}). Send the meeting point and departure time to confirm."
                     ),
                 )
             )
@@ -316,8 +314,8 @@ def _gen_logistics(system_base: str) -> list[dict]:
             "Noted — this falls under seamless logistics to Four Seasons, room 512. Which collection or custom brief should I attach, and what is your latest acceptable handoff time?",
         ),
         (
-            "I'm departing JKIA Terminal 1A at 22:40 — what fits?",
-            "For departure handoffs, share the gate or meeting point — *The Departure Drop* is built for short JKIA windows when it is in your catalog. I will confirm stock before STK or card checkout.",
+            "I'm departing at 22:40 — what fits?",
+            "For departure handoffs, share the meeting point and latest acceptable handoff time — *The Departure Drop* is built for short windows when it is in your catalog. I will confirm stock before STK or card checkout.",
         ),
         (
             "Need DHL to Munich Germany — how do you quote?",

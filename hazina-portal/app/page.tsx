@@ -6,7 +6,7 @@ import { BRAND, BRAND_IMAGES, GIFT_BOXES } from "@/lib/products";
 import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
 
 export default function HomePage() {
-  const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like help choosing a gift box.");
+  const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like help with bespoke curation.");
 
   return (
     <>
@@ -14,7 +14,7 @@ export default function HomePage() {
         <div className="absolute inset-0">
           <Image
             src={BRAND_IMAGES.safariSunset}
-            alt="Serene Kenyan safari landscape at sunset"
+            alt="Serene Kenyan landscape at sunset for Hazina Nomads"
             fill
             className="object-cover object-bottom brightness-[0.48] saturate-[0.75] contrast-[1.05]"
             sizes="100vw"
@@ -30,7 +30,7 @@ export default function HomePage() {
               <span className="mx-2 opacity-50">·</span> GLOBAL EXPORT
             </span>
             <h1 className="mt-5 font-serif text-5xl md:text-7xl lg:text-8xl leading-[0.9] tracking-[-0.02em] text-white">
-              Treasures, delivered to your journey.
+              Private curation, delivered without friction.
             </h1>
             <p className="mt-6 max-w-2xl text-lg md:text-xl leading-[1.85] text-white/84">
               Premium Kenyan heritage collections and private sourcing for travellers who expect a
@@ -111,35 +111,35 @@ export default function HomePage() {
             One catalog. Two ways in.
           </h2>
           <p className="text-ink-mute mt-4 text-lg leading-relaxed">
-            Choose a finished collection or pick individual treasures — same concierge, same delivery
-            zones, same checkout.
+            Choose a finished collection, open a private sourcing brief, or arrange export —
+            the same concierge desk carries the work from selection to handoff.
           </p>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <PathCard
             href="/premium-safari-souvenirs-nairobi"
-            label="Safari travellers"
-            title="Premium safari souvenirs"
-            body="Editorial Kenyan curation for guests after safari — coordinated through the same concierge desk."
+            label="Bespoke Curation"
+            title="Source the right piece"
+            body="Signature collections and unlisted requests handled through a private artisan and estate network."
           />
           <PathCard
             href="/collections"
-            label="Curated collections"
-            title="Ready-made gift boxes"
-            body="Five signature edits with fixed pricing, lead times, and what is inside each box."
+            label="Signature Collections"
+            title="Choose a finished edit"
+            body="Five polished collections with fixed USD/KES pricing, lead times, and contents visible before checkout."
           />
           <PathCard
             href="/build"
-            label="Custom box"
-            title="Pick your own treasures"
-            body="Select items, set quantities, add packaging only if needed, then shape a private sourcing brief."
+            label="Seamless Logistics"
+            title="Build around the handoff"
+            body="Select items, set quantities, then let the guided checkout collect location, timing, and payment step by step."
           />
           <PathCard
             href="/collections/departure-drop"
-            label="Flying from JKIA"
-            title="Departure Drop · 4h lead"
-            body="Pre-packed for departure handoff — our express collection for travellers on a fixed clock."
+            label="Global Export"
+            title="Prepare for onward travel"
+            body="Quote insured international transit before payment, with customs-ready details captured by the concierge."
           />
         </div>
       </section>

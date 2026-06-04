@@ -131,7 +131,7 @@ export const TREASURES: Treasure[] = [
     image: "/treasures/maasai-earrings.jpg",
     imageAlt: "Handmade Maasai earrings",
     sourceImage: "maasai-earrings.jpg",
-    description: "Lightweight beaded drop earrings — a discreet safari keepsake.",
+    description: "Lightweight beaded drop earrings — a discreet heritage keepsake.",
     lead_time_hours: 12,
   },
   {
@@ -419,7 +419,7 @@ export const TREASURES: Treasure[] = [
     image: "/treasures/big-five-art.jpg",
     imageAlt: "Big Five safari artwork",
     sourceImage: "big-five-art.jpg",
-    description: "Minimalist safari route or wildlife print — ready to frame.",
+    description: "Minimalist wildlife or journey print — ready to frame.",
     lead_time_hours: 24,
   },
   {

@@ -959,21 +959,21 @@ async def _track_delivery_reply(
         return (
             "Bado sina oda yako. Chagua sanduku kutoka menu au niambie unachotaka kuagiza."
             if is_sw else
-            "I don't have an order on file yet. Pick a gift box from the menu or tell me what you'd like."
+            "I don't have an order on file yet. Pick a signature collection from the menu or tell me what you'd like."
         )
     order = orders[0]
     details = order.details if isinstance(order.details, dict) else {}
     summary = order_items_summary(
         [
             CafeOrderItem(
-                str(r.get("sku_or_name") or r.get("name") or "gift box"),
+                str(r.get("sku_or_name") or r.get("name") or "collection"),
                 qty=int(r.get("qty") or 1),
                 unit_price=float(r.get("unit_price") or 0),
             )
             for r in (details.get("items") or [])
             if isinstance(r, dict)
         ]
-    ) or "your gift box"
+    ) or "your collection"
     fulfillment = str(details.get("fulfillment_status") or PENDING_PAYMENT)
     loc = details.get("delivery_location") or details.get("delivery_notes") or ""
     loc_bit = f" to {loc}" if loc else ""

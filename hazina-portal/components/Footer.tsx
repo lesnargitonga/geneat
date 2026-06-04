@@ -35,7 +35,7 @@ export function Footer() {
                 className="hover:text-sand transition-colors"
                 href="/premium-safari-souvenirs-nairobi"
               >
-                Safari souvenirs
+                Curation brief
               </Link>
             </li>
             <li>
@@ -45,7 +45,7 @@ export function Footer() {
             </li>
             <li>
               <Link className="hover:text-sand transition-colors" href="/collections/departure-drop">
-                JKIA Departure Drop
+                Departure-ready edit
               </Link>
             </li>
             <li>

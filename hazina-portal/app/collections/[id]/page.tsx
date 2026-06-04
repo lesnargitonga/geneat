@@ -22,16 +22,16 @@ export function generateStaticParams() {
 
 const COLLECTION_SEO: Record<string, { title: string; description: string; keywords?: string[] }> = {
   "kenya-edit": {
-    title: "The Kenya Edit · Premium Safari Souvenirs Nairobi",
+    title: "The Kenya Edit · Bespoke Curation",
     description:
-      "Curated Kenyan safari souvenirs for discerning travellers — coffee, Maasai beadwork, soapstone, seamless logistics, and global export.",
-    keywords: ["safari souvenirs Nairobi", "Kenya travel gifts", "The Kenya Edit"],
+      "A signature Kenyan heritage collection with USD/KES pricing, bespoke curation, seamless logistics, and global export support.",
+    keywords: ["Kenya travel gifts", "bespoke Kenyan curation", "The Kenya Edit"],
   },
   "departure-drop": {
-    title: "The Departure Drop · Last-Minute JKIA Gifts",
+    title: "The Departure Drop · Departure-Ready Collection",
     description:
-      "Premium Kenyan gift box for departure handoffs. Coffee, beadwork, leather — curated for departing travellers, not airport trinkets.",
-    keywords: ["JKIA gifts", "last minute souvenirs Nairobi", "airport gift delivery Kenya"],
+      "A premium Kenyan collection for departure-sensitive handoffs. Coffee, beadwork, and leather with concierge-confirmed logistics.",
+    keywords: ["departure gifts Kenya", "last minute Kenyan gifts", "premium travel gifts Kenya"],
   },
 };
 

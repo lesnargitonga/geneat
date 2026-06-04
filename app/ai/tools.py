@@ -860,7 +860,7 @@ def build_tools(
             name="calculate_dhl_shipping",
             description=(
                 "Estimate DHL Express international shipping cost and lead time for "
-                "sending a gift box abroad (diaspora / corporate). Returns USD estimate."
+                "global export of a Hazina collection or bespoke sourced piece. Returns USD estimate."
             ),
             args_schema=DhlShippingArgs,
         ),

@@ -27,10 +27,8 @@ REQUIRED_DATASET_SENTINELS = (
     "Bespoke Curation",
     "Seamless Logistics",
     "Global Export",
-    "Alfajiri Villas",
-    "Ukunda airstrip",
     "Mkeka chest",
-    "Diani villa handoff",
+    "custom visual sourcing brief",
 )
 
 
