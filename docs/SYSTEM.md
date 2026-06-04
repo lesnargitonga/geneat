@@ -98,7 +98,7 @@ and `hazina-redis-fra`, and the API env must point `DATABASE_URL`,
 `DATABASE_URL_SYNC`, and `REDIS_URL` at those Frankfurt connection strings.
 
 **Portal domain truth as of 2026-06-04:** `https://hazina-portal.onrender.com`
-is the live Render portal for commit `ce23983`. The public hostname
+is the live Render portal for the latest pushed `main` deploy. The public hostname
 `https://hazina.lesnarai.co.ke` still resolves to Vercel until Cloudflare DNS
 is changed from the old Vercel CNAME/A target to Render. Render already has
 `hazina.lesnarai.co.ke` attached as an unverified custom domain; after DNS is

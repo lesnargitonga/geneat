@@ -2357,7 +2357,7 @@ Current result:
 - admin build passed
 - Gen-Eat portal build passed
 - Hazina portal typecheck passed
-- Hazina portal build passed on Render at commit `ce23983`; routes are mostly dynamic now because the portal server-fetches backend catalog truth
+- Hazina portal build passes on Render; routes are mostly dynamic now because the portal server-fetches backend catalog truth
 
 ### 22.3 Live system doctor
 

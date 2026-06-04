@@ -635,9 +635,9 @@ BACKEND_URL=https://api.lesnarai.co.ke
 
 - `hazina-api` is deployed in Frankfurt and the latest API commit is live.
 - `hazina-portal` is deployed in Frankfurt at
-  `https://hazina-portal.onrender.com`; commit `ce23983` fixed the Render Node
-  build by pinning Node 20, making the `@` alias explicit, and installing dev
-  dependencies during the build.
+  `https://hazina-portal.onrender.com`; the Render Node build is pinned to
+  Node 20, makes the `@` alias explicit, and installs dev dependencies during
+  the build.
 - `hazina-postgres-fra` and `hazina-redis-fra` exist in Frankfurt and
   `make audit-render-regions` passes.
 - The API env still points to the old Oregon `hazina-postgres` /
