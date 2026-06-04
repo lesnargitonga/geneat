@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { PackBuilder } from "@/components/PackBuilder";
+import { getStorefrontCatalog } from "@/lib/catalog";
 
 export const metadata: Metadata = {
   title: "Curate a Private Collection · Hazina Nomads",
@@ -8,12 +9,13 @@ export const metadata: Metadata = {
     "Compose Savannah treasures and Swahili Coast artifacts with optional monograms and bespoke sourcing notes for our concierge.",
 };
 
-export default function BuildPage({
+export default async function BuildPage({
   searchParams,
 }: {
   searchParams: { add?: string; category?: string; q?: string };
 }) {
   const initialAddIds = searchParams.add ? [searchParams.add] : [];
+  const catalog = await getStorefrontCatalog();
 
   return (
     <>
@@ -35,6 +37,7 @@ export default function BuildPage({
           initialAddIds={initialAddIds}
           initialCategory={searchParams.category}
           initialQuery={searchParams.q}
+          treasures={catalog.treasures}
         />
       </div>
     </>

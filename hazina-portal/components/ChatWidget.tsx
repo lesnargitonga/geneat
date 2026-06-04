@@ -86,6 +86,9 @@ type ApiChatResponse = {
   photo_item?: string | null;
   actions?: ApiChatAction[];
 };
+type PortalCatalogResponse = {
+  collections?: GiftBox[];
+};
 
 const MAIN_MENU_CMD = "__main_menu__";
 
@@ -189,9 +192,9 @@ function contactLooksOk(text: string, paymentCurrency?: PaymentCurrency) {
   return digits.length >= 7 || clean.includes("@");
 }
 
-function resolveBoxFromText(text: string): GiftBox | undefined {
+function resolveBoxFromText(text: string, boxes: GiftBox[] = GIFT_BOXES): GiftBox | undefined {
   const lower = text.toLowerCase();
-  return GIFT_BOXES.find((box) => {
+  return boxes.find((box) => {
     const tokens = [box.id, box.sku, box.name, box.name.replace(/^The\s+/i, "")];
     return tokens.some((token) => lower.includes(token.toLowerCase()));
   });
@@ -387,8 +390,11 @@ function buildBackendCheckoutMessage(flow: CheckoutFlow) {
   return lines.join("\n");
 }
 
-function createCollectionFlow(payload: Extract<CheckoutStart, { kind: "collection" }>): CheckoutFlow | null {
-  const box = getGiftBox(payload.collectionId);
+function createCollectionFlow(
+  payload: Extract<CheckoutStart, { kind: "collection" }>,
+  boxes: GiftBox[] = GIFT_BOXES,
+): CheckoutFlow | null {
+  const box = boxes.find((candidate) => candidate.id === payload.collectionId) || getGiftBox(payload.collectionId);
   if (!box) return null;
   const quantity = Math.max(1, Math.min(20, Number(payload.quantity || 1)));
   const flow: CheckoutFlow = {
@@ -446,6 +452,7 @@ export function ChatWidget() {
   const [busy, setBusy] = useState(false);
   const [actions, setActions] = useState<ChatAction[]>([]);
   const [flow, setFlow] = useState<CheckoutFlow | null>(null);
+  const [collections, setCollections] = useState<GiftBox[]>(GIFT_BOXES);
   const phone = useMemo(() => getOrCreatePhone(), []);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const automationBootstrapped = useRef(false);
@@ -713,9 +720,9 @@ export function ChatWidget() {
         return true;
       }
 
-      const box = resolveBoxFromText(text);
+      const box = resolveBoxFromText(text, collections);
       if (box && /\b(order|buy|get|reserve|checkout|want|need|yes)\b/i.test(text)) {
-        const started = createCollectionFlow({ kind: "collection", collectionId: box.id });
+        const started = createCollectionFlow({ kind: "collection", collectionId: box.id }, collections);
         if (started) beginFlow(started);
         return true;
       }
@@ -734,8 +741,28 @@ export function ChatWidget() {
 
       return false;
     },
-    [append, beginFlow],
+    [append, beginFlow, collections],
   );
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadCatalog() {
+      try {
+        const res = await fetch("/api/catalog", { cache: "no-store" });
+        if (!res.ok) return;
+        const body = (await res.json()) as PortalCatalogResponse;
+        if (!cancelled && Array.isArray(body.collections) && body.collections.length) {
+          setCollections(body.collections);
+        }
+      } catch {
+        // Static catalog remains as a safe client fallback.
+      }
+    }
+    void loadCatalog();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const send = useCallback(
     async (textArg?: string) => {
@@ -794,7 +821,7 @@ export function ChatWidget() {
       const custom = event as CustomEvent<ChatPromptDetail>;
       setChatOpen(true);
       if (custom.detail?.checkout?.kind === "collection") {
-        const started = createCollectionFlow(custom.detail.checkout);
+        const started = createCollectionFlow(custom.detail.checkout, collections);
         if (started) beginFlow(started);
         return;
       }
@@ -812,7 +839,7 @@ export function ChatWidget() {
     };
     window.addEventListener("hazina:chat-prompt", onPrompt as EventListener);
     return () => window.removeEventListener("hazina:chat-prompt", onPrompt as EventListener);
-  }, [append, beginFlow, postBackend, setChatOpen]);
+  }, [append, beginFlow, collections, postBackend, setChatOpen]);
 
   const hasUserMessages = messages.some((m) => m.role === "user");
   const visibleActions = actions.length > 0 ? actions : !hasUserMessages && !busy ? ASK_PROMPTS : [];

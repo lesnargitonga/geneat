@@ -497,7 +497,7 @@ Guest / order context
 |---|---|---|---|
 | **1** | Digital real estate | Domains, social handles, logo, Paystack application | ⬜ **External** — user-owned |
 | **2** | Tech pivot — tenant | Postgres tenant `hazina-nomads`, env prep | ✅ Seed: 5 collections, 33 treasures, 49 KB chunks, `menu_photos` |
-| **2–3** | Tech pivot — frontend | Standalone Hazina portal | ✅ `hazina-portal/` — 55 generated static pages (§9.1) |
+| **2–3** | Tech pivot — frontend | Standalone Hazina portal | ✅ `hazina-portal/` — dynamic catalog-backed pages (§9.1) |
 | **3** | Physical prototyping | Source coffee, beadwork, rigid boxes; assemble prototype | ⬜ **External** |
 | **3** | WhatsApp + AI tools | Hazina menus, delivery fields, hybrid pay | ✅ See §10–§12 |
 | **4** | Media production | Product photography → WA Catalog + website | ✅ 60 portal assets and collection/treasure `menu_photos` keys; ⬜ exact no-watermark collection photos + Meta Catalog sync |
@@ -606,7 +606,7 @@ META_WA_APP_SECRET=
 
 # ── URLs ──
 PUBLIC_HAZINA_PORTAL_URL=https://hazina.lesnarai.co.ke
-PUBLIC_API_URL=https://api.lesnarai.co.ke
+PUBLIC_API_URL=https://hazina-api.onrender.com
 ADMIN_CORS_ORIGINS=https://hazina.lesnarai.co.ke,https://geneat.lesnarai.co.ke,...
 
 # ── Ghost Ops (Hazina fulfillment admins) ──
@@ -625,8 +625,8 @@ PAYSTACK_PUBLIC_KEY=
 # ── hazina-portal/ (Render hazina-portal service) ──
 NEXT_PUBLIC_HAZINA_WHATSAPP=15556578220
 NEXT_PUBLIC_HAZINA_PHONE=+15556578220
-NEXT_PUBLIC_BACKEND_URL=https://api.lesnarai.co.ke
-BACKEND_URL=https://api.lesnarai.co.ke
+NEXT_PUBLIC_BACKEND_URL=https://hazina-api.onrender.com
+BACKEND_URL=https://hazina-api.onrender.com
 ```
 
 **Render secrets (`sync: false`):** all Meta WA keys, IntaSend keys, Paystack keys when approved, `NEXT_PUBLIC_HAZINA_*`.
@@ -640,8 +640,9 @@ BACKEND_URL=https://api.lesnarai.co.ke
   the build.
 - `hazina-postgres-fra` and `hazina-redis-fra` exist in Frankfurt and
   `make audit-render-regions` passes.
-- The API env still points to the old Oregon `hazina-postgres` /
-  `hazina-redis` connection strings until those Render env vars are replaced.
+- `hazina-api` now points `DATABASE_URL`, `DATABASE_URL_SYNC`, and `REDIS_URL`
+  at the Frankfurt internal Postgres/Key Value connection strings; direct
+  `/readyz` is in-region fast after the 2026-06-04 env cutover.
 - `hazina.lesnarai.co.ke` still resolves to the old Vercel portal until
   Cloudflare DNS is changed to the Render portal target and the Render custom
   domain is verified.
@@ -665,7 +666,7 @@ make smoke-hazina-war-room
 # 5. WhatsApp reply matrix
 make eval-whatsapp-local
 
-# 6. Portal build (55 generated static pages — see §9.1)
+# 6. Portal build (dynamic catalog-backed pages — see §9.1)
 cd hazina-portal && npm run build
 ```
 
@@ -683,17 +684,15 @@ cd hazina-portal && npm run build
 
 1. Cloudflare CNAME: `hazina.lesnarai.co.ke` →
    `hazina-portal.onrender.com`, then verify the Render custom domain.
-2. `DATABASE_URL`, `DATABASE_URL_SYNC`, and `REDIS_URL` on `hazina-api` must
-   point to `hazina-postgres-fra` and `hazina-redis-fra`, not Oregon resources.
-3. Run `alembic upgrade head` and `scripts/seed_hazina_nomads.py` against the
+2. Run `alembic upgrade head` and `scripts/seed_hazina_nomads.py` against the
    Frankfurt database after the env change.
-4. `META_WA_PHONE_NUMBER_ID` — Hazina Meta Cloud API phone id
-5. `META_WA_ACCESS_TOKEN`, `META_WA_VERIFY_TOKEN`, `META_WA_APP_SECRET`
-6. `HAZINA_CLAIMS_META_PHONE=true` while Hazina owns the configured Meta number
-7. `ADMIN_CORS_ORIGINS` — include `https://hazina.lesnarai.co.ke`
-8. `NEXT_PUBLIC_HAZINA_WHATSAPP` / `NEXT_PUBLIC_HAZINA_PHONE` on `hazina-portal`
-9. `INTASEND_API_TOKEN` for STK + card-link fallback; `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` once Paystack is approved
-10. Re-run `scripts/seed_hazina_nomads.py` after Meta phone id is set
+3. `META_WA_PHONE_NUMBER_ID` — Hazina Meta Cloud API phone id
+4. `META_WA_ACCESS_TOKEN`, `META_WA_VERIFY_TOKEN`, `META_WA_APP_SECRET`
+5. `HAZINA_CLAIMS_META_PHONE=true` while Hazina owns the configured Meta number
+6. `ADMIN_CORS_ORIGINS` — include `https://hazina.lesnarai.co.ke`
+7. `NEXT_PUBLIC_HAZINA_WHATSAPP` / `NEXT_PUBLIC_HAZINA_PHONE` on `hazina-portal`
+8. `INTASEND_API_TOKEN` for STK + card-link fallback; `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` once Paystack is approved
+9. Re-run `scripts/seed_hazina_nomads.py` after Meta phone id is set
 
 **Smoke test after cutover:**
 
@@ -704,7 +703,7 @@ make smoke-hazina-war-room
 ```
 
 Latest public-domain result on 2026-06-02: `166/166` passed against
-`hazina.lesnarai.co.ke` + `api.lesnarai.co.ke` with no real payment trigger.
+`hazina-portal.onrender.com` + `hazina-api.onrender.com` with no real payment trigger.
 
 Then manually rehearse:
 
@@ -741,8 +740,8 @@ Gen-Eat café tenants (`lily-pond-cafe`, etc.) remain in DB; demo path stays on 
 | Layer | Gen-Eat (reference) | Hazina Nomads |
 |---|---|---|
 | Customer portal | `geneat.lesnarai.co.ke` via **Vercel** | `hazina.lesnarai.co.ke` via **Render** (`render.yaml` → `hazina-portal`) |
-| Backend API | `api.lesnarai.co.ke` on Render | **Same shared API** |
-| Portal → API | `BACKEND_URL` → `/api/chat` proxy | Same pattern |
+| Backend API | `api.lesnarai.co.ke` on Render | `hazina-api.onrender.com` dedicated Render API |
+| Portal → API | `BACKEND_URL` → `/api/chat` proxy | Same pattern, dedicated Hazina target |
 | DNS | Cloudflare on `lesnarai.co.ke` | `hazina` CNAME → Render |
 
 **Render `hazina-portal` service env:**
@@ -753,7 +752,7 @@ in Oregon are legacy migration sources only. Dedicated Hazina traffic must use
 `DATABASE_URL_SYNC`, and `REDIS_URL` pointing at those Frankfurt resources.
 
 - `NODE_ENV=production`
-- `BACKEND_URL` / `NEXT_PUBLIC_BACKEND_URL` → `https://api.lesnarai.co.ke`
+- `BACKEND_URL` / `NEXT_PUBLIC_BACKEND_URL` → `https://hazina-api.onrender.com`
 - `NEXT_PUBLIC_HAZINA_WHATSAPP`, `NEXT_PUBLIC_HAZINA_PHONE` (secrets)
 
 ### 9.1 Routes (~48 at build, 2026-06-01)
@@ -1136,7 +1135,7 @@ Routes through `resolve_payment_service(currency=…)`.
 | **Order + payment** | `app/services/cafe_automation.py` | ✅ Hybrid `request_order_payment` |
 | **AI tools** | `app/ai/tools.py` | ✅ USD fields, hybrid payment tool |
 | **Render cutover** | `render.yaml` | ✅ `hazina-nomads` default + portal + Paystack env keys |
-| **Standalone portal** | `hazina-portal/` | ✅ 55 generated static pages (see §9.1) |
+| **Standalone portal** | `hazina-portal/` | ✅ dynamic catalog-backed pages (see §9.1) |
 | **Collections (portal)** | backend catalog endpoint; `hazina-portal/lib/products.ts` fallback | ✅ |
 | **Treasures (portal)** | backend catalog endpoint; `hazina-portal/lib/treasures.ts` fallback | ✅ |
 | **KB sync service** | `app/services/hazina_kb.py` | ✅ `sync_hazina_knowledge_base` + treasure chunks |
@@ -1174,34 +1173,37 @@ Routes through `resolve_payment_service(currency=…)`.
 
 ### 13.1 Automated tests
 
-Current local/live verification on **2026-06-02**:
+Current local/live verification on **2026-06-04**:
 
-- `make test-hazina` → **76 passed**, 1 warning
-- `cd hazina-portal && npm run lint && npm run typecheck` → passed
-- `cd hazina-portal && npm run build` → passed, **55 generated pages**
+- `make test-hazina` → **92 passed**, 1 warning
+- `cd hazina-portal && npm run typecheck` → passed
+- `cd hazina-portal && npm run build` → passed; key pages are dynamic because
+  the portal now server-fetches backend catalog truth
 - Render portal deploy → live at `https://hazina-portal.onrender.com`; public
   `hazina.lesnarai.co.ke` DNS cutover still pending
 - `make doctor-hazina-live` → passed on 2026-06-02 against `api.lesnarai.co.ke`
   with no payment confirmation; catalog reply, checkout start, and name →
   delivery step all passed
-- `make audit-render-regions` → must report `hazina-api`, `hazina-portal`,
-  `hazina-postgres-fra`, and `hazina-redis-fra` all in Frankfurt before
-  dedicated Hazina traffic is cut over
-- `make doctor-hazina-api` → after the 2026-06-01 manual migration and clearing
-  the Render `dockerCommand` override so the Dockerfile `CMD` runs, deep health
-  is OK and Hazina replies work; the old failure mode was cross-region latency
-  from a Frankfurt API to Oregon DB/Redis. The target fix is Frankfurt
-  co-location for API, Postgres, and Key Value.
-- live API `/version` after push → commit `57c1157`
+- `make audit-render-regions` → reports `hazina-api`, `hazina-portal`,
+  `hazina-postgres-fra`, `hazina-redis-fra`, and the API datastore env all in
+  Frankfurt
+- `https://hazina-api.onrender.com/readyz` → healthy after the Frankfurt env
+  cutover; direct DB/Redis latency is in-region fast
+- `scripts/hazina_live_check.py --skip-deep --direct-mock` → direct API chat is
+  fast; rerun after this commit deploys so the updated delivery-channel prompt
+  is live
+- live API `/version` should be checked after each push; do not rely on an old
+  commit pin in docs
 - On 2026-06-04, `https://hazina.lesnarai.co.ke` still resolves to Vercel and
   `/api/health` reports the old `api.lesnarai.co.ke` backend. Use
   `https://hazina-portal.onrender.com` as the current Render truth until
   Cloudflare DNS is switched.
-- measured after DNS/cert: homepage about 0.23s, warm collections about
-  0.23s, portal `/api/health` about 0.42-0.47s, and shared API `/readyz`
-  about 0.51-0.57s
-- Vercel server env has `ADMIN_API_TOKEN` synced from the live API so in-app
-  chat can reach locked production `/mock/message`
+- measured after Frankfurt env cutover: direct API `/readyz` is sub-second and
+  reports DB/Redis latency in the low-millisecond range; portal-proxy chat
+  still needs post-deploy smoke after DNS and this commit land
+- The Render portal service has `ADMIN_API_TOKEN` synced from the live API so
+  in-app chat can reach locked production `/mock/message`; `vercel.json`
+  points the legacy Vercel fallback at `https://hazina-api.onrender.com`
 - `npm audit --omit=dev` → 2 production vulnerabilities: `next` critical
   advisory and transitive `postcss` moderate advisory; plan a controlled Next
   upgrade before hardened public production

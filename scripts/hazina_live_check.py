@@ -18,9 +18,10 @@ from typing import Any
 import httpx
 
 
-DEFAULT_BASE_URL = "https://api.lesnarai.co.ke"
-DEFAULT_PORTAL_URL = "https://hazina.lesnarai.co.ke"
 HAZINA_API_URL = "https://hazina-api.onrender.com"
+HAZINA_PORTAL_URL = "https://hazina-portal.onrender.com"
+DEFAULT_BASE_URL = os.environ.get("HAZINA_BACKEND_URL", HAZINA_API_URL)
+DEFAULT_PORTAL_URL = os.environ.get("HAZINA_PORTAL_URL", HAZINA_PORTAL_URL)
 HAZINA_SLUG = "hazina-nomads"
 
 BAD_LEAKS = (

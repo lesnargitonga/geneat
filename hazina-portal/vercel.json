@@ -5,7 +5,8 @@
   "installCommand": "npm install",
   "regions": ["fra1"],
   "env": {
-    "BACKEND_URL": "https://api.lesnarai.co.ke"
+    "BACKEND_URL": "https://hazina-api.onrender.com",
+    "NEXT_PUBLIC_BACKEND_URL": "https://hazina-api.onrender.com"
   },
   "redirects": [
     {

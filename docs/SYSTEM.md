@@ -1,8 +1,10 @@
 # SYSTEM — single source of truth
 
-**Scope:** Gen-Eat platform + Hazina Nomads + shared API (`api.lesnarai.co.ke`).
+**Scope:** Gen-Eat platform + Hazina Nomads + shared app code. Gen-Eat uses
+`api.lesnarai.co.ke`; Hazina uses the dedicated `hazina-api.onrender.com`
+service.
 **Maintain:** edit this file first when product, routing, catalog, deploy, or gaps change. Code wins if docs drift.
-**Verified:** 2026-06-03 · local tests · Frankfurt co-location target pending live audit
+**Verified:** 2026-06-04 · local tests · Frankfurt resource/env audit · direct Hazina API smoke
 **Security:** [SECURITY.md](../SECURITY.md)
 
 **Legend:** ✅ shipped in code · 🟢 verified live · ⬜ not done · ◐ partial
@@ -14,10 +16,10 @@
 | Area | Code | Live | Blocker / note |
 |---|---|---|---|
 | Shared API | ✅ | 🟢 | `api.lesnarai.co.ke`; `make doctor-hazina-live` passed on 2026-06-01 |
-| Dedicated Hazina API service | ✅ | ◐ | Target is Frankfurt API + Frankfurt Postgres + Frankfurt Key Value; old Oregon datastores must not be used for cutover |
+| Dedicated Hazina API service | ✅ | 🟢 | Frankfurt API + Frankfurt Postgres + Frankfurt Key Value; `make audit-render-regions` verifies env drift too |
 | Tenant `hazina-nomads` | ✅ | ◐ | `DEFAULT_BUSINESS_SLUG`; Meta `phone_number_id` |
 | Gen-Eat portal | ✅ | 🟢 | `geneat.lesnarai.co.ke` |
-| Hazina portal | ✅ | ⬜ | `hazina.lesnarai.co.ke` DNS unverified 2026-06-01; local `:3004` |
+| Hazina portal | ✅ | ◐ | Render portal live at `hazina-portal.onrender.com`; public `hazina.lesnarai.co.ke` DNS still needs Cloudflare cutover |
 | Hazina WA | ✅ | ◐ | `+1 555 657 8220` |
 | KES STK (IntaSend) | ✅ | 🟢 | Live keys; `PAYMENT_SIMULATOR=false`; primary M-Pesa rail |
 | USD/card checkout | ✅ | ◐ | Paystack preferred when keys exist; IntaSend hosted checkout is fallback for now |
@@ -54,7 +56,8 @@ proposition.
 
 | Resource | Value |
 |---|---|
-| API | `https://api.lesnarai.co.ke` |
+| Gen-Eat/shared API | `https://api.lesnarai.co.ke` |
+| Hazina dedicated API | `https://hazina-api.onrender.com` |
 | Health | `/healthz` `/readyz` `/health/deep` `/version` |
 | Gen-Eat portal | `https://geneat.lesnarai.co.ke` · `gen-eat-portal/` |
 | Hazina portal | `https://hazina.lesnarai.co.ke` · `hazina-portal/` · dev `make dev-hazina` → `:3004` |
@@ -84,12 +87,11 @@ checks before it becomes the public API target.
 
 **Current dedicated stack truth as of 2026-06-04:** `hazina-api` and
 `hazina-portal` deploy in Frankfurt, and `hazina-postgres-fra` plus
-`hazina-redis-fra` exist in Frankfurt. `make audit-render-regions` passes.
-However, the API env still points `DATABASE_URL`, `DATABASE_URL_SYNC`, and
-`REDIS_URL` at the old Oregon resources until the Frankfurt connection strings
-are copied into Render and the Hazina seed/migrations are run there. Do not
-treat the co-location cutover as complete until `/readyz` DB/Redis latency
-falls to in-region levels and `make doctor-hazina-api` passes.
+`hazina-redis-fra` exist in Frankfurt. `make audit-render-regions` now checks
+both resource region and `hazina-api` datastore env drift; it passes only when
+`DATABASE_URL`, `DATABASE_URL_SYNC`, and `REDIS_URL` no longer point at the old
+Oregon resources. After the 2026-06-04 env cutover, direct `/readyz` on
+`https://hazina-api.onrender.com` is in-region fast.
 
 **Render region truth:** if the dashboard still shows `hazina-postgres` or
 `hazina-redis` in Oregon, those are legacy managed resources. The live cutover
@@ -103,6 +105,11 @@ is the live Render portal for the latest pushed `main` deploy. The public hostna
 is changed from the old Vercel CNAME/A target to Render. Render already has
 `hazina.lesnarai.co.ke` attached as an unverified custom domain; after DNS is
 changed, verify the domain in Render and smoke `/api/health`.
+
+**Portal backend truth:** server-side portal proxy defaults point at
+`https://hazina-api.onrender.com`. The legacy Vercel config was also updated
+to use the dedicated Hazina API, so a temporary Vercel DNS window should not
+route Hazina chat to the shared Gen-Eat API after the next Vercel deploy.
 
 **Resilience armor in code (current):**
 - Meta webhook ACK is decoupled via durable `whatsapp.inbound` jobs.
@@ -265,13 +272,12 @@ Same WA number as Hazina only if routing is confirmed — do not mix demos blind
 
 1. Cloudflare DNS: point `hazina.lesnarai.co.ke` at
    `hazina-portal.onrender.com`, then verify the custom domain in Render.
-2. API env: replace old Oregon `DATABASE_URL`, `DATABASE_URL_SYNC`, and
-   `REDIS_URL` with the Frankfurt Postgres/Redis connection strings.
-3. Run migrations + `scripts/seed_hazina_nomads.py` against Frankfurt data.
-4. `PAYMENT_SIMULATOR=false` · live keys · one KES + one USD order.
-5. `ADMIN_WA_NUMBERS` · ops trained on Ghost Ops.
-6. Prod seed · real collection/coastal images or label provisional.
-7. **Observability (mandatory on API service):** `SENTRY_DSN` · `sentry_traces_sample_rate=0.2` · log drain to your aggregator (Render → Axiom/Datadog/etc.)
+2. Run migrations + `scripts/seed_hazina_nomads.py` against Frankfurt data
+   after any destructive DB replacement or restore.
+3. `PAYMENT_SIMULATOR=false` · live keys · one KES + one USD order.
+4. `ADMIN_WA_NUMBERS` · ops trained on Ghost Ops.
+5. Prod seed · real collection/coastal images or label provisional.
+6. **Observability (mandatory on API service):** `SENTRY_DSN` · `sentry_traces_sample_rate=0.2` · log drain to your aggregator (Render → Axiom/Datadog/etc.)
 * `omni_ai_input_truncated_total` (Counter): Tracks how frequently inbound user messages exceed the `2000` character limit and are truncated before LLM inference. High spikes indicate potential prompt-stuffing attacks or bot spam.
 
 ### P1 (month one)
@@ -312,7 +318,7 @@ PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py
 | `SENTRY_DSN` | API | Error tracking — **required P0** |
 | `SENTRY_TRACES_SAMPLE_RATE` | API | `0.2` recommended at launch |
 | `ADMIN_API_TOKEN` | API + portal (server) | Admin console; **portal `/api/chat` proxy** in prod |
-| `BACKEND_URL` | Portal | `https://api.lesnarai.co.ke` |
+| `BACKEND_URL` | Portal | `https://hazina-api.onrender.com` |
 | `NEXT_PUBLIC_HAZINA_WHATSAPP` | Portal | CTA |
 
 Full: `.env.example` · [README.md §19](../README.md).

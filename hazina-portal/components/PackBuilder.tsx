@@ -21,17 +21,21 @@ import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
 
 type DeliveryMode = "hotel" | "jkia" | "international";
 
-const BUILDABLE_TREASURES = TREASURES.filter((t) => t.category !== "packaging");
-
 export function PackBuilder({
   initialAddIds = [],
   initialCategory,
   initialQuery = "",
+  treasures = TREASURES,
 }: {
   initialAddIds?: string[];
   initialCategory?: string;
   initialQuery?: string;
+  treasures?: Treasure[];
 }) {
+  const buildableTreasures = useMemo(
+    () => treasures.filter((t) => t.category !== "packaging"),
+    [treasures],
+  );
   const validInitialCategory =
     initialCategory && ALL_CATEGORIES.includes(initialCategory as TreasureCategory)
       ? (initialCategory as TreasureCategory)
@@ -40,7 +44,7 @@ export function PackBuilder({
   const [cart, setCart] = useState<Map<string, number>>(() => {
     const m = new Map<string, number>();
     for (const id of initialAddIds) {
-      if (BUILDABLE_TREASURES.some((t) => t.id === id)) m.set(id, 1);
+      if (buildableTreasures.some((t) => t.id === id)) m.set(id, 1);
     }
     return m;
   });
@@ -56,7 +60,7 @@ export function PackBuilder({
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return BUILDABLE_TREASURES.map((item, index) => ({ item, index }))
+    return buildableTreasures.map((item, index) => ({ item, index }))
       .filter(({ item }) => {
         if (category !== "all" && item.category !== category) return false;
         if (!q) return true;
@@ -78,14 +82,14 @@ export function PackBuilder({
         return a.index - b.index;
       })
       .map(({ item }) => item);
-  }, [category, query, sort]);
+  }, [buildableTreasures, category, query, sort]);
 
   const cartLines = useMemo(() => {
-    return BUILDABLE_TREASURES.filter((t) => (cart.get(t.id) ?? 0) > 0).map((item) => ({
+    return buildableTreasures.filter((t) => (cart.get(t.id) ?? 0) > 0).map((item) => ({
       item,
       qty: cart.get(item.id) ?? 0,
     }));
-  }, [cart]);
+  }, [buildableTreasures, cart]);
 
   const totalUnits = useMemo(
     () => cartLines.reduce((sum, line) => sum + line.qty, 0),

@@ -778,9 +778,9 @@ def _checkout_prompt(checkout: dict, *, is_sw: bool) -> str:
         return "Niweke jina gani kwa oda?" if is_sw else "What name should I put on the order?"
     if step == "delivery_type":
         return (
-            "Utataka local handoff, departure handoff, au Global Export?"
+            "Utataka njia gani ya delivery: local handoff, departure handoff, au Global Export?"
             if is_sw else
-            "Should this be local handoff, departure handoff, or Global Export?"
+            "Which delivery channel should we use: local handoff, departure handoff, or Global Export?"
         )
     if step == "location":
         dtype = _delivery_type_from_text(None, fallback=str(checkout.get("delivery_type") or ""))

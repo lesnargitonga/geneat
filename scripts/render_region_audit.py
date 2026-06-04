@@ -3,7 +3,10 @@
 
 Render regions are immutable after resource creation. This script is a small
 operator gate before switching Hazina traffic to a dedicated API service: API,
-Postgres, and Key Value should all report the same target region.
+Postgres, and Key Value should all report the same target region. It also
+checks the API service env for obvious old Oregon datastore URLs, because a
+Frankfurt service can still be slow if DATABASE_URL / REDIS_URL point back to
+legacy resources.
 """
 from __future__ import annotations
 
@@ -88,6 +91,42 @@ def _status(resource: dict[str, Any]) -> str:
     return "available"
 
 
+def _env_var_rows(rows: Any) -> list[dict[str, Any]]:
+    if not isinstance(rows, list):
+        return []
+    out: list[dict[str, Any]] = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        value = row.get("envVar")
+        if isinstance(value, dict):
+            out.append(value)
+        elif row.get("key"):
+            out.append(row)
+    return out
+
+
+async def _fetch_service_env(
+    client: httpx.AsyncClient,
+    service_id: str,
+) -> tuple[dict[str, str], str]:
+    try:
+        response = await client.get(
+            f"{RENDER_API}/services/{service_id}/env-vars",
+            params={"limit": 100},
+        )
+    except httpx.HTTPError as exc:
+        return {}, f"{type(exc).__name__}: {exc}"
+    if response.status_code >= 400:
+        return {}, f"HTTP {response.status_code}: {response.text[:160]}"
+    values: dict[str, str] = {}
+    for row in _env_var_rows(response.json()):
+        key = str(row.get("key") or "")
+        if key:
+            values[key] = str(row.get("value") or "")
+    return values, ""
+
+
 async def main_async() -> int:
     parser = argparse.ArgumentParser(description="Audit Render regions for Hazina.")
     parser.add_argument("--expected-region", default="frankfurt")
@@ -95,6 +134,11 @@ async def main_async() -> int:
     parser.add_argument("--portal", default="hazina-portal")
     parser.add_argument("--postgres", default="hazina-postgres-fra")
     parser.add_argument("--redis", default="hazina-redis-fra")
+    parser.add_argument(
+        "--skip-env-drift",
+        action="store_true",
+        help="Only check resource regions; skip DATABASE_URL/REDIS_URL drift checks.",
+    )
     parser.add_argument(
         "--token",
         default=os.environ.get("RENDER_API_TOKEN") or _env_file_value("RENDER_API_TOKEN"),
@@ -119,11 +163,13 @@ async def main_async() -> int:
 
     expected = args.expected_region.strip().lower()
     failures = 0
+    resources_by_label: dict[str, dict[str, Any]] = {}
     for spec, resource, error in rows:
         if resource is None:
             print(f"BAD {spec.label:8} {spec.name:24} {error}")
             failures += 1
             continue
+        resources_by_label[spec.label] = resource
         region = str(
             resource.get("region")
             or (resource.get("serviceDetails") or {}).get("region")
@@ -136,10 +182,40 @@ async def main_async() -> int:
             failures += 1
         print(f"{mark} {spec.label:8} {spec.name:24} region={region} status={status}")
 
+    if not args.skip_env_drift:
+        api_resource = resources_by_label.get("api") or {}
+        service_id = str(api_resource.get("id") or "")
+        if not service_id:
+            print("BAD env      hazina-api               missing service id; cannot inspect env drift")
+            failures += 1
+        else:
+            async with httpx.AsyncClient(
+                timeout=20.0,
+                headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
+            ) as client:
+                env_values, error = await _fetch_service_env(client, service_id)
+            if error:
+                print(f"BAD env      hazina-api               {error}")
+                failures += 1
+            else:
+                drift_hints = ("oregon", "d8eqm")
+                expected_vars = ("DATABASE_URL", "DATABASE_URL_SYNC", "REDIS_URL")
+                for key in expected_vars:
+                    value = env_values.get(key, "")
+                    hints = [hint for hint in drift_hints if hint in value.lower()]
+                    if not value:
+                        print(f"BAD env      {key:24} missing")
+                        failures += 1
+                    elif hints:
+                        print(f"BAD env      {key:24} legacy datastore hints={','.join(hints)}")
+                        failures += 1
+                    else:
+                        print(f"OK  env      {key:24} no legacy Oregon hints")
+
     if failures:
-        print(f"REGION AUDIT FAILED: {failures} resource(s) not in {expected}.")
+        print(f"REGION AUDIT FAILED: {failures} issue(s) found for target {expected}.")
         return 1
-    print(f"REGION AUDIT PASSED: all resources are in {expected}.")
+    print(f"REGION AUDIT PASSED: resources and API datastore env match {expected}.")
     return 0
 
 

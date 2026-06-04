@@ -50,10 +50,11 @@ Current important public endpoints:
 | Gen-Eat customer portal | `https://geneat.lesnarai.co.ke` |
 | Hazina Nomads portal | Render truth `https://hazina-portal.onrender.com`; public `https://hazina.lesnarai.co.ke` still points at the old Vercel deploy until Cloudflare DNS is cut over |
 | Lily Pond page | `https://geneat.lesnarai.co.ke/cafes/lily-pond-cafe` |
-| API | `https://api.lesnarai.co.ke` |
-| API liveness | `https://api.lesnarai.co.ke/healthz` |
-| API readiness | `https://api.lesnarai.co.ke/readyz` |
-| Deep health | `https://api.lesnarai.co.ke/health/deep` |
+| Gen-Eat/shared API | `https://api.lesnarai.co.ke` |
+| Hazina dedicated API | `https://hazina-api.onrender.com` |
+| Hazina API liveness | `https://hazina-api.onrender.com/healthz` |
+| Hazina API readiness | `https://hazina-api.onrender.com/readyz` |
+| Hazina deep health | `https://hazina-api.onrender.com/health/deep` |
 | GitHub repo | `https://github.com/lesnargitonga/geneat` |
 
 Current demo tenants:
@@ -74,8 +75,9 @@ Current Hazina production-routing path:
   capability language; specific places and carriers such as hotels, JKIA, and
   DHL are operational details under those pillars, not the default pitch,
 - `DEFAULT_BUSINESS_SLUG=hazina-nomads`,
-- Hazina uses the same shared API, WhatsApp ingress, RAG, order, and payment
-  machinery as Gen-Eat,
+- Hazina runs the same FastAPI app, WhatsApp ingress, RAG, order, and payment
+  machinery as Gen-Eat, but the current production target is the dedicated
+  `hazina-api` Render service in Frankfurt,
 - the public Hazina WhatsApp number is `+1 555 657 8220` via
   `NEXT_PUBLIC_HAZINA_WHATSAPP` / `NEXT_PUBLIC_HAZINA_PHONE`; this is the
   current Meta/AI automation route, not a placeholder,
@@ -112,6 +114,9 @@ Current Hazina production-routing path:
   on `/build` only (`/treasures` → `/build`),
 - local portal dev is **`make dev-hazina`** on **http://localhost:3004**,
 - the Hazina portal has its own Next.js app under `hazina-portal/`,
+- server-side portal defaults now point at `https://hazina-api.onrender.com`;
+  the old Vercel deployment also has this fallback in `vercel.json` so it does
+  not keep calling the shared Gen-Eat API while DNS is being cut over,
 - **what exists vs gaps** (routes, catalog, payments, tracking, private brief):
   [docs/SYSTEM.md](docs/SYSTEM.md) **§9–§11** (Hazina inventory, flaws, open work).
 
@@ -218,7 +223,9 @@ Fresh local checks run during this reconciliation:
 | Check | Result |
 | --- | --- |
 | Fast focused backend suite | `172 passed, 1 warning` via `make test-fast` |
-| Hazina focused suite | `76 passed, 1 warning` via `make test-hazina` |
+| Hazina focused suite | `92 passed, 1 warning` via `make test-hazina` |
+| Hazina portal typecheck | passed |
+| Hazina portal production build | passed |
 | Durable job TTL regression | `4 passed` via `pytest tests/test_job_runner.py -q` |
 | Redis prod fail-closed regression | covered by `tests/test_redis_client.py` |
 | Payment race regression | covered by `tests/test_payments_hardening.py` |
@@ -2386,9 +2393,9 @@ make doctor-hazina-live
 make doctor-hazina-api
 make audit-render-regions
 # 2026-06-04: region audit passes for hazina-api, hazina-portal,
-# hazina-postgres-fra, and hazina-redis-fra.
-# API env cutover is still pending because DATABASE_URL,
-# DATABASE_URL_SYNC, and REDIS_URL still point to old Oregon resources.
+# hazina-postgres-fra, hazina-redis-fra, and API datastore env.
+# Direct Hazina API readiness is now in-region fast; the public portal domain
+# still needs Cloudflare DNS cutover from Vercel to hazina-portal.onrender.com.
 ```
 
 Additional safe no-money WhatsApp reply gate:

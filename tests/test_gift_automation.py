@@ -173,6 +173,7 @@ def test_hazina_checkout_step_sequence_collects_details_one_at_a_time() -> None:
 
     checkout["customer_name"] = "Amina"
     assert ga._checkout_next_step(checkout) == "delivery_type"
+    assert "delivery channel" in ga._checkout_prompt(checkout, is_sw=False)
 
     checkout["delivery_type"] = "Hotel delivery"
     assert ga._checkout_next_step(checkout) == "location"

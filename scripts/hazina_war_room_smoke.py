@@ -22,8 +22,8 @@ from typing import Any, Iterable
 import httpx
 
 
-DEFAULT_PORTAL_URL = "https://hazina.lesnarai.co.ke"
-DEFAULT_BACKEND_URL = "https://api.lesnarai.co.ke"
+DEFAULT_PORTAL_URL = "https://hazina-portal.onrender.com"
+DEFAULT_BACKEND_URL = "https://hazina-api.onrender.com"
 HAZINA_SLUG = "hazina-nomads"
 
 PAGE_ROUTES = (

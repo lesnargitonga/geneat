@@ -1,6 +1,8 @@
 # Hazina Nomads portal
 
-Customer-facing Next.js 14 app for **hazina.lesnarai.co.ke**. Shares the repo API at `api.lesnarai.co.ke` (not the Gen-Eat `gen-eat-portal/` app).
+Customer-facing Next.js 14 app for **hazina.lesnarai.co.ke**. It runs against
+the dedicated Hazina API service at `hazina-api.onrender.com` (not the Gen-Eat
+`gen-eat-portal/` app).
 
 **Status & ops:** [docs/SYSTEM.md](../docs/SYSTEM.md) · **Brand/SKU detail:** [docs/HAZINA_NOMADS.md](../docs/HAZINA_NOMADS.md) · **Portal commands:** below.
 
@@ -135,6 +137,9 @@ Existing managed resources named `hazina-postgres` or `hazina-redis` in Oregon
 are legacy resources. Render does not move a managed database/Redis instance
 when a region env var changes; create/attach the Frankfurt resources and point
 `DATABASE_URL`, `DATABASE_URL_SYNC`, and `REDIS_URL` at the Frankfurt instances.
+The current `hazina-api` env has been cut over to the Frankfurt internal
+Postgres/Key Value URLs; keep `make audit-render-regions` green after any
+Render env changes.
 
 **www alias:** In Vercel (or your DNS host), add `www.hazina.lesnarai.co.ke` as a domain alias pointing at the same project. Middleware + `next.config` redirect `www` → apex. Without the DNS record, `www` will not resolve for guests.
 
