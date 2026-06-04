@@ -631,6 +631,21 @@ BACKEND_URL=https://api.lesnarai.co.ke
 
 **Render secrets (`sync: false`):** all Meta WA keys, IntaSend keys, Paystack keys when approved, `NEXT_PUBLIC_HAZINA_*`.
 
+**Current infrastructure truth as of 2026-06-04:**
+
+- `hazina-api` is deployed in Frankfurt and the latest API commit is live.
+- `hazina-portal` is deployed in Frankfurt at
+  `https://hazina-portal.onrender.com`; commit `ce23983` fixed the Render Node
+  build by pinning Node 20, making the `@` alias explicit, and installing dev
+  dependencies during the build.
+- `hazina-postgres-fra` and `hazina-redis-fra` exist in Frankfurt and
+  `make audit-render-regions` passes.
+- The API env still points to the old Oregon `hazina-postgres` /
+  `hazina-redis` connection strings until those Render env vars are replaced.
+- `hazina.lesnarai.co.ke` still resolves to the old Vercel portal until
+  Cloudflare DNS is changed to the Render portal target and the Render custom
+  domain is verified.
+
 ### 8.5 Pre-flight checklist
 
 ```bash
@@ -659,20 +674,26 @@ cd hazina-portal && npm run build
 **In-repo (done):**
 
 - `render.yaml` → `DEFAULT_BUSINESS_SLUG=hazina-nomads`
-- `hazina-portal` service on `hazina.lesnarai.co.ke`
+- `hazina-portal` Render service in Frankfurt; public DNS cutover still pending
 - `gift_automation.py` — full checkout paths
 - Hybrid payment router + resend
 - Seed script with full catalog + `menu_photos`
 
 **You must set on Render:**
 
-1. `META_WA_PHONE_NUMBER_ID` — Hazina Meta Cloud API phone id
-2. `META_WA_ACCESS_TOKEN`, `META_WA_VERIFY_TOKEN`, `META_WA_APP_SECRET`
-3. `HAZINA_CLAIMS_META_PHONE=true` while Hazina owns the configured Meta number
-4. `ADMIN_CORS_ORIGINS` — include `https://hazina.lesnarai.co.ke`
-5. `NEXT_PUBLIC_HAZINA_WHATSAPP` / `NEXT_PUBLIC_HAZINA_PHONE` on `hazina-portal`
-6. `INTASEND_API_TOKEN` for STK + card-link fallback; `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` once Paystack is approved
-7. Re-run `scripts/seed_hazina_nomads.py` after Meta phone id is set
+1. Cloudflare CNAME: `hazina.lesnarai.co.ke` →
+   `hazina-portal.onrender.com`, then verify the Render custom domain.
+2. `DATABASE_URL`, `DATABASE_URL_SYNC`, and `REDIS_URL` on `hazina-api` must
+   point to `hazina-postgres-fra` and `hazina-redis-fra`, not Oregon resources.
+3. Run `alembic upgrade head` and `scripts/seed_hazina_nomads.py` against the
+   Frankfurt database after the env change.
+4. `META_WA_PHONE_NUMBER_ID` — Hazina Meta Cloud API phone id
+5. `META_WA_ACCESS_TOKEN`, `META_WA_VERIFY_TOKEN`, `META_WA_APP_SECRET`
+6. `HAZINA_CLAIMS_META_PHONE=true` while Hazina owns the configured Meta number
+7. `ADMIN_CORS_ORIGINS` — include `https://hazina.lesnarai.co.ke`
+8. `NEXT_PUBLIC_HAZINA_WHATSAPP` / `NEXT_PUBLIC_HAZINA_PHONE` on `hazina-portal`
+9. `INTASEND_API_TOKEN` for STK + card-link fallback; `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` once Paystack is approved
+10. Re-run `scripts/seed_hazina_nomads.py` after Meta phone id is set
 
 **Smoke test after cutover:**
 
@@ -1158,7 +1179,8 @@ Current local/live verification on **2026-06-02**:
 - `make test-hazina` → **76 passed**, 1 warning
 - `cd hazina-portal && npm run lint && npm run typecheck` → passed
 - `cd hazina-portal && npm run build` → passed, **55 generated pages**
-- Vercel production deploy → ready and aliased to `hazina.lesnarai.co.ke`
+- Render portal deploy → live at `https://hazina-portal.onrender.com`; public
+  `hazina.lesnarai.co.ke` DNS cutover still pending
 - `make doctor-hazina-live` → passed on 2026-06-02 against `api.lesnarai.co.ke`
   with no payment confirmation; catalog reply, checkout start, and name →
   delivery step all passed
@@ -1171,8 +1193,10 @@ Current local/live verification on **2026-06-02**:
   from a Frankfurt API to Oregon DB/Redis. The target fix is Frankfurt
   co-location for API, Postgres, and Key Value.
 - live API `/version` after push → commit `57c1157`
-- `https://hazina.lesnarai.co.ke` resolves from this workspace on 2026-06-02,
-  TLS verifies, and the Vercel portal returns HTTP 200
+- On 2026-06-04, `https://hazina.lesnarai.co.ke` still resolves to Vercel and
+  `/api/health` reports the old `api.lesnarai.co.ke` backend. Use
+  `https://hazina-portal.onrender.com` as the current Render truth until
+  Cloudflare DNS is switched.
 - measured after DNS/cert: homepage about 0.23s, warm collections about
   0.23s, portal `/api/health` about 0.42-0.47s, and shared API `/readyz`
   about 0.51-0.57s

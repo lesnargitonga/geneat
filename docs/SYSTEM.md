@@ -82,19 +82,27 @@ Portals (/api/chat, /api/orders) + Meta WA webhook
 the same FastAPI app and must pass the same `/health/deep` + Hazina doctor
 checks before it becomes the public API target.
 
-**Current API target:** keep Hazina portal and WhatsApp on
-`https://api.lesnarai.co.ke` until `make audit-render-regions` and
-`make doctor-hazina-api` both pass against a co-located dedicated stack.
-For Kenya/Europe-facing traffic, the target region is Frankfurt:
-`hazina-api` + `hazina-postgres-fra` + `hazina-redis-fra`. Render does not move
-existing resources between regions, so old Oregon datastores are migration
-sources only, not the final traffic target.
+**Current dedicated stack truth as of 2026-06-04:** `hazina-api` and
+`hazina-portal` deploy in Frankfurt, and `hazina-postgres-fra` plus
+`hazina-redis-fra` exist in Frankfurt. `make audit-render-regions` passes.
+However, the API env still points `DATABASE_URL`, `DATABASE_URL_SYNC`, and
+`REDIS_URL` at the old Oregon resources until the Frankfurt connection strings
+are copied into Render and the Hazina seed/migrations are run there. Do not
+treat the co-location cutover as complete until `/readyz` DB/Redis latency
+falls to in-region levels and `make doctor-hazina-api` passes.
 
 **Render region truth:** if the dashboard still shows `hazina-postgres` or
 `hazina-redis` in Oregon, those are legacy managed resources. The live cutover
 must use newly created/attached Frankfurt resources named `hazina-postgres-fra`
 and `hazina-redis-fra`, and the API env must point `DATABASE_URL`,
 `DATABASE_URL_SYNC`, and `REDIS_URL` at those Frankfurt connection strings.
+
+**Portal domain truth as of 2026-06-04:** `https://hazina-portal.onrender.com`
+is the live Render portal for commit `ce23983`. The public hostname
+`https://hazina.lesnarai.co.ke` still resolves to Vercel until Cloudflare DNS
+is changed from the old Vercel CNAME/A target to Render. Render already has
+`hazina.lesnarai.co.ke` attached as an unverified custom domain; after DNS is
+changed, verify the domain in Render and smoke `/api/health`.
 
 **Resilience armor in code (current):**
 - Meta webhook ACK is decoupled via durable `whatsapp.inbound` jobs.
@@ -255,11 +263,15 @@ Same WA number as Hazina only if routing is confirmed — do not mix demos blind
 
 ### P0 (before real money)
 
-1. Push `main` · redeploy API + portal · align `PUBLIC_HAZINA_PORTAL_URL`  
-2. `PAYMENT_SIMULATOR=false` · live keys · one KES + one USD order  
-3. `ADMIN_WA_NUMBERS` · ops trained on Ghost Ops  
-4. Prod seed · real collection/coastal images or label provisional  
-5. **Observability (mandatory on API service):** `SENTRY_DSN` · `sentry_traces_sample_rate=0.2` · log drain to your aggregator (Render → Axiom/Datadog/etc.)
+1. Cloudflare DNS: point `hazina.lesnarai.co.ke` at
+   `hazina-portal.onrender.com`, then verify the custom domain in Render.
+2. API env: replace old Oregon `DATABASE_URL`, `DATABASE_URL_SYNC`, and
+   `REDIS_URL` with the Frankfurt Postgres/Redis connection strings.
+3. Run migrations + `scripts/seed_hazina_nomads.py` against Frankfurt data.
+4. `PAYMENT_SIMULATOR=false` · live keys · one KES + one USD order.
+5. `ADMIN_WA_NUMBERS` · ops trained on Ghost Ops.
+6. Prod seed · real collection/coastal images or label provisional.
+7. **Observability (mandatory on API service):** `SENTRY_DSN` · `sentry_traces_sample_rate=0.2` · log drain to your aggregator (Render → Axiom/Datadog/etc.)
 * `omni_ai_input_truncated_total` (Counter): Tracks how frequently inbound user messages exceed the `2000` character limit and are truncated before LLM inference. High spikes indicate potential prompt-stuffing attacks or bot spam.
 
 ### P1 (month one)

@@ -48,7 +48,7 @@ Current important public endpoints:
 | Thing | Current truth |
 | --- | --- |
 | Gen-Eat customer portal | `https://geneat.lesnarai.co.ke` |
-| Hazina Nomads portal | target `https://hazina.lesnarai.co.ke`; DNS did not resolve from this workspace on 2026-06-01, local preview is `http://localhost:3004` |
+| Hazina Nomads portal | Render truth `https://hazina-portal.onrender.com`; public `https://hazina.lesnarai.co.ke` still points at the old Vercel deploy until Cloudflare DNS is cut over |
 | Lily Pond page | `https://geneat.lesnarai.co.ke/cafes/lily-pond-cafe` |
 | API | `https://api.lesnarai.co.ke` |
 | API liveness | `https://api.lesnarai.co.ke/healthz` |
@@ -2357,7 +2357,7 @@ Current result:
 - admin build passed
 - Gen-Eat portal build passed
 - Hazina portal typecheck passed
-- Hazina portal build passed with 55 generated static pages (see docs/HAZINA_NOMADS.md §9.1)
+- Hazina portal build passed on Render at commit `ce23983`; routes are mostly dynamic now because the portal server-fetches backend catalog truth
 
 ### 22.3 Live system doctor
 
@@ -2377,7 +2377,7 @@ Meta verify handshake uses `GENEAT_LIVE_META_WA_VERIFY_TOKEN` when you export
 it locally; otherwise the check is skipped because the hosted Render token is
 intentionally hidden.
 
-Current Hazina no-money doctor truth on 2026-06-01:
+Current Hazina no-money doctor / region truth:
 
 ```text
 make doctor-hazina-live
@@ -2385,8 +2385,10 @@ make doctor-hazina-live
 
 make doctor-hazina-api
 make audit-render-regions
-# dedicated Hazina cutover requires API, Postgres, and Redis/Key Value in one
-# Render region. Current target: Frankfurt.
+# 2026-06-04: region audit passes for hazina-api, hazina-portal,
+# hazina-postgres-fra, and hazina-redis-fra.
+# API env cutover is still pending because DATABASE_URL,
+# DATABASE_URL_SYNC, and REDIS_URL still point to old Oregon resources.
 ```
 
 Additional safe no-money WhatsApp reply gate:
