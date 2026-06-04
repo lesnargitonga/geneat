@@ -124,7 +124,11 @@ async def main_async() -> int:
             print(f"BAD {spec.label:8} {spec.name:24} {error}")
             failures += 1
             continue
-        region = str(resource.get("region") or "unknown").lower()
+        region = str(
+            resource.get("region")
+            or (resource.get("serviceDetails") or {}).get("region")
+            or "unknown"
+        ).lower()
         status = _status(resource)
         ok = region == expected
         mark = "OK " if ok else "BAD"
