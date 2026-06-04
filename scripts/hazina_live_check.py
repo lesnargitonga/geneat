@@ -216,6 +216,21 @@ async def check_base(
             except Exception as exc:
                 results.append(Check("health.deep", False, f"{type(exc).__name__}: {exc}"))
 
+        if not direct_mock:
+            try:
+                status, body, elapsed = await _get_json(client, f"{portal_url}/api/health")
+                ok = status == 200 and isinstance(body, dict) and bool(body.get("ok"))
+                backend = body.get("backend") if isinstance(body, dict) else None
+                results.append(
+                    Check(
+                        "portal.health",
+                        ok,
+                        f"status={status} elapsed={elapsed:.2f}s backend={backend or 'unknown'}",
+                    )
+                )
+            except Exception as exc:
+                results.append(Check("portal.health", False, f"{type(exc).__name__}: {exc}"))
+
         status, body, elapsed = await _chat(phone, "What do you sell?")
         reply = str(body.get("reply") or "")
         ok, detail = _reply_ok(
