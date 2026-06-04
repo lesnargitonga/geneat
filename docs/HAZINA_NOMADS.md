@@ -1189,9 +1189,10 @@ Current local/live verification on **2026-06-04**:
   Frankfurt
 - `https://hazina-api.onrender.com/readyz` → healthy after the Frankfurt env
   cutover; direct DB/Redis latency is in-region fast
-- `scripts/hazina_live_check.py --skip-deep --direct-mock` → direct API chat is
-  fast; rerun after this commit deploys so the updated delivery-channel prompt
-  is live
+- `scripts/hazina_live_check.py --skip-deep` → passed against the Render portal
+  proxy + dedicated Hazina API after commit `1f75005` deployed
+- `scripts/hazina_live_check.py --skip-deep --direct-mock` → passed against
+  the dedicated Hazina API; catalog and checkout prompts are under the 4s gate
 - live API `/version` should be checked after each push; do not rely on an old
   commit pin in docs
 - On 2026-06-04, `https://hazina.lesnarai.co.ke` still resolves to Vercel and
@@ -1199,8 +1200,8 @@ Current local/live verification on **2026-06-04**:
   `https://hazina-portal.onrender.com` as the current Render truth until
   Cloudflare DNS is switched.
 - measured after Frankfurt env cutover: direct API `/readyz` is sub-second and
-  reports DB/Redis latency in the low-millisecond range; portal-proxy chat
-  still needs post-deploy smoke after DNS and this commit land
+  reports DB/Redis latency in the low-millisecond range; portal-proxy and
+  direct API chat both pass the no-money Hazina live check
 - The Render portal service has `ADMIN_API_TOKEN` synced from the live API so
   in-app chat can reach locked production `/mock/message`; `vercel.json`
   points the legacy Vercel fallback at `https://hazina-api.onrender.com`

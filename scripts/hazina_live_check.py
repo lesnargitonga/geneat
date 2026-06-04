@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import time
+import uuid
 from dataclasses import dataclass
 from typing import Any
 
@@ -189,7 +190,7 @@ async def check_base(
             )
         return await _post_portal_chat(client, portal_url, phone=phone, text=text)
 
-    phone = f"+254799{int(time.time()) % 1000000:06d}"
+    phone = f"+254799{uuid.uuid4().int % 1_000_000:06d}"
     async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
         for route in ("/version", "/readyz"):
             try:
