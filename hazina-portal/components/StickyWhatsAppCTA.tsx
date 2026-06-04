@@ -4,11 +4,13 @@ import { whatsappLink } from "@/lib/format";
 export function StickyWhatsAppCTA({
   message,
   label = "Private WhatsApp",
+  phone = BRAND.whatsapp,
 }: {
   message: string;
   label?: string;
+  phone?: string;
 }) {
-  const href = whatsappLink(BRAND.whatsapp, message);
+  const href = whatsappLink(phone, message);
 
   return (
     <div className="sticky-wa-cta fixed inset-x-0 bottom-0 z-40 border-t border-white/15 bg-[#111111]/72 px-3 py-2 shadow-editorial backdrop-blur-md transition-opacity duration-300 md:hidden">

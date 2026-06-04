@@ -5,20 +5,33 @@ import { ALL_CATEGORIES, CATEGORY_LABELS, TREASURES } from "@/lib/treasures";
 
 export async function GET() {
   const base = backendBase();
-  let livePhotoKeys = 0;
 
   try {
-    const res = await fetch(`${base}/catalog/businesses/hazina-nomads/menu-photos`, {
+    const res = await fetch(`${base}/catalog/businesses/hazina-nomads/hazina`, {
       cache: "no-store",
       signal: AbortSignal.timeout(5_000),
     });
     if (res.ok) {
       const body = await res.json().catch(() => ({}));
-      const photos = body?.menu_photos || body?.photos || {};
-      if (photos && typeof photos === "object") livePhotoKeys = Object.keys(photos).length;
+      const photos = body?.photos || {};
+      const categories = Array.isArray(body?.categories)
+        ? body.categories.map((id: string) => ({ id, label: CATEGORY_LABELS[id as keyof typeof CATEGORY_LABELS] || id }))
+        : ALL_CATEGORIES.map((id) => ({ id, label: CATEGORY_LABELS[id] }));
+      return NextResponse.json({
+        brand: { ...BRAND, ...(body?.brand || {}) },
+        collections: body?.collections || GIFT_BOXES,
+        treasures: body?.treasures || TREASURES,
+        categories,
+        backend: {
+          base,
+          source: body?.source || "backend",
+          livePhotoKeys: photos && typeof photos === "object" ? Object.keys(photos).length : 0,
+          backendTruth: Boolean(body?.backend_truth),
+        },
+      });
     }
   } catch {
-    livePhotoKeys = 0;
+    // Static fallback below keeps the storefront resilient during backend deploys.
   }
 
   return NextResponse.json({
@@ -28,7 +41,9 @@ export async function GET() {
     categories: ALL_CATEGORIES.map((id) => ({ id, label: CATEGORY_LABELS[id] })),
     backend: {
       base,
-      livePhotoKeys,
+      source: "static_fallback",
+      livePhotoKeys: 0,
+      backendTruth: false,
     },
   });
 }

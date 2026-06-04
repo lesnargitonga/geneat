@@ -5,9 +5,8 @@ import { CatalogImage } from "@/components/CatalogImage";
 import {
   GIFT_BOXES,
   getGiftBox,
-  BRAND,
-  getCollectionTreasureItems,
 } from "@/lib/products";
+import { collectionTreasureItems, getStorefrontCatalog } from "@/lib/catalog";
 import { CollectionItemsPreview } from "@/components/CollectionCard";
 import { CollectionCheckout } from "@/components/CollectionCheckout";
 import { formatDualPrice, formatUSD, whatsappLink } from "@/lib/format";
@@ -16,9 +15,7 @@ import { SmartBackLink } from "@/components/SmartBackLink";
 
 type Props = { params: { id: string } };
 
-export function generateStaticParams() {
-  return GIFT_BOXES.map((b) => ({ id: b.id }));
-}
+export const dynamic = "force-dynamic";
 
 const COLLECTION_SEO: Record<string, { title: string; description: string; keywords?: string[] }> = {
   "kenya-edit": {
@@ -46,16 +43,17 @@ export function generateMetadata({ params }: Props): Metadata {
   };
 }
 
-export default function CollectionDetailPage({ params }: Props) {
-  const box = getGiftBox(params.id);
+export default async function CollectionDetailPage({ params }: Props) {
+  const catalog = await getStorefrontCatalog();
+  const box = catalog.collections.find((item) => item.id === params.id) || getGiftBox(params.id);
   if (!box) notFound();
 
-  const items = getCollectionTreasureItems(box);
+  const items = collectionTreasureItems(box, catalog.treasures);
   const itemsSubtotalKes = items.reduce((s, t) => s + t.price_kes, 0);
   const itemsSubtotalUsd = items.reduce((s, t) => s + t.price_usd, 0);
   const orderMessage = `Hello Hazina Nomads — I'd like to order ${box.name}.`;
   const customizeWa = whatsappLink(
-    BRAND.whatsapp,
+    catalog.brand.whatsapp,
     `Hi — I'm interested in ${box.name} but would like to swap a few items inside.`,
   );
 
@@ -129,7 +127,7 @@ export default function CollectionDetailPage({ params }: Props) {
               Individual value ~{formatDualPrice(itemsSubtotalUsd, itemsSubtotalKes)} — collection price includes curation &amp; packaging
             </p>
           </div>
-          <CollectionItemsPreview box={box} />
+          <CollectionItemsPreview box={box} treasures={catalog.treasures} />
           <p className="text-ink-mute text-sm mt-10 max-w-xl leading-relaxed">
             Want to swap an item? Message us — we&apos;ll adjust your box while keeping the same delivery window.
           </p>
@@ -138,7 +136,7 @@ export default function CollectionDetailPage({ params }: Props) {
           </a>
         </section>
       </div>
-      <StickyWhatsAppCTA message={orderMessage} />
+      <StickyWhatsAppCTA message={orderMessage} phone={catalog.brand.whatsapp} />
     </>
   );
 }

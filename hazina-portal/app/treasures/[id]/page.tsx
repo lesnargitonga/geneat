@@ -3,15 +3,13 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CatalogImage } from "@/components/CatalogImage";
 import { SmartBackLink } from "@/components/SmartBackLink";
-import { TREASURES, CATEGORY_LABELS, getTreasure } from "@/lib/treasures";
-import { BRAND } from "@/lib/products";
+import { CATEGORY_LABELS, getTreasure } from "@/lib/treasures";
+import { getStorefrontCatalog } from "@/lib/catalog";
 import { formatDualPrice, whatsappLink } from "@/lib/format";
 
 type Props = { params: { id: string } };
 
-export function generateStaticParams() {
-  return TREASURES.map((t) => ({ id: t.id }));
-}
+export const dynamic = "force-dynamic";
 
 export function generateMetadata({ params }: Props): Metadata {
   const item = getTreasure(params.id);
@@ -22,15 +20,16 @@ export function generateMetadata({ params }: Props): Metadata {
   };
 }
 
-export default function TreasureDetailPage({ params }: Props) {
-  const item = getTreasure(params.id);
+export default async function TreasureDetailPage({ params }: Props) {
+  const catalog = await getStorefrontCatalog();
+  const item = catalog.treasures.find((treasure) => treasure.id === params.id) || getTreasure(params.id);
   if (!item) notFound();
 
   const wa = whatsappLink(
-    BRAND.whatsapp,
+    catalog.brand.whatsapp,
     `Hi — I'd like to add "${item.name}" (${item.sku}) to my gift box.`,
   );
-  const related = TREASURES.filter((t) => t.category === item.category && t.id !== item.id).slice(0, 4);
+  const related = catalog.treasures.filter((t) => t.category === item.category && t.id !== item.id).slice(0, 4);
 
   return (
     <>

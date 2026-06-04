@@ -77,9 +77,24 @@ PARTNER_REFERRAL_CODE=REF-HOST-001
 
 ## Catalog source of truth
 
-1. Edit **`app/catalog/hazina_catalog.py`** (backend)
-2. Mirror **`lib/products.ts`** and **`lib/treasures.ts`**
+Authoritative catalog truth lives in **`app/catalog/hazina_catalog.py`**.
+
+The portal now prefers:
+
+```text
+GET {BACKEND_URL}/catalog/businesses/hazina-nomads/hazina
+```
+
+and falls back to `lib/products.ts` / `lib/treasures.ts` only when the backend
+is unavailable during a deploy window. Keep the TypeScript files as a resilience
+fallback, but do not treat them as the production source of truth.
+
+After catalog edits:
+
+1. Edit **`app/catalog/hazina_catalog.py`**.
+2. Run the catalog contract tests.
 3. Re-seed: `PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py`
+4. Deploy backend before portal if the portal depends on new catalog fields.
 
 Packaging fee: **USD 45 / KES 5,800**. Minimum custom items: **2**.
 
@@ -106,6 +121,20 @@ python scripts/check_asset_images.py
 ## Deploy
 
 Render service `hazina-portal` in `render.yaml` → `hazina.lesnarai.co.ke`.
+
+The Render blueprint targets Frankfurt resources:
+
+```text
+hazina-api          frankfurt
+hazina-portal       frankfurt
+hazina-postgres-fra frankfurt
+hazina-redis-fra    frankfurt
+```
+
+Existing managed resources named `hazina-postgres` or `hazina-redis` in Oregon
+are legacy resources. Render does not move a managed database/Redis instance
+when a region env var changes; create/attach the Frankfurt resources and point
+`DATABASE_URL`, `DATABASE_URL_SYNC`, and `REDIS_URL` at the Frankfurt instances.
 
 **www alias:** In Vercel (or your DNS host), add `www.hazina.lesnarai.co.ke` as a domain alias pointing at the same project. Middleware + `next.config` redirect `www` → apex. Without the DNS record, `www` will not resolve for guests.
 

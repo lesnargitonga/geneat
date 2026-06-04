@@ -91,8 +91,8 @@ Seed profile still has legacy hex `#B85C38` — align at design lock if needed.
 
 | Catalog type | Count | Backend source | Portal source | WhatsApp | RAG |
 |---|---|---|---|---|---|
-| **Curated collections** | 5 | `HAZINA_COLLECTIONS` | `lib/products.ts` → `GIFT_BOXES` | ✅ Menu + automation | ✅ 5 chunks |
-| **Individual treasures** | 33 | `HAZINA_TREASURES` | `lib/treasures.ts` → `TREASURES` | ✅ Custom box SKU parser | ✅ 33 chunks after re-seed |
+| **Curated collections** | 5 | `HAZINA_COLLECTIONS` | backend catalog endpoint; TS fallback `GIFT_BOXES` | ✅ Menu + automation | ✅ 5 chunks |
+| **Individual treasures** | 33 | `HAZINA_TREASURES` | backend catalog endpoint; TS fallback `TREASURES` | ✅ Custom box SKU parser | ✅ 33 chunks after re-seed |
 | **Custom box / private brief** | 2+ items + optional packaging + monograms | `MIN_CUSTOM_ITEMS`, `PACKAGING_FEE_*`, `ENGRAVING_FEE_*` | `PackBuilder.tsx` | ✅ Brief + bespoke block | ✅ policy chunks |
 
 **Constants (shared backend):**
@@ -175,7 +175,7 @@ Seed profile still has legacy hex `#B85C38` — align at design lock if needed.
 ### 2.2 Individual treasures (33 items — full table)
 
 **Backend:** `app/catalog/hazina_catalog.py` → `HAZINA_TREASURES`  
-**Portal:** `hazina-portal/lib/treasures.ts`  
+**Portal:** prefers `GET /catalog/businesses/hazina-nomads/hazina`; `hazina-portal/lib/treasures.ts` is fallback only.
 **Images:** `hazina-portal/public/treasures/` — **33/33 treasures mapped** in `HAZINA_TREASURE_IMAGES` (coastal SKUs reuse provisional assets until dedicated shoots).
 
 **Swahili Coast (new):**
@@ -726,6 +726,11 @@ Gen-Eat café tenants (`lily-pond-cafe`, etc.) remain in DB; demo path stays on 
 
 **Render `hazina-portal` service env:**
 
+**Frankfurt cutover truth:** old `hazina-postgres` / `hazina-redis` resources
+in Oregon are legacy migration sources only. Dedicated Hazina traffic must use
+`hazina-postgres-fra` and `hazina-redis-fra`, with `DATABASE_URL`,
+`DATABASE_URL_SYNC`, and `REDIS_URL` pointing at those Frankfurt resources.
+
 - `NODE_ENV=production`
 - `BACKEND_URL` / `NEXT_PUBLIC_BACKEND_URL` → `https://api.lesnarai.co.ke`
 - `NEXT_PUBLIC_HAZINA_WHATSAPP`, `NEXT_PUBLIC_HAZINA_PHONE` (secrets)
@@ -774,8 +779,8 @@ No `/cafes`, `/map`, or `/owners` — those live only in `gen-eat-portal/`.
 
 | Asset | Path | Notes |
 |---|---|---|
-| Curated collections | `lib/products.ts` | `GIFT_BOXES`, `itemIds[]`, `BRAND`, images |
-| Individual treasures | `lib/treasures.ts` | 30 SKUs; packaging excluded from build grid |
+| Curated collections | backend catalog endpoint; fallback `lib/products.ts` | `GIFT_BOXES`, `itemIds[]`, `BRAND`, images |
+| Individual treasures | backend catalog endpoint; fallback `lib/treasures.ts` | 33 SKUs; packaging excluded from build grid |
 | Format helpers | `lib/format.ts` | `formatUSD`, `formatKES`, `whatsappLink` |
 | Order tracking fetch | `lib/orderTracking.ts`, `lib/backend.ts` | Server fetch → FastAPI public orders API |
 | Collection card | `components/CollectionCard.tsx` | Image link + stacked prices + View details / Add to box / Ask concierge |
@@ -1111,8 +1116,8 @@ Routes through `resolve_payment_service(currency=…)`.
 | **AI tools** | `app/ai/tools.py` | ✅ USD fields, hybrid payment tool |
 | **Render cutover** | `render.yaml` | ✅ `hazina-nomads` default + portal + Paystack env keys |
 | **Standalone portal** | `hazina-portal/` | ✅ 55 generated static pages (see §9.1) |
-| **Collections (portal)** | `hazina-portal/lib/products.ts` | ✅ |
-| **Treasures (portal)** | `hazina-portal/lib/treasures.ts` | ✅ |
+| **Collections (portal)** | backend catalog endpoint; `hazina-portal/lib/products.ts` fallback | ✅ |
+| **Treasures (portal)** | backend catalog endpoint; `hazina-portal/lib/treasures.ts` fallback | ✅ |
 | **KB sync service** | `app/services/hazina_kb.py` | ✅ `sync_hazina_knowledge_base` + treasure chunks |
 | **Portal API** | `app/api/chat`, `catalog`, `health`, `partners/*` | ✅ |
 | **Collection checkout** | `components/CollectionCheckout.tsx` | ✅ |

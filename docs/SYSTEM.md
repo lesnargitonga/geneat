@@ -90,6 +90,12 @@ For Kenya/Europe-facing traffic, the target region is Frankfurt:
 existing resources between regions, so old Oregon datastores are migration
 sources only, not the final traffic target.
 
+**Render region truth:** if the dashboard still shows `hazina-postgres` or
+`hazina-redis` in Oregon, those are legacy managed resources. The live cutover
+must use newly created/attached Frankfurt resources named `hazina-postgres-fra`
+and `hazina-redis-fra`, and the API env must point `DATABASE_URL`,
+`DATABASE_URL_SYNC`, and `REDIS_URL` at those Frankfurt connection strings.
+
 **Resilience armor in code (current):**
 - Meta webhook ACK is decoupled via durable `whatsapp.inbound` jobs.
 - AI turn execution is bounded with `asyncio.wait_for` and one retry window.
@@ -117,8 +123,9 @@ sources only, not the final traffic target.
 
 | Path | Role |
 |---|---|
-| `app/catalog/hazina_catalog.py` | **Canonical Hazina catalog** — mirror to TS, then seed |
-| `hazina-portal/lib/products.ts` `lib/treasures.ts` | Portal mirror |
+| `app/catalog/hazina_catalog.py` | **Canonical Hazina catalog** for backend, WA automation, KB, and portal API |
+| `app/api/catalog.py` | Public `GET /catalog/businesses/hazina-nomads/hazina` catalog endpoint |
+| `hazina-portal/lib/products.ts` `lib/treasures.ts` | Static fallback only when backend catalog is unavailable |
 | `app/services/gift_automation.py` | Hazina WA: menus, brief, checkout, pay |
 | `app/services/order_tracking.py` `app/api/public_orders.py` | Tracking + public GET |
 | `app/services/ops_automation.py` | `!dispatch` / `!delivered` |
@@ -166,7 +173,10 @@ Order: `order.details.payment_currency`, `amount_usd`, `items`, `fulfillment_sta
 | Packaging | USD 45 / KES 5,800 (`HN-T-070`) |
 | Engraving | USD 15 / KES 1,950 per line · SKU `HN-FEE-ENGRAVING` on order |
 
-**Sync:** `hazina_catalog.py` → `lib/*.ts` → `PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py`
+**Sync:** edit `hazina_catalog.py` → deploy backend catalog endpoint → seed KB
+with `PYTHONPATH=. ./.venv/bin/python scripts/seed_hazina_nomads.py`. The
+portal server loader prefers the backend endpoint and uses TypeScript catalog
+files only as outage/build fallback.
 
 ### Portal (customer)
 
@@ -235,7 +245,7 @@ Same WA number as Hazina only if routing is confirmed — do not mix demos blind
 
 | Issue | Sev |
 |---|---|
-| Py + TS catalog must stay in sync | High |
+| ~~Py + TS catalog must stay in sync as primary truth~~ | ✅ backend catalog endpoint is primary; TS is fallback |
 | ~~Engraving not structured on `order.details`~~ | ✅ `engravings[]`, `bespoke_request` on finalize |
 | ~~Engraving fee not line-item SKU~~ | ✅ `HN-FEE-ENGRAVING` line in `details.items` |
 | Ghost Ops scans last 500 orders | Med |

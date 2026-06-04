@@ -8,6 +8,8 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from app.catalog.hazina_catalog import build_hazina_menu_photos, hazina_catalog_search_payload
+from app.core.config import get_settings
 from app.services.menu_photos import MENU_PHOTOS
 from app.db.session import SessionLocal
 from app.services.business_service import get_business_by_slug
@@ -18,6 +20,31 @@ router = APIRouter(prefix="/catalog", tags=["catalog"])
 class MenuPhotoCatalogOut(BaseModel):
     slug: str
     photos: dict[str, str]
+
+
+@router.get("/businesses/{slug}/hazina")
+async def get_hazina_catalog(slug: str) -> dict:
+    """Read-only Hazina catalog truth for the portal and LangGraph-adjacent clients.
+
+    This endpoint intentionally does not depend on tenant DB seed state. It lets
+    the storefront and automation read the same catalog module even during
+    first-boot or migration windows.
+    """
+    if slug != "hazina-nomads":
+        raise HTTPException(status_code=404, detail=f"Hazina catalog is not available for '{slug}'")
+
+    settings = get_settings()
+    payload = hazina_catalog_search_payload()
+    payload["brand"] = {
+        "name": "Hazina Nomads",
+        "tagline": "Private sourcing concierge for premium Kenyan heritage.",
+        "triad": "Bespoke Curation · Seamless Logistics · Global Export",
+        "pillars": ["Bespoke Curation", "Seamless Logistics", "Global Export"],
+        "meaning": "Hazina = treasure (Swahili)",
+    }
+    payload["photos"] = build_hazina_menu_photos(settings.public_hazina_portal_url)
+    payload["backend_truth"] = True
+    return payload
 
 
 @router.get("/businesses/{slug}/menu-photos", response_model=MenuPhotoCatalogOut)

@@ -389,9 +389,14 @@ def hazina_catalog_search_payload() -> dict[str, Any]:
             "price_usd": row["price_usd"],
             "price_kes": row["price_kes"],
             "lead_time_hours": row["lead_time_hours"],
+            "target": row.get("target"),
             "personalization": bool(row.get("personalization")),
+            "personalization_note": row.get("personalization_note"),
             "jkia_only": bool(row.get("jkia_only")),
+            "express_departure": bool(row.get("jkia_only")),
             "contents": row.get("contents"),
+            "item_ids": list(row.get("item_ids") or []),
+            "image": HAZINA_COLLECTION_IMAGES.get(row["id"]),
         }
         for row in HAZINA_COLLECTIONS
     ]
@@ -404,6 +409,10 @@ def hazina_catalog_search_payload() -> dict[str, Any]:
             "price_kes": row["price_kes"],
             "category": row.get("category"),
             "is_engravable": bool(row.get("is_engravable")),
+            "description": row.get("description"),
+            "lead_time_hours": row.get("lead_time_hours"),
+            "personalization": bool(row.get("personalization")),
+            "image": HAZINA_TREASURE_IMAGES.get(row["id"]),
         }
         for row in HAZINA_TREASURES
     ]

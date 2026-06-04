@@ -2,11 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChatWidget } from "@/components/ChatWidget";
 import { CatalogImage } from "@/components/CatalogImage";
-import { BRAND, BRAND_IMAGES, GIFT_BOXES } from "@/lib/products";
+import { BRAND_IMAGES } from "@/lib/products";
+import { getStorefrontCatalog } from "@/lib/catalog";
 import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
 
-export default function HomePage() {
-  const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like help with bespoke curation.");
+export default async function HomePage() {
+  const catalog = await getStorefrontCatalog();
+  const wa = whatsappLink(catalog.brand.whatsapp, "Hello Hazina Nomads — I'd like help with bespoke curation.");
 
   return (
     <>
@@ -53,7 +55,7 @@ export default function HomePage() {
 
           <div className="-mx-5 overflow-x-auto px-5 pb-2 local-scroll-x lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0">
             <div className="flex min-w-max gap-4 lg:grid lg:min-w-0 lg:grid-cols-5">
-              {GIFT_BOXES.map((box, index) => (
+              {catalog.collections.map((box, index) => (
                 <Link
                   key={box.id}
                   href={`/collections/${box.id}`}

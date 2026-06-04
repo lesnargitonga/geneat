@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { BRAND, GIFT_BOXES } from "@/lib/products";
+import { getStorefrontCatalog } from "@/lib/catalog";
 import { whatsappLink } from "@/lib/format";
 import { CollectionCard } from "@/components/CollectionCard";
 import { StickyWhatsAppCTA } from "@/components/StickyWhatsAppCTA";
@@ -11,9 +11,10 @@ export const metadata: Metadata = {
     "Five curated Kenyan heritage collections for travellers, backed by bespoke curation, seamless logistics, and global export.",
 };
 
-export default function CollectionsPage() {
+export default async function CollectionsPage() {
+  const catalog = await getStorefrontCatalog();
   const orderMessage = "Hello Hazina Nomads — I'd like to order a gift collection.";
-  const wa = whatsappLink(BRAND.whatsapp, orderMessage);
+  const wa = whatsappLink(catalog.brand.whatsapp, orderMessage);
 
   return (
     <>
@@ -32,8 +33,14 @@ export default function CollectionsPage() {
 
       <div className="container-page">
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
-          {GIFT_BOXES.map((box, index) => (
-            <CollectionCard key={box.id} box={box} priority={index === 0} />
+          {catalog.collections.map((box, index) => (
+            <CollectionCard
+              key={box.id}
+              box={box}
+              priority={index === 0}
+              brandPhone={catalog.brand.whatsapp}
+              treasures={catalog.treasures}
+            />
           ))}
         </div>
       </div>
@@ -55,7 +62,7 @@ export default function CollectionsPage() {
         </div>
       </section>
 
-      <StickyWhatsAppCTA message={orderMessage} />
+      <StickyWhatsAppCTA message={orderMessage} phone={catalog.brand.whatsapp} />
     </>
   );
 }

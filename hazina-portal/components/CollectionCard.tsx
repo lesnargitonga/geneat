@@ -2,23 +2,36 @@ import Link from "next/link";
 import { CatalogImage } from "@/components/CatalogImage";
 import type { GiftBox } from "@/lib/products";
 import { BRAND, getCollectionPackaging, getCollectionTreasureItems } from "@/lib/products";
+import { TREASURES, type Treasure } from "@/lib/treasures";
 import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
 
 type Props = {
   box: GiftBox;
   className?: string;
   priority?: boolean;
+  brandPhone?: string;
+  treasures?: Treasure[];
 };
 
-export function CollectionCard({ box, className = "", priority }: Props) {
-  const treasures = getCollectionTreasureItems(box);
-  const itemCount = treasures.length;
-  const fallbackImage = treasures.find((t) => t.image)?.image ?? null;
+function treasureItemsForBox(box: GiftBox, treasures: Treasure[] = TREASURES) {
+  const ids = new Set(box.itemIds || []);
+  return treasures.filter((item) => ids.has(item.id) && item.category !== "packaging");
+}
+
+function packagingForBox(box: GiftBox, treasures: Treasure[] = TREASURES) {
+  const ids = new Set(box.itemIds || []);
+  return treasures.find((item) => ids.has(item.id) && item.category === "packaging");
+}
+
+export function CollectionCard({ box, className = "", priority, brandPhone = BRAND.whatsapp, treasures }: Props) {
+  const items = treasures ? treasureItemsForBox(box, treasures) : getCollectionTreasureItems(box);
+  const itemCount = items.length;
+  const fallbackImage = items.find((t) => t.image)?.image ?? null;
   const heroBackground = fallbackImage
     ? `url("${box.image}"), url("${fallbackImage}")`
     : `url("${box.image}")`;
   const waUrl = whatsappLink(
-    BRAND.whatsapp,
+    brandPhone,
     `Hello Hazina Nomads — I'd like to reserve the ${box.name} collection.`,
   );
 
@@ -95,9 +108,9 @@ export function CollectionCard({ box, className = "", priority }: Props) {
   );
 }
 
-export function CollectionItemsPreview({ box }: { box: GiftBox }) {
-  const treasures = getCollectionTreasureItems(box);
-  const packaging = getCollectionPackaging(box);
+export function CollectionItemsPreview({ box, treasures: liveTreasures }: { box: GiftBox; treasures?: Treasure[] }) {
+  const treasures = liveTreasures ? treasureItemsForBox(box, liveTreasures) : getCollectionTreasureItems(box);
+  const packaging = liveTreasures ? packagingForBox(box, liveTreasures) : getCollectionPackaging(box);
   if (!treasures.length) return null;
 
   return (
