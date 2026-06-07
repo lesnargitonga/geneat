@@ -15,6 +15,7 @@ Hybrid architecture: **deterministic gate** (`hazina_deterministic_gate.py`) han
 ```bash
 cd "/home/lesnar/Documents/ai model"
 .venv/bin/python scripts/hazina_generate_finetune_dataset.py --target-count 1000 --golden-multiplier 8
+.venv/bin/python scripts/hazina_generate_finetune_dataset.py --target-count 1000 --golden-multiplier 8 --sample 2
 ```
 
 Outputs:

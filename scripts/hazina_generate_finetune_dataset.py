@@ -6,6 +6,7 @@ Output: ShareGPT-style ``messages`` rows for Unsloth / Axolotl / TRL.
 Usage:
   python scripts/hazina_generate_finetune_dataset.py
   python scripts/hazina_generate_finetune_dataset.py --target-count 1000 --out training/hazina/out
+  python scripts/hazina_generate_finetune_dataset.py --target-count 100 --sample 2
 """
 from __future__ import annotations
 
@@ -454,6 +455,12 @@ def main() -> int:
         default=8,
         help="Repeat each golden row N times before synthetic expansion (tone anchoring).",
     )
+    parser.add_argument(
+        "--sample",
+        type=int,
+        default=0,
+        help="Print this many generated examples after writing the dataset.",
+    )
     args = parser.parse_args()
 
     args.out.mkdir(parents=True, exist_ok=True)
@@ -492,6 +499,10 @@ def main() -> int:
         json.dumps(meta, indent=2), encoding="utf-8",
     )
     print(f"Wrote {len(train_rows)} train + {len(val_rows)} val rows → {args.out}")
+    if args.sample > 0:
+        for i, row in enumerate(rows[: args.sample], start=1):
+            print(f"\n--- sample {i} ---")
+            print(json.dumps(row, ensure_ascii=False, indent=2))
     return 0
 
 
