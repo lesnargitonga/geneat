@@ -51,6 +51,7 @@ export default function HostsGuidesPage() {
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 50vw"
               priority
+              unoptimized
             />
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-6 md:p-8">
               <p className="font-serif text-2xl text-sand">

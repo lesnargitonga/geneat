@@ -24,9 +24,9 @@ export type GiftBox = {
 
 /** Brand / atmosphere imagery (not tied to a single SKU). */
 export const BRAND_IMAGES = {
-  atelierRoom: "/treasures/afrohemian-room.jpg",
-  artisanMarket: "/treasures/african-market-shop.jpg",
-  safariSunset: "/brand/safari-sunset.jpg",
+  atelierRoom: "/treasures/afrohemian-room.webp",
+  artisanMarket: "/treasures/african-market-shop.webp",
+  safariSunset: "/brand/safari-sunset.webp",
 } as const;
 
 export const BRAND = {
@@ -55,7 +55,7 @@ export const GIFT_BOXES: GiftBox[] = [
     itemIds: ["premium-coffee-250g", "maasai-bracelet", "soapstone-big-five", "premium-packaging"],
     lead_time_hours: 24,
     emoji: "🎁",
-    image: "/treasures/kenya-edit-hero.jpg",
+    image: "/treasures/kenya-edit-hero.webp",
     imageAlt: "Open Hazina collection with Kenyan coffee, beadwork, story card, and heritage carving",
     sourceImage: "kenya-edit-hero.jpg",
   },
@@ -71,7 +71,7 @@ export const GIFT_BOXES: GiftBox[] = [
     itemIds: ["premium-coffee-250g", "loose-leaf-tea", "raw-honey", "premium-packaging"],
     lead_time_hours: 24,
     emoji: "☕",
-    image: "/treasures/highland-treasure-hero.jpg",
+    image: "/treasures/highland-treasure-hero.webp",
     imageAlt: "Hazina Highland Treasure gift box with coffee, tea, honey, and carved spoon",
     sourceImage: "highland-treasure-hero.jpg",
   },
@@ -89,7 +89,7 @@ export const GIFT_BOXES: GiftBox[] = [
     personalization: true,
     personalization_note: "Engraving requires 24-hour notice",
     emoji: "🧳",
-    image: "/treasures/nomad-leather-set-hero.jpg",
+    image: "/treasures/nomad-leather-set-hero.webp",
     imageAlt: "Hazina leather passport holder, luggage tag, and travel journal on a timber table",
     sourceImage: "nomad-leather-set-hero.jpg",
   },
@@ -113,7 +113,7 @@ export const GIFT_BOXES: GiftBox[] = [
     lead_time_hours: 48,
     personalization: true,
     emoji: "💝",
-    image: "/treasures/safari-romance-box-hero.jpg",
+    image: "/treasures/safari-romance-box-hero.webp",
     imageAlt: "Safari Romance gift box with beadwork, leather tag, and keepsakes at sunset",
     sourceImage: "safari-romance-box-hero.jpg",
   },
@@ -129,7 +129,7 @@ export const GIFT_BOXES: GiftBox[] = [
     lead_time_hours: 4,
     express_departure: true,
     emoji: "✈️",
-    image: "/treasures/departure-drop-hero.jpg",
+    image: "/treasures/departure-drop-hero.webp",
     imageAlt: "Hazina Departure Drop box with leather, tea, coffee, honey, and travel gifts",
     sourceImage: "departure-drop-hero.jpg",
   },

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     title: "Bespoke Curation · Hazina Nomads",
     description:
       "Private Kenyan heritage sourcing through bespoke curation, seamless logistics, and global export.",
-    images: [{ url: "/brand/safari-sunset.jpg", alt: "Kenyan safari sunset for Hazina Nomads" }],
+    images: [{ url: "/brand/safari-sunset.webp", alt: "Kenyan safari sunset for Hazina Nomads" }],
   },
 };
 
@@ -134,11 +134,12 @@ export default function SafariSouvenirsPage() {
       {/* Full-width transition — photography only, caption below the fade */}
       <section className="relative w-full min-h-[38vh] md:min-h-[46vh]">
         <Image
-          src="/brand/safari-sunset.jpg"
+          src="/brand/safari-sunset.webp"
           alt="Kenyan sunset for Hazina Nomads private curation"
           fill
           className="object-cover object-center"
           sizes="100vw"
+          unoptimized
         />
         <div className="absolute inset-0 bg-black/40" aria-hidden />
         <div

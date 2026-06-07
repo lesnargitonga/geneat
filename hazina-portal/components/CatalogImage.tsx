@@ -81,6 +81,7 @@ export function CatalogImage({
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
           quality={priority ? 80 : 68}
+          unoptimized
           onError={handleError}
         />
       ) : (

@@ -24,6 +24,24 @@ const nextConfig = {
       { source: "/api/backend/:path*", destination: "http://localhost:8000/:path*" },
     ];
   },
+  async headers() {
+    const staticImageHeaders = [
+      {
+        key: "Cache-Control",
+        value: "public, max-age=31536000, immutable",
+      },
+    ];
+    return [
+      {
+        source: "/brand/:path*",
+        headers: staticImageHeaders,
+      },
+      {
+        source: "/treasures/:path*",
+        headers: staticImageHeaders,
+      },
+    ];
+  },
   async redirects() {
     return [
       {

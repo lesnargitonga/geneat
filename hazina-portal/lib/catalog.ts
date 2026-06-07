@@ -23,9 +23,16 @@ const STATIC_TREASURE_BY_ID = new Map(TREASURES.map((item) => [item.id, item]));
 let storefrontCache: { expiresAt: number; value: StorefrontCatalog } | null = null;
 let storefrontRequest: Promise<StorefrontCatalog> | null = null;
 
+function fastLocalImage(src?: string | null): string | null {
+  if (!src) return null;
+  if (!src.startsWith("/brand/") && !src.startsWith("/treasures/")) return src;
+  return src.replace(/\.(?:jpe?g|png)$/i, ".webp");
+}
+
 function normalizeCollection(row: Partial<GiftBox> & { item_ids?: string[]; jkia_only?: boolean }): GiftBox | null {
   if (!row.id || !row.sku || !row.name || row.price_usd == null || row.price_kes == null) return null;
   const fallback = STATIC_COLLECTION_BY_ID.get(row.id);
+  const image = fastLocalImage(row.image) || fastLocalImage(fallback?.image);
   return {
     id: row.id,
     sku: row.sku,
@@ -40,7 +47,7 @@ function normalizeCollection(row: Partial<GiftBox> & { item_ids?: string[]; jkia
     personalization_note: row.personalization_note || fallback?.personalization_note,
     express_departure: Boolean(row.express_departure ?? row.jkia_only ?? fallback?.express_departure),
     emoji: fallback?.emoji || "",
-    image: row.image || fallback?.image || null,
+    image,
     imageAlt: row.imageAlt || fallback?.imageAlt || row.name,
     sourceImage: row.sourceImage || fallback?.sourceImage,
   };
@@ -49,6 +56,7 @@ function normalizeCollection(row: Partial<GiftBox> & { item_ids?: string[]; jkia
 function normalizeTreasure(row: Partial<Treasure> & { is_engravable?: boolean }): Treasure | null {
   if (!row.id || !row.sku || !row.name || !row.category || row.price_usd == null || row.price_kes == null) return null;
   const fallback = STATIC_TREASURE_BY_ID.get(row.id);
+  const image = fastLocalImage(row.image) || fastLocalImage(fallback?.image);
   return {
     id: row.id,
     sku: row.sku,
@@ -56,7 +64,7 @@ function normalizeTreasure(row: Partial<Treasure> & { is_engravable?: boolean })
     category: row.category,
     price_usd: Number(row.price_usd),
     price_kes: Number(row.price_kes),
-    image: row.image || fallback?.image || null,
+    image,
     imageAlt: row.imageAlt || fallback?.imageAlt || row.name,
     sourceImage: row.sourceImage || fallback?.sourceImage,
     description: row.description || fallback?.description || "",
