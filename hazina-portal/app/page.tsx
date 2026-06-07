@@ -51,7 +51,7 @@ export default async function HomePage() {
                 rel="noopener noreferrer"
                 className="btn-outline border-white/60 text-white hover:bg-sand hover:text-obsidian"
               >
-                Order on WhatsApp
+                Speak with Concierge
               </a>
             </div>
           </div>

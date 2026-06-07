@@ -31,12 +31,12 @@ export const BRAND_IMAGES = {
 
 export const BRAND = {
   name: "Hazina Nomads",
-  tagline: "Private sourcing concierge for premium Kenyan heritage.",
+  tagline: "Bespoke Kenyan treasures, curated for your journey.",
   triad: "Bespoke Curation · Seamless Logistics · Global Export",
   pillars: ["Bespoke Curation", "Seamless Logistics", "Global Export"],
   meaning: "Hazina = treasure (Swahili)",
-  whatsapp: process.env.NEXT_PUBLIC_HAZINA_WHATSAPP || "15556578220",
-  phone: process.env.NEXT_PUBLIC_HAZINA_PHONE || "+1 555 657 8220",
+  whatsapp: process.env.NEXT_PUBLIC_HAZINA_WHATSAPP || "",
+  phone: process.env.NEXT_PUBLIC_HAZINA_PHONE || "",
   email: "concierge@hazina-nomads.com",
 };
 

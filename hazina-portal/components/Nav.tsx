@@ -74,7 +74,7 @@ export function Nav() {
                 : "text-ink-soft hover:text-obsidian translate-y-0.5 opacity-90"
             }`}
           >
-            Order on WhatsApp
+            Speak with Concierge
           </a>
         </div>
         <div className="md:hidden flex items-center gap-2">
@@ -113,7 +113,7 @@ export function Nav() {
               className="btn-bronze w-full mt-2"
               onClick={() => setOpen(false)}
             >
-              Order on WhatsApp
+              Speak with Concierge
             </a>
             <button
               type="button"
