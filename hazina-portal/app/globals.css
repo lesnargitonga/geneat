@@ -5,8 +5,8 @@
 @layer base {
   :root {
     color-scheme: light;
-    --color-sand: 250 248 245;
-    --color-sand-dark: 240 235 227;
+    --color-sand: 242 236 226;
+    --color-sand-dark: 228 219 206;
     --color-obsidian: 28 26 23;
     --color-obsidian-soft: 42 39 35;
     --color-ink: 28 26 23;
@@ -15,7 +15,7 @@
     --color-bronze: 166 124 82;
     --color-bronze-dark: 139 102 66;
     --color-bronze-light: 201 168 130;
-    --color-border: 234 230 223;
+    --color-border: 216 205 190;
     --color-sage: 139 154 107;
     --color-sage-soft: 232 237 224;
   }
@@ -204,11 +204,11 @@
    */
   .catalog-photo-frame {
     @apply relative overflow-hidden;
-    background-color: #f5f0e8;
+    background-color: #eee5d8;
   }
 
   :root[data-theme="night"] .catalog-photo-frame {
-    background-color: #f0ebe3;
+    background-color: #eee5d8;
     border: 1px solid rgb(var(--color-border));
   }
 
@@ -258,7 +258,7 @@
   .concierge-shell {
     @apply flex flex-col overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,0.45)];
     border: 1px solid rgb(202 167 119 / 0.22);
-    background: linear-gradient(180deg, #f7f2ea 0%, #efe8dc 100%);
+    background: linear-gradient(180deg, #eee5d8 0%, #e6dac9 100%);
   }
 
   .concierge-header {
@@ -269,7 +269,7 @@
   .concierge-canvas {
     background:
       radial-gradient(120% 80% at 100% 0%, rgb(202 167 119 / 0.08), transparent 55%),
-      linear-gradient(180deg, #f6f1e8 0%, #efe7da 100%);
+      linear-gradient(180deg, #eee5d8 0%, #e5d8c6 100%);
   }
 
   .concierge-bubble-user {

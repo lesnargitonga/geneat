@@ -48,7 +48,7 @@ export function CatalogImage({
   const showImage = Boolean(activeSrc) && !failed;
   const useLightbox = tone === "warm";
 
-  const frameClass = useLightbox ? "catalog-photo-frame bg-[#f5f0e8]" : "bg-sand-dark";
+  const frameClass = useLightbox ? "catalog-photo-frame bg-[#eee5d8]" : "bg-sand-dark";
 
   const handleError = () => {
     if (index < candidates.length - 1) {

@@ -49,7 +49,7 @@ export default async function HomePage() {
                 href={wa}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-outline border-white/60 text-white hover:bg-white hover:text-black"
+                className="btn-outline border-white/60 text-white hover:bg-sand hover:text-black"
               >
                 Order on WhatsApp
               </a>
