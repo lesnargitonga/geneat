@@ -17,11 +17,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.PUBLIC_HAZINA_PORTAL_URL || "https://hazina.lesnarai.co.ke"),
   title: "Hazina Nomads · Private Sourcing Concierge",
   description:
-    "Premium Kenyan heritage concierge for travellers: bespoke curation, seamless logistics, and global export.",
+    "Bespoke Kenyan treasures, curated for your journey through private sourcing, seamless logistics, and global export.",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1C1A17",
+  themeColor: "#0D1B14",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
