@@ -8,6 +8,7 @@ import BusinessDetail from "@/pages/BusinessDetail";
 import ConversationViewer from "@/pages/ConversationViewer";
 import AuditPage from "@/pages/Audit";
 import LiveStream from "@/pages/LiveStream";
+import HazinaCommandCenter from "@/pages/HazinaCommandCenter";
 
 function Protected({ children }: { children: JSX.Element }) {
   const { user, loading } = useAuth();
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="businesses/:slug/*" element={<BusinessDetail />} />
         <Route path="conversations/:id" element={<ConversationViewer />} />
         <Route path="live" element={<LiveStream />} />
+        <Route path="hazina" element={<HazinaCommandCenter />} />
         <Route path="audit" element={<AuditPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

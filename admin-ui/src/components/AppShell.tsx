@@ -5,6 +5,7 @@ import clsx from "clsx";
 const nav = [
   { to: "/", label: "Dashboard", end: true, icon: "◎" },
   { to: "/live", label: "Live", icon: "◉" },
+  { to: "/hazina", label: "Hazina", icon: "HN" },
   { to: "/businesses", label: "Businesses", icon: "▤" },
   { to: "/audit", label: "Audit", icon: "⌘" },
 ];
