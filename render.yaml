@@ -154,8 +154,15 @@ services:
         value: production
       - key: BACKEND_URL
         value: https://hazina-api.onrender.com
+      - key: BACKEND_INTERNAL_HOSTPORT
+        fromService:
+          type: web
+          name: hazina-api
+          property: hostport
       - key: NEXT_PUBLIC_BACKEND_URL
         value: https://hazina-api.onrender.com
+      - key: HAZINA_CATALOG_CACHE_SECONDS
+        value: "300"
       - key: PUBLIC_HAZINA_PORTAL_URL
         value: https://hazina.lesnarai.co.ke
       - key: NEXT_PUBLIC_HAZINA_WHATSAPP

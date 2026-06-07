@@ -9,6 +9,8 @@ export const metadata: Metadata = {
     "Compose Savannah treasures and Swahili Coast artifacts with optional monograms and bespoke sourcing notes for our concierge.",
 };
 
+export const revalidate = 300;
+
 export default async function BuildPage({
   searchParams,
 }: {

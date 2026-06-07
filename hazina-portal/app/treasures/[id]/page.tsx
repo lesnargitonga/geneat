@@ -3,13 +3,17 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CatalogImage } from "@/components/CatalogImage";
 import { SmartBackLink } from "@/components/SmartBackLink";
-import { CATEGORY_LABELS, getTreasure } from "@/lib/treasures";
+import { CATEGORY_LABELS, TREASURES, getTreasure } from "@/lib/treasures";
 import { getStorefrontCatalog } from "@/lib/catalog";
 import { formatDualPrice, whatsappLink } from "@/lib/format";
 
 type Props = { params: { id: string } };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
+
+export function generateStaticParams() {
+  return TREASURES.map((item) => ({ id: item.id }));
+}
 
 export function generateMetadata({ params }: Props): Metadata {
   const item = getTreasure(params.id);

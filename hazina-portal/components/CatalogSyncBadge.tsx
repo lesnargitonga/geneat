@@ -17,7 +17,7 @@ export function CatalogSyncBadge() {
   useEffect(() => {
     const controller = new AbortController();
     const timer = window.setTimeout(() => controller.abort(), 6_000);
-    fetch("/api/catalog", { cache: "no-store", signal: controller.signal })
+    fetch("/api/catalog", { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error("catalog unavailable"))))
       .then((body) => setPayload(body))
       .catch(() => setFailed(true))

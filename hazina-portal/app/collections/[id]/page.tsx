@@ -2,10 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CatalogImage } from "@/components/CatalogImage";
-import {
-  GIFT_BOXES,
-  getGiftBox,
-} from "@/lib/products";
+import { GIFT_BOXES, getGiftBox } from "@/lib/products";
 import { collectionTreasureItems, getStorefrontCatalog } from "@/lib/catalog";
 import { CollectionItemsPreview } from "@/components/CollectionCard";
 import { CollectionCheckout } from "@/components/CollectionCheckout";
@@ -15,7 +12,11 @@ import { SmartBackLink } from "@/components/SmartBackLink";
 
 type Props = { params: { id: string } };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
+
+export function generateStaticParams() {
+  return GIFT_BOXES.map((box) => ({ id: box.id }));
+}
 
 const COLLECTION_SEO: Record<string, { title: string; description: string; keywords?: string[] }> = {
   "kenya-edit": {

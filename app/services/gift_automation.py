@@ -171,6 +171,8 @@ class GiftAutomationResult:
     interactive: dict | None = None
     escalated: bool = False
     safety_flag: str = "deterministic:gift_automation"
+    image_url: str | None = None
+    photo_item: str | None = None
 
 
 @dataclass(frozen=True)
@@ -198,6 +200,7 @@ class ParsedCheckoutDetails:
 class GiftPhotoReply:
     reply: str
     image_url: str | None = None
+    photo_item: str | None = None
     safety_flag: str = "deterministic:hazina_photo"
 
 
@@ -685,20 +688,20 @@ def _catalog_reply(*, is_sw: bool) -> str:
 def _logistics_reply(kind: str, *, is_sw: bool) -> str:
     if kind == "jkia":
         return (
-            "Hii ni Seamless Logistics: tunaweza kupanga departure handoff baada ya kuthibitisha dirisha la kuondoka."
+            "Hii ni Seamless Logistics: tunaweza kupanga JKIA departure handoff baada ya kuthibitisha dirisha la kuondoka."
             if is_sw
-            else "This falls under Seamless Logistics: we can coordinate a departure handoff once we confirm your departure window."
+            else "This falls under Seamless Logistics: we can coordinate a JKIA departure handoff once we confirm your departure window."
         )
     if kind == "hotel":
         return (
-            "Hii ni Seamless Logistics: niambie property, chumba/front desk, na dirisha la wakati."
+            "Hii ni Seamless Logistics: niambie hotel/property, chumba/front desk, na delivery window."
             if is_sw
-            else "This falls under Seamless Logistics: share the property, room or front-desk note, and preferred window."
+            else "This falls under Seamless Logistics: share the hotel/property, room or front-desk note, and delivery window."
         )
     return (
-        "Hii ni Global Export: tunathibitisha carrier, gharama, na muda kabla ya malipo."
+        "Hii ni Global Export: tunathibitisha DHL/insured courier, gharama, na muda kabla ya malipo."
         if is_sw
-        else "This falls under Global Export: we confirm carrier, cost, and timeline before payment."
+        else "This falls under Global Export: we confirm DHL/insured courier, cost, and timeline before payment."
     )
 
 
@@ -718,35 +721,64 @@ async def _checkout_product_photo_reply(
     is_sw: bool,
 ) -> GiftPhotoReply:
     del db, business_id
+    from app.catalog.hazina_catalog import build_hazina_menu_photos
+    from app.core.config import get_settings
     from app.services.menu_photos import find_photo
 
     product_id = str(checkout.get("product_id") or "").strip()
     product = HAZINA_PRODUCTS.get(product_id, {})
     item_query = str(product.get("name") or "Hazina collection")
-    _, image_url = find_photo(HAZINA_SLUG, item_query, None)
+    matched, image_url = find_photo(
+        HAZINA_SLUG,
+        item_query,
+        build_hazina_menu_photos(get_settings().public_hazina_portal_url),
+    )
     reply = (
         f"Hii ndiyo picha ya {item_query}."
         if is_sw
         else f"Here is a reference photo for {item_query}."
     )
-    return GiftPhotoReply(reply=reply, image_url=image_url, safety_flag="deterministic:hazina_checkout_photo")
+    return GiftPhotoReply(
+        reply=reply,
+        image_url=image_url,
+        photo_item=matched or item_query,
+        safety_flag="deterministic:hazina_checkout_photo",
+    )
 
 
 def _delivery_type_from_text(text: str | None, *, fallback: str | None = None) -> str | None:
     body = (text or "").lower()
     if "dhl" in body or "export" in body or "international" in body or "abroad" in body:
         return "Global Export - DHL/insured courier quote"
-    if "jkia" in body or "airport" in body or "terminal" in body or "flight" in body:
+    if "jkia" in body or "airport" in body or "terminal" in body or "flight" in body or "departure" in body:
         return "Seamless Logistics - JKIA terminal handoff"
-    if "hotel" in body or "room" in body or "front desk" in body or "lodge" in body or "camp" in body or "villa" in body or "residence" in body:
+    if (
+        "hotel" in body
+        or "room" in body
+        or "front desk" in body
+        or "lodge" in body
+        or "camp" in body
+        or "villa" in body
+        or "residence" in body
+        or "local" in body
+        or "handoff" in body
+    ):
         return "Seamless Logistics - local handoff"
     if fallback:
         low = fallback.lower()
         if "dhl" in low or "export" in low or "international" in low:
             return "Global Export - DHL/insured courier quote"
-        if "jkia" in low or "airport" in low or "terminal" in low:
+        if "jkia" in low or "airport" in low or "terminal" in low or "departure" in low:
             return "Seamless Logistics - JKIA terminal handoff"
-        if "hotel" in low or "room" in low or "front desk" in low or "villa" in low or "residence" in low:
+        if (
+            "hotel" in low
+            or "room" in low
+            or "front desk" in low
+            or "villa" in low
+            or "residence" in low
+            or "local" in low
+            or "handoff" in low
+        ):
             return "Seamless Logistics - local handoff"
     return None
 
@@ -799,7 +831,7 @@ def _checkout_prompt(checkout: dict, *, is_sw: bool) -> str:
         return (
             "Ni property gani, chumba/front desk, villa, au residence gani?"
             if is_sw else
-            "Which property, room, front desk, villa, or residence should we deliver to?"
+            "Which hotel/property, room, front desk, villa, or residence should we deliver to?"
         )
     if step == "window":
         dtype = _delivery_type_from_text(None, fallback=str(checkout.get("delivery_type") or ""))
@@ -1341,7 +1373,7 @@ async def try_hazina_automation(
     checkout = await _get_checkout(conversation_id)
 
     logistics_kind = looks_like_hazina_logistics_question(text)
-    if logistics_kind:
+    if logistics_kind and not checkout:
         return GiftAutomationResult(
             reply=_logistics_reply(logistics_kind, is_sw=is_sw),
             safety_flag="deterministic:hazina_logistics",
@@ -1377,7 +1409,12 @@ async def try_hazina_automation(
             checkout=checkout,
             is_sw=is_sw,
         )
-        return GiftAutomationResult(reply=photo.reply, safety_flag=photo.safety_flag)
+        return GiftAutomationResult(
+            reply=photo.reply,
+            safety_flag=photo.safety_flag,
+            image_url=photo.image_url,
+            photo_item=photo.photo_item,
+        )
 
     if not checkout and looks_like_hazina_concierge_help(text):
         reply = (
@@ -1799,6 +1836,8 @@ async def try_hazina_automation(
             reply=photo.reply,
             safety_flag=photo.safety_flag,
             interactive=hazina_collection_buttons_payload(product_id=product_id, language=language),
+            image_url=photo.image_url,
+            photo_item=photo.photo_item,
         )
 
     if tapped_list:

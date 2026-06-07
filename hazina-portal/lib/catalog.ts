@@ -1,4 +1,4 @@
-import { backendBase } from "@/lib/backend";
+import { backendBase, catalogCacheSeconds } from "@/lib/backend";
 import { BRAND, GIFT_BOXES, type GiftBox } from "@/lib/products";
 import { TREASURES, type Treasure } from "@/lib/treasures";
 
@@ -20,6 +20,8 @@ export type StorefrontCatalog = {
 
 const STATIC_COLLECTION_BY_ID = new Map(GIFT_BOXES.map((box) => [box.id, box]));
 const STATIC_TREASURE_BY_ID = new Map(TREASURES.map((item) => [item.id, item]));
+let storefrontCache: { expiresAt: number; value: StorefrontCatalog } | null = null;
+let storefrontRequest: Promise<StorefrontCatalog> | null = null;
 
 function normalizeCollection(row: Partial<GiftBox> & { item_ids?: string[]; jkia_only?: boolean }): GiftBox | null {
   if (!row.id || !row.sku || !row.name || row.price_usd == null || row.price_kes == null) return null;
@@ -66,6 +68,14 @@ function normalizeTreasure(row: Partial<Treasure> & { is_engravable?: boolean })
 }
 
 export async function getStorefrontCatalog(): Promise<StorefrontCatalog> {
+  const now = Date.now();
+  if (storefrontCache && storefrontCache.expiresAt > now) {
+    return storefrontCache.value;
+  }
+  if (storefrontRequest) {
+    return storefrontRequest;
+  }
+
   const fallback: StorefrontCatalog = {
     brand: BRAND,
     collections: GIFT_BOXES,
@@ -74,9 +84,24 @@ export async function getStorefrontCatalog(): Promise<StorefrontCatalog> {
     source: "static",
   };
 
+  storefrontRequest = loadStorefrontCatalog(fallback)
+    .then((catalog) => {
+      storefrontCache = {
+        expiresAt: Date.now() + catalogCacheSeconds() * 1000,
+        value: catalog,
+      };
+      return catalog;
+    })
+    .finally(() => {
+      storefrontRequest = null;
+    });
+  return storefrontRequest;
+}
+
+async function loadStorefrontCatalog(fallback: StorefrontCatalog): Promise<StorefrontCatalog> {
   try {
     const res = await fetch(`${backendBase()}/catalog/businesses/hazina-nomads/hazina`, {
-      cache: "no-store",
+      next: { revalidate: catalogCacheSeconds() },
       signal: AbortSignal.timeout(3_500),
     });
     if (!res.ok) return fallback;

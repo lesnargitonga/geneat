@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
+import uuid
+
 import pytest
 
 from app.catalog.hazina_catalog import ENGRAVING_FEE_KES, ENGRAVING_SKU
@@ -174,9 +177,12 @@ def test_hazina_checkout_step_sequence_collects_details_one_at_a_time() -> None:
     checkout["customer_name"] = "Amina"
     assert ga._checkout_next_step(checkout) == "delivery_type"
     assert "delivery channel" in ga._checkout_prompt(checkout, is_sw=False)
+    assert ga._delivery_type_from_text("local handoff") == "Seamless Logistics - local handoff"
+    assert ga._delivery_type_from_text("departure handoff") == "Seamless Logistics - JKIA terminal handoff"
 
     checkout["delivery_type"] = "Hotel delivery"
     assert ga._checkout_next_step(checkout) == "location"
+    assert "hotel" in ga._checkout_prompt(checkout, is_sw=False).lower()
 
     checkout["delivery_location"] = "Villa Rosa room 412"
     assert ga._checkout_next_step(checkout) == "window"
@@ -191,6 +197,59 @@ def test_hazina_checkout_step_sequence_collects_details_one_at_a_time() -> None:
     assert ga._checkout_next_step(checkout) is None
 
 
+@pytest.mark.asyncio
+async def test_active_checkout_treats_hotel_delivery_as_delivery_type(db, fake_redis, monkeypatch) -> None:
+    async def none_result(*args, **kwargs):
+        return None
+
+    monkeypatch.setattr(
+        "app.services.hazina_deterministic_gate.try_hazina_deterministic_gate",
+        none_result,
+    )
+    monkeypatch.setattr(
+        "app.services.hazina_whatsapp_router.try_hazina_router_extras",
+        none_result,
+    )
+    monkeypatch.setattr(
+        "app.services.hazina_customer_fallbacks.try_hazina_price_negotiation_escalation",
+        none_result,
+    )
+    monkeypatch.setattr(
+        "app.services.state_aware_greeter.try_state_aware_greeter",
+        none_result,
+    )
+    customer = SimpleNamespace(
+        id=uuid.uuid4(),
+        phone_number="+254700000000",
+        preferred_language="en",
+    )
+    conversation_id = uuid.uuid4()
+    await ga._set_checkout(
+        conversation_id,
+        {
+            "product_id": "kenya-edit",
+            "customer_name": "Amina Mwangi",
+            "step": "delivery_type",
+        },
+    )
+    assert (await ga._get_checkout(conversation_id))["step"] == "delivery_type"
+    assert ga._delivery_type_from_text("Hotel delivery") == "Seamless Logistics - local handoff"
+
+    delivery = await ga.try_hazina_automation(
+        db,
+        text="Hotel delivery",
+        interactive_id=None,
+        business_slug="hazina-nomads",
+        customer=customer,
+        conversation_id=conversation_id,
+        business_id=None,
+        language="en",
+    )
+    assert delivery is not None
+    assert delivery.safety_flag == "deterministic:hazina_need_location"
+    assert "room" in delivery.reply.lower()
+
+
 def test_hazina_checkout_does_not_default_to_usd_until_guest_chooses() -> None:
     assert ga._explicit_payment_currency("order the Kenya Edit") is None
     assert ga._explicit_payment_currency("send a USD card link") == "USD"
@@ -200,11 +259,18 @@ def test_hazina_checkout_does_not_default_to_usd_until_guest_chooses() -> None:
 def test_hazina_logistics_replies_are_deterministic() -> None:
     dhl = ga._logistics_reply("dhl", is_sw=False)
     assert "Global Export" in dhl
+    assert "DHL" in dhl
     assert "before payment" in dhl
 
     jkia = ga._logistics_reply("jkia", is_sw=False)
     assert "Seamless Logistics" in jkia
+    assert "JKIA" in jkia
     assert "departure handoff" in jkia
+
+    hotel = ga._logistics_reply("hotel", is_sw=False)
+    assert "hotel" in hotel.lower()
+    assert "room" in hotel
+    assert "delivery window" in hotel
 
 
 def test_hazina_cafe_boundary_reply_points_to_gifts() -> None:
@@ -227,6 +293,7 @@ async def test_checkout_photo_uses_active_product_context(db, monkeypatch) -> No
         is_sw=False,
     )
     assert result.image_url == "https://example.test/kenya-edit.jpg"
+    assert result.photo_item == "kenya edit"
     assert "The Kenya Edit" in result.reply
     assert result.safety_flag == "deterministic:hazina_checkout_photo"
 

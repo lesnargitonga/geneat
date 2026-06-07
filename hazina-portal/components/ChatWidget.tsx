@@ -748,7 +748,7 @@ export function ChatWidget() {
     let cancelled = false;
     async function loadCatalog() {
       try {
-        const res = await fetch("/api/catalog", { cache: "no-store" });
+        const res = await fetch("/api/catalog");
         if (!res.ok) return;
         const body = (await res.json()) as PortalCatalogResponse;
         if (!cancelled && Array.isArray(body.collections) && body.collections.length) {

@@ -2011,6 +2011,8 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                     conversation_id=conv.id,
                     escalated=hazina_result.escalated,
                     interactive=hazina_result.interactive,
+                    image_url=hazina_result.image_url,
+                    photo_item=hazina_result.photo_item,
                 )
 
         if (

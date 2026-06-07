@@ -11,6 +11,8 @@ export const metadata: Metadata = {
     "Five curated Kenyan heritage collections for travellers, backed by bespoke curation, seamless logistics, and global export.",
 };
 
+export const revalidate = 300;
+
 export default async function CollectionsPage() {
   const catalog = await getStorefrontCatalog();
   const orderMessage = "Hello Hazina Nomads — I'd like to order a gift collection.";

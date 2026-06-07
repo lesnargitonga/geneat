@@ -6,6 +6,8 @@ import { BRAND_IMAGES } from "@/lib/products";
 import { getStorefrontCatalog } from "@/lib/catalog";
 import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
 
+export const revalidate = 300;
+
 export default async function HomePage() {
   const catalog = await getStorefrontCatalog();
   const wa = whatsappLink(catalog.brand.whatsapp, "Hello Hazina Nomads — I'd like help with bespoke curation.");
@@ -69,7 +71,7 @@ export default async function HomePage() {
                       fit="cover"
                       className="h-52 w-full lg:h-56"
                       sizes="(max-width: 1024px) 78vw, 280px"
-                      priority={index < 2}
+                      priority={false}
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/5" />
