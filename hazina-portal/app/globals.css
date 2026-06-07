@@ -22,19 +22,22 @@
 
   :root[data-theme="night"] {
     color-scheme: dark;
-    --color-sand: 21 20 18;
-    --color-sand-dark: 31 29 26;
-    --color-obsidian: 246 241 232;
-    --color-obsidian-soft: 232 222 205;
-    --color-ink: 246 241 232;
-    --color-ink-soft: 229 219 204;
-    --color-ink-mute: 179 166 148;
-    --color-bronze: 214 165 103;
-    --color-bronze-dark: 238 195 132;
-    --color-bronze-light: 245 213 166;
-    --color-border: 57 52 46;
+    --color-sand: 8 8 7;
+    --color-sand-dark: 15 13 11;
+    --color-obsidian: 235 226 211;
+    --color-obsidian-soft: 213 199 177;
+    --color-ink: 235 226 211;
+    --color-ink-soft: 208 194 172;
+    --color-ink-mute: 142 127 107;
+    --color-bronze: 194 137 76;
+    --color-bronze-dark: 144 92 48;
+    --color-bronze-light: 211 164 101;
+    --color-border: 42 36 30;
     --color-sage: 171 184 135;
-    --color-sage-soft: 47 54 38;
+    --color-sage-soft: 24 30 21;
+    --color-night-surface: 9 8 7;
+    --color-night-surface-soft: 17 14 12;
+    --color-night-on-dark: 236 226 211;
   }
 
   html {
@@ -146,6 +149,46 @@
     @apply bg-obsidian text-sand;
   }
 
+  :root[data-theme="night"] .section-dark {
+    background-color: rgb(var(--color-night-surface));
+    color: rgb(var(--color-night-on-dark));
+  }
+
+  :root[data-theme="night"] .btn-dark {
+    background-color: rgb(var(--color-night-surface-soft));
+    border: 1px solid rgb(var(--color-border));
+    color: rgb(var(--color-night-on-dark));
+  }
+
+  :root[data-theme="night"] .btn-dark:hover {
+    background-color: rgb(27 22 18);
+  }
+
+  :root[data-theme="night"] .btn-outline {
+    border-color: rgb(var(--color-border));
+    color: rgb(var(--color-ink));
+  }
+
+  :root[data-theme="night"] .btn-outline:hover {
+    background-color: rgb(var(--color-night-on-dark) / 0.07);
+    border-color: rgb(var(--color-bronze) / 0.65);
+    color: rgb(var(--color-ink));
+  }
+
+  :root[data-theme="night"] .btn-bronze {
+    background-color: rgb(var(--color-bronze-dark));
+    color: rgb(var(--color-night-on-dark));
+  }
+
+  :root[data-theme="night"] .btn-bronze:hover {
+    background-color: rgb(var(--color-bronze));
+  }
+
+  :root[data-theme="night"] .btn-ghost:hover {
+    border-color: rgb(var(--color-bronze) / 0.55);
+    color: rgb(var(--color-ink));
+  }
+
   .chip {
     @apply inline-flex min-h-[38px] items-center gap-1 px-3 py-1.5 text-sm font-mono font-medium uppercase tracking-[0.1em];
   }
@@ -199,8 +242,8 @@
   }
 
   /*
-   * Product photos: fixed cream lightbox (never theme sand / never multiply).
-   * White or light JPEG edges sit on the same color — product pixels stay untouched.
+   * Product photos: warm lightbox by day, deep gallery frame by night.
+   * Product pixels stay untouched; only the surrounding frame changes.
    */
   .catalog-photo-frame {
     @apply relative overflow-hidden;
@@ -208,7 +251,7 @@
   }
 
   :root[data-theme="night"] .catalog-photo-frame {
-    background-color: #eee5d8;
+    background-color: #14100d;
     border: 1px solid rgb(var(--color-border));
   }
 
@@ -285,7 +328,116 @@
     border-top: 1px solid rgb(202 167 119 / 0.2);
   }
 
+  :root[data-theme="night"] .concierge-shell {
+    border-color: rgb(202 167 119 / 0.28);
+    background: linear-gradient(180deg, #100d0b 0%, #090807 100%);
+  }
+
+  :root[data-theme="night"] .concierge-canvas {
+    background:
+      radial-gradient(120% 80% at 100% 0%, rgb(202 167 119 / 0.1), transparent 55%),
+      linear-gradient(180deg, #0d0b09 0%, #080706 100%);
+  }
+
+  :root[data-theme="night"] .concierge-bubble-user {
+    border-color: rgb(202 167 119 / 0.35);
+    background-color: rgb(34 25 18);
+    color: rgb(var(--color-night-on-dark));
+  }
+
+  :root[data-theme="night"] .concierge-bubble-ai {
+    border-color: rgb(35 31 27);
+    border-left-color: rgb(202 167 119 / 0.8);
+    background-color: rgb(10 9 8);
+  }
+
+  :root[data-theme="night"] .concierge-composer {
+    background: rgb(8 7 6 / 0.96);
+    border-top-color: rgb(202 167 119 / 0.22);
+  }
+
+  :root[data-theme="night"] .concierge-action-secondary {
+    background-color: rgb(var(--color-night-surface-soft) / 0.9);
+    border-color: rgb(var(--color-border));
+    color: rgb(var(--color-night-on-dark));
+  }
+
+  :root[data-theme="night"] .concierge-action-secondary:hover {
+    border-color: rgb(var(--color-bronze) / 0.65);
+  }
+
+  :root[data-theme="night"] .concierge-textarea {
+    background-color: rgb(var(--color-night-surface-soft) / 0.95);
+    color: rgb(var(--color-night-on-dark));
+  }
+
+  :root[data-theme="night"] .concierge-textarea:focus {
+    background-color: rgb(23 19 16);
+  }
+
   body[data-chat-open="true"] .sticky-wa-cta {
     @apply pointer-events-none opacity-0;
   }
+}
+
+:root[data-theme="night"] .section-dark [class~="text-sand"] {
+  color: rgb(var(--color-night-on-dark));
+}
+
+:root[data-theme="night"] .section-dark [class~="text-sand/75"] {
+  color: rgb(var(--color-night-on-dark) / 0.75);
+}
+
+:root[data-theme="night"] .section-dark [class~="text-sand/70"] {
+  color: rgb(var(--color-night-on-dark) / 0.7);
+}
+
+:root[data-theme="night"] .section-dark [class~="text-sand/65"] {
+  color: rgb(var(--color-night-on-dark) / 0.65);
+}
+
+:root[data-theme="night"] .section-dark [class~="text-sand/60"] {
+  color: rgb(var(--color-night-on-dark) / 0.6);
+}
+
+:root[data-theme="night"] .section-dark [class~="text-sand/50"] {
+  color: rgb(var(--color-night-on-dark) / 0.5);
+}
+
+:root[data-theme="night"] .section-dark [class~="text-sand/40"] {
+  color: rgb(var(--color-night-on-dark) / 0.4);
+}
+
+:root[data-theme="night"] .section-dark [class~="text-sand/30"] {
+  color: rgb(var(--color-night-on-dark) / 0.3);
+}
+
+:root[data-theme="night"] .section-dark [class~="border-sand/60"] {
+  border-color: rgb(var(--color-night-on-dark) / 0.6);
+}
+
+:root[data-theme="night"] .section-dark [class~="border-sand/30"] {
+  border-color: rgb(var(--color-night-on-dark) / 0.3);
+}
+
+:root[data-theme="night"] .section-dark [class~="border-sand/10"] {
+  border-color: rgb(var(--color-night-on-dark) / 0.1);
+}
+
+:root[data-theme="night"] .section-dark [class~="hover:text-sand"]:hover {
+  color: rgb(var(--color-night-on-dark));
+}
+
+:root[data-theme="night"] .section-dark [class~="hover:bg-sand"]:hover {
+  background-color: rgb(var(--color-night-on-dark) / 0.08);
+}
+
+:root[data-theme="night"] .section-dark [class~="hover:text-obsidian"]:hover {
+  color: rgb(var(--color-night-on-dark));
+}
+
+:root[data-theme="night"] [class~="bg-obsidian"][class~="text-sand"] {
+  background-color: rgb(var(--color-night-surface-soft));
+  border-color: rgb(var(--color-bronze) / 0.55);
+  color: rgb(var(--color-night-on-dark));
 }

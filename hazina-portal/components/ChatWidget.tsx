@@ -915,8 +915,8 @@ export function ChatWidget() {
                       href={p.href}
                       className={`min-h-[36px] rounded-[4px] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.13em] transition-colors ${
                         p.primary
-                          ? "bg-[#121212] text-[#f4efe6] hover:bg-black"
-                          : "border border-[#c8c0b2] bg-sand/70 text-[#2a2622] hover:border-[#121212]"
+                          ? "concierge-action-primary bg-[#121212] text-[#f4efe6] hover:bg-black"
+                          : "concierge-action-secondary border border-[#c8c0b2] bg-sand/70 text-[#2a2622] hover:border-[#121212]"
                       }`}
                     >
                       {p.label}
@@ -928,8 +928,8 @@ export function ChatWidget() {
                       onClick={() => send(p.value || p.label)}
                       className={`min-h-[36px] rounded-[4px] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.13em] transition-colors ${
                         p.primary
-                          ? "bg-[#121212] text-[#f4efe6] hover:bg-black"
-                          : "border border-[#c8c0b2] bg-sand/70 text-[#2a2622] hover:border-[#121212]"
+                          ? "concierge-action-primary bg-[#121212] text-[#f4efe6] hover:bg-black"
+                          : "concierge-action-secondary border border-[#c8c0b2] bg-sand/70 text-[#2a2622] hover:border-[#121212]"
                       }`}
                     >
                       {p.label}
@@ -952,7 +952,7 @@ export function ChatWidget() {
               }}
               rows={1}
               placeholder={flow ? "Detail one requirement..." : "Message your concierge..."}
-              className="min-h-[44px] flex-1 resize-none rounded-[4px] border border-transparent bg-sand/75 px-3 py-2.5 text-[15px] leading-relaxed text-[#1a1815] placeholder:font-serif placeholder:text-[#7a7268] placeholder:italic outline-none focus:border-[#b4966f]/70 focus:bg-sand"
+              className="concierge-textarea min-h-[44px] flex-1 resize-none rounded-[4px] border border-transparent bg-sand/75 px-3 py-2.5 text-[15px] leading-relaxed text-[#1a1815] placeholder:font-serif placeholder:text-[#7a7268] placeholder:italic outline-none focus:border-[#b4966f]/70 focus:bg-sand"
             />
             <button
               type="button"
