@@ -23,6 +23,8 @@ def test_generate_dataset_shape_and_categories(tmp_path: Path) -> None:
     assert "Highland Treasure" in joined or "Kenya Edit" in joined
     assert "café" in joined.lower() or "cafe" in joined.lower() or "coffee" in joined.lower()
     assert "bespoke" in joined.lower()
+    assert "order_creation_ready" in joined
+    assert "hazina-private-concierge-v1.0" in joined
 
 
 def test_hazina_dataset_cli_prints_sample(tmp_path: Path) -> None:

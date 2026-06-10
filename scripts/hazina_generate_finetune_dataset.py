@@ -43,11 +43,14 @@ GOLDEN_PATH = TRAINING_DIR / "golden.jsonl"
 SYSTEM_PATH = TRAINING_DIR / "system_prompt.txt"
 
 REQUIRED_SENTINELS = (
+    "PROMPT_VERSION: hazina-private-concierge-v1.0",
     "Hazina Private Concierge",
     "Born in Kenya",
     "Bespoke Curation",
     "Certainly",
     "custom sourcing brief",
+    "order_creation_ready",
+    "human_escalation",
 )
 
 OFF_TOPIC_USER = [
@@ -87,6 +90,15 @@ HALLUCINATION_BAIT = [
     "I want Nike running shoes size 44.",
     "Do you carry Swiss watches?",
 ]
+
+
+def _prompt_version() -> str:
+    if not SYSTEM_PATH.is_file():
+        return "unknown"
+    first = SYSTEM_PATH.read_text(encoding="utf-8").splitlines()[0].strip()
+    if first.startswith("PROMPT_VERSION:"):
+        return first.split(":", 1)[1].strip()
+    return "unknown"
 
 
 def _load_system_base() -> str:
@@ -493,6 +505,7 @@ def main() -> int:
         "golden_count": len(_load_golden(_load_system_base())),
         "golden_multiplier": args.golden_multiplier,
         "system_prompt": str(SYSTEM_PATH),
+        "prompt_version": _prompt_version(),
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "source_commit": _git_commit(),
         "dataset_sha256": _rows_fingerprint(rows),
