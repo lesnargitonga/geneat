@@ -31,17 +31,10 @@ from app.catalog.hazina_catalog import (  # noqa: E402
     PACKAGING_FEE_USD,
 )
 BRAND_VOICE = (
-    "Professional, calm, high-end hotel concierge. You curate premium Kenyan gift "
-    "boxes for travellers — never a discount souvenir shop. Keep replies concise "
-    "(1–3 sentences), use the guest's name when known, and never use slang or "
-    "campus-café tone. The Hazina Triad is Bespoke Curation, Seamless Logistics, "
-    "and Global Export. When asked what Hazina does, use those three pillars "
-    "instead of listing towns, terminals, or airstrips. Confirm exact delivery "
-    "location, handoff channel, and timing before promising dispatch. Support "
-    "seamless nationwide fulfillment and international export, but never invent "
-    "regional transit windows. If a guest wants an unlisted item and has a "
-    "reference image, open a custom visual sourcing brief; do not imply it is "
-    "stocked, priced, authentic, or deliverable until the field team confirms."
+    "Hazina Private Concierge — calm luxury concierge for Hazina Nomads. "
+    "Born in Kenya. Curating Africa. Delivered to the world. "
+    "Use Certainly. Ask one question at a time. Never overpromise or invent prices. "
+    "Recommend only from [Catalog context] when provided. Escalate corporate/bulk to human desk."
 )
 
 TRAINING_DIR = ROOT / "training" / "hazina"
@@ -50,11 +43,11 @@ GOLDEN_PATH = TRAINING_DIR / "golden.jsonl"
 SYSTEM_PATH = TRAINING_DIR / "system_prompt.txt"
 
 REQUIRED_SENTINELS = (
+    "Hazina Private Concierge",
+    "Born in Kenya",
     "Bespoke Curation",
-    "Seamless Logistics",
-    "Global Export",
-    "Mkeka chest",
-    "custom visual sourcing brief",
+    "Certainly",
+    "custom sourcing brief",
 )
 
 OFF_TOPIC_USER = [
@@ -397,14 +390,26 @@ def _gen_visual_sourcing(system_base: str) -> list[dict]:
     ]
 
 
-def _load_golden() -> list[dict]:
+def _load_golden(system_base: str) -> list[dict]:
     if not GOLDEN_PATH.is_file():
         return []
+    import re
+
     rows: list[dict] = []
     for line in GOLDEN_PATH.read_text(encoding="utf-8").splitlines():
         line = line.strip()
-        if line:
-            rows.append(json.loads(line))
+        if not line:
+            continue
+        row = json.loads(line)
+        msgs = row.get("messages") or []
+        if msgs and msgs[0].get("role") == "system":
+            raw = msgs[0].get("content") or ""
+            catalog = ""
+            m = re.search(r"\[Catalog context:[^\]]+\]", raw, flags=re.I)
+            if m:
+                catalog = m.group(0)
+            msgs[0]["content"] = f"{system_base}\n\n{catalog}".strip() if catalog else system_base
+        rows.append(row)
     return rows
 
 
@@ -412,7 +417,7 @@ def generate_dataset(*, target_count: int, seed: int, golden_multiplier: int = 8
     random.seed(seed)
     system_base = _load_system_base()
     rows: list[dict] = []
-    golden = _load_golden()
+    golden = _load_golden(system_base)
     for _ in range(max(1, golden_multiplier)):
         rows.extend(golden)
     rows.extend(_gen_persona(system_base))
@@ -485,7 +490,7 @@ def main() -> int:
     meta = {
         "train_count": len(train_rows),
         "val_count": len(val_rows),
-        "golden_count": len(_load_golden()),
+        "golden_count": len(_load_golden(_load_system_base())),
         "golden_multiplier": args.golden_multiplier,
         "system_prompt": str(SYSTEM_PATH),
         "generated_at": datetime.now(timezone.utc).isoformat(),

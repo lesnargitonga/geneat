@@ -133,7 +133,7 @@ def main() -> int:
         default=ROOT / "training/hazina/out/lora-hazina",
     )
     parser.add_argument("--epochs", type=int, default=2)
-    parser.add_argument("--max-seq-length", type=int, default=2048)
+    parser.add_argument("--max-seq-length", type=int, default=4096)
     parser.add_argument("--batch-size", type=int, default=2)
     parser.add_argument("--lr", type=float, default=2e-4)
     parser.add_argument("--lora-r", type=int, default=16)
