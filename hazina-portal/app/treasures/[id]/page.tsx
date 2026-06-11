@@ -93,7 +93,7 @@ export default async function TreasureDetailPage({ params }: Props) {
                 href={`/build?add=${item.id}`}
                 className="btn-dark"
               >
-                Add to custom box
+                Add to private brief
               </Link>
               <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline">
                 Ask concierge

@@ -21,15 +21,16 @@ export default async function CollectionsPage() {
   return (
     <>
       <header className="container-page pt-10 md:pt-16 mb-10 md:mb-12">
-        <span className="label-mono">Five ready-to-order collections</span>
-        <h1 className="h-display text-5xl md:text-7xl mt-4 mb-5 text-obsidian">Choose a collection</h1>
+        <span className="label-mono">Signature Kenyan Collections</span>
+        <h1 className="h-display text-5xl md:text-7xl mt-4 mb-5 text-obsidian">Refined gifts, prepared for the journey.</h1>
         <p className="text-ink-mute max-w-2xl text-lg leading-relaxed">
-          Pick a finished collection, or{" "}
+          Explore finished Kenyan collections prepared for travellers, hosts, and thoughtful gifting.
+          Each edit includes visible pricing, lead time, contents, and concierge-guided handoff
+          options. For something more personal,{" "}
           <Link href="/build" className="text-bronze hover:text-obsidian underline-offset-4 hover:underline">
-            choose individual treasures
-          </Link>{" "}
-          instead. Each card shows price, lead time, and what is inside, with fulfillment
-          guided by the Hazina Triad.
+            open a private sourcing brief
+          </Link>
+          .
         </p>
       </header>
 
@@ -56,7 +57,7 @@ export default async function CollectionsPage() {
             with the discretion of a five-star hotel desk.
           </p>
           <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline border-sand/30 text-sand hover:bg-sand hover:text-obsidian">
-            Order on WhatsApp
+            Speak with Concierge
           </a>
           <p className="label-mono text-sand/30">
             Corporate gifting? Mention it in chat — we&apos;ll connect you with a senior host.

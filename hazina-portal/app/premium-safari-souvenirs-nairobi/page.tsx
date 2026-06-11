@@ -76,7 +76,7 @@ export default function SafariSouvenirsPage() {
                   rel="noopener noreferrer"
                   className="btn-outline border-white/50 text-white hover:bg-white/10 hover:text-white inline-flex justify-center"
                 >
-                  Order on WhatsApp
+                  Speak with Concierge
                 </a>
               </div>
             </div>
@@ -116,7 +116,7 @@ export default function SafariSouvenirsPage() {
               </Link>{" "}
               or{" "}
               <Link href="/build" className="text-bronze hover:text-obsidian transition-colors">
-                build a custom box
+                open a private brief
               </Link>{" "}
               from individual treasures. Travelling soon? See the{" "}
               <Link
@@ -193,7 +193,7 @@ export default function SafariSouvenirsPage() {
             rel="noopener noreferrer"
             className="inline-flex min-h-[44px] items-center justify-center px-8 py-3 font-mono text-sm font-medium uppercase tracking-[0.12em] border border-sand/60 text-sand transition-colors hover:bg-sand/10"
           >
-            Order on WhatsApp
+            Speak with Concierge
           </a>
         </div>
       </section>

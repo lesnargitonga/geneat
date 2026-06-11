@@ -35,15 +35,16 @@ export default async function HomePage() {
               <span className="mx-2 opacity-50">·</span> GLOBAL EXPORT
             </span>
             <h1 className="mt-5 font-serif text-5xl md:text-7xl lg:text-8xl leading-[0.9] tracking-[-0.02em] text-white">
-              Private curation, delivered without friction.
+              Private Kenyan curation, delivered with discretion.
             </h1>
             <p className="mt-6 max-w-2xl text-lg md:text-xl leading-[1.85] text-white/84">
-              Premium Kenyan heritage collections and private sourcing for travellers who expect a
-              coordinated concierge, not a souvenir run.
+              Hazina Nomads curates premium Kenyan gifts, heritage pieces, and private sourcing requests
+              for travellers, safari guests, diaspora families, and corporate clients — beginning
+              in Kenya and growing toward refined African sourcing.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/collections" className="btn-bronze">
-                View collections
+                Explore Collections
               </Link>
               <a
                 href={wa}
@@ -113,11 +114,12 @@ export default async function HomePage() {
         <div className="max-w-2xl mb-10 md:mb-12">
           <span className="label-mono">How to order</span>
           <h2 className="h-display mt-3 text-4xl md:text-5xl text-obsidian leading-tight">
-            One catalog. Two ways in.
+            Choose a collection. Open a brief. We prepare the handoff.
           </h2>
           <p className="text-ink-mute mt-4 text-lg leading-relaxed">
-            Choose a finished collection, open a private sourcing brief, or arrange export —
-            the same concierge desk carries the work from selection to handoff.
+            Select a finished collection, request something specific, or arrange a hotel, safari lodge,
+            JKIA, residence, or international handoff. The same concierge desk carries the work
+            from selection to delivery.
           </p>
         </div>
 
@@ -146,6 +148,33 @@ export default async function HomePage() {
             title="Prepare for onward travel"
             body="Quote insured international transit before payment, with customs-ready details captured by the concierge."
           />
+        </div>
+      </section>
+
+      <section className="section-dark py-16 md:py-24">
+        <div className="container-page grid gap-10 md:grid-cols-12 md:items-start">
+          <div className="md:col-span-4">
+            <span className="label-mono text-sand/40">From Kenya, across Africa</span>
+            <h2 className="h-display mt-3 text-4xl md:text-5xl text-sand leading-tight">
+              Born in Kenya. Curating Africa. Delivered to the world.
+            </h2>
+          </div>
+          <div className="md:col-span-8 space-y-5 text-sand/70 text-lg leading-relaxed">
+            <p>
+              Hazina Nomads begins in Kenya, where our concierge network curates premium gifts,
+              travel keepsakes, heritage pieces, and private sourcing requests for guests and
+              global clients.
+            </p>
+            <p>
+              Our ambition is continental: to become a trusted sourcing house for refined African
+              treasures, connecting travellers, diaspora families, hosts, and corporate teams with
+              pieces that carry origin, craft, and meaning.
+            </p>
+            <p>
+              We expand carefully, region by region, partner by partner — ensuring every piece is
+              sourced with respect and presented with the standard it deserves.
+            </p>
+          </div>
         </div>
       </section>
 

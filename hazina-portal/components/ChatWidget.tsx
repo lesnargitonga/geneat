@@ -273,7 +273,7 @@ function nextStep(flow: CheckoutFlow): CheckoutStep {
 
 function flowIntro(flow: CheckoutFlow) {
   if (flow.kind === "custom") {
-    return `Good. Your custom box has ${flow.items.reduce((sum, item) => sum + item.qty, 0)} treasure${
+    return `Good. Your private collection has ${flow.items.reduce((sum, item) => sum + item.qty, 0)} treasure${
       flow.items.reduce((sum, item) => sum + item.qty, 0) === 1 ? "" : "s"
     } at ${formatUSD(flow.totalUsd)} / ${formatKES(flow.totalKes)}.`;
   }
@@ -716,7 +716,7 @@ export function ChatWidget() {
 
       if (isCustomBoxRequest(text)) {
         setActions([{ label: "Open builder", href: "/build", primary: true }]);
-        append("ai", "For a custom box, use Build to pick at least two treasures. Once you are ready, I will collect delivery and payment details one at a time.");
+        append("ai", "For a private brief, use Build to pick at least two pieces or describe what you want sourced. Once you are ready, I will collect delivery and payment details one at a time.");
         return true;
       }
 

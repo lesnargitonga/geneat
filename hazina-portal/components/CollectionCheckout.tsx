@@ -149,7 +149,7 @@ export function CollectionCheckout({ box }: Props) {
           rel="noopener noreferrer"
           className="btn-outline"
         >
-          Continue in WhatsApp
+          Speak with Concierge
         </a>
       </div>
     </section>
