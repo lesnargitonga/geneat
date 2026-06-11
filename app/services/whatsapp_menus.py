@@ -33,6 +33,7 @@ ID_CORPORATE = "lp:corp"
 ID_CONCIERGE = "lp:concierge"
 ID_HAZINA_COLLECTIONS = "lp:hazina:collections"
 ID_HAZINA_BRIEF = "lp:hazina:brief"
+ID_HAZINA_RECOMMEND = "lp:hazina:recommend"
 ID_HAZINA_LOGISTICS = "lp:hazina:logistics"
 ID_HAZINA_LOG_JKIA = "lp:hazina:log:jkia"
 ID_HAZINA_LOG_DHL = "lp:hazina:log:dhl"
@@ -54,6 +55,7 @@ CMD_EXIT = "__exit__"
 CMD_ORDERS = "__my_orders__"
 CMD_HAZINA_COLLECTIONS = "__hazina_collections__"
 CMD_HAZINA_BRIEF = "__hazina_brief__"
+CMD_HAZINA_RECOMMEND = "__hazina_recommend__"
 CMD_HAZINA_LOGISTICS = "__hazina_logistics__"
 CMD_HAZINA_PRODUCT_PREVIEW = "__hazina_product_preview__"
 CMD_HAZINA_LOG_JKIA = "__hazina_log_jkia__"
@@ -69,6 +71,7 @@ SPECIAL_COMMANDS = {
     CMD_ORDERS,
     CMD_HAZINA_COLLECTIONS,
     CMD_HAZINA_BRIEF,
+    CMD_HAZINA_RECOMMEND,
     CMD_HAZINA_LOGISTICS,
     CMD_HAZINA_PRODUCT_PREVIEW,
     CMD_HAZINA_LOG_JKIA,
@@ -147,6 +150,8 @@ def command_for_interactive_id(interactive_id: str | None) -> str | None:
         return CMD_HAZINA_COLLECTIONS if lid in (ID_SHOP, ID_HAZINA_COLLECTIONS) else "full menu"
     if lid == ID_HAZINA_BRIEF:
         return CMD_HAZINA_BRIEF
+    if lid == ID_HAZINA_RECOMMEND:
+        return "gift recommendation"
     if lid == ID_CORPORATE:
         return "corporate gifting"
     if lid == ID_CONCIERGE:
@@ -240,8 +245,14 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
             "type": "list",
             "header": "Hazina Private Sourcing"[:60],
             "body": (
-                "Karibu Hazina Nomads. Tunatoa bespoke curation, seamless logistics, "
-                "na global export kwa vipande vya premium vya Kenya. Chagua huduma:"
+                "Karibu Hazina Nomads.\n\n"
+                "Tukusaidie vipi leo?\n\n"
+                "1. Explore ready collections\n"
+                "2. Build a private gift brief\n"
+                "3. Need a gift recommendation\n"
+                "4. Safari / hotel / JKIA delivery\n"
+                "5. Corporate gifting\n"
+                "6. Speak to Concierge"
             ),
             "footer": "Gusa kitufe hapa chini kuchagua.",
             "button_text": "Huduma za Concierge",
@@ -268,6 +279,11 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
                             "id": ID_HAZINA_BRIEF,
                             "title": "Bespoke Curation",
                             "description": "Tengeneza brief ya kibinafsi",
+                        },
+                        {
+                            "id": ID_HAZINA_RECOMMEND,
+                            "title": "Gift Recommendation",
+                            "description": "Pata pendekezo la haraka",
                         },
                         {
                             "id": ID_CORPORATE,
@@ -307,9 +323,14 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
         "type": "list",
         "header": "Hazina Private Sourcing",
         "body": (
-            "Welcome to Hazina Nomads. We offer bespoke curation, seamless logistics, "
-            "and global export for premium Kenyan heritage items. Would you like "
-            "to view our signature collections, or initialize a private sourcing brief?"
+            "Welcome to Hazina Nomads.\n\n"
+            "How may we assist you today?\n\n"
+            "1. Explore ready collections\n"
+            "2. Build a private gift brief\n"
+            "3. Need a gift recommendation\n"
+            "4. Safari / hotel / JKIA delivery\n"
+            "5. Corporate gifting\n"
+            "6. Speak to Concierge"
         ),
         "footer": "Tap the button below to select an option.",
         "button_text": "Concierge Services",
@@ -336,6 +357,11 @@ def _hazina_main_menu_payload(*, business_name: str | None, language: str | None
                         "id": ID_HAZINA_BRIEF,
                         "title": "Bespoke Curation",
                         "description": "Build a personalized brief",
+                    },
+                    {
+                        "id": ID_HAZINA_RECOMMEND,
+                        "title": "Gift Recommendation",
+                        "description": "Match a gift to context",
                     },
                     {
                         "id": ID_CORPORATE,
@@ -380,8 +406,8 @@ def hazina_welcome_body(*, language: str | None) -> str:
             "na global export kwa vipande vya premium vya Kenya."
         )
     return (
-        "Welcome to Hazina Nomads. We offer bespoke curation, seamless logistics, "
-        "and global export for premium Kenyan heritage items."
+        "Welcome to Hazina Nomads.\n\n"
+        "How may we assist you today?"
     )
 
 

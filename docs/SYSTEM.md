@@ -4,7 +4,7 @@
 `api.lesnarai.co.ke`; Hazina uses the dedicated `hazina-api.onrender.com`
 service.
 **Maintain:** edit this file first when product, routing, catalog, deploy, or gaps change. Code wins if docs drift.
-**Verified:** 2026-06-04 · local tests · Frankfurt resource/env audit · direct Hazina API smoke
+**Verified:** 2026-06-11 · local checks · Frankfurt resource/env audit · direct Hazina API smoke
 **Security:** [SECURITY.md](../SECURITY.md)
 
 **Legend:** ✅ shipped in code · 🟢 verified live · ⬜ not done · ◐ partial
@@ -20,7 +20,8 @@ service.
 | Tenant `hazina-nomads` | ✅ | ◐ | `DEFAULT_BUSINESS_SLUG`; Meta `phone_number_id` |
 | Gen-Eat portal | ✅ | 🟢 | `geneat.lesnarai.co.ke` |
 | Hazina portal | ✅ | ◐ | Render portal live at `hazina-portal.onrender.com`; public `hazina.lesnarai.co.ke` DNS still needs Cloudflare cutover |
-| Hazina WA | ✅ | ◐ | `+1 555 657 8220` |
+| Hazina WA CTA | ✅ | ◐ | Public CTAs use personal concierge line `+25415540653`; full WhatsApp automation waits for a BSP/API number |
+| Website chat automation | ✅ | ◐ | Instant deterministic menu + guided checkout/recommendation; AI only classifies off-script requests |
 | KES STK (IntaSend) | ✅ | 🟢 | Live keys; `PAYMENT_SIMULATOR=false`; primary M-Pesa rail |
 | USD/card checkout | ✅ | ◐ | Paystack preferred when keys exist; IntaSend hosted checkout is fallback for now |
 | Collections + guided checkout | ✅ | ◐ | Portal `ChatWidget` → structured payload |

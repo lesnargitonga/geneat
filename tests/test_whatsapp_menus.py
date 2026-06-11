@@ -44,14 +44,16 @@ def test_hazina_main_menu_payload() -> None:
     }
     assert wm.ID_HAZINA_COLLECTIONS in row_ids
     assert wm.ID_HAZINA_BRIEF in row_ids
+    assert wm.ID_HAZINA_RECOMMEND in row_ids
     assert wm.ID_CONCIERGE in row_ids
     assert wm.ID_TRACK in row_ids
     assert wm.ID_ORDER not in row_ids  # café-only action
     assert payload["button_text"] == "Concierge Services"
     body = payload["body"].lower()
-    assert "bespoke curation" in body
-    assert "seamless logistics" in body
-    assert "global export" in body
+    assert "explore ready collections" in body
+    assert "build a private gift brief" in body
+    assert "need a gift recommendation" in body
+    assert "safari / hotel / jkia delivery" in body
 
 
 def test_cafe_main_menu_unchanged_without_slug() -> None:
@@ -74,6 +76,7 @@ def test_command_for_hazina_interactive_ids() -> None:
     assert wm.command_for_interactive_id("lp:shop") == wm.CMD_HAZINA_COLLECTIONS
     assert wm.command_for_interactive_id(wm.ID_HAZINA_COLLECTIONS) == wm.CMD_HAZINA_COLLECTIONS
     assert wm.command_for_interactive_id(wm.ID_HAZINA_BRIEF) == wm.CMD_HAZINA_BRIEF
+    assert wm.command_for_interactive_id(wm.ID_HAZINA_RECOMMEND) == "gift recommendation"
     assert wm.command_for_interactive_id("lp:corp") == "corporate gifting"
     assert wm.command_for_interactive_id("lp:concierge") == wm.CMD_STAFF
     assert wm.command_for_interactive_id("lp:prod:kenya-edit") == wm.CMD_HAZINA_PRODUCT_PREVIEW
