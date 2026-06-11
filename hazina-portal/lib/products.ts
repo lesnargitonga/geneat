@@ -35,8 +35,8 @@ export const BRAND = {
   triad: "Bespoke Curation · Seamless Logistics · Global Export",
   pillars: ["Bespoke Curation", "Seamless Logistics", "Global Export"],
   meaning: "Hazina = treasure (Swahili)",
-  whatsapp: process.env.NEXT_PUBLIC_HAZINA_WHATSAPP || "",
-  phone: process.env.NEXT_PUBLIC_HAZINA_PHONE || "",
+  whatsapp: process.env.NEXT_PUBLIC_HAZINA_WHATSAPP || "25415540653",
+  phone: process.env.NEXT_PUBLIC_HAZINA_PHONE || "+25415540653",
   email: "concierge@hazina-nomads.com",
 };
 
