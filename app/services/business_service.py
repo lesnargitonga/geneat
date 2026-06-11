@@ -210,7 +210,7 @@ async def ensure_hazina_business(
     biz.name = "Hazina Nomads"
     biz.industry = "gift-concierge"
     biz.location = "Kenya - bespoke curation, seamless logistics, and global export"
-    biz.contact_phone = "+15556578220"
+    biz.contact_phone = "+25415540653"
     biz.contact_email = "concierge@hazina-nomads.com"
     biz.brand_voice = (
         "Professional, calm, high-end hotel concierge. The Hazina Triad is "

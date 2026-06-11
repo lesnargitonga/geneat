@@ -298,7 +298,7 @@ HAZINA_KB_POLICIES: list[str] = [
         "souvenir shop. Emphasise curation, packaging quality, and reliable last-mile delivery."
     ),
     (
-        "CONTACT — WhatsApp concierge: +1 555 657 8220. Email: concierge@hazina-nomads.com. "
+        "CONTACT — WhatsApp concierge: +25415540653. Email: concierge@hazina-nomads.com. "
         "Operating hours for dispatch coordination: 08:00–20:00 EAT daily."
     ),
 ]
