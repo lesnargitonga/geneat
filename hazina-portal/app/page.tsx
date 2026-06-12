@@ -2,9 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { CatalogImage } from "@/components/CatalogImage";
 import { ConciergeSceneCTA } from "@/components/ConciergeSceneCTA";
+import { MobileMotionControl } from "@/components/MobileMotionControl";
 import { VaultEntryLink } from "@/components/VaultEntryLink";
 import { FloatingSurface } from "@/components/three-d/FloatingSurface";
 import { LuxuryTilt } from "@/components/three-d/LuxuryTilt";
+import { MobileMotionStage } from "@/components/three-d/MobileMotionStage";
 import { RevealGroup } from "@/components/three-d/RevealGroup";
 import { RevealText } from "@/components/three-d/RevealText";
 import { ScrollDepth } from "@/components/three-d/ScrollDepth";
@@ -69,9 +71,11 @@ export default async function HomePage() {
                 <span className="text-[10px] normal-case tracking-normal opacity-75">Human concierge handoff</span>
               </a>
             </RevealGroup>
+            <MobileMotionControl />
+            <MobileMotionStage />
           </SpatialSection>
 
-          <div className="hero-showroom__threshold relative z-10 mt-14 flex items-center gap-4 text-white/55">
+          <div className="hero-showroom__threshold relative z-10 mt-14 flex flex-wrap items-center gap-4 text-white/55">
             <span className="h-px w-12 bg-bronze-light/65" />
             <span className="label-mono text-white/55">Scroll to enter the showroom</span>
           </div>
