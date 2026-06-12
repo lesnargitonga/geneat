@@ -1164,7 +1164,7 @@ export function ChatWidget() {
 
       {open && (
         <div
-          className="concierge-shell fixed inset-x-3 bottom-[4.75rem] z-[100] flex max-h-[min(72svh,640px)] flex-col md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:max-h-[calc(100svh-7rem)] md:w-[min(440px,calc(100vw-2rem))]"
+          className="concierge-shell spatial-panel depth-shadow-strong fixed inset-x-3 bottom-[4.75rem] z-[100] flex max-h-[min(72svh,640px)] flex-col md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:max-h-[calc(100svh-7rem)] md:w-[min(440px,calc(100vw-2rem))]"
           role="dialog"
           aria-label="Hazina private concierge"
         >

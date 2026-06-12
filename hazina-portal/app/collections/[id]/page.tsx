@@ -9,6 +9,7 @@ import { CollectionCheckout } from "@/components/CollectionCheckout";
 import { formatDualPrice, formatUSD, whatsappLink } from "@/lib/format";
 import { StickyWhatsAppCTA } from "@/components/StickyWhatsAppCTA";
 import { SmartBackLink } from "@/components/SmartBackLink";
+import { SpatialSection } from "@/components/three-d/SpatialSection";
 
 type Props = { params: { id: string } };
 
@@ -65,7 +66,7 @@ export default async function CollectionDetailPage({ params }: Props) {
           ← Back to browsing
         </SmartBackLink>
 
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 mt-8 items-start">
+        <SpatialSection className="grid lg:grid-cols-2 gap-12 lg:gap-16 mt-8 items-start">
           <CatalogImage
             src={box.image}
             fallbackSrc={
@@ -114,9 +115,9 @@ export default async function CollectionDetailPage({ params }: Props) {
 
             <CollectionCheckout box={box} />
           </div>
-        </div>
+        </SpatialSection>
 
-        <section className="mt-20 pt-12 border-t border-border">
+        <SpatialSection className="mt-20 pt-12 border-t border-border">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
             <div>
               <span className="label-mono">What&apos;s inside</span>
@@ -135,7 +136,7 @@ export default async function CollectionDetailPage({ params }: Props) {
           <a href={customizeWa} target="_blank" rel="noopener noreferrer" className="btn-ghost mt-4 inline-flex">
             Customise this collection
           </a>
-        </section>
+        </SpatialSection>
       </div>
       <StickyWhatsAppCTA message={orderMessage} phone={catalog.brand.whatsapp} />
     </>

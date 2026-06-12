@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { CatalogImage } from "@/components/CatalogImage";
 import { openConciergeChat } from "@/components/ChatWidget";
+import { SpatialCard } from "@/components/three-d/SpatialCard";
 import {
   ALL_CATEGORIES,
   CATEGORY_LABELS,
@@ -268,7 +269,8 @@ export function PackBuilder({
       </div>
 
       <aside className="min-w-0 lg:col-span-5">
-        <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto local-scroll local-scroll--subtle border border-border bg-sand p-6 md:p-8 space-y-6">
+        <SpatialCard className="lg:sticky lg:top-24" contentClassName="h-full" intensity="soft">
+        <div className="lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto local-scroll local-scroll--subtle border border-border bg-sand p-6 md:p-8 space-y-6">
           <div>
             <span className="label-mono">Your private collection</span>
             <h2 className="font-serif text-3xl text-obsidian mt-2">
@@ -531,6 +533,7 @@ export function PackBuilder({
             </Link>
           </p>
         </div>
+        </SpatialCard>
       </aside>
     </div>
   );

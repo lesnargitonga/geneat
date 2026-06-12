@@ -2,7 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChatWidget } from "@/components/ChatWidget";
 import { CatalogImage } from "@/components/CatalogImage";
+import { HeroGiftStageLoader } from "@/components/three-d/HeroGiftStageLoader";
 import { LuxuryTilt } from "@/components/three-d/LuxuryTilt";
+import { SpatialCard } from "@/components/three-d/SpatialCard";
+import { SpatialSection } from "@/components/three-d/SpatialSection";
 import { BRAND_IMAGES } from "@/lib/products";
 import { getStorefrontCatalog } from "@/lib/catalog";
 import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
@@ -30,7 +33,11 @@ export default async function HomePage() {
         </div>
 
         <div className="relative container-page min-h-[86svh] py-16 md:py-24 flex flex-col justify-between gap-12">
-          <div className="max-w-4xl pt-8 md:pt-16">
+          <div className="pointer-events-none absolute right-[-4rem] top-24 z-0 hidden h-[520px] w-[min(46vw,680px)] lg:block xl:right-0">
+            <HeroGiftStageLoader />
+          </div>
+
+          <div className="relative z-10 max-w-3xl pt-8 md:pt-16">
             <span className="font-mono text-sm font-medium uppercase tracking-[0.12em] text-white/70">
               BESPOKE CURATION <span className="mx-2 opacity-50">·</span> SEAMLESS LOGISTICS{" "}
               <span className="mx-2 opacity-50">·</span> GLOBAL EXPORT
@@ -58,7 +65,7 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div className="-mx-5 overflow-x-auto px-5 pb-2 local-scroll-x lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0">
+          <div className="relative z-10 -mx-5 overflow-x-auto px-5 pb-2 local-scroll-x lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0">
             <div className="flex min-w-max gap-4 lg:grid lg:min-w-0 lg:grid-cols-5">
               {catalog.collections.map((box, index) => (
                 <LuxuryTilt key={box.id} className="w-[min(78vw,300px)] shrink-0 lg:w-auto">
@@ -92,7 +99,7 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div className="grid gap-5 border-t border-white/20 pt-6 text-white/80 sm:grid-cols-3 md:max-w-4xl">
+          <div className="relative z-10 grid gap-5 border-t border-white/20 pt-6 text-white/80 sm:grid-cols-3 md:max-w-4xl">
             <HeroNote
               title="Bespoke Curation"
               body="Unlisted artifacts and signature regional collections through private artisan and estate networks."
@@ -112,7 +119,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="container-page py-16 md:py-24">
+      <SpatialSection className="container-page py-16 md:py-24">
         <div className="max-w-2xl mb-10 md:mb-12">
           <span className="label-mono">How to order</span>
           <h2 className="h-display mt-3 text-4xl md:text-5xl text-obsidian leading-tight">
@@ -151,10 +158,10 @@ export default async function HomePage() {
             body="Quote insured international transit before payment, with customs-ready details captured by the concierge."
           />
         </div>
-      </section>
+      </SpatialSection>
 
       <section className="section-dark py-16 md:py-24">
-        <div className="container-page grid gap-10 md:grid-cols-12 md:items-start">
+        <SpatialSection className="container-page grid gap-10 md:grid-cols-12 md:items-start">
           <div className="md:col-span-4">
             <span className="label-mono text-sand/40">From Kenya, across Africa</span>
             <h2 className="h-display mt-3 text-4xl md:text-5xl text-sand leading-tight">
@@ -177,7 +184,7 @@ export default async function HomePage() {
               sourced with respect and presented with the standard it deserves.
             </p>
           </div>
-        </div>
+        </SpatialSection>
       </section>
 
       <ChatWidget />
@@ -197,16 +204,18 @@ function PathCard({
   body: string;
 }) {
   return (
-    <Link href={href} className="card-luxury p-6 md:p-8 flex flex-col min-h-[220px] group">
-      <span className="label-mono text-bronze">{label}</span>
-      <h3 className="font-serif text-2xl text-obsidian mt-3 leading-tight group-hover:text-bronze transition-colors">
-        {title}
-      </h3>
-      <p className="text-ink-mute text-sm mt-3 leading-relaxed flex-1">{body}</p>
-      <span className="font-mono text-sm text-bronze mt-6 group-hover:underline underline-offset-4">
-        Continue →
-      </span>
-    </Link>
+    <SpatialCard className="h-full" contentClassName="h-full" intensity="soft">
+      <Link href={href} className="card-luxury p-6 md:p-8 flex h-full flex-col min-h-[220px] group">
+        <span className="label-mono text-bronze">{label}</span>
+        <h3 className="font-serif text-2xl text-obsidian mt-3 leading-tight group-hover:text-bronze transition-colors">
+          {title}
+        </h3>
+        <p className="text-ink-mute text-sm mt-3 leading-relaxed flex-1">{body}</p>
+        <span className="font-mono text-sm text-bronze mt-6 group-hover:underline underline-offset-4">
+          Continue →
+        </span>
+      </Link>
+    </SpatialCard>
   );
 }
 
