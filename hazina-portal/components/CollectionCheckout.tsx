@@ -135,6 +135,16 @@ export function CollectionCheckout({ box }: Props) {
         </button>
       </div>
 
+      <div className="collection-order-desk__confidence">
+        <p className="label-mono text-bronze">What happens after you reserve?</p>
+        <ul className="mt-3 space-y-2 text-sm text-ink-mute leading-relaxed">
+          <li>No payment is taken before availability, timing, and handoff are confirmed.</li>
+          <li>Delivery is confirmed by your concierge — not promised from chat alone.</li>
+          <li>Global export is handled by insured quote before checkout.</li>
+          <li>Private WhatsApp handoff is available at any step.</li>
+        </ul>
+      </div>
+
       <div className="grid sm:grid-cols-2 gap-3">
         <button
           type="button"
