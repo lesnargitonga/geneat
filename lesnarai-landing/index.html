@@ -1,251 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LESNAR AI LTD</title>
-<meta name="description" content="Applied intelligence for real-world systems — AI platforms, automation, and production software from Nairobi.">
-<meta name="application-name" content="LESNAR AI LTD">
-<meta property="og:site_name" content="LESNAR AI LTD">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "LESNAR AI LTD",
-  "legalName": "LESNAR AI LTD",
-  "url": "https://lesnarai.co.ke",
-  "email": "hello@lesnarai.co.ke",
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "Jully Heights, Mirema Drive",
-    "addressLocality": "Nairobi",
-    "postalCode": "00200-00607",
-    "addressCountry": "KE"
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LESNAR AI LTD</title>
+  <meta name="description" content="Applied intelligence and systems engineering — adversarial security, backend infrastructure, and autonomous platforms from Nairobi.">
+  <meta name="application-name" content="LESNAR AI LTD">
+  <meta property="og:site_name" content="LESNAR AI LTD">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "LESNAR AI LTD",
+    "legalName": "LESNAR AI LTD",
+    "url": "https://lesnarai.co.ke",
+    "email": "hello@lesnarai.co.ke",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Jully Heights, Mirema Drive",
+      "addressLocality": "Nairobi",
+      "postalCode": "00200-00607",
+      "addressCountry": "KE"
+    }
   }
-}
-</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css">
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Space+Grotesk:wght@300;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-<div id="cursor"></div>
-<div id="cursor-ring"></div>
-<div id="cursor-label"></div>
-<div class="nav-indicator" id="progress"></div>
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring">
+    <div class="crosshair h"></div>
+    <div class="crosshair v"></div>
+  </div>
 
-<nav id="nav">
-  <a href="#" class="nav-logo">LESNAR<span>AI</span> LTD</a>
-  <ul class="nav-links">
-    <li><a href="#what">Systems</a></li>
-    <li><a href="#products">Products</a></li>
-    <li><a href="#services">Services</a></li>
-    <li><a href="#philosophy">Ethos</a></li>
-    <li><a href="#contact-section">Contact</a></li>
-  </ul>
-  <a href="#contact-section" class="nav-cta" data-magnetic>WORK WITH US</a>
-</nav>
-
-<section id="hero">
   <canvas id="webgl-canvas"></canvas>
-  <div class="noise-overlay"></div>
-  <div class="hero-content">
-    <div class="hero-eyebrow fade-up hero-fade">Nairobi · Kenya — Est. 2024</div>
-    <h1 class="hero-title" id="hero-title">
-      <div class="line"><span class="split-text">AI systems.</span></div>
-      <div class="line"><span class="split-text">Software products.</span></div>
-      <div class="line"><span class="split-text highlight">Real infrastructure.</span></div>
-    </h1>
-    <p class="hero-sub fade-up delay-1 hero-fade">LesnarAI designs and builds applied intelligence for businesses that need working technology, not hype. From intelligent platforms to automation systems and autonomous tools.</p>
-    <div class="hero-actions fade-up delay-2 hero-fade">
-      <a href="#contact-section" class="btn-primary" data-magnetic data-cursor-label="CONNECT">Work with LesnarAI</a>
-      <a href="#products" class="btn-secondary" data-magnetic data-cursor-label="VIEW">View Products</a>
-    </div>
-    <div class="hero-stats fade-up delay-3 hero-fade">
-      <div class="stat-item">
-        <span class="stat-num"><span class="unit">AI</span> First</span>
-        <span class="stat-label">Philosophy</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num">3<span class="unit">+</span></span>
-        <span class="stat-label">Ventures</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num"><span class="unit">∞</span></span>
-        <span class="stat-label">Ambition</span>
+  <div class="crt-overlay"></div>
+
+  <nav>
+    <div class="logo">LESNAR<span>_</span> AI LTD</div>
+    <a href="#contact" class="nav-btn" data-magnetic>INIT_CONNECTION</a>
+  </nav>
+
+  <main class="hero">
+    <div class="hero-content">
+      <div class="eyebrow fade-up hero-fade">SYS.ONLINE // NAIROBI, KE</div>
+      <h1 class="hero-title">
+        <div class="line"><span class="split-text">Adversarial.</span></div>
+        <div class="line"><span class="split-text">Algorithmic.</span></div>
+        <div class="line"><span class="split-text highlight">Absolute.</span></div>
+      </h1>
+      <p class="hero-sub fade-up delay-1 hero-fade">
+        Engineering high-performance backend infrastructure, adversarial security protocols, and autonomous quantitative systems. We build technology that survives contact with reality.
+      </p>
+      <div class="actions fade-up delay-2 hero-fade">
+        <a href="#capabilities" class="btn-primary" data-magnetic>View Architecture</a>
+        <a href="https://hazina.lesnarai.co.ke" class="btn-secondary" data-magnetic target="_blank" rel="noopener noreferrer">Live: Hazina</a>
       </div>
     </div>
-  </div>
-  <div class="hero-scroll-hint hero-fade delay-3">
-    <span class="scroll-line"></span>
-    <span class="scroll-text">SCROLL TO EXPLORE</span>
-  </div>
-</section>
+  </main>
 
-<div class="divider"></div>
-
-<section id="what" class="standard-padding">
-  <div class="container">
-    <div class="section-eyebrow fade-up">Capabilities</div>
-    <h2 class="section-title split-text">What we build</h2>
-    <p class="section-sub fade-up">We move from concept to deployed system. Not presentations — production.</p>
-  </div>
-  <div class="build-grid container">
-    <div class="build-item fade-up"><div class="build-icon">⚡</div><div class="build-name">AI Systems Design</div><div class="build-desc">Architecture for intelligent pipelines — from data ingestion to inference to action. Built for reliability, not demos.</div><div class="build-tag">Core Discipline</div></div>
-    <div class="build-item fade-up delay-1"><div class="build-icon">🌐</div><div class="build-name">Web Applications</div><div class="build-desc">Full-stack platforms with real users in mind. M-Pesa, Safaricom, and African payment stack integrations native.</div><div class="build-tag">Production Ready</div></div>
-    <div class="build-item fade-up"><div class="build-icon">⚙️</div><div class="build-name">Workflow Automation</div><div class="build-desc">Eliminate manual bottlenecks. Connect systems, automate decisions, reduce cost. Measurable output.</div><div class="build-tag">ROI Driven</div></div>
-    <div class="build-item fade-up delay-1"><div class="build-icon">🔒</div><div class="build-name">Security-Aware Engineering</div><div class="build-desc">Every system we ship gets adversarial review. No afterthought compliance — security is architecture.</div><div class="build-tag">Built In</div></div>
-    <div class="build-item fade-up"><div class="build-icon">🤖</div><div class="build-name">AI Concierge &amp; Agents</div><div class="build-desc">Intelligent assistants that handle real operational tasks. Customer service, logistics, commerce, research.</div><div class="build-tag">Deployed</div></div>
-    <div class="build-item fade-up delay-1"><div class="build-icon">🚁</div><div class="build-name">Robotics &amp; Autonomous Tools</div><div class="build-desc">The long game. Drone systems, physical automation, and edge-AI infrastructure. Africa's first AI-robotics studio.</div><div class="build-tag">R&amp;D Active</div></div>
-  </div>
-</section>
-
-<div class="divider"></div>
-
-<section id="products" class="standard-padding">
-  <div class="container">
-    <div class="section-eyebrow fade-up">Ventures</div>
-    <h2 class="section-title split-text">Products we operate</h2>
-    <p class="section-sub fade-up">We don't just consult — we build and run our own platforms. Hazina is proof of execution.</p>
-    <div class="products-row">
-      <div class="product-main fade-up">
-        <div class="product-status"><span class="status-dot"></span> Live · Active Venture</div>
-        <h3 class="product-name">Hazina Nomads</h3>
-        <div class="product-tagline">hazina.lesnarai.co.ke — Kenya's premium curation platform</div>
-        <p class="product-desc">A premium Kenyan curation and concierge commerce platform serving travellers, diaspora clients, and corporate gifting markets. AI-powered discovery, white-glove fulfillment, authentic African craftsmanship at global standards.</p>
-        <div class="product-meta">
-          <span class="meta-tag">E-Commerce</span><span class="meta-tag">Concierge AI</span><span class="meta-tag">Diaspora</span>
+  <section id="capabilities" class="dark-sector">
+    <div class="container">
+      <h2 class="section-title split-text">Capabilities_</h2>
+      <div class="grid">
+        <div class="card fade-up">
+          <div class="card-header">01 // BACKEND &amp; INFRASTRUCTURE</div>
+          <h3>High-Performance Systems</h3>
+          <p>Architecting resilient backend pipelines, API gateways, and database topologies. Built for scale, latency optimization, and zero-downtime deployments.</p>
         </div>
-        <a href="https://hazina.lesnarai.co.ke" class="product-link" data-cursor-label="EXPLORE" target="_blank" rel="noopener noreferrer">Explore Hazina Nomads →</a>
-      </div>
-      <div class="coming-grid fade-up delay-1">
-        <div class="roadmap-title">On the roadmap</div>
-        <div class="coming-item"><div class="coming-dot"></div><div class="coming-name">Gen-Eat</div><span class="coming-label">Live · USIU</span></div>
-        <div class="coming-item"><div class="coming-dot"></div><div class="coming-name">Security Audit Tooling</div><span class="coming-label">In Design</span></div>
-        <div class="coming-item"><div class="coming-dot"></div><div class="coming-name">AI Business Assistants</div><span class="coming-label">Prototyping</span></div>
-        <div class="coming-item"><div class="coming-dot"></div><div class="coming-name">Drone Research Platform</div><span class="coming-label">R&amp;D</span></div>
-      </div>
-    </div>
-    <div class="products-secondary fade-up delay-2">
-      <a href="https://geneat.lesnarai.co.ke" class="product-card-mini" target="_blank" rel="noopener noreferrer" data-cursor-label="VISIT">
-        <span class="product-card-mini__tag">Live · USIU</span>
-        <span class="product-card-mini__name">Gen-Eat</span>
-        <span class="product-card-mini__desc">AI front-of-house for cafés — WhatsApp orders, M-Pesa, kitchen tickets.</span>
-      </a>
-    </div>
-  </div>
-</section>
-
-<div class="divider"></div>
-
-<section id="services" class="standard-padding surface-bg">
-  <div class="container">
-    <div class="section-eyebrow fade-up">Engagement</div>
-    <h2 class="section-title split-text">How we work with clients</h2>
-    <p class="section-sub fade-up">Fixed-scope builds, retained engineering, or venture co-build. We match the engagement to the outcome.</p>
-    <div class="services-grid">
-      <div class="service-card fade-up">
-        <div class="service-num">01</div>
-        <h3 class="service-name">Product Build</h3>
-        <p class="service-desc">End-to-end delivery — discovery, architecture, frontend, backend, integrations, deploy. You get a live URL and a handover runbook.</p>
-      </div>
-      <div class="service-card fade-up delay-1">
-        <div class="service-num">02</div>
-        <h3 class="service-name">AI Integration</h3>
-        <p class="service-desc">Embed LLM agents, WhatsApp automation, catalog RAG, and payment flows into existing operations without breaking what already works.</p>
-      </div>
-      <div class="service-card fade-up delay-2">
-        <div class="service-num">03</div>
-        <h3 class="service-name">Frontend Excellence</h3>
-        <p class="service-desc">WebGL, motion systems, conversion UX, and performance budgets. The kind of frontend that signals engineering maturity on first scroll.</p>
-      </div>
-      <div class="service-card fade-up delay-3">
-        <div class="service-num">04</div>
-        <h3 class="service-name">Technical Co-Founder</h3>
-        <p class="service-desc">For founders who need a senior engineering partner — not a slide deck. We ship v1, iterate in production, and stay through scale.</p>
+        <div class="card fade-up delay-1">
+          <div class="card-header">02 // ADVERSARIAL SECURITY</div>
+          <h3>Bug Bounties &amp; Protocol Auditing</h3>
+          <p>Deep-dive vulnerability research, including protocol settlement invariant violations and deterministic value leakage. We break logic before attackers do.</p>
+        </div>
+        <div class="card fade-up">
+          <div class="card-header">03 // HARDWARE PENTESTING</div>
+          <h3>Physical Access Vectors</h3>
+          <p>Hardware-level penetration testing utilizing Flipper Zero and Proxmark3 methodologies. Securing the physical-to-digital bridge.</p>
+        </div>
+        <div class="card fade-up delay-1">
+          <div class="card-header">04 // QUANTITATIVE SYSTEMS</div>
+          <h3>Algorithmic Trading Execution</h3>
+          <p>Developing low-latency arbitrage strategies and historical simulations for Gold (XAU/USD). Market regime detection driven by delta matrix data.</p>
+        </div>
+        <div class="card fade-up">
+          <div class="card-header">05 // AUTONOMOUS LOGIC</div>
+          <h3>Flight Systems &amp; Robotics</h3>
+          <p>Core logic for autonomous systems and drone platforms. Bridging AI models with physical hardware execution.</p>
+        </div>
+        <div class="card fade-up delay-1">
+          <div class="card-header">06 // AI PLATFORMS</div>
+          <h3>Intelligent Commerce</h3>
+          <p>End-to-end development of AI-native platforms, integrating semantic search, autonomous concierge agents, and secure payment rails. <a href="https://hazina.lesnarai.co.ke" class="inline-link" target="_blank" rel="noopener noreferrer">Hazina Nomads</a> and <a href="https://geneat.lesnarai.co.ke" class="inline-link" target="_blank" rel="noopener noreferrer">Gen-Eat</a> are live in market.</p>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<div class="divider"></div>
-
-<section id="philosophy" class="standard-padding">
-  <div class="container philosophy-inner">
-    <div class="philosophy-copy fade-up">
-      <div class="section-eyebrow">Ethos</div>
-      <h2 class="section-title split-text">Built like a matatu. Engineered like a lab.</h2>
-      <p class="section-sub">Nairobi teaches you to ship for real conditions — patchy networks, M-Pesa rails, WhatsApp-first users, and zero tolerance for demos that break on day two. We design for that reality first.</p>
-      <ul class="philosophy-list">
-        <li><strong>No mockups as deliverables.</strong> Production URLs or it didn't happen.</li>
-        <li><strong>Integrations are the product.</strong> Daraja, Meta WhatsApp, edge deploy — not afterthoughts.</li>
-        <li><strong>Frontend is credibility.</strong> Your interface is the first proof you can execute.</li>
-        <li><strong>Security by architecture.</strong> Adversarial review before launch, not a checkbox audit.</li>
-      </ul>
-    </div>
-    <div class="philosophy-panel fade-up delay-1">
-      <div class="philosophy-stat"><span class="philosophy-stat__num">100<span class="hl">%</span></span><span class="philosophy-stat__label">Kenya-built engineering</span></div>
-      <div class="philosophy-stat"><span class="philosophy-stat__num">0</span><span class="philosophy-stat__label">Tolerance for vaporware</span></div>
-      <div class="philosophy-stat"><span class="philosophy-stat__num">∞</span><span class="philosophy-stat__label">Ambition for African systems</span></div>
-    </div>
-  </div>
-</section>
-
-<div class="divider"></div>
-
-<section id="proof" class="standard-padding container">
-  <div class="section-eyebrow fade-up">Execution</div>
-  <h2 class="section-title split-text">Numbers that matter</h2>
-  <div class="proof-grid fade-up">
-    <div class="proof-item"><div class="proof-num"><span class="counter" data-target="2">0</span><span>+</span></div><div class="proof-label">Live Products</div></div>
-    <div class="proof-item"><div class="proof-num"><span class="counter" data-target="8">0</span><span>+</span></div><div class="proof-label">Service Lines</div></div>
-    <div class="proof-item"><div class="proof-num"><span class="counter" data-target="3">0</span></div><div class="proof-label">Global Markets</div></div>
-    <div class="proof-item"><div class="proof-num"><span class="counter" data-target="100">0</span><span class="hl">%</span></div><div class="proof-label">Kenya Built</div></div>
-  </div>
-</section>
-
-<div class="divider"></div>
-
-<section id="contact-section" class="standard-padding surface-bg">
-  <div class="container contact-inner">
-    <div class="contact-left fade-up">
-      <div class="section-eyebrow">Work With Us</div>
-      <h2 class="section-title split-text">Ready to build something <em class="accent-em">real?</em></h2>
-      <p class="section-sub">Whether you need an AI system, a web platform, automation infrastructure, or a technical co-founder — let's talk. We move fast, we build clean, and we ship.</p>
-      <div class="hero-actions">
+  <section id="contact" class="contact-sector">
+    <div class="container contact-row">
+      <div class="fade-up">
+        <div class="eyebrow">INIT_CONNECTION</div>
+        <h2 class="section-title split-text contact-title">Engage engineering.</h2>
+        <p class="hero-sub">Protocol audits, backend builds, quantitative systems, or full-stack AI platforms — scoped for production, not pitch decks.</p>
         <a href="mailto:hello@lesnarai.co.ke" class="btn-primary" data-magnetic>hello@lesnarai.co.ke</a>
       </div>
     </div>
-    <div class="terminal-window fade-up delay-1" id="terminal-trigger">
-      <div class="terminal-bar">
-        <div class="t-dot r"></div><div class="t-dot y"></div><div class="t-dot g"></div>
-        <span class="t-title">lesnarai.terminal</span>
-      </div>
-      <div class="terminal-body" id="terminal-body">
-        <div><span class="t-prompt">$ </span><span class="t-cmd" id="t-line-1"></span></div>
-        <div class="t-out" id="t-out-1" style="display:none"></div>
-        <div id="t-line2-wrap" style="display:none"><span class="t-prompt">$ </span><span class="t-cmd" id="t-line-2"></span></div>
-        <div class="t-out" id="t-out-2" style="display:none"></div>
-        <div id="t-cursor-line" style="display:none"><span class="t-prompt">$ </span><span class="t-cursor"></span></div>
-      </div>
-    </div>
-  </div>
-</section>
+    <footer class="site-footer">
+      <span>&copy; 2026 LESNAR AI LTD</span>
+      <span>Nairobi, Kenya</span>
+    </footer>
+  </section>
 
-<footer>
-  <div class="footer-inner container">
-    <div class="footer-logo">LESNAR<span>AI</span> LTD</div>
-    <div class="footer-tagline">Applied intelligence · Nairobi, Kenya · <a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a></div>
-    <div class="footer-legal">&copy; 2026 LESNAR AI LTD</div>
-  </div>
-</footer>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-<script src="js/webgl.js"></script>
-<script src="js/main.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
