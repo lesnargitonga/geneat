@@ -519,7 +519,7 @@ Guest / order context
 | **Name** | Hazina Nomads |
 | **Industry** | `gift-concierge` |
 | **Location** | Kenya — bespoke curation, seamless logistics, and global export |
-| **Phone** | `+25415540653` public personal concierge CTA while Meta Business review is blocked |
+| **Phone** | `+254715540653` public personal concierge CTA while Meta Business review is blocked |
 | **Email** | `concierge@hazina-nomads.com` |
 | **Languages** | `en` primary, `sw` secondary |
 | **Coords** | -1.2921, 36.7853 (Nairobi) |
@@ -623,8 +623,8 @@ PAYSTACK_SECRET_KEY=                         # Preferred USD/card rail once appr
 PAYSTACK_PUBLIC_KEY=
 
 # ── hazina-portal/ (Render hazina-portal service) ──
-NEXT_PUBLIC_HAZINA_WHATSAPP=25415540653
-NEXT_PUBLIC_HAZINA_PHONE=+25415540653
+NEXT_PUBLIC_HAZINA_WHATSAPP=254715540653
+NEXT_PUBLIC_HAZINA_PHONE=+254715540653
 NEXT_PUBLIC_BACKEND_URL=https://hazina-api.onrender.com
 BACKEND_URL=https://hazina-api.onrender.com
 ```

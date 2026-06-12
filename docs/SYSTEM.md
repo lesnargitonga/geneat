@@ -20,7 +20,7 @@ service.
 | Tenant `hazina-nomads` | ✅ | ◐ | `DEFAULT_BUSINESS_SLUG`; Meta `phone_number_id` |
 | Gen-Eat portal | ✅ | 🟢 | `geneat.lesnarai.co.ke` |
 | Hazina portal | ✅ | ◐ | Render portal live at `hazina-portal.onrender.com`; public `hazina.lesnarai.co.ke` DNS still needs Cloudflare cutover |
-| Hazina WA CTA | ✅ | ◐ | Public CTAs use personal concierge line `+25415540653`; full WhatsApp automation waits for a BSP/API number |
+| Hazina WA CTA | ✅ | ◐ | Public CTAs use personal concierge line `+254715540653`; full WhatsApp automation waits for a BSP/API number |
 | Website chat automation | ✅ | ◐ | Instant deterministic menu + guided checkout/recommendation; AI only classifies off-script requests |
 | KES STK (IntaSend) | ✅ | 🟢 | Live keys; `PAYMENT_SIMULATOR=false`; primary M-Pesa rail |
 | USD/card checkout | ✅ | ◐ | Paystack preferred when keys exist; IntaSend hosted checkout is fallback for now |

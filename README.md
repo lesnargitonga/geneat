@@ -79,7 +79,7 @@ Current Hazina production-routing path:
   machinery as Gen-Eat, but the current production target is the dedicated
   `hazina-api` Render service in Frankfurt,
 - the public Hazina WhatsApp CTA number is currently the personal concierge
-  line `+25415540653` (`NEXT_PUBLIC_HAZINA_WHATSAPP=25415540653`) while Meta
+  line `+254715540653` (`NEXT_PUBLIC_HAZINA_WHATSAPP=254715540653`) while Meta
   Business review is blocked; website chat is the fully automated channel,
   and WhatsApp is a structured human handoff until a BSP/API number is ready,
 - Hazina customer chat is now automation-first: deterministic menu and guided
