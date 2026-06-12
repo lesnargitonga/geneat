@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CatalogImage } from "@/components/CatalogImage";
 import { ConciergeSceneCTA } from "@/components/ConciergeSceneCTA";
+import { VaultEntryLink } from "@/components/VaultEntryLink";
 import { FloatingSurface } from "@/components/three-d/FloatingSurface";
 import { LuxuryTilt } from "@/components/three-d/LuxuryTilt";
 import { RevealGroup } from "@/components/three-d/RevealGroup";
@@ -56,9 +57,7 @@ export default async function HomePage() {
               </p>
             </RevealText>
             <RevealGroup className="mt-8 flex flex-wrap gap-3" delay={0.23} stagger={0.07}>
-              <Link href="/collections" className="btn-bronze" data-cursor="magnetic">
-                Enter the collection rooms
-              </Link>
+              <VaultEntryLink />
               <a
                 href={wa}
                 target="_blank"

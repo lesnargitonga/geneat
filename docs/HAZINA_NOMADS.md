@@ -818,6 +818,7 @@ No `/cafes`, `/map`, or `/owners` — those live only in `gen-eat-portal/`.
 | Showroom shell | `components/three-d/ShowroomShell.tsx` | Global spatial stage, right-side hero drag lane, route-aware background presence |
 | Hero gift stage | `components/three-d/HeroGiftStage.tsx` | WebGL gift object with desktop pointer response and controlled drag/inertia |
 | Magnetic cursor | `components/three-d/MagneticCursor.tsx` | Desktop-only bronze/cream overlay cursor; opt-in targets via `data-cursor="magnetic"` |
+| Vault entry | `components/VaultEntryLink.tsx` | Controlled desktop WebGL box reveal before `/collections`; immediate navigation for mobile, reduced motion, compact desktop, or fallback rendering |
 
 ### 9.3.1 Spatial interaction standard
 
@@ -829,6 +830,8 @@ implemented interaction layers are deliberately restrained:
 - release settles the object back with a small, damped overshoot
 - the 3D object must never cover headline, paragraph, or CTA copy
 - the magnetic cursor is an accent only; the browser cursor remains available
+- the collection-vault reveal runs only when the desktop WebGL stage is
+  mounted, takes roughly one second, and then yields to normal navigation
 - mobile, touch-only devices, reduced motion, inputs, and checkout quantity
   controls stay native
 
@@ -920,6 +923,11 @@ Run this before presenting Hazina as a luxury front door:
 - [ ] Desktop magnetic cursor: bronze/cream accent appears only on fine-pointer
       desktop, expands subtly on marked CTAs/cards, keeps `pointer-events: none`,
       and does not hide over form/checkout controls.
+- [ ] Desktop vault entry: the primary collection CTA opens the gift-box lid,
+      brightens the inner stage, disables drag during the sequence, and reaches
+      `/collections` without copy overlap or horizontal overflow.
+- [ ] Vault fallback paths: compact desktop, mobile, reduced motion, and missing
+      WebGL navigate immediately without waiting for an invisible animation.
 - [ ] Tablet homepage: 3D/fallback stage remains visible without horizontal
       overflow or cropped hero copy.
 - [ ] Mobile homepage: no blank canvas, no horizontal overflow, collection rail

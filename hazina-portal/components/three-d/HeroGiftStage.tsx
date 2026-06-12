@@ -3,7 +3,7 @@
 import { ContactShadows, Float } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
-import { MathUtils, type Group } from "three";
+import { MathUtils, type Group, type PointLight } from "three";
 import { HazinaCanvas } from "./HazinaCanvas";
 import { FloatingTreasure } from "./FloatingTreasure";
 
@@ -33,9 +33,14 @@ function usePrefersReducedMotion() {
   return reduceMotion;
 }
 
-function GiftScene() {
+function GiftScene({ revealing }: { revealing: boolean }) {
   const reduceMotion = usePrefersReducedMotion();
   const stageRef = useRef<Group | null>(null);
+  const lidRef = useRef<Group | null>(null);
+  const treasureRef = useRef<Group | null>(null);
+  const vaultLightRef = useRef<PointLight | null>(null);
+  const revealTarget = useRef(0);
+  const revealProgress = useRef(0);
   const targetPointer = useRef({ x: 0, y: 0 });
   const smoothPointer = useRef({ x: 0, y: 0 });
   const targetDrag = useRef({ x: 0, y: 0 });
@@ -43,6 +48,15 @@ function GiftScene() {
   const dragVelocity = useRef({ x: 0, y: 0 });
   const lastDrag = useRef({ x: 0, y: 0 });
   const isDragging = useRef(false);
+
+  useEffect(() => {
+    revealTarget.current = revealing && !reduceMotion ? 1 : 0;
+    if (revealing) {
+      isDragging.current = false;
+      targetDrag.current.x = 0;
+      targetDrag.current.y = 0;
+    }
+  }, [reduceMotion, revealing]);
 
   useEffect(() => {
     if (reduceMotion) return;
@@ -123,6 +137,13 @@ function GiftScene() {
   useFrame(({ clock }) => {
     if (!stageRef.current || reduceMotion) return;
 
+    revealProgress.current = MathUtils.lerp(
+      revealProgress.current,
+      revealTarget.current,
+      revealing ? 0.085 : 0.065,
+    );
+    const reveal = revealProgress.current;
+
     if (!isDragging.current) {
       targetDrag.current.x = MathUtils.lerp(targetDrag.current.x, 0, 0.06);
       targetDrag.current.y = MathUtils.lerp(targetDrag.current.y, 0, 0.06);
@@ -154,31 +175,51 @@ function GiftScene() {
     const pointerY = smoothPointer.current.y;
     const dragX = MathUtils.clamp(smoothDrag.current.x, -1, 1);
     const dragY = MathUtils.clamp(smoothDrag.current.y, -1, 1);
-    const hoverInfluence = isDragging.current ? 0.42 : 1;
+    const hoverInfluence = (isDragging.current ? 0.42 : 1) * (1 - reveal * 0.82);
     const ambientRotationY = Math.sin(clock.elapsedTime * 0.24) * 0.12;
     const ambientPositionY = Math.sin(clock.elapsedTime * 0.55) * 0.035;
 
     stageRef.current.rotation.y = MathUtils.clamp(
-      ambientRotationY + pointerX * 0.22 * hoverInfluence + dragX * 0.42,
+      ambientRotationY + pointerX * 0.22 * hoverInfluence + dragX * 0.42 - reveal * 0.08,
       -0.58,
       0.58,
     );
     stageRef.current.rotation.x = MathUtils.clamp(
-      BASE_STAGE_ROTATION_X - pointerY * 0.1 * hoverInfluence - dragY * 0.18,
+      BASE_STAGE_ROTATION_X - pointerY * 0.1 * hoverInfluence - dragY * 0.18 - reveal * 0.025,
       -0.28,
       0.16,
     );
     stageRef.current.position.x = MathUtils.clamp(
-      BASE_STAGE_POSITION.x + pointerX * 0.22 * hoverInfluence + dragX * 0.28,
+      BASE_STAGE_POSITION.x + pointerX * 0.22 * hoverInfluence + dragX * 0.28 - reveal * 0.04,
       -0.28,
       0.48,
     );
     stageRef.current.position.y = MathUtils.clamp(
-      BASE_STAGE_POSITION.y + ambientPositionY - pointerY * 0.1 * hoverInfluence - dragY * 0.16,
+      BASE_STAGE_POSITION.y +
+        ambientPositionY -
+        pointerY * 0.1 * hoverInfluence -
+        dragY * 0.16 +
+        reveal * 0.08,
       -0.42,
       0.08,
     );
     stageRef.current.position.z = BASE_STAGE_POSITION.z;
+
+    if (lidRef.current) {
+      lidRef.current.rotation.x = -1.08 * reveal;
+      lidRef.current.position.y = reveal * 0.06;
+    }
+
+    if (treasureRef.current) {
+      treasureRef.current.position.y = reveal * 0.14;
+      treasureRef.current.scale.setScalar(1 + reveal * 0.045);
+      treasureRef.current.rotation.y = reveal * 0.055;
+    }
+
+    if (vaultLightRef.current) {
+      vaultLightRef.current.intensity = MathUtils.lerp(0, 4.8, reveal);
+      vaultLightRef.current.distance = MathUtils.lerp(1.4, 4.4, reveal);
+    }
   });
 
   return (
@@ -187,6 +228,7 @@ function GiftScene() {
       <directionalLight position={[4.2, 6.2, 4.8]} intensity={2.45} color="#ffe2b7" />
       <pointLight position={[-3.4, 2.2, 3.4]} intensity={0.85} color="#caa777" />
       <pointLight position={[3.2, 1.4, -2.6]} intensity={0.42} color="#fff1d6" />
+      <pointLight ref={vaultLightRef} position={[0, 0.7, 0.1]} intensity={0} color="#f0c98c" />
       <group
         ref={stageRef}
         position={[BASE_STAGE_POSITION.x, BASE_STAGE_POSITION.y, BASE_STAGE_POSITION.z]}
@@ -202,14 +244,6 @@ function GiftScene() {
               <boxGeometry args={[2.42, 0.055, 1.54]} />
               <meshStandardMaterial color="#0f0b09" roughness={0.74} metalness={0.08} />
             </mesh>
-            <mesh position={[0, 0.42, 0]}>
-              <boxGeometry args={[2.55, 0.26, 1.66]} />
-              <meshStandardMaterial color="#211812" roughness={0.76} metalness={0.07} />
-            </mesh>
-            <mesh position={[0, 0.61, 0]}>
-              <boxGeometry args={[2.35, 0.035, 1.46]} />
-              <meshStandardMaterial color="#f0e4d1" roughness={0.7} metalness={0.02} />
-            </mesh>
             <mesh position={[-1.19, 0.04, 0]}>
               <boxGeometry args={[0.035, 0.72, 1.52]} />
               <meshStandardMaterial color="#2d2118" roughness={0.72} metalness={0.05} />
@@ -217,18 +251,6 @@ function GiftScene() {
             <mesh position={[1.19, 0.04, 0]}>
               <boxGeometry args={[0.035, 0.72, 1.52]} />
               <meshStandardMaterial color="#0f0b09" roughness={0.74} metalness={0.06} />
-            </mesh>
-            <mesh position={[0, 0.78, 0.03]}>
-              <boxGeometry args={[0.18, 0.1, 1.78]} />
-              <meshStandardMaterial color="#b9854f" roughness={0.44} metalness={0.24} />
-            </mesh>
-            <mesh position={[0, 0.79, 0.03]}>
-              <boxGeometry args={[2.72, 0.105, 0.16]} />
-              <meshStandardMaterial color="#caa777" roughness={0.42} metalness={0.26} />
-            </mesh>
-            <mesh position={[0, 0.93, 0.03]}>
-              <torusGeometry args={[0.24, 0.035, 10, 48]} />
-              <meshStandardMaterial color="#d7b47e" roughness={0.38} metalness={0.32} />
             </mesh>
             <mesh position={[-0.62, 0.655, 0.38]} rotation={[-0.08, 0.12, -0.02]}>
               <boxGeometry args={[0.62, 0.38, 0.025]} />
@@ -238,13 +260,49 @@ function GiftScene() {
               <boxGeometry args={[0.42, 0.018, 0.012]} />
               <meshStandardMaterial color="#b9854f" roughness={0.52} metalness={0.16} />
             </mesh>
+            <mesh position={[0, 0.34, 0]}>
+              <boxGeometry args={[2.16, 0.035, 1.3]} />
+              <meshStandardMaterial
+                color="#5d3921"
+                emissive="#b9854f"
+                emissiveIntensity={0.42}
+                roughness={0.78}
+                metalness={0.03}
+              />
+            </mesh>
+            <group ref={lidRef} position={[0, 0, 0]} rotation={[0, 0, 0]}>
+              <group position={[0, 0.34, -0.73]}>
+                <mesh position={[0, 0.08, 0.73]}>
+                  <boxGeometry args={[2.55, 0.26, 1.66]} />
+                  <meshStandardMaterial color="#211812" roughness={0.76} metalness={0.07} />
+                </mesh>
+                <mesh position={[0, 0.27, 0.73]}>
+                  <boxGeometry args={[2.35, 0.035, 1.46]} />
+                  <meshStandardMaterial color="#f0e4d1" roughness={0.7} metalness={0.02} />
+                </mesh>
+                <mesh position={[0, 0.44, 0.76]}>
+                  <boxGeometry args={[0.18, 0.1, 1.78]} />
+                  <meshStandardMaterial color="#b9854f" roughness={0.44} metalness={0.24} />
+                </mesh>
+                <mesh position={[0, 0.45, 0.76]}>
+                  <boxGeometry args={[2.72, 0.105, 0.16]} />
+                  <meshStandardMaterial color="#caa777" roughness={0.42} metalness={0.26} />
+                </mesh>
+                <mesh position={[0, 0.59, 0.76]}>
+                  <torusGeometry args={[0.24, 0.035, 10, 48]} />
+                  <meshStandardMaterial color="#d7b47e" roughness={0.38} metalness={0.32} />
+                </mesh>
+              </group>
+            </group>
           </group>
         </Float>
 
-        <FloatingTreasure kind="bead-ring" position={[-1.72, 1.04, -0.42]} rotation={[0.35, 0.35, -0.24]} />
-        <FloatingTreasure kind="coffee-pack" position={[1.72, 0.74, -0.18]} rotation={[0.02, -0.38, 0.12]} />
-        <FloatingTreasure kind="leather-tag" position={[1.36, -0.5, 0.34]} rotation={[0.18, -0.2, -0.12]} />
-        <FloatingTreasure kind="story-card" position={[-1.45, -0.54, 0.2]} rotation={[0.14, 0.24, 0.1]} />
+        <group ref={treasureRef}>
+          <FloatingTreasure kind="bead-ring" position={[-1.72, 1.04, -0.42]} rotation={[0.35, 0.35, -0.24]} />
+          <FloatingTreasure kind="coffee-pack" position={[1.72, 0.74, -0.18]} rotation={[0.02, -0.38, 0.12]} />
+          <FloatingTreasure kind="leather-tag" position={[1.36, -0.5, 0.34]} rotation={[0.18, -0.2, -0.12]} />
+          <FloatingTreasure kind="story-card" position={[-1.45, -0.54, 0.2]} rotation={[0.14, 0.24, 0.1]} />
+        </group>
       </group>
       <ContactShadows
         position={[0, -1.02, 0]}
@@ -269,11 +327,11 @@ function StageFallback() {
   );
 }
 
-export function HeroGiftStage() {
+export function HeroGiftStage({ revealing = false }: { revealing?: boolean }) {
   return (
     <div className="spatial-stage hero-gift-stage" aria-hidden="true">
       <HazinaCanvas fallback={<StageFallback />} className="h-full w-full">
-        <GiftScene />
+        <GiftScene revealing={revealing} />
       </HazinaCanvas>
     </div>
   );

@@ -2,8 +2,9 @@
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { HeroGiftStageLoader } from "@/components/three-d/HeroGiftStageLoader";
+import { HAZINA_VAULT_REVEAL_EVENT } from "@/lib/showroom";
 
 type ShowroomRoute =
   | "home"
@@ -46,11 +47,13 @@ export function ShowroomShell() {
   const dragStart = useRef({ x: 0, y: 0 });
   const isDraggingRef = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [vaultOpening, setVaultOpening] = useState(false);
   const { scrollY } = useScroll();
   const stageY = useTransform(scrollY, [0, 900], [0, -76]);
   const stageScale = useTransform(scrollY, [0, 900], [1, 0.9]);
   const homeOpacity = useTransform(scrollY, [0, 640, 1180], [1, 0.7, 0.18]);
   const lightY = useTransform(scrollY, [0, 1600], [0, 120]);
+  const isVaultOpening = route === "home" && vaultOpening;
 
   const dispatchStageDrag = (detail: StageDragDetail) => {
     window.dispatchEvent(new CustomEvent<StageDragDetail>("hazina:stage-drag", { detail }));
@@ -63,8 +66,33 @@ export function ShowroomShell() {
     dispatchStageDrag({ phase: "end", dx: 0, dy: 0 });
   };
 
+  useEffect(() => {
+    setVaultOpening(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const openVault = () => {
+      if (isDraggingRef.current) {
+        isDraggingRef.current = false;
+        setIsDragging(false);
+        window.dispatchEvent(
+          new CustomEvent<StageDragDetail>("hazina:stage-drag", {
+            detail: { phase: "end", dx: 0, dy: 0 },
+          }),
+        );
+      }
+      setVaultOpening(true);
+    };
+
+    window.addEventListener(HAZINA_VAULT_REVEAL_EVENT, openVault);
+    return () => window.removeEventListener(HAZINA_VAULT_REVEAL_EVENT, openVault);
+  }, []);
+
   return (
-    <div className={`showroom-shell ${routeClass[route]}`} aria-hidden="true">
+    <div
+      className={`showroom-shell ${routeClass[route]}${isVaultOpening ? " showroom-shell--vault-opening" : ""}`}
+      aria-hidden="true"
+    >
       <motion.div className="showroom-shell__light" style={{ y: lightY }} />
       <div className="showroom-shell__architecture">
         <span className="showroom-shell__rail showroom-shell__rail--left" />
@@ -79,9 +107,9 @@ export function ShowroomShell() {
           opacity: route === "home" ? homeOpacity : undefined,
         }}
       >
-        <HeroGiftStageLoader />
+        <HeroGiftStageLoader revealing={isVaultOpening} />
       </motion.div>
-      {route === "home" && (
+      {route === "home" && !isVaultOpening && (
         <div
           className={`showroom-shell__interaction-lane${isDragging ? " is-dragging" : ""}`}
           onPointerDown={(event) => {

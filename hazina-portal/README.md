@@ -69,6 +69,9 @@ Implemented interaction layers:
 - controlled desktop drag/inertia limited to the right-side stage lane
 - reduced-motion and touch safety for stage movement
 - restrained desktop magnetic cursor accent on selected CTAs/cards only
+- controlled collection-vault reveal before desktop navigation when WebGL is
+  active; compact desktop, mobile, reduced-motion, and fallback paths navigate
+  immediately
 - default browser cursor remains visible; the custom cursor is an overlay
 - quantity controls, text inputs, mobile, and reduced-motion contexts stay native
 
@@ -76,6 +79,10 @@ The cursor lives in `components/three-d/MagneticCursor.tsx` and is mounted from
 `components/SiteChrome.tsx`. Targets opt in with `data-cursor="magnetic"`;
 form controls and operational controls should use `data-cursor="native"` when
 needed. Do not bind the cursor to every link blindly.
+
+The vault entry action lives in `components/VaultEntryLink.tsx`. It signals the
+existing `ShowroomShell` and `HeroGiftStage` rather than mounting a second
+canvas or replacing the custom drag lane.
 
 ---
 

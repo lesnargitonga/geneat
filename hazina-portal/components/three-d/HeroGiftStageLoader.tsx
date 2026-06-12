@@ -24,7 +24,7 @@ const LazyHeroGiftStage = dynamic(
   },
 );
 
-export function HeroGiftStageLoader() {
+export function HeroGiftStageLoader({ revealing = false }: { revealing?: boolean }) {
   const [canLoadCanvas, setCanLoadCanvas] = useState(false);
 
   useEffect(() => {
@@ -39,5 +39,5 @@ export function HeroGiftStageLoader() {
     return <GiftStageFallback />;
   }
 
-  return <LazyHeroGiftStage />;
+  return <LazyHeroGiftStage revealing={revealing} />;
 }

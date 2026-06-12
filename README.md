@@ -104,7 +104,9 @@ Current Hazina production-routing path:
   step at a time before order creation,
 - the spatial showroom layer adds a staged WebGL hero object with desktop
   pointer response, controlled right-lane drag/inertia, and a restrained
-  desktop-only magnetic cursor accent,
+  desktop-only magnetic cursor accent; the collection-room CTA now opens the
+  procedural gift vault in a short controlled reveal before navigation when a
+  desktop WebGL stage is available,
 - all five collection image slots and all individual treasure image references
   resolve locally; collection images now use real available product/context
   photos instead of generated branded mockups, but exact no-watermark finished
