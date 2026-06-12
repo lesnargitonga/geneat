@@ -2,33 +2,99 @@
 
 import { ContactShadows, Float } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MathUtils, type Group } from "three";
 import { HazinaCanvas } from "./HazinaCanvas";
 import { FloatingTreasure } from "./FloatingTreasure";
 
-function GiftScene() {
-  const group = useRef<Group | null>(null);
-  const target = useRef({ x: 0, y: 0 });
-  const current = useRef({ x: 0, y: 0 });
+const BASE_STAGE_POSITION = { x: 0.1, y: -0.18, z: 0 };
+const BASE_STAGE_ROTATION_X = -0.08;
+
+function usePrefersReducedMotion() {
+  const [reduceMotion, setReduceMotion] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
 
   useEffect(() => {
-    const onPointerMove = (event: PointerEvent) => {
-      target.current.x = (event.clientX / window.innerWidth - 0.5) * 2;
-      target.current.y = (event.clientY / window.innerHeight - 0.5) * 2;
-    };
-    window.addEventListener("pointermove", onPointerMove, { passive: true });
-    return () => window.removeEventListener("pointermove", onPointerMove);
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduceMotion(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
   }, []);
 
-  useFrame(({ clock, pointer }) => {
-    if (!group.current) return;
-    current.current.x = MathUtils.lerp(current.current.x, target.current.x || pointer.x, 0.055);
-    current.current.y = MathUtils.lerp(current.current.y, target.current.y || pointer.y, 0.055);
-    group.current.rotation.y = Math.sin(clock.elapsedTime * 0.24) * 0.12 + current.current.x * 0.18;
-    group.current.rotation.x = -0.08 + current.current.y * 0.07;
-    group.current.position.x = 0.1 + current.current.x * 0.08;
-    group.current.position.y = Math.sin(clock.elapsedTime * 0.55) * 0.035;
+  return reduceMotion;
+}
+
+function GiftScene() {
+  const reduceMotion = usePrefersReducedMotion();
+  const stageRef = useRef<Group | null>(null);
+  const targetPointer = useRef({ x: 0, y: 0 });
+  const smoothPointer = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (reduceMotion) return;
+
+    const resetPointer = () => {
+      targetPointer.current.x = 0;
+      targetPointer.current.y = 0;
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      targetPointer.current.x = MathUtils.clamp(
+        (event.clientX / window.innerWidth - 0.5) * 2,
+        -1,
+        1,
+      );
+      targetPointer.current.y = MathUtils.clamp(
+        (event.clientY / window.innerHeight - 0.5) * 2,
+        -1,
+        1,
+      );
+    };
+
+    const onVisibilityChange = () => {
+      if (document.hidden) resetPointer();
+    };
+
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerleave", resetPointer);
+    window.addEventListener("blur", resetPointer);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerleave", resetPointer);
+      window.removeEventListener("blur", resetPointer);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [reduceMotion]);
+
+  useFrame(({ clock }) => {
+    if (!stageRef.current || reduceMotion) return;
+
+    smoothPointer.current.x = MathUtils.lerp(
+      smoothPointer.current.x,
+      targetPointer.current.x,
+      0.08,
+    );
+    smoothPointer.current.y = MathUtils.lerp(
+      smoothPointer.current.y,
+      targetPointer.current.y,
+      0.08,
+    );
+
+    const pointerX = smoothPointer.current.x;
+    const pointerY = smoothPointer.current.y;
+    const ambientRotationY = Math.sin(clock.elapsedTime * 0.24) * 0.12;
+    const ambientPositionY = Math.sin(clock.elapsedTime * 0.55) * 0.035;
+
+    stageRef.current.rotation.y = ambientRotationY + pointerX * 0.22;
+    stageRef.current.rotation.x = BASE_STAGE_ROTATION_X - pointerY * 0.1;
+    stageRef.current.position.x = BASE_STAGE_POSITION.x + pointerX * 0.22;
+    stageRef.current.position.y = BASE_STAGE_POSITION.y + ambientPositionY - pointerY * 0.1;
+    stageRef.current.position.z = BASE_STAGE_POSITION.z;
   });
 
   return (
@@ -37,7 +103,11 @@ function GiftScene() {
       <directionalLight position={[4.2, 6.2, 4.8]} intensity={2.45} color="#ffe2b7" />
       <pointLight position={[-3.4, 2.2, 3.4]} intensity={0.85} color="#caa777" />
       <pointLight position={[3.2, 1.4, -2.6]} intensity={0.42} color="#fff1d6" />
-      <group ref={group} position={[0.1, -0.18, 0]}>
+      <group
+        ref={stageRef}
+        position={[BASE_STAGE_POSITION.x, BASE_STAGE_POSITION.y, BASE_STAGE_POSITION.z]}
+        rotation={[BASE_STAGE_ROTATION_X, 0, 0]}
+      >
         <Float speed={0.8} rotationIntensity={0.03} floatIntensity={0.08}>
           <group>
             <mesh position={[0, -0.12, 0]}>
