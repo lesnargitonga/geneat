@@ -1,389 +1,1115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LESNAR AI LTD</title>
-  <meta name="description" content="AI products and premium web engineering built in Nairobi for African businesses.">
-  <meta name="application-name" content="LESNAR AI LTD">
-  <meta property="og:site_name" content="LESNAR AI LTD">
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "LESNAR AI LTD",
-    "legalName": "LESNAR AI LTD",
-    "url": "https://lesnarai.co.ke",
-    "email": "hello@lesnarai.co.ke",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "Jully Heights, Mirema Drive",
-      "addressLocality": "Nairobi",
-      "postalCode": "00200-00607",
-      "addressCountry": "KE"
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LESNAR AI LTD</title>
+<meta name="description" content="World-class software engineering from Nairobi — AI agents, premium frontend, M-Pesa integrations.">
+<meta name="application-name" content="LESNAR AI LTD">
+<meta property="og:site_name" content="LESNAR AI LTD">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "LESNAR AI LTD",
+  "legalName": "LESNAR AI LTD",
+  "url": "https://lesnarai.co.ke",
+  "email": "hello@lesnarai.co.ke",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Jully Heights, Mirema Drive",
+    "addressLocality": "Nairobi",
+    "postalCode": "00200-00607",
+    "addressCountry": "KE"
   }
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
-  <script src="https://unpkg.com/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-  <script src="https://unpkg.com/lenis@1.1.9/dist/lenis.min.js"></script>
-  <style>
-    :root {
-      --bg: #050505;
-      --surface: rgba(255, 255, 255, 0.03);
-      --border: rgba(255, 255, 255, 0.1);
-      --text-main: #ffffff;
-      --text-muted: #888888;
-      --accent: #00E5FF;
-      --gradient: linear-gradient(135deg, #00E5FF, #FF00FF);
-    }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://unpkg.com/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#060608;
+  --fg:#f0ede8;
+  --muted:rgba(240,237,232,0.38);
+  --border:rgba(240,237,232,0.1);
+  --accent:#c8ff00;
+  --accent2:#ff3cac;
+}
+html{scroll-behavior:auto;}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:'Inter',sans-serif;
+  overflow-x:hidden;
+  cursor:none;
+  -webkit-font-smoothing:antialiased;
+}
 
-    body, html {
-      background-color: var(--bg);
-      color: var(--text-main);
-      font-family: 'Inter', sans-serif;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
+/* ─── CUSTOM CURSOR ─────────────────────────────── */
+#cursor{
+  position:fixed;width:12px;height:12px;
+  background:var(--accent);border-radius:50%;
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:width .2s,height .2s,background .2s;
+  mix-blend-mode:exclusion;
+}
+#cursor-ring{
+  position:fixed;width:44px;height:44px;
+  border:1px solid rgba(200,255,0,0.5);
+  border-radius:50%;pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:width .35s,height .35s,border-color .35s;
+}
+body.hovering #cursor{width:48px;height:48px;background:var(--accent);}
+body.hovering #cursor-ring{width:80px;height:80px;border-color:transparent;}
+body.clicking #cursor{transform:translate(-50%,-50%) scale(0.7);}
 
-    nav {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 100;
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      background: rgba(5, 5, 5, 0.72);
-    }
+/* ─── NAV ───────────────────────────────────────── */
+nav{
+  position:fixed;top:0;width:100%;z-index:200;
+  padding:22px 48px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.logo{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--fg);
+  text-decoration:none;
+}
+.nav-pill{
+  font-family:'JetBrains Mono',monospace;font-size:.8rem;
+  color:var(--bg);background:var(--accent);
+  padding:9px 22px;border-radius:100px;
+  text-decoration:none;letter-spacing:.05em;
+  transition:background .2s,transform .2s;
+}
+.nav-pill:hover{background:#fff;transform:scale(1.04);}
 
-    .logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      text-transform: uppercase;
-    }
+/* ─── CANVAS + HERO ─────────────────────────────── */
+#webgl-canvas{
+  position:fixed;inset:0;z-index:0;
+  pointer-events:none;
+}
+.hero{
+  position:relative;z-index:10;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:0 24px;
+}
+.hero-eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.78rem;color:var(--accent);
+  letter-spacing:.18em;text-transform:uppercase;
+  margin-bottom:28px;
+  display:flex;align-items:center;gap:12px;
+}
+.hero-eyebrow::before,.hero-eyebrow::after{
+  content:'';display:block;width:32px;height:1px;background:var(--accent);
+}
+h1.hero-title{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(3.4rem,8.5vw,8.5rem);
+  line-height:.95;letter-spacing:-.04em;
+  max-width:1100px;
+}
+h1.hero-title .line{display:block;overflow:hidden;}
+h1.hero-title .word{display:inline-block;}
+.hero-title .accent-text{
+  color:transparent;
+  -webkit-text-stroke:1px rgba(240,237,232,0.35);
+}
+.hero-sub{
+  font-size:1.05rem;color:var(--muted);
+  max-width:480px;line-height:1.7;
+  margin-top:32px;font-weight:300;
+}
+.scroll-hint{
+  position:absolute;bottom:40px;left:50%;
+  transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.scroll-line{
+  width:1px;height:48px;background:linear-gradient(to bottom,var(--accent),transparent);
+  animation:scrollPulse 1.8s ease-in-out infinite;
+}
+@keyframes scrollPulse{0%,100%{opacity:.2;transform:scaleY(.6)translateY(-20%)}50%{opacity:1;transform:scaleY(1)}}
+.scroll-label{
+  font-family:'JetBrains Mono',monospace;font-size:.65rem;
+  color:var(--muted);letter-spacing:.15em;writing-mode:vertical-rl;
+}
 
-    .contact-btn {
-      background: var(--text-main);
-      color: #000;
-      padding: 10px 24px;
-      border-radius: 100px;
-      font-weight: 600;
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: transform 0.2s;
-    }
+/* ─── MARQUEE ───────────────────────────────────── */
+.marquee-wrap{
+  position:relative;z-index:10;
+  overflow:hidden;padding:22px 0;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+.marquee-track{
+  display:flex;white-space:nowrap;
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:clamp(1.2rem,2.5vw,1.8rem);
+  color:transparent;
+  -webkit-text-stroke:1px rgba(240,237,232,0.18);
+  letter-spacing:.06em;
+  user-select:none;
+}
+.marquee-track span{padding:0 36px;}
+.marquee-track span.dot{
+  -webkit-text-stroke:0;
+  color:var(--accent);font-size:.6em;
+  vertical-align:middle;
+}
 
-    .contact-btn:hover { transform: scale(1.05); }
+/* ─── SECTION COMMON ────────────────────────────── */
+section{position:relative;z-index:10;}
+.section-label{
+  font-family:'JetBrains Mono',monospace;font-size:.72rem;
+  color:var(--accent);letter-spacing:.18em;text-transform:uppercase;
+  display:flex;align-items:center;gap:10px;margin-bottom:20px;
+}
+.section-label::before{content:'[';color:var(--muted);}
+.section-label::after{content:']';color:var(--muted);}
 
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 120px 20px 60px;
-    }
+/* ─── CAPABILITY STRIP ──────────────────────────── */
+.capabilities{
+  padding:100px 48px;max-width:1400px;margin:0 auto;
+}
+.cap-header{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  margin-bottom:64px;
+  border-bottom:1px solid var(--border);padding-bottom:32px;
+}
+.cap-title{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(2.4rem,5vw,4.5rem);
+  letter-spacing:-.03em;line-height:1.0;
+}
+.cap-count{
+  font-family:'JetBrains Mono',monospace;font-size:4rem;
+  font-weight:500;color:var(--muted);line-height:1;
+}
 
-    .tagline {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 20px;
-    }
+.cap-list{display:flex;flex-direction:column;}
+.cap-item{
+  display:grid;grid-template-columns:80px 1fr auto;
+  align-items:center;gap:32px;
+  padding:28px 0;border-bottom:1px solid var(--border);
+  text-decoration:none;color:inherit;
+  position:relative;overflow:hidden;
+  transition:border-color .3s;
+}
+.cap-item:hover{border-color:rgba(200,255,0,0.4);}
+.cap-num{
+  font-family:'JetBrains Mono',monospace;font-size:.8rem;
+  color:var(--muted);letter-spacing:.1em;
+}
+.cap-name{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:clamp(1.3rem,2.5vw,2rem);
+  letter-spacing:-.02em;transition:color .3s;
+}
+.cap-item:hover .cap-name{color:var(--accent);}
+.cap-tag{
+  font-family:'JetBrains Mono',monospace;font-size:.72rem;
+  color:var(--muted);letter-spacing:.08em;
+  border:1px solid var(--border);padding:6px 14px;border-radius:100px;
+  transition:border-color .3s,color .3s;
+}
+.cap-item:hover .cap-tag{border-color:var(--accent);color:var(--accent);}
+.cap-hover-bg{
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(200,255,0,0.04),transparent);
+  transform:translateX(-100%);transition:transform .4s ease;
+  pointer-events:none;
+}
+.cap-item:hover .cap-hover-bg{transform:translateX(0);}
 
-    h1 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(3rem, 8vw, 6rem);
-      font-weight: 700;
-      line-height: 1.1;
-      letter-spacing: -0.04em;
-      margin-bottom: 30px;
-      max-width: 1000px;
-    }
+/* ─── WORK BENTO ────────────────────────────────── */
+.work{padding:0 48px 100px;max-width:1400px;margin:0 auto;}
+.work-header{margin-bottom:48px;}
+.work-title{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(2rem,4vw,3.5rem);letter-spacing:-.03em;
+}
 
-    h1 span {
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+.bento{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  grid-template-rows:auto;
+  gap:16px;
+}
 
-    .subtitle {
-      font-size: 1.2rem;
-      color: var(--text-muted);
-      max-width: 600px;
-      line-height: 1.6;
-    }
+.bento-card{
+  background:rgba(255,255,255,0.025);
+  border:1px solid var(--border);
+  border-radius:20px;padding:36px;
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+  text-decoration:none;color:inherit;
+  transition:border-color .4s;
+  will-change:transform;
+}
+.bento-card::after{
+  content:'';position:absolute;inset:0;border-radius:20px;
+  background:radial-gradient(600px circle at var(--mx,50%) var(--my,50%),rgba(200,255,0,.07),transparent 40%);
+  opacity:0;transition:opacity .4s;pointer-events:none;
+}
+.bento-card:hover::after{opacity:1;}
+.bento-card:hover{border-color:rgba(200,255,0,0.3);}
 
-    .bento-section {
-      padding: 100px 40px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
+.card-tag{
+  font-family:'JetBrains Mono',monospace;font-size:.68rem;
+  color:var(--accent);letter-spacing:.14em;text-transform:uppercase;
+  margin-bottom:auto;padding-bottom:24px;
+}
+.card-title{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:clamp(1.4rem,2.5vw,2rem);letter-spacing:-.02em;
+  margin-bottom:12px;line-height:1.15;
+}
+.card-desc{
+  font-size:.95rem;color:var(--muted);
+  line-height:1.65;font-weight:300;
+}
+.card-arrow{
+  position:absolute;bottom:32px;right:32px;
+  width:40px;height:40px;border-radius:50%;
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;color:var(--muted);
+  transition:background .2s,color .2s,border-color .2s,transform .2s;
+}
+.bento-card:hover .card-arrow{
+  background:var(--accent);color:var(--bg);
+  border-color:var(--accent);transform:rotate(45deg);
+}
 
-    .bento-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-template-rows: repeat(2, 350px);
-      gap: 20px;
-    }
+/* Bento spans */
+.b-1{grid-column:span 7;min-height:360px;}
+.b-2{grid-column:span 5;min-height:360px;}
+.b-3{grid-column:span 4;min-height:300px;}
+.b-4{grid-column:span 4;min-height:300px;}
+.b-5{grid-column:span 4;min-height:300px;}
 
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 40px;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      text-decoration: none;
-      color: inherit;
-      transition: border-color 0.3s, transform 0.3s;
-    }
+/* ─── EYES SECTION ──────────────────────────────── */
+.eyes-section{
+  padding:120px 48px;
+  display:flex;flex-direction:column;
+  align-items:center;text-align:center;
+  border-top:1px solid var(--border);
+}
+.eyes-title{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(2rem,4.5vw,4rem);letter-spacing:-.03em;
+  margin-bottom:12px;max-width:700px;
+}
+.eyes-sub{
+  color:var(--muted);font-size:1rem;
+  max-width:400px;line-height:1.6;margin-bottom:60px;font-weight:300;
+}
 
-    .card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.06), transparent 40%);
-      opacity: 0;
-      transition: opacity 0.3s;
-      pointer-events: none;
-      z-index: 1;
-    }
+/* The 3D Eyes container */
+#eyes-container{
+  display:flex;gap:40px;align-items:center;justify-content:center;
+  margin-bottom:48px;
+}
+.eye-socket{
+  width:140px;height:140px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  transition:border-color .3s;
+}
+.eye-socket:hover{border-color:rgba(200,255,0,.4);}
+.eye-canvas{width:140px;height:140px;border-radius:50%;}
 
-    .card:hover::before { opacity: 1; }
-    .card:hover { border-color: rgba(255, 255, 255, 0.3); transform: translateY(-2px); }
+/* ─── STATS ROW ─────────────────────────────────── */
+.stats-row{
+  display:flex;align-items:stretch;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  margin:0;
+}
+.stat-item{
+  flex:1;padding:60px 48px;
+  border-right:1px solid var(--border);
+}
+.stat-item:last-child{border-right:none;}
+.stat-num{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(2.5rem,5vw,5rem);
+  letter-spacing:-.04em;line-height:1;
+  margin-bottom:8px;
+}
+.stat-num .accent{color:var(--accent);}
+.stat-desc{
+  font-size:.9rem;color:var(--muted);
+  font-weight:300;line-height:1.5;
+}
 
-    .card-content {
-      position: relative;
-      z-index: 2;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
+/* ─── PROCESS ───────────────────────────────────── */
+.process{padding:100px 48px;max-width:1400px;margin:0 auto;}
+.process-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--border);border:1px solid var(--border);
+  border-radius:20px;overflow:hidden;margin-top:48px;
+}
+.process-item{
+  background:var(--bg);
+  padding:40px 32px;
+  position:relative;
+}
+.process-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.75rem;color:var(--accent);
+  letter-spacing:.12em;margin-bottom:32px;
+}
+.process-name{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:1.35rem;letter-spacing:-.02em;margin-bottom:12px;
+}
+.process-desc{font-size:.9rem;color:var(--muted);line-height:1.6;font-weight:300;}
 
-    .card h3 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 2rem;
-      margin-bottom: 10px;
-    }
+/* ─── CTA ───────────────────────────────────────── */
+.cta-section{
+  padding:140px 48px;
+  text-align:center;
+  border-top:1px solid var(--border);
+}
+.cta-title{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(3rem,7vw,7rem);letter-spacing:-.04em;
+  line-height:.95;margin-bottom:40px;
+}
+.cta-title em{
+  font-style:normal;color:transparent;
+  -webkit-text-stroke:1px rgba(240,237,232,0.3);
+}
+.cta-btn{
+  display:inline-flex;align-items:center;gap:12px;
+  background:var(--accent);color:var(--bg);
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:1.05rem;letter-spacing:-.01em;
+  padding:18px 40px;border-radius:100px;
+  text-decoration:none;
+  transition:transform .2s,background .2s;
+}
+.cta-btn:hover{transform:scale(1.05);background:#fff;}
+.cta-btn svg{width:18px;height:18px;transition:transform .2s;}
+.cta-btn:hover svg{transform:translateX(3px);}
 
-    .card p {
-      color: var(--text-muted);
-      line-height: 1.5;
-      font-size: 1.1rem;
-    }
+/* ─── FOOTER ────────────────────────────────────── */
+footer{
+  padding:32px 48px;
+  display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--border);
+  font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted);
+}
 
-    .card .icon { font-size: 2rem; margin-bottom: auto; }
+/* ─── PARTICLE CANVAS ───────────────────────────── */
+#particle-canvas{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+}
 
-    .span-2 { grid-column: span 2; }
-    .span-2-row { grid-row: span 2; }
+/* ─── RESPONSIVE ────────────────────────────────── */
+@media(max-width:900px){
+  nav{padding:18px 24px;}
+  .b-1,.b-2,.b-3,.b-4,.b-5{grid-column:span 12;}
+  .cap-item{grid-template-columns:48px 1fr;}
+  .cap-tag{display:none;}
+  .process-grid{grid-template-columns:repeat(2,1fr);}
+  .stats-row{flex-direction:column;}
+  .stat-item{border-right:none;border-bottom:1px solid var(--border);}
+  .stat-item:last-child{border-bottom:none;}
+  .capabilities,.work,.process{padding-left:24px;padding-right:24px;}
+  .cta-section{padding:80px 24px;}
+  footer{flex-direction:column;gap:12px;text-align:center;}
+  #eyes-container{gap:20px;}
+  .eye-socket{width:100px;height:100px;}
+  .eye-canvas{width:100px;height:100px;}
+}
+@media(max-width:480px){
+  .process-grid{grid-template-columns:1fr;}
+  .hero{padding:0 16px;}
+}
 
-    .marquee-wrapper {
-      width: 100%;
-      overflow: hidden;
-      padding: 50px 0;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      background: #020202;
-    }
-
-    .marquee-track {
-      display: flex;
-      width: max-content;
-    }
-
-    .marquee {
-      display: flex;
-      white-space: nowrap;
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2rem, 5vw, 4rem);
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.05);
-    }
-
-    .marquee span { padding: 0 40px; }
-
-    footer {
-      padding: 60px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      border-top: 1px solid var(--border);
-    }
-
-    footer a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    footer a:hover { color: var(--text-main); }
-
-    @media (max-width: 1024px) {
-      .bento-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto; }
-      .span-2-row { grid-row: span 1; }
-    }
-
-    @media (max-width: 768px) {
-      .bento-grid { grid-template-columns: 1fr; }
-      .span-2 { grid-column: span 1; }
-      nav { padding: 20px; }
-      .bento-section { padding: 80px 20px; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation: none !important; transition: none !important; }
-    }
-  </style>
+/* ─── GSAP INITIAL STATES ───────────────────────── */
+.gsap-fade{opacity:0;transform:translateY(40px);}
+@media (pointer: coarse) {
+  body{cursor:auto;}
+  #cursor,#cursor-ring{display:none!important;}
+}
+@media (prefers-reduced-motion: reduce) {
+  body{cursor:auto;}
+  #cursor,#cursor-ring{display:none!important;}
+  *,*::before,*::after{animation:none!important;transition:none!important;}
+}
+</style>
 </head>
 <body>
-  <nav>
-    <div class="logo">LESNAR AI LTD</div>
-    <a href="mailto:hello@lesnarai.co.ke" class="contact-btn">Work With Us</a>
-  </nav>
 
-  <section class="hero">
-    <div class="tagline">Engineering &gt; Marketing</div>
-    <h1 class="gsap-hero">We build the web.<br><span>You dominate the market.</span></h1>
-    <p class="subtitle gsap-hero">From autonomous AI agents to complex local e-commerce infrastructure. We design, deploy, and scale world-class software directly from Nairobi.</p>
-  </section>
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
 
-  <div class="marquee-wrapper">
-    <div class="marquee-track" id="marquee-track">
-      <div class="marquee" aria-hidden="true">
-        <span>NEXT.JS</span><span>WEBGL</span><span>PYTHON</span><span>M-PESA DARAJA</span><span>OPENAI</span><span>WHATSAPP API</span><span>REACT</span><span>NODE.JS</span><span>THREE.JS</span>
-      </div>
-      <div class="marquee" aria-hidden="true">
-        <span>NEXT.JS</span><span>WEBGL</span><span>PYTHON</span><span>M-PESA DARAJA</span><span>OPENAI</span><span>WHATSAPP API</span><span>REACT</span><span>NODE.JS</span><span>THREE.JS</span>
-      </div>
+<!-- PARTICLE TRAIL -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- BACKGROUND WEBGL (grid + ambient) -->
+<canvas id="webgl-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">LESNAR AI LTD</a>
+  <a href="mailto:hello@lesnarai.co.ke" class="nav-pill">Work With Us →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow gsap-fade">Nairobi, Kenya · Est. 2024</div>
+  <h1 class="hero-title" id="hero-title">
+    <span class="line"><span class="word">We </span><span class="word">Build</span></span>
+    <span class="line accent-text"><span class="word">Anything.</span></span>
+  </h1>
+  <p class="hero-sub gsap-fade">From autonomous AI agents to complex M-Pesa infrastructure — world-class software built directly from Nairobi.</p>
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    <div class="scroll-label">scroll</div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marquee">
+    <span>NEXT.JS</span><span class="dot">◆</span>
+    <span>WEBGL</span><span class="dot">◆</span>
+    <span>THREE.JS</span><span class="dot">◆</span>
+    <span>M-PESA DARAJA</span><span class="dot">◆</span>
+    <span>OPENAI</span><span class="dot">◆</span>
+    <span>WHATSAPP API</span><span class="dot">◆</span>
+    <span>REACT</span><span class="dot">◆</span>
+    <span>NODE.JS</span><span class="dot">◆</span>
+    <span>PYTHON</span><span class="dot">◆</span>
+    <span>NEXT.JS</span><span class="dot">◆</span>
+    <span>WEBGL</span><span class="dot">◆</span>
+    <span>THREE.JS</span><span class="dot">◆</span>
+    <span>M-PESA DARAJA</span><span class="dot">◆</span>
+    <span>OPENAI</span><span class="dot">◆</span>
+    <span>WHATSAPP API</span><span class="dot">◆</span>
+    <span>REACT</span><span class="dot">◆</span>
+    <span>NODE.JS</span><span class="dot">◆</span>
+    <span>PYTHON</span><span class="dot">◆</span>
+  </div>
+</div>
+
+<!-- CAPABILITIES -->
+<section class="capabilities">
+  <div class="cap-header gsap-fade">
+    <h2 class="cap-title">What We<br>Build</h2>
+    <div class="cap-count">05</div>
+  </div>
+  <div class="cap-list">
+    <div class="cap-item gsap-fade">
+      <div class="cap-hover-bg"></div>
+      <div class="cap-num">01</div>
+      <div class="cap-name">AI Agents & Automation</div>
+      <div class="cap-tag">OpenAI · Python</div>
+    </div>
+    <div class="cap-item gsap-fade">
+      <div class="cap-hover-bg"></div>
+      <div class="cap-num">02</div>
+      <div class="cap-name">Premium Frontend Experiences</div>
+      <div class="cap-tag">WebGL · GSAP · Three.js</div>
+    </div>
+    <div class="cap-item gsap-fade">
+      <div class="cap-hover-bg"></div>
+      <div class="cap-num">03</div>
+      <div class="cap-name">M-Pesa & African Fintech</div>
+      <div class="cap-tag">Daraja API</div>
+    </div>
+    <a href="https://geneat.lesnarai.co.ke" class="cap-item gsap-fade" target="_blank" rel="noopener noreferrer">
+      <div class="cap-hover-bg"></div>
+      <div class="cap-num">04</div>
+      <div class="cap-name">E-Commerce Infrastructure</div>
+      <div class="cap-tag">Full-stack</div>
+    </a>
+    <div class="cap-item gsap-fade">
+      <div class="cap-hover-bg"></div>
+      <div class="cap-num">05</div>
+      <div class="cap-name">WhatsApp & Swahili NLP</div>
+      <div class="cap-tag">WhatsApp API · NLP</div>
     </div>
   </div>
+</section>
 
-  <section class="bento-section">
-    <div class="bento-grid">
-      <a href="https://geneat.lesnarai.co.ke" class="card span-2 gsap-card" target="_blank" rel="noopener noreferrer">
-        <div class="card-content">
-          <div class="icon">🍔</div>
-          <h3>Gen-Eat Pilot</h3>
-          <p>Autonomous AI front-of-house for cafés. WhatsApp ordering, native M-Pesa collection, and kitchen ticketing. Currently deployed at USIU.</p>
-        </div>
-      </a>
+<!-- STATS ROW -->
+<div class="stats-row">
+  <div class="stat-item gsap-fade">
+    <div class="stat-num">2<span class="accent">+</span></div>
+    <div class="stat-desc">Live products deployed<br>in the Nairobi market</div>
+  </div>
+  <div class="stat-item gsap-fade">
+    <div class="stat-num"><span class="accent">∞</span></div>
+    <div class="stat-desc">Willingness to tackle<br>problems others won't touch</div>
+  </div>
+  <div class="stat-item gsap-fade">
+    <div class="stat-num">1<span class="accent">ms</span></div>
+    <div class="stat-desc">Target load time via<br>Vercel edge network</div>
+  </div>
+</div>
 
-      <div class="card gsap-card">
-        <div class="card-content">
-          <div class="icon">✨</div>
-          <h3>Premium Frontend</h3>
-          <p>WebGL, GSAP, and complex grid architectures. We don't use templates; we write the code that makes people stare.</p>
-        </div>
-      </div>
+<!-- EYES SECTION -->
+<section class="eyes-section">
+  <div class="section-label gsap-fade">interactive</div>
+  <h2 class="eyes-title gsap-fade">We see you, wherever you go.</h2>
+  <p class="eyes-sub gsap-fade">Move your cursor — or if you're on mobile, tilt your device. This is what we mean by interactive.</p>
+  <div id="eyes-container">
+    <div class="eye-socket"><canvas class="eye-canvas" id="eye-left" width="280" height="280"></canvas></div>
+    <div class="eye-socket"><canvas class="eye-canvas" id="eye-right" width="280" height="280"></canvas></div>
+  </div>
+  <p style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);letter-spacing:.1em;">↑ THESE EYES TRACK YOUR CURSOR IN REAL TIME</p>
+</section>
 
-      <div class="card span-2-row gsap-card">
-        <div class="card-content">
-          <div class="icon">⚙️</div>
-          <h3 style="margin-top: auto;">Hardened Integrations</h3>
-          <p>We connect the hardest APIs in Africa. Flawless M-Pesa handshakes, localized Swahili NLP, and secure data routing for real businesses.</p>
-        </div>
-      </div>
-
-      <a href="https://hazina.lesnarai.co.ke" class="card span-2 gsap-card" target="_blank" rel="noopener noreferrer">
-        <div class="card-content">
-          <div class="icon">📦</div>
-          <h3>Hazina Nomads</h3>
-          <p>High-end e-commerce logistics. Bespoke curated gift collections, concierge web checkout, and seamless local delivery infrastructure.</p>
-        </div>
-      </a>
-
-      <div class="card gsap-card">
-        <div class="card-content">
-          <div class="icon">⚡</div>
-          <h3>Edge Speed</h3>
-          <p>Deployed globally via Vercel edge networks. Millisecond load times, even on patchy Nairobi 3G connections.</p>
-        </div>
-      </div>
+<!-- WORK BENTO -->
+<section class="work">
+  <div class="work-header gsap-fade">
+    <div class="section-label">live products</div>
+    <h2 class="work-title">Deployed. Used.<br>In the wild.</h2>
+  </div>
+  <div class="bento">
+    <a href="https://geneat.lesnarai.co.ke" class="bento-card b-1 gsap-fade" target="_blank" rel="noopener noreferrer">
+      <div class="card-tag">AI × Food × M-Pesa</div>
+      <div class="card-title">Gen-Eat</div>
+      <div class="card-desc">Autonomous AI front-of-house for cafés. WhatsApp ordering, native M-Pesa collection, and kitchen ticketing. Live at USIU Nairobi.</div>
+      <div class="card-arrow">→</div>
+    </a>
+    <a href="https://hazina.lesnarai.co.ke" class="bento-card b-2 gsap-fade" target="_blank" rel="noopener noreferrer">
+      <div class="card-tag">E-Commerce × Logistics</div>
+      <div class="card-title">Hazina Nomads</div>
+      <div class="card-desc">Curated high-end gift collections with concierge checkout and local delivery. Built for the Nairobi market.</div>
+      <div class="card-arrow">→</div>
+    </a>
+    <div class="bento-card b-3 gsap-fade">
+      <div class="card-tag">Capability</div>
+      <div class="card-title">WebGL & 3D</div>
+      <div class="card-desc">The background behind you is a live Three.js scene. So are those eyes above.</div>
     </div>
-  </section>
+    <div class="bento-card b-4 gsap-fade">
+      <div class="card-tag">Capability</div>
+      <div class="card-title">Edge-First</div>
+      <div class="card-desc">Every product ships to Vercel's global edge. Fast on Nairobi 4G and Cape Town fibre alike.</div>
+    </div>
+    <div class="bento-card b-5 gsap-fade">
+      <div class="card-tag">Capability</div>
+      <div class="card-title">Hardened APIs</div>
+      <div class="card-desc">M-Pesa Daraja, Swahili NLP, WhatsApp Business — the integrations others avoid.</div>
+    </div>
+  </div>
+</section>
 
-  <footer>
-    <div>&copy; 2026 LESNAR AI LTD</div>
-    <div><a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a></div>
-    <div>Nairobi, Kenya</div>
-  </footer>
+<!-- PROCESS -->
+<section class="process">
+  <div class="gsap-fade">
+    <div class="section-label">how we work</div>
+    <h2 class="cap-title">The Process</h2>
+  </div>
+  <div class="process-grid">
+    <div class="process-item gsap-fade">
+      <div class="process-num">01 / Discovery</div>
+      <div class="process-name">Understand the problem</div>
+      <div class="process-desc">We don't write a single line of code until we understand the business constraint, the user, and the success metric.</div>
+    </div>
+    <div class="process-item gsap-fade">
+      <div class="process-num">02 / Architecture</div>
+      <div class="process-name">Design for scale</div>
+      <div class="process-desc">Tech stack, data model, integration map. We over-engineer the foundation so the product never hits a ceiling.</div>
+    </div>
+    <div class="process-item gsap-fade">
+      <div class="process-num">03 / Build</div>
+      <div class="process-name">Ship fast, ship right</div>
+      <div class="process-desc">Rapid iteration with daily builds. You see it working before it's finished, so nothing surprises you at launch.</div>
+    </div>
+    <div class="process-item gsap-fade">
+      <div class="process-num">04 / Deploy</div>
+      <div class="process-name">Production is just the beginning</div>
+      <div class="process-desc">We hand you a live product, a monitoring dashboard, and a team that picks up the phone when something goes wrong.</div>
+    </div>
+  </div>
+</section>
 
-  <script>
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+<!-- CTA -->
+<section class="cta-section">
+  <h2 class="cta-title gsap-fade">
+    Have something<br><em>worth building?</em>
+  </h2>
+  <a href="mailto:hello@lesnarai.co.ke" class="cta-btn gsap-fade">
+    Let's talk
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+  </a>
+</section>
 
-    if (!reduceMotion && window.Lenis) {
-      const lenis = new Lenis();
-      function raf(time) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-      }
-      requestAnimationFrame(raf);
-    }
+<!-- FOOTER -->
+<footer>
+  <div>© 2026 LESNAR AI LTD</div>
+  <div><a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a></div>
+  <div>NAIROBI, KENYA</div>
+</footer>
 
-    document.querySelectorAll(".card").forEach((card) => {
-      card.addEventListener("mousemove", (e) => {
-        const rect = card.getBoundingClientRect();
-        card.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
-        card.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
-      });
+<script>
+/* ═══════════════════════════════════════════════════
+   1. SMOOTH CURSOR
+═══════════════════════════════════════════════════ */
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+document.addEventListener('mousedown', () => document.body.classList.add('clicking'));
+document.addEventListener('mouseup', () => document.body.classList.remove('clicking'));
+
+document.querySelectorAll('a, button, .cap-item, .bento-card').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+});
+
+function animateCursor() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+/* ═══════════════════════════════════════════════════
+   2. PARTICLE TRAIL
+═══════════════════════════════════════════════════ */
+const pc = document.getElementById('particle-canvas');
+const pctx = pc.getContext('2d');
+pc.width = window.innerWidth; pc.height = window.innerHeight;
+window.addEventListener('resize', () => { pc.width = window.innerWidth; pc.height = window.innerHeight; });
+
+const particles = [];
+let lastPX = 0, lastPY = 0, spawnThrottle = 0;
+
+document.addEventListener('mousemove', e => {
+  spawnThrottle++;
+  if (spawnThrottle % 3 !== 0) return;
+  const dx = e.clientX - lastPX, dy = e.clientY - lastPY;
+  const speed = Math.sqrt(dx*dx + dy*dy);
+  if (speed < 2) return;
+  lastPX = e.clientX; lastPY = e.clientY;
+  for (let i = 0; i < Math.min(3, speed * 0.3); i++) {
+    particles.push({
+      x: e.clientX + (Math.random() - .5) * 8,
+      y: e.clientY + (Math.random() - .5) * 8,
+      vx: (Math.random() - .5) * 1.5,
+      vy: (Math.random() - .5) * 1.5 - 0.5,
+      life: 1, size: Math.random() * 3 + 1,
+      hue: Math.random() > .7 ? 'rgba(200,255,0,' : 'rgba(255,60,172,'
     });
+  }
+});
 
-    if (!reduceMotion && window.gsap) {
-      gsap.registerPlugin(ScrollTrigger);
+function drawParticles() {
+  pctx.clearRect(0, 0, pc.width, pc.height);
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx; p.y += p.vy;
+    p.life -= 0.035; p.vy -= 0.04;
+    if (p.life <= 0) { particles.splice(i, 1); continue; }
+    pctx.beginPath();
+    pctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+    pctx.fillStyle = p.hue + p.life * 0.8 + ')';
+    pctx.fill();
+  }
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
 
-      gsap.to("#marquee-track", {
-        xPercent: -50,
-        repeat: -1,
-        duration: 20,
-        ease: "linear",
-      });
+/* ═══════════════════════════════════════════════════
+   3. WEBGL BACKGROUND (Three.js grid)
+═══════════════════════════════════════════════════ */
+(function() {
+  const canvas = document.getElementById('webgl-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
 
-      gsap.from(".gsap-hero", {
-        y: 50,
-        opacity: 0,
-        duration: 1,
-        stagger: 0.2,
-        ease: "power3.out",
-        delay: 0.2,
-      });
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 0, 5);
 
-      gsap.from(".gsap-card", {
-        y: 100,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".bento-grid",
-          start: "top 80%",
-        },
-      });
+  // Infinite grid of dots
+  const dotGeo = new THREE.BufferGeometry();
+  const positions = [], sizes = [];
+  const gridW = 40, gridH = 30;
+  for (let x = -gridW/2; x <= gridW/2; x++) {
+    for (let y = -gridH/2; y <= gridH/2; y++) {
+      positions.push(x * 0.7, y * 0.7, 0);
+      sizes.push(1.5 + Math.random() * 1.5);
     }
-  </script>
+  }
+  dotGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  dotGeo.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+
+  const dotMat = new THREE.ShaderMaterial({
+    transparent: true,
+    uniforms: {
+      uTime: { value: 0 },
+      uMouse: { value: new THREE.Vector2(0, 0) }
+    },
+    vertexShader: `
+      attribute float size;
+      uniform float uTime;
+      uniform vec2 uMouse;
+      varying float vAlpha;
+      void main() {
+        vec3 pos = position;
+        float d = length(pos.xy - uMouse * vec2(14.0, 10.5));
+        float wave = sin(uTime * 0.8 + pos.x * 0.6 + pos.y * 0.4) * 0.5 + 0.5;
+        float mousePush = smoothstep(4.0, 0.0, d) * 0.6;
+        pos.z += wave * 0.15 + mousePush;
+        vAlpha = 0.08 + wave * 0.06 + mousePush * 0.3;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+        gl_PointSize = size * (0.8 + wave * 0.4 + mousePush * 1.5);
+      }
+    `,
+    fragmentShader: `
+      varying float vAlpha;
+      void main() {
+        float d = length(gl_PointCoord - 0.5);
+        if (d > 0.5) discard;
+        float a = smoothstep(0.5, 0.0, d);
+        gl_FragColor = vec4(0.78, 1.0, 0.0, a * vAlpha);
+      }
+    `
+  });
+
+  const dots = new THREE.Points(dotGeo, dotMat);
+  scene.add(dots);
+
+  let mNx = 0, mNy = 0;
+  document.addEventListener('mousemove', e => {
+    mNx = (e.clientX / window.innerWidth) * 2 - 1;
+    mNy = -((e.clientY / window.innerHeight) * 2 - 1);
+  });
+
+  window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+  });
+
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.016;
+    dotMat.uniforms.uTime.value = t;
+    dotMat.uniforms.uMouse.value.set(mNx, mNy);
+    dots.rotation.z = Math.sin(t * 0.05) * 0.015;
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+
+/* ═══════════════════════════════════════════════════
+   4. 3D EYES (Canvas 2D, follow cursor + gyro)
+═══════════════════════════════════════════════════ */
+(function() {
+  const eyes = [
+    { canvas: document.getElementById('eye-left'), tx: 0, ty: 0, cx: 0, cy: 0 },
+    { canvas: document.getElementById('eye-right'), tx: 0, ty: 0, cx: 0, cy: 0 }
+  ];
+
+  let globalMX = window.innerWidth / 2;
+  let globalMY = window.innerHeight / 2;
+
+  document.addEventListener('mousemove', e => {
+    globalMX = e.clientX; globalMY = e.clientY;
+  });
+
+  // Gyroscope for mobile
+  if (window.DeviceOrientationEvent) {
+    window.addEventListener('deviceorientation', e => {
+      if (e.gamma !== null) {
+        const clampX = Math.max(-30, Math.min(30, e.gamma));
+        const clampY = Math.max(-30, Math.min(30, e.beta - 30));
+        globalMX = window.innerWidth / 2 + (clampX / 30) * window.innerWidth * 0.5;
+        globalMY = window.innerHeight / 2 + (clampY / 30) * window.innerHeight * 0.5;
+      }
+    });
+  }
+
+  function drawEye(eye) {
+    const c = eye.canvas;
+    const ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+    const cx = W / 2, cy = H / 2;
+    const r = W * 0.42;
+    const pupilR = r * 0.36;
+    const maxDist = r * 0.32;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Sclera (white part)
+    const sclera = ctx.createRadialGradient(cx - r*0.15, cy - r*0.15, 0, cx, cy, r);
+    sclera.addColorStop(0, '#1a1a2e');
+    sclera.addColorStop(1, '#050508');
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = sclera;
+    ctx.fill();
+
+    // Iris ring
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(200,255,0,0.25)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Iris
+    const irisR = pupilR * 1.7;
+    const irisPupilX = cx + eye.cx;
+    const irisPupilY = cy + eye.cy;
+
+    const irisGrad = ctx.createRadialGradient(irisPupilX - irisR*0.2, irisPupilY - irisR*0.2, 0, irisPupilX, irisPupilY, irisR);
+    irisGrad.addColorStop(0, '#1d3a2f');
+    irisGrad.addColorStop(0.5, '#0d2318');
+    irisGrad.addColorStop(1, '#060e0a');
+    ctx.beginPath();
+    ctx.arc(irisPupilX, irisPupilY, irisR, 0, Math.PI * 2);
+    ctx.fillStyle = irisGrad;
+    ctx.fill();
+
+    // Iris texture lines
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(irisPupilX, irisPupilY, irisR, 0, Math.PI * 2);
+    ctx.clip();
+    for (let i = 0; i < 12; i++) {
+      const angle = (i / 12) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(irisPupilX, irisPupilY);
+      ctx.lineTo(
+        irisPupilX + Math.cos(angle) * irisR,
+        irisPupilY + Math.sin(angle) * irisR
+      );
+      ctx.strokeStyle = 'rgba(100,200,120,0.08)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // Pupil
+    const pupilGrad = ctx.createRadialGradient(irisPupilX - pupilR*0.2, irisPupilY - pupilR*0.3, 0, irisPupilX, irisPupilY, pupilR);
+    pupilGrad.addColorStop(0, '#000000');
+    pupilGrad.addColorStop(1, '#111111');
+    ctx.beginPath();
+    ctx.arc(irisPupilX, irisPupilY, pupilR, 0, Math.PI * 2);
+    ctx.fillStyle = pupilGrad;
+    ctx.fill();
+
+    // Accent dot in pupil
+    ctx.beginPath();
+    ctx.arc(irisPupilX + pupilR*0.25, irisPupilY - pupilR*0.3, pupilR * 0.18, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(200,255,0,0.7)';
+    ctx.fill();
+
+    // Outer glow
+    const glowGrad = ctx.createRadialGradient(cx, cy, r * 0.85, cx, cy, r * 1.05);
+    glowGrad.addColorStop(0, 'rgba(200,255,0,0.05)');
+    glowGrad.addColorStop(1, 'rgba(200,255,0,0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 1.05, 0, Math.PI * 2);
+    ctx.fillStyle = glowGrad;
+    ctx.fill();
+
+    // Reflection flare
+    ctx.beginPath();
+    ctx.arc(cx + r*0.2, cy - r*0.3, r * 0.06, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.fill();
+  }
+
+  function updateEyes() {
+    eyes.forEach((eye, idx) => {
+      const rect = eye.canvas.getBoundingClientRect();
+      const W = eye.canvas.width, H = eye.canvas.height;
+      const ecx = rect.left + rect.width / 2;
+      const ecy = rect.top + rect.height / 2;
+      const angle = Math.atan2(globalMY - ecy, globalMX - ecx);
+      const dist = Math.min(Math.hypot(globalMX - ecx, globalMY - ecy), 999);
+      const maxDist = W * 0.42 * 0.32;
+      const moveAmt = Math.min(dist / 6, maxDist);
+
+      eye.tx = Math.cos(angle) * moveAmt;
+      eye.ty = Math.sin(angle) * moveAmt;
+
+      // Smooth lerp
+      eye.cx += (eye.tx - eye.cx) * 0.08;
+      eye.cy += (eye.ty - eye.cy) * 0.08;
+      drawEye(eye);
+    });
+    requestAnimationFrame(updateEyes);
+  }
+  updateEyes();
+})();
+
+/* ═══════════════════════════════════════════════════
+   5. BENTO CARD MOUSE GLOW
+═══════════════════════════════════════════════════ */
+document.querySelectorAll('.bento-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+    card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  });
+});
+
+/* ═══════════════════════════════════════════════════
+   6. MARQUEE
+═══════════════════════════════════════════════════ */
+(function() {
+  const track = document.getElementById('marquee');
+  let pos = 0;
+  const speed = 0.6;
+  const halfW = track.scrollWidth / 2;
+  function animateMarquee() {
+    pos -= speed;
+    if (Math.abs(pos) >= halfW) pos = 0;
+    track.style.transform = `translateX(${pos}px)`;
+    requestAnimationFrame(animateMarquee);
+  }
+  animateMarquee();
+})();
+
+/* ═══════════════════════════════════════════════════
+   7. GSAP SCROLL ANIMATIONS
+═══════════════════════════════════════════════════ */
+gsap.registerPlugin(ScrollTrigger);
+
+// Hero title — character-level stagger
+(function() {
+  const words = document.querySelectorAll('#hero-title .word');
+  gsap.from(words, {
+    y: 80, opacity: 0, rotateX: -40,
+    duration: 1.2, stagger: 0.12,
+    ease: 'power4.out', delay: 0.3
+  });
+})();
+
+// All .gsap-fade elements
+document.querySelectorAll('.gsap-fade').forEach(el => {
+  // Skip if inside hero (already animated above)
+  if (el.closest('.hero')) {
+    gsap.from(el, { y: 30, opacity: 0, duration: 1, ease: 'power3.out', delay: 0.8 });
+    return;
+  }
+  gsap.from(el, {
+    y: 50, opacity: 0, duration: 0.9, ease: 'power3.out',
+    scrollTrigger: {
+      trigger: el,
+      start: 'top 88%',
+      once: true
+    }
+  });
+});
+
+// Cap items — stagger as group
+gsap.from('.cap-item', {
+  x: -30, opacity: 0, duration: 0.7, stagger: 0.08, ease: 'power3.out',
+  scrollTrigger: { trigger: '.cap-list', start: 'top 80%', once: true }
+});
+
+// Stats count-up
+document.querySelectorAll('.stat-num').forEach(el => {
+  ScrollTrigger.create({
+    trigger: el, start: 'top 85%', once: true,
+    onEnter: () => gsap.from(el, { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out' })
+  });
+});
+
+// Bento cards cascade
+gsap.from('.bento-card', {
+  y: 60, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out',
+  scrollTrigger: { trigger: '.bento', start: 'top 80%', once: true }
+});
+
+// Process items
+gsap.from('.process-item', {
+  y: 40, opacity: 0, duration: 0.7, stagger: 0.1, ease: 'power3.out',
+  scrollTrigger: { trigger: '.process-grid', start: 'top 80%', once: true }
+});
+
+// CTA title character split
+(function() {
+  const title = document.querySelector('.cta-title');
+  ScrollTrigger.create({
+    trigger: title, start: 'top 80%', once: true,
+    onEnter: () => gsap.from(title, { y: 60, opacity: 0, duration: 1.2, ease: 'power4.out' })
+  });
+})();
+
+/* ═══════════════════════════════════════════════════
+   8. MAGNETIC BUTTONS
+═══════════════════════════════════════════════════ */
+document.querySelectorAll('.nav-pill, .cta-btn').forEach(btn => {
+  btn.addEventListener('mousemove', e => {
+    const r = btn.getBoundingClientRect();
+    const dx = e.clientX - (r.left + r.width / 2);
+    const dy = e.clientY - (r.top + r.height / 2);
+    btn.style.transform = `translate(${dx * 0.25}px, ${dy * 0.25}px)`;
+  });
+  btn.addEventListener('mouseleave', e => {
+    btn.style.transform = '';
+    btn.style.transition = 'transform .4s cubic-bezier(.23,1,.32,1)';
+    setTimeout(() => btn.style.transition = '', 400);
+  });
+});
+
+/* ═══════════════════════════════════════════════════
+   9. SCROLL PARALLAX on hero
+═══════════════════════════════════════════════════ */
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  const heroTitle = document.getElementById('hero-title');
+  if (heroTitle) heroTitle.style.transform = `translateY(${y * 0.25}px)`;
+}, { passive: true });
+
+/* ═══════════════════════════════════════════════════
+   10. MOBILE: Touch particle trail
+═══════════════════════════════════════════════════ */
+document.addEventListener('touchmove', e => {
+  const touch = e.touches[0];
+  for (let i = 0; i < 2; i++) {
+    particles.push({
+      x: touch.clientX + (Math.random() - .5) * 10,
+      y: touch.clientY + (Math.random() - .5) * 10,
+      vx: (Math.random() - .5) * 2,
+      vy: (Math.random() - .5) * 2 - 0.5,
+      life: 1, size: Math.random() * 4 + 1,
+      hue: 'rgba(200,255,0,'
+    });
+  }
+}, { passive: true });
+
+/* Resize guard */
+window.addEventListener('resize', () => {
+  ScrollTrigger.refresh();
+}, { passive: true });
+</script>
 </body>
 </html>
