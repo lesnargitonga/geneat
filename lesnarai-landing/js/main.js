@@ -22,16 +22,27 @@ document.addEventListener("DOMContentLoaded", () => {
     gsap.registerPlugin(ScrollTrigger);
 
     if (!reduceMotion) {
-      gsap.to("#hero .char", {
-        y: "0%",
-        opacity: 1,
-        duration: 0.8,
-        ease: "power3.out",
-        stagger: 0.02,
-        delay: 0.1,
-      });
+      const heroTl = gsap.timeline({ defaults: { ease: "power4.out" } });
+      heroTl
+        .to("#hero .char", {
+          y: "0%",
+          opacity: 1,
+          duration: 1.2,
+          stagger: 0.015,
+          delay: 0.2,
+        })
+        .to(
+          ".hero-fade",
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            stagger: 0.1,
+          },
+          "-=0.8",
+        );
 
-      gsap.utils.toArray(".fade-up").forEach((element) => {
+      gsap.utils.toArray(".fade-up:not(.hero-fade)").forEach((element) => {
         const delayClass = Array.from(element.classList).find((c) => c.startsWith("delay-"));
         const delay = delayClass ? parseInt(delayClass.split("-")[1], 10) * 0.15 : 0;
 
@@ -64,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       });
     } else {
-      document.querySelectorAll(".fade-up, .char").forEach((el) => {
+      document.querySelectorAll(".fade-up:not(.hero-fade), .char").forEach((el) => {
         el.style.opacity = "1";
         el.style.transform = "none";
       });
@@ -88,9 +99,11 @@ document.addEventListener("DOMContentLoaded", () => {
     { passive: true },
   );
 
+  const ringEl = document.getElementById("cursor-ring");
+
   if (!isTouch && !reduceMotion) {
     const cursor = document.getElementById("cursor");
-    const ring = document.getElementById("cursor-ring");
+    const ring = ringEl;
     const label = document.getElementById("cursor-label");
     let mx = window.innerWidth / 2;
     let my = window.innerHeight / 2;
@@ -142,10 +155,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const r = el.getBoundingClientRect();
         const dx = e.clientX - (r.left + r.width / 2);
         const dy = e.clientY - (r.top + r.height / 2);
-        gsap.to(el, { x: dx * 0.2, y: dy * 0.2, duration: 0.3, ease: "power2.out" });
+        gsap.to(el, { x: dx * 0.3, y: dy * 0.3, duration: 0.4, ease: "power2.out" });
+        if (ringEl) {
+          ringEl.style.width = "50px";
+          ringEl.style.height = "50px";
+        }
       });
       el.addEventListener("mouseleave", () => {
-        gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
+        gsap.to(el, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)" });
+        if (ringEl) {
+          ringEl.style.width = "36px";
+          ringEl.style.height = "36px";
+        }
       });
     });
   }
@@ -263,80 +284,5 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".counter").forEach((counter) => {
       counter.textContent = counter.getAttribute("data-target") || "0";
     });
-  }
-
-  const sonicCanvas = document.getElementById("sonic");
-  if (sonicCanvas && !reduceMotion) {
-    const sc = sonicCanvas.getContext("2d");
-    const sonicWrapper = document.getElementById("sonic-wrapper");
-    let sonicX = -120;
-    let sonicFrame = 0;
-    let isRunning = false;
-
-    function positionSonic() {
-      const title = document.getElementById("hero-title");
-      if (title && sonicWrapper) {
-        const rect = title.getBoundingClientRect();
-        sonicWrapper.style.top = `${rect.bottom - 40 + window.scrollY}px`;
-      }
-    }
-
-    function runSonic() {
-      if (isRunning) return;
-      sonicX = -120;
-      isRunning = true;
-      positionSonic();
-
-      function step() {
-        if (!isRunning) return;
-        sonicX += 16;
-        sonicFrame += 1;
-        if (sonicWrapper) {
-          sonicWrapper.style.left = `${Math.max(0, sonicX - 120)}px`;
-        }
-
-        sc.clearRect(0, 0, 120, 80);
-        sc.save();
-        sc.translate(sonicX < 0 ? 0 : Math.min(sonicX, 0) + 120, 40);
-
-        sc.strokeStyle = "rgba(0,122,255,0.6)";
-        sc.lineWidth = 2;
-        sc.beginPath();
-        sc.moveTo(-10, 0);
-        sc.lineTo(-40, 0);
-        sc.stroke();
-
-        const bob = Math.sin(sonicFrame * 0.5) * 3;
-        sc.fillStyle = "#007AFF";
-        sc.beginPath();
-        sc.ellipse(0, bob, 14, 11, 0, 0, Math.PI * 2);
-        sc.fill();
-
-        sc.fillStyle = "#FF3B30";
-        sc.save();
-        sc.translate(-4, bob + 12);
-        sc.rotate(Math.sin(sonicFrame * 0.6) * 0.6);
-        sc.fillRect(-4, 0, 8, 6);
-        sc.restore();
-        sc.save();
-        sc.translate(4, bob + 12);
-        sc.rotate(-Math.sin(sonicFrame * 0.6) * 0.6);
-        sc.fillRect(-4, 0, 8, 6);
-        sc.restore();
-        sc.restore();
-
-        if (sonicX < window.innerWidth + 200) {
-          requestAnimationFrame(step);
-        } else {
-          isRunning = false;
-          setTimeout(runSonic, 9000 + Math.random() * 4000);
-        }
-      }
-
-      step();
-    }
-
-    setTimeout(runSonic, 2500);
-    window.addEventListener("resize", positionSonic, { passive: true });
   }
 });

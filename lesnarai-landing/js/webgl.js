@@ -8,70 +8,82 @@
     return;
   }
 
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(
-    60,
+    45,
     window.innerWidth / window.innerHeight,
     0.1,
     1000,
   );
-  camera.position.z = 5;
+  camera.position.set(-10, 0, 30);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const orbitGroup = new THREE.Group();
+  scene.add(orbitGroup);
+
+  const lineMat = new THREE.LineBasicMaterial({
+    color: 0x007aff,
+    transparent: true,
+    opacity: 0.35,
+    blending: THREE.AdditiveBlending,
+  });
+
+  const dimLineMat = new THREE.LineBasicMaterial({
+    color: 0x007aff,
+    transparent: true,
+    opacity: 0.1,
+  });
+
+  function createOrbit(radiusX, radiusY, segments, mat) {
+    const curve = new THREE.EllipseCurve(0, 0, radiusX, radiusY, 0, 2 * Math.PI, false, 0);
+    const points = curve.getPoints(segments);
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    return new THREE.Line(geometry, mat);
+  }
+
+  const orbit1 = createOrbit(25, 25, 128, lineMat);
+  orbit1.rotation.x = Math.PI / 2.2;
+  orbitGroup.add(orbit1);
+
+  const orbit2 = createOrbit(35, 15, 128, dimLineMat);
+  orbit2.rotation.x = Math.PI / 1.8;
+  orbit2.rotation.y = Math.PI / 4;
+  orbitGroup.add(orbit2);
+
+  const orbit3 = createOrbit(40, 40, 128, dimLineMat);
+  orbit3.rotation.x = Math.PI / 2;
+  orbitGroup.add(orbit3);
 
   const pGeo = new THREE.BufferGeometry();
-  const pCount = 3000;
-  const pPos = new Float32Array(pCount * 3);
+  const pCount = 1500;
+  const pArray = new Float32Array(pCount * 3);
   for (let i = 0; i < pCount * 3; i++) {
-    pPos[i] = (Math.random() - 0.5) * 30;
+    pArray[i] = (Math.random() - 0.5) * 100;
   }
-  pGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
+  pGeo.setAttribute("position", new THREE.BufferAttribute(pArray, 3));
 
   const pMat = new THREE.PointsMaterial({
     color: 0x007aff,
-    size: 0.015,
+    size: 0.05,
     transparent: true,
     opacity: 0.4,
   });
-  const particleSystem = new THREE.Points(pGeo, pMat);
-  scene.add(particleSystem);
+  const particles = new THREE.Points(pGeo, pMat);
+  scene.add(particles);
 
-  const ringGroup = new THREE.Group();
-  scene.add(ringGroup);
+  orbitGroup.position.set(15, 0, -10);
 
-  const ringMat = new THREE.LineBasicMaterial({ color: 0x007aff, transparent: true, opacity: 0.6 });
-  const ringMatDim = new THREE.LineBasicMaterial({ color: 0x007aff, transparent: true, opacity: 0.2 });
-
-  function makeRing(r, segs, mat) {
-    const pts = [];
-    for (let i = 0; i <= segs; i++) {
-      const a = (i / segs) * Math.PI * 2;
-      pts.push(new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, 0));
-    }
-    const geo = new THREE.BufferGeometry().setFromPoints(pts);
-    return new THREE.Line(geo, mat);
-  }
-
-  const r1 = makeRing(2.2, 128, ringMat);
-  ringGroup.add(r1);
-  const r2 = makeRing(2.2, 128, ringMatDim);
-  r2.rotation.y = Math.PI / 2;
-  ringGroup.add(r2);
-  const r3 = makeRing(2.2, 128, ringMatDim);
-  r3.rotation.x = Math.PI / 2;
-  ringGroup.add(r3);
-  ringGroup.position.set(2.5, -0.2, 0);
-
+  let targetX = 0;
+  let targetY = 0;
   let animationId = null;
   let isVisible = true;
-  let mouseX = 0;
-  let mouseY = 0;
 
-  document.addEventListener("mousemove", (e) => {
-    mouseX = (e.clientX / window.innerWidth - 0.5) * 0.5;
-    mouseY = (e.clientY / window.innerHeight - 0.5) * 0.5;
+  window.addEventListener("mousemove", (e) => {
+    targetX = (e.clientX / window.innerWidth - 0.5) * 2;
+    targetY = (e.clientY / window.innerHeight - 0.5) * 2;
   });
 
   const clock = new THREE.Clock();
@@ -79,14 +91,15 @@
   function animate() {
     if (!isVisible) return;
     animationId = requestAnimationFrame(animate);
-    const t = clock.getElapsedTime();
 
-    r1.rotation.z = t * 0.2;
-    r2.rotation.z = -t * 0.15;
+    const time = clock.getElapsedTime();
+    orbitGroup.rotation.y = time * 0.05;
+    orbitGroup.rotation.z = time * 0.02;
+    particles.rotation.y = time * 0.01;
 
-    ringGroup.rotation.x += (mouseY - ringGroup.rotation.x) * 0.05;
-    ringGroup.rotation.y += (mouseX + t * 0.05 - ringGroup.rotation.y) * 0.05;
-    particleSystem.rotation.y = t * 0.02;
+    camera.position.x += (targetX * 2 - 10 - camera.position.x) * 0.02;
+    camera.position.y += (-targetY * 2 - camera.position.y) * 0.02;
+    camera.lookAt(0, 0, 0);
 
     renderer.render(scene, camera);
   }

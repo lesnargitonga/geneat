@@ -1,13 +1,14 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg-base: #050505;
+  --bg-base: #030508;
   --bg-surface: #111111;
   --bg-surface-hover: #1a1a1a;
   --text-primary: #FAFAFA;
-  --text-muted: #888888;
+  --text-muted: #8A94A6;
   --accent: #007AFF;
   --accent-dim: rgba(0, 122, 255, 0.15);
+  --accent-glow: rgba(0, 122, 255, 0.2);
   --glass: rgba(255, 255, 255, 0.02);
   --border: rgba(255, 255, 255, 0.06);
   --grot: 'Space Grotesk', sans-serif;
@@ -85,19 +86,11 @@ body.cursor-label-visible #cursor-label { opacity: 1; }
   z-index: 0; pointer-events: none;
 }
 
-.grid-overlay {
+.noise-overlay {
   position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(0, 122, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 122, 255, 0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
   z-index: 1; pointer-events: none;
-}
-
-.vignette {
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse at center, transparent 30%, var(--bg-base) 80%);
-  z-index: 1; pointer-events: none;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
 }
 
 /* Nav */
@@ -117,7 +110,7 @@ nav {
 }
 
 nav.scrolled {
-  background: rgba(5, 5, 5, 0.85);
+  background: rgba(3, 5, 8, 0.85);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
 }
@@ -192,12 +185,14 @@ nav.scrolled {
 .hero-title {
   font-size: clamp(3rem, 7vw, 6.5rem);
   font-weight: 700;
-  line-height: 1;
+  line-height: 1.05;
   letter-spacing: -0.03em;
   margin-bottom: 1.5rem;
-  overflow: hidden;
 }
 
+.hero-title .line { overflow: hidden; }
+
+.hero-title .highlight,
 .hero-title .word-ai { color: var(--accent); }
 
 .hero-sub, .section-sub {
@@ -266,12 +261,10 @@ nav.scrolled {
 }
 
 .hero-stats {
-  position: absolute;
-  bottom: 2.5rem;
-  right: 3rem;
-  z-index: 2;
   display: flex;
-  gap: 2.5rem;
+  gap: 4rem;
+  margin-top: 3rem;
+  flex-wrap: wrap;
 }
 
 .stat-item { display: flex; flex-direction: column; gap: 0.25rem; }
@@ -293,15 +286,8 @@ nav.scrolled {
   letter-spacing: 0.08em;
 }
 
-#sonic-wrapper {
-  position: absolute;
-  z-index: 10;
-  pointer-events: none;
-  top: 0;
-  left: 0;
-}
+#sonic-wrapper { display: none; }
 
-/* Sections */
 .section-title {
   font-size: clamp(2rem, 4vw, 3.5rem);
   font-weight: 700;
@@ -670,7 +656,7 @@ nav.scrolled {
 
 .fade-up {
   opacity: 0;
-  transform: translateY(30px);
+  transform: translateY(20px);
   will-change: opacity, transform;
 }
 
