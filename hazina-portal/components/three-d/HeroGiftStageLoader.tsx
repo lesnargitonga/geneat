@@ -24,31 +24,20 @@ const LazyHeroGiftStage = dynamic(
   },
 );
 
-export function HeroGiftStageLoader({
-  revealing = false,
-  mobileMotionEnabled = false,
-}: {
-  revealing?: boolean;
-  mobileMotionEnabled?: boolean;
-}) {
+export function HeroGiftStageLoader({ revealing = false }: { revealing?: boolean }) {
   const [canLoadCanvas, setCanLoadCanvas] = useState(false);
 
   useEffect(() => {
     const query = window.matchMedia("(min-width: 640px)");
-    const update = () => setCanLoadCanvas(query.matches || mobileMotionEnabled);
+    const update = () => setCanLoadCanvas(query.matches);
     update();
     query.addEventListener("change", update);
     return () => query.removeEventListener("change", update);
-  }, [mobileMotionEnabled]);
+  }, []);
 
   if (!canLoadCanvas) {
     return <GiftStageFallback />;
   }
 
-  return (
-    <LazyHeroGiftStage
-      revealing={revealing}
-      mobileMotionEnabled={mobileMotionEnabled}
-    />
-  );
+  return <LazyHeroGiftStage revealing={revealing} />;
 }
