@@ -72,6 +72,7 @@ export function CollectionCheckout({ box }: Props) {
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             className="px-3 py-2 bg-sand text-obsidian"
             aria-label="Decrease collection quantity"
+            data-cursor="native"
           >
             −
           </button>
@@ -81,6 +82,7 @@ export function CollectionCheckout({ box }: Props) {
             onClick={() => setQuantity((q) => q + 1)}
             className="px-3 py-2 bg-sand text-obsidian"
             aria-label="Increase collection quantity"
+            data-cursor="native"
           >
             +
           </button>
@@ -92,6 +94,7 @@ export function CollectionCheckout({ box }: Props) {
           type="button"
           onClick={() => setDeliveryMode("hotel")}
           className={`chip justify-center border ${deliveryMode === "hotel" ? "bg-obsidian text-sand border-obsidian" : "border-border text-ink-mute"}`}
+          data-cursor="native"
         >
           Local handoff
         </button>
@@ -99,6 +102,7 @@ export function CollectionCheckout({ box }: Props) {
           type="button"
           onClick={() => setDeliveryMode("jkia")}
           className={`chip justify-center border ${deliveryMode === "jkia" ? "bg-obsidian text-sand border-obsidian" : "border-border text-ink-mute"}`}
+          data-cursor="native"
         >
           Departure
         </button>
@@ -106,6 +110,7 @@ export function CollectionCheckout({ box }: Props) {
           type="button"
           onClick={() => setDeliveryMode("international")}
           className={`chip justify-center border ${deliveryMode === "international" ? "bg-obsidian text-sand border-obsidian" : "border-border text-ink-mute"}`}
+          data-cursor="native"
         >
           Global export
         </button>
@@ -123,6 +128,7 @@ export function CollectionCheckout({ box }: Props) {
           type="button"
           onClick={() => setPaymentCurrency("USD")}
           className={`chip justify-center border ${paymentCurrency === "USD" ? "bg-obsidian text-sand border-obsidian" : "border-border text-ink-mute"}`}
+          data-cursor="native"
         >
           USD card
         </button>
@@ -130,6 +136,7 @@ export function CollectionCheckout({ box }: Props) {
           type="button"
           onClick={() => setPaymentCurrency("KES")}
           className={`chip justify-center border ${paymentCurrency === "KES" ? "bg-obsidian text-sand border-obsidian" : "border-border text-ink-mute"}`}
+          data-cursor="native"
         >
           KES M-Pesa
         </button>
@@ -150,6 +157,7 @@ export function CollectionCheckout({ box }: Props) {
           type="button"
           onClick={startAutomatedCheckout}
           className="btn-dark"
+          data-cursor="magnetic"
         >
           Start guided checkout
         </button>
@@ -158,6 +166,7 @@ export function CollectionCheckout({ box }: Props) {
           target="_blank"
           rel="noopener noreferrer"
           className="btn-outline flex-col gap-0.5"
+          data-cursor="magnetic"
         >
           <span>Continue on WhatsApp</span>
           <span className="text-[10px] normal-case tracking-normal opacity-70">Human concierge handoff</span>

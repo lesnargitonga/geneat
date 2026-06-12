@@ -37,7 +37,11 @@ export default async function CollectionsPage() {
             Explore finished Kenyan collections prepared for travellers, hosts, and thoughtful gifting.
             Each edit includes visible pricing, lead time, contents, and concierge-guided handoff
             options. For something more personal,{" "}
-            <Link href="/build" className="text-bronze hover:text-obsidian underline-offset-4 hover:underline">
+            <Link
+              href="/build"
+              className="text-bronze hover:text-obsidian underline-offset-4 hover:underline"
+              data-cursor="magnetic"
+            >
               open a private sourcing brief
             </Link>
             .
@@ -70,7 +74,13 @@ export default async function CollectionsPage() {
             Our concierge will recommend based on your journey, budget, and delivery timeline —
             with the discretion of a five-star hotel desk.
           </p>
-          <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline border-sand/30 text-sand hover:bg-sand hover:text-obsidian">
+          <a
+            href={wa}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-outline border-sand/30 text-sand hover:bg-sand hover:text-obsidian"
+            data-cursor="magnetic"
+          >
             Continue on WhatsApp
           </a>
           <p className="label-mono text-sand/30">

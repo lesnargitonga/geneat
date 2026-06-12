@@ -52,7 +52,7 @@ export function Nav() {
       }`}
     >
       <div className="container-page flex items-center justify-between h-16 md:h-[4.5rem]">
-        <Link href="/" className="group leading-none" onClick={() => setOpen(false)}>
+        <Link href="/" className="group leading-none" onClick={() => setOpen(false)} data-cursor="magnetic">
           <span className="font-serif text-xl md:text-2xl uppercase tracking-wide text-obsidian">
             Hazina{" "}
             <span className="italic normal-case text-bronze tracking-normal">Nomads</span>
@@ -64,6 +64,7 @@ export function Nav() {
               key={n.href}
               href={n.href}
               aria-current={isActive(n.href) ? "page" : undefined}
+              data-cursor="magnetic"
               className={`relative py-2 font-mono text-sm font-medium uppercase tracking-[0.1em] transition-colors ${
                 isActive(n.href)
                   ? "text-obsidian after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-px after:bg-bronze"
@@ -80,6 +81,7 @@ export function Nav() {
             href={wa}
             target="_blank"
             rel="noopener noreferrer"
+            data-cursor="magnetic"
             className={`font-mono text-sm uppercase tracking-[0.12em] transition-all duration-300 ${
               showStickyCta
                 ? "btn-bronze py-2.5 px-5 translate-y-0 opacity-100"
@@ -96,6 +98,7 @@ export function Nav() {
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? "Close navigation" : "Open navigation"}
             aria-expanded={open}
+            data-cursor="native"
             className="inline-flex h-10 w-10 items-center justify-center border border-border text-obsidian"
           >
             {open ? "×" : "☰"}
@@ -110,6 +113,7 @@ export function Nav() {
                 key={n.href}
                 href={n.href}
                 onClick={() => setOpen(false)}
+                data-cursor="native"
                 className={`flex items-center justify-between border border-border px-4 py-3 font-mono text-sm uppercase tracking-[0.1em] ${
                   isActive(n.href) ? "bg-obsidian text-sand" : "text-obsidian"
                 }`}
@@ -124,12 +128,14 @@ export function Nav() {
               rel="noopener noreferrer"
               className="btn-bronze w-full mt-2"
               onClick={() => setOpen(false)}
+              data-cursor="native"
             >
               Continue on WhatsApp
             </a>
             <button
               type="button"
               className="btn-outline w-full"
+              data-cursor="native"
               onClick={() => {
                 setOpen(false);
                 openConciergeChat();

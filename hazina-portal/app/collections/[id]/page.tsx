@@ -125,10 +125,10 @@ export default async function CollectionDetailPage({ params }: Props) {
 
             <MotionSafe delay={0.16}>
               <div className="flex flex-wrap gap-4">
-                <a href="#checkout" className="btn-dark">
+                <a href="#checkout" className="btn-dark" data-cursor="magnetic">
                   Order this box
                 </a>
-                <Link href="/build" className="btn-outline">
+                <Link href="/build" className="btn-outline" data-cursor="magnetic">
                   Pick individual items
                 </Link>
               </div>
@@ -156,7 +156,13 @@ export default async function CollectionDetailPage({ params }: Props) {
           <p className="text-ink-mute text-sm mt-10 max-w-xl leading-relaxed">
             Want to swap an item? Message us — we&apos;ll adjust your box while keeping the same delivery window.
           </p>
-          <a href={customizeWa} target="_blank" rel="noopener noreferrer" className="btn-ghost mt-4 inline-flex">
+          <a
+            href={customizeWa}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-ghost mt-4 inline-flex"
+            data-cursor="magnetic"
+          >
             Customise on WhatsApp · Human concierge
           </a>
         </SpatialSection>

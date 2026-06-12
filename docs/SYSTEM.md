@@ -4,7 +4,7 @@
 `api.lesnarai.co.ke`; Hazina uses the dedicated `hazina-api.onrender.com`
 service.
 **Maintain:** edit this file first when product, routing, catalog, deploy, or gaps change. Code wins if docs drift.
-**Verified:** 2026-06-11 · local checks · Frankfurt resource/env audit · direct Hazina API smoke
+**Verified:** 2026-06-12 · local portal checks · Frankfurt resource/env audit · direct Hazina API smoke
 **Security:** [SECURITY.md](../SECURITY.md)
 
 **Legend:** ✅ shipped in code · 🟢 verified live · ⬜ not done · ◐ partial
@@ -20,6 +20,7 @@ service.
 | Tenant `hazina-nomads` | ✅ | ◐ | `DEFAULT_BUSINESS_SLUG`; Meta `phone_number_id` |
 | Gen-Eat portal | ✅ | 🟢 | `geneat.lesnarai.co.ke` |
 | Hazina portal | ✅ | ◐ | Render portal live at `hazina-portal.onrender.com`; public `hazina.lesnarai.co.ke` DNS still needs Cloudflare cutover |
+| Spatial showroom UX | ✅ | ◐ | Branch `hazina-spatial-interactions`: hero composition, pointer response, controlled drag, and restrained magnetic cursor; deploy after merge to Render-watched branch |
 | Hazina WA CTA | ✅ | ◐ | Public CTAs use personal concierge line `+254715540653`; full WhatsApp automation waits for a BSP/API number |
 | Website chat automation | ✅ | ◐ | Instant deterministic menu + guided checkout/recommendation; AI only classifies off-script requests |
 | KES STK (IntaSend) | ✅ | 🟢 | Live keys; `PAYMENT_SIMULATOR=false`; primary M-Pesa rail |
@@ -34,6 +35,8 @@ service.
 | Catalog `search_catalog` straitjacket | ✅ | ⬜ | Hazina-only tool + `gift_concierge` playbook |
 | Proactive fulfillment WA (Ghost Ops) | ✅ | ⬜ | `fulfillment_notifications` on `ready_for_dispatch` / `out_for_delivery` |
 | Desk escalation + admin WA alert | ✅ | ⬜ | `hazina_escalation` · corporate + failed-turn threshold |
+| Admin command center | ◐ | ⬜ | Phase 1 schema documented; full admin UI remains next workstream |
+| Hazina model training | ◐ | ⬜ | RunPod requirements exist; training/eval pipeline still needs operational runbook + approved dataset snapshot |
 | Courier integration | ⬜ | ⬜ | Manual ops only |
 | Partner payouts | ⬜ | ⬜ | Dashboard placeholder |
 | DHL live rates | ⬜ | ⬜ | Stub in `app/ai/tools.py` |

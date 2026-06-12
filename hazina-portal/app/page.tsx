@@ -56,13 +56,14 @@ export default async function HomePage() {
               </p>
             </RevealText>
             <RevealGroup className="mt-8 flex flex-wrap gap-3" delay={0.23} stagger={0.07}>
-              <Link href="/collections" className="btn-bronze">
+              <Link href="/collections" className="btn-bronze" data-cursor="magnetic">
                 Enter the collection rooms
               </Link>
               <a
                 href={wa}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-cursor="magnetic"
                 className="btn-outline flex-col gap-0.5 border-white/60 text-white hover:bg-sand hover:text-obsidian"
               >
                 <span>Continue on WhatsApp</span>
@@ -100,7 +101,7 @@ export default async function HomePage() {
         <RevealGroup className="home-exhibit-rail" stagger={0.07}>
           {catalog.collections.map((box) => (
             <LuxuryTilt key={box.id} className="home-exhibit-rail__item">
-              <Link href={`/collections/${box.id}`} className="home-exhibit">
+              <Link href={`/collections/${box.id}`} className="home-exhibit" data-cursor="magnetic">
                 <span className="home-exhibit__image">
                   <CatalogImage
                     src={box.image}
@@ -231,7 +232,13 @@ export default async function HomePage() {
           </div>
           <div className="flex flex-wrap gap-3">
             <ConciergeSceneCTA />
-            <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline flex-col gap-0.5">
+            <a
+              href={wa}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-outline flex-col gap-0.5"
+              data-cursor="magnetic"
+            >
               <span>Continue on WhatsApp</span>
               <span className="text-[10px] normal-case tracking-normal opacity-70">Human concierge handoff</span>
             </a>
@@ -255,7 +262,7 @@ function PathCard({
 }) {
   return (
     <FloatingSurface className="h-full" depth="soft">
-      <Link href={href} className="private-desk__card group">
+      <Link href={href} className="private-desk__card group" data-cursor="magnetic">
         <span className="label-mono text-bronze">{label}</span>
         <h3 className="mt-3 font-serif text-2xl leading-tight text-obsidian transition-colors group-hover:text-bronze">
           {title}

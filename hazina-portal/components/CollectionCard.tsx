@@ -38,8 +38,10 @@ export function CollectionCard({ box, className = "", priority, brandPhone = BRA
   return (
     <article
       className={`collection-exhibit group flex flex-col overflow-hidden ${className}`}
+      data-cursor="magnetic"
+      data-cursor-pull="0.14"
     >
-      <Link href={`/collections/${box.id}`} className="collection-exhibit__display block">
+      <Link href={`/collections/${box.id}`} className="collection-exhibit__display block" data-cursor="magnetic">
         <div
           className="collection-exhibit__frame relative aspect-[4/3] overflow-hidden bg-sand-dark"
           role="img"
@@ -66,7 +68,7 @@ export function CollectionCard({ box, className = "", priority, brandPhone = BRA
       </Link>
 
       <div className="collection-exhibit__label flex flex-1 flex-col p-5 md:p-6">
-        <Link href={`/collections/${box.id}`}>
+        <Link href={`/collections/${box.id}`} data-cursor="magnetic">
           <h2 className="font-serif text-2xl md:text-3xl text-obsidian leading-tight hover:text-bronze transition-colors">
             {box.name}
           </h2>
@@ -89,10 +91,14 @@ export function CollectionCard({ box, className = "", priority, brandPhone = BRA
         )}
 
         <div className="mt-auto pt-5 grid gap-2">
-          <Link href={`/collections/${box.id}`} className="btn-dark w-full !px-4 !py-2.5">
+          <Link href={`/collections/${box.id}`} className="btn-dark w-full !px-4 !py-2.5" data-cursor="magnetic">
             View details
           </Link>
-          <Link href={`/collections/${box.id}#checkout`} className="btn-outline w-full !px-4 !py-2.5">
+          <Link
+            href={`/collections/${box.id}#checkout`}
+            className="btn-outline w-full !px-4 !py-2.5"
+            data-cursor="magnetic"
+          >
             Add to box
           </Link>
           <a
@@ -100,6 +106,7 @@ export function CollectionCard({ box, className = "", priority, brandPhone = BRA
             target="_blank"
             rel="noopener noreferrer"
             className="btn-ghost w-full !px-4 !py-2.5"
+            data-cursor="magnetic"
           >
             Continue on WhatsApp
           </a>

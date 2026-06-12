@@ -791,7 +791,7 @@ No `/cafes`, `/map`, or `/owners` — those live only in `gen-eat-portal/`.
 
 ### 9.2 Navigation & footer links
 
-**Nav (`components/Nav.tsx`):** Collections · Build · Curation · About · **Chat in app** · **Order on WhatsApp**. Theme toggle + mobile drawer. **Not linked:** Treasures index, JKIA URL, Hosts, partner pages.
+**Nav (`components/Nav.tsx`):** Collections · Build · Curation · About · **Chat in app** · **Continue on WhatsApp**. Theme toggle + mobile drawer. **Not linked:** Treasures index, JKIA URL, Hosts, partner pages.
 
 **Footer (`components/Footer.tsx`):** All collections · Curation brief · Kenya Edit · **Departure-ready edit** (collection URL, not old JKIA page) · Build custom box · Our story · email · phone · dispatch hours. **No hosts link.**
 
@@ -815,6 +815,26 @@ No `/cafes`, `/map`, or `/owners` — those live only in `gen-eat-portal/`.
 | Smart back link | `components/SmartBackLink.tsx` | Context-aware back |
 | Nav / Footer / Chat | `Nav.tsx`, `Footer.tsx`, `ChatWidget.tsx` | `business_slug=hazina-nomads` |
 | Theme | `ThemeToggle.tsx`, `app/layout.tsx` | `next/font` Inter, Cormorant, DM Mono |
+| Showroom shell | `components/three-d/ShowroomShell.tsx` | Global spatial stage, right-side hero drag lane, route-aware background presence |
+| Hero gift stage | `components/three-d/HeroGiftStage.tsx` | WebGL gift object with desktop pointer response and controlled drag/inertia |
+| Magnetic cursor | `components/three-d/MagneticCursor.tsx` | Desktop-only bronze/cream overlay cursor; opt-in targets via `data-cursor="magnetic"` |
+
+### 9.3.1 Spatial interaction standard
+
+Hazina's 3D experience should feel like a private showroom, not a toy. The
+implemented interaction layers are deliberately restrained:
+
+- desktop pointer response follows the user's position across the window
+- drag starts only inside the right-side hero stage lane
+- release settles the object back with a small, damped overshoot
+- the 3D object must never cover headline, paragraph, or CTA copy
+- the magnetic cursor is an accent only; the browser cursor remains available
+- mobile, touch-only devices, reduced motion, inputs, and checkout quantity
+  controls stay native
+
+Acceptance gate before adding any new interaction layer: the customer can read
+the headline clearly, click every CTA, and the motion feels premium rather than
+playful.
 
 ### 9.4 Image library
 
@@ -894,13 +914,20 @@ Run this before presenting Hazina as a luxury front door:
 
 - [ ] Desktop homepage: WebGL hero gift stage is visible, reacts smoothly to
       cursor movement across the whole hero, and does not block CTAs.
+- [ ] Desktop hero drag: dragging inside the right-side stage lane feels heavy,
+      settles back elegantly, and never starts from headline, paragraph, CTAs,
+      nav, chat, or collection cards.
+- [ ] Desktop magnetic cursor: bronze/cream accent appears only on fine-pointer
+      desktop, expands subtly on marked CTAs/cards, keeps `pointer-events: none`,
+      and does not hide over form/checkout controls.
 - [ ] Tablet homepage: 3D/fallback stage remains visible without horizontal
       overflow or cropped hero copy.
 - [ ] Mobile homepage: no blank canvas, no horizontal overflow, collection rail
       remains thumb-scrollable, and the lightweight dimensional gift object is
       visible.
 - [ ] Reduced motion: animations, pointer tilt, and object breathing are
-      disabled or softened by `prefers-reduced-motion`.
+      disabled or softened by `prefers-reduced-motion`; custom cursor is not
+      mounted.
 - [ ] Chat automation: first open still shows the deterministic Hazina menu
       instantly; spatial shell styling does not slow the flow.
 - [ ] WhatsApp handoff: public CTAs open the configured Hazina number with a

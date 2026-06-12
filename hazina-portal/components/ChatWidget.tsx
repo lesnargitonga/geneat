@@ -1158,6 +1158,7 @@ export function ChatWidget() {
           type="button"
           onClick={() => setChatOpen(true)}
           aria-label="Open private concierge chat"
+          data-cursor="magnetic"
           className="fixed bottom-[4.75rem] right-4 z-[100] inline-flex min-h-[50px] items-center gap-2 rounded-full border border-[#caa777]/35 bg-[#101010]/92 px-4 font-mono text-[10px] uppercase tracking-[0.16em] text-white shadow-editorial backdrop-blur-md transition hover:bg-[#181818] active:scale-[0.98] md:bottom-6"
         >
           <span className="font-serif text-sm normal-case tracking-normal text-[#e8d4b4]">Concierge</span>
@@ -1192,6 +1193,7 @@ export function ChatWidget() {
                 type="button"
                 onClick={() => setChatOpen(false)}
                 aria-label="Close concierge chat"
+                data-cursor="native"
                 className="inline-flex h-9 w-9 items-center justify-center border border-white/20 text-lg text-white/85 hover:border-[#caa777]/50 hover:text-white"
               >
                 ×
@@ -1200,6 +1202,7 @@ export function ChatWidget() {
                 href={whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads - I'd like concierge help.")}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-cursor="magnetic"
                 className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#d6b387] hover:text-white"
               >
                 Human WhatsApp
@@ -1264,12 +1267,14 @@ export function ChatWidget() {
               }}
               rows={1}
               placeholder={flow ? "Detail one requirement..." : "Message your concierge..."}
+              data-cursor="native"
               className="concierge-textarea min-h-[44px] flex-1 resize-none rounded-[4px] border border-transparent bg-sand/75 px-3 py-2.5 text-[15px] leading-relaxed text-[#1a1815] placeholder:font-serif placeholder:text-[#7a7268] placeholder:italic outline-none focus:border-[#b4966f]/70 focus:bg-sand"
             />
             <button
               type="button"
               onClick={() => void send()}
               disabled={busy || !draft.trim()}
+              data-cursor="native"
               className="min-h-[44px] rounded-[4px] bg-[#101010] px-4 py-2 font-mono text-[10px] uppercase tracking-[0.16em] text-[#f4efe6] disabled:opacity-40"
             >
               Send

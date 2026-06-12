@@ -39,7 +39,7 @@ make preview-hazina   # next build + next start on :3004
 
 ---
 
-## Public site map (2026-06-01)
+## Public site map (2026-06-12)
 
 | URL | In nav? | Notes |
 |---|---|---|
@@ -53,7 +53,29 @@ make preview-hazina   # next build + next start on :3004
 | `/treasures` | — | **301 → `/build`** |
 | `/last-minute-kenya-gifts-jkia` | — | **301 → `/collections/departure-drop`** |
 
-**Nav:** Collections · Build · Curation · About · Chat in app · Order on WhatsApp.
+**Nav:** Collections · Build · Curation · About · Chat in app · Continue on WhatsApp.
+
+---
+
+## Spatial experience
+
+The current portal direction is a fast luxury showroom, not a decorative
+animation layer. The homepage keeps the conversion copy dominant while the
+right-side WebGL gift stage provides restrained physical presence.
+
+Implemented interaction layers:
+
+- global desktop pointer response on the hero gift stage
+- controlled desktop drag/inertia limited to the right-side stage lane
+- reduced-motion and touch safety for stage movement
+- restrained desktop magnetic cursor accent on selected CTAs/cards only
+- default browser cursor remains visible; the custom cursor is an overlay
+- quantity controls, text inputs, mobile, and reduced-motion contexts stay native
+
+The cursor lives in `components/three-d/MagneticCursor.tsx` and is mounted from
+`components/SiteChrome.tsx`. Targets opt in with `data-cursor="magnetic"`;
+form controls and operational controls should use `data-cursor="native"` when
+needed. Do not bind the cursor to every link blindly.
 
 ---
 
@@ -123,6 +145,11 @@ python scripts/check_asset_images.py
 ## Deploy
 
 Render service `hazina-portal` in `render.yaml` → `hazina.lesnarai.co.ke`.
+
+Render deploys from the GitHub branch configured on the service. Feature
+branches such as `hazina-spatial-interactions` make the code available on
+GitHub, but production only updates after the watched branch, usually `main`,
+receives the commits.
 
 The Render blueprint targets Frankfurt resources:
 

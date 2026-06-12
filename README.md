@@ -102,6 +102,10 @@ Current Hazina production-routing path:
   instead of dumping a long internal prompt into chat; the flow asks for guest
   name, delivery mode, exact location, timing, payment choice, and contact one
   step at a time before order creation,
+- the spatial showroom branch adds a staged WebGL hero object with desktop
+  pointer response, controlled right-lane drag/inertia, and a restrained
+  desktop-only magnetic cursor accent; production receives it after the
+  Render-watched branch is updated,
 - all five collection image slots and all individual treasure image references
   resolve locally; collection images now use real available product/context
   photos instead of generated branded mockups, but exact no-watermark finished
