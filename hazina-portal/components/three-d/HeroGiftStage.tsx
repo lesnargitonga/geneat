@@ -6,6 +6,10 @@ import { useEffect, useRef, useState } from "react";
 import { MathUtils, type Group, type PointLight } from "three";
 import { HazinaCanvas } from "./HazinaCanvas";
 import { FloatingTreasure } from "./FloatingTreasure";
+import {
+  HAZINA_STAGE_ORIENTATION_EVENT,
+  type StageOrientationDetail,
+} from "@/lib/showroom";
 
 const BASE_STAGE_POSITION = { x: 0.1, y: -0.18, z: 0 };
 const BASE_STAGE_ROTATION_X = -0.08;
@@ -33,7 +37,13 @@ function usePrefersReducedMotion() {
   return reduceMotion;
 }
 
-function GiftScene({ revealing }: { revealing: boolean }) {
+function GiftScene({
+  revealing,
+  mobileMotionEnabled,
+}: {
+  revealing: boolean;
+  mobileMotionEnabled: boolean;
+}) {
   const reduceMotion = usePrefersReducedMotion();
   const stageRef = useRef<Group | null>(null);
   const lidRef = useRef<Group | null>(null);
@@ -45,6 +55,8 @@ function GiftScene({ revealing }: { revealing: boolean }) {
   const smoothPointer = useRef({ x: 0, y: 0 });
   const targetDrag = useRef({ x: 0, y: 0 });
   const smoothDrag = useRef({ x: 0, y: 0 });
+  const targetOrientation = useRef({ x: 0, y: 0 });
+  const smoothOrientation = useRef({ x: 0, y: 0 });
   const dragVelocity = useRef({ x: 0, y: 0 });
   const lastDrag = useRef({ x: 0, y: 0 });
   const isDragging = useRef(false);
@@ -95,6 +107,31 @@ function GiftScene({ revealing }: { revealing: boolean }) {
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, [reduceMotion]);
+
+  useEffect(() => {
+    const orientationTarget = targetOrientation.current;
+
+    if (reduceMotion || !mobileMotionEnabled) {
+      orientationTarget.x = 0;
+      orientationTarget.y = 0;
+      return;
+    }
+
+    const onOrientation = (event: Event) => {
+      const { active, x, y } = (
+        event as CustomEvent<StageOrientationDetail>
+      ).detail;
+      orientationTarget.x = active ? MathUtils.clamp(x, -1, 1) : 0;
+      orientationTarget.y = active ? MathUtils.clamp(y, -1, 1) : 0;
+    };
+
+    window.addEventListener(HAZINA_STAGE_ORIENTATION_EVENT, onOrientation);
+    return () => {
+      window.removeEventListener(HAZINA_STAGE_ORIENTATION_EVENT, onOrientation);
+      orientationTarget.x = 0;
+      orientationTarget.y = 0;
+    };
+  }, [mobileMotionEnabled, reduceMotion]);
 
   useEffect(() => {
     if (reduceMotion) return;
@@ -170,9 +207,21 @@ function GiftScene({ revealing }: { revealing: boolean }) {
       targetPointer.current.y,
       0.08,
     );
+    smoothOrientation.current.x = MathUtils.lerp(
+      smoothOrientation.current.x,
+      targetOrientation.current.x,
+      0.07,
+    );
+    smoothOrientation.current.y = MathUtils.lerp(
+      smoothOrientation.current.y,
+      targetOrientation.current.y,
+      0.07,
+    );
 
     const pointerX = smoothPointer.current.x;
     const pointerY = smoothPointer.current.y;
+    const orientationX = smoothOrientation.current.x;
+    const orientationY = smoothOrientation.current.y;
     const dragX = MathUtils.clamp(smoothDrag.current.x, -1, 1);
     const dragY = MathUtils.clamp(smoothDrag.current.y, -1, 1);
     const hoverInfluence = (isDragging.current ? 0.42 : 1) * (1 - reveal * 0.82);
@@ -180,17 +229,29 @@ function GiftScene({ revealing }: { revealing: boolean }) {
     const ambientPositionY = Math.sin(clock.elapsedTime * 0.55) * 0.035;
 
     stageRef.current.rotation.y = MathUtils.clamp(
-      ambientRotationY + pointerX * 0.22 * hoverInfluence + dragX * 0.42 - reveal * 0.08,
+      ambientRotationY +
+        pointerX * 0.22 * hoverInfluence +
+        dragX * 0.42 +
+        orientationX * 0.16 -
+        reveal * 0.08,
       -0.58,
       0.58,
     );
     stageRef.current.rotation.x = MathUtils.clamp(
-      BASE_STAGE_ROTATION_X - pointerY * 0.1 * hoverInfluence - dragY * 0.18 - reveal * 0.025,
+      BASE_STAGE_ROTATION_X -
+        pointerY * 0.1 * hoverInfluence -
+        dragY * 0.18 -
+        orientationY * 0.08 -
+        reveal * 0.025,
       -0.28,
       0.16,
     );
     stageRef.current.position.x = MathUtils.clamp(
-      BASE_STAGE_POSITION.x + pointerX * 0.22 * hoverInfluence + dragX * 0.28 - reveal * 0.04,
+      BASE_STAGE_POSITION.x +
+        pointerX * 0.22 * hoverInfluence +
+        dragX * 0.28 +
+        orientationX * 0.12 -
+        reveal * 0.04,
       -0.28,
       0.48,
     );
@@ -199,6 +260,7 @@ function GiftScene({ revealing }: { revealing: boolean }) {
         ambientPositionY -
         pointerY * 0.1 * hoverInfluence -
         dragY * 0.16 +
+        orientationY * -0.06 +
         reveal * 0.08,
       -0.42,
       0.08,
@@ -327,11 +389,24 @@ function StageFallback() {
   );
 }
 
-export function HeroGiftStage({ revealing = false }: { revealing?: boolean }) {
+export function HeroGiftStage({
+  revealing = false,
+  mobileMotionEnabled = false,
+}: {
+  revealing?: boolean;
+  mobileMotionEnabled?: boolean;
+}) {
   return (
     <div className="spatial-stage hero-gift-stage" aria-hidden="true">
-      <HazinaCanvas fallback={<StageFallback />} className="h-full w-full">
-        <GiftScene revealing={revealing} />
+      <HazinaCanvas
+        fallback={<StageFallback />}
+        className="h-full w-full"
+        allowSmallMobile={mobileMotionEnabled}
+      >
+        <GiftScene
+          revealing={revealing}
+          mobileMotionEnabled={mobileMotionEnabled}
+        />
       </HazinaCanvas>
     </div>
   );
