@@ -8,7 +8,11 @@ import { CollectionCheckout } from "@/components/CollectionCheckout";
 import { formatDualPrice, formatUSD, whatsappLink } from "@/lib/format";
 import { StickyWhatsAppCTA } from "@/components/StickyWhatsAppCTA";
 import { SmartBackLink } from "@/components/SmartBackLink";
+import { FloatingSurface } from "@/components/three-d/FloatingSurface";
+import { MotionSafe } from "@/components/three-d/MotionSafe";
 import { ProductTheater } from "@/components/three-d/ProductTheater";
+import { RevealText } from "@/components/three-d/RevealText";
+import { SpatialPage } from "@/components/three-d/SpatialPage";
 import { SpatialSection } from "@/components/three-d/SpatialSection";
 
 type Props = { params: { id: string } };
@@ -72,13 +76,13 @@ export default async function CollectionDetailPage({ params }: Props) {
   );
 
   return (
-    <>
-      <div className="container-page pt-10 md:pt-16 pb-16">
+    <SpatialPage className="product-room">
+      <div className="product-room__shell container-page pt-10 md:pt-16 pb-16">
         <SmartBackLink fallbackHref="/collections" className="label-mono text-bronze hover:text-obsidian">
           ← Back to browsing
         </SmartBackLink>
 
-        <SpatialSection className="grid lg:grid-cols-2 gap-12 lg:gap-16 mt-8 items-start">
+        <SpatialSection className="product-room__stage grid lg:grid-cols-2 gap-12 lg:gap-16 mt-8 items-start">
           <ProductTheater
             image={box.image}
             fallbackImage={fallbackImage}
@@ -89,44 +93,54 @@ export default async function CollectionDetailPage({ params }: Props) {
             className="lg:sticky lg:top-24"
           />
 
-          <div className="space-y-8">
-            <div>
-              <span className="label-mono">{box.sku} · {box.lead_time_hours}h lead</span>
-              <h1 className="h-display text-4xl md:text-5xl text-obsidian mt-3">{box.name}</h1>
-              <p className="text-ink-mute mt-2">{box.target}</p>
-              <div className="mt-4">
-                <p className="font-serif text-3xl md:text-4xl text-obsidian leading-none">
-                  {formatUSD(box.price_usd)}
-                </p>
-                <p className="font-mono text-sm text-ink-mute mt-1">
-                  KES {box.price_kes.toLocaleString("en-KE")}
-                </p>
+          <div className="product-room__desk space-y-8">
+            <RevealText>
+              <div>
+                <span className="label-mono">{box.sku} · {box.lead_time_hours}h lead</span>
+                <h1 className="h-display text-4xl md:text-5xl text-obsidian mt-3">{box.name}</h1>
+                <p className="text-ink-mute mt-2">{box.target}</p>
+                <div className="mt-4">
+                  <p className="font-serif text-3xl md:text-4xl text-obsidian leading-none">
+                    {formatUSD(box.price_usd)}
+                  </p>
+                  <p className="font-mono text-sm text-ink-mute mt-1">
+                    KES {box.price_kes.toLocaleString("en-KE")}
+                  </p>
+                </div>
               </div>
-            </div>
+            </RevealText>
 
-            <div className="editorial-rule">
-              <span className="label-mono block mb-2">Curator&apos;s note</span>
-              <p className="text-ink-mute leading-relaxed">{box.contents}</p>
-            </div>
+            <MotionSafe delay={0.08}>
+              <div className="editorial-rule">
+                <span className="label-mono block mb-2">Curator&apos;s note</span>
+                <p className="text-ink-mute leading-relaxed">{box.contents}</p>
+              </div>
+            </MotionSafe>
 
             {box.personalization && (
-              <p className="label-mono text-bronze">{box.personalization_note}</p>
+              <MotionSafe delay={0.12}>
+                <p className="label-mono text-bronze">{box.personalization_note}</p>
+              </MotionSafe>
             )}
 
-            <div className="flex flex-wrap gap-4">
-              <a href="#checkout" className="btn-dark">
-                Order this box
-              </a>
-              <Link href="/build" className="btn-outline">
-                Pick individual items
-              </Link>
-            </div>
+            <MotionSafe delay={0.16}>
+              <div className="flex flex-wrap gap-4">
+                <a href="#checkout" className="btn-dark">
+                  Order this box
+                </a>
+                <Link href="/build" className="btn-outline">
+                  Pick individual items
+                </Link>
+              </div>
+            </MotionSafe>
 
-            <CollectionCheckout box={box} />
+            <FloatingSurface depth="strong">
+              <CollectionCheckout box={box} />
+            </FloatingSurface>
           </div>
         </SpatialSection>
 
-        <SpatialSection className="mt-20 pt-12 border-t border-border">
+        <SpatialSection className="product-room__inventory mt-20 pt-12 border-t border-border">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
             <div>
               <span className="label-mono">What&apos;s inside</span>
@@ -143,11 +157,11 @@ export default async function CollectionDetailPage({ params }: Props) {
             Want to swap an item? Message us — we&apos;ll adjust your box while keeping the same delivery window.
           </p>
           <a href={customizeWa} target="_blank" rel="noopener noreferrer" className="btn-ghost mt-4 inline-flex">
-            Customise this collection
+            Customise on WhatsApp · Human concierge
           </a>
         </SpatialSection>
       </div>
       <StickyWhatsAppCTA message={orderMessage} phone={catalog.brand.whatsapp} />
-    </>
+    </SpatialPage>
   );
 }

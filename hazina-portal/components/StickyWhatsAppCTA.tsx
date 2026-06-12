@@ -3,7 +3,7 @@ import { whatsappLink } from "@/lib/format";
 
 export function StickyWhatsAppCTA({
   message,
-  label = "Private WhatsApp",
+  label = "Continue on WhatsApp · Human concierge",
   phone = BRAND.whatsapp,
 }: {
   message: string;

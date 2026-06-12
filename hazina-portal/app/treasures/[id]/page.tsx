@@ -3,6 +3,12 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CatalogImage } from "@/components/CatalogImage";
 import { SmartBackLink } from "@/components/SmartBackLink";
+import { FloatingSurface } from "@/components/three-d/FloatingSurface";
+import { LuxuryTilt } from "@/components/three-d/LuxuryTilt";
+import { MotionSafe } from "@/components/three-d/MotionSafe";
+import { RevealGroup } from "@/components/three-d/RevealGroup";
+import { RevealText } from "@/components/three-d/RevealText";
+import { SpatialPage } from "@/components/three-d/SpatialPage";
 import { CATEGORY_LABELS, TREASURES, getTreasure } from "@/lib/treasures";
 import { getStorefrontCatalog } from "@/lib/catalog";
 import { formatDualPrice, whatsappLink } from "@/lib/format";
@@ -36,32 +42,42 @@ export default async function TreasureDetailPage({ params }: Props) {
   const related = catalog.treasures.filter((t) => t.category === item.category && t.id !== item.id).slice(0, 4);
 
   return (
-    <>
+    <SpatialPage>
       <div className="container-page pt-10 md:pt-16 pb-16">
         <SmartBackLink fallbackHref="/build" className="label-mono text-bronze hover:text-obsidian">
           ← Back to browsing
         </SmartBackLink>
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 mt-8">
-          <CatalogImage
-            src={item.image}
-            alt={item.imageAlt || item.name}
-            tone="warm"
-            fit="contain"
-            className="aspect-[4/5] shadow-editorial"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            priority
-          />
+          <FloatingSurface depth="strong">
+            <CatalogImage
+              src={item.image}
+              alt={item.imageAlt || item.name}
+              tone="warm"
+              fit="contain"
+              className="aspect-[4/5] shadow-editorial"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              priority
+            />
+          </FloatingSurface>
 
           <div className="space-y-6">
-            <span className="label-mono">{CATEGORY_LABELS[item.category]} · {item.sku}</span>
-            <h1 className="h-display text-4xl md:text-5xl text-obsidian">{item.name}</h1>
-            <div className="font-mono text-lg text-bronze">
-              {formatDualPrice(item.price_usd, item.price_kes)}
-            </div>
-            <p className="text-ink-mute text-lg leading-relaxed">{item.description}</p>
+            <RevealText>
+              <span className="label-mono">{CATEGORY_LABELS[item.category]} · {item.sku}</span>
+            </RevealText>
+            <RevealText delay={0.07}>
+              <h1 className="h-display text-4xl md:text-5xl text-obsidian">{item.name}</h1>
+            </RevealText>
+            <RevealText delay={0.12}>
+              <div className="font-mono text-lg text-bronze">
+                {formatDualPrice(item.price_usd, item.price_kes)}
+              </div>
+            </RevealText>
+            <MotionSafe delay={0.16}>
+              <p className="text-ink-mute text-lg leading-relaxed">{item.description}</p>
+            </MotionSafe>
 
-            <div className="editorial-rule space-y-3 text-sm text-ink-mute">
+            <MotionSafe className="editorial-rule space-y-3 text-sm text-ink-mute" delay={0.2}>
               {item.origin && (
                 <p>
                   <span className="text-obsidian font-mono text-sm uppercase tracking-[0.1em] block mb-1">
@@ -86,7 +102,7 @@ export default async function TreasureDetailPage({ params }: Props) {
                   Available — confirm details with concierge
                 </p>
               )}
-            </div>
+            </MotionSafe>
 
             <div className="flex flex-wrap gap-4 pt-4">
               <Link
@@ -96,7 +112,7 @@ export default async function TreasureDetailPage({ params }: Props) {
                 Add to private brief
               </Link>
               <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline">
-                Ask concierge
+                Continue on WhatsApp
               </a>
             </div>
           </div>
@@ -105,24 +121,26 @@ export default async function TreasureDetailPage({ params }: Props) {
         {related.length > 0 && (
           <section className="mt-20 pt-12 border-t border-border">
             <h2 className="font-serif text-2xl text-obsidian mb-8">More in {CATEGORY_LABELS[item.category]}</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <RevealGroup className="grid grid-cols-2 md:grid-cols-4 gap-6" stagger={0.06}>
               {related.map((r) => (
-                <Link key={r.id} href={`/treasures/${r.id}`} className="group">
-                  <CatalogImage
-                    src={r.image}
-                    alt={r.imageAlt || r.name}
-                    tone="warm"
-                    fit="contain"
-                    className="aspect-square mb-2"
-                    sizes="200px"
-                  />
-                  <p className="font-serif text-base leading-tight text-obsidian">{r.name}</p>
-                </Link>
+                <LuxuryTilt key={r.id}>
+                  <Link href={`/treasures/${r.id}`} className="group block">
+                    <CatalogImage
+                      src={r.image}
+                      alt={r.imageAlt || r.name}
+                      tone="warm"
+                      fit="contain"
+                      className="aspect-square mb-2"
+                      sizes="200px"
+                    />
+                    <p className="font-serif text-base leading-tight text-obsidian">{r.name}</p>
+                  </Link>
+                </LuxuryTilt>
               ))}
-            </div>
+            </RevealGroup>
           </section>
         )}
       </div>
-    </>
+    </SpatialPage>
   );
 }

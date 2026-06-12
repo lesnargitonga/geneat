@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BRAND, GIFT_BOXES, getGiftBox, type GiftBox } from "@/lib/products";
 import { ENGRAVING_FEE_KES, ENGRAVING_FEE_USD } from "@/lib/treasures";
@@ -668,7 +668,7 @@ export function ChatWidget() {
   const showHumanConcierge = useCallback(() => {
     setActions([
       {
-        label: "Open WhatsApp",
+        label: "Continue on WhatsApp",
         href: whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads - I'd like to speak with the concierge."),
         primary: true,
       },
@@ -676,7 +676,7 @@ export function ChatWidget() {
     ]);
     append(
       "ai",
-      "Certainly. You can continue here, or open WhatsApp for a direct concierge handoff to the personal line.",
+      "Certainly. You can continue in this automated chat, or move to WhatsApp for a human concierge handoff.",
     );
   }, [append]);
 
@@ -1164,15 +1164,17 @@ export function ChatWidget() {
         </button>
       )}
 
-      {open && (
-        <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 18, scale: 0.965 }}
-          animate={reduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-          className="concierge-shell spatial-panel depth-shadow-strong fixed inset-x-3 bottom-[4.75rem] z-[100] flex max-h-[min(72svh,640px)] flex-col md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:max-h-[calc(100svh-7rem)] md:w-[min(440px,calc(100vw-2rem))]"
-          role="dialog"
-          aria-label="Hazina private concierge"
-        >
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, x: 28, y: 8, scale: 0.985 }}
+            animate={reduceMotion ? undefined : { opacity: 1, x: 0, y: 0, scale: 1 }}
+            exit={reduceMotion ? undefined : { opacity: 0, x: 18, y: 6, scale: 0.99 }}
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            className="concierge-shell spatial-panel depth-shadow-strong fixed inset-x-3 bottom-[4.75rem] z-[100] flex max-h-[min(72svh,640px)] origin-bottom-right flex-col md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:max-h-[calc(100svh-7rem)] md:w-[min(440px,calc(100vw-2rem))]"
+            role="dialog"
+            aria-label="Hazina private concierge"
+          >
           <div className="concierge-header flex items-start justify-between gap-3 px-4 py-4 text-white">
             <div>
               <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#caa777]">
@@ -1200,7 +1202,7 @@ export function ChatWidget() {
                 rel="noopener noreferrer"
                 className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#d6b387] hover:text-white"
               >
-                WhatsApp
+                Human WhatsApp
               </a>
             </div>
           </div>
@@ -1211,9 +1213,9 @@ export function ChatWidget() {
             ))}
             {busy && (
               <div className="flex items-center gap-1 pl-2 py-1" aria-label="typing">
-                <span className="h-2 w-2 animate-bounce rounded-full bg-ink/30" style={{ animationDelay: "0ms" }} />
-                <span className="h-2 w-2 animate-bounce rounded-full bg-ink/30" style={{ animationDelay: "150ms" }} />
-                <span className="h-2 w-2 animate-bounce rounded-full bg-ink/30" style={{ animationDelay: "300ms" }} />
+                <span className="concierge-status-dot h-2 w-2 rounded-full bg-ink/30" style={{ animationDelay: "0ms" }} />
+                <span className="concierge-status-dot h-2 w-2 rounded-full bg-ink/30" style={{ animationDelay: "180ms" }} />
+                <span className="concierge-status-dot h-2 w-2 rounded-full bg-ink/30" style={{ animationDelay: "360ms" }} />
               </div>
             )}
             {!busy && visibleActions.length > 0 && (
@@ -1225,8 +1227,8 @@ export function ChatWidget() {
                       href={p.href}
                       className={`min-h-[36px] rounded-[4px] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.13em] transition-colors ${
                         p.primary
-                          ? "concierge-action-primary bg-[#121212] text-[#f4efe6] hover:bg-black"
-                          : "concierge-action-secondary border border-[#c8c0b2] bg-sand/70 text-[#2a2622] hover:border-[#121212]"
+                          ? "concierge-action concierge-action-primary bg-[#121212] text-[#f4efe6] hover:bg-black"
+                          : "concierge-action concierge-action-secondary border border-[#c8c0b2] bg-sand/70 text-[#2a2622] hover:border-[#121212]"
                       }`}
                     >
                       {p.label}
@@ -1238,8 +1240,8 @@ export function ChatWidget() {
                       onClick={() => send(p.value || p.label)}
                       className={`min-h-[36px] rounded-[4px] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.13em] transition-colors ${
                         p.primary
-                          ? "concierge-action-primary bg-[#121212] text-[#f4efe6] hover:bg-black"
-                          : "concierge-action-secondary border border-[#c8c0b2] bg-sand/70 text-[#2a2622] hover:border-[#121212]"
+                          ? "concierge-action concierge-action-primary bg-[#121212] text-[#f4efe6] hover:bg-black"
+                          : "concierge-action concierge-action-secondary border border-[#c8c0b2] bg-sand/70 text-[#2a2622] hover:border-[#121212]"
                       }`}
                     >
                       {p.label}
@@ -1273,8 +1275,9 @@ export function ChatWidget() {
               Send
             </button>
           </div>
-        </motion.div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

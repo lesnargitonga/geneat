@@ -157,9 +157,10 @@ export function CollectionCheckout({ box }: Props) {
           href={whatsappLink(BRAND.whatsapp, message)}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn-outline"
+          className="btn-outline flex-col gap-0.5"
         >
-          Speak with Concierge
+          <span>Continue on WhatsApp</span>
+          <span className="text-[10px] normal-case tracking-normal opacity-70">Human concierge handoff</span>
         </a>
       </div>
     </section>

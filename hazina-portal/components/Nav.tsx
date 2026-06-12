@@ -18,6 +18,7 @@ const NAV = [
 export function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [showStickyCta, setShowStickyCta] = useState(pathname !== "/");
   const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like help with bespoke curation.");
   const isActive = (href: string) =>
@@ -37,8 +38,19 @@ export function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [pathname]);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 18);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-sand/85 backdrop-blur-md">
+    <header
+      className={`showroom-nav sticky top-0 z-30 border-b border-border bg-sand/85 backdrop-blur-md ${
+        scrolled ? "showroom-nav--scrolled" : ""
+      }`}
+    >
       <div className="container-page flex items-center justify-between h-16 md:h-[4.5rem]">
         <Link href="/" className="group leading-none" onClick={() => setOpen(false)}>
           <span className="font-serif text-xl md:text-2xl uppercase tracking-wide text-obsidian">
@@ -74,7 +86,7 @@ export function Nav() {
                 : "text-ink-soft hover:text-obsidian translate-y-0.5 opacity-90"
             }`}
           >
-            Speak with Concierge
+            Continue on WhatsApp
           </a>
         </div>
         <div className="md:hidden flex items-center gap-2">
@@ -113,7 +125,7 @@ export function Nav() {
               className="btn-bronze w-full mt-2"
               onClick={() => setOpen(false)}
             >
-              Speak with Concierge
+              Continue on WhatsApp
             </a>
             <button
               type="button"
@@ -123,7 +135,7 @@ export function Nav() {
                 openConciergeChat();
               }}
             >
-              Chat in app
+              Open guided chat
             </button>
           </nav>
         </div>

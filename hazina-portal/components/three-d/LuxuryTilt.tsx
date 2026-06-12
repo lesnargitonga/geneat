@@ -1,6 +1,7 @@
 "use client";
 
 import { type MouseEvent, type ReactNode, useRef } from "react";
+import { useReducedMotion } from "framer-motion";
 import clsx from "clsx";
 
 export function LuxuryTilt({
@@ -11,8 +12,10 @@ export function LuxuryTilt({
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
+  const reduceMotion = useReducedMotion();
 
   function onMove(event: MouseEvent<HTMLDivElement>) {
+    if (reduceMotion || window.matchMedia("(hover: none), (pointer: coarse)").matches) return;
     const el = ref.current;
     if (!el) return;
 

@@ -1,6 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { FloatingSurface } from "@/components/three-d/FloatingSurface";
+import { RevealGroup } from "@/components/three-d/RevealGroup";
+import { RevealText } from "@/components/three-d/RevealText";
+import { ScrollDepth } from "@/components/three-d/ScrollDepth";
+import { SpatialPage } from "@/components/three-d/SpatialPage";
 import { BRAND_IMAGES } from "@/lib/products";
 
 export const metadata: Metadata = {
@@ -16,64 +21,72 @@ export const metadata: Metadata = {
 
 export default function HostsGuidesPage() {
   return (
-    <>
+    <SpatialPage>
       <section className="container-page pt-10 md:pt-16 pb-12 md:pb-16">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <div className="space-y-6">
-            <span className="label-mono">For hosts, guides, transfer partners &amp; agents</span>
-            <h1 className="h-display text-5xl md:text-7xl leading-[0.95] text-obsidian">
-              Earn when guests buy premium Kenyan gifts.
-            </h1>
-            <p className="text-lg text-ink-mute leading-relaxed max-w-xl">
-              Share a QR or WhatsApp link. We curate, collect payment, package, and fulfil.
-              You earn a commission without holding stock.
-            </p>
-            <div className="grid grid-cols-3 border border-border">
+            <RevealText>
+              <span className="label-mono">For hosts, guides, transfer partners &amp; agents</span>
+            </RevealText>
+            <RevealText delay={0.08}>
+              <h1 className="h-display text-5xl md:text-7xl leading-[0.95] text-obsidian">
+                Earn when guests buy premium Kenyan gifts.
+              </h1>
+            </RevealText>
+            <RevealText delay={0.15}>
+              <p className="text-lg text-ink-mute leading-relaxed max-w-xl">
+                Share a QR or WhatsApp link. We curate, collect payment, package, and fulfil.
+                You earn a commission without holding stock.
+              </p>
+            </RevealText>
+            <RevealGroup className="grid grid-cols-3 border border-border" delay={0.18} stagger={0.06}>
               <Stat value="15%" label="host commission" />
               <Stat value="KES / USD" label="guest payment" />
               <Stat value="0 stock" label="for partners" />
-            </div>
-            <div className="flex flex-wrap gap-3">
+            </RevealGroup>
+            <RevealGroup className="flex flex-wrap gap-3" delay={0.22} stagger={0.06}>
               <Link href="/partners/login" className="btn-dark">
                 Join referral program
               </Link>
               <Link href="/collections" className="btn-outline">
                 See guest offer
               </Link>
-            </div>
+            </RevealGroup>
           </div>
 
-          <div className="relative aspect-[4/5] overflow-hidden shadow-editorial">
-            <Image
-              src={BRAND_IMAGES.atelierRoom}
-              alt="Curated Kenyan craft pieces in a refined interior"
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              priority
-              unoptimized
-            />
+          <FloatingSurface depth="strong" className="relative aspect-[4/5] overflow-hidden">
+            <ScrollDepth className="absolute inset-0" y={28} scale={1.05}>
+              <Image
+                src={BRAND_IMAGES.atelierRoom}
+                alt="Curated Kenyan craft pieces in a refined interior"
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                priority
+                unoptimized
+              />
+            </ScrollDepth>
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-6 md:p-8">
               <p className="font-serif text-2xl text-sand">
                 No stock burden. No rushed errands. Just a clean guest experience.
               </p>
             </div>
-          </div>
+          </FloatingSurface>
         </div>
       </section>
 
-      <section className="section-dark py-14 md:py-16">
+      <section className="section-dark showroom-band py-14 md:py-16">
         <div className="container-page">
           <div className="max-w-2xl mb-8">
             <span className="label-mono text-sand/40">Who it is for</span>
             <h2 className="h-display text-3xl md:text-5xl text-sand mt-3">Built around premium guest moments</h2>
           </div>
-          <div className="grid md:grid-cols-4 gap-4">
+          <RevealGroup className="grid md:grid-cols-4 gap-4">
             <PartnerCard title="Residence hosts" body="Welcome-card QR for furnished apartments, serviced villas, and private homes." />
             <PartnerCard title="Experience hosts" body="Offer curated pieces after a memorable itinerary moment, without holding stock." />
             <PartnerCard title="Transfer partners" body="Commission on departure-sensitive orders for guests moving between stays or flights." />
             <PartnerCard title="Travel agents" body="Add curated Kenyan gifts to itineraries and honeymoon packs." />
-          </div>
+          </RevealGroup>
         </div>
       </section>
 
@@ -87,16 +100,16 @@ export default function HostsGuidesPage() {
               and commission is logged for payout.
             </p>
           </div>
-          <div className="grid md:grid-cols-3 border border-border">
+          <RevealGroup className="grid md:grid-cols-3 border border-border">
             <PayoutStep n="01" title="Share code" body="QR card, WhatsApp link, or printed itinerary." />
             <PayoutStep n="02" title="Guest pays" body="USD card or KES M-Pesa handled by Hazina." />
             <PayoutStep n="03" title="You earn" body="15% host commission on eligible collection sales." />
-          </div>
+          </RevealGroup>
         </div>
       </section>
 
       <section className="container-page pb-20 md:pb-24">
-        <div className="border border-border bg-sand-dark/60 p-6 md:p-10 grid md:grid-cols-[1.3fr,0.7fr] gap-8 items-center">
+        <FloatingSurface className="route-panel p-6 md:p-10 grid md:grid-cols-[1.3fr,0.7fr] gap-8 items-center">
           <div>
             <span className="label-mono">Partner kit</span>
             <h2 className="font-serif text-3xl text-obsidian mt-2">
@@ -110,9 +123,9 @@ export default function HostsGuidesPage() {
           <Link href="/partners/login" className="btn-outline md:justify-self-end">
             Partner login
           </Link>
-        </div>
+        </FloatingSurface>
       </section>
-    </>
+    </SpatialPage>
   );
 }
 
@@ -127,7 +140,7 @@ function Stat({ value, label }: { value: string; label: string }) {
 
 function PartnerCard({ title, body }: { title: string; body: string }) {
   return (
-    <div className="border border-sand/15 p-5">
+    <div className="h-full border border-sand/15 bg-black/10 p-5">
       <h3 className="font-serif text-2xl text-sand">{title}</h3>
       <p className="text-sand/65 text-sm leading-relaxed mt-3">{body}</p>
     </div>
@@ -136,7 +149,7 @@ function PartnerCard({ title, body }: { title: string; body: string }) {
 
 function PayoutStep({ n, title, body }: { n: string; title: string; body: string }) {
   return (
-    <div className="p-5 md:p-6 border-b md:border-b-0 md:border-r border-border last:border-0">
+    <div className="route-panel h-full p-5 md:p-6 border-b md:border-b-0 md:border-r border-border last:border-0">
       <p className="label-mono text-bronze">{n}</p>
       <h3 className="font-serif text-2xl text-obsidian mt-3">{title}</h3>
       <p className="text-sm text-ink-mute leading-relaxed mt-2">{body}</p>

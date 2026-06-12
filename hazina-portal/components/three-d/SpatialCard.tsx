@@ -1,6 +1,7 @@
 "use client";
 
 import { type MouseEvent, type ReactNode, useRef } from "react";
+import { useReducedMotion } from "framer-motion";
 import clsx from "clsx";
 
 export function SpatialCard({
@@ -15,10 +16,12 @@ export function SpatialCard({
   intensity?: "soft" | "medium";
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
+  const reduceMotion = useReducedMotion();
   const maxX = intensity === "soft" ? 3.5 : 5.5;
   const maxY = intensity === "soft" ? 4.5 : 7;
 
   function onMove(event: MouseEvent<HTMLDivElement>) {
+    if (reduceMotion || window.matchMedia("(hover: none), (pointer: coarse)").matches) return;
     const el = ref.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();

@@ -37,19 +37,20 @@ export function CollectionCard({ box, className = "", priority, brandPhone = BRA
 
   return (
     <article
-      className={`group flex flex-col card-luxury overflow-hidden ${className}`}
+      className={`collection-exhibit group flex flex-col overflow-hidden ${className}`}
     >
-      <Link href={`/collections/${box.id}`} className="block">
+      <Link href={`/collections/${box.id}`} className="collection-exhibit__display block">
         <div
-          className="relative aspect-[4/3] overflow-hidden bg-sand-dark"
+          className="collection-exhibit__frame relative aspect-[4/3] overflow-hidden bg-sand-dark"
           role="img"
           aria-label={box.imageAlt || box.name}
         >
           <div
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-[1.03]"
+            className="collection-exhibit__image-plane absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-[1.035]"
             style={{ backgroundImage: heroBackground }}
             data-priority={priority ? "true" : undefined}
           />
+          <span className="collection-exhibit__spotlight" aria-hidden="true" />
           <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-2 pointer-events-none">
             <span className="chip-dark">{box.lead_time_hours}h lead</span>
             {box.express_departure && <span className="chip-bronze bg-sand/90">Departure ready</span>}
@@ -64,7 +65,7 @@ export function CollectionCard({ box, className = "", priority, brandPhone = BRA
         </div>
       </Link>
 
-      <div className="flex flex-col flex-1 p-5 md:p-6">
+      <div className="collection-exhibit__label flex flex-1 flex-col p-5 md:p-6">
         <Link href={`/collections/${box.id}`}>
           <h2 className="font-serif text-2xl md:text-3xl text-obsidian leading-tight hover:text-bronze transition-colors">
             {box.name}
@@ -100,7 +101,7 @@ export function CollectionCard({ box, className = "", priority, brandPhone = BRA
             rel="noopener noreferrer"
             className="btn-ghost w-full !px-4 !py-2.5"
           >
-            Ask concierge
+            Continue on WhatsApp
           </a>
         </div>
       </div>
@@ -114,28 +115,32 @@ export function CollectionItemsPreview({ box, treasures: liveTreasures }: { box:
   if (!treasures.length) return null;
 
   return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div className="inventory-room space-y-8">
+      <div className="inventory-tray">
         {treasures.map((item) => (
-          <Link key={item.id} href={`/treasures/${item.id}`} className="group">
-            <CatalogImage
-              src={item.image}
-              alt={item.imageAlt || item.name}
-              tone="warm"
-              fit="contain"
-              className="aspect-square mb-3"
-              sizes="200px"
-            />
-            <p className="font-serif text-base leading-tight text-obsidian">{item.name}</p>
-            <p className="font-serif text-base text-obsidian mt-1">{formatUSD(item.price_usd)}</p>
-            <p className="font-mono text-sm text-ink-mute mt-0.5">
-              {formatKES(item.price_kes)}
-            </p>
+          <Link key={item.id} href={`/treasures/${item.id}`} className="inventory-tray__item group">
+            <span className="inventory-tray__image">
+              <CatalogImage
+                src={item.image}
+                alt={item.imageAlt || item.name}
+                tone="warm"
+                fit="contain"
+                className="aspect-square"
+                sizes="200px"
+              />
+            </span>
+            <span className="inventory-tray__label">
+              <span className="font-serif text-base leading-tight text-obsidian">{item.name}</span>
+              <span className="mt-1 block font-serif text-base text-obsidian">{formatUSD(item.price_usd)}</span>
+              <span className="mt-0.5 block font-mono text-sm text-ink-mute">
+                {formatKES(item.price_kes)}
+              </span>
+            </span>
           </Link>
         ))}
       </div>
       {packaging && (
-        <p className="text-sm text-ink-mute border-t border-border pt-6 max-w-2xl leading-relaxed">
+        <p className="inventory-room__packaging max-w-2xl border-t border-border pt-6 text-sm leading-relaxed text-ink-mute">
           <span className="label-mono text-ink-soft block mb-1">Also included</span>
           {packaging.name} — {packaging.description}
         </p>

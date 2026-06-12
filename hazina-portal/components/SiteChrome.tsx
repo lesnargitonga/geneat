@@ -1,8 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { ChatWidget } from "@/components/ChatWidget";
 import { Footer } from "@/components/Footer";
 import { Nav } from "@/components/Nav";
+import { ShowroomShell } from "@/components/three-d/ShowroomShell";
 
 /** Magic-link order pages ship without main marketing chrome. */
 export function SiteChrome({ children }: { children: React.ReactNode }) {
@@ -15,8 +17,10 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <ShowroomShell />
       <Nav />
-      <main className="flex-1">{children}</main>
+      <main className="showroom-main flex-1">{children}</main>
+      <ChatWidget />
       <Footer />
     </>
   );

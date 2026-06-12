@@ -1,4 +1,9 @@
 import type { Metadata } from "next";
+import { FloatingSurface } from "@/components/three-d/FloatingSurface";
+import { MotionSafe } from "@/components/three-d/MotionSafe";
+import { RevealGroup } from "@/components/three-d/RevealGroup";
+import { RevealText } from "@/components/three-d/RevealText";
+import { SpatialPage } from "@/components/three-d/SpatialPage";
 import { BRAND } from "@/lib/products";
 import { whatsappLink } from "@/lib/format";
 
@@ -12,16 +17,35 @@ export default function AboutPage() {
   const wa = whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I would like to speak with a concierge.");
 
   return (
-    <>
+    <SpatialPage>
       <article className="container-page pt-10 md:pt-16 pb-16 md:pb-24 max-w-4xl">
         <header className="mb-12 md:mb-16">
-          <span className="label-mono">About Hazina Nomads</span>
-          <h1 className="h-display text-5xl md:text-7xl leading-[0.95] mt-4 text-obsidian">
-            Born in Kenya. Curating Africa. Delivered to the world.
-          </h1>
+          <RevealText>
+            <span className="label-mono">About Hazina Nomads</span>
+          </RevealText>
+          <RevealText delay={0.08}>
+            <h1 className="h-display text-5xl md:text-7xl leading-[0.95] mt-4 text-obsidian">
+              Born in Kenya. Curating Africa. Delivered to the world.
+            </h1>
+          </RevealText>
+          <RevealGroup className="mt-10 grid gap-6 sm:grid-cols-3" delay={0.16}>
+            <div className="editorial-depth-divider">
+              <span className="label-mono text-bronze">01 · Origin</span>
+              <p className="mt-2 font-serif text-xl text-obsidian">Born in Kenya</p>
+            </div>
+            <div className="editorial-depth-divider">
+              <span className="label-mono text-bronze">02 · Reach</span>
+              <p className="mt-2 font-serif text-xl text-obsidian">Curating Africa</p>
+            </div>
+            <div className="editorial-depth-divider">
+              <span className="label-mono text-bronze">03 · Handoff</span>
+              <p className="mt-2 font-serif text-xl text-obsidian">Delivered worldwide</p>
+            </div>
+          </RevealGroup>
         </header>
 
-        <section className="space-y-6 text-ink-mute text-lg leading-relaxed max-w-3xl">
+        <MotionSafe>
+          <section className="space-y-6 text-ink-mute text-lg leading-relaxed max-w-3xl">
           <p>
             <em className="text-obsidian not-italic font-serif text-xl">Hazina</em> means treasure.
           </p>
@@ -34,11 +58,12 @@ export default function AboutPage() {
             African pieces without the uncertainty of crowded markets, rushed shopping, inconsistent quality,
             or complicated logistics.
           </p>
-        </section>
+          </section>
+        </MotionSafe>
       </article>
 
-      <section className="section-dark py-16 md:py-20">
-        <div className="container-page grid gap-10 md:grid-cols-3">
+      <section className="section-dark showroom-band py-16 md:py-20">
+        <RevealGroup className="container-page grid gap-6 md:grid-cols-3">
           {[
             {
               title: "Bespoke Curation",
@@ -53,15 +78,15 @@ export default function AboutPage() {
               body: "For clients sending gifts abroad, we prepare export by quote and avoid promises until logistics and eligibility are confirmed.",
             },
           ].map((item) => (
-            <div key={item.title} className="border border-sand/10 p-6 md:p-8">
+            <div key={item.title} className="h-full border border-sand/10 bg-black/10 p-6 md:p-8">
               <span className="label-mono text-bronze-light">{item.title}</span>
               <p className="mt-4 text-sand/70 leading-relaxed">{item.body}</p>
             </div>
           ))}
-        </div>
+        </RevealGroup>
       </section>
 
-      <section className="container-page py-16 md:py-20 max-w-4xl">
+      <MotionSafe className="container-page py-16 md:py-20 max-w-4xl">
         <span className="label-mono">What we believe</span>
         <h2 className="h-display text-3xl md:text-4xl mt-3 text-obsidian">
           African craft deserves a refined, trustworthy bridge to the world.
@@ -76,10 +101,10 @@ export default function AboutPage() {
             partner, with respect for origin, quality, and client trust.
           </p>
         </div>
-      </section>
+      </MotionSafe>
 
       <section className="container-page pb-20 max-w-4xl">
-        <div className="panel-luxury p-8 md:p-10 text-center">
+        <FloatingSurface depth="strong" className="panel-luxury p-8 md:p-10 text-center">
           <span className="label-mono">Who we serve</span>
           <h3 className="font-serif text-3xl text-obsidian mt-3">
             Travellers, safari guests, diaspora families, hosts, hotels, and corporate teams.
@@ -90,15 +115,16 @@ export default function AboutPage() {
             payment or preparation.
           </p>
           <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-dark mt-8 inline-flex">
-            Speak with Concierge
+            Continue on WhatsApp
           </a>
+          <p className="label-mono text-ink-mute mt-3">Human concierge handoff</p>
           <p className="text-sm text-ink-mute mt-5">
             <a href={`mailto:${BRAND.email}`} className="hover:text-obsidian transition-colors">
               {BRAND.email}
             </a>
           </p>
-        </div>
+        </FloatingSurface>
       </section>
-    </>
+    </SpatialPage>
   );
 }

@@ -42,7 +42,7 @@ export function HazinaCanvas({
     <Canvas
       className={className}
       dpr={[1, 1.35]}
-      camera={{ position: [0, 1.15, 5.8], fov: 36 }}
+      camera={{ position: [0, 1.05, 7.2], fov: 36 }}
       gl={{
         alpha: true,
         antialias: true,

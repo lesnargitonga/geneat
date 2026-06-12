@@ -3,6 +3,11 @@ import type { Metadata } from "next";
 import { BRAND } from "@/lib/products";
 import { whatsappLink } from "@/lib/format";
 import { PartnerSignOutButton } from "@/components/PartnerSignOutButton";
+import { FloatingSurface } from "@/components/three-d/FloatingSurface";
+import { LuxuryTilt } from "@/components/three-d/LuxuryTilt";
+import { RevealGroup } from "@/components/three-d/RevealGroup";
+import { RevealText } from "@/components/three-d/RevealText";
+import { SpatialPage } from "@/components/three-d/SpatialPage";
 
 export const metadata: Metadata = {
   title: "Partner dashboard · Hazina Nomads",
@@ -18,26 +23,33 @@ export default function PartnerDashboardPage() {
   );
 
   return (
+    <SpatialPage>
     <div className="container-page py-10 md:py-16 pb-20">
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-12">
         <div>
-          <span className="label-mono">Partner dashboard</span>
-          <h1 className="font-serif text-4xl md:text-5xl text-obsidian mt-2">Your referral desk</h1>
-          <p className="text-ink-mute mt-3 max-w-xl leading-relaxed">
-            Track tagged orders and request kits. Guest-facing pricing never shows commission — only
-            this portal does.
-          </p>
+          <RevealText>
+            <span className="label-mono">Partner dashboard</span>
+          </RevealText>
+          <RevealText delay={0.07}>
+            <h1 className="font-serif text-4xl md:text-5xl text-obsidian mt-2">Your referral desk</h1>
+          </RevealText>
+          <RevealText delay={0.14}>
+            <p className="text-ink-mute mt-3 max-w-xl leading-relaxed">
+              Track tagged orders and request kits. Guest-facing pricing never shows commission — only
+              this portal does.
+            </p>
+          </RevealText>
         </div>
         <PartnerSignOutButton />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3 mb-12">
+      <RevealGroup className="grid gap-6 md:grid-cols-3 mb-12">
         <DashboardStat label="Your referral code" value={referralCode} />
         <DashboardStat label="Commission" value="15%" />
         <DashboardStat label="Payout status" value="Contact concierge" />
-      </div>
+      </RevealGroup>
 
-      <section className="panel-luxury p-6 md:p-8 space-y-4 mb-8">
+      <FloatingSurface className="panel-luxury p-6 md:p-8 space-y-4 mb-8">
         <h2 className="font-serif text-2xl text-obsidian">Earnings</h2>
         <p className="text-ink-mute text-sm leading-relaxed">
           Order-level reporting will appear here once your referral code is live in production.
@@ -45,9 +57,10 @@ export default function PartnerDashboardPage() {
         </p>
         <p className="font-mono text-3xl text-obsidian">KES 0 · USD 0</p>
         <p className="label-mono text-ink-mute">No tagged sales recorded yet</p>
-      </section>
+      </FloatingSurface>
 
-      <section className="grid gap-4 md:grid-cols-2">
+      <RevealGroup className="grid gap-4 md:grid-cols-2">
+        <LuxuryTilt>
         <a
           href={kitWa}
           target="_blank"
@@ -58,6 +71,8 @@ export default function PartnerDashboardPage() {
           <p className="font-serif text-xl text-obsidian mt-2">Request partner kit</p>
           <p className="text-sm text-ink-mute mt-2">QR cards, guest scripts, tracking setup.</p>
         </a>
+        </LuxuryTilt>
+        <LuxuryTilt>
         <Link
           href="/hosts-guides"
           className="card-luxury p-6 hover:border-obsidian/30 transition-colors"
@@ -66,8 +81,10 @@ export default function PartnerDashboardPage() {
           <p className="font-serif text-xl text-obsidian mt-2">Review partner overview</p>
           <p className="text-sm text-ink-mute mt-2">Commission model and who it is for.</p>
         </Link>
-      </section>
+        </LuxuryTilt>
+      </RevealGroup>
     </div>
+    </SpatialPage>
   );
 }
 

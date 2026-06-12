@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { motion, useReducedMotion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { CatalogImage } from "@/components/CatalogImage";
-import { openConciergeChat } from "@/components/ChatWidget";
-import { SpatialCard } from "@/components/three-d/SpatialCard";
+import { FloatingSurface } from "@/components/three-d/FloatingSurface";
+import { LuxuryTilt } from "@/components/three-d/LuxuryTilt";
+import { RevealGroup } from "@/components/three-d/RevealGroup";
 import {
   ALL_CATEGORIES,
   CATEGORY_LABELS,
@@ -33,6 +35,7 @@ export function PackBuilder({
   initialQuery?: string;
   treasures?: Treasure[];
 }) {
+  const reduceMotion = useReducedMotion();
   const buildableTreasures = useMemo(
     () => treasures.filter((t) => t.category !== "packaging"),
     [treasures],
@@ -161,8 +164,6 @@ export function PackBuilder({
   const canOrder = totalUnits >= MIN_CUSTOM_ITEMS;
 
   const startAutomatedCheckout = () => {
-    if (!canOrder) return;
-    openConciergeChat();
     window.dispatchEvent(
       new CustomEvent("hazina:chat-prompt", {
         detail: {
@@ -196,9 +197,9 @@ export function PackBuilder({
   }
 
   return (
-    <div className="grid min-w-0 lg:grid-cols-12 gap-10 lg:gap-14">
+    <div className="studio-workspace grid min-w-0 lg:grid-cols-12 gap-10 lg:gap-14">
       <div className="min-w-0 lg:col-span-7 space-y-8">
-        <div className="panel-luxury p-4 md:p-5 space-y-4">
+        <FloatingSurface className="studio-control-deck p-4 md:p-5 space-y-4">
           <div className="grid gap-3 md:grid-cols-[1fr,180px]">
             <label>
               <span className="sr-only">Search pieces for your private collection</span>
@@ -245,19 +246,20 @@ export function PackBuilder({
             {filtered.length} available · {totalUnits} in your private collection
             {cartLines.length > 0 ? ` (${cartLines.length} treasures)` : ""}
           </p>
-        </div>
+        </FloatingSurface>
 
         {filtered.length > 0 ? (
-          <div className="grid min-w-0 grid-cols-1 gap-x-4 gap-y-8 min-[430px]:grid-cols-2 md:grid-cols-3">
+          <RevealGroup className="studio-shelf-grid grid min-w-0 grid-cols-1 gap-x-4 gap-y-8 min-[430px]:grid-cols-2 md:grid-cols-3" stagger={0.045}>
             {filtered.map((item) => (
-              <SelectableTreasure
-                key={item.id}
-                item={item}
-                qty={cart.get(item.id) ?? 0}
-                onToggle={() => toggle(item.id)}
-              />
+              <LuxuryTilt key={item.id} className="h-full">
+                <SelectableTreasure
+                  item={item}
+                  qty={cart.get(item.id) ?? 0}
+                  onToggle={() => toggle(item.id)}
+                />
+              </LuxuryTilt>
             ))}
-          </div>
+          </RevealGroup>
         ) : (
           <div className="panel-luxury p-8 text-center">
             <h2 className="font-serif text-2xl text-obsidian">Nothing matches that filter</h2>
@@ -269,7 +271,7 @@ export function PackBuilder({
       </div>
 
       <aside className="min-w-0 lg:col-span-5">
-        <SpatialCard className="lg:sticky lg:top-24" contentClassName="h-full" intensity="soft">
+        <FloatingSurface className="concierge-studio-panel lg:sticky lg:top-24" depth="strong">
         <div className="lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto local-scroll local-scroll--subtle border border-border bg-sand p-6 md:p-8 space-y-6">
           <div>
             <span className="label-mono">Your private collection</span>
@@ -284,16 +286,38 @@ export function PackBuilder({
           </div>
 
           {checkoutStep === "browse" && (
-            <>
+            <motion.div
+              key="browse"
+              className="space-y-6"
+              initial={reduceMotion ? false : { opacity: 0, x: -12 }}
+              animate={reduceMotion ? undefined : { opacity: 1, x: 0 }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            >
               {cartLines.length === 0 ? (
                 <p className="text-ink-mute text-sm italic">Tap pieces to add them to your private collection.</p>
               ) : (
-                <ul className="space-y-4 max-h-[22rem] overflow-y-auto local-scroll local-scroll--subtle">
+                <ul className="studio-staging-tray space-y-3 max-h-[22rem] overflow-y-auto local-scroll local-scroll--subtle">
                   {cartLines.map(({ item, qty }) => (
-                    <li key={item.id} className="border-b border-border/60 pb-3 space-y-2">
+                    <motion.li
+                      layout
+                      key={item.id}
+                      className="studio-staging-tray__item space-y-2"
+                      initial={reduceMotion ? false : { opacity: 0, x: -12 }}
+                      animate={reduceMotion ? undefined : { opacity: 1, x: 0 }}
+                    >
                       <div className="flex items-center justify-between gap-3 text-sm">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <span className="text-obsidian truncate">{item.name}</span>
+                        <div className="flex min-w-0 items-center gap-3">
+                          <span className="studio-staging-tray__image">
+                            <CatalogImage
+                              src={item.image}
+                              alt=""
+                              tone="warm"
+                              fit="contain"
+                              className="h-full w-full"
+                              sizes="48px"
+                            />
+                          </span>
+                          <span className="min-w-0 truncate text-obsidian">{item.name}</span>
                           <div className="inline-flex items-center shrink-0">
                             <button
                               type="button"
@@ -332,7 +356,7 @@ export function PackBuilder({
                           />
                         </label>
                       )}
-                    </li>
+                    </motion.li>
                   ))}
                 </ul>
               )}
@@ -422,15 +446,21 @@ export function PackBuilder({
                 rel="noopener noreferrer"
                 className="block text-center font-mono text-sm text-bronze underline-offset-4 hover:underline"
               >
-                  Or speak with Concierge
+                  Or continue on WhatsApp with a human concierge
                 </a>
               )}
-            </>
+            </motion.div>
           )}
 
           {checkoutStep === "delivery" && (
-            <>
-              <div className="rounded-sm bg-sand-dark/50 p-4 space-y-2 text-sm">
+            <motion.div
+              key="delivery"
+              className="space-y-6"
+              initial={reduceMotion ? false : { opacity: 0, x: 12 }}
+              animate={reduceMotion ? undefined : { opacity: 1, x: 0 }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="studio-delivery-desk space-y-2 p-4 text-sm">
                 <p className="label-mono text-ink-mute">Order summary</p>
                 <p className="font-serif text-xl text-obsidian">{formatUSD(totalUsd)}</p>
                 <p className="font-mono text-sm text-ink-mute">{formatKES(totalKes)}</p>
@@ -504,16 +534,17 @@ export function PackBuilder({
                 disabled={!canOrder}
                 className="btn-dark w-full disabled:opacity-40"
               >
-                Continue with Concierge
+                Start guided checkout
               </button>
 
               <a
                 href={whatsappLink(BRAND.whatsapp, checkoutMessage)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-outline w-full"
+                className="btn-outline w-full flex-col gap-0.5"
               >
-                Speak with Concierge
+                <span>Continue on WhatsApp</span>
+                <span className="text-[10px] normal-case tracking-normal opacity-70">Human concierge handoff</span>
               </a>
 
               {validationHints.length > 0 && (
@@ -523,7 +554,7 @@ export function PackBuilder({
                   ))}
                 </ul>
               )}
-            </>
+            </motion.div>
           )}
 
           <p className="label-mono text-center">
@@ -533,7 +564,7 @@ export function PackBuilder({
             </Link>
           </p>
         </div>
-        </SpatialCard>
+        </FloatingSurface>
       </aside>
     </div>
   );
@@ -578,8 +609,8 @@ function SelectableTreasure({
     <button
       type="button"
       onClick={onToggle}
-      className={`w-full min-w-0 text-left card-luxury overflow-hidden transition-all ${
-        inCart ? "ring-1 ring-obsidian ring-offset-2 ring-offset-sand" : ""
+      className={`studio-piece w-full min-w-0 overflow-hidden text-left transition-all ${
+        inCart ? "studio-piece--selected" : ""
       }`}
     >
       <div className="relative catalog-tile-image">

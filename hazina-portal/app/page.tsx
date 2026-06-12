@@ -1,15 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ChatWidget } from "@/components/ChatWidget";
 import { CatalogImage } from "@/components/CatalogImage";
-import { HeroGiftStageLoader } from "@/components/three-d/HeroGiftStageLoader";
+import { ConciergeSceneCTA } from "@/components/ConciergeSceneCTA";
+import { FloatingSurface } from "@/components/three-d/FloatingSurface";
 import { LuxuryTilt } from "@/components/three-d/LuxuryTilt";
+import { RevealGroup } from "@/components/three-d/RevealGroup";
+import { RevealText } from "@/components/three-d/RevealText";
 import { ScrollDepth } from "@/components/three-d/ScrollDepth";
-import { SpatialCard } from "@/components/three-d/SpatialCard";
+import { ShowroomScene } from "@/components/three-d/ShowroomScene";
+import { SpatialPage } from "@/components/three-d/SpatialPage";
 import { SpatialSection } from "@/components/three-d/SpatialSection";
-import { BRAND_IMAGES } from "@/lib/products";
 import { getStorefrontCatalog } from "@/lib/catalog";
 import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
+import { BRAND_IMAGES } from "@/lib/products";
 
 export const revalidate = 300;
 
@@ -18,14 +21,14 @@ export default async function HomePage() {
   const wa = whatsappLink(catalog.brand.whatsapp, "Hello Hazina Nomads — I'd like help with bespoke curation.");
 
   return (
-    <>
-      <section className="relative isolate overflow-hidden">
-        <ScrollDepth className="absolute inset-0" y={42} scale={1.06}>
+    <SpatialPage>
+      <section className="hero-showroom relative overflow-hidden">
+        <ScrollDepth className="absolute inset-0" y={44} scale={1.07}>
           <Image
             src={BRAND_IMAGES.safariSunset}
             alt="Serene Kenyan landscape at sunset for Hazina Nomads"
             fill
-            className="object-cover object-bottom brightness-[0.48] saturate-[0.75] contrast-[1.05]"
+            className="object-cover object-bottom brightness-[0.42] saturate-[0.68] contrast-[1.08]"
             sizes="100vw"
             priority
             unoptimized
@@ -33,166 +36,209 @@ export default async function HomePage() {
           <div className="absolute inset-0 hero-overlay" />
         </ScrollDepth>
 
-        <div className="relative container-page min-h-[86svh] py-16 md:py-24 flex flex-col justify-between gap-12">
-          <ScrollDepth className="pointer-events-none absolute right-0 top-24 z-0 hidden h-[470px] w-[min(38vw,560px)] lg:block xl:right-8" y={-18} scale={1}>
-            <HeroGiftStageLoader />
-          </ScrollDepth>
-
-          <SpatialSection className="relative z-10 max-w-3xl pt-8 md:pt-16">
-            <span className="font-mono text-sm font-medium uppercase tracking-[0.12em] text-white/70">
-              BESPOKE CURATION <span className="mx-2 opacity-50">·</span> SEAMLESS LOGISTICS{" "}
-              <span className="mx-2 opacity-50">·</span> GLOBAL EXPORT
-            </span>
-            <h1 className="mt-5 font-serif text-5xl md:text-7xl lg:text-8xl leading-[0.9] tracking-[-0.02em] text-white">
-              Private Kenyan curation, delivered with discretion.
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg md:text-xl leading-[1.85] text-white/85">
-              Hazina Nomads curates premium Kenyan gifts, heritage pieces, and private sourcing requests
-              for travellers, safari guests, diaspora families, and corporate clients — beginning
-              in Kenya and growing toward refined African sourcing.
-            </p>
-            <div className="pointer-events-none relative z-0 my-3 h-[104px] sm:h-[240px] lg:hidden">
-              <HeroGiftStageLoader />
-            </div>
-            <div className="mt-8 flex flex-wrap gap-3">
+        <div className="relative container-page flex min-h-[88svh] flex-col justify-center py-16 md:py-24">
+          <SpatialSection className="relative z-10 max-w-3xl pt-8 md:pt-12 lg:max-w-[47rem]">
+            <RevealText>
+              <span className="font-mono text-sm font-medium uppercase tracking-[0.12em] text-white/70">
+                BESPOKE CURATION <span className="mx-2 opacity-50">·</span> SEAMLESS LOGISTICS{" "}
+                <span className="mx-2 opacity-50">·</span> GLOBAL EXPORT
+              </span>
+            </RevealText>
+            <RevealText delay={0.08}>
+              <h1 className="mt-5 font-serif text-5xl leading-[0.9] text-white md:text-7xl lg:text-8xl">
+                Private Kenyan curation, delivered with discretion.
+              </h1>
+            </RevealText>
+            <RevealText delay={0.16}>
+              <p className="mt-6 max-w-2xl text-lg leading-[1.85] text-white/80 md:text-xl">
+                Hazina Nomads curates premium Kenyan gifts, heritage pieces, and private sourcing requests
+                for travellers, safari guests, diaspora families, and corporate clients.
+              </p>
+            </RevealText>
+            <RevealGroup className="mt-8 flex flex-wrap gap-3" delay={0.23} stagger={0.07}>
               <Link href="/collections" className="btn-bronze">
-                Explore Collections
+                Enter the collection rooms
               </Link>
               <a
                 href={wa}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-outline border-white/60 text-white hover:bg-sand hover:text-obsidian"
+                className="btn-outline flex-col gap-0.5 border-white/60 text-white hover:bg-sand hover:text-obsidian"
               >
-                Speak with Concierge
+                <span>Continue on WhatsApp</span>
+                <span className="text-[10px] normal-case tracking-normal opacity-75">Human concierge handoff</span>
               </a>
-            </div>
+            </RevealGroup>
           </SpatialSection>
 
-          <SpatialSection className="relative z-10 -mx-5 overflow-x-auto px-5 pb-2 local-scroll-x lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0" delay={0.12}>
-            <div className="flex min-w-max gap-4 lg:grid lg:min-w-0 lg:grid-cols-5">
-              {catalog.collections.map((box, index) => (
-                <LuxuryTilt key={box.id} className="w-[min(78vw,300px)] shrink-0 lg:w-auto">
-                  <Link
-                    href={`/collections/${box.id}`}
-                    className="group relative block overflow-hidden border border-white/20 text-white transition duration-500 hover:-translate-y-1"
-                  >
-                    <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.05]">
-                      <CatalogImage
-                        src={box.image}
-                        alt={box.imageAlt || box.name}
-                        tone="warm"
-                        fit="cover"
-                        className="h-52 w-full lg:h-56"
-                        sizes="(max-width: 1024px) 78vw, 280px"
-                        priority={false}
-                      />
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/5" />
-                    <span className="relative z-10 flex h-52 flex-col justify-end p-4 lg:h-56">
-                      <span className="block font-serif text-lg leading-tight text-white group-hover:text-bronze-light">
-                        {box.name}
-                      </span>
-                      <span className="mt-1 block font-mono text-sm leading-relaxed text-white/85">
-                        {formatUSD(box.price_usd)} · {formatKES(box.price_kes)}
-                      </span>
-                    </span>
-                  </Link>
-                </LuxuryTilt>
-              ))}
-            </div>
-          </SpatialSection>
-
-          <SpatialSection className="relative z-10 grid gap-5 border-t border-white/20 pt-6 text-white/80 sm:grid-cols-3 md:max-w-4xl" delay={0.18}>
-            <HeroNote
-              title="Bespoke Curation"
-              body="Unlisted artifacts and signature regional collections through private artisan and estate networks."
-              icon="curation"
-            />
-            <HeroNote
-              title="Seamless Logistics"
-              body="Discreet nationwide fulfillment to metropolitan residences, coastal villas, and wilderness lodges."
-              icon="logistics"
-            />
-            <HeroNote
-              title="Global Export"
-              body="International transit and customs-ready export quotes for verified heritage pieces."
-              icon="export"
-            />
-          </SpatialSection>
+          <div className="hero-showroom__threshold relative z-10 mt-14 flex items-center gap-4 text-white/55">
+            <span className="h-px w-12 bg-bronze-light/65" />
+            <span className="label-mono text-white/55">Scroll to enter the showroom</span>
+          </div>
         </div>
       </section>
 
-      <SpatialSection className="container-page py-16 md:py-24">
-        <div className="max-w-2xl mb-10 md:mb-12">
-          <span className="label-mono">How to order</span>
-          <h2 className="h-display mt-3 text-4xl md:text-5xl text-obsidian leading-tight">
-            Choose a collection. Open a brief. We prepare the handoff.
-          </h2>
-          <p className="text-ink-mute mt-4 text-lg leading-relaxed">
-            Select a finished collection, request something specific, or arrange a hotel, safari lodge,
-            JKIA, residence, or international handoff. The same concierge desk carries the work
-            from selection to delivery.
+      <ShowroomScene
+        tone="dark"
+        className="home-exhibit-scene"
+        contentClassName="container-page py-16 md:py-24"
+        depth={48}
+      >
+        <div className="mb-10 grid gap-6 md:grid-cols-12 md:items-end">
+          <div className="md:col-span-7">
+            <span className="label-mono text-bronze-light/80">Room 01 · Signature exhibits</span>
+            <h2 className="mt-3 font-serif text-4xl leading-tight text-sand md:text-6xl">
+              Five finished edits, staged for the journey ahead.
+            </h2>
+          </div>
+          <p className="text-base leading-relaxed text-sand/62 md:col-span-4 md:col-start-9">
+            Move through each collection as a complete exhibit: visible price, lead time,
+            contents, and a direct path to the concierge desk.
           </p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <PathCard
-            href="/premium-safari-souvenirs-nairobi"
-            label="Bespoke Curation"
-            title="Source the right piece"
-            body="Signature collections and unlisted requests handled through a private artisan and estate network."
-          />
-          <PathCard
-            href="/collections"
-            label="Signature Collections"
-            title="Choose a finished edit"
-            body="Five polished collections with fixed USD/KES pricing, lead times, and contents visible before checkout."
-          />
-          <PathCard
-            href="/build"
-            label="Seamless Logistics"
-            title="Build around the handoff"
-            body="Select items, set quantities, then let the guided checkout collect location, timing, and payment step by step."
-          />
-          <PathCard
-            href="/collections/departure-drop"
-            label="Global Export"
-            title="Prepare for onward travel"
-            body="Quote insured international transit before payment, with customs-ready details captured by the concierge."
-          />
-        </div>
-      </SpatialSection>
+        <RevealGroup className="home-exhibit-rail" stagger={0.07}>
+          {catalog.collections.map((box) => (
+            <LuxuryTilt key={box.id} className="home-exhibit-rail__item">
+              <Link href={`/collections/${box.id}`} className="home-exhibit">
+                <span className="home-exhibit__image">
+                  <CatalogImage
+                    src={box.image}
+                    alt={box.imageAlt || box.name}
+                    tone="warm"
+                    fit="cover"
+                    className="absolute inset-0"
+                    sizes="(max-width: 767px) 82vw, 320px"
+                  />
+                </span>
+                <span className="home-exhibit__label">
+                  <span>
+                    <span className="label-mono text-bronze-light/70">{box.sku}</span>
+                    <span className="mt-1 block font-serif text-2xl leading-tight text-white">{box.name}</span>
+                  </span>
+                  <span className="font-mono text-xs leading-relaxed text-white/65">
+                    {formatUSD(box.price_usd)}
+                    <br />
+                    {formatKES(box.price_kes)}
+                  </span>
+                </span>
+              </Link>
+            </LuxuryTilt>
+          ))}
+        </RevealGroup>
+      </ShowroomScene>
 
-      <section className="section-dark py-16 md:py-24">
-        <SpatialSection className="container-page grid gap-10 md:grid-cols-12 md:items-start">
-          <div className="md:col-span-4">
-            <span className="label-mono text-sand/40">From Kenya, across Africa</span>
-            <h2 className="h-display mt-3 text-4xl md:text-5xl text-sand leading-tight">
-              Born in Kenya. Curating Africa. Delivered to the world.
+      <ShowroomScene
+        className="home-plaque-scene"
+        contentClassName="container-page py-16 md:py-24"
+        depth={30}
+      >
+        <div className="mb-10 max-w-2xl">
+          <span className="label-mono">Room 02 · The service wall</span>
+          <h2 className="h-display mt-3 text-4xl leading-tight md:text-5xl">
+            A private desk carries every piece from source to handoff.
+          </h2>
+        </div>
+        <RevealGroup className="service-plaque-grid" stagger={0.09}>
+          <ServicePlaque
+            number="01"
+            title="Bespoke Curation"
+            body="Unlisted artifacts and signature regional collections through private artisan and estate networks."
+          />
+          <ServicePlaque
+            number="02"
+            title="Seamless Logistics"
+            body="Discreet nationwide fulfillment to metropolitan residences, coastal villas, and wilderness lodges."
+          />
+          <ServicePlaque
+            number="03"
+            title="Global Export"
+            body="International transit and customs-ready export quotes for verified heritage pieces."
+          />
+        </RevealGroup>
+      </ShowroomScene>
+
+      <ShowroomScene
+        className="private-desk-scene"
+        contentClassName="container-page py-16 md:py-24"
+        depth={40}
+      >
+        <div className="private-desk">
+          <div className="private-desk__heading">
+            <span className="label-mono text-bronze">Room 03 · Private curation desk</span>
+            <h2 className="h-display mt-3 text-4xl leading-tight md:text-6xl">
+              Choose the path. The desk prepares the rest.
+            </h2>
+            <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink-mute">
+              Select a finished collection, build from individual pieces, or open a brief for
+              something not yet listed.
+            </p>
+          </div>
+          <RevealGroup className="private-desk__paths" stagger={0.07}>
+            <PathCard
+              href="/premium-safari-souvenirs-nairobi"
+              label="Private sourcing"
+              title="Source the right piece"
+              body="Open a concise request for a special commission, regional artifact, or unlisted object."
+            />
+            <PathCard
+              href="/collections"
+              label="Finished collections"
+              title="Choose a complete edit"
+              body="Five polished collections with fixed pricing, lead times, and contents visible before checkout."
+            />
+            <PathCard
+              href="/build"
+              label="Working studio"
+              title="Build around the handoff"
+              body="Select pieces, quantities, packaging, delivery context, and payment preference."
+            />
+          </RevealGroup>
+        </div>
+      </ShowroomScene>
+
+      <ShowroomScene
+        tone="dark"
+        className="home-story-scene"
+        contentClassName="container-page grid gap-10 py-16 md:grid-cols-12 md:py-24"
+        depth={30}
+      >
+        <div className="md:col-span-5">
+          <span className="label-mono text-sand/45">Room 04 · Provenance</span>
+          <h2 className="mt-3 font-serif text-4xl leading-tight text-sand md:text-5xl">
+            Born in Kenya. Curating Africa. Delivered to the world.
+          </h2>
+        </div>
+        <div className="space-y-5 text-lg leading-relaxed text-sand/68 md:col-span-6 md:col-start-7">
+          <p>
+            Hazina Nomads begins in Kenya, where our concierge network curates premium gifts,
+            travel keepsakes, heritage pieces, and private sourcing requests.
+          </p>
+          <p>
+            We expand carefully, region by region and partner by partner, so every piece carries
+            origin, craft, and meaning without losing the standard of the room it enters.
+          </p>
+        </div>
+      </ShowroomScene>
+
+      <ShowroomScene className="concierge-entry-scene" contentClassName="container-page py-16 md:py-24" depth={24}>
+        <div className="concierge-entry">
+          <div>
+            <span className="label-mono text-bronze">Room 05 · Concierge</span>
+            <h2 className="h-display mt-3 max-w-3xl text-4xl leading-tight md:text-6xl">
+              Open the drawer. We will guide the next decision one step at a time.
             </h2>
           </div>
-          <div className="md:col-span-8 space-y-5 text-sand/70 text-lg leading-relaxed">
-            <p>
-              Hazina Nomads begins in Kenya, where our concierge network curates premium gifts,
-              travel keepsakes, heritage pieces, and private sourcing requests for guests and
-              global clients.
-            </p>
-            <p>
-              Our ambition is continental: to become a trusted sourcing house for refined African
-              treasures, connecting travellers, diaspora families, hosts, and corporate teams with
-              pieces that carry origin, craft, and meaning.
-            </p>
-            <p>
-              We expand carefully, region by region, partner by partner — ensuring every piece is
-              sourced with respect and presented with the standard it deserves.
-            </p>
+          <div className="flex flex-wrap gap-3">
+            <ConciergeSceneCTA />
+            <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline flex-col gap-0.5">
+              <span>Continue on WhatsApp</span>
+              <span className="text-[10px] normal-case tracking-normal opacity-70">Human concierge handoff</span>
+            </a>
           </div>
-        </SpatialSection>
-      </section>
-
-      <ChatWidget />
-    </>
+        </div>
+      </ShowroomScene>
+    </SpatialPage>
   );
 }
 
@@ -208,84 +254,33 @@ function PathCard({
   body: string;
 }) {
   return (
-    <SpatialCard className="h-full" contentClassName="h-full" intensity="soft">
-      <Link href={href} className="card-luxury p-6 md:p-8 flex h-full flex-col min-h-[220px] group">
+    <FloatingSurface className="h-full" depth="soft">
+      <Link href={href} className="private-desk__card group">
         <span className="label-mono text-bronze">{label}</span>
-        <h3 className="font-serif text-2xl text-obsidian mt-3 leading-tight group-hover:text-bronze transition-colors">
+        <h3 className="mt-3 font-serif text-2xl leading-tight text-obsidian transition-colors group-hover:text-bronze">
           {title}
         </h3>
-        <p className="text-ink-mute text-sm mt-3 leading-relaxed flex-1">{body}</p>
-        <span className="font-mono text-sm text-bronze mt-6 group-hover:underline underline-offset-4">
-          Continue →
-        </span>
+        <p className="mt-3 flex-1 text-sm leading-relaxed text-ink-mute">{body}</p>
+        <span className="mt-6 font-mono text-sm text-bronze">Enter →</span>
       </Link>
-    </SpatialCard>
+    </FloatingSurface>
   );
 }
 
-function HeroNote({
+function ServicePlaque({
+  number,
   title,
   body,
-  icon,
 }: {
+  number: string;
   title: string;
   body: string;
-  icon: "curation" | "logistics" | "export";
 }) {
   return (
-    <div className="sm:border-l sm:border-white/20 sm:pl-5 first:border-l-0 first:pl-0">
-      <ServiceIcon kind={icon} />
-      <p className="font-mono text-[13px] uppercase tracking-[0.14em] text-bronze-light">{title}</p>
-      <p className="mt-2 text-sm md:text-base leading-relaxed text-white/75">{body}</p>
-    </div>
-  );
-}
-
-function ServiceIcon({ kind }: { kind: "curation" | "logistics" | "export" }) {
-  if (kind === "curation") {
-    return (
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 24 24"
-        className="mb-2 h-5 w-5 text-bronze-light/90"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.35"
-      >
-        <path d="M3 19v-7h18v7" />
-        <path d="M6 12V7h12v5" />
-        <path d="M9 10h.01M15 10h.01" />
-      </svg>
-    );
-  }
-  if (kind === "logistics") {
-    return (
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 24 24"
-        className="mb-2 h-5 w-5 text-bronze-light/90"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.35"
-      >
-        <path d="M4 19h16" />
-        <path d="M3 14l9-2 9 2" />
-        <path d="M12 5v7" />
-      </svg>
-    );
-  }
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      className="mb-2 h-5 w-5 text-bronze-light/90"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.35"
-    >
-      <path d="M4 8h16v10H4z" />
-      <path d="M4 12h16" />
-      <path d="M9 8l3 4 3-4" />
-    </svg>
+    <article className="service-plaque">
+      <span className="service-plaque__number">{number}</span>
+      <h3 className="font-serif text-3xl leading-tight text-obsidian">{title}</h3>
+      <p className="mt-3 text-base leading-relaxed text-ink-mute">{body}</p>
+    </article>
   );
 }

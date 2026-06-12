@@ -1,11 +1,13 @@
 import Link from "next/link";
+import { MotionSafe } from "@/components/three-d/MotionSafe";
+import { SpatialSection } from "@/components/three-d/SpatialSection";
 import { BRAND } from "@/lib/products";
 
 export function Footer() {
   return (
-    <footer className="mt-0 section-dark">
-      <div className="container-page py-16 md:py-20 grid md:grid-cols-12 gap-10 md:gap-8">
-        <div className="md:col-span-5 space-y-4">
+    <footer className="showroom-final-plaque mt-0 section-dark">
+      <SpatialSection className="container-page py-16 md:py-20 grid md:grid-cols-12 gap-10 md:gap-8">
+        <MotionSafe className="md:col-span-5 space-y-4">
           <div className="font-serif text-2xl uppercase tracking-wide text-sand">
             Hazina{" "}
             <span className="italic normal-case text-bronze-light tracking-normal">Nomads</span>
@@ -18,8 +20,8 @@ export function Footer() {
           <p className="label-mono text-sand/40">
             {BRAND.triad}
           </p>
-        </div>
-        <div className="md:col-span-3">
+        </MotionSafe>
+        <MotionSafe className="md:col-span-3" delay={0.08}>
           <h4 className="label-mono text-sand/50 mb-4">Bespoke Curation</h4>
           <p className="text-sm leading-relaxed text-sand/70">
             Sourcing premium gifts, heritage pieces, and private requests through a careful
@@ -60,8 +62,8 @@ export function Footer() {
               </Link>
             </li>
           </ul>
-        </div>
-        <div className="md:col-span-4">
+        </MotionSafe>
+        <MotionSafe className="md:col-span-4" delay={0.14}>
           <div className="grid gap-8 sm:grid-cols-2">
             <div>
               <h4 className="label-mono text-sand/50 mb-4">Seamless Logistics</h4>
@@ -87,8 +89,8 @@ export function Footer() {
             {BRAND.phone && <li>{BRAND.phone}</li>}
             <li className="label-mono text-sand/40 pt-1">Concierge desk 08:00–20:00 EAT · Export by quote</li>
           </ul>
-        </div>
-      </div>
+        </MotionSafe>
+      </SpatialSection>
       <div className="border-t border-sand/10 py-6 text-center label-mono text-sand/30">
         © {new Date().getFullYear()} Hazina Nomads
       </div>
