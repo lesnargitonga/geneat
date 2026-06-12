@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChatWidget } from "@/components/ChatWidget";
 import { CatalogImage } from "@/components/CatalogImage";
+import { LuxuryTilt } from "@/components/three-d/LuxuryTilt";
 import { BRAND_IMAGES } from "@/lib/products";
 import { getStorefrontCatalog } from "@/lib/catalog";
 import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
@@ -60,32 +61,33 @@ export default async function HomePage() {
           <div className="-mx-5 overflow-x-auto px-5 pb-2 local-scroll-x lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0">
             <div className="flex min-w-max gap-4 lg:grid lg:min-w-0 lg:grid-cols-5">
               {catalog.collections.map((box, index) => (
-                <Link
-                  key={box.id}
-                  href={`/collections/${box.id}`}
-                  className="group relative w-[min(78vw,300px)] shrink-0 overflow-hidden border border-white/20 shadow-[0_10px_28px_rgba(0,0,0,0.4)] text-white transition duration-500 hover:-translate-y-1 lg:w-auto"
-                >
-                  <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.05]">
-                    <CatalogImage
-                      src={box.image}
-                      alt={box.imageAlt || box.name}
-                      tone="warm"
-                      fit="cover"
-                      className="h-52 w-full lg:h-56"
-                      sizes="(max-width: 1024px) 78vw, 280px"
-                      priority={false}
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/5" />
-                  <span className="relative z-10 flex h-52 flex-col justify-end p-4 lg:h-56">
-                    <span className="block font-serif text-lg leading-tight text-white group-hover:text-bronze-light">
-                      {box.name}
+                <LuxuryTilt key={box.id} className="w-[min(78vw,300px)] shrink-0 lg:w-auto">
+                  <Link
+                    href={`/collections/${box.id}`}
+                    className="group relative block overflow-hidden border border-white/20 text-white transition duration-500 hover:-translate-y-1"
+                  >
+                    <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.05]">
+                      <CatalogImage
+                        src={box.image}
+                        alt={box.imageAlt || box.name}
+                        tone="warm"
+                        fit="cover"
+                        className="h-52 w-full lg:h-56"
+                        sizes="(max-width: 1024px) 78vw, 280px"
+                        priority={false}
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/5" />
+                    <span className="relative z-10 flex h-52 flex-col justify-end p-4 lg:h-56">
+                      <span className="block font-serif text-lg leading-tight text-white group-hover:text-bronze-light">
+                        {box.name}
+                      </span>
+                      <span className="mt-1 block font-mono text-sm leading-relaxed text-white/85">
+                        {formatUSD(box.price_usd)} · {formatKES(box.price_kes)}
+                      </span>
                     </span>
-                    <span className="mt-1 block font-mono text-sm leading-relaxed text-white/85">
-                      {formatUSD(box.price_usd)} · {formatKES(box.price_kes)}
-                    </span>
-                  </span>
-                </Link>
+                  </Link>
+                </LuxuryTilt>
               ))}
             </div>
           </div>

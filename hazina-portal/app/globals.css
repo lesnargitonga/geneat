@@ -224,6 +224,69 @@
     @apply bg-gradient-to-b from-black/20 via-black/60 to-[#111111];
   }
 
+  .luxury-3d-scene {
+    perspective: 1200px;
+    transform-style: preserve-3d;
+  }
+
+  .luxury-3d-card {
+    position: relative;
+    height: 100%;
+    transform-style: preserve-3d;
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
+    transition:
+      transform 260ms ease,
+      box-shadow 260ms ease;
+    box-shadow:
+      0 24px 70px rgba(16, 12, 8, 0.18),
+      0 4px 20px rgba(16, 12, 8, 0.08);
+  }
+
+  .luxury-3d-scene:hover .luxury-3d-card {
+    box-shadow:
+      0 36px 90px rgba(16, 12, 8, 0.26),
+      0 10px 30px rgba(16, 12, 8, 0.12);
+  }
+
+  .luxury-3d-glow {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    opacity: 0;
+    background:
+      radial-gradient(
+        circle at var(--mx, 50%) var(--my, 50%),
+        rgba(212, 167, 106, 0.22),
+        transparent 42%
+      );
+    transition: opacity 260ms ease;
+    mix-blend-mode: screen;
+  }
+
+  .luxury-3d-scene:hover .luxury-3d-glow {
+    opacity: 1;
+  }
+
+  .luxury-3d-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    transform: translateZ(28px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .luxury-3d-card,
+    .luxury-3d-content {
+      transform: none !important;
+      transition: none !important;
+    }
+
+    .luxury-3d-glow {
+      display: none;
+    }
+  }
+
   .input-luxury {
     @apply w-full border border-border bg-sand px-4 py-3 text-base text-obsidian
            placeholder:text-ink-mute/60 transition-colors focus:border-obsidian;
