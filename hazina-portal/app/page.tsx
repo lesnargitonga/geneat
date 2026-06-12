@@ -2,6 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChatWidget } from "@/components/ChatWidget";
 import { CatalogImage } from "@/components/CatalogImage";
+import { HeroGiftStageLoader } from "@/components/three-d/HeroGiftStageLoader";
+import { LuxuryTilt } from "@/components/three-d/LuxuryTilt";
+import { ScrollDepth } from "@/components/three-d/ScrollDepth";
+import { SpatialCard } from "@/components/three-d/SpatialCard";
+import { SpatialSection } from "@/components/three-d/SpatialSection";
 import { BRAND_IMAGES } from "@/lib/products";
 import { getStorefrontCatalog } from "@/lib/catalog";
 import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
@@ -15,7 +20,7 @@ export default async function HomePage() {
   return (
     <>
       <section className="relative isolate overflow-hidden">
-        <div className="absolute inset-0">
+        <ScrollDepth className="absolute inset-0" y={42} scale={1.06}>
           <Image
             src={BRAND_IMAGES.safariSunset}
             alt="Serene Kenyan landscape at sunset for Hazina Nomads"
@@ -26,24 +31,32 @@ export default async function HomePage() {
             unoptimized
           />
           <div className="absolute inset-0 hero-overlay" />
-        </div>
+        </ScrollDepth>
 
         <div className="relative container-page min-h-[86svh] py-16 md:py-24 flex flex-col justify-between gap-12">
-          <div className="max-w-4xl pt-8 md:pt-16">
+          <ScrollDepth className="pointer-events-none absolute right-0 top-24 z-0 hidden h-[470px] w-[min(38vw,560px)] lg:block xl:right-8" y={-18} scale={1}>
+            <HeroGiftStageLoader />
+          </ScrollDepth>
+
+          <SpatialSection className="relative z-10 max-w-3xl pt-8 md:pt-16">
             <span className="font-mono text-sm font-medium uppercase tracking-[0.12em] text-white/70">
               BESPOKE CURATION <span className="mx-2 opacity-50">·</span> SEAMLESS LOGISTICS{" "}
               <span className="mx-2 opacity-50">·</span> GLOBAL EXPORT
             </span>
             <h1 className="mt-5 font-serif text-5xl md:text-7xl lg:text-8xl leading-[0.9] tracking-[-0.02em] text-white">
-              Private curation, delivered without friction.
+              Private Kenyan curation, delivered with discretion.
             </h1>
-            <p className="mt-6 max-w-2xl text-lg md:text-xl leading-[1.85] text-white/84">
-              Premium Kenyan heritage collections and private sourcing for travellers who expect a
-              coordinated concierge, not a souvenir run.
+            <p className="mt-6 max-w-2xl text-lg md:text-xl leading-[1.85] text-white/85">
+              Hazina Nomads curates premium Kenyan gifts, heritage pieces, and private sourcing requests
+              for travellers, safari guests, diaspora families, and corporate clients — beginning
+              in Kenya and growing toward refined African sourcing.
             </p>
+            <div className="pointer-events-none relative z-0 my-3 h-[104px] sm:h-[240px] lg:hidden">
+              <HeroGiftStageLoader />
+            </div>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/collections" className="btn-bronze">
-                View collections
+                Explore Collections
               </Link>
               <a
                 href={wa}
@@ -54,42 +67,43 @@ export default async function HomePage() {
                 Speak with Concierge
               </a>
             </div>
-          </div>
+          </SpatialSection>
 
-          <div className="-mx-5 overflow-x-auto px-5 pb-2 local-scroll-x lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0">
+          <SpatialSection className="relative z-10 -mx-5 overflow-x-auto px-5 pb-2 local-scroll-x lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0" delay={0.12}>
             <div className="flex min-w-max gap-4 lg:grid lg:min-w-0 lg:grid-cols-5">
               {catalog.collections.map((box, index) => (
-                <Link
-                  key={box.id}
-                  href={`/collections/${box.id}`}
-                  className="group relative w-[min(78vw,300px)] shrink-0 overflow-hidden border border-white/20 shadow-[0_10px_28px_rgba(0,0,0,0.4)] text-white transition duration-500 hover:-translate-y-1 lg:w-auto"
-                >
-                  <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.05]">
-                    <CatalogImage
-                      src={box.image}
-                      alt={box.imageAlt || box.name}
-                      tone="warm"
-                      fit="cover"
-                      className="h-52 w-full lg:h-56"
-                      sizes="(max-width: 1024px) 78vw, 280px"
-                      priority={false}
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/5" />
-                  <span className="relative z-10 flex h-52 flex-col justify-end p-4 lg:h-56">
-                    <span className="block font-serif text-lg leading-tight text-white group-hover:text-bronze-light">
-                      {box.name}
+                <LuxuryTilt key={box.id} className="w-[min(78vw,300px)] shrink-0 lg:w-auto">
+                  <Link
+                    href={`/collections/${box.id}`}
+                    className="group relative block overflow-hidden border border-white/20 text-white transition duration-500 hover:-translate-y-1"
+                  >
+                    <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.05]">
+                      <CatalogImage
+                        src={box.image}
+                        alt={box.imageAlt || box.name}
+                        tone="warm"
+                        fit="cover"
+                        className="h-52 w-full lg:h-56"
+                        sizes="(max-width: 1024px) 78vw, 280px"
+                        priority={false}
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/5" />
+                    <span className="relative z-10 flex h-52 flex-col justify-end p-4 lg:h-56">
+                      <span className="block font-serif text-lg leading-tight text-white group-hover:text-bronze-light">
+                        {box.name}
+                      </span>
+                      <span className="mt-1 block font-mono text-sm leading-relaxed text-white/85">
+                        {formatUSD(box.price_usd)} · {formatKES(box.price_kes)}
+                      </span>
                     </span>
-                    <span className="mt-1 block font-mono text-sm leading-relaxed text-white/85">
-                      {formatUSD(box.price_usd)} · {formatKES(box.price_kes)}
-                    </span>
-                  </span>
-                </Link>
+                  </Link>
+                </LuxuryTilt>
               ))}
             </div>
-          </div>
+          </SpatialSection>
 
-          <div className="grid gap-5 border-t border-white/20 pt-6 text-white/80 sm:grid-cols-3 md:max-w-4xl">
+          <SpatialSection className="relative z-10 grid gap-5 border-t border-white/20 pt-6 text-white/80 sm:grid-cols-3 md:max-w-4xl" delay={0.18}>
             <HeroNote
               title="Bespoke Curation"
               body="Unlisted artifacts and signature regional collections through private artisan and estate networks."
@@ -105,19 +119,20 @@ export default async function HomePage() {
               body="International transit and customs-ready export quotes for verified heritage pieces."
               icon="export"
             />
-          </div>
+          </SpatialSection>
         </div>
       </section>
 
-      <section className="container-page py-16 md:py-24">
+      <SpatialSection className="container-page py-16 md:py-24">
         <div className="max-w-2xl mb-10 md:mb-12">
           <span className="label-mono">How to order</span>
           <h2 className="h-display mt-3 text-4xl md:text-5xl text-obsidian leading-tight">
-            One catalog. Two ways in.
+            Choose a collection. Open a brief. We prepare the handoff.
           </h2>
           <p className="text-ink-mute mt-4 text-lg leading-relaxed">
-            Choose a finished collection, open a private sourcing brief, or arrange export —
-            the same concierge desk carries the work from selection to handoff.
+            Select a finished collection, request something specific, or arrange a hotel, safari lodge,
+            JKIA, residence, or international handoff. The same concierge desk carries the work
+            from selection to delivery.
           </p>
         </div>
 
@@ -147,6 +162,33 @@ export default async function HomePage() {
             body="Quote insured international transit before payment, with customs-ready details captured by the concierge."
           />
         </div>
+      </SpatialSection>
+
+      <section className="section-dark py-16 md:py-24">
+        <SpatialSection className="container-page grid gap-10 md:grid-cols-12 md:items-start">
+          <div className="md:col-span-4">
+            <span className="label-mono text-sand/40">From Kenya, across Africa</span>
+            <h2 className="h-display mt-3 text-4xl md:text-5xl text-sand leading-tight">
+              Born in Kenya. Curating Africa. Delivered to the world.
+            </h2>
+          </div>
+          <div className="md:col-span-8 space-y-5 text-sand/70 text-lg leading-relaxed">
+            <p>
+              Hazina Nomads begins in Kenya, where our concierge network curates premium gifts,
+              travel keepsakes, heritage pieces, and private sourcing requests for guests and
+              global clients.
+            </p>
+            <p>
+              Our ambition is continental: to become a trusted sourcing house for refined African
+              treasures, connecting travellers, diaspora families, hosts, and corporate teams with
+              pieces that carry origin, craft, and meaning.
+            </p>
+            <p>
+              We expand carefully, region by region, partner by partner — ensuring every piece is
+              sourced with respect and presented with the standard it deserves.
+            </p>
+          </div>
+        </SpatialSection>
       </section>
 
       <ChatWidget />
@@ -166,16 +208,18 @@ function PathCard({
   body: string;
 }) {
   return (
-    <Link href={href} className="card-luxury p-6 md:p-8 flex flex-col min-h-[220px] group">
-      <span className="label-mono text-bronze">{label}</span>
-      <h3 className="font-serif text-2xl text-obsidian mt-3 leading-tight group-hover:text-bronze transition-colors">
-        {title}
-      </h3>
-      <p className="text-ink-mute text-sm mt-3 leading-relaxed flex-1">{body}</p>
-      <span className="font-mono text-sm text-bronze mt-6 group-hover:underline underline-offset-4">
-        Continue →
-      </span>
-    </Link>
+    <SpatialCard className="h-full" contentClassName="h-full" intensity="soft">
+      <Link href={href} className="card-luxury p-6 md:p-8 flex h-full flex-col min-h-[220px] group">
+        <span className="label-mono text-bronze">{label}</span>
+        <h3 className="font-serif text-2xl text-obsidian mt-3 leading-tight group-hover:text-bronze transition-colors">
+          {title}
+        </h3>
+        <p className="text-ink-mute text-sm mt-3 leading-relaxed flex-1">{body}</p>
+        <span className="font-mono text-sm text-bronze mt-6 group-hover:underline underline-offset-4">
+          Continue →
+        </span>
+      </Link>
+    </SpatialCard>
   );
 }
 
@@ -192,7 +236,7 @@ function HeroNote({
     <div className="sm:border-l sm:border-white/20 sm:pl-5 first:border-l-0 first:pl-0">
       <ServiceIcon kind={icon} />
       <p className="font-mono text-[13px] uppercase tracking-[0.14em] text-bronze-light">{title}</p>
-      <p className="mt-2 text-sm md:text-base leading-relaxed text-white/72">{body}</p>
+      <p className="mt-2 text-sm md:text-base leading-relaxed text-white/75">{body}</p>
     </div>
   );
 }

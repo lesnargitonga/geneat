@@ -28,8 +28,8 @@ export const BRAND = {
   name: "Hazina Nomads",
   tagline: "Curated treasures for the modern nomad.",
   meaning: "Hazina = treasure (Swahili)",
-  whatsapp: process.env.NEXT_PUBLIC_HAZINA_WHATSAPP || "254700000001",
-  phone: process.env.NEXT_PUBLIC_HAZINA_PHONE || "+254 700 000 001",
+  whatsapp: process.env.NEXT_PUBLIC_HAZINA_WHATSAPP || "254715540653",
+  phone: process.env.NEXT_PUBLIC_HAZINA_PHONE || "+254715540653",
   email: "concierge@hazina-nomads.com",
 };
 

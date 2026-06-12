@@ -519,7 +519,7 @@ Guest / order context
 | **Name** | Hazina Nomads |
 | **Industry** | `gift-concierge` |
 | **Location** | Kenya — bespoke curation, seamless logistics, and global export |
-| **Phone** | `+1 555 657 8220` (current Meta/AI automation route) |
+| **Phone** | `+254715540653` public personal concierge CTA while Meta Business review is blocked |
 | **Email** | `concierge@hazina-nomads.com` |
 | **Languages** | `en` primary, `sw` secondary |
 | **Coords** | -1.2921, 36.7853 (Nairobi) |
@@ -623,8 +623,8 @@ PAYSTACK_SECRET_KEY=                         # Preferred USD/card rail once appr
 PAYSTACK_PUBLIC_KEY=
 
 # ── hazina-portal/ (Render hazina-portal service) ──
-NEXT_PUBLIC_HAZINA_WHATSAPP=15556578220
-NEXT_PUBLIC_HAZINA_PHONE=+15556578220
+NEXT_PUBLIC_HAZINA_WHATSAPP=254715540653
+NEXT_PUBLIC_HAZINA_PHONE=+254715540653
 NEXT_PUBLIC_BACKEND_URL=https://hazina-api.onrender.com
 BACKEND_URL=https://hazina-api.onrender.com
 ```
@@ -805,6 +805,7 @@ No `/cafes`, `/map`, or `/owners` — those live only in `gen-eat-portal/`.
 | Order tracking fetch | `lib/orderTracking.ts`, `lib/backend.ts` | Server fetch → FastAPI public orders API |
 | Collection card | `components/CollectionCard.tsx` | Image link + stacked prices + View details / Add to box / Ask concierge |
 | Collection checkout | `components/CollectionCheckout.tsx` | Delivery/payment → chat handoff |
+| Product theater | `components/three-d/ProductTheater.tsx` | Collection-detail CSS 3D display frame + annotated content chips |
 | Pack builder | `components/PackBuilder.tsx` | Browse, mobile-safe grid, cart, deferred delivery form, category filters |
 | Product image | `components/ProductImage.tsx` | Safari landing imagery |
 | Catalog image | `components/CatalogImage.tsx` | Fallback frame |
@@ -887,6 +888,33 @@ curl -sI "http://localhost:3004$CSS" | grep -i content-type
 
 Hard refresh after fix: **Ctrl+Shift+R** (Cmd+Shift+R on Mac).
 
+### 9.7 Visual QA — spatial showroom
+
+Run this before presenting Hazina as a luxury front door:
+
+- [ ] Desktop homepage: WebGL hero gift stage is visible, reacts smoothly to
+      cursor movement across the whole hero, and does not block CTAs.
+- [ ] Tablet homepage: 3D/fallback stage remains visible without horizontal
+      overflow or cropped hero copy.
+- [ ] Mobile homepage: no blank canvas, no horizontal overflow, collection rail
+      remains thumb-scrollable, and the lightweight dimensional gift object is
+      visible.
+- [ ] Reduced motion: animations, pointer tilt, and object breathing are
+      disabled or softened by `prefers-reduced-motion`.
+- [ ] Chat automation: first open still shows the deterministic Hazina menu
+      instantly; spatial shell styling does not slow the flow.
+- [ ] WhatsApp handoff: public CTAs open the configured Hazina number with a
+      structured prefilled message.
+- [ ] Collection cards: cards remain readable, clickable, and do not tilt on
+      touch-only devices.
+- [ ] Build checkout: cart/sidebar scrolls internally, spatial effects do not
+      obstruct quantity controls, monogram inputs, or checkout buttons.
+- [ ] Product/detail pages: back links, checkout panels, and sticky WhatsApp
+      CTA remain usable after reveal animations.
+- [ ] Collection detail theater: image frame renders, annotated content chips
+      remain readable on desktop/mobile, and checkout continues as a concierge
+      order desk without changing flow behavior.
+
 ---
 
 ## 10. WhatsApp implementation
@@ -895,14 +923,32 @@ Hard refresh after fix: **Ctrl+Shift+R** (Cmd+Shift+R on Mac).
 
 **Hazina main menu** (`business_slug=hazina-nomads`):
 
-| Button | Interactive ID | Action |
+Hazina is automation-first. The first touch is a deterministic menu, not an
+open-ended AI essay:
+
+```text
+Welcome to Hazina Nomads.
+
+How may we assist you today?
+
+1. Explore ready collections
+2. Build a private gift brief
+3. Need a gift recommendation
+4. Safari / hotel / JKIA delivery
+5. Corporate gifting
+6. Speak to Concierge
+```
+
+| Menu item | Interactive ID | Action |
 |---|---|---|
-| Shop The Kenya Edit | `lp:shop` | Opens 5-product list |
-| Corporate Gifting | `lp:corp` | Escalates human concierge |
-| Talk to Concierge | `lp:concierge` | `CMD_STAFF` escalation |
+| Explore ready collections | `lp:hazina:collections` / `lp:shop` | Opens 5-product list |
+| Build a private gift brief | `lp:hazina:brief` | Opens private sourcing brief guidance |
+| Need a gift recommendation | `lp:hazina:recommend` | Classify context, then return to deterministic options |
+| Safari / hotel / JKIA delivery | `lp:hazina:logistics` | Opens delivery-channel list |
+| Corporate gifting | `lp:corp` | Escalates senior concierge |
+| Speak to Concierge | `lp:concierge` | `CMD_STAFF` escalation |
 | Track Delivery | `lp:track` | Order status (no LLM) |
 | My orders | `lp:orders` | Recent orders |
-| Exit | `lp:exit` | End chat |
 
 **Product list** (`product_list_payload`):
 
@@ -954,6 +1000,29 @@ Tap → `order {product}` → `gift_automation` checkout.
 
 **Payment currency detection** (`_USD_PAY_RE`): matches `usd`, `dollar`, `$`, `card`, `visa`, `mastercard`, `apple pay`, `paystack`, `international`.
 
+### 10.2.1 Hybrid AI/automation rule
+
+Hazina should behave like a premium state-machine concierge:
+
+```text
+Fast deterministic menu
+  -> AI only when the guest goes off-script
+  -> AI/classifier extracts intent and context
+  -> guest returns to deterministic flow
+```
+
+AI is not the cashier and must not guess final logistics. AI may understand,
+classify, recommend, or summarize. Automation owns menus, quantities, totals,
+delivery fields, payment start, tracking, and human handoff.
+
+For now:
+
+- **Website chat** is the fully automated channel.
+- **WhatsApp CTA** routes structured pre-filled messages to the personal
+  concierge number while Meta Business review is blocked.
+- **Future WhatsApp Business Platform number** should reuse the same Hazina
+  Flow Engine instead of creating a separate WhatsApp-only script.
+
 ### 10.3 Payment resend (`app/channels/base.py`)
 
 **Trigger regex** (`_PAYMENT_RESEND_RE`): includes:
@@ -970,13 +1039,28 @@ Also: auto-resend stale STK after timeout (`_auto_resend_stale_payment_reply`).
 
 **Web — browse collection**
 
-1. `/` or `/collections` → **See inside** → `/collections/kenya-edit`
-2. **Order this box** → choose quantity, delivery mode, and payment preference
-3. **Start guided checkout** → portal chat asks name, exact delivery point,
+1. Open in-app chat → instant deterministic Hazina menu
+2. **Explore ready collections** → local 5-collection list with USD/KES prices
+3. `/` or `/collections` → **See inside** → `/collections/kenya-edit`
+4. **Order this box** → choose quantity, delivery mode, and payment preference
+5. **Start guided checkout** → portal chat asks name, exact delivery point,
    timing, payment contact, and confirmation
-4. Only after confirmation does the portal chat send the complete structured
+6. Only after confirmation does the portal chat send the complete structured
    automation payload to the backend, which creates the order and starts
    Paystack or M-Pesa
+
+**Web — recommendation**
+
+1. Guest taps **Need a gift recommendation** or types a natural request such
+   as "something romantic for my wife before we leave Nairobi tomorrow"
+2. Portal classifier captures recipient, occasion/tone, budget, and delivery
+   context one question at a time
+3. Portal recommends one known collection only, then offers:
+   - view details,
+   - confirm delivery details,
+   - adjust budget,
+   - speak to concierge
+4. Checkout still runs through the deterministic collection flow
 
 **Web — build custom box**
 

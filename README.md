@@ -4,7 +4,7 @@
 > **This README:** architecture, API, data model, scaling — not live-status authority.  
 > Code wins if docs drift.
 
-Last reconciled with the codebase and local checks: **2026-06-04**.
+Last reconciled with the codebase and local checks: **2026-06-11**.
 Hosted live checks were last verified on **2026-05-26**.
 
 Security: See [SECURITY.md](SECURITY.md) for live-run findings and recommended mitigations.
@@ -78,9 +78,14 @@ Current Hazina production-routing path:
 - Hazina runs the same FastAPI app, WhatsApp ingress, RAG, order, and payment
   machinery as Gen-Eat, but the current production target is the dedicated
   `hazina-api` Render service in Frankfurt,
-- the public Hazina WhatsApp number is `+1 555 657 8220` via
-  `NEXT_PUBLIC_HAZINA_WHATSAPP` / `NEXT_PUBLIC_HAZINA_PHONE`; this is the
-  current Meta/AI automation route, not a placeholder,
+- the public Hazina WhatsApp CTA number is currently the personal concierge
+  line `+254715540653` (`NEXT_PUBLIC_HAZINA_WHATSAPP=254715540653`) while Meta
+  Business review is blocked; website chat is the fully automated channel,
+  and WhatsApp is a structured human handoff until a BSP/API number is ready,
+- Hazina customer chat is now automation-first: deterministic menu and guided
+  state-machine flows run before AI; AI is used only to classify off-script
+  requests, recommend/summarize, and return the guest into deterministic
+  collection, brief, logistics, payment, tracking, or concierge handoff flows,
 - `HAZINA_CLAIMS_META_PHONE=true` lets the configured Meta phone id route to
   Hazina during cutover even if an old tenant mapping is still present,
 - `scripts/seed_hazina_nomads.py` claims the configured Meta

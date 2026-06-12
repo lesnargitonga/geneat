@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { CatalogImage } from "@/components/CatalogImage";
 import { GIFT_BOXES, getGiftBox } from "@/lib/products";
 import { collectionTreasureItems, getStorefrontCatalog } from "@/lib/catalog";
 import { CollectionItemsPreview } from "@/components/CollectionCard";
@@ -9,6 +8,8 @@ import { CollectionCheckout } from "@/components/CollectionCheckout";
 import { formatDualPrice, formatUSD, whatsappLink } from "@/lib/format";
 import { StickyWhatsAppCTA } from "@/components/StickyWhatsAppCTA";
 import { SmartBackLink } from "@/components/SmartBackLink";
+import { ProductTheater } from "@/components/three-d/ProductTheater";
+import { SpatialSection } from "@/components/three-d/SpatialSection";
 
 type Props = { params: { id: string } };
 
@@ -52,6 +53,18 @@ export default async function CollectionDetailPage({ params }: Props) {
   const items = collectionTreasureItems(box, catalog.treasures);
   const itemsSubtotalKes = items.reduce((s, t) => s + t.price_kes, 0);
   const itemsSubtotalUsd = items.reduce((s, t) => s + t.price_usd, 0);
+  const fallbackImage = items.find((t) => t.category !== "packaging" && t.image)?.image ?? null;
+  const theaterHighlights = [
+    { label: `${box.lead_time_hours}h lead`, value: "Concierge confirmed" },
+    ...items
+      .filter((t) => t.category !== "packaging")
+      .slice(0, 4)
+      .map((item) => ({
+        label: item.name,
+        value: item.sku,
+        href: `/treasures/${item.id}`,
+      })),
+  ];
   const orderMessage = `Hello Hazina Nomads — I'd like to order ${box.name}.`;
   const customizeWa = whatsappLink(
     catalog.brand.whatsapp,
@@ -65,18 +78,15 @@ export default async function CollectionDetailPage({ params }: Props) {
           ← Back to browsing
         </SmartBackLink>
 
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 mt-8 items-start">
-          <CatalogImage
-            src={box.image}
-            fallbackSrc={
-              items.find((t) => t.category !== "packaging" && t.image)?.image ?? null
-            }
+        <SpatialSection className="grid lg:grid-cols-2 gap-12 lg:gap-16 mt-8 items-start">
+          <ProductTheater
+            image={box.image}
+            fallbackImage={fallbackImage}
             alt={box.imageAlt || box.name}
-            tone="warm"
-            fit="cover"
-            className="aspect-[4/3] shadow-editorial lg:sticky lg:top-24 lg:aspect-[4/5]"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            priority
+            name={box.name}
+            eyebrow={`${box.sku} · ${box.lead_time_hours}h lead`}
+            highlights={theaterHighlights}
+            className="lg:sticky lg:top-24"
           />
 
           <div className="space-y-8">
@@ -114,9 +124,9 @@ export default async function CollectionDetailPage({ params }: Props) {
 
             <CollectionCheckout box={box} />
           </div>
-        </div>
+        </SpatialSection>
 
-        <section className="mt-20 pt-12 border-t border-border">
+        <SpatialSection className="mt-20 pt-12 border-t border-border">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
             <div>
               <span className="label-mono">What&apos;s inside</span>
@@ -135,7 +145,7 @@ export default async function CollectionDetailPage({ params }: Props) {
           <a href={customizeWa} target="_blank" rel="noopener noreferrer" className="btn-ghost mt-4 inline-flex">
             Customise this collection
           </a>
-        </section>
+        </SpatialSection>
       </div>
       <StickyWhatsAppCTA message={orderMessage} phone={catalog.brand.whatsapp} />
     </>

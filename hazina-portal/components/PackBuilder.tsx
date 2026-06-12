@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { CatalogImage } from "@/components/CatalogImage";
 import { openConciergeChat } from "@/components/ChatWidget";
+import { SpatialCard } from "@/components/three-d/SpatialCard";
 import {
   ALL_CATEGORIES,
   CATEGORY_LABELS,
@@ -200,7 +201,7 @@ export function PackBuilder({
         <div className="panel-luxury p-4 md:p-5 space-y-4">
           <div className="grid gap-3 md:grid-cols-[1fr,180px]">
             <label>
-              <span className="sr-only">Search treasures for your custom box</span>
+              <span className="sr-only">Search pieces for your private collection</span>
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -209,7 +210,7 @@ export function PackBuilder({
               />
             </label>
             <label>
-              <span className="sr-only">Sort custom box items</span>
+              <span className="sr-only">Sort private collection pieces</span>
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as typeof sort)}
@@ -241,7 +242,7 @@ export function PackBuilder({
           </div>
 
           <p className="label-mono">
-            {filtered.length} available · {totalUnits} in your box
+            {filtered.length} available · {totalUnits} in your private collection
             {cartLines.length > 0 ? ` (${cartLines.length} treasures)` : ""}
           </p>
         </div>
@@ -268,15 +269,16 @@ export function PackBuilder({
       </div>
 
       <aside className="min-w-0 lg:col-span-5">
-        <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto local-scroll local-scroll--subtle border border-border bg-sand p-6 md:p-8 space-y-6">
+        <SpatialCard className="lg:sticky lg:top-24" contentClassName="h-full" intensity="soft">
+        <div className="lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto local-scroll local-scroll--subtle border border-border bg-sand p-6 md:p-8 space-y-6">
           <div>
-            <span className="label-mono">Your box</span>
+            <span className="label-mono">Your private collection</span>
             <h2 className="font-serif text-3xl text-obsidian mt-2">
-              {checkoutStep === "browse" ? "Choose treasures" : "Delivery details"}
+              {checkoutStep === "browse" ? "Select pieces" : "Prepare handoff"}
             </h2>
             <p className="text-ink-mute text-sm mt-2 leading-relaxed">
               {checkoutStep === "browse"
-                ? "Add items until you meet the minimum, then proceed to delivery."
+                ? "Select the pieces you want, then prepare the handoff."
                 : "Choose delivery and payment preference. Chat will collect the remaining details carefully."}
             </p>
           </div>
@@ -284,7 +286,7 @@ export function PackBuilder({
           {checkoutStep === "browse" && (
             <>
               {cartLines.length === 0 ? (
-                <p className="text-ink-mute text-sm italic">Tap items to add them to your box.</p>
+                <p className="text-ink-mute text-sm italic">Tap pieces to add them to your private collection.</p>
               ) : (
                 <ul className="space-y-4 max-h-[22rem] overflow-y-auto local-scroll local-scroll--subtle">
                   {cartLines.map(({ item, qty }) => (
@@ -410,17 +412,17 @@ export function PackBuilder({
                 onClick={() => setCheckoutStep("delivery")}
                 className="btn-dark w-full disabled:opacity-40"
               >
-                {canOrder ? "Enter delivery details" : `Select ${MIN_CUSTOM_ITEMS}+ treasures`}
+                {canOrder ? "Prepare Handoff" : `Select ${MIN_CUSTOM_ITEMS}+ treasures`}
               </button>
 
               {canOrder && (
                 <a
                   href={whatsappLink(BRAND.whatsapp, checkoutMessage)}
                   target="_blank"
-                  rel="noopener noreferrer"
-                  className="block text-center font-mono text-sm text-bronze underline-offset-4 hover:underline"
-                >
-                  Or continue in WhatsApp
+                rel="noopener noreferrer"
+                className="block text-center font-mono text-sm text-bronze underline-offset-4 hover:underline"
+              >
+                  Or speak with Concierge
                 </a>
               )}
             </>
@@ -502,7 +504,7 @@ export function PackBuilder({
                 disabled={!canOrder}
                 className="btn-dark w-full disabled:opacity-40"
               >
-                Continue guided checkout
+                Continue with Concierge
               </button>
 
               <a
@@ -511,7 +513,7 @@ export function PackBuilder({
                 rel="noopener noreferrer"
                 className="btn-outline w-full"
               >
-                Continue in WhatsApp
+                Speak with Concierge
               </a>
 
               {validationHints.length > 0 && (
@@ -527,10 +529,11 @@ export function PackBuilder({
           <p className="label-mono text-center">
             Or{" "}
             <Link href="/collections" className="text-bronze hover:text-obsidian">
-              start from a curated collection
+              start from a signature collection
             </Link>
           </p>
         </div>
+        </SpatialCard>
       </aside>
     </div>
   );

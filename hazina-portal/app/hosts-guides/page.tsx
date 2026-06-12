@@ -55,7 +55,7 @@ export default function HostsGuidesPage() {
             />
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-6 md:p-8">
               <p className="font-serif text-2xl text-sand">
-                No stock. No awkward souvenir run. Just a clean guest experience.
+                No stock burden. No rushed errands. Just a clean guest experience.
               </p>
             </div>
           </div>

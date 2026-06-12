@@ -6,7 +6,7 @@ import { getStorefrontCatalog } from "@/lib/catalog";
 export const metadata: Metadata = {
   title: "Curate a Private Collection · Hazina Nomads",
   description:
-    "Compose Savannah treasures and Swahili Coast artifacts with optional monograms and bespoke sourcing notes for our concierge.",
+    "Build a private sourcing brief from premium Kenyan gifts, travel keepsakes, and heritage pieces, with concierge-guided handoff and export by quote.",
 };
 
 export const revalidate = 300;
@@ -25,11 +25,11 @@ export default async function BuildPage({
         <span className="label-mono">Private sourcing brief</span>
         <h1 className="h-display text-5xl md:text-7xl mt-4 mb-5 text-obsidian">Curate a Private Collection</h1>
         <p className="text-ink-mute max-w-2xl text-lg leading-relaxed">
-          Choose from our catalog of Savannah treasures and Swahili Coast artifacts. Request bespoke monograms, or
-          submit custom sourcing notes. Your selection becomes a private brief for our concierge team. Prefer a finished
-          edit?{" "}
+          Choose from premium Kenyan treasures or describe something specific for our concierge to source.
+          Your selection becomes a private brief with packaging, handoff, payment, and delivery details confirmed before preparation.
+          Prefer a finished edit?{" "}
           <Link href="/collections" className="text-bronze hover:text-obsidian underline-offset-4 hover:underline">
-            View collections
+            Explore Collections
           </Link>
           .
         </p>

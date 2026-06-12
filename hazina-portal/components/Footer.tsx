@@ -11,8 +11,9 @@ export function Footer() {
             <span className="italic normal-case text-bronze-light tracking-normal">Nomads</span>
           </div>
           <p className="text-sand/70 max-w-sm leading-relaxed">
-            {BRAND.tagline} A premium travel concierge for bespoke curation,
-            seamless logistics, and global export of Kenyan heritage pieces.
+            A private sourcing house for refined African treasures, beginning in Kenya. We curate
+            premium gifts, heritage pieces, travel keepsakes, and corporate gifting with discreet
+            handoff and export by quote.
           </p>
           <p className="label-mono text-sand/40">
             {BRAND.triad}
@@ -21,8 +22,8 @@ export function Footer() {
         <div className="md:col-span-3">
           <h4 className="label-mono text-sand/50 mb-4">Bespoke Curation</h4>
           <p className="text-sm leading-relaxed text-sand/70">
-            Sourcing unlisted artifacts and signature regional collections through our private
-            network of artisans and estates.
+            Sourcing premium gifts, heritage pieces, and private requests through a careful
+            Kenyan concierge network.
           </p>
           <ul className="space-y-2.5 text-sm text-sand/70">
             <li>
@@ -50,7 +51,7 @@ export function Footer() {
             </li>
             <li>
               <Link className="hover:text-sand transition-colors" href="/build">
-                Build a custom box
+                Open a private brief
               </Link>
             </li>
             <li>
@@ -65,8 +66,8 @@ export function Footer() {
             <div>
               <h4 className="label-mono text-sand/50 mb-4">Seamless Logistics</h4>
               <p className="text-sm leading-relaxed text-sand/70">
-                Discreet, nationwide fulfillment directly to your metropolitan residence,
-                coastal villa, or private wilderness lodge.
+                Discreet handoff to hotels, safari lodges, residences, JKIA departure points,
+                and partner locations by arrangement.
               </p>
             </div>
             <div>
@@ -83,7 +84,7 @@ export function Footer() {
                 {BRAND.email}
               </a>
             </li>
-            <li>{BRAND.phone}</li>
+            {BRAND.phone && <li>{BRAND.phone}</li>}
             <li className="label-mono text-sand/40 pt-1">Concierge desk 08:00–20:00 EAT · Export by quote</li>
           </ul>
         </div>

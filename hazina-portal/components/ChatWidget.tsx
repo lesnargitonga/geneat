@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { motion, useReducedMotion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BRAND, GIFT_BOXES, getGiftBox, type GiftBox } from "@/lib/products";
 import { ENGRAVING_FEE_KES, ENGRAVING_FEE_USD } from "@/lib/treasures";
@@ -77,6 +78,16 @@ type CheckoutFlow = {
   contact?: string;
 };
 
+type RecommendationStep = "recipient" | "occasion" | "budget" | "delivery" | "recommend";
+type RecommendationFlow = {
+  step: RecommendationStep;
+  recipient?: string;
+  occasion?: string;
+  budget?: string;
+  deliveryContext?: string;
+  sourceText?: string;
+};
+
 type ChatAction = { label: string; value?: string; href?: string; primary?: boolean };
 type ChatPromptDetail = { prompt?: string; checkout?: CheckoutStart };
 type ApiChatAction = { label: string; value: string; primary?: boolean; interactive_id?: string | null };
@@ -90,13 +101,24 @@ type PortalCatalogResponse = {
   collections?: GiftBox[];
 };
 
-const MAIN_MENU_CMD = "__main_menu__";
+const TOP_MENU_TEXT = `Welcome to Hazina Nomads.
 
-const ASK_PROMPTS: ChatAction[] = [
-  { label: "Show me collections", value: "Show me your gift collections", primary: true },
-  { label: "Seamless logistics", value: "How does seamless logistics work?" },
-  { label: "Bespoke curation", value: "I want to initialize a private sourcing brief" },
-  { label: "Corporate gifts", value: "Corporate gifting enquiry" },
+How may we assist you today?
+
+1. Explore ready collections
+2. Build a private gift brief
+3. Need a gift recommendation
+4. Safari / hotel / JKIA delivery
+5. Corporate gifting
+6. Speak to Concierge`;
+
+const MAIN_MENU_ACTIONS: ChatAction[] = [
+  { label: "Explore ready collections", value: "Explore ready collections", primary: true },
+  { label: "Build a private gift brief", value: "Build a private gift brief" },
+  { label: "Need a gift recommendation", value: "Need a gift recommendation" },
+  { label: "Safari / hotel / JKIA delivery", value: "Safari / hotel / JKIA delivery" },
+  { label: "Corporate gifting", value: "Corporate gifting" },
+  { label: "Speak to Concierge", value: "Speak to Concierge" },
 ];
 
 const BUSINESS_SLUG = "hazina-nomads";
@@ -160,12 +182,32 @@ function isGreeting(text: string) {
   return /^(hi|hey|hello|sasa|niaje|mambo|habari|good\s+(morning|afternoon|evening))\b/i.test(text.trim());
 }
 
+function isMainMenuRequest(text: string) {
+  return /^(menu|main menu|start|start over|restart|home|help|0)$/i.test(text.trim());
+}
+
 function isCatalogRequest(text: string) {
-  return /\b(collections?|gift boxes?|catalog(?:ue)?|menu|what do you sell|show me|browse|shop)\b/i.test(text);
+  return /\b(explore ready collections|ready collections|collections?|gift boxes?|catalog(?:ue)?|what do you sell|show me|browse|shop)\b/i.test(text);
 }
 
 function isCustomBoxRequest(text: string) {
-  return /\b(custom|build|compose|pick individual|individual treasures)\b/i.test(text);
+  return /\b(build a private gift brief|private gift brief|private brief|custom|build|compose|pick individual|individual treasures)\b/i.test(text);
+}
+
+function isRecommendationRequest(text: string) {
+  return /\b(recommend|recommendation|suggest|help me choose|best gift|gift for|something for|adjust budget|romantic|wife|husband|boss|client|parents?|anniversary|birthday|departure|leaving|tomorrow|classy|premium)\b/i.test(text);
+}
+
+function isLogisticsRequest(text: string) {
+  return /\b(safari|hotel|jkia|airport|delivery|deliver|handoff|ship|dhl|export|international|abroad|villa|lodge)\b/i.test(text);
+}
+
+function isCorporateRequest(text: string) {
+  return /\b(corporate|bulk|team|client gifts?|event|company|branded|branding|staff gifts?)\b/i.test(text);
+}
+
+function isConciergeRequest(text: string) {
+  return /\b(speak to concierge|human|agent|concierge|talk to someone|call me)\b/i.test(text);
 }
 
 function parseDeliveryMode(text: string): DeliveryMode | undefined {
@@ -273,7 +315,7 @@ function nextStep(flow: CheckoutFlow): CheckoutStep {
 
 function flowIntro(flow: CheckoutFlow) {
   if (flow.kind === "custom") {
-    return `Good. Your custom box has ${flow.items.reduce((sum, item) => sum + item.qty, 0)} treasure${
+    return `Good. Your private collection has ${flow.items.reduce((sum, item) => sum + item.qty, 0)} treasure${
       flow.items.reduce((sum, item) => sum + item.qty, 0) === 1 ? "" : "s"
     } at ${formatUSD(flow.totalUsd)} / ${formatKES(flow.totalKes)}.`;
   }
@@ -352,6 +394,83 @@ function checkoutSummary(flow: CheckoutFlow) {
     `Payment: ${flow.paymentCurrency === "KES" ? "KES M-Pesa" : "USD card link"}`,
   ];
   return `${lines.join("\n")}\n\nIf this is correct, tap Confirm checkout.`;
+}
+
+function nextRecommendationStep(flow: RecommendationFlow): RecommendationStep {
+  if (!flow.recipient || flow.recipient.trim().length < 2) return "recipient";
+  if (!flow.occasion || flow.occasion.trim().length < 3) return "occasion";
+  if (!flow.budget || flow.budget.trim().length < 2) return "budget";
+  if (!flow.deliveryContext || flow.deliveryContext.trim().length < 3) return "delivery";
+  return "recommend";
+}
+
+function questionForRecommendationStep(flow: RecommendationFlow): { text: string; actions?: ChatAction[] } {
+  switch (flow.step) {
+    case "recipient":
+      return { text: "Who is the gift for?" };
+    case "occasion":
+      return { text: "What is the occasion or tone? For example: romantic, executive, family, departure, thank-you." };
+    case "budget":
+      return {
+        text: "What budget range should I respect?",
+        actions: [
+          { label: "USD 150-250", value: "USD 150-250", primary: true },
+          { label: "USD 250-400", value: "USD 250-400" },
+          { label: "USD 400+", value: "USD 400+" },
+          { label: "Flexible", value: "Flexible budget" },
+        ],
+      };
+    case "delivery":
+      return { text: "Where and when do you need the handoff? Hotel, residence, safari lodge, JKIA, or global export is enough for now." };
+    case "recommend":
+      return { text: "I have enough context to recommend a collection." };
+  }
+}
+
+function extractBudgetNumber(text: string): number | null {
+  const match = text.replace(/,/g, "").match(/\b(?:usd|\$)?\s*(\d{2,5})\b/i);
+  return match ? Number(match[1]) : null;
+}
+
+function inferRecommendationBox(flow: RecommendationFlow, boxes: GiftBox[] = GIFT_BOXES): GiftBox {
+  const haystack = `${flow.sourceText || ""} ${flow.recipient || ""} ${flow.occasion || ""} ${flow.budget || ""} ${flow.deliveryContext || ""}`.toLowerCase();
+  const byId = (id: string) => boxes.find((box) => box.id === id) || getGiftBox(id) || boxes[0];
+  const budget = extractBudgetNumber(haystack);
+
+  if (/\b(romantic|wife|husband|partner|anniversary|honeymoon|proposal|couple)\b/.test(haystack)) {
+    return byId("safari-romance-box");
+  }
+  if (/\b(jkia|airport|flight|departure|leaving|tonight|today|last minute|urgent)\b/.test(haystack)) {
+    return byId("departure-drop");
+  }
+  if (/\b(boss|executive|client|director|corporate|board|vip)\b/.test(haystack)) {
+    return byId("kenya-edit");
+  }
+  if (/\b(leather|passport|travel set|monogram|initials)\b/.test(haystack)) {
+    return byId("nomad-leather-set");
+  }
+  if ((budget && budget <= 220) || /\b(tea|honey|calm|highland|parents?|family)\b/.test(haystack)) {
+    return byId("highland-treasure");
+  }
+  return byId("kenya-edit");
+}
+
+function seedRecommendationFromText(text: string): RecommendationFlow {
+  const flow: RecommendationFlow = { step: "recipient", sourceText: text };
+  if (/\b(wife|husband|partner|boss|client|mother|mum|mom|father|dad|parents?|team|colleague|friend|girlfriend|boyfriend)\b/i.test(text)) {
+    flow.recipient = text;
+  }
+  if (/\b(romantic|anniversary|birthday|departure|leaving|thank|executive|corporate|safari|honeymoon|classy|premium)\b/i.test(text)) {
+    flow.occasion = text;
+  }
+  if (/\b(usd|\$|kes|ksh|budget|under|around|flexible|\d{2,5})\b/i.test(text)) {
+    flow.budget = text;
+  }
+  if (isLogisticsRequest(text) || /\b(today|tomorrow|tonight|morning|afternoon|evening|weekend)\b/i.test(text)) {
+    flow.deliveryContext = text;
+  }
+  flow.step = nextRecommendationStep(flow);
+  return flow;
 }
 
 function buildBackendCheckoutMessage(flow: CheckoutFlow) {
@@ -446,12 +565,14 @@ function createCustomFlow(payload: Extract<CheckoutStart, { kind: "custom" }>): 
 }
 
 export function ChatWidget() {
+  const reduceMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<MsgWithMedia[]>([]);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [actions, setActions] = useState<ChatAction[]>([]);
   const [flow, setFlow] = useState<CheckoutFlow | null>(null);
+  const [recommendation, setRecommendation] = useState<RecommendationFlow | null>(null);
   const [collections, setCollections] = useState<GiftBox[]>(GIFT_BOXES);
   const phone = useMemo(() => getOrCreatePhone(), []);
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -483,10 +604,87 @@ export function ChatWidget() {
     ]);
   }, []);
 
+  const showMainMenu = useCallback(() => {
+    setFlow(null);
+    setRecommendation(null);
+    setActions(MAIN_MENU_ACTIONS);
+    append("ai", TOP_MENU_TEXT);
+  }, [append]);
+
+  const showCollections = useCallback(() => {
+    const lines = [
+      "Ready collections:",
+      ...collections.map((box) => `- ${box.name} — ${formatUSD(box.price_usd)} / ${formatKES(box.price_kes)}`),
+      "",
+      "Select one to view contents, price, and checkout options.",
+    ];
+    setActions([
+      ...collections.slice(0, 5).map((box, index) => ({
+        label: box.name,
+        value: `View ${box.name}`,
+        primary: index === 0,
+      })),
+      { label: "Back to main menu", value: "Main menu" },
+    ]);
+    append("ai", lines.join("\n"));
+  }, [append, collections]);
+
+  const showPrivateBrief = useCallback(() => {
+    setActions([
+      { label: "Open builder", href: "/build", primary: true },
+      { label: "Need recommendation", value: "Need a gift recommendation" },
+      { label: "Speak to Concierge", value: "Speak to Concierge" },
+    ]);
+    append(
+      "ai",
+      "For bespoke curation, open a private brief and choose the pieces or describe the item you want sourced. I will collect handoff and payment details only after the brief is clear.",
+    );
+  }, [append]);
+
+  const showLogistics = useCallback(() => {
+    setActions([
+      { label: "Local handoff", value: "Seamless logistics - local handoff / hotel delivery", primary: true },
+      { label: "Departure handoff", value: "Seamless logistics - JKIA departure handoff" },
+      { label: "Global export", value: "Global export - DHL export shipping quote" },
+      { label: "Back to main menu", value: "Main menu" },
+    ]);
+    append(
+      "ai",
+      "Seamless logistics covers local hotel or residence handoff, JKIA departure handoff, safari lodge coordination, and global export quotes. I confirm exact location and timing before promising dispatch.",
+    );
+  }, [append]);
+
+  const showCorporate = useCallback(() => {
+    setActions([
+      { label: "Speak to Concierge", value: "Speak to Concierge", primary: true },
+      { label: "Explore collections", value: "Explore ready collections" },
+    ]);
+    append(
+      "ai",
+      "Corporate gifting needs senior concierge handling. Please share quantity, budget per gift, branding needs, and deadline; I will prepare a clean handoff rather than negotiate rates in chat.",
+    );
+  }, [append]);
+
+  const showHumanConcierge = useCallback(() => {
+    setActions([
+      {
+        label: "Open WhatsApp",
+        href: whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads - I'd like to speak with the concierge."),
+        primary: true,
+      },
+      { label: "Back to main menu", value: "Main menu" },
+    ]);
+    append(
+      "ai",
+      "Certainly. You can continue here, or open WhatsApp for a direct concierge handoff to the personal line.",
+    );
+  }, [append]);
+
   const beginFlow = useCallback(
     (nextFlow: CheckoutFlow) => {
       const step = nextStep(nextFlow);
       const ready = { ...nextFlow, step };
+      setRecommendation(null);
       const question = questionForStep(ready);
       setFlow(ready);
       setActions(question.actions || []);
@@ -498,6 +696,81 @@ export function ChatWidget() {
       ]);
     },
     [setChatOpen],
+  );
+
+  const presentRecommendation = useCallback(
+    (ready: RecommendationFlow) => {
+      const box = inferRecommendationBox(ready, collections);
+      setRecommendation(null);
+      setActions([
+        { label: `View ${box.name}`, value: `View ${box.name}`, primary: true },
+        { label: "Confirm delivery details", value: `Order ${box.name}` },
+        { label: "Adjust budget", value: "Need a gift recommendation" },
+        { label: "Speak to Concierge", value: "Speak to Concierge" },
+      ]);
+      append(
+        "ai",
+        `Best fit: ${box.name} — ${formatUSD(box.price_usd)} / ${formatKES(box.price_kes)}.\n\n${box.contents}\n\nI can show details, start the delivery questions, or adjust the brief.`,
+      );
+    },
+    [append, collections],
+  );
+
+  const beginRecommendation = useCallback(
+    (seed?: RecommendationFlow) => {
+      const initial = seed || { step: "recipient" as RecommendationStep };
+      const ready = { ...initial, step: nextRecommendationStep(initial) };
+      setFlow(null);
+      setRecommendation(ready);
+      setChatOpen(true);
+      if (ready.step === "recommend") {
+        presentRecommendation(ready);
+        return;
+      }
+      const question = questionForRecommendationStep(ready);
+      setActions(question.actions || []);
+      append(
+        "ai",
+        seed?.sourceText
+          ? "I can help with that. I’ll collect only the missing details, one step at a time."
+          : "I’ll recommend a collection once I understand the guest, occasion, budget, and handoff timing.",
+      );
+      append("ai", question.text);
+    },
+    [append, presentRecommendation, setChatOpen],
+  );
+
+  const advanceRecommendation = useCallback(
+    async (rawText: string, current: RecommendationFlow) => {
+      const text = rawText.trim();
+      let updated: RecommendationFlow = { ...current };
+      setActions([]);
+      if (isMainMenuRequest(text)) {
+        setRecommendation(null);
+        showMainMenu();
+        return;
+      }
+      if (isConciergeRequest(text)) {
+        setRecommendation(null);
+        showHumanConcierge();
+        return;
+      }
+      if (current.step === "recipient") updated.recipient = text;
+      else if (current.step === "occasion") updated.occasion = text;
+      else if (current.step === "budget") updated.budget = text;
+      else if (current.step === "delivery") updated.deliveryContext = text;
+
+      updated.step = nextRecommendationStep(updated);
+      if (updated.step === "recommend") {
+        presentRecommendation(updated);
+        return;
+      }
+      setRecommendation(updated);
+      const question = questionForRecommendationStep(updated);
+      setActions(question.actions || []);
+      append("ai", question.text);
+    },
+    [append, presentRecommendation, showHumanConcierge, showMainMenu],
   );
 
   const postBackend = useCallback(
@@ -552,12 +825,6 @@ export function ChatWidget() {
     },
     [append, phone],
   );
-
-  const bootstrapAutomation = useCallback(async () => {
-    setBusy(true);
-    await postBackend(MAIN_MENU_CMD);
-    setBusy(false);
-  }, [postBackend]);
 
   const submitFlow = useCallback(
     async (ready: CheckoutFlow) => {
@@ -710,13 +977,38 @@ export function ChatWidget() {
 
   const handleLocalIntent = useCallback(
     (text: string) => {
-      if (isGreeting(text) || isCatalogRequest(text)) {
-        return false;
+      if (isMainMenuRequest(text) || isGreeting(text)) {
+        showMainMenu();
+        return true;
+      }
+
+      if (isCatalogRequest(text)) {
+        showCollections();
+        return true;
       }
 
       if (isCustomBoxRequest(text)) {
-        setActions([{ label: "Open builder", href: "/build", primary: true }]);
-        append("ai", "For a custom box, use Build to pick at least two treasures. Once you are ready, I will collect delivery and payment details one at a time.");
+        showPrivateBrief();
+        return true;
+      }
+
+      if (isCorporateRequest(text)) {
+        showCorporate();
+        return true;
+      }
+
+      if (isLogisticsRequest(text) && !resolveBoxFromText(text, collections)) {
+        showLogistics();
+        return true;
+      }
+
+      if (isConciergeRequest(text)) {
+        showHumanConcierge();
+        return true;
+      }
+
+      if (isRecommendationRequest(text)) {
+        beginRecommendation(seedRecommendationFromText(text));
         return true;
       }
 
@@ -741,7 +1033,18 @@ export function ChatWidget() {
 
       return false;
     },
-    [append, beginFlow, collections],
+    [
+      append,
+      beginFlow,
+      beginRecommendation,
+      collections,
+      showCollections,
+      showCorporate,
+      showHumanConcierge,
+      showLogistics,
+      showMainMenu,
+      showPrivateBrief,
+    ],
   );
 
   useEffect(() => {
@@ -776,13 +1079,17 @@ export function ChatWidget() {
         await advanceFlow(text, flow);
         return;
       }
+      if (recommendation) {
+        await advanceRecommendation(text, recommendation);
+        return;
+      }
       if (handleLocalIntent(text)) return;
 
       setBusy(true);
       await postBackend(text);
       setBusy(false);
     },
-    [advanceFlow, append, busy, draft, flow, handleLocalIntent, postBackend],
+    [advanceFlow, advanceRecommendation, append, busy, draft, flow, handleLocalIntent, postBackend, recommendation],
   );
 
   useEffect(() => {
@@ -806,11 +1113,11 @@ export function ChatWidget() {
       automationBootstrapped.current = false;
       return;
     }
-    if (messages.length === 0 && !automationBootstrapped.current && !flow) {
+    if (messages.length === 0 && !automationBootstrapped.current && !flow && !recommendation) {
       automationBootstrapped.current = true;
-      void bootstrapAutomation();
+      showMainMenu();
     }
-  }, [bootstrapAutomation, flow, messages.length, open]);
+  }, [flow, messages.length, open, recommendation, showMainMenu]);
 
   useEffect(() => {
     scrollerRef.current?.scrollTo({ top: scrollerRef.current.scrollHeight, behavior: "smooth" });
@@ -842,7 +1149,7 @@ export function ChatWidget() {
   }, [append, beginFlow, collections, postBackend, setChatOpen]);
 
   const hasUserMessages = messages.some((m) => m.role === "user");
-  const visibleActions = actions.length > 0 ? actions : !hasUserMessages && !busy ? ASK_PROMPTS : [];
+  const visibleActions = actions.length > 0 ? actions : !hasUserMessages && !busy ? MAIN_MENU_ACTIONS : [];
 
   return (
     <>
@@ -858,8 +1165,11 @@ export function ChatWidget() {
       )}
 
       {open && (
-        <div
-          className="concierge-shell fixed inset-x-3 bottom-[4.75rem] z-[100] flex max-h-[min(72svh,640px)] flex-col md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:max-h-[calc(100svh-7rem)] md:w-[min(440px,calc(100vw-2rem))]"
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 18, scale: 0.965 }}
+          animate={reduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+          className="concierge-shell spatial-panel depth-shadow-strong fixed inset-x-3 bottom-[4.75rem] z-[100] flex max-h-[min(72svh,640px)] flex-col md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:max-h-[calc(100svh-7rem)] md:w-[min(440px,calc(100vw-2rem))]"
           role="dialog"
           aria-label="Hazina private concierge"
         >
@@ -963,7 +1273,7 @@ export function ChatWidget() {
               Send
             </button>
           </div>
-        </div>
+        </motion.div>
       )}
     </>
   );
