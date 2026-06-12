@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LESNAR AI LTD</title>
-  <meta name="description" content="AI products built for African businesses. Started in Nairobi.">
+  <meta name="description" content="AI products and premium web engineering built in Nairobi for African businesses.">
   <meta name="application-name" content="LESNAR AI LTD">
   <meta property="og:site_name" content="LESNAR AI LTD">
   <script type="application/ld+json">
@@ -26,184 +26,214 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://unpkg.com/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.9/dist/lenis.min.js"></script>
   <style>
     :root {
-      --bg: #0a0a0a;
-      --text-main: #f3f3f3;
-      --text-muted: #666666;
-      --border: #222222;
-      --font-sans: 'Inter', sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      --bg: #050505;
+      --surface: rgba(255, 255, 255, 0.03);
+      --border: rgba(255, 255, 255, 0.1);
+      --text-main: #ffffff;
+      --text-muted: #888888;
+      --accent: #00E5FF;
+      --gradient: linear-gradient(135deg, #00E5FF, #FF00FF);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body, html {
-      width: 100%;
-      min-height: 100vh;
       background-color: var(--bg);
       color: var(--text-main);
-      font-family: var(--font-sans);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
     }
 
-    .noise::before {
-      content: "";
+    nav {
       position: fixed;
       top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 999;
-      opacity: 0.04;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    }
-
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 1px;
-      background-color: var(--border);
-      min-height: 100vh;
-      border: 1px solid var(--border);
-    }
-
-    .grid-item {
-      background-color: var(--bg);
-      padding: 40px;
-    }
-
-    header {
-      grid-column: 1 / -1;
+      width: 100%;
+      z-index: 100;
+      padding: 20px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
-      padding: 20px 40px;
-      flex-wrap: wrap;
-      gap: 16px;
+      background: rgba(5, 5, 5, 0.72);
     }
 
     .logo {
-      font-family: var(--font-mono);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
       font-weight: 700;
-      letter-spacing: -1px;
+      letter-spacing: -0.5px;
       text-transform: uppercase;
     }
 
-    .btn-raw {
-      background: transparent;
-      color: var(--text-main);
-      border: 1px solid var(--border);
-      padding: 10px 20px;
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      cursor: pointer;
-      text-decoration: none;
-      text-transform: uppercase;
-      transition: background-color 0.2s ease, color 0.2s ease;
-    }
-
-    .btn-raw:hover {
+    .contact-btn {
       background: var(--text-main);
-      color: var(--bg);
+      color: #000;
+      padding: 10px 24px;
+      border-radius: 100px;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: transform 0.2s;
     }
 
-    .hero-main {
-      grid-column: 1 / 9;
+    .contact-btn:hover { transform: scale(1.05); }
+
+    .hero {
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
+      align-items: center;
       justify-content: center;
-      border-right: 1px solid var(--border);
+      text-align: center;
+      padding: 120px 20px 60px;
+    }
+
+    .tagline {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
     }
 
     h1 {
-      font-size: clamp(3rem, 6vw, 6rem);
-      font-weight: 500;
-      line-height: 1.05;
-      letter-spacing: -0.03em;
-      margin-bottom: 40px;
-      max-width: 900px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+      margin-bottom: 30px;
+      max-width: 1000px;
     }
 
-    .philosophy {
-      font-size: 1.25rem;
+    h1 span {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
       color: var(--text-muted);
       max-width: 600px;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
-    .hero-meta {
-      grid-column: 9 / -1;
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      color: var(--text-muted);
+    .bento-section {
+      padding: 100px 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 350px);
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      gap: 40px;
-    }
-
-    .meta-block {
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 20px;
-    }
-
-    .meta-block strong {
-      color: var(--text-main);
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 700;
-    }
-
-    .product-card {
-      grid-column: span 6;
-      border-top: 1px solid var(--border);
-      transition: background-color 0.2s ease;
       text-decoration: none;
       color: inherit;
+      transition: border-color 0.3s, transform 0.3s;
     }
 
-    .product-card:nth-child(odd) {
-      border-right: 1px solid var(--border);
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.06), transparent 40%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 1;
     }
 
-    .product-card:hover {
-      background-color: #111;
+    .card:hover::before { opacity: 1; }
+    .card:hover { border-color: rgba(255, 255, 255, 0.3); transform: translateY(-2px); }
+
+    .card-content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
     }
 
-    .product-status {
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-bottom: 20px;
-      display: block;
-      text-transform: uppercase;
-    }
-
-    .product-card h3 {
+    .card h3 {
+      font-family: 'Space Grotesk', sans-serif;
       font-size: 2rem;
-      margin-bottom: 15px;
-      font-weight: 500;
+      margin-bottom: 10px;
     }
 
-    .product-card p {
+    .card p {
       color: var(--text-muted);
       line-height: 1.5;
+      font-size: 1.1rem;
     }
 
-    footer {
-      grid-column: 1 / -1;
+    .card .icon { font-size: 2rem; margin-bottom: auto; }
+
+    .span-2 { grid-column: span 2; }
+    .span-2-row { grid-row: span 2; }
+
+    .marquee-wrapper {
+      width: 100%;
+      overflow: hidden;
+      padding: 50px 0;
       border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: #020202;
+    }
+
+    .marquee-track {
+      display: flex;
+      width: max-content;
+    }
+
+    .marquee {
+      display: flex;
+      white-space: nowrap;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.05);
+    }
+
+    .marquee span { padding: 0 40px; }
+
+    footer {
+      padding: 60px 40px;
       display: flex;
       justify-content: space-between;
+      align-items: center;
       flex-wrap: wrap;
-      gap: 12px;
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
+      gap: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
       color: var(--text-muted);
-      text-transform: uppercase;
+      border-top: 1px solid var(--border);
     }
 
     footer a {
@@ -211,70 +241,149 @@
       text-decoration: none;
     }
 
-    footer a:hover {
-      color: var(--text-main);
-    }
+    footer a:hover { color: var(--text-main); }
 
     @media (max-width: 1024px) {
-      .hero-main {
-        grid-column: 1 / -1;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-      }
+      .bento-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto; }
+      .span-2-row { grid-row: span 1; }
+    }
 
-      .hero-meta {
-        grid-column: 1 / -1;
-      }
+    @media (max-width: 768px) {
+      .bento-grid { grid-template-columns: 1fr; }
+      .span-2 { grid-column: span 1; }
+      nav { padding: 20px; }
+      .bento-section { padding: 80px 20px; }
+    }
 
-      .product-card {
-        grid-column: 1 / -1;
-        border-right: none !important;
-      }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
-<body class="noise">
-  <div class="grid-container">
-    <header class="grid-item">
-      <div class="logo">LESNAR AI LTD</div>
-      <a href="mailto:hello@lesnarai.co.ke" class="btn-raw">Talk to Engineering</a>
-    </header>
+<body>
+  <nav>
+    <div class="logo">LESNAR AI LTD</div>
+    <a href="mailto:hello@lesnarai.co.ke" class="contact-btn">Work With Us</a>
+  </nav>
 
-    <main class="grid-item hero-main">
-      <h1>AI products that actually work in Kenya.</h1>
-      <p class="philosophy">We build software the way Nairobi builds matatus — for real conditions, real people, and real money. No mockups. Just deployment.</p>
-    </main>
+  <section class="hero">
+    <div class="tagline">Engineering &gt; Marketing</div>
+    <h1 class="gsap-hero">We build the web.<br><span>You dominate the market.</span></h1>
+    <p class="subtitle gsap-hero">From autonomous AI agents to complex local e-commerce infrastructure. We design, deploy, and scale world-class software directly from Nairobi.</p>
+  </section>
 
-    <aside class="grid-item hero-meta">
-      <div class="meta-block">
-        <strong>// ACTIVE_INTEGRATIONS</strong>
-        M-Pesa (Daraja API)<br>
-        WhatsApp Business<br>
-        Swahili NLP Models
+  <div class="marquee-wrapper">
+    <div class="marquee-track" id="marquee-track">
+      <div class="marquee" aria-hidden="true">
+        <span>NEXT.JS</span><span>WEBGL</span><span>PYTHON</span><span>M-PESA DARAJA</span><span>OPENAI</span><span>WHATSAPP API</span><span>REACT</span><span>NODE.JS</span><span>THREE.JS</span>
       </div>
-      <div class="meta-block">
-        <strong>// CURRENT_STATUS</strong>
-        Systems Operational<br>
-        Accepting select pilots.
+      <div class="marquee" aria-hidden="true">
+        <span>NEXT.JS</span><span>WEBGL</span><span>PYTHON</span><span>M-PESA DARAJA</span><span>OPENAI</span><span>WHATSAPP API</span><span>REACT</span><span>NODE.JS</span><span>THREE.JS</span>
       </div>
-    </aside>
-
-    <a href="https://geneat.lesnarai.co.ke" class="grid-item product-card" target="_blank" rel="noopener noreferrer">
-      <span class="product-status">Pilot · USIU</span>
-      <h3>Gen-Eat</h3>
-      <p>AI front-of-house for cafés. WhatsApp orders, automated M-Pesa collection, and clean kitchen tickets.</p>
-    </a>
-
-    <a href="https://hazina.lesnarai.co.ke" class="grid-item product-card" target="_blank" rel="noopener noreferrer">
-      <span class="product-status">Pilot · Nairobi</span>
-      <h3>Hazina Nomads</h3>
-      <p>Curated gift collections and concierge checkout. Local delivery tracking and integrated M-Pesa payment flows.</p>
-    </a>
-
-    <footer class="grid-item">
-      <span>&copy; 2026 LESNAR AI LTD</span>
-      <span><a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a> · Nairobi, Kenya</span>
-    </footer>
+    </div>
   </div>
+
+  <section class="bento-section">
+    <div class="bento-grid">
+      <a href="https://geneat.lesnarai.co.ke" class="card span-2 gsap-card" target="_blank" rel="noopener noreferrer">
+        <div class="card-content">
+          <div class="icon">🍔</div>
+          <h3>Gen-Eat Pilot</h3>
+          <p>Autonomous AI front-of-house for cafés. WhatsApp ordering, native M-Pesa collection, and kitchen ticketing. Currently deployed at USIU.</p>
+        </div>
+      </a>
+
+      <div class="card gsap-card">
+        <div class="card-content">
+          <div class="icon">✨</div>
+          <h3>Premium Frontend</h3>
+          <p>WebGL, GSAP, and complex grid architectures. We don't use templates; we write the code that makes people stare.</p>
+        </div>
+      </div>
+
+      <div class="card span-2-row gsap-card">
+        <div class="card-content">
+          <div class="icon">⚙️</div>
+          <h3 style="margin-top: auto;">Hardened Integrations</h3>
+          <p>We connect the hardest APIs in Africa. Flawless M-Pesa handshakes, localized Swahili NLP, and secure data routing for real businesses.</p>
+        </div>
+      </div>
+
+      <a href="https://hazina.lesnarai.co.ke" class="card span-2 gsap-card" target="_blank" rel="noopener noreferrer">
+        <div class="card-content">
+          <div class="icon">📦</div>
+          <h3>Hazina Nomads</h3>
+          <p>High-end e-commerce logistics. Bespoke curated gift collections, concierge web checkout, and seamless local delivery infrastructure.</p>
+        </div>
+      </a>
+
+      <div class="card gsap-card">
+        <div class="card-content">
+          <div class="icon">⚡</div>
+          <h3>Edge Speed</h3>
+          <p>Deployed globally via Vercel edge networks. Millisecond load times, even on patchy Nairobi 3G connections.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>&copy; 2026 LESNAR AI LTD</div>
+    <div><a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a></div>
+    <div>Nairobi, Kenya</div>
+  </footer>
+
+  <script>
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!reduceMotion && window.Lenis) {
+      const lenis = new Lenis();
+      function raf(time) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+      }
+      requestAnimationFrame(raf);
+    }
+
+    document.querySelectorAll(".card").forEach((card) => {
+      card.addEventListener("mousemove", (e) => {
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
+        card.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
+      });
+    });
+
+    if (!reduceMotion && window.gsap) {
+      gsap.registerPlugin(ScrollTrigger);
+
+      gsap.to("#marquee-track", {
+        xPercent: -50,
+        repeat: -1,
+        duration: 20,
+        ease: "linear",
+      });
+
+      gsap.from(".gsap-hero", {
+        y: 50,
+        opacity: 0,
+        duration: 1,
+        stagger: 0.2,
+        ease: "power3.out",
+        delay: 0.2,
+      });
+
+      gsap.from(".gsap-card", {
+        y: 100,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".bento-grid",
+          start: "top 80%",
+        },
+      });
+    }
+  </script>
 </body>
 </html>
