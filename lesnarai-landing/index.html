@@ -26,200 +26,176 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
-  <script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #030303;
-      --accent: #00f0ff;
-      --text-main: #ffffff;
-      --text-muted: #8892b0;
-      --font-display: 'Space Grotesk', sans-serif;
+      --bg: #0a0a0a;
+      --text-main: #f3f3f3;
+      --text-muted: #666666;
+      --border: #222222;
+      --font-sans: 'Inter', sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
+
+    body, html {
       width: 100%;
-      min-height: 100%;
-      background: var(--bg);
+      min-height: 100vh;
+      background-color: var(--bg);
       color: var(--text-main);
-      font-family: var(--display);
-      font-family: var(--font-display);
-      overflow-x: hidden;
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
     }
 
-    #vanta-canvas {
+    .noise::before {
+      content: "";
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-    }
-
-    .static-bg {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      background:
-        radial-gradient(circle at 20% 20%, rgba(0, 240, 255, 0.08), transparent 40%),
-        radial-gradient(circle at 80% 70%, rgba(0, 240, 255, 0.05), transparent 35%),
-        var(--bg);
-    }
-
-    main {
-      position: relative;
-      z-index: 10;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: clamp(24px, 4vw, 40px);
+      width: 100vw;
+      height: 100vh;
       pointer-events: none;
+      z-index: 999;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1px;
+      background-color: var(--border);
+      min-height: 100vh;
+      border: 1px solid var(--border);
+    }
+
+    .grid-item {
+      background-color: var(--bg);
+      padding: 40px;
     }
 
     header {
+      grid-column: 1 / -1;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      width: 100%;
-      gap: 20px;
+      border-bottom: 1px solid var(--border);
+      padding: 20px 40px;
       flex-wrap: wrap;
+      gap: 16px;
     }
 
-    .logo-block { display: flex; align-items: center; gap: 20px; }
-    .logo-box {
-      width: 40px;
-      height: 40px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 1.2rem;
-      backdrop-filter: blur(10px);
-    }
-    .logo-text {
+    .logo {
       font-family: var(--font-mono);
-      font-size: 0.85rem;
-      letter-spacing: 4px;
+      font-weight: 700;
+      letter-spacing: -1px;
       text-transform: uppercase;
-      color: var(--text-muted);
     }
 
-    .hero-content {
-      max-width: 1000px;
-      margin-top: clamp(2rem, 6vh, 4rem);
-      pointer-events: auto;
+    .btn-raw {
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 10px 20px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .btn-raw:hover {
+      background: var(--text-main);
+      color: var(--bg);
+    }
+
+    .hero-main {
+      grid-column: 1 / 9;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-right: 1px solid var(--border);
     }
 
     h1 {
-      font-size: clamp(2.8rem, 7vw, 5.5rem);
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: -2px;
-      margin-bottom: 2rem;
+      font-size: clamp(3rem, 6vw, 6rem);
+      font-weight: 500;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 40px;
+      max-width: 900px;
     }
 
-    .highlight {
-      color: var(--accent);
-      text-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
-    }
-
-    .sub-block {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 40px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      padding-top: 2rem;
-    }
-
-    .sub-block p {
-      font-size: clamp(1rem, 2vw, 1.2rem);
+    .philosophy {
+      font-size: 1.25rem;
       color: var(--text-muted);
+      max-width: 600px;
       line-height: 1.5;
     }
 
-    .terminal-text {
+    .hero-meta {
+      grid-column: 9 / -1;
       font-family: var(--font-mono);
       font-size: 0.85rem;
-      color: var(--accent);
-      line-height: 1.7;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
     }
 
-    .btn-talk {
-      pointer-events: auto;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(0, 240, 255, 0.05);
-      border: 1px solid rgba(0, 240, 255, 0.3);
-      color: var(--accent);
-      padding: 16px 32px;
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(5px);
-      text-decoration: none;
+    .meta-block {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
     }
 
-    .btn-talk:hover {
-      background: var(--accent);
-      color: #000;
-      box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
-    }
-
-    .products {
-      pointer-events: auto;
-      margin-top: clamp(3rem, 8vh, 5rem);
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 20px;
+    .meta-block strong {
+      color: var(--text-main);
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
     }
 
     .product-card {
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(3, 3, 3, 0.55);
-      backdrop-filter: blur(12px);
-      padding: 24px;
-      transition: border-color 0.3s ease, transform 0.3s ease;
+      grid-column: span 6;
+      border-top: 1px solid var(--border);
+      transition: background-color 0.2s ease;
       text-decoration: none;
       color: inherit;
     }
 
+    .product-card:nth-child(odd) {
+      border-right: 1px solid var(--border);
+    }
+
     .product-card:hover {
-      border-color: rgba(0, 240, 255, 0.45);
-      transform: translateY(-3px);
+      background-color: #111;
     }
 
-    .product-tag {
+    .product-status {
       font-family: var(--font-mono);
-      font-size: 0.7rem;
-      letter-spacing: 1px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      display: block;
       text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 12px;
     }
 
-    .product-card h2 {
-      font-size: 1.5rem;
-      margin-bottom: 10px;
+    .product-card h3 {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      font-weight: 500;
     }
 
     .product-card p {
-      font-size: 0.95rem;
       color: var(--text-muted);
       line-height: 1.5;
     }
 
     footer {
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       flex-wrap: wrap;
@@ -228,104 +204,77 @@
       font-size: 0.75rem;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 1px;
-      width: 100%;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      padding-top: 20px;
-      margin-top: clamp(3rem, 8vh, 5rem);
     }
 
-    footer a:hover { color: var(--accent); }
-
-    @media (max-width: 768px) {
-      .sub-block { grid-template-columns: 1fr; gap: 24px; }
-      .products { grid-template-columns: 1fr; }
+    footer a {
+      color: inherit;
+      text-decoration: none;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      * { animation: none !important; transition: none !important; }
+    footer a:hover {
+      color: var(--text-main);
+    }
+
+    @media (max-width: 1024px) {
+      .hero-main {
+        grid-column: 1 / -1;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .hero-meta {
+        grid-column: 1 / -1;
+      }
+
+      .product-card {
+        grid-column: 1 / -1;
+        border-right: none !important;
+      }
     }
   </style>
 </head>
-<body>
-  <div class="static-bg" id="static-bg" hidden></div>
-  <div id="vanta-canvas"></div>
-
-  <main>
-    <header>
-      <div class="logo-block">
-        <div class="logo-box">L</div>
-        <div class="logo-text">LESNAR AI LTD</div>
-      </div>
-      <a class="btn-talk" href="mailto:hello@lesnarai.co.ke">Initiate Protocol ↗</a>
+<body class="noise">
+  <div class="grid-container">
+    <header class="grid-item">
+      <div class="logo">LESNAR AI LTD</div>
+      <a href="mailto:hello@lesnarai.co.ke" class="btn-raw">Talk to Engineering</a>
     </header>
 
-    <div class="hero-content">
-      <h1>AI products that<br>actually work in <span class="highlight">Kenya.</span></h1>
-      <div class="sub-block">
-        <p>We build software the way Nairobi builds matatus — for real conditions, real people, real money. No mockups. Just deployment.</p>
-        <p class="terminal-text">&gt; INTEGRATIONS_ACTIVE:<br>M-Pesa, WhatsApp, Swahili NLP.<br>&gt; STATUS: OPERATIONAL</p>
-      </div>
+    <main class="grid-item hero-main">
+      <h1>AI products that actually work in Kenya.</h1>
+      <p class="philosophy">We build software the way Nairobi builds matatus — for real conditions, real people, and real money. No mockups. Just deployment.</p>
+    </main>
 
-      <div class="products">
-        <a class="product-card" href="https://geneat.lesnarai.co.ke" target="_blank" rel="noopener noreferrer">
-          <div class="product-tag">Pilot · USIU</div>
-          <h2>Gen-Eat</h2>
-          <p>AI front-of-house for cafés — WhatsApp orders, M-Pesa collection, clean tickets.</p>
-        </a>
-        <a class="product-card" href="https://hazina.lesnarai.co.ke" target="_blank" rel="noopener noreferrer">
-          <div class="product-tag">Pilot · Nairobi</div>
-          <h2>Hazina Nomads</h2>
-          <p>Curated gift collections and concierge checkout with local delivery and M-Pesa.</p>
-        </a>
+    <aside class="grid-item hero-meta">
+      <div class="meta-block">
+        <strong>// ACTIVE_INTEGRATIONS</strong>
+        M-Pesa (Daraja API)<br>
+        WhatsApp Business<br>
+        Swahili NLP Models
       </div>
-    </div>
+      <div class="meta-block">
+        <strong>// CURRENT_STATUS</strong>
+        Systems Operational<br>
+        Accepting select pilots.
+      </div>
+    </aside>
 
-    <footer>
+    <a href="https://geneat.lesnarai.co.ke" class="grid-item product-card" target="_blank" rel="noopener noreferrer">
+      <span class="product-status">Pilot · USIU</span>
+      <h3>Gen-Eat</h3>
+      <p>AI front-of-house for cafés. WhatsApp orders, automated M-Pesa collection, and clean kitchen tickets.</p>
+    </a>
+
+    <a href="https://hazina.lesnarai.co.ke" class="grid-item product-card" target="_blank" rel="noopener noreferrer">
+      <span class="product-status">Pilot · Nairobi</span>
+      <h3>Hazina Nomads</h3>
+      <p>Curated gift collections and concierge checkout. Local delivery tracking and integrated M-Pesa payment flows.</p>
+    </a>
+
+    <footer class="grid-item">
       <span>&copy; 2026 LESNAR AI LTD</span>
       <span><a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a> · Nairobi, Kenya</span>
     </footer>
-  </main>
-
-  <script>
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let vantaEffect = null;
-
-    if (!reduceMotion && window.VANTA && window.VANTA.NET) {
-      vantaEffect = VANTA.NET({
-        el: "#vanta-canvas",
-        THREE: window.THREE,
-        mouseControls: true,
-        touchControls: true,
-        gyroControls: false,
-        minHeight: 200.0,
-        minWidth: 200.0,
-        scale: 1.0,
-        scaleMobile: 1.0,
-        color: 0x00f0ff,
-        backgroundColor: 0x030303,
-        points: 12.0,
-        maxDistance: 22.0,
-        spacing: 18.0,
-        showDots: true,
-      });
-    } else {
-      document.getElementById("static-bg").hidden = false;
-      document.getElementById("vanta-canvas").style.display = "none";
-    }
-
-    if (!reduceMotion) {
-      gsap.from("h1", { y: 50, opacity: 0, duration: 1, delay: 0.2, ease: "power3.out" });
-      gsap.from(".sub-block p", { y: 20, opacity: 0, duration: 1, stagger: 0.2, delay: 0.5, ease: "power3.out" });
-      gsap.from(".product-card", { y: 24, opacity: 0, duration: 0.8, stagger: 0.15, delay: 0.7, ease: "power3.out" });
-      gsap.from("header, footer", { opacity: 0, duration: 1.5, delay: 1 });
-    }
-
-    window.addEventListener("beforeunload", () => {
-      if (vantaEffect && typeof vantaEffect.destroy === "function") {
-        vantaEffect.destroy();
-      }
-    });
-  </script>
+  </div>
 </body>
 </html>
