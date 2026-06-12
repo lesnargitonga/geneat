@@ -805,6 +805,7 @@ No `/cafes`, `/map`, or `/owners` — those live only in `gen-eat-portal/`.
 | Order tracking fetch | `lib/orderTracking.ts`, `lib/backend.ts` | Server fetch → FastAPI public orders API |
 | Collection card | `components/CollectionCard.tsx` | Image link + stacked prices + View details / Add to box / Ask concierge |
 | Collection checkout | `components/CollectionCheckout.tsx` | Delivery/payment → chat handoff |
+| Product theater | `components/three-d/ProductTheater.tsx` | Collection-detail CSS 3D display frame + annotated content chips |
 | Pack builder | `components/PackBuilder.tsx` | Browse, mobile-safe grid, cart, deferred delivery form, category filters |
 | Product image | `components/ProductImage.tsx` | Safari landing imagery |
 | Catalog image | `components/CatalogImage.tsx` | Fallback frame |
@@ -910,6 +911,9 @@ Run this before presenting Hazina as a luxury front door:
       obstruct quantity controls, monogram inputs, or checkout buttons.
 - [ ] Product/detail pages: back links, checkout panels, and sticky WhatsApp
       CTA remain usable after reveal animations.
+- [ ] Collection detail theater: image frame renders, annotated content chips
+      remain readable on desktop/mobile, and checkout continues as a concierge
+      order desk without changing flow behavior.
 
 ---
 

@@ -47,21 +47,21 @@ export function CollectionCheckout({ box }: Props) {
   };
 
   return (
-    <section id="checkout" className="border border-border bg-sand p-5 md:p-6 space-y-5 lg:max-h-[80vh] lg:overflow-y-auto local-scroll local-scroll--subtle">
+    <section id="checkout" className="collection-order-desk spatial-panel depth-shadow-soft p-5 md:p-6 space-y-5 lg:max-h-[80vh] lg:overflow-y-auto local-scroll local-scroll--subtle">
       <div>
-        <span className="label-mono">Automated checkout</span>
+        <span className="label-mono text-bronze">Concierge order desk</span>
         <h2 className="font-serif text-2xl md:text-3xl text-obsidian mt-2">Reserve {box.name}</h2>
         <p className="text-sm text-ink-mute mt-2 leading-relaxed">
           Start a guided checkout. Hazina will ask for one detail at a time before creating the order.
         </p>
       </div>
 
-      <div className="flex items-center justify-between gap-4 border-y border-border py-3">
+      <div className="collection-order-desk__summary flex items-center justify-between gap-4 border-y border-border py-3">
         <span className="text-sm text-ink-mute">{box.sku}</span>
         <span className="font-mono text-sm text-bronze text-right">{formatDualPrice(totalUsd, totalKes)}</span>
       </div>
 
-      <div className="flex items-center justify-between gap-4 border border-border bg-sand-dark/40 px-3 py-2">
+      <div className="collection-order-desk__control flex items-center justify-between gap-4 border border-border bg-sand-dark/40 px-3 py-2">
         <div>
           <p className="label-mono">Collection quantity</p>
           <p className="text-sm text-ink-mute">Choose how many full boxes you need.</p>
@@ -111,7 +111,7 @@ export function CollectionCheckout({ box }: Props) {
         </button>
       </div>
 
-      <div className="grid gap-2 border border-border bg-sand-dark/40 p-3 text-sm text-ink-mute">
+      <div className="collection-order-desk__control grid gap-2 border border-border bg-sand-dark/40 p-3 text-sm text-ink-mute">
         <p className="text-obsidian">Checkout will collect:</p>
         <p>1. Guest name</p>
         <p>2. Exact delivery point</p>

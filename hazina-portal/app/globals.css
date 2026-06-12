@@ -451,26 +451,132 @@
   }
 
   .product-theater {
-    min-height: 420px;
+    min-height: 430px;
     overflow: hidden;
     border: 1px solid rgb(202 167 119 / 0.24);
-    background: linear-gradient(135deg, #15100d, #2a1d14 54%, #080706);
+    background:
+      radial-gradient(circle at 18% 12%, rgb(202 167 119 / 0.18), transparent 28%),
+      radial-gradient(circle at 86% 80%, rgb(239 228 210 / 0.08), transparent 30%),
+      linear-gradient(135deg, #15100d, #2a1d14 54%, #080706);
     transform-style: preserve-3d;
   }
 
   .product-theater__backplate {
     position: absolute;
-    inset: 11% 12% 18% 18%;
+    inset: 9% 11% 18% 16%;
     border: 1px solid rgb(202 167 119 / 0.28);
-    transform: translateZ(-26px) rotate(-2deg);
+    background: linear-gradient(135deg, rgb(255 255 255 / 0.05), transparent 44%);
+    transform: translateZ(-32px) rotate(-2.5deg);
+  }
+
+  .product-theater__rail {
+    pointer-events: none;
+    position: absolute;
+    z-index: 3;
+    background: linear-gradient(90deg, rgb(117 72 38 / 0.35), rgb(202 167 119 / 0.75), rgb(117 72 38 / 0.28));
+    box-shadow: 0 16px 42px rgb(0 0 0 / 0.28);
+  }
+
+  .product-theater__rail--top {
+    left: 12%;
+    right: 8%;
+    top: 13%;
+    height: 8px;
+    transform: translateZ(44px) rotate(-1.5deg);
+  }
+
+  .product-theater__rail--side {
+    bottom: 16%;
+    right: 12%;
+    top: 19%;
+    width: 8px;
+    transform: translateZ(26px) rotate(2deg);
   }
 
   .product-theater__image {
     position: absolute;
-    inset: 10% 8% 20% 8%;
+    inset: 13% 10% 20% 9%;
     overflow: hidden;
-    transform: translateZ(34px) rotateY(-4deg);
-    box-shadow: 0 28px 80px rgb(0 0 0 / 0.38);
+    border: 1px solid rgb(239 228 210 / 0.25);
+    background: #eee5d8;
+    transform: translateZ(34px) rotateY(-4deg) rotateX(1deg);
+    box-shadow:
+      0 34px 90px rgb(0 0 0 / 0.42),
+      inset 0 1px 0 rgb(255 255 255 / 0.24);
+  }
+
+  .product-theater__chips {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    transform-style: preserve-3d;
+  }
+
+  .product-theater__chip {
+    pointer-events: auto;
+    position: absolute;
+    display: inline-flex;
+    max-width: min(250px, 48%);
+    align-items: flex-start;
+    gap: 0.7rem;
+    border: 1px solid rgb(239 228 210 / 0.22);
+    background: rgb(12 10 8 / 0.72);
+    padding: 0.62rem 0.72rem;
+    color: rgb(246 241 234);
+    text-decoration: none;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 18px 46px rgb(0 0 0 / 0.28);
+    transform: translateZ(70px);
+  }
+
+  .product-theater__chip:nth-child(1) {
+    left: 7%;
+    top: 7%;
+  }
+
+  .product-theater__chip:nth-child(2) {
+    right: 5%;
+    top: 20%;
+  }
+
+  .product-theater__chip:nth-child(3) {
+    left: 6%;
+    bottom: 29%;
+  }
+
+  .product-theater__chip:nth-child(4) {
+    right: 8%;
+    bottom: 19%;
+  }
+
+  .product-theater__chip:nth-child(5) {
+    left: 28%;
+    bottom: 6%;
+  }
+
+  .product-theater__chip-index {
+    font-family: var(--font-dm-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: rgb(202 167 119);
+  }
+
+  .product-theater__chip-label {
+    display: block;
+    font-family: var(--font-cormorant);
+    font-size: 1.05rem;
+    line-height: 1.05;
+  }
+
+  .product-theater__chip-value {
+    display: block;
+    margin-top: 0.18rem;
+    font-family: var(--font-dm-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: rgb(239 228 210 / 0.62);
   }
 
   .product-theater__caption {
@@ -481,6 +587,30 @@
     z-index: 3;
   }
 
+  .collection-order-desk {
+    overflow: hidden;
+    border: 1px solid rgb(var(--color-border));
+    background:
+      radial-gradient(circle at 0% 0%, rgb(var(--color-bronze) / 0.09), transparent 34%),
+      linear-gradient(180deg, rgb(var(--color-sand)), rgb(var(--color-sand-dark) / 0.68));
+  }
+
+  .collection-order-desk::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgb(255 255 255 / 0.25);
+    opacity: 0.55;
+  }
+
+  .collection-order-desk__summary,
+  .collection-order-desk__control {
+    position: relative;
+    z-index: 1;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.22);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .luxury-3d-card,
     .luxury-3d-content,
@@ -488,6 +618,8 @@
     .spatial-card-surface,
     .spatial-card-content,
     .product-theater__backplate,
+    .product-theater__rail,
+    .product-theater__chip,
     .product-theater__image {
       transform: none !important;
       transition: none !important;
@@ -515,6 +647,33 @@
       top: 24px;
       height: 34px;
       width: 56px;
+    }
+
+    .product-theater {
+      min-height: 520px;
+    }
+
+    .product-theater__image {
+      inset: 9% 6% 32% 6%;
+      transform: none;
+    }
+
+    .product-theater__backplate,
+    .product-theater__rail {
+      display: none;
+    }
+
+    .product-theater__chips {
+      inset: auto 6% 12% 6%;
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .product-theater__chip {
+      position: relative;
+      inset: auto !important;
+      max-width: none;
+      transform: none;
     }
 
     .spatial-card-surface,
