@@ -2,32 +2,51 @@
 
 import { ContactShadows, Float } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
-import type { Group } from "three";
+import { useEffect, useRef } from "react";
+import { MathUtils, type Group } from "three";
 import { HazinaCanvas } from "./HazinaCanvas";
 import { FloatingTreasure } from "./FloatingTreasure";
 
 function GiftScene() {
   const group = useRef<Group | null>(null);
+  const target = useRef({ x: 0, y: 0 });
+  const current = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const onPointerMove = (event: PointerEvent) => {
+      target.current.x = (event.clientX / window.innerWidth - 0.5) * 2;
+      target.current.y = (event.clientY / window.innerHeight - 0.5) * 2;
+    };
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    return () => window.removeEventListener("pointermove", onPointerMove);
+  }, []);
 
   useFrame(({ clock, pointer }) => {
     if (!group.current) return;
-    group.current.rotation.y = Math.sin(clock.elapsedTime * 0.24) * 0.12 + pointer.x * 0.08;
-    group.current.rotation.x = -0.08 + pointer.y * 0.035;
+    current.current.x = MathUtils.lerp(current.current.x, target.current.x || pointer.x, 0.055);
+    current.current.y = MathUtils.lerp(current.current.y, target.current.y || pointer.y, 0.055);
+    group.current.rotation.y = Math.sin(clock.elapsedTime * 0.24) * 0.12 + current.current.x * 0.18;
+    group.current.rotation.x = -0.08 + current.current.y * 0.07;
+    group.current.position.x = 0.1 + current.current.x * 0.08;
     group.current.position.y = Math.sin(clock.elapsedTime * 0.55) * 0.035;
   });
 
   return (
     <>
-      <ambientLight intensity={1.8} />
-      <directionalLight position={[4, 6, 5]} intensity={2.2} color="#ffe0b2" />
-      <pointLight position={[-3, 2, 3]} intensity={0.7} color="#caa777" />
+      <ambientLight intensity={1.45} />
+      <directionalLight position={[4.2, 6.2, 4.8]} intensity={2.45} color="#ffe2b7" />
+      <pointLight position={[-3.4, 2.2, 3.4]} intensity={0.85} color="#caa777" />
+      <pointLight position={[3.2, 1.4, -2.6]} intensity={0.42} color="#fff1d6" />
       <group ref={group} position={[0.1, -0.18, 0]}>
         <Float speed={0.8} rotationIntensity={0.03} floatIntensity={0.08}>
           <group>
             <mesh position={[0, -0.12, 0]}>
               <boxGeometry args={[2.35, 0.9, 1.48]} />
               <meshStandardMaterial color="#17120e" roughness={0.8} metalness={0.05} />
+            </mesh>
+            <mesh position={[0, 0.36, 0]}>
+              <boxGeometry args={[2.42, 0.055, 1.54]} />
+              <meshStandardMaterial color="#0f0b09" roughness={0.74} metalness={0.08} />
             </mesh>
             <mesh position={[0, 0.42, 0]}>
               <boxGeometry args={[2.55, 0.26, 1.66]} />
@@ -36,6 +55,14 @@ function GiftScene() {
             <mesh position={[0, 0.61, 0]}>
               <boxGeometry args={[2.35, 0.035, 1.46]} />
               <meshStandardMaterial color="#f0e4d1" roughness={0.7} metalness={0.02} />
+            </mesh>
+            <mesh position={[-1.19, 0.04, 0]}>
+              <boxGeometry args={[0.035, 0.72, 1.52]} />
+              <meshStandardMaterial color="#2d2118" roughness={0.72} metalness={0.05} />
+            </mesh>
+            <mesh position={[1.19, 0.04, 0]}>
+              <boxGeometry args={[0.035, 0.72, 1.52]} />
+              <meshStandardMaterial color="#0f0b09" roughness={0.74} metalness={0.06} />
             </mesh>
             <mesh position={[0, 0.78, 0.03]}>
               <boxGeometry args={[0.18, 0.1, 1.78]} />
@@ -48,6 +75,14 @@ function GiftScene() {
             <mesh position={[0, 0.93, 0.03]}>
               <torusGeometry args={[0.24, 0.035, 10, 48]} />
               <meshStandardMaterial color="#d7b47e" roughness={0.38} metalness={0.32} />
+            </mesh>
+            <mesh position={[-0.62, 0.655, 0.38]} rotation={[-0.08, 0.12, -0.02]}>
+              <boxGeometry args={[0.62, 0.38, 0.025]} />
+              <meshStandardMaterial color="#efe5d2" roughness={0.62} metalness={0.02} />
+            </mesh>
+            <mesh position={[-0.62, 0.68, 0.405]} rotation={[-0.08, 0.12, -0.02]}>
+              <boxGeometry args={[0.42, 0.018, 0.012]} />
+              <meshStandardMaterial color="#b9854f" roughness={0.52} metalness={0.16} />
             </mesh>
           </group>
         </Float>

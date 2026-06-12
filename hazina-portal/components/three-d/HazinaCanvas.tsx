@@ -30,8 +30,8 @@ export function HazinaCanvas({
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
-    const isMobile = window.matchMedia("(max-width: 767px)").matches;
-    setEnabled(!isMobile && !prefersReducedMotion() && supportsWebGL());
+    const isSmallMobile = window.matchMedia("(max-width: 639px)").matches;
+    setEnabled(!isSmallMobile && !prefersReducedMotion() && supportsWebGL());
   }, []);
 
   if (!enabled) {

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { motion, useReducedMotion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BRAND, GIFT_BOXES, getGiftBox, type GiftBox } from "@/lib/products";
 import { ENGRAVING_FEE_KES, ENGRAVING_FEE_USD } from "@/lib/treasures";
@@ -564,6 +565,7 @@ function createCustomFlow(payload: Extract<CheckoutStart, { kind: "custom" }>): 
 }
 
 export function ChatWidget() {
+  const reduceMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<MsgWithMedia[]>([]);
   const [draft, setDraft] = useState("");
@@ -1163,7 +1165,10 @@ export function ChatWidget() {
       )}
 
       {open && (
-        <div
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 18, scale: 0.965 }}
+          animate={reduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
           className="concierge-shell spatial-panel depth-shadow-strong fixed inset-x-3 bottom-[4.75rem] z-[100] flex max-h-[min(72svh,640px)] flex-col md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:max-h-[calc(100svh-7rem)] md:w-[min(440px,calc(100vw-2rem))]"
           role="dialog"
           aria-label="Hazina private concierge"
@@ -1268,7 +1273,7 @@ export function ChatWidget() {
               Send
             </button>
           </div>
-        </div>
+        </motion.div>
       )}
     </>
   );

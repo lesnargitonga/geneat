@@ -887,6 +887,30 @@ curl -sI "http://localhost:3004$CSS" | grep -i content-type
 
 Hard refresh after fix: **Ctrl+Shift+R** (Cmd+Shift+R on Mac).
 
+### 9.7 Visual QA — spatial showroom
+
+Run this before presenting Hazina as a luxury front door:
+
+- [ ] Desktop homepage: WebGL hero gift stage is visible, reacts smoothly to
+      cursor movement across the whole hero, and does not block CTAs.
+- [ ] Tablet homepage: 3D/fallback stage remains visible without horizontal
+      overflow or cropped hero copy.
+- [ ] Mobile homepage: no blank canvas, no horizontal overflow, collection rail
+      remains thumb-scrollable, and the lightweight dimensional gift object is
+      visible.
+- [ ] Reduced motion: animations, pointer tilt, and object breathing are
+      disabled or softened by `prefers-reduced-motion`.
+- [ ] Chat automation: first open still shows the deterministic Hazina menu
+      instantly; spatial shell styling does not slow the flow.
+- [ ] WhatsApp handoff: public CTAs open the configured Hazina number with a
+      structured prefilled message.
+- [ ] Collection cards: cards remain readable, clickable, and do not tilt on
+      touch-only devices.
+- [ ] Build checkout: cart/sidebar scrolls internally, spatial effects do not
+      obstruct quantity controls, monogram inputs, or checkout buttons.
+- [ ] Product/detail pages: back links, checkout panels, and sticky WhatsApp
+      CTA remain usable after reveal animations.
+
 ---
 
 ## 10. WhatsApp implementation

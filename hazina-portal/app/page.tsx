@@ -4,6 +4,7 @@ import { ChatWidget } from "@/components/ChatWidget";
 import { CatalogImage } from "@/components/CatalogImage";
 import { HeroGiftStageLoader } from "@/components/three-d/HeroGiftStageLoader";
 import { LuxuryTilt } from "@/components/three-d/LuxuryTilt";
+import { ScrollDepth } from "@/components/three-d/ScrollDepth";
 import { SpatialCard } from "@/components/three-d/SpatialCard";
 import { SpatialSection } from "@/components/three-d/SpatialSection";
 import { BRAND_IMAGES } from "@/lib/products";
@@ -19,7 +20,7 @@ export default async function HomePage() {
   return (
     <>
       <section className="relative isolate overflow-hidden">
-        <div className="absolute inset-0">
+        <ScrollDepth className="absolute inset-0" y={42} scale={1.06}>
           <Image
             src={BRAND_IMAGES.safariSunset}
             alt="Serene Kenyan landscape at sunset for Hazina Nomads"
@@ -30,14 +31,14 @@ export default async function HomePage() {
             unoptimized
           />
           <div className="absolute inset-0 hero-overlay" />
-        </div>
+        </ScrollDepth>
 
         <div className="relative container-page min-h-[86svh] py-16 md:py-24 flex flex-col justify-between gap-12">
-          <div className="pointer-events-none absolute right-[-4rem] top-24 z-0 hidden h-[520px] w-[min(46vw,680px)] lg:block xl:right-0">
+          <ScrollDepth className="pointer-events-none absolute right-0 top-24 z-0 hidden h-[470px] w-[min(38vw,560px)] lg:block xl:right-8" y={-18} scale={1}>
             <HeroGiftStageLoader />
-          </div>
+          </ScrollDepth>
 
-          <div className="relative z-10 max-w-3xl pt-8 md:pt-16">
+          <SpatialSection className="relative z-10 max-w-3xl pt-8 md:pt-16">
             <span className="font-mono text-sm font-medium uppercase tracking-[0.12em] text-white/70">
               BESPOKE CURATION <span className="mx-2 opacity-50">·</span> SEAMLESS LOGISTICS{" "}
               <span className="mx-2 opacity-50">·</span> GLOBAL EXPORT
@@ -45,11 +46,14 @@ export default async function HomePage() {
             <h1 className="mt-5 font-serif text-5xl md:text-7xl lg:text-8xl leading-[0.9] tracking-[-0.02em] text-white">
               Private Kenyan curation, delivered with discretion.
             </h1>
-            <p className="mt-6 max-w-2xl text-lg md:text-xl leading-[1.85] text-white/84">
+            <p className="mt-6 max-w-2xl text-lg md:text-xl leading-[1.85] text-white/85">
               Hazina Nomads curates premium Kenyan gifts, heritage pieces, and private sourcing requests
               for travellers, safari guests, diaspora families, and corporate clients — beginning
               in Kenya and growing toward refined African sourcing.
             </p>
+            <div className="pointer-events-none relative z-0 my-3 h-[104px] sm:h-[240px] lg:hidden">
+              <HeroGiftStageLoader />
+            </div>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/collections" className="btn-bronze">
                 Explore Collections
@@ -63,9 +67,9 @@ export default async function HomePage() {
                 Speak with Concierge
               </a>
             </div>
-          </div>
+          </SpatialSection>
 
-          <div className="relative z-10 -mx-5 overflow-x-auto px-5 pb-2 local-scroll-x lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0">
+          <SpatialSection className="relative z-10 -mx-5 overflow-x-auto px-5 pb-2 local-scroll-x lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0" delay={0.12}>
             <div className="flex min-w-max gap-4 lg:grid lg:min-w-0 lg:grid-cols-5">
               {catalog.collections.map((box, index) => (
                 <LuxuryTilt key={box.id} className="w-[min(78vw,300px)] shrink-0 lg:w-auto">
@@ -97,9 +101,9 @@ export default async function HomePage() {
                 </LuxuryTilt>
               ))}
             </div>
-          </div>
+          </SpatialSection>
 
-          <div className="relative z-10 grid gap-5 border-t border-white/20 pt-6 text-white/80 sm:grid-cols-3 md:max-w-4xl">
+          <SpatialSection className="relative z-10 grid gap-5 border-t border-white/20 pt-6 text-white/80 sm:grid-cols-3 md:max-w-4xl" delay={0.18}>
             <HeroNote
               title="Bespoke Curation"
               body="Unlisted artifacts and signature regional collections through private artisan and estate networks."
@@ -115,7 +119,7 @@ export default async function HomePage() {
               body="International transit and customs-ready export quotes for verified heritage pieces."
               icon="export"
             />
-          </div>
+          </SpatialSection>
         </div>
       </section>
 
@@ -232,7 +236,7 @@ function HeroNote({
     <div className="sm:border-l sm:border-white/20 sm:pl-5 first:border-l-0 first:pl-0">
       <ServiceIcon kind={icon} />
       <p className="font-mono text-[13px] uppercase tracking-[0.14em] text-bronze-light">{title}</p>
-      <p className="mt-2 text-sm md:text-base leading-relaxed text-white/72">{body}</p>
+      <p className="mt-2 text-sm md:text-base leading-relaxed text-white/75">{body}</p>
     </div>
   );
 }
