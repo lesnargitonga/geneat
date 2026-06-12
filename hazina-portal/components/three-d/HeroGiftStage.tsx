@@ -10,6 +10,12 @@ import { FloatingTreasure } from "./FloatingTreasure";
 const BASE_STAGE_POSITION = { x: 0.1, y: -0.18, z: 0 };
 const BASE_STAGE_ROTATION_X = -0.08;
 
+type StageDragDetail = {
+  phase: "start" | "move" | "end";
+  dx: number;
+  dy: number;
+};
+
 function usePrefersReducedMotion() {
   const [reduceMotion, setReduceMotion] = useState(() => {
     if (typeof window === "undefined") return true;
@@ -32,6 +38,11 @@ function GiftScene() {
   const stageRef = useRef<Group | null>(null);
   const targetPointer = useRef({ x: 0, y: 0 });
   const smoothPointer = useRef({ x: 0, y: 0 });
+  const targetDrag = useRef({ x: 0, y: 0 });
+  const smoothDrag = useRef({ x: 0, y: 0 });
+  const dragVelocity = useRef({ x: 0, y: 0 });
+  const lastDrag = useRef({ x: 0, y: 0 });
+  const isDragging = useRef(false);
 
   useEffect(() => {
     if (reduceMotion) return;
@@ -71,8 +82,62 @@ function GiftScene() {
     };
   }, [reduceMotion]);
 
+  useEffect(() => {
+    if (reduceMotion) return;
+
+    const onStageDrag = (event: Event) => {
+      const { phase, dx, dy } = (event as CustomEvent<StageDragDetail>).detail;
+
+      if (phase === "start") {
+        isDragging.current = true;
+        targetDrag.current.x = 0;
+        targetDrag.current.y = 0;
+        dragVelocity.current.x = 0;
+        dragVelocity.current.y = 0;
+        lastDrag.current.x = 0;
+        lastDrag.current.y = 0;
+        return;
+      }
+
+      if (phase === "move") {
+        const nextX = MathUtils.clamp(dx / 260, -1, 1);
+        const nextY = MathUtils.clamp(dy / 220, -1, 1);
+        dragVelocity.current.x = MathUtils.clamp(nextX - lastDrag.current.x, -0.08, 0.08);
+        dragVelocity.current.y = MathUtils.clamp(nextY - lastDrag.current.y, -0.08, 0.08);
+        targetDrag.current.x = nextX;
+        targetDrag.current.y = nextY;
+        lastDrag.current.x = nextX;
+        lastDrag.current.y = nextY;
+        return;
+      }
+
+      isDragging.current = false;
+      targetDrag.current.x = MathUtils.clamp(targetDrag.current.x + dragVelocity.current.x * 1.4, -1, 1);
+      targetDrag.current.y = MathUtils.clamp(targetDrag.current.y + dragVelocity.current.y * 1.2, -1, 1);
+    };
+
+    window.addEventListener("hazina:stage-drag", onStageDrag);
+    return () => window.removeEventListener("hazina:stage-drag", onStageDrag);
+  }, [reduceMotion]);
+
   useFrame(({ clock }) => {
     if (!stageRef.current || reduceMotion) return;
+
+    if (!isDragging.current) {
+      targetDrag.current.x = MathUtils.lerp(targetDrag.current.x, 0, 0.06);
+      targetDrag.current.y = MathUtils.lerp(targetDrag.current.y, 0, 0.06);
+    }
+
+    smoothDrag.current.x = MathUtils.lerp(
+      smoothDrag.current.x,
+      targetDrag.current.x,
+      isDragging.current ? 0.12 : 0.065,
+    );
+    smoothDrag.current.y = MathUtils.lerp(
+      smoothDrag.current.y,
+      targetDrag.current.y,
+      isDragging.current ? 0.12 : 0.065,
+    );
 
     smoothPointer.current.x = MathUtils.lerp(
       smoothPointer.current.x,
@@ -87,13 +152,32 @@ function GiftScene() {
 
     const pointerX = smoothPointer.current.x;
     const pointerY = smoothPointer.current.y;
+    const dragX = MathUtils.clamp(smoothDrag.current.x, -1, 1);
+    const dragY = MathUtils.clamp(smoothDrag.current.y, -1, 1);
+    const hoverInfluence = isDragging.current ? 0.42 : 1;
     const ambientRotationY = Math.sin(clock.elapsedTime * 0.24) * 0.12;
     const ambientPositionY = Math.sin(clock.elapsedTime * 0.55) * 0.035;
 
-    stageRef.current.rotation.y = ambientRotationY + pointerX * 0.22;
-    stageRef.current.rotation.x = BASE_STAGE_ROTATION_X - pointerY * 0.1;
-    stageRef.current.position.x = BASE_STAGE_POSITION.x + pointerX * 0.22;
-    stageRef.current.position.y = BASE_STAGE_POSITION.y + ambientPositionY - pointerY * 0.1;
+    stageRef.current.rotation.y = MathUtils.clamp(
+      ambientRotationY + pointerX * 0.22 * hoverInfluence + dragX * 0.42,
+      -0.58,
+      0.58,
+    );
+    stageRef.current.rotation.x = MathUtils.clamp(
+      BASE_STAGE_ROTATION_X - pointerY * 0.1 * hoverInfluence - dragY * 0.18,
+      -0.28,
+      0.16,
+    );
+    stageRef.current.position.x = MathUtils.clamp(
+      BASE_STAGE_POSITION.x + pointerX * 0.22 * hoverInfluence + dragX * 0.28,
+      -0.28,
+      0.48,
+    );
+    stageRef.current.position.y = MathUtils.clamp(
+      BASE_STAGE_POSITION.y + ambientPositionY - pointerY * 0.1 * hoverInfluence - dragY * 0.16,
+      -0.42,
+      0.08,
+    );
     stageRef.current.position.z = BASE_STAGE_POSITION.z;
   });
 

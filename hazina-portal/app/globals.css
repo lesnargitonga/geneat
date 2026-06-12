@@ -243,6 +243,38 @@
       filter 420ms ease;
   }
 
+  .showroom-shell__interaction-lane {
+    display: none;
+    position: absolute;
+    right: max(2.25rem, calc((100vw - 1440px) / 2 + 2.25rem));
+    top: clamp(8rem, 15vh, 10.5rem);
+    width: min(32vw, 500px);
+    height: min(56vh, 500px);
+    z-index: 3;
+    touch-action: auto;
+    user-select: none;
+  }
+
+  @media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+    .showroom-shell--home .showroom-shell__interaction-lane {
+      display: block;
+      pointer-events: auto;
+      cursor: grab;
+    }
+
+    .showroom-shell--home .showroom-shell__interaction-lane.is-dragging {
+      cursor: grabbing;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .showroom-shell--home .showroom-shell__interaction-lane {
+      display: none;
+      pointer-events: none;
+      cursor: auto;
+    }
+  }
+
   .showroom-shell--collections .showroom-shell__stage,
   .showroom-shell--product .showroom-shell__stage,
   .showroom-shell--studio .showroom-shell__stage,
@@ -1669,6 +1701,13 @@
       width: min(30vw, 300px);
       height: 280px;
       filter: saturate(0.72) contrast(0.9);
+    }
+
+    .showroom-shell--home .showroom-shell__interaction-lane {
+      right: -12rem;
+      top: 9.5rem;
+      width: min(30vw, 300px);
+      height: 280px;
     }
 
     .showroom-shell--home .showroom-shell__stage .spatial-stage {
