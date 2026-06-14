@@ -11220,3 +11220,966 @@ body.webgl-ready #webgl-container::before {
     text-align: center;
   }
 }
+
+/* Capability atelier: eight cards, eight deliberately different systems. */
+.capability-grid {
+  align-items: stretch;
+}
+
+.capability-entry:has(.capability-card[data-capability-card]) {
+  --block-x: 12px;
+  --block-y: 16px;
+}
+
+.capability-entry:has(.capability-card[data-capability-card])::after {
+  inset: 1rem calc(var(--block-x) * -1) calc(var(--block-y) * -.52) .95rem;
+  border-radius: var(--card-radius, 26px);
+  transform: translate3d(var(--block-x), var(--block-y), -44px) scale(.985);
+}
+
+.capability-entry:has(.capability-card[data-capability-card]:hover)::after,
+.capability-entry:has(.capability-card[data-capability-card].is-inview)::after {
+  transform: translate3d(calc(var(--block-x) + 4px), calc(var(--block-y) + 5px), -44px) scale(.99);
+}
+
+.capability-card[data-capability-card] {
+  --card-radius: 26px;
+  --model-radius: 20px;
+  --preview-rx: 1deg;
+  --preview-ry: -1deg;
+  --preview-y: 0px;
+  --scene-transform: scale(.96) translateZ(18px);
+  min-height: clamp(690px, 52vw, 760px);
+  border-radius: var(--card-radius);
+  isolation: isolate;
+  transition:
+    border-color 320ms ease,
+    box-shadow 420ms ease,
+    translate 420ms cubic-bezier(.2,.8,.2,1);
+}
+
+.capability-card[data-capability-card]::before {
+  opacity: .32;
+}
+
+.capability-card[data-capability-card]::after {
+  border-radius: var(--card-orbit-radius, 50%);
+}
+
+.capability-card[data-capability-card]:is(:hover, :focus-within, .is-inview) {
+  border-color: rgba(var(--surface-rgb), .48);
+  translate: 0 -4px;
+}
+
+.capability-card[data-capability-card] .capability-model {
+  min-height: clamp(285px, 23vw, 335px) !important;
+  height: auto !important;
+  aspect-ratio: var(--model-ratio, 1.56);
+  border-radius: var(--model-radius);
+  transform:
+    perspective(1100px)
+    rotateX(var(--preview-rx))
+    rotateY(var(--preview-ry))
+    translate3d(0, var(--preview-y), 0);
+  transition:
+    transform 420ms cubic-bezier(.2,.8,.2,1),
+    border-color 320ms ease,
+    box-shadow 420ms ease;
+}
+
+.capability-card[data-capability-card]:is(:hover, :focus-within, .is-inview) .capability-model {
+  transform:
+    perspective(1100px)
+    rotateX(calc(var(--preview-rx) + 1deg))
+    rotateY(calc(var(--preview-ry) - 1deg))
+    translate3d(0, calc(var(--preview-y) - 5px), 0)
+    scale(1.012);
+}
+
+.capability-card[data-capability-card] .capability-model .scene-world {
+  opacity: .9 !important;
+  filter: saturate(1.04) brightness(.92) contrast(1.06);
+  transform: var(--scene-transform) !important;
+  transition: opacity 360ms ease, filter 360ms ease;
+}
+
+.capability-card[data-capability-card]:is(:hover, :focus-within, .is-inview) .capability-model .scene-world {
+  opacity: 1 !important;
+  filter: saturate(1.16) brightness(1.02) contrast(1.08);
+}
+
+.capability-card[data-capability-card] h3 {
+  max-width: 16ch;
+}
+
+.capability-card[data-capability-card] .card-open-indicator {
+  min-height: 58px;
+  padding: 1.15rem .15rem 0;
+  font-size: .72rem;
+}
+
+.capability-card[data-capability-card] .card-open-indicator i {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(var(--surface-rgb), .34);
+  border-radius: var(--action-radius, 50%);
+  background: rgba(var(--surface-rgb), .08);
+}
+
+.capability-card[data-capability-card]:is(:hover, :focus-within) .card-open-indicator i {
+  transform: rotate(90deg);
+  background: rgba(var(--surface-rgb), .16);
+}
+
+.capability-card[data-capability-card] .card-hit-area {
+  border-radius: var(--action-radius, 12px);
+}
+
+.model-case-map {
+  inset: auto .7rem .7rem .7rem;
+  min-height: 42%;
+  padding: .72rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto;
+  align-content: end;
+  gap: .35rem .65rem;
+  overflow: hidden;
+  border-radius: calc(var(--model-radius, 20px) - 6px);
+  background:
+    linear-gradient(180deg, transparent, rgba(0,0,0,.42) 18%, rgba(0,0,0,.86) 72%),
+    radial-gradient(circle at 10% 10%, rgba(var(--surface-rgb), .18), transparent 46%);
+  backdrop-filter: none;
+  transform: translateZ(38px);
+}
+
+.model-case-map::before {
+  top: .58rem;
+  right: .72rem;
+  left: .72rem;
+  background: linear-gradient(90deg, rgba(var(--surface-rgb), .74), transparent 72%);
+}
+
+.model-case-map::after {
+  display: block !important;
+  opacity: var(--case-art-opacity, .48);
+}
+
+.model-case-heading {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .65rem;
+}
+
+.model-case-map .model-case-heading small,
+.model-case-map .model-case-heading em {
+  margin: 0;
+}
+
+.model-case-map .model-case-heading em {
+  max-width: 52%;
+  padding: 0;
+  border: 0;
+  color: rgba(241,240,235,.48);
+  text-align: right;
+}
+
+.model-case-map > strong {
+  grid-column: 1;
+  max-width: 15rem;
+  font-size: clamp(1.08rem, 1.75vw, 1.55rem);
+}
+
+.model-case-map > p {
+  grid-column: 1 / -1;
+  max-width: 31rem;
+  margin: 0;
+  font-size: clamp(.68rem, 1.05vw, .8rem);
+  line-height: 1.34;
+}
+
+.model-case-map ol {
+  grid-column: 1 / -1;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .32rem;
+}
+
+.model-case-map li {
+  min-height: 2.35rem;
+  padding: .48rem .32rem .34rem;
+  align-items: end;
+  border-radius: var(--step-radius, 8px);
+  opacity: .48;
+  animation: capability-step-focus var(--scene-duration, 12s) ease-in-out infinite;
+  animation-delay: calc(var(--case-step) * 2.8s);
+}
+
+.model-case-map li::before {
+  top: .3rem;
+  left: .34rem;
+  font-size: .4rem;
+}
+
+.model-case-map li i {
+  position: absolute;
+  inset: auto .34rem .3rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--surface-accent), transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: capability-step-line var(--scene-duration, 12s) linear infinite;
+  animation-delay: calc(var(--case-step) * 2.8s);
+}
+
+.model-case-map li span {
+  font-size: clamp(.48rem, .8vw, .6rem);
+}
+
+.model-case-readout {
+  position: absolute;
+  top: 3rem;
+  right: .72rem;
+  z-index: 3;
+  padding: .28rem .42rem;
+  border: 1px solid rgba(var(--surface-rgb), .32);
+  border-radius: var(--readout-radius, 999px);
+  background: rgba(0,0,0,.46);
+  color: var(--surface-accent);
+  font: 600 .46rem/1.2 var(--font-mono);
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+
+@keyframes capability-step-focus {
+  0%, 18%, 100% {
+    opacity: .4;
+    border-color: rgba(var(--surface-rgb), .2);
+    background-color: rgba(0,0,0,.42);
+    translate: 0 0;
+  }
+  24%, 42% {
+    opacity: 1;
+    border-color: rgba(var(--surface-rgb), .64);
+    background-color: rgba(var(--surface-rgb), .12);
+    translate: 0 -2px;
+  }
+}
+
+@keyframes capability-step-line {
+  0%, 18%, 100% { transform: scaleX(0); opacity: 0; }
+  24%, 42% { transform: scaleX(1); opacity: 1; }
+  50% { transform: scaleX(1); opacity: 0; }
+}
+
+/* 01 Backend: architectural, rectilinear, service-led. */
+.capability-card[data-capability-card="backend"] {
+  --card-radius: 30px 12px 24px 12px;
+  --model-radius: 22px 8px 18px 8px;
+  --model-ratio: 1.62;
+  --preview-rx: 1.6deg;
+  --preview-ry: -1.8deg;
+  --scene-transform: scale(.98) translate3d(-1%, -1%, 18px);
+  --action-radius: 8px;
+  --step-radius: 6px;
+  --readout-radius: 5px;
+  background:
+    linear-gradient(90deg, rgba(var(--surface-rgb), .075) 1px, transparent 1px),
+    linear-gradient(rgba(var(--surface-rgb), .055) 1px, transparent 1px),
+    radial-gradient(circle at 88% 9%, rgba(var(--surface-rgb), .2), transparent 28%),
+    linear-gradient(155deg, #141919, #030606 74%);
+  background-size: 32px 32px, 32px 32px, auto, auto;
+}
+
+.capability-entry:has(.capability-card[data-capability-card="backend"]) {
+  --block-x: 14px;
+  --block-y: 12px;
+}
+
+.model-backend .scene-world {
+  animation: preview-backend-route var(--scene-duration) ease-in-out infinite;
+}
+
+.model-case-backend::after {
+  inset: 8% 8% 47% 9%;
+}
+
+/* 02 Security: compact, shielded, deliberately tense. */
+.capability-card[data-capability-card="security"] {
+  --card-radius: 14px 34px 14px 30px;
+  --model-radius: 10px 28px 10px 24px;
+  --model-ratio: 1.48;
+  --preview-rx: -.8deg;
+  --preview-ry: 1.5deg;
+  --scene-transform: scale(.94) translate3d(1%, 0, 22px);
+  --action-radius: 50% 18% 50% 18%;
+  --step-radius: 4px 12px 4px 12px;
+  --readout-radius: 4px 12px 4px 12px;
+  background:
+    radial-gradient(circle at 16% 14%, rgba(var(--surface-rgb), .2), transparent 26%),
+    linear-gradient(135deg, rgba(var(--surface-secondary), .11), transparent 36%),
+    linear-gradient(160deg, #17151b, #050406 75%);
+}
+
+.capability-entry:has(.capability-card[data-capability-card="security"]) {
+  --block-x: 8px;
+  --block-y: 20px;
+}
+
+.model-security .scene-world {
+  animation: preview-security-probe var(--scene-duration) ease-in-out infinite;
+}
+
+.model-case-security::after {
+  inset: 7% 36% 46%;
+}
+
+/* 03 Markets: terminal geometry and restrained amber depth. */
+.capability-card[data-capability-card="quant"] {
+  --card-radius: 10px 28px 10px 20px;
+  --model-radius: 8px 22px 8px 16px;
+  --model-ratio: 1.7;
+  --preview-rx: 1deg;
+  --preview-ry: .8deg;
+  --scene-transform: scale(.97) translate3d(0, -1%, 20px);
+  --action-radius: 4px;
+  --step-radius: 3px;
+  --readout-radius: 3px;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 23px, rgba(var(--surface-rgb), .04) 24px),
+    radial-gradient(circle at 82% 12%, rgba(var(--surface-rgb), .18), transparent 28%),
+    linear-gradient(155deg, #18150f, #050403 76%);
+}
+
+.capability-entry:has(.capability-card[data-capability-card="quant"]) {
+  --block-x: 16px;
+  --block-y: 10px;
+}
+
+.model-markets .scene-world {
+  animation: preview-market-desk var(--scene-duration) cubic-bezier(.4,0,.2,1) infinite;
+}
+
+.model-case-quant::after {
+  top: 9%;
+  height: 38%;
+}
+
+/* 04 Autonomy: landscape frame, lifted field platform. */
+.capability-card[data-capability-card="autonomy"] {
+  --card-radius: 36px 16px 28px 16px;
+  --model-radius: 32px 12px 24px 12px;
+  --model-ratio: 1.76;
+  --preview-rx: 2.2deg;
+  --preview-ry: -1deg;
+  --preview-y: -2px;
+  --scene-transform: scale(.97) translate3d(0, 1%, 20px);
+  --action-radius: 999px;
+  --step-radius: 999px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(var(--surface-rgb), .19), transparent 34%),
+    linear-gradient(180deg, rgba(var(--surface-secondary), .07), transparent 46%),
+    linear-gradient(155deg, #101719, #030506 77%);
+}
+
+.capability-entry:has(.capability-card[data-capability-card="autonomy"]) {
+  --block-x: 10px;
+  --block-y: 22px;
+}
+
+.model-robotics .scene-world {
+  animation: preview-autonomy-flight var(--scene-duration) ease-in-out infinite;
+}
+
+.model-case-autonomy::after {
+  inset: 7% 6% 47%;
+}
+
+/* 05 Operations: layered documents and human review. */
+.capability-card[data-capability-card="ai"] {
+  --card-radius: 26px 26px 12px 26px;
+  --model-radius: 22px 22px 8px 22px;
+  --model-ratio: 1.5;
+  --preview-rx: -.5deg;
+  --preview-ry: -1.4deg;
+  --scene-transform: scale(.95) translate3d(-1%, 0, 18px);
+  --action-radius: 12px 12px 4px 12px;
+  --step-radius: 10px 10px 4px 10px;
+  background:
+    radial-gradient(circle at 18% 8%, rgba(var(--surface-rgb), .18), transparent 30%),
+    linear-gradient(145deg, rgba(var(--surface-secondary), .085), transparent 42%),
+    linear-gradient(160deg, #121817, #030505 76%);
+}
+
+.capability-entry:has(.capability-card[data-capability-card="ai"]) {
+  --block-x: 18px;
+  --block-y: 14px;
+}
+
+.model-products .scene-world {
+  animation: preview-operations-desk var(--scene-duration) ease-in-out infinite;
+}
+
+.model-case-ai::after {
+  inset: 8% 7% 47%;
+}
+
+/* 06 Commerce: warm storefront depth and customer motion. */
+.capability-card[data-capability-card="commerce"] {
+  --card-radius: 18px 38px 30px 14px;
+  --model-radius: 14px 32px 24px 10px;
+  --model-ratio: 1.52;
+  --preview-rx: 1.2deg;
+  --preview-ry: 1.5deg;
+  --scene-transform: scale(.96) translate3d(1%, 0, 20px);
+  --action-radius: 8px 18px 18px 8px;
+  --step-radius: 8px 14px 14px 8px;
+  background:
+    radial-gradient(circle at 82% 9%, rgba(var(--surface-rgb), .22), transparent 29%),
+    linear-gradient(135deg, rgba(185,154,100,.055), transparent 40%),
+    linear-gradient(160deg, #1a1413, #050303 76%);
+}
+
+.capability-entry:has(.capability-card[data-capability-card="commerce"]) {
+  --block-x: 9px;
+  --block-y: 18px;
+}
+
+.model-commerce .scene-world {
+  animation: preview-commerce-route var(--scene-duration) cubic-bezier(.42,0,.2,1) infinite;
+}
+
+.model-case-commerce::after {
+  inset: 7% 8% 46%;
+}
+
+/* 07 Vision: camera aperture, squared evidence frame. */
+.capability-card[data-capability-card="vision"] {
+  --card-radius: 8px 26px 8px 26px;
+  --model-radius: 4px 20px 4px 20px;
+  --model-ratio: 1.66;
+  --preview-rx: .4deg;
+  --preview-ry: -1.2deg;
+  --scene-transform: scale(.98) translate3d(0, 0, 24px);
+  --action-radius: 3px;
+  --step-radius: 2px;
+  --readout-radius: 2px;
+  background:
+    linear-gradient(90deg, transparent 49.8%, rgba(var(--surface-rgb), .055) 50%, transparent 50.2%),
+    linear-gradient(transparent 49.8%, rgba(var(--surface-rgb), .045) 50%, transparent 50.2%),
+    radial-gradient(circle at 20% 12%, rgba(var(--surface-rgb), .19), transparent 27%),
+    linear-gradient(160deg, #111518, #030405 76%);
+}
+
+.capability-entry:has(.capability-card[data-capability-card="vision"]) {
+  --block-x: 15px;
+  --block-y: 15px;
+}
+
+.model-vision .scene-world {
+  animation: preview-vision-focus var(--scene-duration) steps(24, end) infinite;
+}
+
+.model-case-vision::after {
+  inset: 7% 11% 49%;
+}
+
+/* 08 Reliability: production rack, stable and load-bearing. */
+.capability-card[data-capability-card="reliability"] {
+  --card-radius: 24px 8px 24px 8px;
+  --model-radius: 18px 5px 18px 5px;
+  --model-ratio: 1.58;
+  --preview-rx: 1.4deg;
+  --preview-ry: 1deg;
+  --scene-transform: scale(.96) translate3d(0, -1%, 18px);
+  --action-radius: 5px;
+  --step-radius: 5px;
+  --readout-radius: 5px;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 29px, rgba(var(--surface-rgb), .045) 30px),
+    radial-gradient(circle at 84% 10%, rgba(var(--surface-rgb), .18), transparent 30%),
+    linear-gradient(155deg, #141813, #030503 76%);
+}
+
+.capability-entry:has(.capability-card[data-capability-card="reliability"]) {
+  --block-x: 12px;
+  --block-y: 20px;
+}
+
+.model-cloud .scene-world {
+  animation: preview-reliability-shift var(--scene-duration) ease-in-out infinite;
+}
+
+.model-case-reliability::after {
+  inset: 8% 7% 47%;
+}
+
+@keyframes preview-backend-route {
+  0%, 100% { translate: 0 1px; }
+  40%, 72% { translate: -3px -2px; }
+}
+
+@keyframes preview-security-probe {
+  0%, 100% { translate: 0 0; filter: saturate(.9) brightness(.86); }
+  38%, 58% { translate: 2px -2px; filter: saturate(1.2) brightness(1.04); }
+}
+
+@keyframes preview-market-desk {
+  0%, 100% { translate: -2px 1px; }
+  48% { translate: 3px -2px; }
+}
+
+@keyframes preview-autonomy-flight {
+  0%, 100% { translate: -3px 2px; rotate: -.3deg; }
+  46% { translate: 4px -3px; rotate: .35deg; }
+}
+
+@keyframes preview-operations-desk {
+  0%, 100% { translate: 0 2px; }
+  38% { translate: -2px -2px; }
+  72% { translate: 3px 0; }
+}
+
+@keyframes preview-commerce-route {
+  0%, 100% { translate: -2px 1px; }
+  52% { translate: 3px -2px; }
+}
+
+@keyframes preview-vision-focus {
+  0%, 100% { translate: 0 0; filter: contrast(1.02) brightness(.9); }
+  48%, 70% { translate: 1px -1px; filter: contrast(1.14) brightness(1.04); }
+}
+
+@keyframes preview-reliability-shift {
+  0%, 100% { translate: 0 1px; }
+  44%, 78% { translate: -2px -2px; }
+}
+
+/* Opened scenes use different direction, material, and camera behavior. */
+.experience-stage[data-capability] {
+  border: 1px solid rgba(var(--dialog-rgb), .24);
+}
+
+.experience-stage[data-capability] .experience-visual {
+  transform-origin: 50% 58%;
+}
+
+.experience-stage.is-mode-changing::after {
+  animation: experience-transition-wash .76s cubic-bezier(.2,.8,.2,1);
+}
+
+.experience-backend {
+  border-radius: 26px 8px 22px 8px;
+  background:
+    linear-gradient(rgba(var(--dialog-rgb), .055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--dialog-rgb), .05) 1px, transparent 1px),
+    radial-gradient(circle at 75% 25%, rgba(var(--dialog-rgb), .2), transparent 32%),
+    linear-gradient(155deg, #101718, #020404 74%);
+  background-size: 27px 27px, 27px 27px, auto, auto;
+}
+
+.experience-backend.is-auto-playing .experience-visual {
+  animation-name: opened-backend-camera;
+}
+
+.experience-security {
+  border-radius: 10px 30px 10px 30px;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(var(--dialog-rgb), .22), transparent 30%),
+    linear-gradient(145deg, rgba(var(--dialog-rgb), .08), transparent 40%),
+    #050407;
+}
+
+.experience-security.is-auto-playing .experience-visual {
+  animation-name: opened-security-camera;
+}
+
+.experience-security .experience-controls button {
+  clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+  border-radius: 0;
+}
+
+.experience-quant {
+  border-radius: 6px;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 24px, rgba(var(--dialog-rgb), .05) 25px),
+    radial-gradient(circle at 78% 18%, rgba(var(--dialog-rgb), .19), transparent 29%),
+    linear-gradient(155deg, #17130b, #030302 76%);
+}
+
+.experience-quant.is-auto-playing .experience-visual {
+  animation-name: opened-quant-camera;
+}
+
+.experience-quant .experience-controls button,
+.experience-quant .experience-storyline li {
+  border-radius: 3px;
+}
+
+.experience-autonomy {
+  border-radius: 34px 12px 28px 12px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(var(--dialog-rgb), .2), transparent 36%),
+    linear-gradient(180deg, rgba(var(--dialog-rgb), .06), transparent 44%),
+    linear-gradient(155deg, #0c1518, #020404 76%);
+}
+
+.experience-autonomy.is-auto-playing .experience-visual {
+  animation-name: opened-autonomy-camera;
+}
+
+.experience-autonomy .experience-controls button {
+  border-radius: 999px;
+}
+
+.experience-ai {
+  border-radius: 28px 28px 10px 28px;
+  background:
+    radial-gradient(circle at 16% 18%, rgba(var(--dialog-rgb), .2), transparent 32%),
+    linear-gradient(145deg, rgba(var(--dialog-rgb), .075), transparent 40%),
+    linear-gradient(155deg, #101715, #020403 76%);
+}
+
+.experience-ai.is-auto-playing .experience-visual {
+  animation-name: opened-operations-camera;
+}
+
+.experience-ai .experience-storyline li {
+  border-radius: 12px 12px 4px 12px;
+}
+
+.experience-commerce {
+  border-radius: 18px 36px 28px 14px;
+  background:
+    radial-gradient(circle at 82% 16%, rgba(var(--dialog-rgb), .21), transparent 32%),
+    radial-gradient(circle at 18% 84%, rgba(185,154,100,.08), transparent 34%),
+    linear-gradient(155deg, #191211, #040302 76%);
+}
+
+.experience-commerce.is-auto-playing .experience-visual {
+  animation-name: opened-commerce-camera;
+}
+
+.experience-commerce .experience-controls button {
+  border-radius: 8px 16px 16px 8px;
+}
+
+.experience-vision {
+  border-radius: 5px 24px 5px 24px;
+  background:
+    linear-gradient(90deg, transparent 49.8%, rgba(var(--dialog-rgb), .055) 50%, transparent 50.2%),
+    linear-gradient(transparent 49.8%, rgba(var(--dialog-rgb), .045) 50%, transparent 50.2%),
+    radial-gradient(circle at 22% 20%, rgba(var(--dialog-rgb), .2), transparent 30%),
+    #030506;
+}
+
+.experience-vision.is-auto-playing .experience-visual {
+  animation-name: opened-vision-camera;
+}
+
+.experience-vision .experience-controls button,
+.experience-vision .experience-storyline li {
+  border-radius: 2px;
+}
+
+.experience-reliability {
+  border-radius: 22px 6px 22px 6px;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 28px, rgba(var(--dialog-rgb), .05) 29px),
+    radial-gradient(circle at 82% 16%, rgba(var(--dialog-rgb), .18), transparent 31%),
+    linear-gradient(155deg, #11160f, #020402 76%);
+}
+
+.experience-reliability.is-auto-playing .experience-visual {
+  animation-name: opened-reliability-camera;
+}
+
+.experience-reliability .experience-controls button,
+.experience-reliability .experience-storyline li {
+  border-radius: 5px;
+}
+
+@keyframes experience-transition-wash {
+  0% { opacity: 0; transform: translateX(-18%) scale(.96); }
+  38% { opacity: .72; }
+  100% { opacity: 0; transform: translateX(18%) scale(1.04); }
+}
+
+@keyframes opened-backend-camera {
+  0%, 100% { transform: perspective(950px) rotateX(0) rotateY(0) translate3d(0,0,0); }
+  48% { transform: perspective(950px) rotateX(1deg) rotateY(-1.8deg) translate3d(-.3rem,-.18rem,0); }
+}
+
+@keyframes opened-security-camera {
+  0%, 100% { transform: perspective(950px) rotateX(.5deg) rotateY(-1deg) scale(1); filter: contrast(1); }
+  42%, 62% { transform: perspective(950px) rotateX(-.8deg) rotateY(2deg) scale(1.025); filter: contrast(1.12); }
+}
+
+@keyframes opened-quant-camera {
+  0%, 100% { transform: perspective(950px) translate3d(-.3rem,.15rem,0) rotateY(-1deg); }
+  50% { transform: perspective(950px) translate3d(.35rem,-.2rem,0) rotateY(1.2deg); }
+}
+
+@keyframes opened-autonomy-camera {
+  0%, 100% { transform: perspective(950px) rotateX(1.2deg) rotateY(-1.4deg) translate3d(-.25rem,.18rem,0); }
+  50% { transform: perspective(950px) rotateX(-1deg) rotateY(1.8deg) translate3d(.42rem,-.28rem,0); }
+}
+
+@keyframes opened-operations-camera {
+  0%, 100% { transform: perspective(950px) rotateX(.8deg) translate3d(0,.2rem,0); }
+  45% { transform: perspective(950px) rotateX(-.7deg) rotateY(-1.4deg) translate3d(-.25rem,-.2rem,0); }
+  72% { transform: perspective(950px) rotateX(.2deg) rotateY(1deg) translate3d(.24rem,0,0); }
+}
+
+@keyframes opened-commerce-camera {
+  0%, 100% { transform: perspective(950px) rotateY(-1.4deg) translate3d(-.28rem,.14rem,0); }
+  52% { transform: perspective(950px) rotateY(1.8deg) translate3d(.38rem,-.18rem,0); }
+}
+
+@keyframes opened-vision-camera {
+  0%, 100% { transform: perspective(950px) scale(1) translate3d(0,0,0); filter: contrast(1.02); }
+  38%, 64% { transform: perspective(950px) scale(1.035) translate3d(.12rem,-.12rem,0); filter: contrast(1.14); }
+}
+
+@keyframes opened-reliability-camera {
+  0%, 100% { transform: perspective(950px) rotateY(-.8deg) translate3d(0,.15rem,0); }
+  48% { transform: perspective(950px) rotateY(1.2deg) translate3d(-.2rem,-.18rem,0); }
+}
+
+/* Tablet cards become compact consoles rather than oversized phone cards. */
+@media (min-width: 641px) and (max-width: 900px) {
+  .capability-card[data-capability-card] {
+    min-height: 520px;
+    padding: 1.35rem;
+    display: grid;
+    grid-template-columns: minmax(270px, 1.08fr) minmax(0, .92fr);
+    grid-template-rows: auto auto auto auto 1fr auto;
+    column-gap: 1.35rem;
+    align-items: start;
+  }
+
+  .capability-card[data-capability-card] .capability-card-top {
+    grid-column: 1 / -1;
+  }
+
+  .capability-card[data-capability-card] .capability-model {
+    grid-column: 1;
+    grid-row: 2 / span 5;
+    min-height: 390px !important;
+    height: 100% !important;
+    margin: 1.15rem 0 0;
+    aspect-ratio: auto;
+  }
+
+  .capability-card[data-capability-card] h3 {
+    grid-column: 2;
+    margin-top: 1.35rem;
+    font-size: clamp(1.55rem, 4vw, 2.1rem);
+  }
+
+  .capability-card[data-capability-card] > p,
+  .capability-card[data-capability-card] .card-outcome,
+  .capability-card[data-capability-card] .card-tags,
+  .capability-card[data-capability-card] .card-open-indicator {
+    grid-column: 2;
+  }
+
+  .capability-card[data-capability-card] > p {
+    font-size: .92rem;
+    line-height: 1.55;
+  }
+
+  .capability-card[data-capability-card] .card-outcome {
+    margin-top: .8rem;
+  }
+
+  .capability-card[data-capability-card] .card-tags {
+    margin-top: .8rem;
+  }
+
+  .capability-card[data-capability-card] .card-tags span {
+    padding: .34rem .46rem;
+    font-size: .62rem;
+  }
+
+  .capability-card[data-capability-card] .card-open-indicator {
+    align-self: end;
+    margin-top: .8rem;
+  }
+
+  .capability-card[data-capability-card] .card-hit-area {
+    right: 1.25rem;
+    left: calc(54% + .5rem);
+  }
+
+  .model-case-map {
+    min-height: 47%;
+  }
+
+  .model-case-map > p {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .capability-grid {
+    gap: 2rem;
+  }
+
+  .capability-entry:has(.capability-card[data-capability-card]) {
+    --block-x: 7px;
+    --block-y: 10px;
+    padding-bottom: 10px;
+  }
+
+  .capability-card[data-capability-card] {
+    min-height: 0;
+    padding: 1.15rem;
+    border-radius: var(--card-radius);
+    translate: 0 0 !important;
+  }
+
+  .capability-card[data-capability-card] .capability-model {
+    min-height: 270px !important;
+    margin: 1rem 0 1.15rem;
+    border-radius: var(--model-radius);
+    transform: none !important;
+  }
+
+  .capability-card[data-capability-card] .capability-model .scene-world {
+    opacity: .7 !important;
+    transform: scale(.84) translateZ(8px) !important;
+  }
+
+  .capability-card[data-capability-card].is-model-active .capability-model .scene-world {
+    opacity: 1 !important;
+    filter: saturate(1.08) brightness(1) contrast(1.06);
+  }
+
+  .capability-card[data-capability-card] h3 {
+    margin-bottom: .7rem;
+    font-size: clamp(1.65rem, 8.4vw, 2.05rem);
+  }
+
+  .capability-card[data-capability-card] > p {
+    font-size: .94rem;
+    line-height: 1.55;
+  }
+
+  .model-case-map {
+    inset: auto .46rem .46rem;
+    min-height: 45%;
+    padding: .58rem;
+    gap: .25rem .45rem;
+    border-radius: 12px;
+  }
+
+  .model-case-heading {
+    gap: .4rem;
+  }
+
+  .model-case-map .model-case-heading small {
+    padding: .24rem .34rem;
+    font-size: .4rem;
+  }
+
+  .model-case-map .model-case-heading em {
+    font-size: .38rem;
+  }
+
+  .model-case-map > strong {
+    max-width: 12rem;
+    font-size: 1rem;
+  }
+
+  .model-case-map > p {
+    display: none;
+  }
+
+  .model-case-map ol {
+    gap: .2rem;
+  }
+
+  .model-case-map li {
+    min-height: 2.05rem;
+    padding: .42rem .2rem .26rem;
+  }
+
+  .model-case-map li span {
+    font-size: .43rem;
+  }
+
+  .model-case-readout {
+    top: 2.45rem;
+    right: .58rem;
+    font-size: .38rem;
+  }
+
+  .capability-card[data-capability-card] .card-outcome {
+    padding: .75rem .8rem;
+  }
+
+  .capability-card[data-capability-card] .card-outcome strong {
+    font-size: .88rem;
+  }
+
+  .capability-card[data-capability-card] .card-open-indicator {
+    min-height: 54px;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    font-size: .66rem;
+  }
+
+  .capability-card[data-capability-card] .card-hit-area {
+    right: .95rem;
+    bottom: .8rem;
+    left: .95rem;
+    height: 56px;
+  }
+
+  .experience-stage[data-capability] {
+    min-height: 580px;
+  }
+
+  .experience-stage[data-capability].is-auto-playing .experience-visual {
+    animation-duration: 17s;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .capability-card[data-capability-card],
+  .capability-card[data-capability-card]:is(:hover, :focus-within, .is-inview) {
+    translate: 0 0;
+  }
+
+  .capability-card[data-capability-card] .capability-model,
+  .capability-card[data-capability-card]:is(:hover, :focus-within, .is-inview) .capability-model {
+    transform: none;
+  }
+
+  .capability-card[data-capability-card]:not(.is-model-active) .scene-world,
+  .capability-card[data-capability-card]:not(.is-model-active) .model-case-map li,
+  .capability-card[data-capability-card]:not(.is-model-active) .model-case-map li i {
+    animation-play-state: paused !important;
+  }
+
+  .capability-card[data-capability-card].is-model-active .scene-world,
+  .capability-card[data-capability-card].is-model-active .model-case-map li,
+  .capability-card[data-capability-card].is-model-active .model-case-map li i {
+    animation-play-state: running !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .capability-card[data-capability-card] .scene-world,
+  .model-case-map li,
+  .model-case-map li i,
+  .experience-stage[data-capability] .experience-visual,
+  .experience-stage.is-mode-changing::after {
+    animation: none !important;
+  }
+}

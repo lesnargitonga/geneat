@@ -1036,6 +1036,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       steps: ["Pay", "Verify", "Reserve", "Notify"],
       status: "Live service flow",
       mark: "Checkout desk",
+      readout: "42 ms · healthy",
     },
     security: {
       title: "Tap reader under test",
@@ -1043,6 +1044,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       steps: ["Tap", "Replay", "Block", "Evidence"],
       status: "Risk closed",
       mark: "Lab proof",
+      readout: "Replay blocked",
     },
     quant: {
       title: "Research desk",
@@ -1050,6 +1052,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       steps: ["Signal", "Replay", "Size", "Ticket"],
       status: "Controlled decision",
       mark: "Market research",
+      readout: "Risk 0.6%",
     },
     autonomy: {
       title: "Field inspection",
@@ -1057,6 +1060,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       steps: ["Map", "Route", "Correct", "Evidence"],
       status: "Override ready",
       mark: "Operator in control",
+      readout: "Wind corrected",
     },
     ai: {
       title: "Human-approved ops",
@@ -1064,6 +1068,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       steps: ["Request", "Records", "Draft", "Approve"],
       status: "Human signed",
       mark: "People stay in control",
+      readout: "Amina approved",
     },
     commerce: {
       title: "Merchant fulfilment",
@@ -1071,6 +1076,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       steps: ["Choose", "Pay", "Pack", "Dispatch"],
       status: "Customer updated",
       mark: "Hazina route",
+      readout: "M-Pesa confirmed",
     },
     vision: {
       title: "Warehouse camera",
@@ -1078,6 +1084,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       steps: ["Watch", "Detect", "Track", "Proof"],
       status: "Frame sent",
       mark: "Useful frames only",
+      readout: "Parcel 98%",
     },
     reliability: {
       title: "Canary release",
@@ -1085,6 +1092,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       steps: ["Canary", "Check", "Shift", "Recover"],
       status: "Production safe",
       mark: "Quiet launches",
+      readout: "3 regions healthy",
     },
   };
   function hydrateCapabilityPreviewMaps() {
@@ -1096,14 +1104,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       const modelKey = model.dataset.model || "";
       map.className = `model-case-map model-case-${modelKey}`;
       const steps = preview.steps
-        .map((step, index) => `<li style="--case-step:${index}"><span>${escapeHtml(step)}</span></li>`)
+        .map((step, index) => `<li style="--case-step:${index}"><i aria-hidden="true"></i><span>${escapeHtml(step)}</span></li>`)
         .join("");
       map.innerHTML = `
-        <small>${escapeHtml(preview.status)}</small>
+        <div class="model-case-heading">
+          <small>${escapeHtml(preview.status)}</small>
+          <em>${escapeHtml(preview.mark || "Real system")}</em>
+        </div>
         <strong>${escapeHtml(preview.title)}</strong>
-        <em>${escapeHtml(preview.mark || "Real system")}</em>
         <p>${escapeHtml(preview.route)}</p>
         <ol>${steps}</ol>
+        <b class="model-case-readout">${escapeHtml(preview.readout || preview.status)}</b>
       `;
       model.appendChild(map);
     });
@@ -1234,7 +1245,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     function setExperienceMode(index, replay = true) {
       const modes = experience.modes || [];
       const nextIndex = modes.length ? (index + modes.length) % modes.length : 0;
+      blueprint._activeMode = nextIndex;
       blueprint.dataset.experienceMode = String(nextIndex);
+      visual.dataset.experienceMode = String(nextIndex);
       controlButtons.forEach((control, controlIndex) => {
         const active = controlIndex === nextIndex;
         control.classList.toggle("is-active", active);
@@ -1252,6 +1265,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
       modeCopy.textContent = experience.modeText?.[nextIndex] || modes[nextIndex] || "Live";
       if (replay) {
+        blueprint.classList.remove("is-mode-changing");
+        void blueprint.offsetWidth;
+        blueprint.classList.add("is-mode-changing");
+        window.clearTimeout(blueprint._modeTransitionTimer);
+        blueprint._modeTransitionTimer = window.setTimeout(() => {
+          blueprint.classList.remove("is-mode-changing");
+        }, 760);
         visual.style.animation = "none";
         visual.offsetHeight;
         visual.style.animation = "";
@@ -1272,10 +1292,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     setExperienceMode(0, false);
     if (!reduceMotion && (experience.modes || []).length > 1) {
       blueprint.classList.add("is-auto-playing");
-      let autoIndex = 0;
       blueprint._modeTimer = window.setInterval(() => {
         if (!document.body.classList.contains("dialog-open") || document.hidden) return;
-        autoIndex = (autoIndex + 1) % (experience.modes || []).length;
+        const autoIndex = ((blueprint._activeMode || 0) + 1) % (experience.modes || []).length;
         setExperienceMode(autoIndex);
       }, isTouch ? 7200 : 6100);
     }
@@ -1299,6 +1318,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!source || !capabilityDialogModel) return;
     capabilityDialogModel?.querySelectorAll(".experience-stage").forEach((stage) => {
       if (stage._modeTimer) window.clearInterval(stage._modeTimer);
+      if (stage._modeTransitionTimer) window.clearTimeout(stage._modeTransitionTimer);
     });
     const model = source.cloneNode(true);
     model.removeAttribute("data-model");
@@ -1345,157 +1365,62 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   capabilityOpeners.forEach((opener) => {
     const card = opener.closest(".capability-card");
-    let movedInsideCard = false;
-    let cardPointerActive = false;
-    let cardPointerStart = { x: 0, y: 0 };
-    let cardPointerStartedAt = 0;
-    let ignoreNextClick = false;
-    let lastTouchOpen = 0;
-    let touchStart = null;
-    let touchMoved = false;
+    let pointerStart = null;
+    let pointerMoved = false;
+    let lastOpen = 0;
     function openFrom(trigger) {
-      const card = opener.closest(".capability-card");
+      const now = performance.now();
+      if (now - lastOpen < 420) return;
+      lastOpen = now;
       card?.classList.add("is-opening");
       window.setTimeout(() => card?.classList.remove("is-opening"), 420);
       openCapability(opener.dataset.capabilityOpen, trigger);
     }
-    function suppressFollowupClick() {
-      ignoreNextClick = true;
-      window.setTimeout(() => {
-        ignoreNextClick = false;
-      }, 650);
-    }
-    function openTouch(trigger) {
-      const now = performance.now();
-      if (now - lastTouchOpen < 500) return;
-      lastTouchOpen = now;
-      suppressFollowupClick();
-      openFrom(trigger);
-    }
     opener.addEventListener("click", (event) => {
+      event.preventDefault();
       event.stopPropagation();
-      if (ignoreNextClick) {
-        event.preventDefault();
-        return;
-      }
       openFrom(opener);
     });
-    opener.addEventListener(
-      "pointerup",
-      (event) => {
-        if (event.pointerType !== "touch" || movedInsideCard || !cardPointerActive) return;
-        event.preventDefault();
-        event.stopPropagation();
-        cardPointerActive = false;
-        openTouch(opener);
-      },
-      { passive: false },
-    );
-    opener.addEventListener(
-      "touchend",
-      (event) => {
-        if (!touchStart || touchMoved) return;
-        event.preventDefault();
-        event.stopPropagation();
-        touchStart = null;
-        openTouch(opener);
-      },
-      { passive: false },
-    );
     card?.addEventListener(
       "pointerdown",
       (event) => {
-        if (event.pointerType === "touch" && event.isPrimary === false) return;
-        movedInsideCard = false;
-        cardPointerActive = true;
-        cardPointerStart = { x: event.clientX, y: event.clientY };
-        cardPointerStartedAt = performance.now();
-      },
-      { passive: true },
-    );
-    card?.addEventListener(
-      "touchstart",
-      (event) => {
-        const touch = event.changedTouches[0];
-        if (!touch) return;
-        touchStart = { x: touch.clientX, y: touch.clientY };
-        touchMoved = false;
-      },
-      { passive: true },
-    );
-    card?.addEventListener(
-      "touchmove",
-      (event) => {
-        if (!touchStart) return;
-        const touch = event.changedTouches[0];
-        if (!touch) return;
-        if (
-          Math.abs(touch.clientX - touchStart.x) > 10 ||
-          Math.abs(touch.clientY - touchStart.y) > 10
-        ) {
-          touchMoved = true;
-        }
+        if (event.isPrimary === false) return;
+        pointerStart = { x: event.clientX, y: event.clientY };
+        pointerMoved = false;
       },
       { passive: true },
     );
     card?.addEventListener(
       "pointermove",
       (event) => {
-        if (!cardPointerActive) return;
+        if (!pointerStart) return;
         if (
-          Math.abs(event.clientX - cardPointerStart.x) > 10 ||
-          Math.abs(event.clientY - cardPointerStart.y) > 10
+          Math.abs(event.clientX - pointerStart.x) > 12 ||
+          Math.abs(event.clientY - pointerStart.y) > 12
         ) {
-          movedInsideCard = true;
+          pointerMoved = true;
         }
       },
       { passive: true },
     );
-    card?.addEventListener(
-      "pointerup",
-      (event) => {
-        const wasActive = cardPointerActive;
-        const tapDuration = performance.now() - cardPointerStartedAt;
-        cardPointerActive = false;
-        if (
-          event.pointerType === "touch" &&
-          wasActive &&
-          !movedInsideCard &&
-          tapDuration < 560 &&
-          !event.target.closest("[data-capability-open]")
-        ) {
-          return;
-        }
-      },
-      { passive: false },
-    );
-    card?.addEventListener(
-      "touchend",
-      (event) => {
-        if (!touchStart || touchMoved || event.target.closest("[data-capability-open]")) {
-          touchStart = null;
-          return;
-        }
-        touchStart = null;
-      },
-      { passive: false },
-    );
-    card?.addEventListener("touchcancel", () => {
-      touchStart = null;
-      touchMoved = false;
-    });
-    ["pointercancel", "pointerleave"].forEach((eventName) => {
+    ["pointerup", "pointercancel", "pointerleave"].forEach((eventName) => {
       card?.addEventListener(
         eventName,
         () => {
-          cardPointerActive = false;
+          if (eventName !== "pointerup") pointerMoved = true;
+          pointerStart = null;
         },
         { passive: true },
       );
     });
     card?.addEventListener("click", (event) => {
-      if (isTouch) return;
-      if (event.target.closest(".card-hit-area") || movedInsideCard) return;
+      if (
+        pointerMoved ||
+        event.target.closest(".card-hit-area, a, button, input, select, textarea")
+      ) {
+        pointerMoved = false;
+        return;
+      }
       openFrom(card);
     });
   });
@@ -1509,6 +1434,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.body.classList.remove("dialog-open");
     capabilityDialogModel?.querySelectorAll(".experience-stage").forEach((stage) => {
       if (stage._modeTimer) window.clearInterval(stage._modeTimer);
+      if (stage._modeTransitionTimer) window.clearTimeout(stage._modeTransitionTimer);
     });
     if (capabilityDialogModel?._stepTimer) {
       clearInterval(capabilityDialogModel._stepTimer);
@@ -1574,14 +1500,43 @@ document.addEventListener("DOMContentLoaded", async () => {
     surface.classList.remove("is-touch-active", "is-pressed", "is-engaged");
   }
   const capabilityCards = [...document.querySelectorAll(".capability-card")];
-  if (isTouch) {
-    capabilityCards.forEach((card) => {
-      card.classList.remove("is-model-active", "is-inview", "is-pressed", "is-engaged");
-    });
-    document.addEventListener("lesnar:magic-change", () => {
-      capabilityCards.forEach((card) => {
-        card.classList.remove("is-model-active", "is-inview", "is-pressed", "is-engaged");
+  if (isTouch && "IntersectionObserver" in window) {
+    const touchVisibility = new Map(capabilityCards.map((card) => [card, 0]));
+    function refreshTouchCardActivity() {
+      let activeCard = null;
+      let activeRatio = 0.22;
+      touchVisibility.forEach((ratio, card) => {
+        if (ratio > activeRatio) {
+          activeCard = card;
+          activeRatio = ratio;
+        }
       });
+      capabilityCards.forEach((card) => {
+        const isActive = !isMagicOff() && card === activeCard;
+        card.classList.toggle("is-model-active", isActive);
+        card.classList.toggle("is-inview", isActive);
+        card.classList.remove("is-pressed", "is-engaged", "is-touch-active");
+      });
+    }
+    const touchModelObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          touchVisibility.set(entry.target, entry.isIntersecting ? entry.intersectionRatio : 0);
+        });
+        refreshTouchCardActivity();
+      },
+      {
+        rootMargin: "-12% 0px -20% 0px",
+        threshold: [0, 0.22, 0.4, 0.62, 0.82],
+      },
+    );
+    capabilityCards.forEach((card) => touchModelObserver.observe(card));
+    document.addEventListener("lesnar:magic-change", refreshTouchCardActivity);
+  } else if (isTouch) {
+    capabilityCards.forEach((card, index) => {
+      card.classList.toggle("is-model-active", index === 0 && !isMagicOff());
+      card.classList.toggle("is-inview", index === 0 && !isMagicOff());
+      card.classList.remove("is-pressed", "is-engaged", "is-touch-active");
     });
   } else if ("IntersectionObserver" in window) {
     const modelVisibility = new Map(capabilityCards.map((card) => [card, 0]));

@@ -43,7 +43,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400..700&family=Newsreader:ital,opsz,wght@1,6..72,300&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260614-globe-card-flow">
+  <link rel="stylesheet" href="css/styles.css?v=20260614-card-atelier">
 </head>
 <body>
   <div id="cursor-lens" aria-hidden="true">
@@ -313,7 +313,7 @@
         </header>
         <div class="capability-grid">
           <article class="capability-entry" data-reveal>
-            <div class="capability-card tilt-surface accent-cyan" data-tilt>
+            <div class="capability-card tilt-surface accent-cyan" data-tilt data-capability-card="backend">
               <div class="card-glow" aria-hidden="true"></div>
               <div class="capability-card-top">
                 <span class="card-index">01 Backend</span>
@@ -342,12 +342,12 @@
               <p>Fast, reliable APIs, data pipelines, and databases built to scale without downtime.</p>
               <div class="card-outcome"><span>Outcome</span><strong>Speed, scale, and dependable operations</strong></div>
               <div class="card-tags"><span>APIs</span><span>Data</span><span>Reliability</span></div>
-              <span class="card-open-indicator">Open <i>+</i></span>
+              <span class="card-open-indicator">Inspect architecture <i>+</i></span>
               <button class="card-hit-area" type="button" data-capability-open="backend" data-cursor="expand" data-cursor-label="OPEN" aria-label="Explore Backend Engineering"></button>
             </div>
           </article>
           <article class="capability-entry" data-reveal>
-            <div class="capability-card tilt-surface accent-violet" data-tilt>
+            <div class="capability-card tilt-surface accent-violet" data-tilt data-capability-card="security">
               <div class="card-glow" aria-hidden="true"></div>
               <div class="capability-card-top">
                 <span class="card-index">02 Security</span>
@@ -370,12 +370,12 @@
               <p>We test software, hardware, and payment flows to find weak points before attackers do.</p>
               <div class="card-outcome"><span>Outcome</span><strong>Safer launches and fewer hidden risks</strong></div>
               <div class="card-tags"><span>Protocol</span><span>RFID</span><span>Attack tests</span></div>
-              <span class="card-open-indicator">Open <i>+</i></span>
+              <span class="card-open-indicator">Enter test lab <i>+</i></span>
               <button class="card-hit-area" type="button" data-capability-open="security" data-cursor="expand" data-cursor-label="OPEN" aria-label="Explore Security Testing"></button>
             </div>
           </article>
           <article class="capability-entry" data-reveal>
-            <div class="capability-card tilt-surface accent-amber" data-tilt>
+            <div class="capability-card tilt-surface accent-amber" data-tilt data-capability-card="quant">
               <div class="card-glow" aria-hidden="true"></div>
               <div class="capability-card-top">
                 <span class="card-index">03 Markets</span>
@@ -405,12 +405,12 @@
               <p>Research, backtesting, and execution tools that turn market data into measurable decisions.</p>
               <div class="card-outcome"><span>Outcome</span><strong>Faster research and disciplined execution</strong></div>
               <div class="card-tags"><span>Gold markets</span><span>Simulation</span><span>Execution</span></div>
-              <span class="card-open-indicator">Open <i>+</i></span>
+              <span class="card-open-indicator">Open research desk <i>+</i></span>
               <button class="card-hit-area" type="button" data-capability-open="quant" data-cursor="expand" data-cursor-label="OPEN" aria-label="Explore Market Research Tools"></button>
             </div>
           </article>
           <article class="capability-entry" data-reveal>
-            <div class="capability-card tilt-surface accent-blue" data-tilt>
+            <div class="capability-card tilt-surface accent-blue" data-tilt data-capability-card="autonomy">
               <div class="card-glow" aria-hidden="true"></div>
               <div class="capability-card-top">
                 <span class="card-index">04 Robotics</span>
@@ -439,12 +439,12 @@
               <p>Control software for drones and robotics, connecting careful decisions to real hardware.</p>
               <div class="card-outcome"><span>Outcome</span><strong>Reliable decisions beyond the screen</strong></div>
               <div class="card-tags"><span>Control</span><span>Robotics</span><span>Hardware</span></div>
-              <span class="card-open-indicator">Open <i>+</i></span>
+              <span class="card-open-indicator">Run field mission <i>+</i></span>
               <button class="card-hit-area" type="button" data-capability-open="autonomy" data-cursor="expand" data-cursor-label="OPEN" aria-label="Explore Robotics and Control"></button>
             </div>
           </article>
           <article class="capability-entry" data-reveal>
-            <div class="capability-card tilt-surface accent-mint" data-tilt>
+            <div class="capability-card tilt-surface accent-mint" data-tilt data-capability-card="ai">
               <div class="card-glow" aria-hidden="true"></div>
               <div class="capability-card-top">
                 <span class="card-index">05 Operations</span>
@@ -471,12 +471,12 @@
               <p>Practical tools that find the right information, handle routine work, and keep important decisions with people.</p>
               <div class="card-outcome"><span>Outcome</span><strong>Faster operations without losing human judgment</strong></div>
               <div class="card-tags"><span>Operations</span><span>Search</span><span>Review</span></div>
-              <span class="card-open-indicator">Open <i>+</i></span>
+              <span class="card-open-indicator">Follow the decision <i>+</i></span>
               <button class="card-hit-area" type="button" data-capability-open="ai" data-cursor="expand" data-cursor-label="OPEN" aria-label="Explore Decision and Workflow Tools"></button>
             </div>
           </article>
           <article class="capability-entry" data-reveal>
-            <div class="capability-card tilt-surface accent-rose" data-tilt>
+            <div class="capability-card tilt-surface accent-rose" data-tilt data-capability-card="commerce">
               <div class="card-glow" aria-hidden="true"></div>
               <div class="capability-card-top">
                 <span class="card-index">06 Commerce</span>
@@ -500,12 +500,12 @@
               <p>Search, payments, concierge tools, and operations brought together in one customer experience.</p>
               <div class="card-outcome"><span>Outcome</span><strong>Smoother buying and stronger operations</strong></div>
               <div class="card-tags"><span>Commerce</span><span>Payments</span><span>Concierge</span></div>
-              <span class="card-open-indicator">Open <i>+</i></span>
+              <span class="card-open-indicator">Trace the order <i>+</i></span>
               <button class="card-hit-area" type="button" data-capability-open="commerce" data-cursor="expand" data-cursor-label="OPEN" aria-label="Explore Commerce Platforms"></button>
             </div>
           </article>
           <article class="capability-entry" data-reveal>
-            <div class="capability-card tilt-surface accent-orchid" data-tilt>
+            <div class="capability-card tilt-surface accent-orchid" data-tilt data-capability-card="vision">
               <div class="card-glow" aria-hidden="true"></div>
               <div class="capability-card-top">
                 <span class="card-index">07 Vision</span>
@@ -530,12 +530,12 @@
               <p>Visual tools for detection, tracking, inspection, and fast decisions close to the camera.</p>
               <div class="card-outcome"><span>Outcome</span><strong>Systems that understand physical spaces</strong></div>
               <div class="card-tags"><span>Detection</span><span>Tracking</span><span>On device</span></div>
-              <span class="card-open-indicator">Open <i>+</i></span>
+              <span class="card-open-indicator">Watch the floor <i>+</i></span>
               <button class="card-hit-area" type="button" data-capability-open="vision" data-cursor="expand" data-cursor-label="OPEN" aria-label="Explore Computer Vision"></button>
             </div>
           </article>
           <article class="capability-entry" data-reveal>
-            <div class="capability-card tilt-surface accent-lime" data-tilt>
+            <div class="capability-card tilt-surface accent-lime" data-tilt data-capability-card="reliability">
               <div class="card-glow" aria-hidden="true"></div>
               <div class="capability-card-top">
                 <span class="card-index">08 Cloud</span>
@@ -559,7 +559,7 @@
               <p>Cloud delivery, observability, automation, and recovery designed into the platform.</p>
               <div class="card-outcome"><span>Outcome</span><strong>Confident releases and faster recovery</strong></div>
               <div class="card-tags"><span>Cloud</span><span>Delivery</span><span>Observability</span></div>
-              <span class="card-open-indicator">Open <i>+</i></span>
+              <span class="card-open-indicator">Follow the release <i>+</i></span>
               <button class="card-hit-area" type="button" data-capability-open="reliability" data-cursor="expand" data-cursor-label="OPEN" aria-label="Explore Cloud Operations"></button>
             </div>
           </article>
@@ -750,6 +750,6 @@
         : Promise.resolve();
     })();
   </script>
-  <script defer src="js/app.js?v=20260614-globe-card-flow"></script>
+  <script defer src="js/app.js?v=20260614-card-atelier"></script>
 </body>
 </html>
