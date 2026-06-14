@@ -4895,6 +4895,102 @@ body[data-active-chapter="contact"] .contact-field span {
     opacity: max(var(--wave-glow-opacity), .46);
   }
 }
+
+/* Opened-card demos: make the workflow feel alive without adding clutter. */
+.experience-stage.is-auto-playing .experience-visual {
+  animation: experience-camera-drift 13s cubic-bezier(.45, 0, .25, 1) infinite;
+}
+
+.experience-stage.is-auto-playing .realworld-scene {
+  filter: saturate(1.12) brightness(1.04) contrast(1.04);
+}
+
+.experience-copy small {
+  position: relative;
+  overflow: hidden;
+}
+
+.experience-copy small::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 38%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--surface-accent), transparent);
+  animation: experience-mode-scan 6.1s linear infinite;
+}
+
+.experience-storyline li {
+  transition:
+    border-color 220ms ease,
+    background 220ms ease,
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.experience-storyline li.is-passed {
+  border-color: rgba(var(--dialog-rgb), .34);
+  opacity: .76;
+}
+
+.experience-storyline li.is-active {
+  border-color: rgba(var(--dialog-rgb), .82);
+  background:
+    radial-gradient(circle at 18% 24%, rgba(var(--dialog-rgb), .24), transparent 46%),
+    rgba(0,0,0,.54);
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.07),
+    0 0 30px rgba(var(--dialog-rgb), .11);
+  transform: translateY(-3px);
+}
+
+.experience-storyline li.is-active b {
+  color: var(--text-primary);
+}
+
+.experience-metrics span {
+  transition:
+    border-color 220ms ease,
+    transform 220ms ease,
+    background 220ms ease;
+}
+
+.experience-stage[data-experience-mode="1"] .experience-metrics span:nth-child(2),
+.experience-stage[data-experience-mode="2"] .experience-metrics span:nth-child(3),
+.experience-stage[data-experience-mode="0"] .experience-metrics span:nth-child(1) {
+  border-color: rgba(var(--dialog-rgb), .62);
+  background: rgba(var(--dialog-rgb), .11);
+  transform: translateY(-2px);
+}
+
+@keyframes experience-camera-drift {
+  0%, 100% {
+    transform: perspective(900px) rotateX(0deg) rotateY(0deg) translate3d(0, 0, 0);
+  }
+  34% {
+    transform: perspective(900px) rotateX(1.4deg) rotateY(-1.8deg) translate3d(-.35rem, -.18rem, 0);
+  }
+  68% {
+    transform: perspective(900px) rotateX(-1deg) rotateY(1.6deg) translate3d(.3rem, .14rem, 0);
+  }
+}
+
+@keyframes experience-mode-scan {
+  0% { transform: translateX(-120%); opacity: 0; }
+  14%, 68% { opacity: 1; }
+  100% { transform: translateX(300%); opacity: 0; }
+}
+
+@media (max-width: 640px) {
+  .experience-stage.is-auto-playing .experience-visual {
+    animation-duration: 13s;
+  }
+
+  .experience-storyline li.is-active {
+    transform: translateY(-1px);
+  }
+}
 @media (hover: none), (pointer: coarse) {
   .capability-entry {
     content-visibility: auto;
@@ -10465,6 +10561,12 @@ body.magic-off .hero-content {
   transform: translate3d(0, 0, 0) scale(1);
 }
 
+.hero-sculpture-control:not(.has-connector) .globe-popover {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translate3d(8px, 10px, 0) scale(.96) !important;
+}
+
 .globe-connector-rail,
 .globe-connector-rail[hidden] {
   inset: 6% 5% 10%;
@@ -10730,5 +10832,391 @@ body.magic-off .hero-content {
 
   .model-case-map p {
     display: none;
+  }
+}
+
+/* Clean globe pass: the 3D globe and one switching card are enough. */
+.globe-connector-rail,
+.globe-connector-rail[hidden],
+.globe-connector-rail button {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+#webgl-container::before {
+  opacity: .28;
+  filter: blur(.35px);
+  animation: none;
+  background-size: 17px 17px;
+  background-position: var(--wave-bg-x, 0px) var(--wave-bg-y, 0px);
+  transform:
+    perspective(780px)
+    rotateX(62deg)
+    translate3d(var(--wave-field-x, 0vw), var(--wave-field-y, 0vh), 0)
+    scale(var(--wave-field-scale, 1.32));
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease,
+    background-position 220ms ease;
+}
+
+body.webgl-ready #webgl-container::before {
+  opacity: .16;
+}
+
+#webgl-container::after {
+  transition:
+    opacity 120ms ease,
+    background 120ms ease;
+}
+
+@media (hover: none), (pointer: coarse) {
+  #webgl-container::before {
+    opacity: .38;
+    background-size: 15px 15px;
+    transform:
+      perspective(720px)
+      rotateX(61deg)
+      translate3d(var(--wave-field-x, 0vw), var(--wave-field-y, 0vh), 0)
+      scale(var(--wave-field-scale, 1.38));
+  }
+
+  body.webgl-ready #webgl-container::before {
+    opacity: .26;
+  }
+
+  #webgl-container::after {
+    opacity: max(var(--wave-glow-opacity), .58);
+  }
+}
+
+/* Final simplification: globe + one card, broad living dots, readable modal scenes. */
+.globe-connector-rail,
+.globe-connector-rail[hidden],
+.globe-connector-rail *,
+.globe-connector-rail::before,
+.globe-connector-rail::after {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.hero-sculpture-control {
+  overflow: hidden !important;
+}
+
+.hero-sculpture-control.has-connector .globe-popover {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: translate3d(0, 0, 0) scale(1) !important;
+}
+
+.hero-sculpture-control:not(.has-connector) .globe-popover {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#webgl-container::before {
+  opacity: .34;
+  background:
+    radial-gradient(circle, rgba(126,169,173,.52) 0 1.15px, transparent 1.35px),
+    radial-gradient(circle, rgba(241,240,235,.18) 0 .85px, transparent 1.1px);
+  background-size: 18px 18px, 54px 54px;
+  background-position:
+    var(--wave-bg-x, 0px) var(--wave-bg-y, 0px),
+    calc(var(--wave-bg-x, 0px) * -0.35) calc(var(--wave-bg-y, 0px) * .45);
+  filter: blur(.18px);
+  transform:
+    perspective(820px)
+    rotateX(63deg)
+    translate3d(var(--wave-field-x, 0vw), var(--wave-field-y, 0vh), 0)
+    scale(var(--wave-field-scale, 1.34));
+}
+
+body.webgl-ready #webgl-container::before {
+  opacity: .25;
+}
+
+#webgl-container::after {
+  opacity: max(var(--wave-glow-opacity), .36);
+  background:
+    radial-gradient(360px circle at var(--wave-x) var(--wave-y), rgba(126,169,173,.18), transparent 70%),
+    radial-gradient(540px circle at calc(var(--wave-x) + 12vw) calc(var(--wave-y) + 9vh), rgba(145,133,162,.09), transparent 76%);
+}
+
+.experience-stage {
+  min-height: clamp(590px, 78vh, 820px);
+}
+
+.experience-stage.is-auto-playing .experience-visual {
+  animation-duration: 14.5s;
+}
+
+.experience-visual {
+  inset: 4.6rem 1rem 20.2rem;
+}
+
+.experience-copy {
+  bottom: 14.85rem;
+}
+
+.experience-storyline {
+  bottom: 5.05rem;
+}
+
+.experience-storyline li {
+  animation-duration: 24s;
+  animation-delay: calc(var(--beat) * 2s);
+}
+
+.experience-storyline li.is-active {
+  transform: translateY(-4px) scale(1.012);
+}
+
+.experience-controls button {
+  min-height: 36px;
+}
+
+.realworld-scene::before {
+  opacity: .72;
+}
+
+@media (max-width: 900px) {
+  body.webgl-ready #webgl-container::before,
+  #webgl-container::before {
+    opacity: .38;
+    background-size: 16px 16px, 48px 48px;
+    transform:
+      perspective(760px)
+      rotateX(62deg)
+      translate3d(var(--wave-field-x, 0vw), var(--wave-field-y, 0vh), 0)
+      scale(var(--wave-field-scale, 1.48));
+  }
+
+  #webgl-container::after {
+    opacity: max(var(--wave-glow-opacity), .52);
+  }
+
+  .globe-popover {
+    width: min(18rem, calc(100% - 1.2rem)) !important;
+    max-height: 46%;
+    padding: .78rem .82rem .84rem;
+  }
+
+  .globe-popover small {
+    font-size: .54rem;
+    line-height: 1.42;
+  }
+
+  .globe-card-cue {
+    margin-top: .18rem;
+  }
+
+  .capability-dialog {
+    width: min(960px, calc(100% - 1rem));
+    max-height: calc(100dvh - 1rem);
+  }
+
+  .capability-dialog-shell {
+    max-height: calc(100dvh - 1rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scroll-padding-top: 4.5rem;
+  }
+
+  .dialog-close {
+    position: sticky !important;
+    top: .75rem !important;
+    margin: .75rem .75rem -3.4rem auto;
+    z-index: 20;
+  }
+
+  .capability-stage-visual {
+    min-height: clamp(660px, 74svh, 820px);
+  }
+
+  .dialog-model {
+    inset: 4.8rem .75rem 1rem;
+    grid-template-rows: 1fr;
+  }
+
+  .dialog-model .dialog-source-model {
+    display: none !important;
+  }
+
+  .experience-stage {
+    min-height: clamp(560px, 68svh, 760px);
+  }
+
+  .experience-visual {
+    inset: 4.05rem .78rem 22.5rem;
+  }
+
+  .experience-copy {
+    left: .85rem;
+    right: .85rem;
+    bottom: 16.8rem;
+  }
+
+  .experience-copy p {
+    font-size: .82rem;
+    line-height: 1.45;
+  }
+
+  .experience-copy small {
+    display: inline-block;
+    font-size: .5rem;
+  }
+
+  .experience-storyline {
+    left: .85rem;
+    right: .85rem;
+    bottom: 4.85rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .experience-storyline li {
+    min-height: 3.15rem;
+  }
+
+  .experience-controls {
+    left: .85rem;
+    right: .85rem;
+    bottom: .85rem;
+  }
+
+  .experience-metrics {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  body.webgl-ready #webgl-container::before,
+  #webgl-container::before {
+    opacity: .44;
+    background-size: 15px 15px, 44px 44px;
+    transform:
+      perspective(720px)
+      rotateX(61deg)
+      translate3d(var(--wave-field-x, 0vw), var(--wave-field-y, 0vh), 0)
+      scale(var(--wave-field-scale, 1.55));
+  }
+
+  .hero-sculpture-control {
+    height: 340px !important;
+    min-height: 340px !important;
+  }
+
+  .globe-popover {
+    left: .6rem !important;
+    right: .6rem !important;
+    bottom: .6rem !important;
+    width: auto !important;
+    max-height: 42%;
+  }
+
+  .globe-popover span {
+    font-size: .66rem;
+  }
+
+  .globe-popover small {
+    display: block;
+    max-width: none;
+  }
+
+  .globe-popover b {
+    max-width: none;
+    font-size: .46rem;
+  }
+
+  .globe-card-cue {
+    grid-template-columns: 1.8rem 1fr auto;
+  }
+
+  .capability-stage-visual {
+    min-height: 660px;
+  }
+
+  .dialog-model {
+    inset: 4.5rem .58rem .78rem;
+  }
+
+  .experience-stage {
+    min-height: 565px;
+    border-radius: 16px;
+  }
+
+  .experience-heading {
+    top: .68rem;
+    left: .68rem;
+    max-width: calc(100% - 1.36rem);
+  }
+
+  .experience-heading strong {
+    font-size: .72rem;
+  }
+
+  .experience-visual {
+    inset: 3.75rem .45rem 22.25rem;
+  }
+
+  .realworld-scene {
+    transform: scale(.98);
+  }
+
+  .experience-copy {
+    left: .68rem;
+    right: .68rem;
+    bottom: 16.3rem;
+  }
+
+  .experience-copy p {
+    display: block;
+    overflow: visible;
+    font-size: .72rem;
+    line-height: 1.38;
+    -webkit-line-clamp: initial;
+  }
+
+  .experience-storyline {
+    left: .68rem;
+    right: .68rem;
+    bottom: 4.55rem;
+    grid-template-columns: 1fr;
+    gap: .28rem;
+  }
+
+  .experience-storyline::before {
+    display: none;
+  }
+
+  .experience-storyline li {
+    min-height: 2.42rem;
+    padding: .38rem .42rem .38rem 1.38rem;
+  }
+
+  .experience-storyline span {
+    font-size: .42rem;
+  }
+
+  .experience-storyline b {
+    font-size: .58rem;
+  }
+
+  .experience-controls {
+    left: .68rem;
+    right: .68rem;
+    bottom: .68rem;
+    width: auto;
+    max-width: none;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .experience-controls button {
+    min-height: 32px;
+    padding: .36rem .34rem;
+    font-size: .42rem;
+    text-align: center;
   }
 }

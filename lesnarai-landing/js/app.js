@@ -234,33 +234,68 @@ document.addEventListener("DOMContentLoaded", async () => {
     let waveFrame = null;
     let waveX = window.innerWidth * 0.66;
     let waveY = window.innerHeight * 0.55;
-    let waveEnergy = isTouch ? 0.34 : 0.42;
+    let waveEnergy = isTouch ? 0.42 : 0.48;
+    let lastWaveScrollY = window.scrollY;
     const updateWaveWake = () => {
+      const normalX = waveX / Math.max(window.innerWidth, 1) - 0.5;
+      const normalY = waveY / Math.max(window.innerHeight, 1) - 0.5;
       webglContainer.style.setProperty("--wave-x", `${waveX}px`);
       webglContainer.style.setProperty("--wave-y", `${waveY}px`);
       webglContainer.style.setProperty("--wave-glow-opacity", String(waveEnergy));
+      webglContainer.style.setProperty("--wave-bg-x", `${(normalX * 58).toFixed(1)}px`);
+      webglContainer.style.setProperty("--wave-bg-y", `${(normalY * 42 + window.scrollY * 0.045).toFixed(1)}px`);
+      webglContainer.style.setProperty("--wave-field-x", `${(normalX * 3.6).toFixed(2)}vw`);
+      webglContainer.style.setProperty("--wave-field-y", `${(normalY * 2.4).toFixed(2)}vh`);
+      webglContainer.style.setProperty("--wave-field-scale", `${(1.28 + waveEnergy * 0.16).toFixed(3)}`);
+      webglContainer.dataset.waveWake = String(Date.now());
       waveFrame = null;
     };
-    const scheduleWaveWake = (event, energy) => {
+    const scheduleWaveWakeAt = (clientX, clientY, energy) => {
       if (isMagicOff()) return;
-      waveX = event.clientX;
-      waveY = event.clientY;
-      waveEnergy = energy;
+      waveX = Math.max(0, Math.min(window.innerWidth, clientX));
+      waveY = Math.max(0, Math.min(window.innerHeight, clientY));
+      waveEnergy = Math.max(waveEnergy * 0.74, energy);
       if (!waveFrame) waveFrame = requestAnimationFrame(updateWaveWake);
+    };
+    const scheduleWaveWake = (event, energy) => {
+      scheduleWaveWakeAt(event.clientX, event.clientY, energy);
     };
     window.addEventListener(
       "pointermove",
-      (event) => scheduleWaveWake(event, isTouch ? 0.52 : 0.62),
+      (event) => scheduleWaveWake(event, isTouch ? 0.76 : 0.74),
+      { passive: true },
+    );
+    window.addEventListener(
+      "touchmove",
+      (event) => {
+        const touch = event.changedTouches?.[0];
+        if (!touch) return;
+        scheduleWaveWakeAt(touch.clientX, touch.clientY, 0.82);
+      },
       { passive: true },
     );
     window.addEventListener(
       "pointerdown",
-      (event) => scheduleWaveWake(event, isTouch ? 0.8 : 0.86),
+      (event) => scheduleWaveWake(event, isTouch ? 0.96 : 0.94),
       { passive: true },
     );
     window.addEventListener(
       "pointerup",
-      (event) => scheduleWaveWake(event, isTouch ? 0.42 : 0.46),
+      (event) => scheduleWaveWake(event, isTouch ? 0.64 : 0.58),
+      { passive: true },
+    );
+    window.addEventListener(
+      "scroll",
+      () => {
+        const delta = window.scrollY - lastWaveScrollY;
+        lastWaveScrollY = window.scrollY;
+        const scrollEnergy = Math.min(0.94, 0.5 + Math.abs(delta) / Math.max(window.innerHeight, 1));
+        scheduleWaveWakeAt(
+          waveX + Math.sign(delta || 1) * Math.min(90, Math.abs(delta) * 0.4),
+          waveY + Math.sign(delta || 1) * Math.min(70, Math.abs(delta) * 0.28),
+          scrollEnergy,
+        );
+      },
       { passive: true },
     );
     updateWaveWake();
@@ -1184,15 +1219,44 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const storyline = document.createElement("ol");
     storyline.className = "experience-storyline";
+    const storyItems = [];
     (experience.story || []).forEach(([label, detail], index) => {
       const item = document.createElement("li");
       item.style.setProperty("--beat", String(index));
       item.innerHTML = `<span>${escapeHtml(label)}</span><b>${escapeHtml(detail)}</b>`;
       storyline.appendChild(item);
+      storyItems.push(item);
     });
 
     const controls = document.createElement("div");
     controls.className = "experience-controls";
+    const controlButtons = [];
+    function setExperienceMode(index, replay = true) {
+      const modes = experience.modes || [];
+      const nextIndex = modes.length ? (index + modes.length) % modes.length : 0;
+      blueprint.dataset.experienceMode = String(nextIndex);
+      controlButtons.forEach((control, controlIndex) => {
+        const active = controlIndex === nextIndex;
+        control.classList.toggle("is-active", active);
+        control.setAttribute("aria-pressed", String(active));
+      });
+      const activeStoryIndex = storyItems.length
+        ? Math.min(
+            storyItems.length - 1,
+            Math.round(nextIndex * Math.max(storyItems.length - 1, 0) / Math.max((modes.length || 1) - 1, 1)),
+          )
+        : 0;
+      storyItems.forEach((item, itemIndex) => {
+        item.classList.toggle("is-active", itemIndex === activeStoryIndex);
+        item.classList.toggle("is-passed", itemIndex < activeStoryIndex);
+      });
+      modeCopy.textContent = experience.modeText?.[nextIndex] || modes[nextIndex] || "Live";
+      if (replay) {
+        visual.style.animation = "none";
+        visual.offsetHeight;
+        visual.style.animation = "";
+      }
+    }
     (experience.modes || []).forEach((label, index) => {
       const button = document.createElement("button");
       button.type = "button";
@@ -1200,19 +1264,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       button.className = index === 0 ? "is-active" : "";
       button.setAttribute("aria-pressed", String(index === 0));
       button.addEventListener("click", () => {
-        blueprint.dataset.experienceMode = String(index);
-        controls.querySelectorAll("button").forEach((control, controlIndex) => {
-          const active = controlIndex === index;
-          control.classList.toggle("is-active", active);
-          control.setAttribute("aria-pressed", String(active));
-        });
-        modeCopy.textContent = experience.modeText?.[index] || label;
-        visual.style.animation = "none";
-        visual.offsetHeight;
-        visual.style.animation = "";
+        setExperienceMode(index);
       });
       controls.appendChild(button);
+      controlButtons.push(button);
     });
+    setExperienceMode(0, false);
+    if (!reduceMotion && (experience.modes || []).length > 1) {
+      blueprint.classList.add("is-auto-playing");
+      let autoIndex = 0;
+      blueprint._modeTimer = window.setInterval(() => {
+        if (!document.body.classList.contains("dialog-open") || document.hidden) return;
+        autoIndex = (autoIndex + 1) % (experience.modes || []).length;
+        setExperienceMode(autoIndex);
+      }, isTouch ? 7200 : 6100);
+    }
 
     const metrics = document.createElement("div");
     metrics.className = "experience-metrics";
@@ -1231,6 +1297,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       ?.closest(".capability-card")
       ?.querySelector(".capability-model");
     if (!source || !capabilityDialogModel) return;
+    capabilityDialogModel?.querySelectorAll(".experience-stage").forEach((stage) => {
+      if (stage._modeTimer) window.clearInterval(stage._modeTimer);
+    });
     const model = source.cloneNode(true);
     model.removeAttribute("data-model");
     model.classList.add("dialog-source-model");
@@ -1438,6 +1507,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   capabilityDialog?.addEventListener("close", () => {
     document.body.classList.remove("dialog-open");
+    capabilityDialogModel?.querySelectorAll(".experience-stage").forEach((stage) => {
+      if (stage._modeTimer) window.clearInterval(stage._modeTimer);
+    });
     if (capabilityDialogModel?._stepTimer) {
       clearInterval(capabilityDialogModel._stepTimer);
       capabilityDialogModel._stepTimer = null;
@@ -1772,6 +1844,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
   function markWebglUnavailable() {
+    document.body.classList.remove("webgl-ready");
     document.body.classList.add("webgl-unavailable");
     document.getElementById("webgl-container")?.setAttribute("hidden", "");
   }
@@ -1782,6 +1855,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
   document.body.classList.remove("webgl-unavailable");
+  document.body.classList.add("webgl-ready");
   document.getElementById("webgl-container")?.removeAttribute("hidden");
   const canvas = document.getElementById("webgl-canvas");
   const hero = document.querySelector(".hero");
@@ -1843,8 +1917,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const amberLight = new THREE.PointLight(0xb99a64, 1.05, 12);
   amberLight.position.set(0, 4, 1);
   scene.add(amberLight);
-  const waveColumns = isTouch ? (touchWide ? 60 : 48) : (isLaptopProfile ? 112 : 176);
-  const waveRows = isTouch ? (touchWide ? 36 : 30) : (isLaptopProfile ? 68 : 108);
+  const waveColumns = isTouch ? (touchWide ? 76 : 52) : (isLaptopProfile ? 112 : 176);
+  const waveRows = isTouch ? (touchWide ? 44 : 32) : (isLaptopProfile ? 68 : 108);
   const wavePositions = new Float32Array(waveColumns * waveRows * 3);
   const wavePhases = new Float32Array(waveColumns * waveRows);
   let waveIndex = 0;
@@ -1867,7 +1941,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     uPixelRatio: { value: Math.min(window.devicePixelRatio, maxPixelRatio) },
     uPointer: { value: new THREE.Vector2(0.48, 0.08) },
     uPreviousPointer: { value: new THREE.Vector2(0.18, -0.04) },
-    uPointerEnergy: { value: isTouch ? 0.18 : 0.28 },
+    uPointerEnergy: { value: isTouch ? 0.34 : 0.34 },
   };
   const waveMaterial = new THREE.ShaderMaterial({
     uniforms: waveUniforms,
@@ -1898,20 +1972,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         vec2 fieldUv = vec2(point.x / 13.0, (point.z + 1.4) / 10.0);
         float pointerDistance = distance(fieldUv, uPointer);
         float trailDistance = distanceToSegment(fieldUv, uPreviousPointer, uPointer);
-        float pointerWake = smoothstep(${isTouch ? "0.54" : "0.68"}, 0.0, pointerDistance) * uPointerEnergy;
-        float dragWake = smoothstep(${isTouch ? "0.28" : "0.34"}, 0.0, trailDistance) * uPointerEnergy;
-        float pointerRipple = sin(pointerDistance * 17.0 - uTime * ${isTouch ? "1.75" : "2.45"}) * pointerWake;
-        float wakeRipple = cos(trailDistance * 15.0 - uTime * ${isTouch ? "1.35" : "1.85"}) * dragWake;
+        float pointerWake = smoothstep(${isTouch ? "0.86" : "0.76"}, 0.0, pointerDistance) * uPointerEnergy;
+        float dragWake = smoothstep(${isTouch ? "0.54" : "0.46"}, 0.0, trailDistance) * uPointerEnergy;
+        float pointerRipple = sin(pointerDistance * ${isTouch ? "11.0" : "15.0"} - uTime * ${isTouch ? "1.75" : "2.25"}) * pointerWake;
+        float wakeRipple = cos(trailDistance * ${isTouch ? "10.0" : "13.0"} - uTime * ${isTouch ? "1.35" : "1.72"}) * dragWake;
         float ambient = broad + longWave + cross;
-        float surface = ambient * ${isTouch ? "0.72" : "0.62"} + pointerRipple * ${isTouch ? "0.58" : "0.9"} + wakeRipple * ${isTouch ? "0.32" : "0.48"} + pointerWake * ${isTouch ? "0.22" : "0.34"};
+        float surface = ambient * ${isTouch ? "0.72" : "0.64"} + pointerRipple * ${isTouch ? "0.7" : "0.92"} + wakeRipple * ${isTouch ? "0.48" : "0.52"} + pointerWake * ${isTouch ? "0.3" : "0.34"};
         point.y += surface;
-        point.x += (fieldUv.x - uPointer.x) * pointerWake * ${isTouch ? "0.1" : "0.18"};
-        point.z += pointerRipple * ${isTouch ? "0.1" : "0.2"} + wakeRipple * ${isTouch ? "0.06" : "0.1"};
+        point.x += (fieldUv.x - uPointer.x) * pointerWake * ${isTouch ? "0.16" : "0.2"};
+        point.z += pointerRipple * ${isTouch ? "0.18" : "0.22"} + wakeRipple * ${isTouch ? "0.12" : "0.12"};
         vec4 modelPosition = modelViewMatrix * vec4(point, 1.0);
         gl_Position = projectionMatrix * modelPosition;
-        gl_PointSize = max(${isTouch ? "1.8" : "1.7"}, (${isTouch ? "29.0" : "25.0"} + abs(surface) * ${isTouch ? "3.4" : "4.2"} + pointerWake * ${isTouch ? "5.1" : "8.2"} + dragWake * ${isTouch ? "2.2" : "4.2"}) * uPixelRatio / -modelPosition.z);
-        vEnergy = clamp(abs(surface) * ${isTouch ? "0.34" : "0.42"} + pointerWake * ${isTouch ? "0.42" : "0.56"} + dragWake * ${isTouch ? "0.24" : "0.34"}, 0.0, 1.0);
-        vAlpha = ${isTouch ? "0.46" : "0.28"} + vEnergy * ${isTouch ? "0.48" : "0.58"};
+        gl_PointSize = max(${isTouch ? "2.15" : "1.7"}, (${isTouch ? "35.0" : "25.0"} + abs(surface) * ${isTouch ? "4.4" : "4.2"} + pointerWake * ${isTouch ? "7.4" : "8.0"} + dragWake * ${isTouch ? "4.1" : "4.2"}) * uPixelRatio / -modelPosition.z);
+        vEnergy = clamp(abs(surface) * ${isTouch ? "0.44" : "0.42"} + pointerWake * ${isTouch ? "0.55" : "0.54"} + dragWake * ${isTouch ? "0.38" : "0.32"}, 0.0, 1.0);
+        vAlpha = ${isTouch ? "0.72" : "0.34"} + vEnergy * ${isTouch ? "0.28" : "0.54"};
         vTint = clamp(0.5 + sin(point.x * 0.17 + point.z * 0.11) * 0.5, 0.0, 1.0);
       }
     `,
@@ -1946,7 +2020,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     ? new THREE.MeshBasicMaterial({
         color: 0x142528,
         transparent: true,
-        opacity: 0.38,
+        opacity: 0.44,
         depthWrite: false,
       })
     : new THREE.MeshPhysicalMaterial({
@@ -1958,7 +2032,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         clearcoat: 1,
         clearcoatRoughness: 0.2,
         transparent: true,
-        opacity: 0.34,
+        opacity: 0.4,
         depthWrite: false,
       });
   const core = new THREE.Mesh(
@@ -2912,6 +2986,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     velocityY: 0,
   };
   const globeMomentum = { x: 0, y: 0 };
+  let lastWaveInteractionScrollY = window.scrollY;
   function setGlobeFocus(active) {
     globeFocusActive = active;
     document.body.classList.toggle("globe-focus", active);
@@ -3001,34 +3076,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   function buildConnectorRail() {
     if (!globeConnectorRail) return;
-    globeConnectorRail.removeAttribute("hidden");
+    globeConnectorRail.setAttribute("hidden", "");
     globeConnectorRail.replaceChildren();
     connectorButtons.length = 0;
-    connections.forEach((connection, index) => {
-      const button = document.createElement("button");
-      const detail = document.createElement("small");
-      button.type = "button";
-      button.style.setProperty("--connector-accent", connection.accent);
-      button.setAttribute("aria-label", `Show ${connection.label} connection`);
-      button.setAttribute("aria-pressed", "false");
-      button.dataset.connectorIndex = String(index);
-      button.append(document.createTextNode(connection.short || connection.label));
-      detail.textContent = connection.detail || connection.route || "World connector";
-      button.append(detail);
-      button.addEventListener("click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        setActiveConnector(index);
-      });
-      ["pointerdown", "pointerup"].forEach((eventName) => {
-        button.addEventListener(eventName, (event) => event.stopPropagation());
-      });
-      globeConnectorRail.appendChild(button);
-      connectorButtons.push(button);
-    });
     updateConnectorButtons();
   }
   buildConnectorRail();
+  if (connections.length) {
+    setActiveConnector(0);
+  }
   function pickConnector(event) {
     if (!renderer || !camera || !connectionHitTargets.length) return -1;
     const rect = renderer.domElement.getBoundingClientRect();
@@ -3112,22 +3168,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   let compactLayout = false;
   function placeSculpture() {
     const compact = window.innerWidth <= 900;
+    const laptopWidth = !compact && window.innerWidth <= 1500;
     compactLayout = compact;
     waveField.scale.set(compact ? 1.58 : 1.28, compact ? 1.36 : 1.18, 1);
     waveLines.scale.copy(waveField.scale);
-    sculpture.position.set(compact ? 0.04 : 3.28, compact ? -1.14 : -0.08, compact ? -1.12 : -0.72);
-    sculptureBaseScale = compact ? 0.5 : 0.78;
+    sculpture.position.set(
+      compact ? 0.04 : (laptopWidth ? 2.24 : 3.04),
+      compact ? -1.14 : -0.08,
+      compact ? -1.12 : -0.72,
+    );
+    sculptureBaseScale = compact ? 0.52 : (laptopWidth ? 0.76 : 0.82);
     sculpture.scale.setScalar(sculptureBaseScale);
     globeGround.position.set(
       sculpture.position.x,
       sculpture.position.y - (compact ? 0.72 : 1.16),
       sculpture.position.z + 0.04,
     );
-    globeGroundBaseScale = compact ? 0.76 : 1.12;
+    globeGroundBaseScale = compact ? 0.8 : (laptopWidth ? 1.05 : 1.16);
     globeGround.scale.setScalar(globeGroundBaseScale);
     identityBaseY = sculpture.position.y - (compact ? 0.9 : 1.34);
-    identityPlate.position.set(compact ? 0 : 2.56, identityBaseY - 0.18, compact ? 0.62 : 0.92);
-    identityPlate.scale.setScalar(compact ? 0.32 : 0.54);
+    identityPlate.position.set(compact ? 0 : (laptopWidth ? 1.84 : 2.42), identityBaseY - 0.18, compact ? 0.62 : 0.92);
+    identityPlate.scale.setScalar(compact ? 0.32 : (laptopWidth ? 0.48 : 0.54));
     connectionLabels.forEach((label) => {
       label.visible = false;
     });
@@ -3156,11 +3217,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       setActiveConnector(fallbackConnectorIndex);
       return;
     }
-    if (activeConnectorIndex >= 0) {
-      event.preventDefault();
-      setActiveConnector(-1);
-      setGlobeFocus(false);
-    }
+    if (activeConnectorIndex >= 0) event.preventDefault();
   });
   globeFocusControl?.addEventListener(
     "pointerdown",
@@ -3265,7 +3322,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       pointer.previousY += (pointer.y - pointer.previousY) * 0.44;
       pointer.x = nextX;
       pointer.y = nextY;
-      pointer.targetEnergy = Math.min(isTouch ? 0.42 : 0.72, (isTouch ? 0.18 : 0.28) + movement * (isTouch ? 0.82 : 2.6));
+      pointer.targetEnergy = Math.min(isTouch ? 0.78 : 0.82, (isTouch ? 0.36 : 0.34) + movement * (isTouch ? 1.45 : 2.65));
       waveUniforms.uPointer.value.set(pointer.x, pointer.y);
       waveUniforms.uPreviousPointer.value.set(pointer.previousX, pointer.previousY);
     },
@@ -3279,7 +3336,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       pointer.previousY = pointer.y;
       pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
       pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-      pointer.targetEnergy = isTouch ? 0.46 : 0.7;
+      pointer.targetEnergy = isTouch ? 0.9 : 0.84;
       waveUniforms.uPointer.value.set(pointer.x, pointer.y);
       waveUniforms.uPreviousPointer.value.set(pointer.previousX, pointer.previousY);
     },
@@ -3288,7 +3345,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.addEventListener(
     "pointerup",
     () => {
-      pointer.targetEnergy = isTouch ? 0.18 : 0.28;
+      pointer.targetEnergy = isTouch ? 0.36 : 0.34;
+    },
+    { passive: true },
+  );
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (isMagicOff()) return;
+      const delta = window.scrollY - lastWaveInteractionScrollY;
+      lastWaveInteractionScrollY = window.scrollY;
+      const scrollStrength = Math.min(0.9, Math.abs(delta) / Math.max(window.innerHeight, 1) * 2.4);
+      if (scrollStrength <= 0.01) return;
+      pointer.previousX = pointer.x;
+      pointer.previousY = pointer.y;
+      pointer.y = Math.max(-0.95, Math.min(0.95, pointer.y + Math.sign(delta) * -0.08));
+      pointer.x = Math.max(-0.95, Math.min(0.95, pointer.x + Math.sin(window.scrollY * 0.004) * 0.045));
+      pointer.targetEnergy = Math.max(pointer.targetEnergy, (isTouch ? 0.42 : 0.48) + scrollStrength);
+      waveUniforms.uPointer.value.set(pointer.x, pointer.y);
+      waveUniforms.uPreviousPointer.value.set(pointer.previousX, pointer.previousY);
     },
     { passive: true },
   );
@@ -3310,7 +3385,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     lastTimestamp = timestamp;
     const ease = Math.min(delta * 5.5, 1);
     waveUniforms.uTime.value = elapsed;
-    pointer.targetEnergy += ((isTouch ? 0.16 : 0.24) - pointer.targetEnergy) * Math.min(delta * 0.45, 1);
+    pointer.targetEnergy += ((isTouch ? 0.34 : 0.3) - pointer.targetEnergy) * Math.min(delta * 0.34, 1);
     pointer.energy += (pointer.targetEnergy - pointer.energy) * Math.min(delta * 5.2, 1);
     waveUniforms.uPointerEnergy.value = pointer.energy;
     targetRotation.y += delta * (activeConnectorIndex >= 0 ? 0.012 : 0.035) + globeMomentum.x;
