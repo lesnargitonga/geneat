@@ -10439,3 +10439,296 @@ body.magic-off .hero-content {
     font-size: .72rem;
   }
 }
+
+/* Globe and card elevation pass: contained connectors, colored routes, clearer demos. */
+.hero-sculpture-control {
+  overflow: hidden;
+  clip-path: inset(0 round 30px);
+  contain: layout paint;
+}
+
+.globe-popover {
+  right: clamp(.75rem, 2vw, 1.15rem) !important;
+  bottom: clamp(.75rem, 2vw, 1.15rem) !important;
+  width: min(20rem, calc(100% - 2rem)) !important;
+  max-height: calc(100% - 2rem);
+  border-radius: 16px;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translate3d(8px, 10px, 0) scale(.96);
+}
+
+.hero-sculpture-control.has-connector .globe-popover,
+.hero-sculpture-control:focus-within .globe-popover {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.globe-connector-rail,
+.globe-connector-rail[hidden] {
+  inset: 6% 5% 10%;
+  display: block !important;
+  overflow: hidden;
+  border-radius: 30px;
+}
+
+.globe-connector-rail::before {
+  width: 76%;
+  opacity: .2;
+  background:
+    conic-gradient(
+      from -48deg,
+      rgba(105,185,194,.22),
+      rgba(160,143,192,.2),
+      rgba(164,187,120,.18),
+      rgba(193,132,141,.2),
+      rgba(209,170,99,.2),
+      rgba(143,184,255,.18),
+      rgba(127,208,165,.2),
+      rgba(239,179,107,.2),
+      rgba(237,166,207,.18),
+      rgba(105,185,194,.22)
+    );
+}
+
+.globe-connector-rail button {
+  position: absolute;
+  inset: auto;
+  min-width: clamp(4.25rem, 7.2vw, 5.85rem);
+  min-height: 2.05rem;
+  padding: .42rem .5rem .42rem 1.14rem;
+  border-radius: 999px;
+  font-size: clamp(.42rem, .68vw, .52rem);
+  box-shadow:
+    0 12px 34px rgba(0,0,0,.32),
+    0 0 24px color-mix(in srgb, var(--connector-accent) 12%, transparent),
+    inset 0 1px rgba(255,255,255,.06);
+}
+
+.globe-connector-rail button small {
+  display: none;
+}
+
+.globe-connector-rail button::before {
+  left: .48rem;
+  width: .48rem;
+  height: .48rem;
+}
+
+.globe-connector-rail button::after {
+  width: 7.3rem;
+  opacity: .46;
+  background:
+    linear-gradient(
+      90deg,
+      var(--connector-accent),
+      color-mix(in srgb, var(--connector-accent) 45%, transparent),
+      transparent
+    );
+}
+
+.globe-connector-rail button:nth-child(1) { left: 4%; top: 26%; }
+.globe-connector-rail button:nth-child(2) { left: 34%; top: 8%; }
+.globe-connector-rail button:nth-child(3) { right: 7%; top: 17%; }
+.globe-connector-rail button:nth-child(4) { right: 2%; top: 42%; }
+.globe-connector-rail button:nth-child(5) { right: 7%; bottom: 21%; }
+.globe-connector-rail button:nth-child(6) { left: 47%; bottom: 10%; }
+.globe-connector-rail button:nth-child(7) { left: 8%; bottom: 26%; }
+.globe-connector-rail button:nth-child(8) { left: 36%; top: 43%; }
+.globe-connector-rail button:nth-child(9) { left: 22%; bottom: 10%; }
+.globe-connector-rail button:nth-child(10) { right: 34%; top: 22%; }
+
+.globe-connector-rail button:nth-child(7)::after { rotate: -44deg; }
+.globe-connector-rail button:nth-child(8)::after { rotate: 6deg; }
+.globe-connector-rail button:nth-child(9)::after { rotate: -70deg; }
+.globe-connector-rail button:nth-child(10)::after { rotate: 118deg; }
+
+.hero-sculpture-control.has-connector .globe-connector-rail button:not(.is-active) {
+  opacity: .58;
+}
+
+.hero-sculpture-control.has-connector .globe-connector-rail button.is-active {
+  opacity: 1;
+  transform: translateY(-2px) scale(1.04);
+}
+
+.capability-card {
+  transform-style: preserve-3d;
+  box-shadow:
+    0 26px 60px rgba(0,0,0,.42),
+    0 1px rgba(255,255,255,.045) inset;
+}
+
+.capability-model {
+  --model-rx: 0deg;
+  --model-ry: 0deg;
+  --model-pan-x: 0px;
+  --model-pan-y: 0px;
+  overflow: hidden;
+  border: 1px solid rgba(var(--surface-rgb), .2);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at var(--model-light-x, 50%) var(--model-light-y, 50%), rgba(var(--surface-rgb), .16), transparent 38%),
+    linear-gradient(145deg, rgba(255,255,255,.035), rgba(0,0,0,.16) 36%, rgba(0,0,0,.5));
+  box-shadow:
+    0 26px 54px rgba(0,0,0,.42),
+    0 18px 40px rgba(var(--surface-rgb), .08),
+    inset 0 1px rgba(255,255,255,.06);
+  transform: perspective(1000px) rotateX(1.4deg) rotateY(-.8deg) translateY(-1px) translateZ(0);
+}
+
+.capability-card:hover .capability-model,
+.capability-card:focus-within .capability-model,
+.capability-card.is-model-active .capability-model,
+.capability-card.is-inview .capability-model,
+.capability-card.is-engaged .capability-model {
+  transform: perspective(1000px) rotateX(2.2deg) rotateY(-1.8deg) translateY(-3px) translateZ(0);
+}
+
+.capability-model .scene-world {
+  opacity: .82 !important;
+  filter: saturate(1.05) brightness(.96) contrast(1.04);
+  transform: scale(.94) translateZ(16px) !important;
+}
+
+.capability-card.is-model-active .capability-model .scene-world,
+.capability-card:hover .capability-model .scene-world,
+.capability-card:focus-within .capability-model .scene-world {
+  opacity: .98 !important;
+  filter: saturate(1.15) brightness(1.02) contrast(1.06);
+}
+
+.model-case-map {
+  inset: auto .82rem .82rem .82rem;
+  min-height: 0;
+  padding: .72rem .76rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  justify-content: stretch;
+  gap: .26rem .6rem;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(var(--surface-rgb), .22), transparent 42%),
+    linear-gradient(135deg, rgba(4,6,6,.68), rgba(0,0,0,.72));
+  backdrop-filter: blur(14px);
+  transform: translateZ(34px);
+}
+
+.model-case-map::before {
+  left: .76rem;
+  right: .76rem;
+  top: .58rem;
+  height: 1px;
+}
+
+.model-case-map::after,
+.model-case-map ol {
+  display: none;
+}
+
+.model-case-map small {
+  grid-column: 1;
+  padding: .26rem .42rem;
+  font-size: .43rem;
+}
+
+.model-case-map strong {
+  grid-column: 1 / -1;
+  max-width: none;
+  font-size: clamp(1.02rem, 1.65vw, 1.36rem);
+  line-height: 1.02;
+}
+
+.model-case-map em {
+  grid-column: 2;
+  width: auto;
+  margin-top: 0;
+  padding: 0;
+  border-left: 0;
+  font-size: .44rem;
+  text-align: right;
+}
+
+.model-case-map p {
+  grid-column: 1 / -1;
+  max-width: none;
+  font-size: clamp(.68rem, 1.05vw, .78rem);
+  line-height: 1.34;
+  color: rgba(241,240,235,.7);
+}
+
+@media (max-width: 900px) {
+  .hero-sculpture-control {
+    clip-path: inset(0 round 24px);
+  }
+
+  .globe-connector-rail {
+    inset: 5% 3% 7%;
+    border-radius: 24px;
+  }
+
+  .globe-popover {
+    left: .7rem !important;
+    right: .7rem !important;
+    bottom: calc(4.95rem + env(safe-area-inset-bottom)) !important;
+    width: auto !important;
+    max-height: 34%;
+    padding: .64rem .72rem;
+  }
+
+  .globe-connector-rail button {
+    min-width: 2.08rem;
+    width: 2.08rem;
+    min-height: 2.08rem;
+    height: 2.08rem;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .globe-connector-rail button::before {
+    left: 50%;
+    top: 50%;
+    width: .72rem;
+    height: .72rem;
+    transform: translate(-50%, -50%);
+  }
+
+  .globe-connector-rail button::after {
+    width: 4.9rem;
+    opacity: .36;
+  }
+}
+
+@media (max-width: 640px) {
+  .globe-connector-rail button:nth-child(1) { left: 6%; top: 31%; }
+  .globe-connector-rail button:nth-child(2) { left: 36%; top: 10%; }
+  .globe-connector-rail button:nth-child(3) { right: 14%; top: 18%; }
+  .globe-connector-rail button:nth-child(4) { right: 4%; top: 43%; }
+  .globe-connector-rail button:nth-child(5) { right: 10%; bottom: 25%; }
+  .globe-connector-rail button:nth-child(6) { left: 49%; bottom: 14%; }
+  .globe-connector-rail button:nth-child(7) { left: 8%; bottom: 31%; }
+  .globe-connector-rail button:nth-child(8) { left: 40%; top: 45%; }
+  .globe-connector-rail button:nth-child(9) { left: 25%; bottom: 15%; }
+  .globe-connector-rail button:nth-child(10) { right: 33%; top: 25%; }
+
+  .capability-model .scene-world {
+    opacity: .72 !important;
+    transform: scale(.82) translateZ(10px) !important;
+  }
+
+  .model-case-map {
+    inset: auto .58rem .58rem .58rem;
+    padding: .58rem .62rem;
+    gap: .22rem .42rem;
+  }
+
+  .model-case-map strong {
+    font-size: 1.02rem;
+  }
+
+  .model-case-map p {
+    display: none;
+  }
+}

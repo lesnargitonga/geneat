@@ -72,6 +72,30 @@ document.addEventListener("DOMContentLoaded", async () => {
       status: "People approve outcomes through Lesnar",
       accent: "#e2d6be",
     },
+    {
+      label: "Data Pipelines",
+      detail: "Events, reports, and decision data move from messy sources into clean operating views.",
+      status: "Data becomes decisions through Lesnar",
+      accent: "#8fb8ff",
+    },
+    {
+      label: "Workflow Automation",
+      detail: "Handoffs, reminders, approvals, and staff work stay visible instead of living in guesswork.",
+      status: "Workflows stay coordinated through Lesnar",
+      accent: "#7fd0a5",
+    },
+    {
+      label: "Logistics Network",
+      detail: "Orders, routes, delivery proof, and customer updates stay joined from dispatch to doorstep.",
+      status: "Movement stays traceable through Lesnar",
+      accent: "#efb36b",
+    },
+    {
+      label: "Support Channels",
+      detail: "WhatsApp, email, portals, and internal teams share one clear customer context.",
+      status: "Support stays human and connected through Lesnar",
+      accent: "#eda6cf",
+    },
   ];
   const globeFallbackControl = document.querySelector("[data-globe-focus]");
   function setFallbackGlobeConnector(index, syncWebgl = true) {
@@ -104,8 +128,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     const y = (event.clientY - rect.top) / Math.max(rect.height, 1);
     if (x < -0.05 || x > 1.05 || y < -0.05 || y > 1.05) return;
     const anchors = window.innerWidth <= 900
-      ? [[0.18, 0.44], [0.42, 0.2], [0.78, 0.4], [0.24, 0.73], [0.7, 0.76], [0.54, 0.8]]
-      : [[0.2, 0.43], [0.42, 0.18], [0.8, 0.38], [0.25, 0.74], [0.72, 0.75], [0.54, 0.82]];
+      ? [
+          [0.18, 0.42],
+          [0.4, 0.18],
+          [0.73, 0.31],
+          [0.82, 0.5],
+          [0.72, 0.73],
+          [0.5, 0.79],
+          [0.24, 0.66],
+          [0.44, 0.5],
+          [0.33, 0.78],
+          [0.59, 0.21],
+        ]
+      : [
+          [0.18, 0.38],
+          [0.38, 0.17],
+          [0.7, 0.25],
+          [0.83, 0.46],
+          [0.76, 0.72],
+          [0.52, 0.82],
+          [0.23, 0.66],
+          [0.46, 0.46],
+          [0.33, 0.76],
+          [0.58, 0.2],
+        ];
     let fallbackIndex = 0;
     let fallbackDistance = Number.POSITIVE_INFINITY;
     anchors.forEach(([anchorX, anchorY], index) => {
@@ -2269,6 +2315,78 @@ document.addEventListener("DOMContentLoaded", async () => {
           context.lineTo(194, value);
           context.stroke();
         });
+      } else if (type === "data") {
+        [76, 112, 148].forEach((y, index) => {
+          context.beginPath();
+          context.ellipse(128, y, 54, 16, 0, 0, Math.PI * 2);
+          context.stroke();
+          if (index < 2) {
+            context.beginPath();
+            context.moveTo(74, y);
+            context.lineTo(74, y + 36);
+            context.moveTo(182, y);
+            context.lineTo(182, y + 36);
+            context.stroke();
+          }
+        });
+        context.beginPath();
+        context.moveTo(128, 164);
+        context.lineTo(128, 194);
+        context.moveTo(92, 194);
+        context.lineTo(164, 194);
+        context.stroke();
+      } else if (type === "workflow") {
+        [[78, 84], [178, 84], [128, 168]].forEach(([x, y]) => {
+          context.beginPath();
+          context.roundRect(x - 26, y - 20, 52, 40, 12);
+          context.stroke();
+        });
+        context.beginPath();
+        context.moveTo(104, 84);
+        context.lineTo(152, 84);
+        context.moveTo(178, 104);
+        context.quadraticCurveTo(164, 138, 128, 148);
+        context.moveTo(78, 104);
+        context.quadraticCurveTo(92, 138, 128, 148);
+        context.stroke();
+        context.beginPath();
+        context.moveTo(114, 168);
+        context.lineTo(125, 180);
+        context.lineTo(146, 154);
+        context.stroke();
+      } else if (type === "logistics") {
+        context.strokeRect(58, 110, 78, 52);
+        context.beginPath();
+        context.moveTo(136, 124);
+        context.lineTo(172, 124);
+        context.lineTo(194, 145);
+        context.lineTo(194, 162);
+        context.lineTo(136, 162);
+        context.closePath();
+        context.stroke();
+        [82, 170].forEach((x) => {
+          context.beginPath();
+          context.arc(x, 176, 12, 0, Math.PI * 2);
+          context.stroke();
+        });
+        context.beginPath();
+        context.moveTo(70, 86);
+        context.quadraticCurveTo(123, 45, 186, 86);
+        context.stroke();
+      } else if (type === "support") {
+        context.beginPath();
+        context.roundRect(62, 70, 132, 86, 24);
+        context.stroke();
+        context.beginPath();
+        context.moveTo(98, 156);
+        context.lineTo(82, 190);
+        context.lineTo(124, 158);
+        context.stroke();
+        [98, 128, 158].forEach((x) => {
+          context.beginPath();
+          context.arc(x, 113, 5, 0, Math.PI * 2);
+          context.fill();
+        });
       } else if (type === "ops") {
         context.beginPath();
         context.arc(94, 86, 21, 0, Math.PI * 2);
@@ -2343,7 +2461,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       route: "Products reach customers",
     },
     {
-      destination: new THREE.Vector3(-0.26, 0.86, -0.44),
+      destination: new THREE.Vector3(-0.28, 0.92, -0.38),
       label: "Trust and Security",
       short: "Trust",
       detail: "Proof before launch",
@@ -2353,7 +2471,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       route: "Trust protects launches",
     },
     {
-      destination: new THREE.Vector3(0.78, 0.46, -0.42),
+      destination: new THREE.Vector3(0.74, 0.62, -0.3),
       label: "Cloud Regions",
       short: "Cloud",
       detail: "Live operations",
@@ -2363,7 +2481,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       route: "Cloud keeps work alive",
     },
     {
-      destination: new THREE.Vector3(-0.72, -0.48, -0.5),
+      destination: new THREE.Vector3(-0.86, -0.34, -0.36),
       label: "Payments and Commerce",
       short: "Payments",
       detail: "Payment to fulfilment",
@@ -2373,7 +2491,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       route: "Money becomes fulfilment",
     },
     {
-      destination: new THREE.Vector3(0.72, -0.68, 0.24),
+      destination: new THREE.Vector3(0.86, -0.5, 0.22),
       label: "Field Devices",
       short: "Devices",
       detail: "Physical systems",
@@ -2383,7 +2501,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       route: "Devices report reality",
     },
     {
-      destination: new THREE.Vector3(0.1, -0.88, 0.46),
+      destination: new THREE.Vector3(0.18, -0.88, 0.44),
       label: "Operations Desk",
       short: "Ops",
       detail: "Human approvals",
@@ -2391,6 +2509,46 @@ document.addEventListener("DOMContentLoaded", async () => {
       accent: "#e2d6be",
       icon: "ops",
       route: "People approve outcomes",
+    },
+    {
+      destination: new THREE.Vector3(-0.42, 0.05, 0.98),
+      label: "Data Pipelines",
+      short: "Data",
+      detail: "Clean operating views",
+      contribution: "Events, reports, and decision data move from messy sources into clean operating views.",
+      accent: "#8fb8ff",
+      icon: "data",
+      route: "Data becomes decisions",
+    },
+    {
+      destination: new THREE.Vector3(0.52, 0.08, 0.92),
+      label: "Workflow Automation",
+      short: "Workflow",
+      detail: "Staff handoffs",
+      contribution: "Handoffs, reminders, approvals, and staff work stay visible instead of living in guesswork.",
+      accent: "#7fd0a5",
+      icon: "workflow",
+      route: "Workflows stay coordinated",
+    },
+    {
+      destination: new THREE.Vector3(-0.18, -0.18, -1.06),
+      label: "Logistics Network",
+      short: "Logistics",
+      detail: "Dispatch to doorstep",
+      contribution: "Orders, routes, delivery proof, and customer updates stay joined from dispatch to doorstep.",
+      accent: "#efb36b",
+      icon: "logistics",
+      route: "Movement stays traceable",
+    },
+    {
+      destination: new THREE.Vector3(0.45, -0.02, -0.98),
+      label: "Support Channels",
+      short: "Support",
+      detail: "Customer context",
+      contribution: "WhatsApp, email, portals, and internal teams share one clear customer context.",
+      accent: "#eda6cf",
+      icon: "support",
+      route: "Support stays human",
     },
   ];
   customerConnections.forEach(({ destination, label, short, detail, contribution, accent, icon, route }, index) => {
@@ -2463,6 +2621,51 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
     line.renderOrder = 3;
     connectionGroup.add(line);
+    const routeLift = (index % 2 === 0 ? 1 : -1) * (0.18 + (index % 4) * 0.035);
+    const routeCurve = new THREE.CatmullRomCurve3(
+      [
+        new THREE.Vector3(0, 0, 0),
+        destinationNormal.clone().multiplyScalar(0.42).addScaledVector(orbitSide, routeLift * 0.7),
+        destinationNormal.clone().multiplyScalar(1.05).addScaledVector(orbitDepth, routeLift),
+        destinationPoint.clone(),
+      ],
+      false,
+      "centripetal",
+    );
+    const routeArc = new THREE.Mesh(
+      new THREE.TubeGeometry(
+        routeCurve,
+        isTouch ? 24 : (isLaptopProfile ? 36 : 56),
+        isTouch ? 0.004 : 0.006,
+        isTouch || isLaptopProfile ? 4 : 6,
+        false,
+      ),
+      new THREE.MeshBasicMaterial({
+        color: connectionColor,
+        transparent: true,
+        opacity: isTouch ? 0.28 : 0.36,
+        depthWrite: false,
+        depthTest: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    );
+    routeArc.renderOrder = 3;
+    connectionGroup.add(routeArc);
+    const routeLine = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(
+        routeCurve.getPoints(isTouch ? 30 : (isLaptopProfile ? 48 : 72)),
+      ),
+      new THREE.LineBasicMaterial({
+        color: connectionColor,
+        transparent: true,
+        opacity: isTouch ? 0.5 : 0.62,
+        depthWrite: false,
+        depthTest: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    );
+    routeLine.renderOrder = 4;
+    connectionGroup.add(routeLine);
     const endpoint = new THREE.Mesh(
       new THREE.SphereGeometry(0.052, isTouch ? 10 : 18, isTouch ? 8 : 14),
       new THREE.MeshBasicMaterial({
@@ -2529,6 +2732,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       curve,
       cord,
       line,
+      routeArc,
+      routeLine,
       endpoint,
       pulse,
       endpointHalo,
@@ -2866,20 +3071,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         const y = (event.clientY - controlRect.top) / Math.max(controlRect.height, 1);
         const anchors = compactLayout
           ? [
-              [0.2, 0.5],
-              [0.45, 0.24],
-              [0.75, 0.48],
-              [0.28, 0.72],
-              [0.68, 0.74],
-              [0.52, 0.54],
+              [0.18, 0.42],
+              [0.4, 0.18],
+              [0.73, 0.31],
+              [0.82, 0.5],
+              [0.72, 0.73],
+              [0.5, 0.79],
+              [0.24, 0.66],
+              [0.44, 0.5],
+              [0.33, 0.78],
+              [0.59, 0.21],
             ]
           : [
-              [0.24, 0.48],
-              [0.46, 0.25],
-              [0.74, 0.44],
-              [0.32, 0.72],
-              [0.68, 0.68],
-              [0.54, 0.53],
+              [0.18, 0.38],
+              [0.38, 0.17],
+              [0.7, 0.25],
+              [0.83, 0.46],
+              [0.76, 0.72],
+              [0.52, 0.82],
+              [0.23, 0.66],
+              [0.46, 0.46],
+              [0.33, 0.76],
+              [0.58, 0.2],
             ];
         let fallbackIndex = 0;
         let fallbackDistance = Number.POSITIVE_INFINITY;
@@ -3150,7 +3363,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       ring.scale.set(pulse, 0.58 * pulse, pulse);
       ring.material.opacity = 0.28 - index * 0.05 + Math.sin(elapsed + index) * 0.04;
     });
-    connections.forEach(({ curve, cord, line, endpoint, pulse, endpointHalo, iconSprite, labelSprite, offset, direction }, index) => {
+    connections.forEach(({ curve, cord, line, routeArc, routeLine, endpoint, pulse, endpointHalo, iconSprite, labelSprite, offset, direction }, index) => {
       const isActiveConnector = activeConnectorIndex === index;
       const progress = (
         elapsed * (0.075 + index * 0.005) * direction +
@@ -3166,8 +3379,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       endpointHalo.material.opacity = isActiveConnector ? 0.82 : 0.42 + Math.sin(elapsed * 1.45 + index) * 0.12;
       iconSprite.scale.setScalar((compactLayout ? 0.7 : 0.86) * (isActiveConnector ? 1.22 : 1));
       iconSprite.material.opacity = isActiveConnector ? 1 : 0.84;
-      line.material.opacity = isActiveConnector ? 1 : (isTouch ? 0.78 : 0.86);
-      cord.material.opacity = isActiveConnector ? (isTouch ? 0.38 : 0.44) : (isTouch ? 0.22 : 0.26);
+      line.material.opacity = isActiveConnector ? 0.86 : (isTouch ? 0.34 : 0.46);
+      cord.material.opacity = isActiveConnector ? (isTouch ? 0.38 : 0.46) : (isTouch ? 0.16 : 0.2);
+      routeArc.material.opacity = isActiveConnector ? (isTouch ? 0.46 : 0.62) : (isTouch ? 0.22 : 0.32);
+      routeLine.material.opacity = isActiveConnector ? (isTouch ? 0.82 : 0.96) : (isTouch ? 0.42 : 0.58);
       labelSprite.visible = false;
       labelSprite.material.opacity = 0;
     });
