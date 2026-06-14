@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="LESNAR AI LTD share card">
+  <defs>
+    <radialGradient id="glow" cx="72%" cy="50%" r="62%">
+      <stop offset="0" stop-color="#7ea9ad" stop-opacity=".34"/>
+      <stop offset=".42" stop-color="#7ea9ad" stop-opacity=".08"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.6" fill="#7ea9ad" opacity=".28"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="#020303"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <path d="M0 410C170 340 310 365 455 410s280 75 470 10 250-58 275-48v258H0Z" fill="url(#dots)" opacity=".7"/>
+  <g transform="translate(715 150)" opacity=".74">
+    <circle cx="135" cy="135" r="120" fill="none" stroke="#bfd3d1" stroke-opacity=".24" stroke-width="2"/>
+    <ellipse cx="135" cy="135" rx="176" ry="56" fill="none" stroke="#f1f0eb" stroke-opacity=".34" stroke-width="3" transform="rotate(-18 135 135)"/>
+    <ellipse cx="135" cy="135" rx="176" ry="56" fill="none" stroke="#7ea9ad" stroke-opacity=".35" stroke-width="3" transform="rotate(35 135 135)"/>
+    <ellipse cx="135" cy="135" rx="62" ry="176" fill="none" stroke="#b99a64" stroke-opacity=".34" stroke-width="3" transform="rotate(18 135 135)"/>
+    <circle cx="135" cy="135" r="34" fill="#b99a64" opacity=".15"/>
+    <circle cx="76" cy="64" r="10" fill="#9185a2"/>
+    <circle cx="215" cy="94" r="10" fill="#8fa16f"/>
+    <circle cx="78" cy="218" r="10" fill="#a4777d"/>
+    <circle cx="205" cy="210" r="10" fill="#b99a64"/>
+  </g>
+  <g transform="translate(96 92)">
+    <text x="0" y="0" fill="#7ea9ad" font-family="IBM Plex Mono, monospace" font-size="24" letter-spacing="8">INDEPENDENT ENGINEERING STUDIO IN NAIROBI</text>
+    <text x="0" y="150" fill="#f1f0eb" font-family="Instrument Sans, Arial, sans-serif" font-size="92" font-weight="700" letter-spacing="-5">LESNAR AI LTD</text>
+    <text x="0" y="235" fill="#aaa9a3" font-family="Instrument Sans, Arial, sans-serif" font-size="36">AI systems, software products, and physical automation</text>
+    <text x="0" y="286" fill="#aaa9a3" font-family="Instrument Sans, Arial, sans-serif" font-size="36">built with clarity, care, and real-world discipline.</text>
+    <rect x="0" y="372" width="314" height="58" rx="29" fill="none" stroke="#7ea9ad" stroke-opacity=".58"/>
+    <circle cx="34" cy="401" r="7" fill="#7ea9ad"/>
+    <text x="58" y="409" fill="#f1f0eb" font-family="IBM Plex Mono, monospace" font-size="18" letter-spacing="4">OPEN FOR SELECTED WORK</text>
+  </g>
+</svg>

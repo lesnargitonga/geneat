@@ -166,6 +166,23 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
   });
+  function spawnTouchDrop(clientX, clientY) {
+    if (!isTouch || reduceMotion || isMagicOff()) return;
+    const drop = document.createElement("span");
+    drop.className = "touch-drop";
+    drop.style.left = `${clientX}px`;
+    drop.style.top = `${clientY}px`;
+    document.body.appendChild(drop);
+    drop.addEventListener("animationend", () => drop.remove(), { once: true });
+  }
+  window.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (event.pointerType === "mouse") return;
+      spawnTouchDrop(event.clientX, event.clientY);
+    },
+    { passive: true },
+  );
   const ambientLight = document.getElementById("ambient-light");
   if (webglContainer && !reduceMotion) {
     let waveFrame = null;
@@ -442,6 +459,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.querySelector(`[data-chapter="${nextChapter}"]`)?.scrollIntoView({
       behavior: reduceMotion ? "auto" : "smooth",
       block: "start",
+    });
+  });
+  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    link.addEventListener("click", (event) => {
+      const hash = link.getAttribute("href");
+      if (!hash || hash === "#") return;
+      const targetId = hash.slice(1);
+      const escapedTargetId = window.CSS?.escape
+        ? CSS.escape(targetId)
+        : targetId.replaceAll('"', '\\"');
+      const target =
+        document.getElementById(targetId) ||
+        document.querySelector(`[data-chapter="${escapedTargetId}"]`);
+      if (!target) return;
+      event.preventDefault();
+      target.scrollIntoView({
+        behavior: reduceMotion || hasScrollTrigger ? "auto" : "smooth",
+        block: "start",
+      });
+      history.pushState(null, "", hash);
     });
   });
   const capabilityContent = {
@@ -2759,8 +2796,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   function buildConnectorRail() {
     if (!globeConnectorRail) return;
-    globeConnectorRail.setAttribute("hidden", "");
+    globeConnectorRail.removeAttribute("hidden");
     globeConnectorRail.replaceChildren();
+    connectorButtons.length = 0;
+    connections.forEach((connection, index) => {
+      const button = document.createElement("button");
+      const detail = document.createElement("small");
+      button.type = "button";
+      button.style.setProperty("--connector-accent", connection.accent);
+      button.setAttribute("aria-label", `Show ${connection.label} connection`);
+      button.setAttribute("aria-pressed", "false");
+      button.dataset.connectorIndex = String(index);
+      button.append(document.createTextNode(connection.short || connection.label));
+      detail.textContent = connection.detail || connection.route || "World connector";
+      button.append(detail);
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setActiveConnector(index);
+      });
+      ["pointerdown", "pointerup"].forEach((eventName) => {
+        button.addEventListener(eventName, (event) => event.stopPropagation());
+      });
+      globeConnectorRail.appendChild(button);
+      connectorButtons.push(button);
+    });
     updateConnectorButtons();
   }
   buildConnectorRail();
