@@ -1,1 +1,7 @@
-.vercel
+# Vercel
+.vercel/
+project.json
+
+# System
+.DS_Store
+*.log

@@ -4,9 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LESNAR AI LTD</title>
-  <meta name="description" content="Applied intelligence and systems engineering — adversarial security, backend infrastructure, and autonomous platforms from Nairobi.">
+  <meta name="description" content="LESNAR AI LTD is an independent engineering studio in Nairobi building AI systems, software products, and physical automation with real-world discipline.">
   <meta name="application-name" content="LESNAR AI LTD">
   <meta property="og:site_name" content="LESNAR AI LTD">
+  <link rel="icon" href="data:,">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -26,99 +27,715 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Space+Grotesk:wght@300;500;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400..700&family=Newsreader:ital,opsz,wght@1,6..72,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=20260614-story">
 </head>
 <body>
-
-  <div id="cursor-dot"></div>
-  <div id="cursor-ring">
-    <div class="crosshair h"></div>
-    <div class="crosshair v"></div>
+  <div id="cursor-lens" aria-hidden="true">
+    <svg class="cursor-fluid" aria-hidden="true">
+      <defs>
+        <linearGradient id="cursor-liquid-gradient" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#f4f2eb" stop-opacity=".78"></stop>
+          <stop offset=".46" stop-color="#9fc3c2" stop-opacity=".56"></stop>
+          <stop offset="1" stop-color="#718f94" stop-opacity=".16"></stop>
+        </linearGradient>
+      </defs>
+      <path class="cursor-drop-path"></path>
+      <circle class="cursor-drop-head" r="5.4"></circle>
+      <circle class="cursor-drop-highlight" r="1.4"></circle>
+    </svg>
+    <span class="cursor-label"></span>
   </div>
-
-  <canvas id="webgl-canvas"></canvas>
-  <div class="crt-overlay"></div>
-
-  <nav>
-    <div class="logo">LESNAR<span>_</span> AI LTD</div>
-    <a href="#contact" class="nav-btn" data-magnetic>INIT_CONNECTION</a>
+  <div id="ambient-light" aria-hidden="true"></div>
+  <div id="webgl-container" aria-hidden="true">
+    <canvas id="webgl-canvas" role="presentation"></canvas>
+    <div class="matrix-vignette"></div>
+  </div>
+  <nav aria-label="Primary navigation">
+    <a class="logo" href="#top" aria-label="LESNAR AI LTD home" data-magnetic data-cursor="expand">
+      <span class="logo-name">LESNAR</span>
+      <span class="logo-company">AI LTD</span>
+      <i class="logo-signal" aria-hidden="true"></i>
+    </a>
+    <div class="nav-cluster">
+      <div class="status-badge">
+        <span class="status-dot" aria-hidden="true"></span>
+        Open for selected work
+      </div>
+      <div class="nav-menu">
+        <a href="#systems" data-magnetic data-cursor="expand">Work</a>
+        <a href="#pillars" data-magnetic data-cursor="expand">What we build</a>
+        <a href="#capabilities" data-magnetic data-cursor="expand">Expertise</a>
+        <a href="#method" data-magnetic data-cursor="expand">Approach</a>
+      </div>
+      <button class="magic-toggle" type="button" data-magic-toggle aria-pressed="true" data-cursor="expand" data-cursor-label="MAGIC">
+        <span>Magic</span>
+        <b data-magic-toggle-state>On</b>
+      </button>
+      <a class="nav-cta" href="#contact" data-magnetic data-cursor="expand" data-cursor-label="TALK">Contact</a>
+    </div>
   </nav>
-
-  <main class="hero">
-    <div class="hero-content">
-      <div class="eyebrow fade-up hero-fade">SYS.ONLINE // NAIROBI, KE</div>
-      <h1 class="hero-title">
-        <div class="line"><span class="split-text">Adversarial.</span></div>
-        <div class="line"><span class="split-text">Algorithmic.</span></div>
-        <div class="line"><span class="split-text highlight">Absolute.</span></div>
-      </h1>
-      <p class="hero-sub fade-up delay-1 hero-fade">
-        Engineering high-performance backend infrastructure, adversarial security protocols, and autonomous quantitative systems. We build technology that survives contact with reality.
-      </p>
-      <div class="actions fade-up delay-2 hero-fade">
-        <a href="#capabilities" class="btn-primary" data-magnetic>View Architecture</a>
-        <a href="https://hazina.lesnarai.co.ke" class="btn-secondary" data-magnetic target="_blank" rel="noopener noreferrer">Live: Hazina</a>
+  <aside class="journey-rail" aria-label="Page sections">
+    <span class="journey-line" aria-hidden="true"><span id="journey-progress"></span></span>
+    <a href="#top" data-section-link="top"><span>00</span><span class="journey-name" data-short="Start">Overview</span></a>
+    <a href="#systems" data-section-link="systems"><span>01</span><span class="journey-name" data-short="Work">Selected work</span></a>
+    <a href="#pillars" data-section-link="pillars"><span>02</span><span class="journey-name" data-short="Build">What we build</span></a>
+    <a href="#capabilities" data-section-link="capabilities"><span>03</span><span class="journey-name" data-short="Skills">Expertise</span></a>
+    <a href="#method" data-section-link="method"><span>04</span><span class="journey-name" data-short="Method">Approach</span></a>
+    <a href="#contact" data-section-link="contact"><span>05</span><span class="journey-name" data-short="Contact">Connect</span></a>
+  </aside>
+  <button class="page-orbit" type="button" data-page-orbit data-orbit-state="top" aria-label="Go to the next section">
+    <span class="page-orbit-shape" aria-hidden="true"><i></i><i></i></span>
+    <span class="page-orbit-copy">
+      <b data-page-orbit-number>00</b>
+      <small data-page-orbit-name>Intro</small>
+    </span>
+  </button>
+  <div class="smooth-scroll-wrapper" id="top">
+    <main class="hero" data-chapter="top">
+      <div class="container hero-layout">
+        <div class="hero-content">
+          <div class="hero-identity reveal-up">
+            <strong>LESNAR AI LTD</strong>
+            <span><i aria-hidden="true"></i>Open for selected work</span>
+          </div>
+          <p class="hero-pre reveal-up">Independent engineering studio in Nairobi</p>
+          <h1 class="hero-title">
+            <span class="line"><span class="split-text">We make</span></span>
+            <span class="line"><span class="split-text">ambitious ideas</span></span>
+            <span class="line hero-title-muted"><span class="split-text">real.</span></span>
+          </h1>
+          <p class="hero-sub reveal-up">
+            AI systems, software products, and physical automation built with clarity, care, and real-world discipline.
+          </p>
+          <div class="hero-actions reveal-up">
+            <a class="button button-primary" href="#capabilities" data-magnetic data-cursor="expand" data-cursor-label="VIEW">See our expertise</a>
+            <a class="button button-secondary" href="#contact" data-magnetic data-cursor="expand" data-cursor-label="TALK">Start a project</a>
+          </div>
+        </div>
+        <div class="hero-sculpture-control reveal-up" data-globe-focus role="group" aria-label="Interactive Lesnar world connector globe" data-cursor="expand" data-cursor-label="CONNECT">
+          <button class="globe-popover" type="button" data-globe-popover aria-live="polite" aria-label="Show the next Lesnar world connection">
+            <span data-globe-title>Explore the globe</span>
+            <small data-globe-detail>Drag the globe, then tap any connector.</small>
+            <b data-globe-status>Lesnar connects work to the world</b>
+            <span class="globe-card-cue">
+              <i aria-hidden="true"></i>
+              <span data-globe-cue>Tap this card to tour the connections</span>
+              <em data-globe-count>00 / 06</em>
+            </span>
+          </button>
+          <div class="globe-connector-rail" data-globe-connector-rail role="group" aria-label="World connectors"></div>
+        </div>
+        <a class="scroll-cue reveal-up" href="#systems" data-cursor="expand">
+          <span>See selected work</span>
+          <span aria-hidden="true">↓</span>
+        </a>
       </div>
-    </div>
-  </main>
-
-  <section id="capabilities" class="dark-sector">
-    <div class="container">
-      <h2 class="section-title split-text">Capabilities_</h2>
-      <div class="grid">
-        <div class="card fade-up">
-          <div class="card-header">01 // BACKEND &amp; INFRASTRUCTURE</div>
-          <h3>High-Performance Systems</h3>
-          <p>Architecting resilient backend pipelines, API gateways, and database topologies. Built for scale, latency optimization, and zero-downtime deployments.</p>
+    </main>
+    <section class="proof-strip" aria-label="Studio proof">
+      <div class="container telemetry-bar">
+          <div class="telemetry-node">
+            <span class="telemetry-label">Focus</span>
+            <span class="telemetry-value telemetry-value-accent">Difficult products and systems</span>
+          </div>
+          <div class="telemetry-node">
+            <span class="telemetry-label">Range</span>
+            <span class="telemetry-value">Software to physical systems</span>
+          </div>
+          <div class="telemetry-node">
+            <span class="telemetry-label">Team</span>
+            <span class="telemetry-value">Small, senior, hands-on</span>
+          </div>
+          <div class="telemetry-node">
+            <span class="telemetry-label">Reach</span>
+            <span class="telemetry-value">Nairobi, available worldwide</span>
+          </div>
+      </div>
+    </section>
+    <section id="systems" class="chapter systems-section" data-chapter="systems">
+      <div class="systems-orbit systems-orbit-one" aria-hidden="true"></div>
+      <div class="systems-orbit systems-orbit-two" aria-hidden="true"></div>
+      <div class="container">
+        <header class="chapter-header systems-header" data-reveal>
+          <div class="chapter-label">
+            <span>01</span>
+            <p>Selected work</p>
+          </div>
+          <div class="chapter-intro">
+            <p class="section-kicker">Already in people's hands</p>
+            <h2>Made to matter.<br>Built to last.</h2>
+          </div>
+          <p class="chapter-summary">Two live platforms show how we turn complex operations into products people can understand and use.</p>
+        </header>
+        <div class="systems-showroom">
+          <article class="system-entry" data-reveal>
+            <a class="system-card system-card-hazina tilt-surface" href="https://hazina.lesnarai.co.ke" target="_blank" rel="noopener noreferrer" data-tilt data-cursor="expand" data-cursor-label="OPEN" data-magnetic>
+              <div class="card-glow" aria-hidden="true"></div>
+              <div class="system-copy">
+                <div class="system-meta">
+                  <span>Project 01</span>
+                  <span class="live-indicator"><i></i>Available now</span>
+                </div>
+                <p class="system-domain">hazina.lesnarai.co.ke</p>
+                <h3>Hazina Nomads</h3>
+                <p>A private shopping platform for Kenyan treasures, bringing curation, concierge support, payments, and delivery into one experience.</p>
+                <div class="system-tags"><span>Personal concierge</span><span>Catalog</span><span>Payments</span><span>Logistics</span></div>
+                <span class="system-link">View project</span>
+              </div>
+              <div class="system-visual hazina-visual" aria-hidden="true">
+                <div class="visual-frame">
+                  <div class="visual-toolbar"><span></span><span></span><span></span></div>
+                  <div class="visual-hero">
+                    <span class="visual-label">Private curation</span>
+                    <strong>Kenyan treasures,<br>quietly sourced.</strong>
+                  </div>
+                  <div class="visual-collection">
+                    <span></span><span></span><span></span>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </article>
+          <article class="system-entry" data-reveal>
+            <a class="system-card system-card-geneat tilt-surface" href="https://geneat.lesnarai.co.ke" target="_blank" rel="noopener noreferrer" data-tilt data-cursor="expand" data-cursor-label="OPEN" data-magnetic>
+              <div class="card-glow" aria-hidden="true"></div>
+              <div class="system-copy">
+                <div class="system-meta">
+                  <span>Project 02</span>
+                  <span class="live-indicator"><i></i>Available now</span>
+                </div>
+                <p class="system-domain">geneat.lesnarai.co.ke</p>
+                <h3>Gen-Eat</h3>
+                <p>A campus food platform for finding cafes, ordering by chat, paying with M-Pesa, and routing every order in real time.</p>
+                <div class="system-tags"><span>Chat ordering</span><span>M-Pesa</span><span>Routing</span><span>Operations</span></div>
+                <span class="system-link">View project</span>
+              </div>
+              <div class="system-visual geneat-visual" aria-hidden="true">
+                <div class="visual-frame">
+                  <div class="visual-toolbar"><span></span><span></span><span></span></div>
+                  <div class="geneat-map">
+                    <span class="map-route"></span>
+                    <i class="map-point point-one"></i>
+                    <i class="map-point point-two"></i>
+                    <i class="map-point point-three"></i>
+                  </div>
+                  <div class="geneat-order">
+                    <span>Order routed</span>
+                    <strong>Lily Pond Cafe</strong>
+                    <i></i>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </article>
         </div>
-        <div class="card fade-up delay-1">
-          <div class="card-header">02 // ADVERSARIAL SECURITY</div>
-          <h3>Bug Bounties &amp; Protocol Auditing</h3>
-          <p>Deep-dive vulnerability research, including protocol settlement invariant violations and deterministic value leakage. We break logic before attackers do.</p>
-        </div>
-        <div class="card fade-up">
-          <div class="card-header">03 // HARDWARE PENTESTING</div>
-          <h3>Physical Access Vectors</h3>
-          <p>Hardware-level penetration testing utilizing Flipper Zero and Proxmark3 methodologies. Securing the physical-to-digital bridge.</p>
-        </div>
-        <div class="card fade-up delay-1">
-          <div class="card-header">04 // QUANTITATIVE SYSTEMS</div>
-          <h3>Algorithmic Trading Execution</h3>
-          <p>Developing low-latency arbitrage strategies and historical simulations for Gold (XAU/USD). Market regime detection driven by delta matrix data.</p>
-        </div>
-        <div class="card fade-up">
-          <div class="card-header">05 // AUTONOMOUS LOGIC</div>
-          <h3>Flight Systems &amp; Robotics</h3>
-          <p>Core logic for autonomous systems and drone platforms. Bridging AI models with physical hardware execution.</p>
-        </div>
-        <div class="card fade-up delay-1">
-          <div class="card-header">06 // AI PLATFORMS</div>
-          <h3>Intelligent Commerce</h3>
-          <p>End-to-end development of AI-native platforms, integrating semantic search, autonomous concierge agents, and secure payment rails. <a href="https://hazina.lesnarai.co.ke" class="inline-link" target="_blank" rel="noopener noreferrer">Hazina Nomads</a> and <a href="https://geneat.lesnarai.co.ke" class="inline-link" target="_blank" rel="noopener noreferrer">Gen-Eat</a> are live in market.</p>
+        <div class="systems-principles" data-reveal>
+          <p>In every project</p>
+          <div><span>01</span>Easy to monitor</div>
+          <div><span>02</span>People stay in control</div>
+          <div><span>03</span>Recovery built in</div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <section id="contact" class="contact-sector">
-    <div class="container contact-row">
-      <div class="fade-up">
-        <div class="eyebrow">INIT_CONNECTION</div>
-        <h2 class="section-title split-text contact-title">Engage engineering.</h2>
-        <p class="hero-sub">Protocol audits, backend builds, quantitative systems, or full-stack AI platforms — scoped for production, not pitch decks.</p>
-        <a href="mailto:hello@lesnarai.co.ke" class="btn-primary" data-magnetic>hello@lesnarai.co.ke</a>
+    </section>
+    <section id="pillars" class="chapter pillars-section" data-chapter="pillars">
+      <div class="container">
+        <header class="chapter-header" data-reveal>
+          <div class="chapter-label">
+            <span>02</span>
+            <p>What we build</p>
+          </div>
+          <div class="chapter-intro">
+            <p class="section-kicker">Four connected pillars</p>
+            <h2>From intelligence<br>to real-world action.</h2>
+          </div>
+          <p class="chapter-summary">We connect software, intelligent systems, and physical operations into products that are useful, dependable, and ready to grow.</p>
+        </header>
+        <div class="pillar-grid">
+          <article class="pillar-card pillar-card-intelligence tilt-surface" data-tilt data-reveal>
+            <span class="pillar-number">01</span>
+            <div class="pillar-mark pillar-mark-intelligence" aria-hidden="true"><i></i><i></i><i></i></div>
+            <p>Intelligence</p>
+            <h3>AI systems</h3>
+            <span>Search, decision support, computer vision, and workflows that keep people in control.</span>
+          </article>
+          <article class="pillar-card pillar-card-products tilt-surface" data-tilt data-reveal>
+            <span class="pillar-number">02</span>
+            <div class="pillar-mark pillar-mark-products" aria-hidden="true"><i></i><i></i><i></i></div>
+            <p>Products</p>
+            <h3>Software platforms</h3>
+            <span>Customer products, internal tools, payments, APIs, and data systems built for daily use.</span>
+          </article>
+          <article class="pillar-card pillar-card-automation tilt-surface" data-tilt data-reveal>
+            <span class="pillar-number">03</span>
+            <div class="pillar-mark pillar-mark-automation" aria-hidden="true"><i></i><i></i><i></i></div>
+            <p>Automation</p>
+            <h3>Physical systems</h3>
+            <span>Robotics, cameras, sensors, and control software that connect decisions to the real world.</span>
+          </article>
+          <article class="pillar-card pillar-card-foundation tilt-surface" data-tilt data-reveal>
+            <span class="pillar-number">04</span>
+            <div class="pillar-mark pillar-mark-foundation" aria-hidden="true"><i></i><i></i><i></i></div>
+            <p>Foundation</p>
+            <h3>Security and reliability</h3>
+            <span>Testing, cloud operations, observability, and recovery designed into every serious system.</span>
+          </article>
+        </div>
       </div>
-    </div>
-    <footer class="site-footer">
-      <span>&copy; 2026 LESNAR AI LTD</span>
-      <span>Nairobi, Kenya</span>
-    </footer>
-  </section>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-  <script src="js/app.js"></script>
+    </section>
+    <section id="capabilities" class="chapter capabilities-section" data-chapter="capabilities">
+      <div class="chapter-grid" aria-hidden="true"></div>
+      <div class="container">
+        <header class="chapter-header" data-reveal>
+          <div class="chapter-label">
+            <span>03</span>
+            <p>Detailed expertise</p>
+          </div>
+          <div class="chapter-intro">
+            <p class="section-kicker">Eight areas of expertise</p>
+            <h2>Serious ideas.<br>Beautifully engineered.</h2>
+          </div>
+          <p class="chapter-summary">Each discipline connects technical depth to a clear, practical outcome.</p>
+        </header>
+        <div class="capability-grid">
+          <article class="capability-entry" data-reveal>
+            <div class="capability-card tilt-surface accent-cyan" data-tilt>
+              <div class="card-glow" aria-hidden="true"></div>
+              <div class="capability-card-top">
+                <span class="card-index">01 Backend</span>
+                <span class="card-state">Foundation</span>
+              </div>
+              <div class="capability-model model-backend" data-model="backend" aria-hidden="true">
+                <div class="scene-world backend-world">
+                  <div class="backend-browser">
+                    <span class="mini-toolbar"><i></i><i></i><i></i><b>hazina/checkout</b></span>
+                    <div class="checkout-item">
+                      <i class="checkout-thumbnail"></i>
+                      <span><b>Weekend basket</b><small>KES 3,480</small></span>
+                    </div>
+                    <span class="checkout-action">Place order</span>
+                  </div>
+                  <span class="backend-route"><i></i></span>
+                  <div class="backend-service">
+                    <span>API</span><b>Order service</b><small>42 ms</small>
+                  </div>
+                  <div class="backend-store"><i></i><i></i><i></i><b>Saved</b></div>
+                  <span class="backend-confirmation">Order #1842 ready</span>
+                </div>
+                <div class="scene-story"><span>Checkout to fulfilment</span><b>Live</b></div>
+              </div>
+              <h3>Backend Engineering</h3>
+              <p>Fast, reliable APIs, data pipelines, and databases built to scale without downtime.</p>
+              <div class="card-outcome"><span>Outcome</span><strong>Speed, scale, and dependable operations</strong></div>
+              <div class="card-tags"><span>APIs</span><span>Data</span><span>Reliability</span></div>
+              <span class="card-open-indicator">Open <i>+</i></span>
+              <button class="card-hit-area" type="button" data-capability-open="backend" data-cursor="expand" data-cursor-label="OPEN" aria-label="Explore Backend Engineering"></button>
+            </div>
+          </article>
+          <article class="capability-entry" data-reveal>
+            <div class="capability-card tilt-surface accent-violet" data-tilt>
+              <div class="card-glow" aria-hidden="true"></div>
+              <div class="capability-card-top">
+                <span class="card-index">02 Security</span>
+                <span class="card-state">Protection</span>
+              </div>
+              <div class="capability-model model-security" data-model="security" aria-hidden="true">
+                <div class="scene-world security-world">
+                  <div class="payment-reader">
+                    <span class="reader-screen">Tap to pay</span>
+                    <i class="reader-wave wave-a"></i><i class="reader-wave wave-b"></i><i class="reader-wave wave-c"></i>
+                    <b class="reader-pad"></b>
+                  </div>
+                  <div class="payment-card"><span>LESNAR PAY</span><i></i><b>•••• 4721</b></div>
+                  <div class="replay-device"><i></i><span>Copied signal</span></div>
+                  <div class="security-shield"><i></i><span>Replay blocked</span><b>Rule fixed and retested</b></div>
+                </div>
+                <div class="scene-story"><span>Contactless payment test</span><b>Blocked</b></div>
+              </div>
+              <h3>Security Testing</h3>
+              <p>We test software, hardware, and payment flows to find weak points before attackers do.</p>
+              <div class="card-outcome"><span>Outcome</span><strong>Safer launches and fewer hidden risks</strong></div>
+              <div class="card-tags"><span>Protocol</span><span>RFID</span><span>Attack tests</span></div>
+              <span class="card-open-indicator">Open <i>+</i></span>
+              <button class="card-hit-area" type="button" data-capability-open="security" data-cursor="expand" data-cursor-label="OPEN" aria-label="Explore Security Testing"></button>
+            </div>
+          </article>
+          <article class="capability-entry" data-reveal>
+            <div class="capability-card tilt-surface accent-amber" data-tilt>
+              <div class="card-glow" aria-hidden="true"></div>
+              <div class="capability-card-top">
+                <span class="card-index">03 Markets</span>
+                <span class="card-state">Research</span>
+              </div>
+              <div class="capability-model model-markets" data-model="quant" aria-hidden="true">
+                <div class="scene-world markets-world">
+                  <div class="market-terminal">
+                    <span class="market-symbol"><b>XAU/USD</b><small>London session</small></span>
+                    <div class="market-candles">
+                      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                    </div>
+                    <svg class="market-equity" viewBox="0 0 300 80" preserveAspectRatio="none">
+                      <polyline points="0,65 30,60 62,63 94,48 124,52 156,37 188,42 218,24 250,30 300,12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="risk-ticket">
+                    <span>Proposed trade</span><b>Buy 0.20 lots</b>
+                    <i><small>Risk</small><strong>0.6%</strong></i>
+                    <em>Within limit</em>
+                  </div>
+                  <span class="trade-confirmation">Order sent at 2,334.18</span>
+                </div>
+                <div class="scene-story"><span>Research to controlled trade</span><b>Risk gated</b></div>
+              </div>
+              <h3>Market Research Tools</h3>
+              <p>Research, backtesting, and execution tools that turn market data into measurable decisions.</p>
+              <div class="card-outcome"><span>Outcome</span><strong>Faster research and disciplined execution</strong></div>
+              <div class="card-tags"><span>Gold markets</span><span>Simulation</span><span>Execution</span></div>
+              <span class="card-open-indicator">Open <i>+</i></span>
+              <button class="card-hit-area" type="button" data-capability-open="quant" data-cursor="expand" data-cursor-label="OPEN" aria-label="Explore Market Research Tools"></button>
+            </div>
+          </article>
+          <article class="capability-entry" data-reveal>
+            <div class="capability-card tilt-surface accent-blue" data-tilt>
+              <div class="card-glow" aria-hidden="true"></div>
+              <div class="capability-card-top">
+                <span class="card-index">04 Robotics</span>
+                <span class="card-state">Motion</span>
+              </div>
+              <div class="capability-model model-robotics" data-model="autonomy" aria-hidden="true">
+                <div class="scene-world robotics-world">
+                  <span class="terrain-grid"></span>
+                  <div class="mission-building"><i></i><i></i><b>Inspection site</b></div>
+                  <span class="landing-pad"><i>H</i></span>
+                  <span class="flight-route"></span>
+                  <div class="drone">
+                    <i class="drone-body"></i>
+                    <span class="drone-arm arm-one"><b></b></span>
+                    <span class="drone-arm arm-two"><b></b></span>
+                    <span class="drone-arm arm-three"><b></b></span>
+                    <span class="drone-arm arm-four"><b></b></span>
+                    <i class="drone-eye"></i>
+                    <i class="drone-scan"></i>
+                  </div>
+                  <div class="mission-telemetry"><span>Altitude 24 m</span><b>Path corrected</b><small>Wind 11 km/h</small></div>
+                </div>
+                <div class="scene-story"><span>Autonomous site inspection</span><b>Stable</b></div>
+              </div>
+              <h3>Robotics and Control</h3>
+              <p>Control software for drones and robotics, connecting careful decisions to real hardware.</p>
+              <div class="card-outcome"><span>Outcome</span><strong>Reliable decisions beyond the screen</strong></div>
+              <div class="card-tags"><span>Control</span><span>Robotics</span><span>Hardware</span></div>
+              <span class="card-open-indicator">Open <i>+</i></span>
+              <button class="card-hit-area" type="button" data-capability-open="autonomy" data-cursor="expand" data-cursor-label="OPEN" aria-label="Explore Robotics and Control"></button>
+            </div>
+          </article>
+          <article class="capability-entry" data-reveal>
+            <div class="capability-card tilt-surface accent-mint" data-tilt>
+              <div class="card-glow" aria-hidden="true"></div>
+              <div class="capability-card-top">
+                <span class="card-index">05 Operations</span>
+                <span class="card-state">People and software</span>
+              </div>
+              <div class="capability-model model-products" data-model="ai" aria-hidden="true">
+                <div class="scene-world operations-world">
+                  <div class="request-card">
+                    <span>Customer request</span><b>Move delivery to Friday</b><small>Order #1842</small>
+                  </div>
+                  <div class="reference-stack">
+                    <i>Delivery policy</i><i>Order history</i><i>Stock calendar</i>
+                  </div>
+                  <div class="decision-draft">
+                    <span>Prepared reply</span><b>Friday is available. Update the order?</b>
+                    <i class="draft-actions"><em>Revise</em><strong>Approve</strong></i>
+                  </div>
+                  <div class="human-handoff"><i></i><b>Approved by Amina</b></div>
+                  <span class="decision-sent">Customer updated</span>
+                </div>
+                <div class="scene-story"><span>Request to reviewed action</span><b>Approved</b></div>
+              </div>
+              <h3>Decision and Workflow Tools</h3>
+              <p>Practical tools that find the right information, handle routine work, and keep important decisions with people.</p>
+              <div class="card-outcome"><span>Outcome</span><strong>Faster operations without losing human judgment</strong></div>
+              <div class="card-tags"><span>Operations</span><span>Search</span><span>Review</span></div>
+              <span class="card-open-indicator">Open <i>+</i></span>
+              <button class="card-hit-area" type="button" data-capability-open="ai" data-cursor="expand" data-cursor-label="OPEN" aria-label="Explore Decision and Workflow Tools"></button>
+            </div>
+          </article>
+          <article class="capability-entry" data-reveal>
+            <div class="capability-card tilt-surface accent-rose" data-tilt>
+              <div class="card-glow" aria-hidden="true"></div>
+              <div class="capability-card-top">
+                <span class="card-index">06 Commerce</span>
+                <span class="card-state card-state-live">Customer experience</span>
+              </div>
+              <div class="capability-model model-commerce" data-model="commerce" aria-hidden="true">
+                <div class="scene-world commerce-world">
+                  <div class="commerce-phone">
+                    <span class="mini-toolbar"><i></i><i></i><i></i><b>Hazina</b></span>
+                    <div class="commerce-product"><i></i><span><b>Handwoven basket</b><small>KES 3,480</small></span></div>
+                    <span class="payment-button">Pay with M-Pesa</span>
+                  </div>
+                  <div class="mpesa-confirmation"><i>M</i><span><b>Payment received</b><small>KES 3,480</small></span></div>
+                  <span class="commerce-route"><i></i></span>
+                  <div class="merchant-ticket"><span>New order</span><b>Basket × 1</b><small>Pack for Friday delivery</small><i>Accepted</i></div>
+                  <span class="customer-update">Delivery confirmed</span>
+                </div>
+                <div class="scene-story"><span>Product to paid fulfilment</span><b>Confirmed</b></div>
+              </div>
+              <h3>Commerce Platforms</h3>
+              <p>Search, payments, concierge tools, and operations brought together in one customer experience.</p>
+              <div class="card-outcome"><span>Outcome</span><strong>Smoother buying and stronger operations</strong></div>
+              <div class="card-tags"><span>Commerce</span><span>Payments</span><span>Concierge</span></div>
+              <span class="card-open-indicator">Open <i>+</i></span>
+              <button class="card-hit-area" type="button" data-capability-open="commerce" data-cursor="expand" data-cursor-label="OPEN" aria-label="Explore Commerce Platforms"></button>
+            </div>
+          </article>
+          <article class="capability-entry" data-reveal>
+            <div class="capability-card tilt-surface accent-orchid" data-tilt>
+              <div class="card-glow" aria-hidden="true"></div>
+              <div class="capability-card-top">
+                <span class="card-index">07 Vision</span>
+                <span class="card-state">Perception</span>
+              </div>
+              <div class="capability-model model-vision" data-model="vision" aria-hidden="true">
+                <div class="scene-world vision-world">
+                  <div class="vision-camera"><i class="camera-lens"></i><b></b></div>
+                  <span class="vision-beam"></span>
+                  <div class="warehouse-scene">
+                    <span class="conveyor-belt"></span>
+                    <i class="parcel parcel-one"></i><i class="parcel parcel-two"></i><i class="parcel parcel-three"></i>
+                    <span class="worker-silhouette"><i></i></span>
+                    <b class="vision-box box-parcel">Parcel · 98%</b>
+                    <b class="vision-box box-worker">Clear zone</b>
+                  </div>
+                  <div class="vision-counter"><span>24 parcels</span><b>1 damaged</b><small>Alert sent with frame</small></div>
+                </div>
+                <div class="scene-story"><span>Warehouse inspection</span><b>98% match</b></div>
+              </div>
+              <h3>Computer Vision</h3>
+              <p>Visual tools for detection, tracking, inspection, and fast decisions close to the camera.</p>
+              <div class="card-outcome"><span>Outcome</span><strong>Systems that understand physical spaces</strong></div>
+              <div class="card-tags"><span>Detection</span><span>Tracking</span><span>On device</span></div>
+              <span class="card-open-indicator">Open <i>+</i></span>
+              <button class="card-hit-area" type="button" data-capability-open="vision" data-cursor="expand" data-cursor-label="OPEN" aria-label="Explore Computer Vision"></button>
+            </div>
+          </article>
+          <article class="capability-entry" data-reveal>
+            <div class="capability-card tilt-surface accent-lime" data-tilt>
+              <div class="card-glow" aria-hidden="true"></div>
+              <div class="capability-card-top">
+                <span class="card-index">08 Cloud</span>
+                <span class="card-state">Operations</span>
+              </div>
+              <div class="capability-model model-cloud" data-model="reliability" aria-hidden="true">
+                <div class="scene-world cloud-world">
+                  <div class="release-console"><span>Release v2.4</span><b>checkout-service</b><small>Commit 9f3a1c</small><i>Deploy</i></div>
+                  <span class="release-route"><i></i></span>
+                  <div class="region-cluster">
+                    <div><span>Nairobi</span><i></i><i></i><b>Healthy</b></div>
+                    <div><span>Frankfurt</span><i></i><i></i><b>Healthy</b></div>
+                    <div><span>Backup</span><i></i><i></i><b>Ready</b></div>
+                  </div>
+                  <div class="traffic-shift"><span>Traffic</span><i></i><b>100% on v2.4</b></div>
+                  <span class="release-result">No errors after 10 min</span>
+                </div>
+                <div class="scene-story"><span>Release across live regions</span><b>Healthy</b></div>
+              </div>
+              <h3>Cloud Operations</h3>
+              <p>Cloud delivery, observability, automation, and recovery designed into the platform.</p>
+              <div class="card-outcome"><span>Outcome</span><strong>Confident releases and faster recovery</strong></div>
+              <div class="card-tags"><span>Cloud</span><span>Delivery</span><span>Observability</span></div>
+              <span class="card-open-indicator">Open <i>+</i></span>
+              <button class="card-hit-area" type="button" data-capability-open="reliability" data-cursor="expand" data-cursor-label="OPEN" aria-label="Explore Cloud Operations"></button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+    <dialog id="capability-dialog" class="capability-dialog" aria-labelledby="capability-dialog-title">
+      <div class="capability-dialog-shell">
+        <button class="dialog-close" type="button" data-dialog-close aria-label="Close capability details">
+          <span>Close</span><i aria-hidden="true"></i>
+        </button>
+        <div class="capability-stage-visual" data-dialog-stage>
+          <div class="dialog-model" id="capability-dialog-model" aria-hidden="true"></div>
+          <strong id="capability-dialog-number" aria-hidden="true">01</strong>
+          <button class="scene-replay" type="button" data-scene-replay data-cursor="expand" data-cursor-label="REPLAY">Replay</button>
+        </div>
+        <div class="capability-stage-copy">
+          <p class="capability-dialog-kicker" id="capability-dialog-kicker">Backend</p>
+          <h2 id="capability-dialog-title">Backend Engineering</h2>
+          <p class="capability-dialog-summary" id="capability-dialog-summary"></p>
+          <div class="capability-detail-grid">
+            <section>
+              <span>What we deliver</span>
+              <ul id="capability-dialog-deliverables"></ul>
+            </section>
+            <section>
+              <span>Best fit</span>
+              <ul id="capability-dialog-fit"></ul>
+            </section>
+            <section>
+              <span>Engineering focus</span>
+              <ul id="capability-dialog-focus"></ul>
+            </section>
+          </div>
+          <div class="capability-dialog-footer">
+            <p id="capability-dialog-outcome"></p>
+            <a href="mailto:hello@lesnarai.co.ke" data-cursor="expand" data-cursor-label="EMAIL">Discuss this work</a>
+          </div>
+        </div>
+      </div>
+    </dialog>
+    <section id="method" class="chapter method-section" data-chapter="method">
+      <div class="method-ambient" aria-hidden="true"></div>
+      <div class="container method-layout">
+        <div class="method-sticky">
+          <div class="chapter-label" data-reveal>
+            <span>04</span>
+            <p>How we work</p>
+          </div>
+          <div class="method-heading" data-reveal>
+            <p class="section-kicker">A clear way of working</p>
+            <h2>Clarity before speed.</h2>
+            <p>We understand the real problem, set clear limits, build the right solution, and test it under pressure.</p>
+          </div>
+          <div class="method-core method-core-desktop tilt-surface" data-method-core="1" data-tilt aria-hidden="true">
+            <span class="core-ring core-ring-one"></span>
+            <span class="core-ring core-ring-two"></span>
+            <span class="core-ring core-ring-three"></span>
+            <span class="core-axis"></span>
+            <strong>01</strong>
+            <small>Observe</small>
+          </div>
+        </div>
+        <div class="method-core method-core-mobile" data-method-core="1" aria-hidden="true">
+          <span class="core-ring core-ring-one"></span>
+          <span class="core-ring core-ring-two"></span>
+          <span class="core-ring core-ring-three"></span>
+          <span class="core-axis"></span>
+          <strong>01</strong>
+          <small>Observe</small>
+        </div>
+        <ol class="method-steps">
+          <li class="method-step is-active" data-method-step="1" data-reveal>
+            <span class="method-number">01</span>
+            <div>
+              <p class="method-phase">Observe</p>
+              <h3>Understand the real problem.</h3>
+              <p>We map people, data, risks, and daily work before deciding what to build.</p>
+            </div>
+            <span class="method-output">Research brief</span>
+            <button class="method-step-hit" type="button" aria-label="Show Observe phase" aria-pressed="true" data-cursor="expand" data-cursor-label="VIEW"></button>
+          </li>
+          <li class="method-step" data-method-step="2" data-reveal>
+            <span class="method-number">02</span>
+            <div>
+              <p class="method-phase">Model</p>
+              <h3>Make the important limits clear.</h3>
+              <p>We define security needs, speed targets, decision paths, and what success looks like.</p>
+            </div>
+            <span class="method-output">Clear build plan</span>
+            <button class="method-step-hit" type="button" aria-label="Show Model phase" aria-pressed="false" data-cursor="expand" data-cursor-label="VIEW"></button>
+          </li>
+          <li class="method-step" data-method-step="3" data-reveal>
+            <span class="method-number">03</span>
+            <div>
+              <p class="method-phase">Engineer</p>
+              <h3>Build only what the product needs.</h3>
+              <p>We use reliable parts, monitor critical paths, and keep people in control where judgment matters.</p>
+            </div>
+            <span class="method-output">Working product</span>
+            <button class="method-step-hit" type="button" aria-label="Show Engineer phase" aria-pressed="false" data-cursor="expand" data-cursor-label="VIEW"></button>
+          </li>
+          <li class="method-step" data-method-step="4" data-reveal>
+            <span class="method-number">04</span>
+            <div>
+              <p class="method-phase">Stress</p>
+              <h3>Find failure before users do.</h3>
+              <p>We test broken dependencies, hostile input, recovery, and the handoffs real operators depend on.</p>
+            </div>
+            <span class="method-output">Proven resilience</span>
+            <button class="method-step-hit" type="button" aria-label="Show Stress phase" aria-pressed="false" data-cursor="expand" data-cursor-label="VIEW"></button>
+          </li>
+        </ol>
+      </div>
+    </section>
+    <section id="contact" class="chapter contact-section" data-chapter="contact">
+      <div class="contact-field" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <div class="container contact-layout">
+        <div class="contact-copy" data-reveal>
+          <div class="chapter-label">
+            <span>05</span>
+            <p>Start here</p>
+          </div>
+          <p class="section-kicker">Your next ambitious idea</p>
+          <h2>Let’s make it<br>real.</h2>
+          <p>Bring us the difficult part. We will help shape it, build it, test it, and get it into people’s hands.</p>
+        </div>
+        <div class="contact-actions" data-reveal>
+          <a class="contact-link contact-link-email tilt-surface" href="mailto:hello@lesnarai.co.ke" data-tilt data-cursor="expand" data-cursor-label="EMAIL" data-magnetic>
+            <div class="card-glow" aria-hidden="true"></div>
+            <span>Email the studio</span>
+            <strong>hello@lesnarai.co.ke</strong>
+            <small>Nairobi. Available worldwide.</small>
+            <i aria-hidden="true">+</i>
+          </a>
+          <a class="contact-link contact-link-whatsapp tilt-surface" href="https://wa.me/254715540653" target="_blank" rel="noopener noreferrer" data-tilt data-cursor="expand" data-cursor-label="WHATSAPP" data-magnetic>
+            <div class="card-glow" aria-hidden="true"></div>
+            <span>WhatsApp Lesnar AI LTD</span>
+            <strong>+254 715 540 653</strong>
+            <small>Fastest route for project questions.</small>
+            <i aria-hidden="true">+</i>
+          </a>
+        </div>
+      </div>
+      <footer class="site-footer">
+        <span>&copy; 2026 LESNAR AI LTD</span>
+        <span>Independent engineering studio in Nairobi, Kenya</span>
+      </footer>
+    </section>
+  </div>
+  <script>
+    (() => {
+      const loadScript = (source) =>
+        new Promise((resolve) => {
+          const script = document.createElement("script");
+          script.src = source;
+          script.onload = resolve;
+          script.onerror = resolve;
+          document.head.appendChild(script);
+        });
+      let threePromise;
+      window.__loadLesnarThree = () => {
+        if (window.THREE) return Promise.resolve();
+        if (!threePromise) {
+          threePromise = loadScript("https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js");
+        }
+        return threePromise;
+      };
+      let savedMagic = null;
+      try {
+        savedMagic = window.localStorage.getItem("lesnar-magic");
+      } catch {
+        savedMagic = null;
+      }
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.__lesnarThreeReady =
+        savedMagic === "off" || reduceMotion
+          ? Promise.resolve()
+          : window.__loadLesnarThree();
+      const useDesktopMotion =
+        window.matchMedia("(hover: hover) and (pointer: fine) and (min-width: 901px)").matches &&
+        !reduceMotion;
+      window.__lesnarMotionReady = useDesktopMotion
+        ? loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js")
+            .then(() => loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"))
+        : Promise.resolve();
+    })();
+  </script>
+  <script defer src="js/app.js?v=20260614-story"></script>
 </body>
 </html>
