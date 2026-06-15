@@ -43,7 +43,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400..700&family=Newsreader:ital,opsz,wght@1,6..72,300&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260614-card-atelier">
+  <link rel="stylesheet" href="css/styles.css?v=20260614-internal-studio">
 </head>
 <body>
   <div id="cursor-lens" aria-hidden="true">
@@ -266,33 +266,69 @@
           <p class="chapter-summary">We connect software, intelligent systems, and physical operations into products that are useful, dependable, and ready to grow.</p>
         </header>
         <div class="pillar-grid">
-          <article class="pillar-card pillar-card-intelligence tilt-surface" data-tilt data-reveal>
+          <article class="pillar-card pillar-card-intelligence tilt-surface" data-tilt data-reveal data-pillar-card="intelligence">
             <span class="pillar-number">01</span>
-            <div class="pillar-mark pillar-mark-intelligence" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="pillar-mark pillar-mark-intelligence" aria-hidden="true">
+              <i></i><i></i><i></i>
+              <div class="pillar-demo pillar-demo-intelligence">
+                <span class="demo-note demo-note-request">Customer request</span>
+                <span class="demo-note demo-note-records">Records found</span>
+                <span class="demo-note demo-note-approve">Human approval</span>
+                <b>Answer ready</b>
+              </div>
+            </div>
             <p>Intelligence</p>
-            <h3>AI systems</h3>
-            <span>Search, decision support, computer vision, and workflows that keep people in control.</span>
+            <h3>Human-guided systems</h3>
+            <span class="pillar-summary">Tools that read context, surface evidence, and let people approve the important calls.</span>
+            <ul class="pillar-proof"><li>Search</li><li>Vision</li><li>Decision support</li></ul>
           </article>
-          <article class="pillar-card pillar-card-products tilt-surface" data-tilt data-reveal>
+          <article class="pillar-card pillar-card-products tilt-surface" data-tilt data-reveal data-pillar-card="products">
             <span class="pillar-number">02</span>
-            <div class="pillar-mark pillar-mark-products" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="pillar-mark pillar-mark-products" aria-hidden="true">
+              <i></i><i></i><i></i>
+              <div class="pillar-demo pillar-demo-products">
+                <span class="demo-browser">Customer portal</span>
+                <span class="demo-api">API</span>
+                <span class="demo-payment">Paid</span>
+                <b>Daily use</b>
+              </div>
+            </div>
             <p>Products</p>
             <h3>Software platforms</h3>
-            <span>Customer products, internal tools, payments, APIs, and data systems built for daily use.</span>
+            <span class="pillar-summary">Customer products, internal tools, payments, APIs, and data systems built for daily use.</span>
+            <ul class="pillar-proof"><li>Dashboards</li><li>Payments</li><li>APIs</li></ul>
           </article>
-          <article class="pillar-card pillar-card-automation tilt-surface" data-tilt data-reveal>
+          <article class="pillar-card pillar-card-automation tilt-surface" data-tilt data-reveal data-pillar-card="automation">
             <span class="pillar-number">03</span>
-            <div class="pillar-mark pillar-mark-automation" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="pillar-mark pillar-mark-automation" aria-hidden="true">
+              <i></i><i></i><i></i>
+              <div class="pillar-demo pillar-demo-automation">
+                <span class="demo-map">Site map</span>
+                <span class="demo-drone"></span>
+                <span class="demo-camera">Camera live</span>
+                <b>Physical action</b>
+              </div>
+            </div>
             <p>Automation</p>
             <h3>Physical systems</h3>
-            <span>Robotics, cameras, sensors, and control software that connect decisions to the real world.</span>
+            <span class="pillar-summary">Robotics, cameras, sensors, and control software that turn careful decisions into real movement.</span>
+            <ul class="pillar-proof"><li>Robotics</li><li>Cameras</li><li>Control</li></ul>
           </article>
-          <article class="pillar-card pillar-card-foundation tilt-surface" data-tilt data-reveal>
+          <article class="pillar-card pillar-card-foundation tilt-surface" data-tilt data-reveal data-pillar-card="foundation">
             <span class="pillar-number">04</span>
-            <div class="pillar-mark pillar-mark-foundation" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="pillar-mark pillar-mark-foundation" aria-hidden="true">
+              <i></i><i></i><i></i>
+              <div class="pillar-demo pillar-demo-foundation">
+                <span class="demo-shield">Tested</span>
+                <span class="demo-health">Healthy</span>
+                <span class="demo-recover">Rollback ready</span>
+                <b>Trust layer</b>
+              </div>
+            </div>
             <p>Foundation</p>
             <h3>Security and reliability</h3>
-            <span>Testing, cloud operations, observability, and recovery designed into every serious system.</span>
+            <span class="pillar-summary">Testing, cloud operations, observability, and recovery designed into every serious system.</span>
+            <ul class="pillar-proof"><li>Testing</li><li>Monitoring</li><li>Recovery</li></ul>
           </article>
         </div>
       </div>
@@ -750,6 +786,6 @@
         : Promise.resolve();
     })();
   </script>
-  <script defer src="js/app.js?v=20260614-card-atelier"></script>
+  <script defer src="js/app.js?v=20260614-internal-studio"></script>
 </body>
 </html>

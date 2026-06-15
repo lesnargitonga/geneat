@@ -1239,6 +1239,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       storyItems.push(item);
     });
 
+    const commandBar = document.createElement("div");
+    commandBar.className = "experience-command-bar";
+    const liveState = document.createElement("span");
+    liveState.className = "experience-live-state";
+    const livePulse = document.createElement("i");
+    livePulse.setAttribute("aria-hidden", "true");
+    const liveLabel = document.createElement("b");
+    liveLabel.textContent = "Live demonstration";
+    liveState.append(livePulse, liveLabel);
+
     const controls = document.createElement("div");
     controls.className = "experience-controls";
     const controlButtons = [];
@@ -1262,8 +1272,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       storyItems.forEach((item, itemIndex) => {
         item.classList.toggle("is-active", itemIndex === activeStoryIndex);
         item.classList.toggle("is-passed", itemIndex < activeStoryIndex);
+        item.setAttribute("aria-pressed", String(itemIndex === activeStoryIndex));
       });
       modeCopy.textContent = experience.modeText?.[nextIndex] || modes[nextIndex] || "Live";
+      liveLabel.textContent = `${modes[nextIndex] || "Live"} view`;
       if (replay) {
         blueprint.classList.remove("is-mode-changing");
         void blueprint.offsetWidth;
@@ -1289,6 +1301,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       controls.appendChild(button);
       controlButtons.push(button);
     });
+    storyItems.forEach((item, storyIndex) => {
+      const modeIndex = Math.round(
+        storyIndex * Math.max((experience.modes || []).length - 1, 0) /
+        Math.max(storyItems.length - 1, 1),
+      );
+      item.tabIndex = 0;
+      item.setAttribute("role", "button");
+      item.setAttribute("aria-label", `Show ${experience.story?.[storyIndex]?.[0] || "workflow"} stage`);
+      item.addEventListener("click", () => setExperienceMode(modeIndex));
+      item.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        setExperienceMode(modeIndex);
+      });
+    });
     setExperienceMode(0, false);
     if (!reduceMotion && (experience.modes || []).length > 1) {
       blueprint.classList.add("is-auto-playing");
@@ -1307,7 +1334,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       metrics.appendChild(metric);
     });
 
-    blueprint.append(heading, visual, copy, storyline, controls, metrics);
+    commandBar.append(liveState, controls, metrics);
+    blueprint.append(heading, visual, copy, storyline, commandBar);
     return blueprint;
   }
   function renderDialogModel(capabilityKey) {
