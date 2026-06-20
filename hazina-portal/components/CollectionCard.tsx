@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import { CatalogImage } from "@/components/CatalogImage";
+import { CollectionQuickView } from "@/components/CollectionQuickView";
 import type { GiftBox } from "@/lib/products";
 import { BRAND, getCollectionPackaging, getCollectionTreasureItems } from "@/lib/products";
 import { TREASURES, type Treasure } from "@/lib/treasures";
@@ -34,6 +38,9 @@ export function CollectionCard({ box, className = "", priority, brandPhone = BRA
     brandPhone,
     `Hello Hazina Nomads — I'd like to reserve the ${box.name} collection.`,
   );
+  const packaging = treasures ? packagingForBox(box, treasures) : getCollectionPackaging(box);
+  const packagingNote = packaging ? `${packaging.name} — ${packaging.description}` : null;
+  const [contentsOpen, setContentsOpen] = useState(false);
 
   return (
     <article
@@ -41,7 +48,13 @@ export function CollectionCard({ box, className = "", priority, brandPhone = BRA
       data-cursor="magnetic"
       data-cursor-pull="0.14"
     >
-      <Link href={`/collections/${box.id}`} className="collection-exhibit__display block" data-cursor="magnetic">
+      <button
+        type="button"
+        onClick={() => setContentsOpen(true)}
+        className="collection-exhibit__display block w-full text-left"
+        data-cursor="magnetic"
+        aria-label={`See what's inside ${box.name}`}
+      >
         <div
           className="collection-exhibit__frame relative aspect-[4/3] overflow-hidden bg-sand-dark"
           role="img"
@@ -64,8 +77,11 @@ export function CollectionCard({ box, className = "", priority, brandPhone = BRA
               </span>
             </div>
           )}
+          <span className="collection-exhibit__peek pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center justify-center gap-1.5 bg-gradient-to-t from-obsidian/70 to-transparent pb-3 pt-8 font-mono text-[11px] uppercase tracking-[0.16em] text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            Tap to see what&apos;s inside
+          </span>
         </div>
-      </Link>
+      </button>
 
       <div className="collection-exhibit__label flex flex-1 flex-col p-5 md:p-6">
         <Link href={`/collections/${box.id}`} data-cursor="magnetic">
@@ -112,6 +128,15 @@ export function CollectionCard({ box, className = "", priority, brandPhone = BRA
           </a>
         </div>
       </div>
+
+      <CollectionQuickView
+        box={box}
+        items={items}
+        packagingNote={packagingNote}
+        waUrl={waUrl}
+        open={contentsOpen}
+        onClose={() => setContentsOpen(false)}
+      />
     </article>
   );
 }
