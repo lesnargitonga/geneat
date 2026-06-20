@@ -38,6 +38,24 @@ def test_recommend_generous_budget_prefers_a_collection() -> None:
     assert out["collection_ids"], "a curated collection should be offered at this budget"
 
 
+def test_specific_item_request_finds_real_product() -> None:
+    payload = hazina_catalog_search_payload()
+    # "i want a rungu" must surface the actual rungu product, not a fallback.
+    out = rec.recommend(payload, "i want a rungu")
+    assert out is not None
+    assert "rungu-clubs" in out["treasure_ids"]
+    assert "rungu" in out["reply"].lower()
+    # "do you have ..." is also a product request.
+    assert rec.looks_like_recommendation("do you have a kikoi?")
+    assert "coastal-kikoi" in (rec.recommend(payload, "do you have a kikoi?") or {}).get("treasure_ids", [])
+
+
+def test_conversational_turns_do_not_hijack_to_recommender() -> None:
+    # Bare "my dad" should stay with the LLM, not trigger a deterministic pick.
+    assert rec.looks_like_recommendation("my dad") is False
+    assert rec.recommend(hazina_catalog_search_payload(), "my dad") is None
+
+
 def test_no_recommendation_when_no_intent() -> None:
     payload = hazina_catalog_search_payload()
     assert rec.recommend(payload, "I want to pay with mpesa") is None

@@ -21,6 +21,27 @@ _RECOMMEND_INTENT_RE = re.compile(
     re.IGNORECASE,
 )
 
+# A direct "I want X / do you have X / find me X" — a request for a specific item.
+_WANT_INTENT_RE = re.compile(
+    r"\b(i\s*want|i'?d\s*like|i\s*need|need\s+(?:a|an|some)|looking\s+for|"
+    r"do\s+you\s+(?:have|sell|stock)|got\s+any|find\s+me|get\s+me|"
+    r"can\s+i\s+(?:get|have|buy)|where\s+can\s+i\s+(?:get|buy))\b",
+    re.IGNORECASE,
+)
+
+# Words to ignore when matching a query against product names.
+_STOPWORDS = {
+    "i", "want", "a", "an", "the", "my", "for", "to", "some", "please", "need",
+    "looking", "get", "me", "find", "show", "do", "you", "have", "got", "any",
+    "gift", "present", "of", "is", "there", "like", "would", "could", "can", "we",
+    "us", "and", "or", "with", "without", "buy", "send", "give", "dad", "mum",
+    "mom", "wife", "husband", "friend", "client", "boss", "sister", "brother",
+    # generic adjectives that appear in product names but aren't item requests
+    "premium", "nice", "good", "quality", "best", "kenyan", "african", "around",
+    "traditional", "authentic", "beautiful", "special", "lovely", "great", "fine",
+    "something", "gifts", "presents", "item", "items", "thing", "things",
+}
+
 # Map free-text to the treasure categories used in the catalog.
 _CATEGORY_KEYWORDS: dict[str, str] = {
     "coffee-tea": r"\b(coffee|tea|chai|roast|brew|caffeine)\b",
@@ -47,7 +68,22 @@ _BUDGET_KES_RE = re.compile(
 
 
 def looks_like_recommendation(text: str) -> bool:
-    return bool(_RECOMMEND_INTENT_RE.search(text or ""))
+    t = text or ""
+    return bool(_RECOMMEND_INTENT_RE.search(t) or _WANT_INTENT_RE.search(t))
+
+
+def _query_terms(text: str) -> list[str]:
+    words = re.findall(r"[a-z]+", (text or "").lower())
+    return [w for w in words if len(w) >= 3 and w not in _STOPWORDS]
+
+
+def _name_matches(item: dict, terms: list[str]) -> bool:
+    if not terms:
+        return False
+    hay = " ".join(
+        str(item.get(k) or "") for k in ("name", "category", "description")
+    ).lower()
+    return any(t in hay for t in terms)
 
 
 def detect_categories(text: str) -> list[str]:
@@ -88,6 +124,13 @@ def _matches_category(treasure: dict, categories: list[str]) -> bool:
     return str(treasure.get("category") or "") in categories
 
 
+def _money(r: dict) -> str:
+    out = f"USD {r.get('price_usd')}"
+    if r.get("price_kes"):
+        out += f" / KES {int(r.get('price_kes')):,}"
+    return out
+
+
 def recommend(payload: dict[str, Any], text: str, *, is_sw: bool = False) -> dict | None:
     """Return a recommendation dict, or None if we can't make a useful suggestion.
 
@@ -100,6 +143,43 @@ def recommend(payload: dict[str, Any], text: str, *, is_sw: bool = False) -> dic
     amount, currency = parse_budget(text)
     collections = payload.get("collections") or []
     treasures = payload.get("treasures") or []
+
+    # Specific item request ("i want a rungu", "do you have a kikoi") — confirm we
+    # stock it and offer to act, before any category/budget logic. Exclude
+    # category words (coffee/tea/bead…) so those route to curated collections.
+    terms = [
+        t for t in _query_terms(text)
+        if not any(rx.search(t) for rx in _COMPILED_CATEGORIES.values())
+    ]
+    if terms:
+        name_t = [t for t in treasures if _name_matches(t, terms) and _within_budget(t, amount, currency)]
+        name_c = [c for c in collections if _name_matches(c, terms) and _within_budget(c, amount, currency)]
+        if name_t or name_c:
+            name_t.sort(key=lambda t: t.get("price_usd") or 0)
+            name_c.sort(key=lambda c: c.get("price_usd") or 0)
+            lines = [f"• {c['name']} ({_money(c)})" for c in name_c[:2]]
+            lines += [f"• {t['name']} ({_money(t)})" for t in name_t[:3]]
+            return {
+                "reply": (
+                    ("Ndiyo — tunazo:\n" if is_sw else "Yes — we have:\n")
+                    + "\n".join(lines)
+                    + (
+                        "\n\nNikuongezee kwenye box au nianzishe checkout?"
+                        if is_sw
+                        else "\n\nWant me to add it to a gift box or start a checkout?"
+                    )
+                ),
+                "collection_ids": [c["id"] for c in name_c[:2]],
+                "treasure_ids": [t["id"] for t in name_t[:3]],
+                "categories": categories,
+                "budget": amount,
+                "currency": currency,
+            }
+
+    # A bare "i want ..." with no item, category, or budget (and not an explicit
+    # "recommend") — don't dump the whole catalog; let conversation handle it.
+    if not categories and amount is None and not _RECOMMEND_INTENT_RE.search(text or ""):
+        return None
 
     # Treasures matching the requested category (and budget if any).
     matched_treasures = [
@@ -121,9 +201,7 @@ def recommend(payload: dict[str, Any], text: str, *, is_sw: bool = False) -> dic
     matched_collections.sort(key=lambda c: c.get("price_usd") or 0)
     matched_treasures.sort(key=lambda t: t.get("price_usd") or 0)
 
-    money = lambda r: f"USD {r.get('price_usd')}" + (
-        f" / KES {int(r.get('price_kes')):,}" if r.get("price_kes") else ""
-    )
+    money = _money
 
     lead = "Hapa kuna mapendekezo: " if is_sw else "Here's what I'd recommend"
     if categories or amount:

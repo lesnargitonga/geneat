@@ -124,7 +124,8 @@ _BESPOKE_REQUESTS_RE = re.compile(
 )
 _CATALOG_RE = re.compile(
     r"\b(full menu|menu|catalogue|catalog|collections?|gift boxes?|what do you sell|"
-    r"show (?:me )?(?:your )?(?:gifts|boxes|collections)|shop|browse)\b",
+    r"show (?:me )?(?:your )?(?:gifts|boxes|collections)|shop|browse|explore|"
+    r"look around|see (?:your )?(?:options|range|collections|catalog))\b",
     re.IGNORECASE,
 )
 _PORTAL_COLLECTION_CHECKOUT_RE = re.compile(
