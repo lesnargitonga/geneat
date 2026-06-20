@@ -2,7 +2,7 @@
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { HeroGiftStageLoader } from "@/components/three-d/HeroGiftStageLoader";
 import { HAZINA_VAULT_REVEAL_EVENT } from "@/lib/showroom";
 
@@ -14,12 +14,6 @@ type ShowroomRoute =
   | "story"
   | "safari"
   | "quiet";
-
-type StageDragDetail = {
-  phase: "start" | "move" | "end";
-  dx: number;
-  dy: number;
-};
 
 const routeClass: Record<ShowroomRoute, string> = {
   home: "showroom-shell--home",
@@ -44,9 +38,6 @@ function showroomRoute(pathname: string): ShowroomRoute {
 export function ShowroomShell() {
   const pathname = usePathname() ?? "";
   const route = showroomRoute(pathname);
-  const dragStart = useRef({ x: 0, y: 0 });
-  const isDraggingRef = useRef(false);
-  const [isDragging, setIsDragging] = useState(false);
   const [vaultOpening, setVaultOpening] = useState(false);
   const { scrollY } = useScroll();
   const stageY = useTransform(scrollY, [0, 900], [0, -76]);
@@ -55,35 +46,12 @@ export function ShowroomShell() {
   const lightY = useTransform(scrollY, [0, 1600], [0, 120]);
   const isVaultOpening = route === "home" && vaultOpening;
 
-  const dispatchStageDrag = (detail: StageDragDetail) => {
-    window.dispatchEvent(new CustomEvent<StageDragDetail>("hazina:stage-drag", { detail }));
-  };
-
-  const endStageDrag = () => {
-    if (!isDraggingRef.current) return;
-    isDraggingRef.current = false;
-    setIsDragging(false);
-    dispatchStageDrag({ phase: "end", dx: 0, dy: 0 });
-  };
-
   useEffect(() => {
     setVaultOpening(false);
   }, [pathname]);
 
   useEffect(() => {
-    const openVault = () => {
-      if (isDraggingRef.current) {
-        isDraggingRef.current = false;
-        setIsDragging(false);
-        window.dispatchEvent(
-          new CustomEvent<StageDragDetail>("hazina:stage-drag", {
-            detail: { phase: "end", dx: 0, dy: 0 },
-          }),
-        );
-      }
-      setVaultOpening(true);
-    };
-
+    const openVault = () => setVaultOpening(true);
     window.addEventListener(HAZINA_VAULT_REVEAL_EVENT, openVault);
     return () => window.removeEventListener(HAZINA_VAULT_REVEAL_EVENT, openVault);
   }, []);
@@ -109,41 +77,6 @@ export function ShowroomShell() {
       >
         <HeroGiftStageLoader revealing={isVaultOpening} />
       </motion.div>
-      {route === "home" && !isVaultOpening && (
-        <div
-          className={`showroom-shell__interaction-lane${isDragging ? " is-dragging" : ""}`}
-          onPointerDown={(event) => {
-            if (event.pointerType === "touch") return;
-            dragStart.current.x = event.clientX;
-            dragStart.current.y = event.clientY;
-            isDraggingRef.current = true;
-            setIsDragging(true);
-            event.currentTarget.setPointerCapture(event.pointerId);
-            dispatchStageDrag({ phase: "start", dx: 0, dy: 0 });
-          }}
-          onPointerMove={(event) => {
-            if (!isDraggingRef.current || event.pointerType === "touch") return;
-            dispatchStageDrag({
-              phase: "move",
-              dx: event.clientX - dragStart.current.x,
-              dy: event.clientY - dragStart.current.y,
-            });
-          }}
-          onPointerUp={(event) => {
-            if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-              event.currentTarget.releasePointerCapture(event.pointerId);
-            }
-            endStageDrag();
-          }}
-          onPointerCancel={(event) => {
-            if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-              event.currentTarget.releasePointerCapture(event.pointerId);
-            }
-            endStageDrag();
-          }}
-          onLostPointerCapture={endStageDrag}
-        />
-      )}
     </div>
   );
 }

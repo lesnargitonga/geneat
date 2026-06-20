@@ -1,8 +1,8 @@
 "use client";
 
 import { RoundedBox } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import { useEffect, useRef, useState } from "react";
+import { type ThreeEvent, useFrame } from "@react-three/fiber";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { MathUtils, type Group, type PointLight } from "three";
 import { HazinaCanvas } from "./HazinaCanvas";
 
@@ -10,11 +10,72 @@ const BASE_STAGE_POSITION = { x: 0.04, y: -0.06, z: 0 };
 const BASE_STAGE_ROTATION_X = -0.1;
 const BASE_STAGE_ROTATION_Y = -0.18;
 
-type StageDragDetail = {
-  phase: "start" | "move" | "end";
-  dx: number;
-  dy: number;
+// Each treasure is tucked inside the chest, then arcs up and spills forward
+// toward the viewer as the lid opens — a "pour", not just a reveal.
+type TreasureSpec = {
+  rest: [number, number, number];
+  pour: [number, number, number];
+  spin: [number, number, number];
+  arc: number;
+  delay: number;
 };
+
+const TREASURES: TreasureSpec[] = [
+  { rest: [-0.5, 0.04, -0.12], pour: [-1.46, 0.52, 1.12], spin: [1.5, 2.1, 0.7], arc: 0.52, delay: 0.0 },
+  { rest: [0.52, -0.02, 0.12], pour: [1.52, 0.32, 1.24], spin: [-1.2, -1.7, 0.9], arc: 0.64, delay: 0.08 },
+  { rest: [-0.16, 0.08, 0.18], pour: [-0.42, -0.18, 1.6], spin: [1.9, 1.0, -0.9], arc: 0.74, delay: 0.16 },
+  { rest: [0.22, 0.02, -0.16], pour: [0.74, 0.9, 0.98], spin: [-1.6, 1.5, 1.2], arc: 0.58, delay: 0.24 },
+  { rest: [0.0, 0.12, 0.02], pour: [0.12, 0.06, 1.86], spin: [2.1, -2.1, 0.5], arc: 0.82, delay: 0.32 },
+];
+
+function easeOutCubic(t: number) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+function TreasureMesh({ index }: { index: number }) {
+  switch (index) {
+    case 0: // beaded gold ring
+      return (
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.2, 0.045, 14, 44]} />
+          <meshStandardMaterial color="#e7bd76" roughness={0.26} metalness={0.78} />
+        </mesh>
+      );
+    case 1: // honey / coffee jar
+      return (
+        <group>
+          <mesh position={[0, -0.02, 0]}>
+            <cylinderGeometry args={[0.16, 0.18, 0.34, 28]} />
+            <meshPhysicalMaterial color="#9c5b22" roughness={0.32} metalness={0.05} clearcoat={0.5} />
+          </mesh>
+          <mesh position={[0, 0.2, 0]}>
+            <cylinderGeometry args={[0.12, 0.12, 0.07, 24]} />
+            <meshStandardMaterial color="#d9b06a" roughness={0.34} metalness={0.6} />
+          </mesh>
+        </group>
+      );
+    case 2: // folded story card
+      return (
+        <RoundedBox args={[0.46, 0.07, 0.34]} radius={0.025} smoothness={3}>
+          <meshStandardMaterial color="#f1e6d2" roughness={0.7} metalness={0.02} />
+        </RoundedBox>
+      );
+    case 3: // soapstone / terracotta pouch
+      return (
+        <mesh>
+          <sphereGeometry args={[0.2, 22, 18]} />
+          <meshStandardMaterial color="#a8543a" roughness={0.62} metalness={0.04} />
+        </mesh>
+      );
+    default: // gold coin
+      return (
+        <mesh rotation={[Math.PI / 2.2, 0.3, 0]}>
+          <cylinderGeometry args={[0.17, 0.17, 0.04, 30]} />
+          <meshStandardMaterial color="#edc879" roughness={0.24} metalness={0.82} />
+        </mesh>
+      );
+  }
+}
 
 function usePrefersReducedMotion() {
   const [reduceMotion, setReduceMotion] = useState(() => {
@@ -36,264 +97,235 @@ function usePrefersReducedMotion() {
 function GiftScene({ revealing }: { revealing: boolean }) {
   const reduceMotion = usePrefersReducedMotion();
   const stageRef = useRef<Group | null>(null);
+  const chestRef = useRef<Group | null>(null);
   const lidRef = useRef<Group | null>(null);
-  const treasureRef = useRef<Group | null>(null);
+  const latchRef = useRef<Group | null>(null);
+  const treasureRefs = useRef<Array<Group | null>>([]);
   const vaultLightRef = useRef<PointLight | null>(null);
-  const revealTarget = useRef(0);
-  const revealProgress = useRef(0);
+
+  // Local "peek" open state, toggled by clicking the latch. Combined with the
+  // page-level `revealing` (entering the showroom) to drive one open value.
+  const [latchOpen, setLatchOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const openTarget = useRef(0);
+  const openProgress = useRef(0);
+
   const targetPointer = useRef({ x: 0, y: 0 });
   const smoothPointer = useRef({ x: 0, y: 0 });
-  const targetDrag = useRef({ x: 0, y: 0 });
-  const smoothDrag = useRef({ x: 0, y: 0 });
-  const dragVelocity = useRef({ x: 0, y: 0 });
-  const lastDrag = useRef({ x: 0, y: 0 });
-  const isDragging = useRef(false);
 
   useEffect(() => {
-    revealTarget.current = revealing && !reduceMotion ? 1 : 0;
-    if (revealing) {
-      isDragging.current = false;
-      targetDrag.current.x = 0;
-      targetDrag.current.y = 0;
-    }
-  }, [reduceMotion, revealing]);
+    openTarget.current = (revealing || latchOpen) && !reduceMotion ? 1 : 0;
+  }, [reduceMotion, revealing, latchOpen]);
+
+  // Auto-close the peek a few seconds after a latch-open (unless the page is revealing).
+  useEffect(() => {
+    if (!latchOpen || revealing) return;
+    const timer = window.setTimeout(() => setLatchOpen(false), 4200);
+    return () => window.clearTimeout(timer);
+  }, [latchOpen, revealing]);
+
+  useEffect(() => {
+    document.body.style.cursor = hovered ? "pointer" : "";
+    return () => {
+      document.body.style.cursor = "";
+    };
+  }, [hovered]);
 
   useEffect(() => {
     if (reduceMotion) return;
-
-    const resetPointer = () => {
+    const onPointerMove = (event: PointerEvent) => {
+      targetPointer.current.x = MathUtils.clamp((event.clientX / window.innerWidth - 0.5) * 2, -1, 1);
+      targetPointer.current.y = MathUtils.clamp((event.clientY / window.innerHeight - 0.5) * 2, -1, 1);
+    };
+    const reset = () => {
       targetPointer.current.x = 0;
       targetPointer.current.y = 0;
     };
-
-    const onPointerMove = (event: PointerEvent) => {
-      targetPointer.current.x = MathUtils.clamp(
-        (event.clientX / window.innerWidth - 0.5) * 2,
-        -1,
-        1,
-      );
-      targetPointer.current.y = MathUtils.clamp(
-        (event.clientY / window.innerHeight - 0.5) * 2,
-        -1,
-        1,
-      );
-    };
-
-    const onVisibilityChange = () => {
-      if (document.hidden) resetPointer();
-    };
-
     window.addEventListener("pointermove", onPointerMove, { passive: true });
-    window.addEventListener("pointerleave", resetPointer);
-    window.addEventListener("blur", resetPointer);
-    document.addEventListener("visibilitychange", onVisibilityChange);
-
+    window.addEventListener("pointerleave", reset);
+    window.addEventListener("blur", reset);
     return () => {
       window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerleave", resetPointer);
-      window.removeEventListener("blur", resetPointer);
-      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("pointerleave", reset);
+      window.removeEventListener("blur", reset);
     };
-  }, [reduceMotion]);
-
-  useEffect(() => {
-    if (reduceMotion) return;
-
-    const onStageDrag = (event: Event) => {
-      const { phase, dx, dy } = (event as CustomEvent<StageDragDetail>).detail;
-
-      if (phase === "start") {
-        isDragging.current = true;
-        targetDrag.current.x = 0;
-        targetDrag.current.y = 0;
-        dragVelocity.current.x = 0;
-        dragVelocity.current.y = 0;
-        lastDrag.current.x = 0;
-        lastDrag.current.y = 0;
-        return;
-      }
-
-      if (phase === "move") {
-        const nextX = MathUtils.clamp(dx / 260, -1, 1);
-        const nextY = MathUtils.clamp(dy / 220, -1, 1);
-        dragVelocity.current.x = MathUtils.clamp(nextX - lastDrag.current.x, -0.08, 0.08);
-        dragVelocity.current.y = MathUtils.clamp(nextY - lastDrag.current.y, -0.08, 0.08);
-        targetDrag.current.x = nextX;
-        targetDrag.current.y = nextY;
-        lastDrag.current.x = nextX;
-        lastDrag.current.y = nextY;
-        return;
-      }
-
-      isDragging.current = false;
-      targetDrag.current.x = MathUtils.clamp(targetDrag.current.x + dragVelocity.current.x * 1.4, -1, 1);
-      targetDrag.current.y = MathUtils.clamp(targetDrag.current.y + dragVelocity.current.y * 1.2, -1, 1);
-    };
-
-    window.addEventListener("hazina:stage-drag", onStageDrag);
-    return () => window.removeEventListener("hazina:stage-drag", onStageDrag);
   }, [reduceMotion]);
 
   useFrame(({ clock }) => {
     if (!stageRef.current || reduceMotion) return;
 
-    revealProgress.current = MathUtils.lerp(
-      revealProgress.current,
-      revealTarget.current,
-      revealing ? 0.085 : 0.065,
+    openProgress.current = MathUtils.lerp(
+      openProgress.current,
+      openTarget.current,
+      openTarget.current > openProgress.current ? 0.1 : 0.07,
     );
-    const reveal = revealProgress.current;
+    const reveal = openProgress.current;
 
-    if (!isDragging.current) {
-      targetDrag.current.x = MathUtils.lerp(targetDrag.current.x, 0, 0.06);
-      targetDrag.current.y = MathUtils.lerp(targetDrag.current.y, 0, 0.06);
-    }
-
-    smoothDrag.current.x = MathUtils.lerp(
-      smoothDrag.current.x,
-      targetDrag.current.x,
-      isDragging.current ? 0.12 : 0.065,
-    );
-    smoothDrag.current.y = MathUtils.lerp(
-      smoothDrag.current.y,
-      targetDrag.current.y,
-      isDragging.current ? 0.12 : 0.065,
-    );
-
-    smoothPointer.current.x = MathUtils.lerp(
-      smoothPointer.current.x,
-      targetPointer.current.x,
-      0.08,
-    );
-    smoothPointer.current.y = MathUtils.lerp(
-      smoothPointer.current.y,
-      targetPointer.current.y,
-      0.08,
-    );
-
+    smoothPointer.current.x = MathUtils.lerp(smoothPointer.current.x, targetPointer.current.x, 0.08);
+    smoothPointer.current.y = MathUtils.lerp(smoothPointer.current.y, targetPointer.current.y, 0.08);
     const pointerX = smoothPointer.current.x;
     const pointerY = smoothPointer.current.y;
-    const dragX = MathUtils.clamp(smoothDrag.current.x, -1, 1);
-    const dragY = MathUtils.clamp(smoothDrag.current.y, -1, 1);
-    const hoverInfluence = (isDragging.current ? 0.42 : 1) * (1 - reveal * 0.82);
-    const ambientRotationY = BASE_STAGE_ROTATION_Y + Math.sin(clock.elapsedTime * 0.2) * 0.035;
-    const ambientPositionY = Math.sin(clock.elapsedTime * 0.42) * 0.018;
+    const hoverInfluence = 1 - reveal * 0.7;
+
+    const ambientRotationY = BASE_STAGE_ROTATION_Y + Math.sin(clock.elapsedTime * 0.2) * 0.04;
+    const ambientPositionY = Math.sin(clock.elapsedTime * 0.42) * 0.02;
 
     stageRef.current.rotation.y = MathUtils.clamp(
-      ambientRotationY + pointerX * 0.15 * hoverInfluence + dragX * 0.34 - reveal * 0.06,
-      -0.52,
-      0.32,
+      ambientRotationY + pointerX * 0.2 * hoverInfluence - reveal * 0.05,
+      -0.5,
+      0.34,
     );
     stageRef.current.rotation.x = MathUtils.clamp(
-      BASE_STAGE_ROTATION_X - pointerY * 0.065 * hoverInfluence - dragY * 0.14 - reveal * 0.02,
-      -0.24,
-      0.1,
-    );
-    stageRef.current.position.x = MathUtils.clamp(
-      BASE_STAGE_POSITION.x + pointerX * 0.12 * hoverInfluence + dragX * 0.22 - reveal * 0.03,
-      -0.22,
-      0.3,
-    );
-    stageRef.current.position.y = MathUtils.clamp(
-      BASE_STAGE_POSITION.y +
-        ambientPositionY -
-        pointerY * 0.055 * hoverInfluence -
-        dragY * 0.12 +
-        reveal * 0.06,
-      -0.28,
+      BASE_STAGE_ROTATION_X - pointerY * 0.08 * hoverInfluence,
+      -0.26,
       0.12,
     );
-    stageRef.current.position.z = BASE_STAGE_POSITION.z;
+    stageRef.current.position.x = BASE_STAGE_POSITION.x + pointerX * 0.14 * hoverInfluence - reveal * 0.04;
+    stageRef.current.position.y = BASE_STAGE_POSITION.y + ambientPositionY - pointerY * 0.06 * hoverInfluence + reveal * 0.05;
+
+    // Chest tilts forward as it opens so the contents pour toward the viewer.
+    if (chestRef.current) {
+      chestRef.current.rotation.x = reveal * 0.22;
+    }
 
     if (lidRef.current) {
-      lidRef.current.rotation.x = -1.12 * reveal;
-      lidRef.current.position.y = reveal * 0.045;
+      lidRef.current.rotation.x = -2.05 * easeOutCubic(reveal);
     }
 
-    if (treasureRef.current) {
-      treasureRef.current.position.y = 0.34 + reveal * 0.055;
-      treasureRef.current.scale.setScalar(0.96 + reveal * 0.04);
+    if (latchRef.current) {
+      // Latch flicks open early in the motion.
+      const latchP = MathUtils.clamp(reveal * 3, 0, 1);
+      latchRef.current.rotation.x = -1.3 * easeOutCubic(latchP);
+      latchRef.current.position.y = -0.36 + latchP * 0.12;
     }
+
+    TREASURES.forEach((spec, i) => {
+      const node = treasureRefs.current[i];
+      if (!node) return;
+      const p = easeOutCubic(MathUtils.clamp((reveal - spec.delay) / 0.62, 0, 1));
+      const arc = Math.sin(p * Math.PI) * spec.arc;
+      const settle = p >= 0.999 ? Math.sin(clock.elapsedTime * 1.4 + i) * 0.018 : 0;
+      node.position.x = MathUtils.lerp(spec.rest[0], spec.pour[0], p);
+      node.position.y = MathUtils.lerp(spec.rest[1], spec.pour[1], p) + arc + settle;
+      node.position.z = MathUtils.lerp(spec.rest[2], spec.pour[2], p);
+      node.rotation.x = spec.spin[0] * p;
+      node.rotation.y = spec.spin[1] * p;
+      node.rotation.z = spec.spin[2] * p;
+      const s = 0.9 + p * 0.16;
+      node.scale.setScalar(s);
+      node.visible = reveal > 0.001 || p > 0;
+    });
 
     if (vaultLightRef.current) {
-      vaultLightRef.current.intensity = MathUtils.lerp(0, 3.8, reveal);
-      vaultLightRef.current.distance = MathUtils.lerp(1.2, 3.6, reveal);
+      vaultLightRef.current.intensity = MathUtils.lerp(0, 4.4, reveal);
+      vaultLightRef.current.distance = MathUtils.lerp(1.2, 4.2, reveal);
     }
   });
 
+  const onLatchClick = (event: ThreeEvent<MouseEvent>) => {
+    event.stopPropagation();
+    setLatchOpen((open) => !open);
+  };
+
   return (
     <>
-      <ambientLight intensity={1.55} />
-      <directionalLight position={[4.6, 6.4, 5.2]} intensity={3.4} color="#ffe3ba" />
-      <pointLight position={[-3.2, 1.8, 3.8]} intensity={1.25} color="#e6c08a" />
-      <pointLight position={[2.8, 0.8, -2.8]} intensity={0.55} color="#fff0d4" />
+      <ambientLight intensity={1.5} />
+      <directionalLight position={[4.6, 6.4, 5.2]} intensity={3.3} color="#ffe3ba" />
+      <pointLight position={[-3.2, 1.8, 3.8]} intensity={1.2} color="#e6c08a" />
+      <pointLight position={[2.8, 0.8, -2.8]} intensity={0.5} color="#fff0d4" />
       <pointLight position={[0, 0.2, 4.6]} intensity={0.95} color="#f3d49a" />
-      <pointLight ref={vaultLightRef} position={[0, 0.72, 0.18]} intensity={0} color="#f0c98c" />
+      <pointLight ref={vaultLightRef} position={[0, 0.5, 0.1]} intensity={0} color="#ffd79a" />
+
       <group
         ref={stageRef}
         position={[BASE_STAGE_POSITION.x, BASE_STAGE_POSITION.y, BASE_STAGE_POSITION.z]}
         rotation={[BASE_STAGE_ROTATION_X, BASE_STAGE_ROTATION_Y, 0]}
       >
-        <RoundedBox args={[2.82, 0.82, 1.78]} radius={0.12} smoothness={4} position={[0, -0.18, 0]}>
-          <meshPhysicalMaterial
-            color="#5a3d28"
-            roughness={0.44}
-            metalness={0.12}
-            clearcoat={0.4}
-            clearcoatRoughness={0.5}
-          />
-        </RoundedBox>
-        <RoundedBox args={[2.56, 0.09, 1.52]} radius={0.04} smoothness={3} position={[0, 0.25, 0]}>
-          <meshStandardMaterial color="#c79a55" roughness={0.4} metalness={0.55} />
-        </RoundedBox>
-        <RoundedBox args={[2.36, 0.055, 1.34]} radius={0.035} smoothness={3} position={[0, 0.31, 0]}>
-          <meshStandardMaterial color="#e4d2ac" roughness={0.7} metalness={0.03} />
-        </RoundedBox>
-
-        <group ref={treasureRef} position={[0, 0.34, 0]} scale={0.96}>
-          <RoundedBox args={[0.58, 0.15, 0.88]} radius={0.06} smoothness={3} position={[-0.78, 0, 0]}>
-            <meshStandardMaterial color="#6a4a32" roughness={0.6} metalness={0.08} />
-          </RoundedBox>
-          <mesh position={[0, 0.08, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[0.27, 0.045, 12, 40]} />
-            <meshStandardMaterial color="#e7bd76" roughness={0.28} metalness={0.7} />
-          </mesh>
-          <RoundedBox args={[0.62, 0.1, 0.82]} radius={0.05} smoothness={3} position={[0.78, 0, 0]}>
-            <meshStandardMaterial color="#f3ead7" roughness={0.68} metalness={0.02} />
-          </RoundedBox>
-        </group>
-
-        <group ref={lidRef} position={[0, 0.28, -0.86]} rotation={[0, 0, 0]}>
-          <group position={[0, 0.16, 0.86]}>
-            <RoundedBox args={[2.88, 0.34, 1.84]} radius={0.12} smoothness={4}>
-              <meshPhysicalMaterial
-                color="#65442c"
-                roughness={0.4}
-                metalness={0.12}
-                clearcoat={0.46}
-                clearcoatRoughness={0.46}
-              />
-            </RoundedBox>
-            <RoundedBox args={[2.58, 0.035, 1.54]} radius={0.035} smoothness={3} position={[0, 0.19, 0]}>
-              <meshStandardMaterial color="#2f2014" roughness={0.5} metalness={0.12} />
-            </RoundedBox>
-            <RoundedBox args={[0.11, 0.38, 1.86]} radius={0.03} smoothness={3}>
-              <meshStandardMaterial color="#d2a154" roughness={0.32} metalness={0.62} />
-            </RoundedBox>
+        {/* Treasures — spill forward out of the chest. */}
+        {TREASURES.map((spec, i) => (
+          <group
+            key={i}
+            ref={(el) => {
+              treasureRefs.current[i] = el;
+            }}
+            position={spec.rest}
+            visible={false}
+          >
+            <TreasureMesh index={i} />
           </group>
-        </group>
+        ))}
 
-        <RoundedBox args={[2.2, 0.34, 0.045]} radius={0.05} smoothness={3} position={[0, -0.17, 0.9]}>
-          <meshStandardMaterial color="#3a2719" roughness={0.5} metalness={0.1} />
-        </RoundedBox>
-        <mesh position={[0, -0.17, 0.94]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.22, 0.22, 0.055, 48]} />
-          <meshStandardMaterial color="#dcab5e" roughness={0.28} metalness={0.68} />
-        </mesh>
-        <mesh position={[0, -0.17, 0.972]}>
-          <ringGeometry args={[0.085, 0.12, 32]} />
-          <meshStandardMaterial color="#4a3320" roughness={0.42} metalness={0.2} />
-        </mesh>
+        <group ref={chestRef}>
+          {/* Chest body — leather with brass base rail and corner caps. */}
+          <RoundedBox args={[2.7, 0.96, 1.74]} radius={0.1} smoothness={5} position={[0, -0.28, 0]}>
+            <meshPhysicalMaterial color="#4d3320" roughness={0.5} metalness={0.08} clearcoat={0.5} clearcoatRoughness={0.45} />
+          </RoundedBox>
+          <RoundedBox args={[2.78, 0.14, 1.82]} radius={0.05} smoothness={4} position={[0, -0.72, 0]}>
+            <meshStandardMaterial color="#caa05a" roughness={0.34} metalness={0.7} />
+          </RoundedBox>
+          {([
+            [-1.22, 0.8],
+            [1.22, 0.8],
+            [-1.22, -0.8],
+            [1.22, -0.8],
+          ] as const).map(([x, z], i) => (
+            <mesh key={i} position={[x, -0.66, z]}>
+              <boxGeometry args={[0.16, 0.5, 0.16]} />
+              <meshStandardMaterial color="#b88c4c" roughness={0.36} metalness={0.66} />
+            </mesh>
+          ))}
+
+          {/* Cream satin interior lining (seen when open). */}
+          <RoundedBox args={[2.42, 0.5, 1.46]} radius={0.04} smoothness={3} position={[0, -0.06, 0]}>
+            <meshStandardMaterial color="#efe2c9" roughness={0.82} metalness={0.02} />
+          </RoundedBox>
+          <RoundedBox args={[2.5, 0.08, 1.54]} radius={0.04} smoothness={3} position={[0, 0.2, 0]}>
+            <meshStandardMaterial color="#c79a55" roughness={0.38} metalness={0.6} />
+          </RoundedBox>
+
+          {/* Lid — hinged at the back. */}
+          <group ref={lidRef} position={[0, 0.22, -0.87]}>
+            <group position={[0, 0.12, 0.87]}>
+              <RoundedBox args={[2.74, 0.26, 1.78]} radius={0.1} smoothness={5}>
+                <meshPhysicalMaterial color="#5a3c25" roughness={0.46} metalness={0.1} clearcoat={0.55} clearcoatRoughness={0.4} />
+              </RoundedBox>
+              <RoundedBox args={[2.5, 0.05, 1.54]} radius={0.03} smoothness={3} position={[0, 0.15, 0]}>
+                <meshStandardMaterial color="#caa05a" roughness={0.34} metalness={0.7} />
+              </RoundedBox>
+              {/* Brass emblem on the lid. */}
+              <mesh position={[0, 0.18, 0]} rotation={[Math.PI / 2, 0, 0]}>
+                <torusGeometry args={[0.2, 0.03, 12, 40]} />
+                <meshStandardMaterial color="#e7c178" roughness={0.3} metalness={0.78} />
+              </mesh>
+            </group>
+          </group>
+
+          {/* Front latch — clickable to open. */}
+          <group
+            ref={latchRef}
+            position={[0, -0.36, 0.9]}
+            onClick={onLatchClick}
+            onPointerOver={(e) => {
+              e.stopPropagation();
+              setHovered(true);
+            }}
+            onPointerOut={() => setHovered(false)}
+          >
+            <mesh>
+              <boxGeometry args={[0.34, 0.4, 0.06]} />
+              <meshStandardMaterial color="#d8af63" roughness={0.3} metalness={0.74} />
+            </mesh>
+            <mesh position={[0, -0.04, 0.05]} rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.1, 0.1, 0.05, 24]} />
+              <meshStandardMaterial color="#3a2818" roughness={0.5} metalness={0.2} />
+            </mesh>
+          </group>
+          {/* Latch keeper plate on the body (stays put). */}
+          <mesh position={[0, -0.52, 0.9]}>
+            <boxGeometry args={[0.4, 0.18, 0.05]} />
+            <meshStandardMaterial color="#b88c4c" roughness={0.36} metalness={0.66} />
+          </mesh>
+        </group>
       </group>
     </>
   );
