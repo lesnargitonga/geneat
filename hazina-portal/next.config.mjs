@@ -1,6 +1,13 @@
+// Build stamp — Vercel populates VERCEL_GIT_COMMIT_SHA at build time; expose a
+// short, public version so the footer can prove which deploy is loaded.
+const BUILD_SHA = (process.env.VERCEL_GIT_COMMIT_SHA || "").slice(0, 7) || "local";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  env: {
+    NEXT_PUBLIC_BUILD_SHA: BUILD_SHA,
+  },
   webpack(config) {
     config.resolve.alias = {
       ...(config.resolve.alias || {}),

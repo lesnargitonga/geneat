@@ -1284,7 +1284,7 @@ export function ChatWidget() {
               onClick={() => void send("back")}
               disabled={busy}
               data-cursor="native"
-              className="inline-flex min-h-[34px] items-center gap-1 rounded-[4px] border border-[#c8c0b2] bg-sand/70 px-3 font-mono text-[10px] uppercase tracking-[0.13em] text-[#2a2622] transition-colors hover:border-[#121212] disabled:opacity-40"
+              className="concierge-action concierge-action-secondary inline-flex min-h-[34px] items-center gap-1 rounded-[4px] border border-[#c8c0b2] bg-sand/70 px-3 font-mono text-[10px] uppercase tracking-[0.13em] text-[#2a2622] transition-colors hover:border-[#121212] disabled:opacity-40"
             >
               ‹ Back
             </button>
@@ -1293,7 +1293,7 @@ export function ChatWidget() {
               onClick={() => void send("menu")}
               disabled={busy}
               data-cursor="native"
-              className="inline-flex min-h-[34px] items-center gap-1 rounded-[4px] border border-[#c8c0b2] bg-sand/70 px-3 font-mono text-[10px] uppercase tracking-[0.13em] text-[#2a2622] transition-colors hover:border-[#121212] disabled:opacity-40"
+              className="concierge-action concierge-action-secondary inline-flex min-h-[34px] items-center gap-1 rounded-[4px] border border-[#c8c0b2] bg-sand/70 px-3 font-mono text-[10px] uppercase tracking-[0.13em] text-[#2a2622] transition-colors hover:border-[#121212] disabled:opacity-40"
             >
               ⌂ Home
             </button>
@@ -1301,7 +1301,7 @@ export function ChatWidget() {
               type="button"
               onClick={() => setChatOpen(false)}
               data-cursor="native"
-              className="ml-auto inline-flex min-h-[34px] items-center gap-1 rounded-[4px] border border-[#c8c0b2] bg-sand/70 px-3 font-mono text-[10px] uppercase tracking-[0.13em] text-[#2a2622] transition-colors hover:border-[#121212]"
+              className="concierge-action concierge-action-secondary ml-auto inline-flex min-h-[34px] items-center gap-1 rounded-[4px] border border-[#c8c0b2] bg-sand/70 px-3 font-mono text-[10px] uppercase tracking-[0.13em] text-[#2a2622] transition-colors hover:border-[#121212]"
             >
               Exit ✕
             </button>
