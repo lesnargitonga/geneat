@@ -160,7 +160,15 @@ _DHL_LOGISTICS_RE = re.compile(
     re.IGNORECASE,
 )
 _CAFE_MENU_RE = re.compile(
-    r"\b(espresso|flat white|cappuccino|latte|croissants?|mandazi|cafe|coffee)\b",
+    r"\b(espresso|flat white|cappuccino|latte|croissants?|mandazi|cafe|barista)\b",
+    re.IGNORECASE,
+)
+# Hazina genuinely sells coffee, tea and food gifts (e.g. The Highland Treasure),
+# so a question framed as a gift/product must reach the AI concierge rather than
+# being deflected as a "we're not a cafe" boundary.
+_GIFT_PRODUCT_INTENT_RE = re.compile(
+    r"\b(gift|present|recommend|suggest|hamper|box|collection|treasure|set|"
+    r"send|ship|export|buy|order|budget|client|corporate|souvenir|under|over|usd|kes)\b|\$",
     re.IGNORECASE,
 )
 
@@ -288,7 +296,11 @@ def looks_like_hazina_logistics_question(text: str) -> str | None:
 
 
 def looks_like_cafe_menu_question(text: str) -> bool:
-    return bool(_CAFE_MENU_RE.search(text or ""))
+    t = text or ""
+    # A gift/product framing is never a cafe boundary — let the AI concierge answer.
+    if _GIFT_PRODUCT_INTENT_RE.search(t):
+        return False
+    return bool(_CAFE_MENU_RE.search(t))
 
 
 def looks_like_checkout_cancel(text: str) -> bool:

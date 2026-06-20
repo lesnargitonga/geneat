@@ -32,6 +32,12 @@ def test_hazina_intent_detectors() -> None:
     assert ga.looks_like_hazina_catalog_request("show me your gift boxes")
     assert ga.looks_like_cafe_menu_question("do you sell croissants?")
     assert ga.looks_like_cafe_menu_question("can I get a flat white?")
+    # Coffee/tea GIFTS are core Hazina products — these must reach the AI concierge,
+    # not the "we're not a cafe" boundary.
+    assert not ga.looks_like_cafe_menu_question(
+        "what Kenyan coffee gift do you recommend under $80?"
+    )
+    assert not ga.looks_like_cafe_menu_question("send a coffee gift box to my client")
     assert ga.should_pause_checkout_for_customer_request("send me a picture of The Kenya Edit")
     assert ga.should_pause_checkout_for_customer_request("no stk yet")
     assert ga.looks_like_checkout_cancel("cancel this checkout please")
