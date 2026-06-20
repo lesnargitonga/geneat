@@ -134,9 +134,50 @@ _PORTAL_COLLECTION_CHECKOUT_RE = re.compile(
 _PHOTO_RE = re.compile(r"\b(photo|picture|pic|image|picha|show me)\b", re.IGNORECASE)
 _CHECKOUT_CANCEL_RE = re.compile(
     r"\b(cancel|stop|abort|sitisha)\b.{0,50}\b(checkout|order|payment|pay|malipo|oda)\b|"
-    r"\b(checkout|order|payment|pay|malipo|oda)\b.{0,50}\b(cancel|stop|abort|sitisha)\b",
+    r"\b(checkout|order|payment|pay|malipo|oda)\b.{0,50}\b(cancel|stop|abort|sitisha)\b|"
+    # A bare cancel/restart intent — only consulted while a checkout is active,
+    # so the customer clearly means "scrap this draft".
+    r"^\s*(?:cancel|stop|abort|restart|start\s+over|start\s+again|never\s*mind|"
+    r"forget\s+it|scrap\s+(?:this|that|it)|futa|anza\s+upya)\b",
     re.IGNORECASE,
 )
+# Step-by-step checkout: order of fields, plus back/edit intent detection so a
+# customer can correct a wrong answer instead of being marched forward.
+_CHECKOUT_STEP_ORDER = ["name", "delivery_type", "location", "window", "payment", "contact", "confirm"]
+_CHECKOUT_BACK_RE = re.compile(
+    r"^\s*(?:go\s*back|back|previous|prev|undo|rudi(?:\s+nyuma)?|nyuma)\s*[.!?]*\s*$",
+    re.IGNORECASE,
+)
+_CHECKOUT_EDIT_RE = re.compile(
+    r"\b(edit|change|correct|fix|update|wrong|mistake|redo|badilisha|rekebisha)\b",
+    re.IGNORECASE,
+)
+_CHECKOUT_FIELD_KEYWORDS: list[tuple[str, "re.Pattern[str]"]] = [
+    ("name", re.compile(r"\b(name|jina)\b", re.IGNORECASE)),
+    ("delivery_type", re.compile(r"\b(delivery type|channel|handoff|method|aina ya delivery)\b", re.IGNORECASE)),
+    ("location", re.compile(r"\b(location|address|destination|where|anwani|eneo|terminal|hotel|villa|residence)\b", re.IGNORECASE)),
+    ("window", re.compile(r"\b(time|window|when|date|flight|departure|muda|lini|saa)\b", re.IGNORECASE)),
+    ("payment", re.compile(r"\b(payment|currency|pay|usd|kes|m-?pesa|card|malipo)\b", re.IGNORECASE)),
+    ("contact", re.compile(r"\b(contact|phone|number|email|nambari|simu)\b", re.IGNORECASE)),
+]
+
+
+def _checkout_prev_step(step: str) -> str:
+    try:
+        idx = _CHECKOUT_STEP_ORDER.index(step)
+    except ValueError:
+        return "name"
+    return _CHECKOUT_STEP_ORDER[max(0, idx - 1)]
+
+
+def _checkout_edit_target(text: str) -> str | None:
+    """If the message names a field to edit, return that step."""
+    if not _CHECKOUT_EDIT_RE.search(text or ""):
+        return None
+    for field, pattern in _CHECKOUT_FIELD_KEYWORDS:
+        if pattern.search(text or ""):
+            return field
+    return None
 _CHECKOUT_STATUS_INTERRUPT_RE = re.compile(
     r"\b(resend|send again|retry|paid|nimepay|nimelipa|no stk|not received|haijafika)\b",
     re.IGNORECASE,
@@ -1512,6 +1553,31 @@ async def try_hazina_automation(
     }:
         step = str(checkout.get("step") or "")
         value = (text or "").strip()
+
+        # ── Correct a wrong answer: jump straight to a named field ──────────
+        edit_target = _checkout_edit_target(value)
+        if edit_target:
+            checkout["step"] = edit_target
+            await _set_checkout(conversation_id, checkout)
+            return GiftAutomationResult(
+                reply=(
+                    "Sawa, turekebishe hiyo. " if is_sw else "Sure — let's fix that. "
+                ) + _checkout_prompt(checkout, is_sw=is_sw),
+                safety_flag=f"deterministic:hazina_checkout_edit_{edit_target}",
+            )
+
+        # ── Step back to the previous question ──────────────────────────────
+        if _CHECKOUT_BACK_RE.match(value):
+            prev = _checkout_prev_step(step or "confirm")
+            checkout["step"] = prev
+            await _set_checkout(conversation_id, checkout)
+            return GiftAutomationResult(
+                reply=(
+                    "Sawa, turudi nyuma. " if is_sw else "No problem — going back. "
+                ) + _checkout_prompt(checkout, is_sw=is_sw),
+                safety_flag="deterministic:hazina_checkout_back",
+            )
+
         if step == "name":
             if len(value) < 2:
                 return GiftAutomationResult(
@@ -1642,11 +1708,13 @@ async def try_hazina_automation(
             summary = (
                 f"Thibitisha: {checkout.get('customer_name')} - {checkout.get('delivery_type')} - "
                 f"{checkout.get('delivery_location')} - {checkout.get('delivery_window')} - "
-                f"{checkout.get('payment_currency')}. Andika 'confirm' tuanze checkout."
+                f"{checkout.get('payment_currency')}. Andika 'confirm' tuanze — au sema mf. "
+                f"'badilisha anwani', 'rudi nyuma', au 'cancel'."
                 if is_sw else
                 f"Please confirm: {checkout.get('customer_name')} - {checkout.get('delivery_type')} - "
                 f"{checkout.get('delivery_location')} - {checkout.get('delivery_window')} - "
-                f"{checkout.get('payment_currency')}. Reply 'confirm' and I will create the order."
+                f"{checkout.get('payment_currency')}. Reply 'confirm' to proceed — or say e.g. "
+                f"'change address', 'back', or 'cancel' to fix anything."
             )
             return GiftAutomationResult(reply=summary, safety_flag="deterministic:hazina_checkout_confirm")
         checkout["step"] = next_step

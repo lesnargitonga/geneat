@@ -44,6 +44,34 @@ def test_hazina_intent_detectors() -> None:
     assert not ga.should_pause_checkout_for_customer_request("Villa Rosa room 412 today 7 pm")
 
 
+def test_checkout_back_edit_cancel_navigation() -> None:
+    # Step-back ordering
+    assert ga._checkout_prev_step("location") == "delivery_type"
+    assert ga._checkout_prev_step("name") == "name"
+    assert ga._checkout_prev_step("confirm") == "contact"
+
+    # Edit a named field mid-flow
+    assert ga._checkout_edit_target("change the address") == "location"
+    assert ga._checkout_edit_target("edit my name") == "name"
+    assert ga._checkout_edit_target("wrong payment currency") == "payment"
+    assert ga._checkout_edit_target("change phone number") == "contact"
+    # A plain answer is not an edit command
+    assert ga._checkout_edit_target("Karen estate, Nairobi") is None
+
+    # Bare back intent (anchored so it never eats a real answer)
+    assert ga._CHECKOUT_BACK_RE.match("back")
+    assert ga._CHECKOUT_BACK_RE.match("go back")
+    assert ga._CHECKOUT_BACK_RE.match("previous")
+    assert not ga._CHECKOUT_BACK_RE.match("back gate, Karen")
+
+    # Widened cancel: a bare cancel/restart now counts (only consulted mid-checkout)
+    assert ga.looks_like_checkout_cancel("cancel")
+    assert ga.looks_like_checkout_cancel("start over")
+    assert ga.looks_like_checkout_cancel("never mind")
+    assert ga.looks_like_checkout_cancel("cancel this checkout please")
+    assert not ga.looks_like_checkout_cancel("Karen estate, Nairobi")
+
+
 def test_is_hazina_slug() -> None:
     assert ga.is_hazina_slug("hazina-nomads")
     assert not ga.is_hazina_slug("lily-pond-cafe")
