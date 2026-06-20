@@ -1242,14 +1242,16 @@
 
   .luxury-3d-scene {
     perspective: 1200px;
-    transform-style: preserve-3d;
   }
 
   .luxury-3d-card {
     position: relative;
     height: 100%;
-    transform-style: preserve-3d;
-    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
+    /* No preserve-3d / translateZ depth: Firefox mis-routed pointer hit-tests
+       through the 3D layers and swallowed card clicks (Chromium masked it).
+       The rotate tilt + perspective still read as 3D, but hit-testing is now
+       flat and reliable in every engine. */
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
     transition:
       transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 360ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -1288,7 +1290,6 @@
     position: relative;
     z-index: 2;
     height: 100%;
-    transform: translateZ(28px);
   }
 
   .spatial-stage {
