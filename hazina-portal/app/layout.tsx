@@ -3,10 +3,11 @@ import { Cormorant_Garamond, DM_Mono, Manrope } from "next/font/google";
 import { SiteChrome } from "@/components/SiteChrome";
 import "./globals.css";
 
-// Display serif — the brand's editorial voice (headlines, hero, exhibit titles)
+// Display serif — the brand's editorial voice (headlines, hero, exhibit titles).
+// Only 400/500 (+ italic for the wordmark) are used, so we ship just those.
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500"],
   style: ["normal", "italic"],
   variable: "--font-cormorant",
   display: "swap",
@@ -15,7 +16,7 @@ const cormorant = Cormorant_Garamond({
 // Body sans — clean, warm humanist grotesque that pairs with Cormorant
 const manrope = Manrope({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
   variable: "--font-sans",
   display: "swap",
 });

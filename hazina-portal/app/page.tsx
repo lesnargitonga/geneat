@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CatalogImage } from "@/components/CatalogImage";
 import { ConciergeSceneCTA } from "@/components/ConciergeSceneCTA";
 import { VaultEntryLink } from "@/components/VaultEntryLink";
+import { WhatsAppGlyph } from "@/components/WhatsAppGlyph";
 import { FloatingSurface } from "@/components/three-d/FloatingSurface";
 import { LuxuryTilt } from "@/components/three-d/LuxuryTilt";
 import { RevealGroup } from "@/components/three-d/RevealGroup";
@@ -32,7 +33,6 @@ export default async function HomePage() {
             className="object-cover object-bottom brightness-[0.36] saturate-[0.66] contrast-[1.06]"
             sizes="100vw"
             priority
-            unoptimized
           />
           <div className="absolute inset-0 hero-overlay" />
         </ScrollDepth>
@@ -65,7 +65,10 @@ export default async function HomePage() {
                 data-cursor="magnetic"
                 className="btn-outline flex-col gap-0.5 border-white/60 text-white hover:bg-sand hover:text-obsidian"
               >
-                <span>Continue on WhatsApp</span>
+                <span className="inline-flex items-center gap-2">
+                  <WhatsAppGlyph className="h-4 w-4" />
+                  Continue on WhatsApp
+                </span>
                 <span className="text-[10px] normal-case tracking-normal opacity-75">Human concierge handoff</span>
               </a>
             </RevealGroup>

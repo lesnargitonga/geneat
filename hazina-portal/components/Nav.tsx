@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { openConciergeChat } from "@/components/ChatWidget";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { WhatsAppGlyph } from "@/components/WhatsAppGlyph";
 import { BRAND } from "@/lib/products";
 import { whatsappLink } from "@/lib/format";
 
@@ -78,12 +79,13 @@ export function Nav() {
             target="_blank"
             rel="noopener noreferrer"
             data-cursor="magnetic"
-            className={`font-mono text-sm uppercase tracking-[0.12em] transition-all duration-300 ${
+            className={`inline-flex items-center gap-2 font-mono text-sm uppercase tracking-[0.12em] transition-all duration-300 ${
               showStickyCta
                 ? "btn-bronze py-2.5 px-5 translate-y-0 opacity-100"
                 : "text-ink-soft hover:text-obsidian translate-y-0.5 opacity-90"
             }`}
           >
+            <WhatsAppGlyph className="h-4 w-4" />
             Continue on WhatsApp
           </a>
         </div>
