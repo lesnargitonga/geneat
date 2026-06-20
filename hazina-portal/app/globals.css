@@ -1174,7 +1174,7 @@
   }
 
   .h-display {
-    @apply font-serif font-semibold tracking-tight text-obsidian;
+    @apply font-serif font-medium tracking-tight text-obsidian;
   }
 
   .editorial-rule {
