@@ -446,6 +446,27 @@
       linear-gradient(118deg, #090806, #17110d 54%, #0d0a08);
   }
 
+  /* The dark scene background is hardcoded and never flips with the theme.
+     In night mode the global tokens invert (sand -> near-black), which would
+     collapse its light-on-dark text into the background. Re-scope the day
+     palette here so the scene renders identically in day and night. */
+  :root[data-theme="night"] .showroom-scene--dark {
+    --color-sand: 242 236 226;
+    --color-sand-dark: 228 219 206;
+    --color-obsidian: 28 26 23;
+    --color-obsidian-soft: 42 39 35;
+    --color-ink: 28 26 23;
+    --color-ink-soft: 42 39 35;
+    --color-ink-mute: 78 72 64;
+    --color-bronze: 166 124 82;
+    --color-bronze-dark: 139 102 66;
+    --color-bronze-light: 201 168 130;
+    --color-border: 216 205 190;
+    --color-sage: 139 154 107;
+    --color-sage-soft: 232 237 224;
+    color: rgb(var(--color-sand));
+  }
+
   .showroom-scene__content {
     position: relative;
     z-index: 2;
