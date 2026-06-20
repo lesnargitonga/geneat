@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { type MouseEvent, useMemo, useRef, useState } from "react";
 import { CatalogImage } from "@/components/CatalogImage";
+import { flyToBox } from "@/lib/flyToBox";
 import { FloatingSurface } from "@/components/three-d/FloatingSurface";
 import { LuxuryTilt } from "@/components/three-d/LuxuryTilt";
 import { RevealGroup } from "@/components/three-d/RevealGroup";
@@ -142,9 +143,18 @@ export function PackBuilder({
     });
   };
 
-  const toggle = (id: string) => {
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  const toggle = (id: string, event?: MouseEvent<HTMLButtonElement>) => {
     const qty = cart.get(id) ?? 0;
-    setQty(id, qty > 0 ? 0 : 1);
+    const adding = qty === 0;
+    setQty(id, adding ? 1 : 0);
+    if (adding && event) {
+      const card = event.currentTarget;
+      const img = card.querySelector("img");
+      const item = buildableTreasures.find((t) => t.id === id);
+      flyToBox(img ?? card, boxRef.current, (img as HTMLImageElement | null)?.currentSrc || item?.image);
+    }
   };
 
   const increment = (id: string) => setQty(id, (cart.get(id) ?? 0) + 1);
@@ -255,7 +265,7 @@ export function PackBuilder({
                 <SelectableTreasure
                   item={item}
                   qty={cart.get(item.id) ?? 0}
-                  onToggle={() => toggle(item.id)}
+                  onToggle={(event) => toggle(item.id, event)}
                 />
               </LuxuryTilt>
             ))}
@@ -272,7 +282,7 @@ export function PackBuilder({
 
       <aside className="min-w-0 lg:col-span-5">
         <FloatingSurface className="concierge-studio-panel lg:sticky lg:top-24" depth="strong">
-        <div className="lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto local-scroll local-scroll--subtle border border-border bg-sand p-6 md:p-8 space-y-6">
+        <div ref={boxRef} className="lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto local-scroll local-scroll--subtle border border-border bg-sand p-6 md:p-8 space-y-6">
           <div>
             <span className="label-mono">Your private collection</span>
             <h2 className="font-serif text-3xl text-obsidian mt-2">
@@ -601,7 +611,7 @@ function SelectableTreasure({
 }: {
   item: Treasure;
   qty: number;
-  onToggle: () => void;
+  onToggle: (event: MouseEvent<HTMLButtonElement>) => void;
 }) {
   const inCart = qty > 0;
 
