@@ -1983,6 +1983,30 @@ async def try_hazina_automation(
             safety_flag="deterministic:hazina_order_start",
         )
 
+    # ── Deterministic gift recommender (LLM-independent) ────────────────────
+    # Catches open-ended "what should I gift?" turns and answers from the live
+    # catalog, so the concierge stays useful without the fine-tuned model.
+    if not checkout:
+        from app.services.hazina_recommender import looks_like_recommendation, recommend
+
+        if looks_like_recommendation(text or ""):
+            from app.catalog.hazina_catalog import hazina_catalog_search_payload
+
+            rec = recommend(hazina_catalog_search_payload(), text or "", is_sw=is_sw)
+            if rec is not None:
+                rec_collections = rec.get("collection_ids") or []
+                if len(rec_collections) == 1:
+                    interactive = hazina_collection_buttons_payload(
+                        product_id=rec_collections[0], language=language,
+                    )
+                else:
+                    interactive = product_list_payload(language=language)
+                return GiftAutomationResult(
+                    reply=rec["reply"],
+                    interactive=interactive,
+                    safety_flag="deterministic:hazina_recommendation",
+                )
+
     return None
 
 
