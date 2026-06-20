@@ -79,12 +79,12 @@ export function TreasureQuickView({
               ✕
             </button>
 
-            <div ref={imageRef} className="relative aspect-[16/10] w-full overflow-hidden bg-sand-dark">
+            <div ref={imageRef} className="relative h-56 w-full overflow-hidden bg-sand-dark sm:h-64">
               <CatalogImage
                 src={item.image}
                 alt={item.imageAlt || item.name}
-                tone="warm"
-                fit="contain"
+                tone="default"
+                fit="cover"
                 className="h-full w-full"
                 sizes="(max-width: 640px) 100vw, 512px"
                 priority

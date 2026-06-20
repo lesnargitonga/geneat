@@ -44,6 +44,9 @@ export function ShowroomShell() {
   const stageScale = useTransform(scrollY, [0, 900], [1, 0.9]);
   const homeOpacity = useTransform(scrollY, [0, 640, 1180], [1, 0.7, 0.18]);
   const lightY = useTransform(scrollY, [0, 1600], [0, 120]);
+  // The gift canvas may only capture clicks in the home hero zone (top of page).
+  // Everywhere else it stays inert so it can never steal taps from page content.
+  const stagePointer = useTransform(scrollY, (y) => (y < 480 ? "auto" : "none"));
   const isVaultOpening = route === "home" && vaultOpening;
 
   useEffect(() => {
@@ -73,6 +76,7 @@ export function ShowroomShell() {
           y: stageY,
           scale: stageScale,
           opacity: route === "home" ? homeOpacity : undefined,
+          pointerEvents: route === "home" ? stagePointer : "none",
         }}
       >
         <HeroGiftStageLoader revealing={isVaultOpening} />

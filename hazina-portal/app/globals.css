@@ -1380,9 +1380,10 @@
     min-height: 0;
     opacity: 0.98;
     filter: saturate(0.9) contrast(1.02);
-    /* The gift canvas is interactive (click the latch to open) even though the
-       rest of the showroom shell is inert. Allow vertical scroll to pass. */
-    pointer-events: auto;
+    /* Interactivity is granted by the parent stage (see ShowroomShell), which
+       only turns pointer events on for the home hero near the top of the page.
+       The canvas itself must never blanket-capture clicks — that would steal
+       taps from cards on other routes. */
     touch-action: pan-y;
   }
 
