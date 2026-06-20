@@ -122,28 +122,32 @@
   .btn-dark {
     @apply inline-flex min-h-[44px] items-center justify-center gap-2 px-6 py-3
            text-sm font-mono font-medium uppercase tracking-[0.12em]
-           transition-all duration-300 active:scale-[0.98] disabled:opacity-50
-           bg-obsidian text-sand hover:bg-obsidian-soft;
+           transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]
+           active:translate-y-0 active:scale-[0.98] disabled:opacity-50
+           bg-obsidian text-sand hover:bg-obsidian-soft hover:-translate-y-px hover:shadow-editorial;
   }
   .btn-outline {
     @apply inline-flex min-h-[44px] items-center justify-center gap-2 px-6 py-3
            text-sm font-mono font-medium uppercase tracking-[0.12em]
-           transition-all duration-300 active:scale-[0.98] disabled:opacity-50
+           transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]
+           active:translate-y-0 active:scale-[0.98] disabled:opacity-50
            border border-obsidian text-obsidian bg-transparent
-           hover:bg-obsidian hover:text-sand;
+           hover:bg-obsidian hover:text-sand hover:-translate-y-px hover:shadow-soft;
   }
   .btn-bronze {
     @apply inline-flex min-h-[44px] items-center justify-center gap-2 px-6 py-3
            text-sm font-mono font-medium uppercase tracking-[0.12em]
-           transition-all duration-300 active:scale-[0.98] disabled:opacity-50
-           bg-bronze-dark text-sand hover:bg-bronze;
+           transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]
+           active:translate-y-0 active:scale-[0.98] disabled:opacity-50
+           bg-bronze-dark text-sand hover:bg-bronze hover:-translate-y-px hover:shadow-pop;
   }
   .btn-ghost {
     @apply inline-flex min-h-[44px] items-center justify-center gap-2 px-6 py-3
            text-sm font-mono font-medium uppercase tracking-[0.12em]
-           transition-all duration-300 active:scale-[0.98] disabled:opacity-50
+           transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]
+           active:translate-y-0 active:scale-[0.98] disabled:opacity-50
            border border-border text-ink-soft bg-transparent
-           hover:border-obsidian hover:text-obsidian;
+           hover:border-obsidian hover:text-obsidian hover:-translate-y-px;
   }
 
   .section-dark {
@@ -1179,6 +1183,35 @@
 
   .label-mono {
     @apply font-mono text-[12px] font-medium uppercase tracking-[0.18em] text-ink-soft;
+  }
+
+  /* Nav link — bronze underline that wipes in on hover and stays on the active page */
+  .nav-link {
+    @apply relative py-2 font-mono text-sm font-medium uppercase tracking-[0.1em]
+           text-ink-soft transition-colors duration-300 hover:text-obsidian;
+  }
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 100%;
+    background: rgb(var(--color-bronze));
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .nav-link:hover::after,
+  .nav-link:focus-visible::after {
+    transform: scaleX(1);
+  }
+  .nav-link[aria-current="page"] {
+    @apply text-obsidian;
+  }
+  .nav-link[aria-current="page"]::after {
+    transform: scaleX(1);
+    transform-origin: left center;
   }
 
   .card-luxury {

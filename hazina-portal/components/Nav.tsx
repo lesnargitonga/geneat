@@ -65,11 +65,7 @@ export function Nav() {
               href={n.href}
               aria-current={isActive(n.href) ? "page" : undefined}
               data-cursor="magnetic"
-              className={`relative py-2 font-mono text-sm font-medium uppercase tracking-[0.1em] transition-colors ${
-                isActive(n.href)
-                  ? "text-obsidian after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-px after:bg-bronze"
-                  : "text-ink-soft hover:text-obsidian"
-              }`}
+              className="nav-link"
             >
               {n.label}
             </Link>
