@@ -43,7 +43,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400..700&family=Newsreader:ital,opsz,wght@1,6..72,300&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260614-internal-studio">
+  <link rel="stylesheet" href="css/styles.css?v=20260615-globe-clean">
 </head>
 <body>
   <div id="cursor-lens" aria-hidden="true">
@@ -129,6 +129,11 @@
           </div>
         </div>
         <div class="hero-sculpture-control reveal-up" data-globe-focus role="group" aria-label="Interactive Lesnar world connector globe" data-cursor="expand" data-cursor-label="CONNECT">
+          <div class="globe-stage-ui" aria-hidden="true">
+            <span class="globe-stage-label">World connector</span>
+            <span class="globe-stage-gesture"><i></i>Tap a point</span>
+            <span class="globe-stage-scroll">Swipe outside to scroll</span>
+          </div>
           <button class="globe-popover" type="button" data-globe-popover aria-live="polite" aria-label="Show the next Lesnar world connection">
             <span data-globe-title>Customer Product</span>
             <small data-globe-detail>Customer portals, dashboards, and tools connect to Lesnar-built services without feeling fragile.</small>
@@ -786,6 +791,6 @@
         : Promise.resolve();
     })();
   </script>
-  <script defer src="js/app.js?v=20260614-internal-studio"></script>
+  <script defer src="js/app.js?v=20260615-globe-clean"></script>
 </body>
 </html>

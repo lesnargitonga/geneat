@@ -29,7 +29,7 @@ export default async function HomePage() {
             src={BRAND_IMAGES.safariSunset}
             alt="Serene Kenyan landscape at sunset for Hazina Nomads"
             fill
-            className="object-cover object-bottom brightness-[0.42] saturate-[0.68] contrast-[1.08]"
+            className="object-cover object-bottom brightness-[0.36] saturate-[0.66] contrast-[1.06]"
             sizes="100vw"
             priority
             unoptimized

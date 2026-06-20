@@ -58,7 +58,7 @@ export function Nav() {
             <span className="italic normal-case text-bronze tracking-normal">Nomads</span>
           </span>
         </Link>
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-8">
           {NAV.map((n) => (
             <Link
               key={n.href}
@@ -75,7 +75,7 @@ export function Nav() {
             </Link>
           ))}
         </nav>
-        <div className="hidden md:flex items-center gap-5">
+        <div className="hidden lg:flex items-center gap-5">
           <ThemeToggle compact />
           <a
             href={wa}
@@ -91,7 +91,7 @@ export function Nav() {
             Continue on WhatsApp
           </a>
         </div>
-        <div className="md:hidden flex items-center gap-2">
+        <div className="lg:hidden flex items-center gap-2">
           <ThemeToggle compact />
           <button
             type="button"
@@ -106,7 +106,7 @@ export function Nav() {
         </div>
       </div>
       {open && (
-        <div className="md:hidden border-t border-border bg-sand">
+        <div className="lg:hidden border-t border-border bg-sand">
           <nav className="container-page py-4 grid gap-2">
             {NAV.map((n) => (
               <Link

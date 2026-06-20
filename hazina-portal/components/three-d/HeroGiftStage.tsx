@@ -1,14 +1,14 @@
 "use client";
 
-import { ContactShadows, Float } from "@react-three/drei";
+import { RoundedBox } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import { MathUtils, type Group, type PointLight } from "three";
 import { HazinaCanvas } from "./HazinaCanvas";
-import { FloatingTreasure } from "./FloatingTreasure";
 
-const BASE_STAGE_POSITION = { x: 0.1, y: -0.18, z: 0 };
-const BASE_STAGE_ROTATION_X = -0.08;
+const BASE_STAGE_POSITION = { x: 0.04, y: -0.06, z: 0 };
+const BASE_STAGE_ROTATION_X = -0.1;
+const BASE_STAGE_ROTATION_Y = -0.18;
 
 type StageDragDetail = {
   phase: "start" | "move" | "end";
@@ -176,142 +176,125 @@ function GiftScene({ revealing }: { revealing: boolean }) {
     const dragX = MathUtils.clamp(smoothDrag.current.x, -1, 1);
     const dragY = MathUtils.clamp(smoothDrag.current.y, -1, 1);
     const hoverInfluence = (isDragging.current ? 0.42 : 1) * (1 - reveal * 0.82);
-    const ambientRotationY = Math.sin(clock.elapsedTime * 0.24) * 0.12;
-    const ambientPositionY = Math.sin(clock.elapsedTime * 0.55) * 0.035;
+    const ambientRotationY = BASE_STAGE_ROTATION_Y + Math.sin(clock.elapsedTime * 0.2) * 0.035;
+    const ambientPositionY = Math.sin(clock.elapsedTime * 0.42) * 0.018;
 
     stageRef.current.rotation.y = MathUtils.clamp(
-      ambientRotationY + pointerX * 0.22 * hoverInfluence + dragX * 0.42 - reveal * 0.08,
-      -0.58,
-      0.58,
+      ambientRotationY + pointerX * 0.15 * hoverInfluence + dragX * 0.34 - reveal * 0.06,
+      -0.52,
+      0.32,
     );
     stageRef.current.rotation.x = MathUtils.clamp(
-      BASE_STAGE_ROTATION_X - pointerY * 0.1 * hoverInfluence - dragY * 0.18 - reveal * 0.025,
-      -0.28,
-      0.16,
+      BASE_STAGE_ROTATION_X - pointerY * 0.065 * hoverInfluence - dragY * 0.14 - reveal * 0.02,
+      -0.24,
+      0.1,
     );
     stageRef.current.position.x = MathUtils.clamp(
-      BASE_STAGE_POSITION.x + pointerX * 0.22 * hoverInfluence + dragX * 0.28 - reveal * 0.04,
-      -0.28,
-      0.48,
+      BASE_STAGE_POSITION.x + pointerX * 0.12 * hoverInfluence + dragX * 0.22 - reveal * 0.03,
+      -0.22,
+      0.3,
     );
     stageRef.current.position.y = MathUtils.clamp(
       BASE_STAGE_POSITION.y +
         ambientPositionY -
-        pointerY * 0.1 * hoverInfluence -
-        dragY * 0.16 +
-        reveal * 0.08,
-      -0.42,
-      0.08,
+        pointerY * 0.055 * hoverInfluence -
+        dragY * 0.12 +
+        reveal * 0.06,
+      -0.28,
+      0.12,
     );
     stageRef.current.position.z = BASE_STAGE_POSITION.z;
 
     if (lidRef.current) {
-      lidRef.current.rotation.x = -1.08 * reveal;
-      lidRef.current.position.y = reveal * 0.06;
+      lidRef.current.rotation.x = -1.12 * reveal;
+      lidRef.current.position.y = reveal * 0.045;
     }
 
     if (treasureRef.current) {
-      treasureRef.current.position.y = reveal * 0.14;
-      treasureRef.current.scale.setScalar(1 + reveal * 0.045);
-      treasureRef.current.rotation.y = reveal * 0.055;
+      treasureRef.current.position.y = 0.34 + reveal * 0.055;
+      treasureRef.current.scale.setScalar(0.96 + reveal * 0.04);
     }
 
     if (vaultLightRef.current) {
-      vaultLightRef.current.intensity = MathUtils.lerp(0, 4.8, reveal);
-      vaultLightRef.current.distance = MathUtils.lerp(1.4, 4.4, reveal);
+      vaultLightRef.current.intensity = MathUtils.lerp(0, 3.8, reveal);
+      vaultLightRef.current.distance = MathUtils.lerp(1.2, 3.6, reveal);
     }
   });
 
   return (
     <>
-      <ambientLight intensity={1.45} />
-      <directionalLight position={[4.2, 6.2, 4.8]} intensity={2.45} color="#ffe2b7" />
-      <pointLight position={[-3.4, 2.2, 3.4]} intensity={0.85} color="#caa777" />
-      <pointLight position={[3.2, 1.4, -2.6]} intensity={0.42} color="#fff1d6" />
-      <pointLight ref={vaultLightRef} position={[0, 0.7, 0.1]} intensity={0} color="#f0c98c" />
+      <ambientLight intensity={1.55} />
+      <directionalLight position={[4.6, 6.4, 5.2]} intensity={3.4} color="#ffe3ba" />
+      <pointLight position={[-3.2, 1.8, 3.8]} intensity={1.25} color="#e6c08a" />
+      <pointLight position={[2.8, 0.8, -2.8]} intensity={0.55} color="#fff0d4" />
+      <pointLight position={[0, 0.2, 4.6]} intensity={0.95} color="#f3d49a" />
+      <pointLight ref={vaultLightRef} position={[0, 0.72, 0.18]} intensity={0} color="#f0c98c" />
       <group
         ref={stageRef}
         position={[BASE_STAGE_POSITION.x, BASE_STAGE_POSITION.y, BASE_STAGE_POSITION.z]}
-        rotation={[BASE_STAGE_ROTATION_X, 0, 0]}
+        rotation={[BASE_STAGE_ROTATION_X, BASE_STAGE_ROTATION_Y, 0]}
       >
-        <Float speed={0.8} rotationIntensity={0.03} floatIntensity={0.08}>
-          <group>
-            <mesh position={[0, -0.12, 0]}>
-              <boxGeometry args={[2.35, 0.9, 1.48]} />
-              <meshStandardMaterial color="#17120e" roughness={0.8} metalness={0.05} />
-            </mesh>
-            <mesh position={[0, 0.36, 0]}>
-              <boxGeometry args={[2.42, 0.055, 1.54]} />
-              <meshStandardMaterial color="#0f0b09" roughness={0.74} metalness={0.08} />
-            </mesh>
-            <mesh position={[-1.19, 0.04, 0]}>
-              <boxGeometry args={[0.035, 0.72, 1.52]} />
-              <meshStandardMaterial color="#2d2118" roughness={0.72} metalness={0.05} />
-            </mesh>
-            <mesh position={[1.19, 0.04, 0]}>
-              <boxGeometry args={[0.035, 0.72, 1.52]} />
-              <meshStandardMaterial color="#0f0b09" roughness={0.74} metalness={0.06} />
-            </mesh>
-            <mesh position={[-0.62, 0.655, 0.38]} rotation={[-0.08, 0.12, -0.02]}>
-              <boxGeometry args={[0.62, 0.38, 0.025]} />
-              <meshStandardMaterial color="#efe5d2" roughness={0.62} metalness={0.02} />
-            </mesh>
-            <mesh position={[-0.62, 0.68, 0.405]} rotation={[-0.08, 0.12, -0.02]}>
-              <boxGeometry args={[0.42, 0.018, 0.012]} />
-              <meshStandardMaterial color="#b9854f" roughness={0.52} metalness={0.16} />
-            </mesh>
-            <mesh position={[0, 0.34, 0]}>
-              <boxGeometry args={[2.16, 0.035, 1.3]} />
-              <meshStandardMaterial
-                color="#5d3921"
-                emissive="#b9854f"
-                emissiveIntensity={0.42}
-                roughness={0.78}
-                metalness={0.03}
-              />
-            </mesh>
-            <group ref={lidRef} position={[0, 0, 0]} rotation={[0, 0, 0]}>
-              <group position={[0, 0.34, -0.73]}>
-                <mesh position={[0, 0.08, 0.73]}>
-                  <boxGeometry args={[2.55, 0.26, 1.66]} />
-                  <meshStandardMaterial color="#211812" roughness={0.76} metalness={0.07} />
-                </mesh>
-                <mesh position={[0, 0.27, 0.73]}>
-                  <boxGeometry args={[2.35, 0.035, 1.46]} />
-                  <meshStandardMaterial color="#f0e4d1" roughness={0.7} metalness={0.02} />
-                </mesh>
-                <mesh position={[0, 0.44, 0.76]}>
-                  <boxGeometry args={[0.18, 0.1, 1.78]} />
-                  <meshStandardMaterial color="#b9854f" roughness={0.44} metalness={0.24} />
-                </mesh>
-                <mesh position={[0, 0.45, 0.76]}>
-                  <boxGeometry args={[2.72, 0.105, 0.16]} />
-                  <meshStandardMaterial color="#caa777" roughness={0.42} metalness={0.26} />
-                </mesh>
-                <mesh position={[0, 0.59, 0.76]}>
-                  <torusGeometry args={[0.24, 0.035, 10, 48]} />
-                  <meshStandardMaterial color="#d7b47e" roughness={0.38} metalness={0.32} />
-                </mesh>
-              </group>
-            </group>
-          </group>
-        </Float>
+        <RoundedBox args={[2.82, 0.82, 1.78]} radius={0.12} smoothness={4} position={[0, -0.18, 0]}>
+          <meshPhysicalMaterial
+            color="#5a3d28"
+            roughness={0.44}
+            metalness={0.12}
+            clearcoat={0.4}
+            clearcoatRoughness={0.5}
+          />
+        </RoundedBox>
+        <RoundedBox args={[2.56, 0.09, 1.52]} radius={0.04} smoothness={3} position={[0, 0.25, 0]}>
+          <meshStandardMaterial color="#c79a55" roughness={0.4} metalness={0.55} />
+        </RoundedBox>
+        <RoundedBox args={[2.36, 0.055, 1.34]} radius={0.035} smoothness={3} position={[0, 0.31, 0]}>
+          <meshStandardMaterial color="#e4d2ac" roughness={0.7} metalness={0.03} />
+        </RoundedBox>
 
-        <group ref={treasureRef}>
-          <FloatingTreasure kind="bead-ring" position={[-1.72, 1.04, -0.42]} rotation={[0.35, 0.35, -0.24]} />
-          <FloatingTreasure kind="coffee-pack" position={[1.72, 0.74, -0.18]} rotation={[0.02, -0.38, 0.12]} />
-          <FloatingTreasure kind="leather-tag" position={[1.36, -0.5, 0.34]} rotation={[0.18, -0.2, -0.12]} />
-          <FloatingTreasure kind="story-card" position={[-1.45, -0.54, 0.2]} rotation={[0.14, 0.24, 0.1]} />
+        <group ref={treasureRef} position={[0, 0.34, 0]} scale={0.96}>
+          <RoundedBox args={[0.58, 0.15, 0.88]} radius={0.06} smoothness={3} position={[-0.78, 0, 0]}>
+            <meshStandardMaterial color="#6a4a32" roughness={0.6} metalness={0.08} />
+          </RoundedBox>
+          <mesh position={[0, 0.08, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.27, 0.045, 12, 40]} />
+            <meshStandardMaterial color="#e7bd76" roughness={0.28} metalness={0.7} />
+          </mesh>
+          <RoundedBox args={[0.62, 0.1, 0.82]} radius={0.05} smoothness={3} position={[0.78, 0, 0]}>
+            <meshStandardMaterial color="#f3ead7" roughness={0.68} metalness={0.02} />
+          </RoundedBox>
         </group>
+
+        <group ref={lidRef} position={[0, 0.28, -0.86]} rotation={[0, 0, 0]}>
+          <group position={[0, 0.16, 0.86]}>
+            <RoundedBox args={[2.88, 0.34, 1.84]} radius={0.12} smoothness={4}>
+              <meshPhysicalMaterial
+                color="#65442c"
+                roughness={0.4}
+                metalness={0.12}
+                clearcoat={0.46}
+                clearcoatRoughness={0.46}
+              />
+            </RoundedBox>
+            <RoundedBox args={[2.58, 0.035, 1.54]} radius={0.035} smoothness={3} position={[0, 0.19, 0]}>
+              <meshStandardMaterial color="#2f2014" roughness={0.5} metalness={0.12} />
+            </RoundedBox>
+            <RoundedBox args={[0.11, 0.38, 1.86]} radius={0.03} smoothness={3}>
+              <meshStandardMaterial color="#d2a154" roughness={0.32} metalness={0.62} />
+            </RoundedBox>
+          </group>
+        </group>
+
+        <RoundedBox args={[2.2, 0.34, 0.045]} radius={0.05} smoothness={3} position={[0, -0.17, 0.9]}>
+          <meshStandardMaterial color="#3a2719" roughness={0.5} metalness={0.1} />
+        </RoundedBox>
+        <mesh position={[0, -0.17, 0.94]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.22, 0.22, 0.055, 48]} />
+          <meshStandardMaterial color="#dcab5e" roughness={0.28} metalness={0.68} />
+        </mesh>
+        <mesh position={[0, -0.17, 0.972]}>
+          <ringGeometry args={[0.085, 0.12, 32]} />
+          <meshStandardMaterial color="#4a3320" roughness={0.42} metalness={0.2} />
+        </mesh>
       </group>
-      <ContactShadows
-        position={[0, -1.02, 0]}
-        opacity={0.34}
-        blur={2.9}
-        scale={5.4}
-        far={2.8}
-        color="#090604"
-      />
     </>
   );
 }

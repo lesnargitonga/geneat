@@ -3151,23 +3151,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   let compactLayout = false;
   function placeSculpture() {
     const compact = window.innerWidth <= 900;
+    const phoneWidth = window.innerWidth <= 640;
+    const shortPhone = phoneWidth && window.innerHeight <= 760;
     const laptopWidth = !compact && window.innerWidth <= 1500;
     compactLayout = compact;
-    waveField.scale.set(compact ? 1.58 : 1.28, compact ? 1.36 : 1.18, 1);
+    waveField.scale.set(compact ? (phoneWidth ? 1.72 : 1.62) : 1.28, compact ? 1.38 : 1.18, 1);
     waveLines.scale.copy(waveField.scale);
     sculpture.position.set(
-      compact ? 0.04 : (laptopWidth ? 2.24 : 3.04),
-      compact ? -1.14 : -0.08,
-      compact ? -1.12 : -0.72,
+      compact ? (phoneWidth ? 0 : 0.1) : (laptopWidth ? 2.24 : 3.04),
+      compact ? (phoneWidth ? (shortPhone ? -2.72 : -2.58) : -2.04) : -0.08,
+      compact ? (phoneWidth ? -0.96 : -1.04) : -0.72,
     );
-    sculptureBaseScale = compact ? 0.52 : (laptopWidth ? 0.76 : 0.82);
+    sculptureBaseScale = compact ? (phoneWidth ? (shortPhone ? 0.43 : 0.46) : 0.56) : (laptopWidth ? 0.76 : 0.82);
     sculpture.scale.setScalar(sculptureBaseScale);
     globeGround.position.set(
       sculpture.position.x,
-      sculpture.position.y - (compact ? 0.72 : 1.16),
+      sculpture.position.y - (compact ? (phoneWidth ? 0.62 : 0.76) : 1.16),
       sculpture.position.z + 0.04,
     );
-    globeGroundBaseScale = compact ? 0.8 : (laptopWidth ? 1.05 : 1.16);
+    globeGroundBaseScale = compact ? (phoneWidth ? 0.74 : 0.9) : (laptopWidth ? 1.05 : 1.16);
     globeGround.scale.setScalar(globeGroundBaseScale);
     identityBaseY = sculpture.position.y - (compact ? 0.9 : 1.34);
     identityPlate.position.set(compact ? 0 : (laptopWidth ? 1.84 : 2.42), identityBaseY - 0.18, compact ? 0.62 : 0.92);
@@ -3176,7 +3178,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       label.visible = false;
     });
     connectionIcons.forEach((icon) => {
-      icon.scale.setScalar(compact ? 0.7 : 0.86);
+      icon.scale.setScalar(compact ? (phoneWidth ? 0.74 : 0.8) : 0.9);
     });
   }
   placeSculpture();
@@ -3435,7 +3437,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       endpoint.material.opacity = isActiveConnector ? 1 : 0.88;
       endpointHalo.scale.setScalar((1 + Math.sin(elapsed * 1.45 + index) * 0.12) * (isActiveConnector ? 1.42 : 1));
       endpointHalo.material.opacity = isActiveConnector ? 0.82 : 0.42 + Math.sin(elapsed * 1.45 + index) * 0.12;
-      iconSprite.scale.setScalar((compactLayout ? 0.7 : 0.86) * (isActiveConnector ? 1.22 : 1));
+      const iconBaseScale = compactLayout
+        ? (window.innerWidth <= 640 ? 0.74 : 0.8)
+        : 0.9;
+      iconSprite.scale.setScalar(iconBaseScale * (isActiveConnector ? 1.22 : 1));
       iconSprite.material.opacity = isActiveConnector ? 1 : 0.84;
       line.material.opacity = isActiveConnector ? 0.86 : (isTouch ? 0.34 : 0.46);
       cord.material.opacity = isActiveConnector ? (isTouch ? 0.38 : 0.46) : (isTouch ? 0.16 : 0.2);
@@ -3484,6 +3489,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.addEventListener("lesnar:magic-change", (event) => {
     if (event.detail.enabled) {
       document.getElementById("webgl-container")?.removeAttribute("hidden");
+      if (activeConnectorIndex >= 0) {
+        updateGlobeConnectorCopy(connections[activeConnectorIndex]);
+        updateConnectorButtons();
+        setGlobeFocus(true);
+      }
       startAnimation();
     } else {
       stopAnimation();

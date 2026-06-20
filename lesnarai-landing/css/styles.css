@@ -13281,3 +13281,695 @@ body.webgl-ready #webgl-container::before {
     animation: none !important;
   }
 }
+
+/* Globe stage: one clear object, compact connector pins, intentional mobile dock. */
+.hero-sculpture-control {
+  --globe-frame: rgba(126, 169, 173, .22);
+  --globe-frame-strong: color-mix(in srgb, var(--globe-accent, var(--accent-cyan)) 42%, rgba(241,240,235,.16));
+  top: clamp(6.8rem, 12vh, 9.4rem);
+  right: clamp(1rem, 3.4vw, 5.2rem);
+  width: min(46vw, 780px);
+  min-width: 440px;
+  height: min(74vh, 690px);
+  min-height: 520px;
+  overflow: hidden !important;
+  clip-path: none !important;
+  contain: layout paint;
+  isolation: isolate;
+  border: 1px solid var(--globe-frame);
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 56% 43%, color-mix(in srgb, var(--globe-accent, var(--accent-cyan)) 10%, transparent), transparent 36%),
+    radial-gradient(ellipse at 50% 78%, rgba(126,169,173,.09), transparent 45%),
+    linear-gradient(135deg, rgba(255,255,255,.035), rgba(0,0,0,.02) 34%, rgba(0,0,0,.16));
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.055),
+    inset 0 -44px 92px rgba(0,0,0,.2),
+    0 34px 120px rgba(0,0,0,.28);
+}
+
+.hero-sculpture-control::before,
+.hero-sculpture-control::after {
+  display: block;
+  content: '';
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-sculpture-control::before {
+  inset: 8% 10% 18%;
+  width: auto;
+  height: auto;
+  border: 1px solid var(--globe-frame-strong);
+  border-radius: 50%;
+  opacity: .5;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 32%, rgba(126,169,173,.08) 33% 34%, transparent 35%),
+    repeating-radial-gradient(circle at 50% 51%, transparent 0 43px, rgba(126,169,173,.13) 44px 45px, transparent 46px 82px);
+  box-shadow:
+    0 0 0 26px rgba(126,169,173,.015),
+    inset 0 0 70px rgba(126,169,173,.035);
+  transform: perspective(900px) rotateX(5deg);
+  animation: net-control-breathe 8.5s ease-in-out infinite;
+}
+
+.hero-sculpture-control::after {
+  left: 12%;
+  right: 12%;
+  bottom: 9%;
+  width: auto;
+  height: 16%;
+  border: 1px solid color-mix(in srgb, var(--globe-accent, var(--accent-cyan)) 25%, transparent);
+  border-radius: 50%;
+  opacity: .34;
+  background: radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--globe-accent, var(--accent-cyan)) 13%, transparent), transparent 68%);
+  box-shadow: 0 0 56px rgba(126,169,173,.08);
+  transform: perspective(760px) rotateX(67deg);
+}
+
+.globe-stage-ui {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  color: rgba(241,240,235,.58);
+  font-family: var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.globe-stage-ui::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(68%, 430px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(241,240,235,.075);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.globe-stage-label,
+.globe-stage-gesture,
+.globe-stage-scroll {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: .48rem;
+  border: 1px solid rgba(241,240,235,.09);
+  background: rgba(2, 5, 6, .38);
+  backdrop-filter: blur(10px);
+}
+
+.globe-stage-label {
+  top: .9rem;
+  left: .95rem;
+  padding: .42rem .58rem;
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--globe-accent, var(--accent-cyan)) 72%, var(--text-primary));
+  font-size: .5rem;
+}
+
+.globe-stage-gesture {
+  top: .9rem;
+  right: .95rem;
+  padding: .42rem .58rem .42rem .5rem;
+  border-radius: 999px;
+  font-size: .48rem;
+}
+
+.globe-stage-gesture i {
+  width: .48rem;
+  height: .48rem;
+  border-radius: 50%;
+  background: var(--globe-accent, var(--accent-cyan));
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--globe-accent, var(--accent-cyan)) 14%, transparent),
+    0 0 18px color-mix(in srgb, var(--globe-accent, var(--accent-cyan)) 46%, transparent);
+}
+
+.globe-stage-scroll {
+  display: none;
+  left: .9rem;
+  bottom: .9rem;
+  padding: .38rem .52rem;
+  border-radius: 999px;
+  font-size: .42rem;
+  color: rgba(241,240,235,.42);
+}
+
+.hero-sculpture-control .globe-connector-rail,
+.hero-sculpture-control .globe-connector-rail[hidden] {
+  position: absolute;
+  inset: 10% 9% 18%;
+  z-index: 7;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  overflow: visible !important;
+  border-radius: 999px;
+  pointer-events: none !important;
+}
+
+.hero-sculpture-control .globe-connector-rail::before,
+.hero-sculpture-control .globe-connector-rail::after {
+  display: none !important;
+}
+
+.hero-sculpture-control .globe-connector-rail button {
+  --connector-accent: var(--accent-cyan);
+  position: absolute;
+  z-index: 2;
+  width: clamp(2.05rem, 3.1vw, 2.5rem);
+  min-width: 0;
+  height: clamp(2.05rem, 3.1vw, 2.5rem);
+  min-height: 0;
+  padding: 0;
+  display: grid !important;
+  place-items: center;
+  visibility: visible !important;
+  opacity: .84 !important;
+  overflow: visible;
+  border: 1px solid color-mix(in srgb, var(--connector-accent) 48%, transparent);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--connector-accent) 0 .27rem, color-mix(in srgb, var(--connector-accent) 22%, rgba(0,0,0,.58)) .29rem 58%, rgba(0,0,0,.62) 59%),
+    rgba(2,5,6,.52);
+  color: var(--text-primary);
+  font-size: 0;
+  cursor: pointer;
+  pointer-events: auto !important;
+  touch-action: manipulation;
+  box-shadow:
+    0 0 0 7px color-mix(in srgb, var(--connector-accent) 10%, transparent),
+    0 0 22px color-mix(in srgb, var(--connector-accent) 22%, transparent),
+    inset 0 1px rgba(255,255,255,.08);
+  transform: translate(-50%, -50%);
+  transition:
+    opacity 180ms ease,
+    transform 220ms cubic-bezier(.2,.8,.2,1),
+    border-color 180ms ease,
+    box-shadow 220ms ease;
+}
+
+.hero-sculpture-control .globe-connector-rail button::before {
+  content: '';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: .68rem;
+  height: .68rem;
+  border-radius: 50%;
+  background: var(--connector-accent);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--connector-accent) 68%, transparent);
+}
+
+.hero-sculpture-control .globe-connector-rail button::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(2.8rem, 7vw, 5.2rem);
+  height: 1px;
+  display: block !important;
+  opacity: .5 !important;
+  background: linear-gradient(90deg, var(--connector-accent), color-mix(in srgb, var(--connector-accent) 38%, transparent), transparent);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+.hero-sculpture-control .globe-connector-rail button span,
+.hero-sculpture-control .globe-connector-rail button small {
+  display: block !important;
+  visibility: visible !important;
+  pointer-events: none;
+}
+
+.hero-sculpture-control .globe-connector-rail button span {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + .32rem);
+  width: max-content;
+  max-width: 7.5rem;
+  padding: .28rem .42rem;
+  border: 1px solid color-mix(in srgb, var(--connector-accent) 32%, transparent);
+  border-radius: 999px;
+  background: rgba(2,5,6,.68);
+  color: color-mix(in srgb, var(--connector-accent) 70%, var(--text-primary));
+  font: 700 .46rem/1 var(--font-mono);
+  letter-spacing: .075em;
+  text-align: center;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateX(-50%) translateY(-3px);
+  transition: opacity 180ms ease, transform 220ms ease;
+}
+
+.hero-sculpture-control .globe-connector-rail button small {
+  display: none !important;
+}
+
+.hero-sculpture-control .globe-connector-rail button:is(:hover, :focus-visible, .is-active) {
+  opacity: 1 !important;
+  border-color: color-mix(in srgb, var(--connector-accent) 78%, transparent);
+  box-shadow:
+    0 0 0 10px color-mix(in srgb, var(--connector-accent) 14%, transparent),
+    0 0 34px color-mix(in srgb, var(--connector-accent) 35%, transparent),
+    inset 0 1px rgba(255,255,255,.1);
+  transform: translate(-50%, -50%) scale(1.12);
+}
+
+.hero-sculpture-control .globe-connector-rail button:is(:hover, :focus-visible, .is-active) span {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.hero-sculpture-control .globe-connector-rail button:nth-child(1) { left: 14%; top: 42%; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(2) { left: 35%; top: 17%; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(3) { left: 71%; top: 22%; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(4) { left: 18%; top: 72%; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(5) { left: 80%; top: 68%; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(6) { left: 52%; top: 82%; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(7) { left: 30%; top: 60%; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(8) { left: 62%; top: 50%; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(9) { left: 44%; top: 72%; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(10) { left: 57%; top: 15%; }
+
+.hero-sculpture-control .globe-connector-rail button:nth-child(1)::after { rotate: -6deg; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(2)::after { rotate: 58deg; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(3)::after { rotate: 142deg; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(4)::after { rotate: -30deg; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(5)::after { rotate: -158deg; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(6)::after { rotate: -96deg; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(7)::after { rotate: -18deg; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(8)::after { rotate: 174deg; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(9)::after { rotate: -68deg; }
+.hero-sculpture-control .globe-connector-rail button:nth-child(10)::after { rotate: 108deg; }
+
+.globe-popover {
+  z-index: 10;
+  right: clamp(.85rem, 2.2vw, 1.25rem) !important;
+  bottom: clamp(.85rem, 2.2vw, 1.25rem) !important;
+  width: min(21rem, calc(100% - 1.7rem)) !important;
+  padding: .95rem 1rem 1rem;
+  border-color: color-mix(in srgb, var(--globe-accent, var(--accent-cyan)) 42%, transparent);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--globe-accent, var(--accent-cyan)) 17%, transparent), transparent 36%),
+    linear-gradient(145deg, rgba(5,9,10,.9), rgba(0,0,0,.72));
+  box-shadow:
+    0 22px 70px rgba(0,0,0,.5),
+    0 0 44px color-mix(in srgb, var(--globe-accent, var(--accent-cyan)) 10%, transparent),
+    inset 0 1px rgba(255,255,255,.06);
+}
+
+.globe-popover span[data-globe-title] {
+  color: var(--text-primary);
+  font-size: .75rem;
+}
+
+.globe-popover small {
+  max-width: 100%;
+  color: rgba(241,240,235,.62);
+  font-size: .62rem;
+  line-height: 1.52;
+}
+
+.globe-popover b {
+  max-width: 100%;
+  font-size: .52rem;
+}
+
+body.globe-focus .hero-sculpture-control {
+  border-color: color-mix(in srgb, var(--globe-accent, var(--accent-cyan)) 42%, transparent);
+}
+
+body.magic-off .hero-sculpture-control,
+body.webgl-unavailable .hero-sculpture-control {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .hero-sculpture-control {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    width: min(100%, 720px) !important;
+    min-width: 0 !important;
+    height: min(58svh, 520px) !important;
+    min-height: 420px !important;
+    margin: 1.15rem auto 1.8rem !important;
+    border-radius: 30px;
+    touch-action: pan-y;
+  }
+
+  .hero-sculpture-control::before {
+    inset: 9% 8% 28%;
+  }
+
+  .hero-sculpture-control::after {
+    left: 15%;
+    right: 15%;
+    bottom: 24%;
+  }
+
+  .globe-stage-label {
+    top: .72rem;
+    left: .72rem;
+  }
+
+  .globe-stage-gesture {
+    top: .72rem;
+    right: .72rem;
+  }
+
+  .globe-stage-scroll {
+    display: inline-flex;
+  }
+
+  .hero-sculpture-control .globe-connector-rail,
+  .hero-sculpture-control .globe-connector-rail[hidden] {
+    inset: 12% 8% 34%;
+  }
+
+  .hero-sculpture-control .globe-connector-rail button {
+    width: 2.3rem;
+    height: 2.3rem;
+  }
+
+  .hero-sculpture-control .globe-connector-rail button span {
+    display: none !important;
+  }
+
+  .globe-popover {
+    left: 50% !important;
+    right: auto !important;
+    bottom: max(.75rem, env(safe-area-inset-bottom)) !important;
+    width: min(29rem, calc(100% - 1.2rem)) !important;
+    max-height: 34%;
+    padding: .78rem .86rem .84rem;
+    transform: translateX(-50%) scale(.985) !important;
+  }
+
+  .hero-sculpture-control.has-connector .globe-popover,
+  .hero-sculpture-control:focus-within .globe-popover {
+    transform: translateX(-50%) scale(1) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-sculpture-control {
+    width: calc(100vw - 2.2rem) !important;
+    height: min(62svh, 470px) !important;
+    min-height: 405px !important;
+    margin-block: 1rem 1.35rem !important;
+    border-radius: 26px;
+  }
+
+  .hero-sculpture-control::before {
+    inset: 11% 5% 31%;
+  }
+
+  .hero-sculpture-control::after {
+    left: 11%;
+    right: 11%;
+    bottom: 27%;
+    height: 14%;
+  }
+
+  .globe-stage-ui::before {
+    width: 82%;
+    top: 43%;
+  }
+
+  .globe-stage-label,
+  .globe-stage-gesture,
+  .globe-stage-scroll {
+    backdrop-filter: none;
+  }
+
+  .globe-stage-label {
+    top: .62rem;
+    left: .62rem;
+    padding: .36rem .48rem;
+    font-size: .43rem;
+  }
+
+  .globe-stage-gesture {
+    top: .62rem;
+    right: .62rem;
+    max-width: 9.2rem;
+    padding: .36rem .48rem;
+    justify-content: flex-end;
+    font-size: .4rem;
+    text-align: right;
+  }
+
+  .globe-stage-scroll {
+    left: .62rem;
+    bottom: calc(7.15rem + env(safe-area-inset-bottom));
+    max-width: 10.5rem;
+    padding: .32rem .42rem;
+    font-size: .36rem;
+  }
+
+  .hero-sculpture-control .globe-connector-rail,
+  .hero-sculpture-control .globe-connector-rail[hidden] {
+    inset: 13% 3% 36%;
+  }
+
+  .hero-sculpture-control .globe-connector-rail button {
+    width: 2.12rem;
+    height: 2.12rem;
+    box-shadow:
+      0 0 0 5px color-mix(in srgb, var(--connector-accent) 11%, transparent),
+      0 0 18px color-mix(in srgb, var(--connector-accent) 22%, transparent);
+  }
+
+  .hero-sculpture-control .globe-connector-rail button::after {
+    width: 3.4rem;
+    opacity: .36 !important;
+  }
+
+  .hero-sculpture-control .globe-connector-rail button:nth-child(1) { left: 11%; top: 44%; }
+  .hero-sculpture-control .globe-connector-rail button:nth-child(2) { left: 35%; top: 18%; }
+  .hero-sculpture-control .globe-connector-rail button:nth-child(3) { left: 74%; top: 24%; }
+  .hero-sculpture-control .globe-connector-rail button:nth-child(4) { left: 14%; top: 73%; }
+  .hero-sculpture-control .globe-connector-rail button:nth-child(5) { left: 83%; top: 66%; }
+  .hero-sculpture-control .globe-connector-rail button:nth-child(6) { left: 52%; top: 84%; }
+  .hero-sculpture-control .globe-connector-rail button:nth-child(7) { left: 29%; top: 62%; }
+  .hero-sculpture-control .globe-connector-rail button:nth-child(8) { left: 63%; top: 52%; }
+  .hero-sculpture-control .globe-connector-rail button:nth-child(9) { left: 43%; top: 73%; }
+  .hero-sculpture-control .globe-connector-rail button:nth-child(10) { left: 57%; top: 18%; }
+
+  .globe-popover {
+    bottom: max(.58rem, env(safe-area-inset-bottom)) !important;
+    width: calc(100% - 1rem) !important;
+    max-height: 31%;
+    padding: .68rem .72rem .72rem;
+    border-radius: 18px;
+  }
+
+  .globe-popover span[data-globe-title] {
+    font-size: .66rem;
+  }
+
+  .globe-popover small {
+    font-size: .54rem;
+    line-height: 1.38;
+  }
+
+  .globe-popover b {
+    padding: .28rem .4rem;
+    font-size: .42rem;
+  }
+
+  .globe-card-cue {
+    grid-template-columns: 1.55rem minmax(0, 1fr) auto;
+    gap: .34rem;
+    padding-top: .48rem;
+    font-size: .36rem !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .hero-sculpture-control {
+    min-height: 384px !important;
+  }
+
+  .globe-stage-gesture {
+    display: none;
+  }
+
+  .globe-popover small {
+    font-size: .5rem;
+  }
+}
+
+/* Globe clarity pass: keep the object expressive without helper clutter. */
+.hero-layout {
+  position: relative;
+}
+
+.globe-stage-ui {
+  display: none !important;
+}
+
+.hero-sculpture-control {
+  overflow: hidden !important;
+}
+
+.hero-sculpture-control .globe-connector-rail button {
+  outline-offset: .34rem;
+}
+
+.globe-popover {
+  max-width: calc(100% - 1.4rem);
+}
+
+.globe-popover small,
+.globe-popover b,
+.globe-card-cue {
+  max-width: 100% !important;
+}
+
+@media (max-width: 900px) {
+  .hero-layout::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 1;
+    height: min(67svh, 760px);
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.62) 58%, rgba(0,0,0,0) 100%),
+      radial-gradient(ellipse at 22% 24%, rgba(0,0,0,.42), transparent 58%);
+  }
+
+  .hero-identity,
+  .hero-pre,
+  .hero-title,
+  .hero-sub,
+  .hero-actions,
+  .scroll-cue {
+    position: relative;
+    z-index: 4;
+  }
+
+  .hero-sculpture-control {
+    z-index: 3;
+    margin-top: 1.35rem !important;
+    box-shadow:
+      inset 0 1px rgba(255,255,255,.055),
+      inset 0 -54px 108px rgba(0,0,0,.32),
+      0 24px 80px rgba(0,0,0,.34);
+  }
+
+  .hero-sculpture-control::before {
+    opacity: .36;
+  }
+
+  .hero-sculpture-control .globe-connector-rail button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .hero-sculpture-control.has-connector .globe-popover,
+  .hero-sculpture-control:focus-within .globe-popover {
+    bottom: calc(8.6rem + env(safe-area-inset-bottom)) !important;
+    max-height: 28%;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-title {
+    font-size: clamp(2.72rem, 11vw, 3.55rem);
+    letter-spacing: -0.065em;
+  }
+
+  .hero-title .line,
+  .hero-title .split-text {
+    white-space: nowrap;
+  }
+
+  .hero-actions {
+    order: 4;
+    margin-top: .1rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .58rem;
+  }
+
+  .hero-actions .button {
+    width: 100%;
+    min-height: 48px;
+    padding: .78rem .52rem;
+    font-size: .68rem;
+    letter-spacing: .055em;
+  }
+
+  .hero-sculpture-control {
+    order: 5;
+    height: min(56svh, 430px) !important;
+    min-height: 376px !important;
+    margin-top: 1.25rem !important;
+    margin-bottom: 1.6rem !important;
+  }
+
+  .hero-sculpture-control::before {
+    inset: 10% 5% 33%;
+  }
+
+  .hero-sculpture-control::after {
+    bottom: 29%;
+  }
+
+  .hero-sculpture-control .globe-connector-rail,
+  .hero-sculpture-control .globe-connector-rail[hidden] {
+    inset: 12% 4% 38%;
+  }
+
+  .hero-sculpture-control .globe-connector-rail button {
+    width: 2rem;
+    height: 2rem;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .hero-sculpture-control.has-connector .globe-popover,
+  .hero-sculpture-control:focus-within .globe-popover,
+  .globe-popover {
+    top: .72rem !important;
+    bottom: auto !important;
+    max-height: 27%;
+  }
+
+  .globe-card-cue {
+    display: none !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .hero-sculpture-control {
+    height: min(54svh, 402px) !important;
+    min-height: 354px !important;
+  }
+
+  .hero-sculpture-control.has-connector .globe-popover,
+  .hero-sculpture-control:focus-within .globe-popover,
+  .globe-popover {
+    bottom: calc(7.8rem + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* Clean globe mode: no floating connector-dot rail, just the 3D globe icons. */
+.hero-sculpture-control .globe-connector-rail,
+.hero-sculpture-control .globe-connector-rail[hidden],
+.hero-sculpture-control .globe-connector-rail button {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

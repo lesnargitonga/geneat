@@ -233,8 +233,8 @@
     position: absolute;
     right: max(2.25rem, calc((100vw - 1440px) / 2 + 2.25rem));
     top: clamp(8rem, 15vh, 10.5rem);
-    width: min(32vw, 500px);
-    height: min(56vh, 500px);
+    width: min(33vw, 480px);
+    height: min(52vh, 450px);
     transform-origin: center right;
     transition:
       width 520ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -1167,8 +1167,22 @@
   /* Hero — anchor typography over dimmed photography */
   .hero-overlay {
     background:
-      linear-gradient(180deg, rgb(0 0 0 / 0.12), rgb(0 0 0 / 0.38) 48%, rgb(10 8 6 / 0.82)),
-      linear-gradient(90deg, rgb(0 0 0 / 0.18), transparent 58%);
+      /* readability scrim anchored under the left/centre text column */
+      linear-gradient(
+        90deg,
+        rgb(8 6 4 / 0.82) 0%,
+        rgb(8 6 4 / 0.6) 32%,
+        rgb(6 5 3 / 0.26) 60%,
+        rgb(6 5 3 / 0.08) 82%
+      ),
+      /* vertical depth — keep the headline band dark even over bright sky/water */
+      linear-gradient(
+        180deg,
+        rgb(6 5 3 / 0.4) 0%,
+        rgb(6 5 3 / 0.42) 46%,
+        rgb(8 6 4 / 0.78) 78%,
+        rgb(8 6 4 / 0.9) 100%
+      );
   }
 
   .luxury-3d-scene {
@@ -1308,9 +1322,9 @@
 
   .hero-gift-stage {
     height: 100%;
-    min-height: 280px;
+    min-height: 0;
     opacity: 0.98;
-    filter: saturate(0.92);
+    filter: saturate(0.9) contrast(1.02);
   }
 
   .hero-gift-stage::before,
@@ -1341,33 +1355,38 @@
     position: absolute;
     left: 50%;
     top: 52%;
-    height: clamp(145px, 32vw, 190px);
-    width: min(360px, 78%);
-    transform: translate(-50%, -50%) rotateX(58deg) rotateZ(-10deg);
-    border: 1px solid rgb(202 167 119 / 0.28);
+    height: clamp(128px, 24vw, 168px);
+    width: min(350px, 78%);
+    transform: translate(-50%, -50%) perspective(700px) rotateX(10deg) rotateY(-14deg);
+    border: 1px solid rgb(202 167 119 / 0.34);
+    border-radius: 10px;
     background:
-      linear-gradient(90deg, transparent 45%, rgb(202 167 119 / 0.95) 45% 55%, transparent 55%),
-      linear-gradient(0deg, transparent 43%, rgb(185 133 79 / 0.95) 43% 55%, transparent 55%),
-      linear-gradient(135deg, #17120e, #2a1d14 58%, #0e0b09);
+      linear-gradient(90deg, transparent 48.5%, rgb(185 133 79 / 0.9) 48.5% 51.5%, transparent 51.5%),
+      linear-gradient(135deg, #211710, #120d0a 62%, #090706);
     animation: hazina-object-breathe 5.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
   }
 
   .hero-gift-fallback__lid {
     position: absolute;
-    inset: -24px -18px auto -18px;
-    height: 42px;
-    border: 1px solid rgb(202 167 119 / 0.24);
-    background: linear-gradient(135deg, #241911, #120e0b);
+    inset: -18px -10px auto -10px;
+    height: 36px;
+    border: 1px solid rgb(202 167 119 / 0.3);
+    border-radius: 8px 8px 4px 4px;
+    background:
+      linear-gradient(90deg, transparent 48.5%, rgb(185 133 79 / 0.9) 48.5% 51.5%, transparent 51.5%),
+      linear-gradient(135deg, #2a1b12, #100b08);
   }
 
   .hero-gift-fallback__card {
     position: absolute;
-    right: 36px;
-    top: 34px;
-    height: 52px;
-    width: 82px;
-    background: #eee4d2;
-    box-shadow: 0 14px 32px rgb(0 0 0 / 0.25);
+    left: calc(50% - 20px);
+    top: calc(50% - 20px);
+    height: 40px;
+    width: 40px;
+    border: 7px solid #b9854f;
+    border-radius: 999px;
+    background: #17100c;
+    box-shadow: 0 12px 28px rgb(0 0 0 / 0.28);
   }
 
   .hero-gift-fallback__ribbon {
@@ -1377,23 +1396,20 @@
   }
 
   .hero-gift-fallback__ribbon--vertical {
-    inset: -24px calc(50% - 15px) 0 calc(50% - 15px);
+    inset: -18px calc(50% - 5px) 0 calc(50% - 5px);
   }
 
   .hero-gift-fallback__ribbon--horizontal {
-    left: -18px;
-    right: -18px;
-    top: calc(50% - 12px);
-    height: 24px;
+    display: none;
   }
 
   @keyframes hazina-object-breathe {
     0%,
     100% {
-      transform: translate(-50%, -50%) rotateX(58deg) rotateZ(-10deg) translateY(0);
+      transform: translate(-50%, -50%) perspective(700px) rotateX(10deg) rotateY(-14deg) translateY(0);
     }
     50% {
-      transform: translate(-50%, -50%) rotateX(58deg) rotateZ(-10deg) translateY(-8px);
+      transform: translate(-50%, -50%) perspective(700px) rotateX(10deg) rotateY(-14deg) translateY(-5px);
     }
   }
 
@@ -1811,28 +1827,58 @@
 
   @media (min-width: 768px) and (max-width: 1199px) {
     .showroom-shell--home .showroom-shell__stage {
-      right: -12rem;
-      top: 9.5rem;
-      width: min(30vw, 300px);
-      height: 280px;
-      filter: saturate(0.72) contrast(0.9);
-    }
-
-    .showroom-shell--home .showroom-shell__interaction-lane {
-      right: -12rem;
-      top: 9.5rem;
-      width: min(30vw, 300px);
-      height: 280px;
+      filter: saturate(0.86) contrast(1.02);
     }
 
     .showroom-shell--home .showroom-shell__stage .spatial-stage {
-      opacity: 0.18;
+      opacity: 0.9;
     }
 
     .hero-showroom::before {
       background:
         linear-gradient(90deg, rgb(8 6 4 / 0.82) 0%, rgb(8 6 4 / 0.68) 58%, transparent 88%),
         linear-gradient(180deg, transparent 0%, rgb(8 6 4 / 0.38) 76%, rgb(8 6 4 / 0.74) 100%);
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1199px) and (orientation: portrait) {
+    .showroom-shell--home .showroom-shell__stage {
+      left: 18%;
+      right: 18%;
+      top: 5.75rem;
+      width: auto;
+      height: 270px;
+      transform-origin: center top;
+    }
+
+    .showroom-shell--home .showroom-shell__interaction-lane {
+      left: 18%;
+      right: 18%;
+      top: 5.75rem;
+      width: auto;
+      height: 270px;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1099px) and (orientation: landscape) {
+    .showroom-shell--home .showroom-shell__stage,
+    .showroom-shell--home .showroom-shell__interaction-lane {
+      left: auto;
+      right: 1rem;
+      top: 5rem;
+      width: min(34vw, 350px);
+      height: 180px;
+    }
+  }
+
+  @media (min-width: 1100px) and (max-width: 1199px) and (orientation: landscape) {
+    .showroom-shell--home .showroom-shell__stage,
+    .showroom-shell--home .showroom-shell__interaction-lane {
+      left: auto;
+      right: 1rem;
+      top: 8.5rem;
+      width: min(31vw, 365px);
+      height: 320px;
     }
   }
 
@@ -1843,12 +1889,6 @@
 
     .showroom-gallery__grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .hero-gift-stage {
-      min-height: 460px;
     }
   }
 
