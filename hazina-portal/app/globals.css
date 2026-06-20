@@ -1897,21 +1897,27 @@
   }
 
   @media (min-width: 768px) and (max-width: 1199px) and (orientation: portrait) {
+    /* Portrait tablets have no room beside the headline, so the gift reads
+       as an intentional, dimmed backdrop seated low in the hero rather than a
+       small box crowding the eyebrow at the top. */
     .showroom-shell--home .showroom-shell__stage {
-      left: 18%;
-      right: 18%;
-      top: 5.75rem;
+      left: 10%;
+      right: 10%;
+      top: auto;
+      bottom: 5svh;
       width: auto;
-      height: 270px;
-      transform-origin: center top;
+      height: 248px;
+      transform-origin: center bottom;
+      filter: saturate(0.84) opacity(0.5);
     }
 
     .showroom-shell--home .showroom-shell__interaction-lane {
-      left: 18%;
-      right: 18%;
-      top: 5.75rem;
+      left: 10%;
+      right: 10%;
+      top: auto;
+      bottom: 5svh;
       width: auto;
-      height: 270px;
+      height: 248px;
     }
   }
 
