@@ -1278,6 +1278,35 @@ export function ChatWidget() {
             )}
           </div>
 
+          <div className="flex items-center gap-2 border-t border-[#d8cfc0]/40 px-3 pt-2.5">
+            <button
+              type="button"
+              onClick={() => void send("back")}
+              disabled={busy}
+              data-cursor="native"
+              className="inline-flex min-h-[34px] items-center gap-1 rounded-[4px] border border-[#c8c0b2] bg-sand/70 px-3 font-mono text-[10px] uppercase tracking-[0.13em] text-[#2a2622] transition-colors hover:border-[#121212] disabled:opacity-40"
+            >
+              ‹ Back
+            </button>
+            <button
+              type="button"
+              onClick={() => void send("menu")}
+              disabled={busy}
+              data-cursor="native"
+              className="inline-flex min-h-[34px] items-center gap-1 rounded-[4px] border border-[#c8c0b2] bg-sand/70 px-3 font-mono text-[10px] uppercase tracking-[0.13em] text-[#2a2622] transition-colors hover:border-[#121212] disabled:opacity-40"
+            >
+              ⌂ Home
+            </button>
+            <button
+              type="button"
+              onClick={() => setChatOpen(false)}
+              data-cursor="native"
+              className="ml-auto inline-flex min-h-[34px] items-center gap-1 rounded-[4px] border border-[#c8c0b2] bg-sand/70 px-3 font-mono text-[10px] uppercase tracking-[0.13em] text-[#2a2622] transition-colors hover:border-[#121212]"
+            >
+              Exit ✕
+            </button>
+          </div>
+
           <div className="concierge-composer flex items-end gap-2 p-3">
             <textarea
               value={draft}

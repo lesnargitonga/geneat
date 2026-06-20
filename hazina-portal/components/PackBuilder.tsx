@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CatalogImage } from "@/components/CatalogImage";
 import { TreasureQuickView } from "@/components/TreasureQuickView";
 import { FloatingSurface } from "@/components/three-d/FloatingSurface";
@@ -23,6 +23,8 @@ import { BRAND } from "@/lib/products";
 import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
 
 type DeliveryMode = "hotel" | "jkia" | "international";
+
+const CART_STORAGE_KEY = "hazina.studio.cart.v1";
 
 export function PackBuilder({
   initialAddIds = [],
@@ -61,6 +63,61 @@ export function PackBuilder({
   const [checkoutStep, setCheckoutStep] = useState<"browse" | "delivery">("browse");
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>("hotel");
   const [paymentCurrency, setPaymentCurrency] = useState<"USD" | "KES">("USD");
+
+  // ── Persist the box across refreshes (localStorage) ────────────────────────
+  const cartHydrated = useRef(false);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(CART_STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw) as {
+          cart?: Record<string, number>;
+          monograms?: Record<string, string>;
+          packaging?: boolean;
+          bespoke?: string;
+        };
+        const valid = new Set(buildableTreasures.map((t) => t.id));
+        setCart((prev) => {
+          const next = new Map(prev); // keep any URL-driven add
+          for (const [id, qty] of Object.entries(data.cart || {})) {
+            if (valid.has(id) && Number(qty) > 0) next.set(id, Number(qty));
+          }
+          return next;
+        });
+        if (data.monograms) {
+          setMonograms((prev) => {
+            const next = new Map(prev);
+            for (const [id, m] of Object.entries(data.monograms || {})) {
+              if (valid.has(id) && typeof m === "string") next.set(id, m);
+            }
+            return next;
+          });
+        }
+        if (typeof data.packaging === "boolean") setIncludePackaging(data.packaging);
+        if (typeof data.bespoke === "string" && data.bespoke) setBespokeRequest(data.bespoke);
+      }
+    } catch {
+      /* ignore corrupt storage */
+    }
+    cartHydrated.current = true;
+  }, [buildableTreasures]);
+
+  useEffect(() => {
+    if (!cartHydrated.current) return; // don't clobber storage before restore
+    try {
+      localStorage.setItem(
+        CART_STORAGE_KEY,
+        JSON.stringify({
+          cart: Object.fromEntries(cart),
+          monograms: Object.fromEntries(monograms),
+          packaging: includePackaging,
+          bespoke: bespokeRequest,
+        }),
+      );
+    } catch {
+      /* storage full / unavailable — non-fatal */
+    }
+  }, [cart, monograms, includePackaging, bespokeRequest]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
