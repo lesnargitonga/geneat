@@ -127,8 +127,20 @@ const CHAT_TIMEOUT_MS = 30_000;
 const CHAT_OPEN_EVENT = "hazina:chat-open";
 const CHAT_CLOSE_EVENT = "hazina:chat-close";
 
+// Wake the (Render) backend before the first message so a cold start never
+// becomes the client's "cold time". Fire-and-forget, throttled.
+let lastWarmAt = 0;
+export function warmConcierge() {
+  if (typeof window === "undefined") return;
+  const now = Date.now();
+  if (now - lastWarmAt < 120_000) return;
+  lastWarmAt = now;
+  fetch("/api/health", { cache: "no-store", keepalive: true }).catch(() => {});
+}
+
 export function openConciergeChat() {
   if (typeof window === "undefined") return;
+  warmConcierge();
   window.dispatchEvent(new CustomEvent(CHAT_OPEN_EVENT));
 }
 
@@ -580,6 +592,7 @@ export function ChatWidget() {
 
   const setChatOpen = useCallback((next: boolean) => {
     setOpen(next);
+    if (next) warmConcierge();
     if (typeof document !== "undefined") {
       if (next) document.body.dataset.chatOpen = "true";
       else delete document.body.dataset.chatOpen;
@@ -777,6 +790,12 @@ export function ChatWidget() {
     async (text: string): Promise<ApiChatResponse | null> => {
       const controller = new AbortController();
       const timeout = window.setTimeout(() => controller.abort(), CHAT_TIMEOUT_MS);
+      // If the reply runs long (e.g. a cold backend), reassure rather than
+      // leaving the client staring at a silent typing dot.
+      let settled = false;
+      const reassure = window.setTimeout(() => {
+        if (!settled) append("system", "Still here — bringing up the exact details for you…");
+      }, 4500);
       try {
         const r = await fetch("/api/chat", {
           method: "POST",
@@ -820,6 +839,8 @@ export function ChatWidget() {
         setActions([]);
         return null;
       } finally {
+        settled = true;
+        window.clearTimeout(reassure);
         window.clearTimeout(timeout);
       }
     },
@@ -1157,6 +1178,8 @@ export function ChatWidget() {
         <button
           type="button"
           onClick={() => setChatOpen(true)}
+          onPointerEnter={warmConcierge}
+          onFocus={warmConcierge}
           aria-label="Open private concierge chat"
           data-cursor="magnetic"
           className="fixed bottom-[4.75rem] right-4 z-[100] inline-flex min-h-[50px] items-center gap-2 rounded-full border border-[#caa777]/35 bg-[#101010]/92 px-4 font-mono text-[10px] uppercase tracking-[0.16em] text-white shadow-editorial backdrop-blur-md transition hover:bg-[#181818] active:scale-[0.98] md:bottom-6"
