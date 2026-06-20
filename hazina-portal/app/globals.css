@@ -98,7 +98,8 @@
     @apply ring-2 ring-bronze ring-offset-2 ring-offset-sand;
   }
   ::selection {
-    background: rgba(226, 109, 92, 0.2);
+    background: rgb(var(--color-bronze) / 0.24);
+    color: rgb(var(--color-obsidian));
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1177,7 +1178,7 @@
   }
 
   .label-mono {
-    @apply font-mono text-[13px] font-medium uppercase tracking-[0.12em] text-ink-soft;
+    @apply font-mono text-[12px] font-medium uppercase tracking-[0.18em] text-ink-soft;
   }
 
   .card-luxury {

@@ -38,10 +38,10 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["Avenir Next", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
-        serif: ["Cormorant Garamond", "Georgia", "Times New Roman", "serif"],
-        mono: ["DM Mono", "SFMono-Regular", "ui-monospace", "monospace"],
-        display: ["Cormorant Garamond", "Georgia", "Times New Roman", "serif"],
+        sans: ["var(--font-sans)", "Avenir Next", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        serif: ["var(--font-cormorant)", "Cormorant Garamond", "Georgia", "Times New Roman", "serif"],
+        mono: ["var(--font-dm-mono)", "DM Mono", "SFMono-Regular", "ui-monospace", "monospace"],
+        display: ["var(--font-cormorant)", "Cormorant Garamond", "Georgia", "Times New Roman", "serif"],
       },
       boxShadow: {
         soft: "0 4px 24px -8px rgba(28, 26, 23, 0.08)",
