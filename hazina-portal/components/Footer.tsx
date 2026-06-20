@@ -93,6 +93,9 @@ export function Footer() {
       </SpatialSection>
       <div className="border-t border-sand/10 py-6 text-center label-mono text-sand/30">
         © {new Date().getFullYear()} Hazina Nomads
+        <span className="ml-2 opacity-70">
+          · build {(process.env.VERCEL_GIT_COMMIT_SHA || "dev").slice(0, 7)}
+        </span>
       </div>
     </footer>
   );
