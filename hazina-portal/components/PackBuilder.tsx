@@ -7,7 +7,6 @@ import { CatalogImage } from "@/components/CatalogImage";
 import { flyToBox } from "@/lib/flyToBox";
 import { FloatingSurface } from "@/components/three-d/FloatingSurface";
 import { LuxuryTilt } from "@/components/three-d/LuxuryTilt";
-import { RevealGroup } from "@/components/three-d/RevealGroup";
 import {
   ALL_CATEGORIES,
   CATEGORY_LABELS,
@@ -259,17 +258,20 @@ export function PackBuilder({
         </FloatingSurface>
 
         {filtered.length > 0 ? (
-          <RevealGroup className="studio-shelf-grid grid min-w-0 grid-cols-1 gap-x-4 gap-y-8 min-[430px]:grid-cols-2 md:grid-cols-3" stagger={0.045}>
-            {filtered.map((item) => (
+          // Grid is visible immediately — pieces should never wait for a scroll
+          // to appear (a client would think there are no photos).
+          <div className="studio-shelf-grid grid min-w-0 grid-cols-1 gap-x-4 gap-y-8 min-[430px]:grid-cols-2 md:grid-cols-3">
+            {filtered.map((item, index) => (
               <LuxuryTilt key={item.id} className="h-full">
                 <SelectableTreasure
                   item={item}
                   qty={cart.get(item.id) ?? 0}
                   onToggle={(event) => toggle(item.id, event)}
+                  priority={index < 6}
                 />
               </LuxuryTilt>
             ))}
-          </RevealGroup>
+          </div>
         ) : (
           <div className="panel-luxury p-8 text-center">
             <h2 className="font-serif text-2xl text-obsidian">Nothing matches that filter</h2>
@@ -332,16 +334,24 @@ export function PackBuilder({
                             <button
                               type="button"
                               onClick={() => decrement(item.id)}
-                              className="px-2 py-1 font-mono text-sm text-ink-mute hover:text-obsidian"
+                              className="px-2 py-1 font-mono text-sm text-ink-mute transition-transform hover:text-obsidian active:scale-75"
                               aria-label={`Decrease quantity for ${item.name}`}
                             >
                               −
                             </button>
-                            <span className="px-2 py-1 font-mono text-sm min-w-[2ch] text-center">{qty}</span>
+                            <motion.span
+                              key={qty}
+                              initial={{ scale: 0.6 }}
+                              animate={{ scale: [0.6, 1.3, 1] }}
+                              transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
+                              className="px-2 py-1 font-mono text-sm min-w-[2ch] text-center inline-block text-obsidian"
+                            >
+                              {qty}
+                            </motion.span>
                             <button
                               type="button"
                               onClick={() => increment(item.id)}
-                              className="px-2 py-1 font-mono text-sm text-ink-mute hover:text-obsidian"
+                              className="px-2 py-1 font-mono text-sm text-ink-mute transition-transform hover:text-obsidian active:scale-75"
                               aria-label={`Increase quantity for ${item.name}`}
                             >
                               +
@@ -608,10 +618,12 @@ function SelectableTreasure({
   item,
   qty,
   onToggle,
+  priority = false,
 }: {
   item: Treasure;
   qty: number;
   onToggle: (event: MouseEvent<HTMLButtonElement>) => void;
+  priority?: boolean;
 }) {
   const inCart = qty > 0;
 
@@ -619,7 +631,7 @@ function SelectableTreasure({
     <button
       type="button"
       onClick={onToggle}
-      className={`studio-piece w-full min-w-0 overflow-hidden text-left transition-all ${
+      className={`studio-piece w-full min-w-0 overflow-hidden text-left transition-all duration-200 active:scale-[0.97] ${
         inCart ? "studio-piece--selected" : ""
       }`}
     >
@@ -631,10 +643,19 @@ function SelectableTreasure({
           fit="contain"
           className="aspect-square"
           sizes="200px"
+          priority={priority}
         />
         {inCart && (
           <div className="absolute top-3 right-3">
-            <span className="chip-dark text-sm">{qty > 1 ? `×${qty}` : "Added"}</span>
+            <motion.span
+              key={qty}
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: [0.5, 1.18, 1], opacity: 1 }}
+              transition={{ duration: 0.34, ease: [0.34, 1.56, 0.64, 1] }}
+              className="chip-dark text-sm inline-block"
+            >
+              {qty > 1 ? `×${qty}` : "Added"}
+            </motion.span>
           </div>
         )}
       </div>

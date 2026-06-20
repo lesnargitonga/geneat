@@ -1,10 +1,19 @@
 "use client";
 
-import { RoundedBox } from "@react-three/drei";
+import { RoundedBox, useTexture } from "@react-three/drei";
 import { type ThreeEvent, useFrame } from "@react-three/fiber";
-import { type ReactNode, useEffect, useRef, useState } from "react";
-import { MathUtils, type Group, type PointLight } from "three";
+import { type MutableRefObject, Suspense, useEffect, useRef, useState } from "react";
+import { DoubleSide, MathUtils, type Group, type PointLight } from "three";
 import { HazinaCanvas } from "./HazinaCanvas";
+
+// Real Hazina product photographs that spill out of the chest on open.
+const TREASURE_IMAGES = [
+  "/treasures/coffee-beans-variety.webp",
+  "/treasures/premium-tea-spoons.webp",
+  "/treasures/raw-honey-jars.webp",
+  "/treasures/beaded-bracelet.webp",
+  "/treasures/maasai-necklace-worn.webp",
+];
 
 const BASE_STAGE_POSITION = { x: 0.04, y: -0.06, z: 0 };
 const BASE_STAGE_ROTATION_X = -0.1;
@@ -20,61 +29,47 @@ type TreasureSpec = {
   delay: number;
 };
 
+// Lower spin than a free tumble so each product photo stays facing the viewer
+// as it pours out.
 const TREASURES: TreasureSpec[] = [
-  { rest: [-0.5, 0.04, -0.12], pour: [-1.46, 0.52, 1.12], spin: [1.5, 2.1, 0.7], arc: 0.52, delay: 0.0 },
-  { rest: [0.52, -0.02, 0.12], pour: [1.52, 0.32, 1.24], spin: [-1.2, -1.7, 0.9], arc: 0.64, delay: 0.08 },
-  { rest: [-0.16, 0.08, 0.18], pour: [-0.42, -0.18, 1.6], spin: [1.9, 1.0, -0.9], arc: 0.74, delay: 0.16 },
-  { rest: [0.22, 0.02, -0.16], pour: [0.74, 0.9, 0.98], spin: [-1.6, 1.5, 1.2], arc: 0.58, delay: 0.24 },
-  { rest: [0.0, 0.12, 0.02], pour: [0.12, 0.06, 1.86], spin: [2.1, -2.1, 0.5], arc: 0.82, delay: 0.32 },
+  { rest: [-0.5, 0.04, -0.12], pour: [-1.4, 0.54, 1.12], spin: [0.18, 0.45, -0.16], arc: 0.5, delay: 0.0 },
+  { rest: [0.52, -0.02, 0.12], pour: [1.46, 0.3, 1.22], spin: [-0.2, -0.5, 0.18], arc: 0.62, delay: 0.09 },
+  { rest: [-0.16, 0.08, 0.18], pour: [-0.46, -0.16, 1.58], spin: [0.24, 0.3, 0.12], arc: 0.72, delay: 0.18 },
+  { rest: [0.22, 0.02, -0.16], pour: [0.7, 0.92, 0.96], spin: [-0.16, 0.4, -0.2], arc: 0.56, delay: 0.27 },
+  { rest: [0.0, 0.12, 0.02], pour: [0.16, 0.08, 1.82], spin: [0.2, -0.36, 0.14], arc: 0.8, delay: 0.36 },
 ];
 
 function easeOutCubic(t: number) {
   return 1 - Math.pow(1 - t, 3);
 }
 
-function TreasureMesh({ index }: { index: number }) {
-  switch (index) {
-    case 0: // beaded gold ring
-      return (
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.2, 0.045, 14, 44]} />
-          <meshStandardMaterial color="#e7bd76" roughness={0.26} metalness={0.78} />
-        </mesh>
-      );
-    case 1: // honey / coffee jar
-      return (
-        <group>
-          <mesh position={[0, -0.02, 0]}>
-            <cylinderGeometry args={[0.16, 0.18, 0.34, 28]} />
-            <meshPhysicalMaterial color="#9c5b22" roughness={0.32} metalness={0.05} clearcoat={0.5} />
-          </mesh>
-          <mesh position={[0, 0.2, 0]}>
-            <cylinderGeometry args={[0.12, 0.12, 0.07, 24]} />
-            <meshStandardMaterial color="#d9b06a" roughness={0.34} metalness={0.6} />
+// Framed photo tiles textured with the real product shots, wrapped in Suspense
+// so a slow texture load never blocks the chest.
+function PouredTreasures({ refs }: { refs: MutableRefObject<Array<Group | null>> }) {
+  const maps = useTexture(TREASURE_IMAGES);
+  return (
+    <>
+      {TREASURES.map((spec, i) => (
+        <group
+          key={i}
+          ref={(el) => {
+            refs.current[i] = el;
+          }}
+          position={spec.rest}
+          visible={false}
+        >
+          {/* Cream frame with a touch of depth. */}
+          <RoundedBox args={[0.66, 0.66, 0.05]} radius={0.04} smoothness={3}>
+            <meshStandardMaterial color="#f3ead7" roughness={0.74} metalness={0.02} />
+          </RoundedBox>
+          <mesh position={[0, 0, 0.027]}>
+            <planeGeometry args={[0.56, 0.56]} />
+            <meshBasicMaterial map={maps[i]} side={DoubleSide} toneMapped={false} />
           </mesh>
         </group>
-      );
-    case 2: // folded story card
-      return (
-        <RoundedBox args={[0.46, 0.07, 0.34]} radius={0.025} smoothness={3}>
-          <meshStandardMaterial color="#f1e6d2" roughness={0.7} metalness={0.02} />
-        </RoundedBox>
-      );
-    case 3: // soapstone / terracotta pouch
-      return (
-        <mesh>
-          <sphereGeometry args={[0.2, 22, 18]} />
-          <meshStandardMaterial color="#a8543a" roughness={0.62} metalness={0.04} />
-        </mesh>
-      );
-    default: // gold coin
-      return (
-        <mesh rotation={[Math.PI / 2.2, 0.3, 0]}>
-          <cylinderGeometry args={[0.17, 0.17, 0.04, 30]} />
-          <meshStandardMaterial color="#edc879" roughness={0.24} metalness={0.82} />
-        </mesh>
-      );
-  }
+      ))}
+    </>
+  );
 }
 
 function usePrefersReducedMotion() {
@@ -241,19 +236,10 @@ function GiftScene({ revealing }: { revealing: boolean }) {
         position={[BASE_STAGE_POSITION.x, BASE_STAGE_POSITION.y, BASE_STAGE_POSITION.z]}
         rotation={[BASE_STAGE_ROTATION_X, BASE_STAGE_ROTATION_Y, 0]}
       >
-        {/* Treasures — spill forward out of the chest. */}
-        {TREASURES.map((spec, i) => (
-          <group
-            key={i}
-            ref={(el) => {
-              treasureRefs.current[i] = el;
-            }}
-            position={spec.rest}
-            visible={false}
-          >
-            <TreasureMesh index={i} />
-          </group>
-        ))}
+        {/* Treasures — real product photos that spill forward out of the chest. */}
+        <Suspense fallback={null}>
+          <PouredTreasures refs={treasureRefs} />
+        </Suspense>
 
         <group ref={chestRef}>
           {/* Chest body — leather with brass base rail and corner caps. */}
