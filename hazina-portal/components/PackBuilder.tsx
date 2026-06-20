@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { type MouseEvent, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { CatalogImage } from "@/components/CatalogImage";
-import { flyToBox } from "@/lib/flyToBox";
+import { TreasureQuickView } from "@/components/TreasureQuickView";
 import { FloatingSurface } from "@/components/three-d/FloatingSurface";
 import { LuxuryTilt } from "@/components/three-d/LuxuryTilt";
 import {
@@ -143,18 +143,7 @@ export function PackBuilder({
   };
 
   const boxRef = useRef<HTMLDivElement>(null);
-
-  const toggle = (id: string, event?: MouseEvent<HTMLButtonElement>) => {
-    const qty = cart.get(id) ?? 0;
-    const adding = qty === 0;
-    setQty(id, adding ? 1 : 0);
-    if (adding && event) {
-      const card = event.currentTarget;
-      const img = card.querySelector("img");
-      const item = buildableTreasures.find((t) => t.id === id);
-      flyToBox(img ?? card, boxRef.current, (img as HTMLImageElement | null)?.currentSrc || item?.image);
-    }
-  };
+  const [quickView, setQuickView] = useState<Treasure | null>(null);
 
   const increment = (id: string) => setQty(id, (cart.get(id) ?? 0) + 1);
   const decrement = (id: string) => setQty(id, (cart.get(id) ?? 0) - 1);
@@ -266,7 +255,7 @@ export function PackBuilder({
                 <SelectableTreasure
                   item={item}
                   qty={cart.get(item.id) ?? 0}
-                  onToggle={(event) => toggle(item.id, event)}
+                  onOpen={() => setQuickView(item)}
                   priority={index < 6}
                 />
               </LuxuryTilt>
@@ -586,6 +575,14 @@ export function PackBuilder({
         </div>
         </FloatingSurface>
       </aside>
+
+      <TreasureQuickView
+        item={quickView}
+        qty={quickView ? cart.get(quickView.id) ?? 0 : 0}
+        onSetQty={setQty}
+        onClose={() => setQuickView(null)}
+        boxRef={boxRef}
+      />
     </div>
   );
 }
@@ -617,12 +614,12 @@ function CategoryLink({
 function SelectableTreasure({
   item,
   qty,
-  onToggle,
+  onOpen,
   priority = false,
 }: {
   item: Treasure;
   qty: number;
-  onToggle: (event: MouseEvent<HTMLButtonElement>) => void;
+  onOpen: () => void;
   priority?: boolean;
 }) {
   const inCart = qty > 0;
@@ -630,7 +627,7 @@ function SelectableTreasure({
   return (
     <button
       type="button"
-      onClick={onToggle}
+      onClick={onOpen}
       className={`studio-piece w-full min-w-0 overflow-hidden text-left transition-all duration-200 active:scale-[0.97] ${
         inCart ? "studio-piece--selected" : ""
       }`}
