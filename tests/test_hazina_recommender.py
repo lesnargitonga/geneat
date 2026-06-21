@@ -65,6 +65,18 @@ def test_occasion_requests_offer_collections() -> None:
         assert out["collection_ids"], q  # offer curated collections, never a dead end
 
 
+def test_swahili_and_local_terms_match() -> None:
+    payload = hazina_catalog_search_payload()
+    # "mkeka" (mat) must resolve to the real African Woven Mat, not "Matte box".
+    out = rec.recommend(payload, "i need a mkeka")
+    assert out is not None and "african-woven-mat" in out["treasure_ids"]
+    assert "matte" not in out["reply"].lower()
+    # Swahili intent verbs ("nataka" = I want) trigger the recommender.
+    assert rec.looks_like_recommendation("nataka kahawa")
+    assert "coffee" in rec.recommend(payload, "nataka kahawa")["reply"].lower()
+    assert "rungu-clubs" in (rec.recommend(payload, "nataka rungu") or {}).get("treasure_ids", [])
+
+
 def test_no_recommendation_when_no_intent() -> None:
     payload = hazina_catalog_search_payload()
     assert rec.recommend(payload, "I want to pay with mpesa") is None

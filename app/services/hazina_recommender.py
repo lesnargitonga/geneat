@@ -25,7 +25,9 @@ _RECOMMEND_INTENT_RE = re.compile(
 _WANT_INTENT_RE = re.compile(
     r"\b(i\s*want|i'?d\s*like|i\s*need|need\s+(?:a|an|some)|looking\s+for|"
     r"do\s+you\s+(?:have|sell|stock)|got\s+any|find\s+me|get\s+me|"
-    r"can\s+i\s+(?:get|have|buy)|where\s+can\s+i\s+(?:get|buy))\b",
+    r"can\s+i\s+(?:get|have|buy)|where\s+can\s+i\s+(?:get|buy)|"
+    # Swahili: nataka/nahitaji = I want/need, naomba = please give, unao/mnao = do you have
+    r"nataka|ninahitaji|nahitaji|naomba|niletee|unao|mnao|mna\b|una\b)\b",
     re.IGNORECASE,
 )
 
@@ -82,9 +84,42 @@ def looks_like_recommendation(text: str) -> bool:
     return bool(_RECOMMEND_INTENT_RE.search(t) or _WANT_INTENT_RE.search(t))
 
 
+# Swahili / local terms → the English words used in product names & categories,
+# so "i need a mkeka" finds the African Woven Mat, "kikapu" finds a basket, etc.
+_LOCAL_SYNONYMS: dict[str, str] = {
+    "mkeka": "mat",
+    "kikapu": "basket",
+    "vikapu": "basket",
+    "kiondo": "basket",
+    "kahawa": "coffee",
+    "asali": "honey",
+    "kanga": "fabric",
+    "leso": "fabric",
+    "kitambaa": "fabric",
+    "shanga": "beaded",
+    "ngozi": "leather",
+    "mbao": "wood",
+    "sanaa": "art",
+    "vito": "jewellery",
+}
+
+
+def _expand_local(text: str) -> str:
+    """Append English equivalents of any local/Swahili terms so category and
+    name matching both see them."""
+    words = re.findall(r"[a-z]+", (text or "").lower())
+    extra = [_LOCAL_SYNONYMS[w] for w in words if w in _LOCAL_SYNONYMS]
+    return (text or "") + (" " + " ".join(extra) if extra else "")
+
+
 def _query_terms(text: str) -> list[str]:
     words = re.findall(r"[a-z]+", (text or "").lower())
-    return [w for w in words if len(w) >= 3 and w not in _STOPWORDS]
+    terms: list[str] = []
+    for w in words:
+        mapped = _LOCAL_SYNONYMS.get(w, w)
+        if len(mapped) >= 3 and mapped not in _STOPWORDS:
+            terms.append(mapped)
+    return terms
 
 
 def _name_matches(item: dict, terms: list[str]) -> bool:
@@ -93,7 +128,8 @@ def _name_matches(item: dict, terms: list[str]) -> bool:
     hay = " ".join(
         str(item.get(k) or "") for k in ("name", "category", "description")
     ).lower()
-    return any(t in hay for t in terms)
+    # Whole-word match so "mat" hits "African Woven Mat" but not "Matte box".
+    return any(re.search(rf"\b{re.escape(t)}\b", hay) for t in terms)
 
 
 def detect_categories(text: str) -> list[str]:
@@ -149,7 +185,7 @@ def recommend(payload: dict[str, Any], text: str, *, is_sw: bool = False) -> dic
     if not looks_like_recommendation(text):
         return None
 
-    categories = detect_categories(text)
+    categories = detect_categories(_expand_local(text))
     amount, currency = parse_budget(text)
     collections = payload.get("collections") or []
     treasures = payload.get("treasures") or []

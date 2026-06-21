@@ -234,16 +234,16 @@ async def try_hazina_ai_rescue(
         )
 
     categories = hazina_catalog_search_payload().get("categories") or []
-    cat_sample = ", ".join(str(c) for c in categories[:5])
+    cat_sample = ", ".join(str(c).replace("-", " ") for c in categories[:5])
     if is_sw:
         reply = (
-            f"Samahani, hilo halijapita vizuri. Ninaweza kukusaidia na collections zetu "
-            f"({cat_sample}), kufuatilia oda, au uwasilishaji — tuma oda yako tena."
+            f"Nikusaidie kupata kipande sahihi. Tunajumuisha {cat_sample} na zaidi — "
+            f"chagua collection hapa chini, au niambie mpokeaji, tukio, au bajeti."
         )
     else:
         reply = (
-            f"Sorry, that didn't go through cleanly. I can help with our collections "
-            f"({cat_sample}), order tracking, or delivery — please send your request again."
+            f"Let me help you find the right piece. We cover {cat_sample} and more — "
+            f"pick a collection below, or tell me the recipient, occasion, or budget."
         )
     return HazinaRescueResult(
         reply=reply,
