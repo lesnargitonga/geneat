@@ -1197,19 +1197,19 @@ export function ChatWidget() {
             animate={reduceMotion ? undefined : { opacity: 1, x: 0, y: 0, scale: 1 }}
             exit={reduceMotion ? undefined : { opacity: 0, x: 18, y: 6, scale: 0.99 }}
             transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            className="concierge-shell spatial-panel depth-shadow-strong fixed inset-x-3 bottom-[4.75rem] z-[100] flex max-h-[min(72svh,640px)] origin-bottom-right flex-col md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:max-h-[calc(100svh-7rem)] md:w-[min(440px,calc(100vw-2rem))]"
+            className="concierge-shell spatial-panel depth-shadow-strong fixed inset-x-3 bottom-[4.75rem] z-[100] flex h-[min(82svh,720px)] max-h-[min(82svh,720px)] origin-bottom-right flex-col md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:h-auto md:max-h-[calc(100svh-7rem)] md:w-[min(440px,calc(100vw-2rem))]"
             role="dialog"
             aria-label="Hazina private concierge"
           >
-          <div className="concierge-header flex items-start justify-between gap-3 px-4 py-4 text-white">
+          <div className="concierge-header flex items-start justify-between gap-3 px-4 py-3 md:py-4 text-white">
             <div>
               <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#caa777]">
                 Private sourcing desk
               </div>
-              <div className="mt-1 font-serif text-2xl leading-tight tracking-[-0.02em] text-white">
+              <div className="mt-1 font-serif text-xl md:text-2xl leading-tight tracking-[-0.02em] text-white">
                 Hazina Private Concierge
               </div>
-              <p className="mt-2 max-w-[16rem] text-xs leading-relaxed text-white/62">
+              <p className="mt-2 hidden max-w-[16rem] text-xs leading-relaxed text-white/62 md:block">
                 Curated collections, delivery windows, and secure checkout — one step at a time.
               </p>
             </div>
@@ -1246,14 +1246,19 @@ export function ChatWidget() {
                 <span className="concierge-status-dot h-2 w-2 rounded-full bg-ink/30" style={{ animationDelay: "360ms" }} />
               </div>
             )}
-            {!busy && visibleActions.length > 0 && (
-              <div className="flex flex-wrap gap-2 border-t border-[#d8cfc0]/70 pt-3">
+          </div>
+
+          {/* Actions in their own capped, scrollable strip so a long menu never
+              pushes the conversation off-screen on a phone. */}
+          {!busy && visibleActions.length > 0 && (
+            <div className="shrink-0 max-h-[28svh] overflow-y-auto border-t border-[#d8cfc0]/70 px-4 py-3 local-scroll local-scroll--subtle">
+              <div className="flex flex-wrap gap-2">
                 {visibleActions.map((p) =>
                   p.href ? (
                     <a
                       key={`${p.label}-${p.href}`}
                       href={p.href}
-                      className={`min-h-[36px] rounded-[4px] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.13em] transition-colors ${
+                      className={`min-h-[34px] rounded-[4px] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.13em] transition-colors ${
                         p.primary
                           ? "concierge-action concierge-action-primary bg-[#121212] text-[#f4efe6] hover:bg-black"
                           : "concierge-action concierge-action-secondary border border-[#c8c0b2] bg-sand/70 text-[#2a2622] hover:border-[#121212]"
@@ -1266,7 +1271,7 @@ export function ChatWidget() {
                       type="button"
                       key={`${p.label}-${p.value || ""}`}
                       onClick={() => send(p.value || p.label)}
-                      className={`min-h-[36px] rounded-[4px] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.13em] transition-colors ${
+                      className={`min-h-[34px] rounded-[4px] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.13em] transition-colors ${
                         p.primary
                           ? "concierge-action concierge-action-primary bg-[#121212] text-[#f4efe6] hover:bg-black"
                           : "concierge-action concierge-action-secondary border border-[#c8c0b2] bg-sand/70 text-[#2a2622] hover:border-[#121212]"
@@ -1277,8 +1282,8 @@ export function ChatWidget() {
                   )
                 )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="flex items-center gap-2 border-t border-[#d8cfc0]/40 px-3 pt-2.5">
             <button
