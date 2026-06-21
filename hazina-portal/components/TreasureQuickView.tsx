@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
+import { createPortal } from "react-dom";
 import { CatalogImage } from "@/components/CatalogImage";
 import { flyToBox } from "@/lib/flyToBox";
 import { formatKES, formatUSD } from "@/lib/format";
@@ -22,6 +23,8 @@ export function TreasureQuickView({
   boxRef: RefObject<HTMLElement | null>;
 }) {
   const imageRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     if (!item) return;
@@ -44,7 +47,11 @@ export function TreasureQuickView({
     onSetQty(item.id, qty + 1);
   };
 
-  return (
+  if (!mounted) return null;
+
+  // Portal to <body> so the fixed overlay isn't anchored to any transformed
+  // ancestor (which would mis-size/clip it).
+  return createPortal(
     <AnimatePresence>
       {item && (
         <motion.div
@@ -64,7 +71,7 @@ export function TreasureQuickView({
             role="dialog"
             aria-modal="true"
             aria-label={`${item.name} details`}
-            className="relative w-full max-w-lg overflow-hidden rounded-t-2xl sm:rounded-2xl border border-border bg-sand shadow-editorial"
+            className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto local-scroll rounded-t-2xl sm:rounded-2xl border border-border bg-sand shadow-editorial"
             initial={{ y: 40, scale: 0.98, opacity: 0 }}
             animate={{ y: 0, scale: 1, opacity: 1 }}
             exit={{ y: 24, scale: 0.98, opacity: 0 }}
@@ -153,6 +160,7 @@ export function TreasureQuickView({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

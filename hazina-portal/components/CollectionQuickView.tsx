@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { CatalogImage } from "@/components/CatalogImage";
 import type { GiftBox } from "@/lib/products";
 import { formatKES, formatUSD } from "@/lib/format";
@@ -23,6 +24,9 @@ export function CollectionQuickView({
   open: boolean;
   onClose: () => void;
 }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -36,7 +40,12 @@ export function CollectionQuickView({
     };
   }, [open, onClose]);
 
-  return (
+  if (!mounted) return null;
+
+  // Portal to <body> so the fixed overlay escapes the transformed card
+  // ancestor (LuxuryTilt) — otherwise `position: fixed` anchors to the
+  // transform and the modal is mis-sized/clipped.
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
@@ -79,7 +88,7 @@ export function CollectionQuickView({
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 overflow-y-auto p-5 local-scroll local-scroll--subtle sm:grid-cols-3 md:p-6">
+            <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 overflow-y-auto p-5 local-scroll local-scroll--subtle sm:grid-cols-3 md:p-6">
               {items.map((item) => (
                 <Link
                   key={item.id}
@@ -122,6 +131,7 @@ export function CollectionQuickView({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

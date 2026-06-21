@@ -81,6 +81,10 @@ export function CatalogImage({
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
           quality={priority ? 80 : 68}
+          // Sources are already web-sized webp; Vercel's optimizer added ~1s of
+          // latency per image (and wasn't edge-cached), so serve them directly
+          // from the immutable-cached CDN instead — far faster across devices.
+          unoptimized
           onError={handleError}
         />
       ) : (
