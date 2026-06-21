@@ -49,10 +49,12 @@ class IntaSendAdapter:
         return {"Authorization": f"Bearer {self._token_value()}"}
 
     def _checkout_headers(self) -> dict[str, str]:
-        # Checkout API uses TOKEN header (not Bearer)
-        return {"TOKEN": self._token_value()}
+        s = get_settings()
+        public_key = (getattr(s, "intasend_publishable_key", "") or "").strip()
+        if not public_key:
+            raise UpstreamError("intasend publishable key missing for card checkout")
+        return {"X-IntaSend-Public-API-Key": public_key}
 
-    @retry(stop=stop_after_attempt(2), wait=wait_exponential_jitter(initial=0.5, max=3.0))
     async def request_payment(
         self,
         *,
@@ -95,7 +97,6 @@ class IntaSendAdapter:
             raw=data,
         )
 
-    @retry(stop=stop_after_attempt(2), wait=wait_exponential_jitter(initial=0.5, max=3.0))
     async def request_checkout_link(
         self,
         *,
@@ -107,22 +108,19 @@ class IntaSendAdapter:
         email: Optional[str] = None,
     ) -> PaymentResult:
         s = get_settings()
-        public_key = (getattr(s, "intasend_publishable_key", "") or "").strip()
-        checkout_currency = (currency or "KES").upper()
-        # IntaSend checkout does not support USD; bill in KES using KES amount
-        if checkout_currency == "USD":
-            checkout_currency = "KES"
-            amount = round(float(amount) * 129.0, 0)  # approx KES equivalent
+        checkout_currency = (currency or "USD").upper()
+        portal_url = getattr(s, "public_hazina_portal_url", "https://hazina.lesnarai.co.ke")
         payload: dict = {
-            "amount": str(int(round(float(amount)))),
+            "amount": str(round(float(amount), 2)),
             "currency": checkout_currency,
             "api_ref": reference[:32],
             "comment": description[:120],
-            "email": email or f"{msisdn.lstrip('+')}@hazina-nomads.local",
-            "redirect_url": getattr(s, "public_hazina_portal_url", "https://hazina.lesnarai.co.ke"),
+            "method": "CARD-PAYMENT",
+            "host": portal_url,
+            "redirect_url": portal_url,
         }
-        if public_key:
-            payload["public_key"] = public_key
+        if email:
+            payload["email"] = email
         if msisdn:
             payload["phone_number"] = msisdn.lstrip("+")
         async with httpx.AsyncClient(timeout=15) as c:

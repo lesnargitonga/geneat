@@ -103,6 +103,6 @@ async def test_gate_clears_checkout_on_collections_navigation() -> None:
             business_id=uuid.uuid4(),
             language="en",
         )
-    clear_mock.assert_awaited_once_with(conv)
+    clear_mock.assert_awaited_once_with(conv, customer=customer)
     assert result is not None
     assert result.interactive is not None

@@ -84,6 +84,85 @@ async def test_request_order_payment_gives_up_after_persistent_failure(db, monke
     assert attempt.error == "upstream"
 
 
+@pytest.mark.asyncio
+async def test_request_order_payment_timeout_is_bounded_and_not_auto_retried(db, monkeypatch):
+    from app.services import cafe_automation
+
+    calls = {"n": 0}
+
+    class _SlowSvc:
+        name = "simulator"
+
+        async def request_payment(self, **kwargs):
+            calls["n"] += 1
+            await asyncio.sleep(1)
+
+    monkeypatch.setattr(cafe_automation, "resolve_payment_service", lambda **kw: _SlowSvc())
+    monkeypatch.setattr(cafe_automation, "PAYMENT_PROVIDER_ATTEMPT_TIMEOUT_SECONDS", 0.01)
+    order = Order(id=uuid.uuid4(), amount=480, payment_status=PaymentStatus.pending, details={})
+
+    attempt = await cafe_automation.request_order_payment(
+        db, order=order, msisdn="+254700000001", business_id=None
+    )
+
+    assert calls["n"] == 1
+    assert attempt.ok is False
+    assert attempt.error == "timeout"
+    assert "order is saved" in attempt.message
+
+
+@pytest.mark.asyncio
+async def test_card_checkout_link_is_persisted_and_recovered_for_duplicate_submit(db, monkeypatch):
+    from app.services import cafe_automation
+
+    class _LinkResult:
+        reference = "checkout_123"
+        redirect_url = "https://payment.example/checkout_123"
+
+    class _LinkSvc:
+        name = "intasend"
+
+        async def request_payment(self, **kwargs):
+            return _LinkResult()
+
+    order = Order(
+        id=uuid.uuid4(),
+        amount=32400,
+        payment_status=PaymentStatus.pending,
+        details={"payment_currency": "USD", "amount_usd": 249},
+    )
+    monkeypatch.setattr(cafe_automation, "resolve_payment_service", lambda **kw: _LinkSvc())
+
+    started = await cafe_automation.request_order_payment(
+        db,
+        order=order,
+        msisdn="+254700000001",
+        business_id=None,
+        currency="USD",
+    )
+    assert started.ok is True
+    assert order.details["payment_redirect_url"] == "https://payment.example/checkout_123"
+
+    async def existing_order(*args, **kwargs):
+        return order, False
+
+    monkeypatch.setattr(cafe_automation, "create_pending_order", existing_order)
+    recovered = await cafe_automation.create_order_and_request_payment(
+        db,
+        customer_id=uuid.uuid4(),
+        conversation_id=uuid.uuid4(),
+        business_id=None,
+        msisdn="+254700000001",
+        items=[cafe_automation.CafeOrderItem("The Kenya Edit", unit_price=32400)],
+        payment_currency="USD",
+        amount_usd=249,
+    )
+
+    assert recovered.created is False
+    assert recovered.payment is not None
+    assert recovered.payment.redirect_url == "https://payment.example/checkout_123"
+
+
 def test_intasend_rejects_empty_secret_in_prod(monkeypatch):
     _reset_settings(
         monkeypatch,

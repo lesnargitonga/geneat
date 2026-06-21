@@ -107,7 +107,7 @@ async def try_hazina_deterministic_gate(
     lid = (interactive_id or "").lower()
     body = (text or "").strip()
     cmd = interactive_command or command_for_interactive_id(interactive_id)
-    in_checkout = await checkout_in_progress(conversation_id)
+    in_checkout = await checkout_in_progress(conversation_id, customer=customer)
 
     # Pending cart: structured recovery (fixes raw STK status leaks).
     if cmd == CMD_HAZINA_SEND_STK or (
@@ -145,7 +145,7 @@ async def try_hazina_deterministic_gate(
             text=body or "cancel order",
             language=language,
         )
-        await clear_hazina_checkout_state(conversation_id)
+        await clear_hazina_checkout_state(conversation_id, customer=customer)
         return GiftAutomationResult(
             reply=reply,
             interactive=main_menu_payload(
@@ -195,7 +195,7 @@ async def try_hazina_deterministic_gate(
 
     # Top-of-funnel menus (zero LLM) — always reset stale checkout state.
     if cmd == CMD_HAZINA_COASTAL or lid == ID_HAZINA_COASTAL:
-        await clear_hazina_checkout_state(conversation_id)
+        await clear_hazina_checkout_state(conversation_id, customer=customer)
         return GiftAutomationResult(
             reply=(
                 "Hizi ni vipande vya Pwani ya Kiswahili — chagua kimoja:"
@@ -207,7 +207,7 @@ async def try_hazina_deterministic_gate(
         )
 
     if cmd == CMD_HOME or body == CMD_HOME or _TOP_FUNNEL_GREETING_RE.match(body):
-        await clear_hazina_checkout_state(conversation_id)
+        await clear_hazina_checkout_state(conversation_id, customer=customer)
         return GiftAutomationResult(
             reply=hazina_welcome_body(language=language),
             interactive=main_menu_payload(
@@ -219,7 +219,7 @@ async def try_hazina_deterministic_gate(
         )
 
     if lid in (ID_HAZINA_COLLECTIONS, "lp:shop") or cmd == CMD_HAZINA_COLLECTIONS:
-        await clear_hazina_checkout_state(conversation_id)
+        await clear_hazina_checkout_state(conversation_id, customer=customer)
         return GiftAutomationResult(
             reply=(
                 "Hizi ndizo signature collections zetu — chagua moja:"

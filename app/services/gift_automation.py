@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 import uuid
 from dataclasses import dataclass
 from typing import Any
@@ -69,6 +70,7 @@ HAZINA_PRODUCTS: dict[str, dict[str, Any]] = {
 
 _CHECKOUT_TTL = 3600
 _CHECKOUT_KEY = "gift_checkout:{conv_id}"
+_CHECKOUT_META_KEY = "hazina_checkout_states"
 
 _ORDER_RE = re.compile(
     r"\b(?:order|buy|get|i want|i'?d like|i need|book)\b.{0,40}\b("
@@ -605,20 +607,64 @@ def parse_checkout_details(text: str) -> ParsedCheckoutDetails:
     )
 
 
-async def _get_checkout(conv_id: uuid.UUID) -> dict | None:
+def _checkout_from_customer_meta(conv_id: uuid.UUID, customer: object | None) -> dict | None:
+    if customer is None:
+        return None
+    meta = getattr(customer, "meta", None)
+    if not isinstance(meta, dict):
+        return None
+    states = meta.get(_CHECKOUT_META_KEY)
+    if not isinstance(states, dict):
+        return None
+    stored = states.get(str(conv_id))
+    if not isinstance(stored, dict):
+        return None
+    updated_at = stored.get("updated_at")
+    if isinstance(updated_at, (int, float)) and time.time() - float(updated_at) > _CHECKOUT_TTL:
+        return None
+    data = stored.get("data")
+    return dict(data) if isinstance(data, dict) else None
+
+
+def _store_checkout_in_customer_meta(conv_id: uuid.UUID, data: dict | None, customer: object | None) -> None:
+    if customer is None or not hasattr(customer, "meta"):
+        return
+    meta = dict(getattr(customer, "meta", None) or {})
+    states = dict(meta.get(_CHECKOUT_META_KEY) or {})
+    key = str(conv_id)
+    if data is None:
+        states.pop(key, None)
+    else:
+        states[key] = {"updated_at": time.time(), "data": dict(data)}
+        # A customer can use the portal and WhatsApp, but stale conversations
+        # must not grow this JSON document without bound.
+        if len(states) > 5:
+            oldest = sorted(
+                states,
+                key=lambda item: float((states.get(item) or {}).get("updated_at") or 0),
+            )[:-5]
+            for item in oldest:
+                states.pop(item, None)
+    meta[_CHECKOUT_META_KEY] = states
+    customer.meta = meta
+
+
+async def _get_checkout(conv_id: uuid.UUID, *, customer: object | None = None) -> dict | None:
     try:
         from app.core.redis_client import get_redis
 
         raw = await (await get_redis()).get(_CHECKOUT_KEY.format(conv_id=str(conv_id)))
-        if not raw:
-            return None
-        parsed = json.loads(raw)
-        return parsed if isinstance(parsed, dict) else None
+        if raw:
+            parsed = json.loads(raw)
+            if isinstance(parsed, dict):
+                return parsed
     except Exception:
-        return None
+        pass
+    return _checkout_from_customer_meta(conv_id, customer)
 
 
-async def _set_checkout(conv_id: uuid.UUID, data: dict) -> None:
+async def _set_checkout(conv_id: uuid.UUID, data: dict, *, customer: object | None = None) -> None:
+    _store_checkout_in_customer_meta(conv_id, data, customer)
     try:
         from app.core.redis_client import get_redis
 
@@ -631,7 +677,8 @@ async def _set_checkout(conv_id: uuid.UUID, data: dict) -> None:
         pass
 
 
-async def _clear_checkout(conv_id: uuid.UUID) -> None:
+async def _clear_checkout(conv_id: uuid.UUID, *, customer: object | None = None) -> None:
+    _store_checkout_in_customer_meta(conv_id, None, customer)
     try:
         from app.core.redis_client import get_redis
 
@@ -640,14 +687,22 @@ async def _clear_checkout(conv_id: uuid.UUID) -> None:
         pass
 
 
-async def clear_hazina_checkout_state(conversation_id: uuid.UUID) -> None:
-    """Drop in-progress Redis checkout when the guest uses top-level navigation."""
-    await _clear_checkout(conversation_id)
+async def clear_hazina_checkout_state(
+    conversation_id: uuid.UUID,
+    *,
+    customer: object | None = None,
+) -> None:
+    """Drop in-progress checkout state from Redis and its durable customer fallback."""
+    await _clear_checkout(conversation_id, customer=customer)
 
 
-async def checkout_in_progress(conversation_id: uuid.UUID) -> bool:
-    """True when a multi-step Hazina brief/checkout is active in Redis."""
-    data = await _get_checkout(conversation_id)
+async def checkout_in_progress(
+    conversation_id: uuid.UUID,
+    *,
+    customer: object | None = None,
+) -> bool:
+    """True when a multi-step Hazina brief/checkout is active."""
+    data = await _get_checkout(conversation_id, customer=customer)
     if not data:
         return False
     step = str(data.get("step") or "").strip().lower()
@@ -866,12 +921,47 @@ def _delivery_type_from_text(text: str | None, *, fallback: str | None = None) -
     return None
 
 
+def _valid_delivery_location(value: object) -> bool:
+    """Accept real short place names (Yala, JKIA) without accepting noise."""
+    location = re.sub(r"\s+", " ", str(value or "")).strip()
+    return len(location) >= 3 and len(re.findall(r"[A-Za-z0-9]", location)) >= 3
+
+
+def _checkout_contact_value(value: str, *, msisdn: str) -> str:
+    """Resolve natural replies such as 'this WhatsApp number' to the channel number."""
+    if re.search(
+        r"\b(this|same|current|my)\b.{0,24}\b(whats?app|number|phone|mobile)\b|"
+        r"\b(whats?app|number|phone|mobile)\b.{0,24}\b(this|same|current)\b",
+        value or "",
+        re.IGNORECASE,
+    ):
+        return msisdn
+    return (value or "").strip()
+
+
+def _payment_phone(contact: str | None, *, fallback: str) -> str:
+    """Use the guest-entered payment phone, normalised for Kenyan providers."""
+    raw = str(contact or "").strip()
+    if "@" in raw:
+        return fallback
+    digits = re.sub(r"\D", "", raw)
+    if len(digits) == 12 and digits.startswith("254"):
+        return f"+{digits}"
+    if len(digits) == 10 and digits.startswith("0"):
+        return f"+254{digits[1:]}"
+    if len(digits) == 9 and digits.startswith(("7", "1")):
+        return f"+254{digits}"
+    if raw.startswith("+") and len(digits) >= 9:
+        return f"+{digits}"
+    return fallback
+
+
 def _checkout_next_step(checkout: dict) -> str | None:
     if len(str(checkout.get("customer_name") or "").strip()) < 2:
         return "name"
     if not _delivery_type_from_text(None, fallback=str(checkout.get("delivery_type") or "")):
         return "delivery_type"
-    if len(str(checkout.get("delivery_location") or "").strip()) < 5:
+    if not _valid_delivery_location(checkout.get("delivery_location")):
         return "location"
     if len(str(checkout.get("delivery_window") or "").strip()) < 3:
         return "window"
@@ -952,21 +1042,19 @@ def _checkout_restart_reply(*, is_sw: bool) -> str:
     )
 
 
-def _checkout_restart_reply(*, is_sw: bool) -> str:
-    return (
-        "Draft checkout yako imekosekana au ime-expire. Chagua collection tena tuanze upya."
-        if is_sw
-        else "That checkout draft is missing or expired. Pick a collection again and I'll restart."
-    )
-
-
-async def _ask_next_checkout_step(conversation_id: uuid.UUID, checkout: dict, *, is_sw: bool) -> GiftAutomationResult:
+async def _ask_next_checkout_step(
+    conversation_id: uuid.UUID,
+    checkout: dict,
+    *,
+    is_sw: bool,
+    customer: object | None = None,
+) -> GiftAutomationResult:
     next_step = _checkout_next_step(checkout)
     if next_step is None:
         checkout["step"] = "confirm"
     else:
         checkout["step"] = next_step
-    await _set_checkout(conversation_id, checkout)
+    await _set_checkout(conversation_id, checkout, customer=customer)
     return GiftAutomationResult(
         reply=_checkout_prompt(checkout, is_sw=is_sw),
         safety_flag=f"deterministic:hazina_need_{checkout['step']}",
@@ -1046,6 +1134,28 @@ def _safe_payment_start_error(*, is_sw: bool) -> str:
         "Sijaweza kuanzisha malipo sasa hivi. Jaribu tena baada ya muda mfupi."
         if is_sw
         else "I could not start payment right now. Please try again in a moment."
+    )
+
+
+def _payment_start_failure_reply(payment: object | None, *, is_sw: bool) -> str:
+    error = str(getattr(payment, "error", None) or "").lower()
+    message = str(getattr(payment, "message", None) or "").lower()
+    if error == "configuration" or "missing" in message:
+        return (
+            "Oda imehifadhiwa, lakini malipo ya card hayajasanidiwa sasa. Chagua KES M-Pesa au ujaribu tena baadaye."
+            if is_sw else
+            "Your order is saved, but secure card checkout is not configured right now. Choose KES M-Pesa or try card checkout again later."
+        )
+    if error == "timeout":
+        return (
+            "Oda imehifadhiwa, lakini provider wa malipo amechelewa. Hakuna haja ya kuanza upya; jaribu payment tena."
+            if is_sw else
+            "Your order is saved, but the payment provider timed out. You do not need to start over; retry payment when ready."
+        )
+    return (
+        "Oda imehifadhiwa, lakini malipo hayakuanza. Chagua njia ya malipo tena au ujaribu baada ya muda mfupi."
+        if is_sw else
+        "Your order is saved, but payment did not start. Choose the payment method again or retry in a moment."
     )
 
 
@@ -1155,6 +1265,8 @@ async def _finalize_order(
     quantity: int = 1,
     payment_currency: str = "USD",
     payment_email: str | None = None,
+    payment_contact: str | None = None,
+    checkout_customer: object | None = None,
 ) -> GiftAutomationResult:
     row = HAZINA_PRODUCTS[product_id]
     quantity = max(1, min(20, int(quantity or 1)))
@@ -1173,12 +1285,13 @@ async def _finalize_order(
     if departure_note:
         notes_parts.append(f"Departure: {departure_note}")
 
+    payment_msisdn = _payment_phone(payment_contact, fallback=msisdn)
     result = await create_order_and_request_payment(
         db,
         customer_id=customer_id,
         conversation_id=conversation_id,
         business_id=business_id,
-        msisdn=msisdn,
+        msisdn=payment_msisdn,
         items=items,
         delivery_notes=" | ".join(notes_parts),
         fast_path="hazina_gift_checkout",
@@ -1198,11 +1311,25 @@ async def _finalize_order(
     details["fulfillment_status"] = PENDING_PAYMENT
     order.details = details
     await db.flush()
-    await _clear_checkout(conversation_id)
-
     if result.payment and not result.payment.ok:
-        msg = _safe_payment_start_error(is_sw=is_sw)
-        return GiftAutomationResult(reply=msg, safety_flag="deterministic:hazina_payment_failed")
+        retry_checkout = {
+            "product_id": product_id,
+            "quantity": quantity,
+            "delivery_type": delivery_type,
+            "delivery_location": delivery_location,
+            "delivery_window": departure_note,
+            "customer_name": customer_name,
+            "contact": payment_contact or payment_email or msisdn,
+            "payment_currency": payment_currency,
+            "step": "payment",
+        }
+        await _set_checkout(conversation_id, retry_checkout, customer=checkout_customer)
+        return GiftAutomationResult(
+            reply=_payment_start_failure_reply(result.payment, is_sw=is_sw),
+            safety_flag="deterministic:hazina_payment_failed",
+        )
+
+    await _clear_checkout(conversation_id, customer=checkout_customer)
 
     from app.services.order_tracking import ensure_order_tracking, tracking_link_line
 
@@ -1234,6 +1361,8 @@ async def _finalize_custom_order(
     is_sw: bool,
     payment_currency: str,
     payment_email: str | None,
+    payment_contact: str | None = None,
+    checkout_customer: object | None = None,
 ) -> GiftAutomationResult:
     notes_parts = [f"Custom box — {', '.join(parsed.skus)}"]
     if delivery_type:
@@ -1243,12 +1372,13 @@ async def _finalize_custom_order(
     if departure_note:
         notes_parts.append(f"Departure: {departure_note}")
 
+    payment_msisdn = _payment_phone(payment_contact, fallback=msisdn)
     result = await create_order_and_request_payment(
         db,
         customer_id=customer_id,
         conversation_id=conversation_id,
         business_id=business_id,
-        msisdn=msisdn,
+        msisdn=payment_msisdn,
         items=parsed.items,
         delivery_notes=" | ".join(notes_parts),
         fast_path="hazina_custom_box",
@@ -1272,16 +1402,37 @@ async def _finalize_custom_order(
     details["fulfillment_status"] = PENDING_PAYMENT
     order.details = details
     await db.flush()
-    await _clear_checkout(conversation_id)
+    if result.payment and not result.payment.ok:
+        retry_checkout = {
+            "order_type": "custom_box",
+            "custom_box": {
+                "items": [_hazina_item_to_order_dict(i) for i in parsed.items],
+                "total_kes": parsed.total_kes,
+                "total_usd": parsed.total_usd,
+                "skus": parsed.skus,
+                "engravings": list(parsed.engravings),
+                "bespoke_request": parsed.bespoke_request,
+            },
+            "delivery_type": delivery_type,
+            "delivery_location": delivery_location,
+            "delivery_window": departure_note,
+            "customer_name": customer_name,
+            "contact": payment_contact or payment_email or msisdn,
+            "payment_currency": payment_currency,
+            "step": "payment",
+        }
+        await _set_checkout(conversation_id, retry_checkout, customer=checkout_customer)
+        return GiftAutomationResult(
+            reply=_payment_start_failure_reply(result.payment, is_sw=is_sw),
+            safety_flag="deterministic:hazina_custom_payment_failed",
+        )
+
+    await _clear_checkout(conversation_id, customer=checkout_customer)
 
     from app.services.order_tracking import ensure_order_tracking, tracking_link_line
 
     await ensure_order_tracking(db, order)
     bind_order_log_context(order)
-    summary = order_items_summary(parsed.items) or "your custom box"
-    if result.payment and not result.payment.ok:
-        msg = _safe_payment_start_error(is_sw=is_sw)
-        return GiftAutomationResult(reply=msg, safety_flag="deterministic:hazina_custom_payment_failed")
 
     track = tracking_link_line(order, is_sw=is_sw)
     return _hazina_pending_payment_turn(
@@ -1335,6 +1486,10 @@ async def try_hazina_automation(
     email_match = _EMAIL_RE.search(text or "")
     if email_match:
         payment_email = email_match.group(0)
+    # Checkout answers own the turn. Loading this before generic thanks,
+    # negotiation, and returning-customer routes prevents replies such as
+    # "okay", "sawa", or "confirm" from being diverted out of the flow.
+    checkout = await _get_checkout(conversation_id, customer=customer)
 
     lid = (interactive_id or "").lower()
     if lid == ID_HAZINA_BRIEF:
@@ -1360,40 +1515,41 @@ async def try_hazina_automation(
 
     from app.services.hazina_whatsapp_router import try_hazina_router_extras
 
-    router_extra = await try_hazina_router_extras(
-        db,
-        text=text or "",
-        interactive_id=interactive_id,
-        customer_id=customer.id,
-        business_id=business_id,
-        conversation_id=conversation_id,
-        language=language,
-        business_slug=business_slug,
-    )
-    if router_extra is not None:
-        return router_extra
+    if not checkout:
+        router_extra = await try_hazina_router_extras(
+            db,
+            text=text or "",
+            interactive_id=interactive_id,
+            customer_id=customer.id,
+            business_id=business_id,
+            conversation_id=conversation_id,
+            language=language,
+            business_slug=business_slug,
+        )
+        if router_extra is not None:
+            return router_extra
 
     from app.services.hazina_customer_fallbacks import (
-        looks_like_hazina_price_negotiation,
         try_hazina_price_negotiation_escalation,
     )
 
-    negotiation = await try_hazina_price_negotiation_escalation(
-        db,
-        text=text or "",
-        customer_id=customer.id,
-        business_id=business_id,
-        msisdn=getattr(customer, "phone_number", None),
-        is_sw=is_sw,
-    )
-    if negotiation is not None:
-        return GiftAutomationResult(
-            reply=negotiation.reply,
-            escalated=negotiation.escalated,
-            safety_flag=negotiation.safety_flag,
+    if not checkout:
+        negotiation = await try_hazina_price_negotiation_escalation(
+            db,
+            text=text or "",
+            customer_id=customer.id,
+            business_id=business_id,
+            msisdn=getattr(customer, "phone_number", None),
+            is_sw=is_sw,
         )
+        if negotiation is not None:
+            return GiftAutomationResult(
+                reply=negotiation.reply,
+                escalated=negotiation.escalated,
+                safety_flag=negotiation.safety_flag,
+            )
 
-    if looks_like_hazina_corporate(text):
+    if not checkout and looks_like_hazina_corporate(text):
         from app.services.hazina_escalation import hazina_desk_reply, open_hazina_desk_issue
 
         await open_hazina_desk_issue(
@@ -1414,7 +1570,7 @@ async def try_hazina_automation(
         try_state_aware_greeter,
     )
 
-    greeter = await try_state_aware_greeter(
+    greeter = None if checkout else await try_state_aware_greeter(
         db,
         text=text or "",
         customer_id=customer.id,
@@ -1453,8 +1609,6 @@ async def try_hazina_automation(
             interactive=menu,
         )
 
-    checkout = await _get_checkout(conversation_id)
-
     logistics_kind = looks_like_hazina_logistics_question(text)
     if logistics_kind and not checkout:
         return GiftAutomationResult(
@@ -1462,14 +1616,14 @@ async def try_hazina_automation(
             safety_flag="deterministic:hazina_logistics",
         )
 
-    if looks_like_cafe_menu_question(text):
+    if not checkout and looks_like_cafe_menu_question(text):
         return GiftAutomationResult(
             reply=_cafe_boundary_reply(is_sw=is_sw),
             interactive=product_list_payload(language=language),
             safety_flag="deterministic:hazina_cafe_boundary",
         )
 
-    if looks_like_hazina_track(text):
+    if not checkout and looks_like_hazina_track(text):
         reply = await _track_delivery_reply(
             db,
             customer_id=customer.id,
@@ -1517,7 +1671,7 @@ async def try_hazina_automation(
 
     if looks_like_hazina_catalog_request(text):
         if checkout:
-            await _clear_checkout(conversation_id)
+            await _clear_checkout(conversation_id, customer=customer)
         return GiftAutomationResult(
             reply=_catalog_reply(is_sw=is_sw),
             interactive=product_list_payload(language=language),
@@ -1528,10 +1682,7 @@ async def try_hazina_automation(
         portal_details = parse_checkout_details(text)
         portal_pid = resolve_product_id(text, interactive_id=interactive_id)
         if portal_pid:
-            has_delivery = (
-                portal_details.delivery_location
-                and len(portal_details.delivery_location.strip()) >= 5
-            )
+            has_delivery = _valid_delivery_location(portal_details.delivery_location)
             has_window = (
                 portal_details.delivery_window
                 and len(portal_details.delivery_window.strip()) >= 3
@@ -1540,7 +1691,7 @@ async def try_hazina_automation(
             has_contact = bool(portal_details.contact and len(portal_details.contact.strip()) >= 5)
             if has_delivery and has_window and has_name and has_contact:
                 if checkout:
-                    await _clear_checkout(conversation_id)
+                    await _clear_checkout(conversation_id, customer=customer)
                 return await _finalize_order(
                     db,
                     customer_id=customer.id,
@@ -1556,10 +1707,12 @@ async def try_hazina_automation(
                     is_sw=is_sw,
                     payment_currency=portal_details.payment_currency or detect_payment_currency(text),
                     payment_email=payment_email,
+                    payment_contact=portal_details.contact,
+                    checkout_customer=customer,
                 )
 
     if checkout and looks_like_checkout_cancel(text):
-        await _clear_checkout(conversation_id)
+        await _clear_checkout(conversation_id, customer=customer)
         return GiftAutomationResult(
             reply=(
                 "Sawa, nimefuta checkout hiyo. Unaweza kuchagua collection au kujenga box mpya wakati wowote."
@@ -1571,7 +1724,12 @@ async def try_hazina_automation(
 
     if checkout and should_pause_checkout_for_customer_request(text):
         # Payment/photo interrupt mid-checkout: re-prompt the current step.
-        return await _ask_next_checkout_step(conversation_id, checkout, is_sw=is_sw)
+        return await _ask_next_checkout_step(
+            conversation_id,
+            checkout,
+            is_sw=is_sw,
+            customer=customer,
+        )
 
     if checkout and checkout.get("step") in {
         "name",
@@ -1589,7 +1747,7 @@ async def try_hazina_automation(
         edit_target = _checkout_edit_target(value)
         if edit_target:
             checkout["step"] = edit_target
-            await _set_checkout(conversation_id, checkout)
+            await _set_checkout(conversation_id, checkout, customer=customer)
             return GiftAutomationResult(
                 reply=(
                     "Sawa, turekebishe hiyo. " if is_sw else "Sure — let's fix that. "
@@ -1601,7 +1759,7 @@ async def try_hazina_automation(
         if _CHECKOUT_BACK_RE.match(value):
             prev = _checkout_prev_step(step or "confirm")
             checkout["step"] = prev
-            await _set_checkout(conversation_id, checkout)
+            await _set_checkout(conversation_id, checkout, customer=customer)
             return GiftAutomationResult(
                 reply=(
                     "Sawa, turudi nyuma. " if is_sw else "No problem — going back. "
@@ -1625,7 +1783,7 @@ async def try_hazina_automation(
                 )
             checkout["delivery_type"] = dtype
         elif step == "location":
-            if len(value) < 5:
+            if not _valid_delivery_location(value):
                 return GiftAutomationResult(
                     reply=_checkout_prompt(checkout, is_sw=is_sw),
                     safety_flag="deterministic:hazina_need_location",
@@ -1647,6 +1805,7 @@ async def try_hazina_automation(
                 )
             checkout["payment_currency"] = pay_cur
         elif step == "contact":
+            value = _checkout_contact_value(value, msisdn=customer.phone_number)
             if len(value) < 5:
                 return GiftAutomationResult(
                     reply=_checkout_prompt(checkout, is_sw=is_sw),
@@ -1663,7 +1822,7 @@ async def try_hazina_automation(
         elif step == "confirm":
             if not re.search(r"\b(yes|confirm|go ahead|proceed|create|checkout|sawa|ndio)\b", value, re.I):
                 checkout["step"] = "name"
-                await _set_checkout(conversation_id, checkout)
+                await _set_checkout(conversation_id, checkout, customer=customer)
                 return GiftAutomationResult(
                     reply=(
                         "Sawa, tutapitia maelezo tena. " + _checkout_prompt(checkout, is_sw=is_sw)
@@ -1685,7 +1844,7 @@ async def try_hazina_automation(
             if checkout.get("order_type") == "custom_box":
                 parsed_data = checkout.get("custom_box") or {}
                 if not isinstance(parsed_data, dict):
-                    await _clear_checkout(conversation_id)
+                    await _clear_checkout(conversation_id, customer=customer)
                     return GiftAutomationResult(
                         reply=_checkout_restart_reply(is_sw=is_sw),
                         interactive=product_list_payload(language=language),
@@ -1693,7 +1852,7 @@ async def try_hazina_automation(
                     )
                 parsed = _parsed_custom_box_from_checkout_data(parsed_data)
                 if len(parsed.items) < MIN_CUSTOM_ITEMS:
-                    await _clear_checkout(conversation_id)
+                    await _clear_checkout(conversation_id, customer=customer)
                     return GiftAutomationResult(
                         reply=_checkout_restart_reply(is_sw=is_sw),
                         interactive=product_list_payload(language=language),
@@ -1713,11 +1872,13 @@ async def try_hazina_automation(
                     is_sw=is_sw,
                     payment_currency=payment_currency,
                     payment_email=payment_email,
+                    payment_contact=contact,
+                    checkout_customer=customer,
                 )
 
             product_id = str(checkout.get("product_id") or "")
             if product_id not in HAZINA_PRODUCTS:
-                await _clear_checkout(conversation_id)
+                await _clear_checkout(conversation_id, customer=customer)
                 return GiftAutomationResult(
                     reply=_checkout_restart_reply(is_sw=is_sw),
                     interactive=product_list_payload(language=language),
@@ -1738,12 +1899,14 @@ async def try_hazina_automation(
                 is_sw=is_sw,
                 payment_currency=payment_currency,
                 payment_email=payment_email,
+                payment_contact=contact,
+                checkout_customer=customer,
             )
 
         next_step = _checkout_next_step(checkout)
         if next_step is None:
             checkout["step"] = "confirm"
-            await _set_checkout(conversation_id, checkout)
+            await _set_checkout(conversation_id, checkout, customer=customer)
             summary = (
                 f"Thibitisha: {checkout.get('customer_name')} - {checkout.get('delivery_type')} - "
                 f"{checkout.get('delivery_location')} - {checkout.get('delivery_window')} - "
@@ -1757,7 +1920,7 @@ async def try_hazina_automation(
             )
             return GiftAutomationResult(reply=summary, safety_flag="deterministic:hazina_checkout_confirm")
         checkout["step"] = next_step
-        await _set_checkout(conversation_id, checkout)
+        await _set_checkout(conversation_id, checkout, customer=customer)
         return GiftAutomationResult(
             reply=_checkout_prompt(checkout, is_sw=is_sw),
             safety_flag=f"deterministic:hazina_need_{next_step}",
@@ -1767,7 +1930,7 @@ async def try_hazina_automation(
         if checkout.get("order_type") == "custom_box":
             location = (text or "").strip()
             if checkout.get("step") == "custom_delivery":
-                if len(location) < 6:
+                if not _valid_delivery_location(location):
                     return GiftAutomationResult(
                         reply=(
                             "Tafadhali niambie handoff channel, eneo kamili, na muda."
@@ -1780,7 +1943,7 @@ async def try_hazina_automation(
                 if _JKIA_RE.search(location) and not departure:
                     checkout["delivery_location"] = location
                     checkout["step"] = "departure"
-                    await _set_checkout(conversation_id, checkout)
+                    await _set_checkout(conversation_id, checkout, customer=customer)
                     return GiftAutomationResult(
                         reply=(
                             "Asante. Niambie muda wa ndege yako inayotarajiwa kuondoka."
@@ -1794,7 +1957,7 @@ async def try_hazina_automation(
                     location = str(checkout.get("delivery_location") or location)
                 parsed_data = checkout.get("custom_box") or {}
                 if not isinstance(parsed_data, dict):
-                    await _clear_checkout(conversation_id)
+                    await _clear_checkout(conversation_id, customer=customer)
                     return GiftAutomationResult(
                         reply=_checkout_restart_reply(is_sw=is_sw),
                         interactive=product_list_payload(language=language),
@@ -1802,7 +1965,7 @@ async def try_hazina_automation(
                     )
                 parsed = _parsed_custom_box_from_checkout_data(parsed_data)
                 if len(parsed.items) < MIN_CUSTOM_ITEMS:
-                    await _clear_checkout(conversation_id)
+                    await _clear_checkout(conversation_id, customer=customer)
                     return GiftAutomationResult(
                         reply=_checkout_restart_reply(is_sw=is_sw),
                         interactive=product_list_payload(language=language),
@@ -1823,18 +1986,20 @@ async def try_hazina_automation(
                     is_sw=is_sw,
                     payment_currency=pay_cur,
                     payment_email=payment_email,
+                    payment_contact=str(checkout.get("contact") or ""),
+                    checkout_customer=customer,
                 )
 
         product_id = str(checkout.get("product_id") or "")
         if product_id not in HAZINA_PRODUCTS:
-            await _clear_checkout(conversation_id)
+            await _clear_checkout(conversation_id, customer=customer)
             return GiftAutomationResult(
                 reply=_checkout_restart_reply(is_sw=is_sw),
                 interactive=product_list_payload(language=language),
                 safety_flag="deterministic:hazina_checkout_restart",
             )
         location = (text or "").strip()
-        if len(location) < 6:
+        if not _valid_delivery_location(location):
             return GiftAutomationResult(
                 reply=(
                     "Tafadhali niambie handoff channel, eneo kamili, na muda."
@@ -1847,7 +2012,7 @@ async def try_hazina_automation(
         if _JKIA_RE.search(location) and not departure:
             checkout["delivery_location"] = location
             checkout["step"] = "departure"
-            await _set_checkout(conversation_id, checkout)
+            await _set_checkout(conversation_id, checkout, customer=customer)
             return GiftAutomationResult(
                 reply=(
                     "Asante. Sasa niambie muda wa ndege yako inayotarajiwa kuondoka (mf. 'depart 18:30')."
@@ -1876,15 +2041,14 @@ async def try_hazina_automation(
             is_sw=is_sw,
             payment_currency=pay_cur,
             payment_email=payment_email,
+            payment_contact=str(checkout.get("contact") or ""),
+            checkout_customer=customer,
         )
 
     parsed_box = parse_custom_box_handoff(text)
     if parsed_box:
         checkout_details = parse_checkout_details(text)
-        has_delivery = (
-            checkout_details.delivery_location
-            and len(checkout_details.delivery_location.strip()) >= 6
-        )
+        has_delivery = _valid_delivery_location(checkout_details.delivery_location)
         has_window = (
             checkout_details.delivery_window
             and len(checkout_details.delivery_window.strip()) >= 3
@@ -1906,6 +2070,8 @@ async def try_hazina_automation(
                 is_sw=is_sw,
                 payment_currency=checkout_details.payment_currency or detect_payment_currency(text),
                 payment_email=payment_email,
+                payment_contact=checkout_details.contact,
+                checkout_customer=customer,
             )
         draft_checkout = {
             "order_type": "custom_box",
@@ -1932,7 +2098,7 @@ async def try_hazina_automation(
         )
         next_step = _checkout_next_step(draft_checkout)
         draft_checkout["step"] = next_step or "confirm"
-        await _set_checkout(conversation_id, draft_checkout)
+        await _set_checkout(conversation_id, draft_checkout, customer=customer)
         prompt = _checkout_prompt(draft_checkout, is_sw=is_sw)
         return GiftAutomationResult(
             reply=prompt if next_step != "name" else intro,
@@ -1998,12 +2164,9 @@ async def try_hazina_automation(
                 interactive=product_list_payload(language=language),
                 safety_flag="deterministic:hazina_order_no_product",
             )
-        await clear_hazina_checkout_state(conversation_id)
+        await clear_hazina_checkout_state(conversation_id, customer=customer)
         checkout_details = parse_checkout_details(text)
-        has_delivery = (
-            checkout_details.delivery_location
-            and len(checkout_details.delivery_location.strip()) >= 6
-        )
+        has_delivery = _valid_delivery_location(checkout_details.delivery_location)
         has_window = (
             checkout_details.delivery_window
             and len(checkout_details.delivery_window.strip()) >= 3
@@ -2026,6 +2189,8 @@ async def try_hazina_automation(
                 is_sw=is_sw,
                 payment_currency=checkout_details.payment_currency or detect_payment_currency(text),
                 payment_email=payment_email,
+                payment_contact=checkout_details.contact,
+                checkout_customer=customer,
             )
         draft_checkout = {
             "product_id": pid,
@@ -2038,7 +2203,7 @@ async def try_hazina_automation(
             "payment_currency": _explicit_payment_currency(text),
         }
         draft_checkout["step"] = _checkout_next_step(draft_checkout) or "confirm"
-        await _set_checkout(conversation_id, draft_checkout)
+        await _set_checkout(conversation_id, draft_checkout, customer=customer)
         return GiftAutomationResult(
             reply=(
                 _ask_delivery_reply(pid, is_sw=is_sw)
@@ -2119,7 +2284,12 @@ async def try_hazina_automation(
     # Re-prompt the active checkout step when one is in-progress, otherwise
     # surface the main menu so the customer always gets a useful response.
     if checkout:
-        return await _ask_next_checkout_step(conversation_id, checkout, is_sw=is_sw)
+        return await _ask_next_checkout_step(
+            conversation_id,
+            checkout,
+            is_sw=is_sw,
+            customer=customer,
+        )
 
     catch_all_reply = (
         "Niko hapa kukusaidia. Chagua chaguo hapa chini au niambie:\n"

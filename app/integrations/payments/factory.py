@@ -25,7 +25,9 @@ def _intasend_configured(settings) -> bool:
 
 
 def _intasend_checkout_configured(settings) -> bool:
-    return _intasend_configured(settings)
+    key = getattr(settings, "intasend_publishable_key", None)
+    value = key.get_secret_value() if hasattr(key, "get_secret_value") else str(key or "")
+    return _intasend_configured(settings) and bool(value.strip())
 
 
 def resolve_payment_service(
@@ -61,8 +63,8 @@ def resolve_payment_service(
 
             return PaystackAdapter()
         raise UpstreamError(
-            "Card checkout requires Paystack keys or IntaSend API credentials "
-            "(PAYSTACK_SECRET_KEY or INTASEND_API_TOKEN)."
+            "Card checkout requires PAYSTACK_SECRET_KEY or both "
+            "INTASEND_API_TOKEN and INTASEND_PUBLISHABLE_KEY."
         )
 
     if _intasend_configured(settings):

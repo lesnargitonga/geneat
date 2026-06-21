@@ -1786,7 +1786,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
                 ) if is_hazina_slug(_biz_slug) else None,
             )
         if interactive_command == CMD_HAZINA_COLLECTIONS and is_hazina_slug(_biz_slug):
-            await clear_hazina_checkout_state(conv.id)
+            await clear_hazina_checkout_state(conv.id, customer=customer)
             is_sw = _customer_prefers_swahili(effective_lang)
             control_reply = (
                 "Hizi ndizo signature collections zetu — chagua moja:"
@@ -1832,7 +1832,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         if interactive_command == CMD_HAZINA_LOGISTICS and is_hazina_slug(_biz_slug):
             from app.services.whatsapp_menus import hazina_logistics_list_payload
 
-            await clear_hazina_checkout_state(conv.id)
+            await clear_hazina_checkout_state(conv.id, customer=customer)
             is_sw = _customer_prefers_swahili(effective_lang)
             control_reply = (
                 "Chagua aina ya uwasilishaji:"
@@ -1882,7 +1882,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         if interactive_command == CMD_HAZINA_BRIEF and is_hazina_slug(_biz_slug):
             from app.core.config import get_settings
 
-            await clear_hazina_checkout_state(conv.id)
+            await clear_hazina_checkout_state(conv.id, customer=customer)
             is_sw = _customer_prefers_swahili(effective_lang)
             control_reply = hazina_brief_portal_reply(
                 language=effective_lang,
@@ -1915,7 +1915,7 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
             return TurnResult(reply=control_reply, conversation_id=conv.id, escalated=False)
         if interactive_command == CMD_HOME:
             if is_hazina_slug(_biz_slug):
-                await clear_hazina_checkout_state(conv.id)
+                await clear_hazina_checkout_state(conv.id, customer=customer)
                 control_reply = hazina_welcome_body(language=effective_lang)
             else:
                 control_reply = _greeting_reply(business_name=_biz_name, language=effective_lang)

@@ -24,7 +24,9 @@ export async function POST(req: NextRequest) {
       method: "POST",
       headers,
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(50_000),
+      // Fail here before the browser's 35s guard so the client receives a
+      // structured 502 and can preserve the checkout for a safe retry.
+      signal: AbortSignal.timeout(32_000),
     });
     const body = await r.text();
     return new NextResponse(body, {

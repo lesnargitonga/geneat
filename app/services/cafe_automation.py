@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import asyncio
 import re
-import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -22,6 +21,8 @@ from app.core.exceptions import RateLimited, UpstreamError
 from app.db.models import Conversation, Order, PaymentStatus
 from app.integrations.payments import get_payment_service, resolve_payment_service
 from app.services.fulfillment_status import PENDING_PAYMENT
+
+PAYMENT_PROVIDER_ATTEMPT_TIMEOUT_SECONDS = 8.0
 
 
 @dataclass(frozen=True)
@@ -322,10 +323,9 @@ async def request_order_payment(
     # (network/upstream hiccups) so a clear order intent still gets its STK
     # instead of an awkward "could not start payment" on the first attempt.
     result = None
-    # Use a time-bucketed suffix so rapid resends don't collide on the same
-    # api_ref at the provider (IntaSend rejects duplicate api_ref within a window).
-    ref_suffix = str(int(time.time()) // 60)[-4:]  # changes every minute
-    api_ref = f"{str(order.id)[:6]}{ref_suffix}"[:32]
+    # Every explicit payment start gets its own provider reference. The old
+    # minute bucket made two legitimate retries within the same minute collide.
+    api_ref = f"{str(order.id).replace('-', '')[:12]}-{uuid.uuid4().hex[:12]}"[:32]
     for attempt in range(2):
         try:
             kwargs: dict[str, object] = {
@@ -342,15 +342,32 @@ async def request_order_payment(
                 kwargs["currency"] = "USD"
                 if payment_email:
                     kwargs["email"] = payment_email
-            result = await svc.request_payment(**kwargs)
+            async with asyncio.timeout(PAYMENT_PROVIDER_ATTEMPT_TIMEOUT_SECONDS):
+                result = await svc.request_payment(**kwargs)
             break
+        except TimeoutError:
+            # A timed-out write has an unknown outcome. Do not automatically
+            # issue a second charge/STK; let the customer explicitly retry.
+            return PaymentAttempt(
+                ok=False,
+                message="payment provider timed out; the order is saved",
+                error="timeout",
+                currency=pay_currency,
+            )
         except RateLimited as exc:
             return PaymentAttempt(ok=False, message=exc.message, error="rate_limited")
         except UpstreamError as exc:
+            if re.search(r"\bmissing\b|\b(?:400|401|403|404|422)\b", exc.message, re.IGNORECASE):
+                return PaymentAttempt(
+                    ok=False,
+                    message=exc.message,
+                    error="configuration",
+                    currency=pay_currency,
+                )
             if attempt == 0:
                 await asyncio.sleep(0.6)
                 continue
-            return PaymentAttempt(ok=False, message=exc.message, error="upstream")
+            return PaymentAttempt(ok=False, message=exc.message, error="upstream", currency=pay_currency)
         except Exception as exc:  # noqa: BLE001
             # Unwrap tenacity RetryError to surface the real provider message.
             cause = getattr(exc, "last_attempt", None)
@@ -359,28 +376,40 @@ async def request_order_payment(
             if attempt == 0:
                 await asyncio.sleep(0.6)
                 continue
-            return PaymentAttempt(ok=False, message=real_msg, error="unexpected")
+            return PaymentAttempt(ok=False, message=real_msg, error="unexpected", currency=pay_currency)
 
     try:
         order.mpesa_checkout_id = result.reference
         details = dict(order.details or {})
         details["fulfillment_status"] = PENDING_PAYMENT
+        details["payment_provider"] = svc.name
+        details["payment_reference"] = result.reference
+        details["payment_started_at"] = datetime.now(timezone.utc).isoformat()
+        if result.redirect_url:
+            details["payment_redirect_url"] = result.redirect_url
         order.details = details
         await db.flush()
         if svc.name == "intasend":
-            await enqueue_job(
-                db,
-                kind="payment.intasend_poll",
-                business_id=business_id,
-                run_at=datetime.now(timezone.utc) + timedelta(seconds=20),
-                max_attempts=1,
-                ttl_seconds=10 * 60,
-                payload={
-                    "order_id": str(order.id),
-                    "checkout_id": result.reference,
-                    "poll_count": 1,
-                },
-            )
+            # Polling is auxiliary. Keep it in a savepoint so a jobs-table or
+            # queue failure cannot turn a successful checkout into a customer-
+            # visible payment failure or poison the order transaction.
+            try:
+                async with db.begin_nested():
+                    await enqueue_job(
+                        db,
+                        kind="payment.intasend_poll",
+                        business_id=business_id,
+                        run_at=datetime.now(timezone.utc) + timedelta(seconds=20),
+                        max_attempts=1,
+                        ttl_seconds=10 * 60,
+                        payload={
+                            "order_id": str(order.id),
+                            "checkout_id": result.reference,
+                            "poll_count": 1,
+                        },
+                    )
+            except Exception:  # noqa: BLE001
+                pass
         if pay_currency == "USD" and result.redirect_url:
             message = f"Secure card checkout link ready for USD {pay_amount:.2f}."
         else:
@@ -396,7 +425,7 @@ async def request_order_payment(
             currency=pay_currency,
         )
     except Exception as exc:  # noqa: BLE001
-        return PaymentAttempt(ok=False, message=str(exc), error="unexpected")
+        return PaymentAttempt(ok=False, message=str(exc), error="unexpected", currency=pay_cur)
 
 
 async def create_order_and_request_payment(
@@ -431,7 +460,20 @@ async def create_order_and_request_payment(
         await db.flush()
 
     if order.mpesa_checkout_id and not created:
-        return CafeOrderAutomationResult(order=order, created=False, payment=None)
+        details = order.details if isinstance(order.details, dict) else {}
+        pay_cur = str(details.get("payment_currency") or payment_currency or "KES").upper()
+        return CafeOrderAutomationResult(
+            order=order,
+            created=False,
+            payment=PaymentAttempt(
+                ok=True,
+                message="Existing payment session recovered.",
+                checkout_id=order.mpesa_checkout_id,
+                provider=str(details.get("payment_provider") or "") or None,
+                redirect_url=str(details.get("payment_redirect_url") or "") or None,
+                currency=pay_cur,
+            ),
+        )
     payment = await request_order_payment(
         db,
         order=order,

@@ -231,6 +231,233 @@ def test_hazina_checkout_step_sequence_collects_details_one_at_a_time() -> None:
     assert ga._checkout_next_step(checkout) is None
 
 
+def test_short_real_delivery_locations_are_valid() -> None:
+    assert ga._valid_delivery_location("Yala")
+    assert ga._valid_delivery_location("JKIA")
+    assert not ga._valid_delivery_location("?")
+    assert not ga._valid_delivery_location("x")
+
+
+def test_payment_phone_uses_collected_contact_not_portal_session_number() -> None:
+    assert ga._payment_phone("0715 540 653", fallback="+254700123456") == "+254715540653"
+    assert ga._payment_phone("guest@example.com", fallback="+254700123456") == "+254700123456"
+
+
+@pytest.mark.asyncio
+async def test_checkout_state_falls_back_to_customer_meta_when_redis_is_unavailable(monkeypatch) -> None:
+    async def unavailable():
+        raise ConnectionError("redis unavailable")
+
+    monkeypatch.setattr("app.core.redis_client.get_redis", unavailable)
+    conversation_id = uuid.uuid4()
+    customer = SimpleNamespace(meta={})
+    checkout = {"product_id": "kenya-edit", "step": "name"}
+
+    await ga._set_checkout(conversation_id, checkout, customer=customer)
+    assert await ga._get_checkout(conversation_id, customer=customer) == checkout
+
+    await ga._clear_checkout(conversation_id, customer=customer)
+    assert await ga._get_checkout(conversation_id, customer=customer) is None
+
+
+async def _disable_hazina_pre_checkout_routes(monkeypatch) -> None:
+    async def none_result(*args, **kwargs):
+        return None
+
+    monkeypatch.setattr(
+        "app.services.hazina_deterministic_gate.try_hazina_deterministic_gate",
+        none_result,
+    )
+    monkeypatch.setattr(
+        "app.services.hazina_whatsapp_router.try_hazina_router_extras",
+        none_result,
+    )
+    monkeypatch.setattr(
+        "app.services.hazina_customer_fallbacks.try_hazina_price_negotiation_escalation",
+        none_result,
+    )
+    monkeypatch.setattr(
+        "app.services.state_aware_greeter.try_state_aware_greeter",
+        none_result,
+    )
+
+
+@pytest.mark.asyncio
+async def test_checkout_accepts_yala_once_and_advances_to_window(db, fake_redis, monkeypatch) -> None:
+    await _disable_hazina_pre_checkout_routes(monkeypatch)
+    customer = SimpleNamespace(
+        id=uuid.uuid4(),
+        phone_number="+254700000000",
+        preferred_language="en",
+        meta={},
+    )
+    conversation_id = uuid.uuid4()
+    await ga._set_checkout(
+        conversation_id,
+        {
+            "product_id": "kenya-edit",
+            "customer_name": "Lesnar",
+            "delivery_type": "Seamless Logistics - local handoff",
+            "step": "location",
+        },
+        customer=customer,
+    )
+
+    result = await ga.try_hazina_automation(
+        db,
+        text="Yala",
+        interactive_id=None,
+        business_slug="hazina-nomads",
+        customer=customer,
+        conversation_id=conversation_id,
+        business_id=None,
+        language="en",
+    )
+
+    assert result is not None
+    assert result.safety_flag == "deterministic:hazina_need_window"
+    assert "delivery window" in result.reply.lower()
+    saved = await ga._get_checkout(conversation_id, customer=customer)
+    assert saved["delivery_location"] == "Yala"
+    assert saved["step"] == "window"
+
+
+@pytest.mark.asyncio
+async def test_checkout_resolves_this_whatsapp_number_to_msisdn(db, fake_redis, monkeypatch) -> None:
+    await _disable_hazina_pre_checkout_routes(monkeypatch)
+    customer = SimpleNamespace(
+        id=uuid.uuid4(),
+        phone_number="+254715540653",
+        preferred_language="en",
+        meta={},
+    )
+    conversation_id = uuid.uuid4()
+    await ga._set_checkout(
+        conversation_id,
+        {
+            "product_id": "kenya-edit",
+            "customer_name": "Lesnar",
+            "delivery_type": "Seamless Logistics - local handoff",
+            "delivery_location": "JKIA",
+            "delivery_window": "11pm",
+            "payment_currency": "USD",
+            "step": "contact",
+        },
+        customer=customer,
+    )
+
+    result = await ga.try_hazina_automation(
+        db,
+        text="this WhatsApp number",
+        interactive_id=None,
+        business_slug="hazina-nomads",
+        customer=customer,
+        conversation_id=conversation_id,
+        business_id=None,
+        language="en",
+    )
+
+    assert result is not None
+    assert result.safety_flag == "deterministic:hazina_checkout_confirm"
+    saved = await ga._get_checkout(conversation_id, customer=customer)
+    assert saved["contact"] == "+254715540653"
+    assert saved["step"] == "confirm"
+
+
+@pytest.mark.asyncio
+async def test_active_checkout_sawa_reaches_confirmation_not_thanks_route(db, fake_redis, monkeypatch) -> None:
+    await _disable_hazina_pre_checkout_routes(monkeypatch)
+    customer = SimpleNamespace(
+        id=uuid.uuid4(),
+        phone_number="+254715540653",
+        preferred_language="en",
+        meta={},
+    )
+    conversation_id = uuid.uuid4()
+    await ga._set_checkout(
+        conversation_id,
+        {
+            "product_id": "kenya-edit",
+            "customer_name": "Lesnar",
+            "delivery_type": "Seamless Logistics - local handoff",
+            "delivery_location": "JKIA",
+            "delivery_window": "11pm",
+            "payment_currency": "USD",
+            "contact": "+254715540653",
+            "step": "confirm",
+        },
+        customer=customer,
+    )
+
+    async def finalized(*args, **kwargs):
+        assert kwargs["payment_contact"] == "+254715540653"
+        return ga.GiftAutomationResult(
+            reply="Secure checkout ready",
+            safety_flag="deterministic:hazina_checkout",
+        )
+
+    monkeypatch.setattr(ga, "_finalize_order", finalized)
+    result = await ga.try_hazina_automation(
+        db,
+        text="sawa",
+        interactive_id=None,
+        business_slug="hazina-nomads",
+        customer=customer,
+        conversation_id=conversation_id,
+        business_id=None,
+        language="en",
+    )
+
+    assert result is not None
+    assert result.reply == "Secure checkout ready"
+    assert result.safety_flag == "deterministic:hazina_checkout"
+
+
+@pytest.mark.asyncio
+async def test_payment_failure_keeps_checkout_retryable(db, fake_redis, monkeypatch) -> None:
+    from app.services.cafe_automation import PaymentAttempt
+
+    customer = SimpleNamespace(meta={})
+    conversation_id = uuid.uuid4()
+    order = SimpleNamespace(id=uuid.uuid4(), details={}, amount=32400)
+
+    async def failed_payment(*args, **kwargs):
+        assert kwargs["msisdn"] == "+254715540653"
+        return SimpleNamespace(
+            order=order,
+            payment=PaymentAttempt(
+                ok=False,
+                message="intasend publishable key missing for card checkout",
+                error="configuration",
+                currency="USD",
+            ),
+        )
+
+    monkeypatch.setattr(ga, "create_order_and_request_payment", failed_payment)
+    result = await ga._finalize_order(
+        db,
+        customer_id=uuid.uuid4(),
+        conversation_id=conversation_id,
+        business_id=None,
+        msisdn="+254700123456",
+        product_id="kenya-edit",
+        delivery_location="Yala",
+        departure_note="11pm",
+        delivery_type="Seamless Logistics - local handoff",
+        customer_name="Lesnar",
+        is_sw=False,
+        payment_currency="USD",
+        payment_contact="+254715540653",
+        checkout_customer=customer,
+    )
+
+    assert "order is saved" in result.reply.lower()
+    assert "KES M-Pesa" in result.reply
+    saved = await ga._get_checkout(conversation_id, customer=customer)
+    assert saved["step"] == "payment"
+    assert saved["delivery_location"] == "Yala"
+
+
 @pytest.mark.asyncio
 async def test_active_checkout_treats_hotel_delivery_as_delivery_type(db, fake_redis, monkeypatch) -> None:
     async def none_result(*args, **kwargs):

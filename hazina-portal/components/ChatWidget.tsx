@@ -123,7 +123,9 @@ const MAIN_MENU_ACTIONS: ChatAction[] = [
 
 const BUSINESS_SLUG = "hazina-nomads";
 const PHONE_KEY = "hazina.phone";
-const CHAT_TIMEOUT_MS = 30_000;
+// Keep this slightly longer than the server proxy timeout so a failed backend
+// request returns a structured error instead of becoming an orphaned checkout.
+const CHAT_TIMEOUT_MS = 35_000;
 const CHAT_OPEN_EVENT = "hazina:chat-open";
 const CHAT_CLOSE_EVENT = "hazina:chat-close";
 
@@ -246,6 +248,11 @@ function contactLooksOk(text: string, paymentCurrency?: PaymentCurrency) {
   return digits.length >= 7 || clean.includes("@");
 }
 
+function locationLooksOk(text: string) {
+  const clean = text.trim().replace(/\s+/g, " ");
+  return clean.length >= 3 && (clean.match(/[A-Za-z0-9]/g) || []).length >= 3;
+}
+
 function resolveBoxFromText(text: string, boxes: GiftBox[] = GIFT_BOXES): GiftBox | undefined {
   const lower = text.toLowerCase();
   return boxes.find((box) => {
@@ -318,7 +325,7 @@ function formatCheckoutItemLine(item: CheckoutItem): string {
 function nextStep(flow: CheckoutFlow): CheckoutStep {
   if (!flow.customerName || flow.customerName.trim().length < 2) return "name";
   if (!flow.deliveryMode) return "delivery_mode";
-  if (!flow.deliveryLocation || flow.deliveryLocation.trim().length < 5) return "location";
+  if (!flow.deliveryLocation || !locationLooksOk(flow.deliveryLocation)) return "location";
   if (!flow.deliveryWindow || flow.deliveryWindow.trim().length < 3) return "window";
   if (!flow.paymentCurrency) return "payment";
   if (!flow.contact || !contactLooksOk(flow.contact, flow.paymentCurrency)) return "contact";
@@ -854,8 +861,16 @@ export function ChatWidget() {
       setBusy(true);
       setActions([]);
       append("ai", "Perfect. I am creating the order now and will return the payment step here.");
-      await postBackend(buildBackendCheckoutMessage(ready));
-      setFlow(null);
+      const result = await postBackend(buildBackendCheckoutMessage(ready));
+      if (result) {
+        setFlow(null);
+      } else {
+        const retryable = { ...ready, step: "confirm" as CheckoutStep };
+        const question = questionForStep(retryable);
+        setFlow(retryable);
+        setActions(question.actions || []);
+        append("ai", "I kept your checkout details. You can retry without entering them again.");
+      }
       setBusy(false);
     },
     [append, postBackend],
@@ -961,7 +976,7 @@ export function ChatWidget() {
         }
         updated.deliveryMode = mode;
       } else if (current.step === "location") {
-        if (text.length < 5) {
+        if (!locationLooksOk(text)) {
           append("ai", questionForStep(current).text);
           return;
         }
