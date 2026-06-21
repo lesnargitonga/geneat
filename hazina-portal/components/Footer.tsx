@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MotionSafe } from "@/components/three-d/MotionSafe";
 import { SpatialSection } from "@/components/three-d/SpatialSection";
 import { BRAND } from "@/lib/products";
+import { whatsappLink } from "@/lib/format";
 
 export function Footer() {
   return (
@@ -86,7 +87,17 @@ export function Footer() {
                 {BRAND.email}
               </a>
             </li>
-            {BRAND.phone && <li>{BRAND.phone}</li>}
+            {/* Number intentionally not displayed — reach us via the WhatsApp CTA. */}
+            <li>
+              <a
+                className="hover:text-sand transition-colors"
+                href={whatsappLink(BRAND.whatsapp, "Hello Hazina Nomads — I'd like to talk to the concierge.")}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Message the concierge on WhatsApp
+              </a>
+            </li>
             <li className="label-mono text-sand/40 pt-1">Concierge desk 08:00–20:00 EAT · Export by quote</li>
           </ul>
         </MotionSafe>
