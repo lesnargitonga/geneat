@@ -35,8 +35,11 @@ export const BRAND = {
   triad: "Bespoke Curation · Seamless Logistics · Global Export",
   pillars: ["Bespoke Curation", "Seamless Logistics", "Global Export"],
   meaning: "Hazina = treasure (Swahili)",
-  whatsapp: process.env.NEXT_PUBLIC_HAZINA_WHATSAPP || "254715540653",
-  phone: process.env.NEXT_PUBLIC_HAZINA_PHONE || "+254715540653",
+  // Set NEXT_PUBLIC_HAZINA_WHATSAPP / NEXT_PUBLIC_HAZINA_PHONE in Vercel to your
+  // verified business line. The placeholder default keeps any personal number
+  // out of the public build.
+  whatsapp: process.env.NEXT_PUBLIC_HAZINA_WHATSAPP || "254700000000",
+  phone: process.env.NEXT_PUBLIC_HAZINA_PHONE || "+254700000000",
   email: "concierge@hazina-nomads.com",
 };
 

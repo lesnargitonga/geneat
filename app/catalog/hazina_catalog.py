@@ -4,7 +4,15 @@ Mirrors hazina-portal/lib/treasures.ts and lib/products.ts. Update both when pri
 """
 from __future__ import annotations
 
+import os
 from typing import Any
+
+# Single source of truth for the public WhatsApp/contact number. Set
+# HAZINA_WHATSAPP_NUMBER (and HAZINA_CONTACT_EMAIL) in the backend env to your
+# verified business line so a personal number never appears on the site or in
+# the AI's answers.
+HAZINA_CONTACT_WHATSAPP = os.getenv("HAZINA_WHATSAPP_NUMBER", "+254700000000").strip()
+HAZINA_CONTACT_EMAIL = os.getenv("HAZINA_CONTACT_EMAIL", "concierge@hazina-nomads.com").strip()
 
 PACKAGING_FEE_USD = 45
 PACKAGING_FEE_KES = 5800
@@ -298,7 +306,7 @@ HAZINA_KB_POLICIES: list[str] = [
         "souvenir shop. Emphasise curation, packaging quality, and reliable last-mile delivery."
     ),
     (
-        "CONTACT — WhatsApp concierge: +254715540653. Email: concierge@hazina-nomads.com. "
+        f"CONTACT — WhatsApp concierge: {HAZINA_CONTACT_WHATSAPP}. Email: {HAZINA_CONTACT_EMAIL}. "
         "Operating hours for dispatch coordination: 08:00–20:00 EAT daily."
     ),
 ]

@@ -207,11 +207,13 @@ async def ensure_hazina_business(
         biz = Business(slug=HAZINA_NOMADS_SLUG)
         db.add(biz)
 
+    from app.catalog.hazina_catalog import HAZINA_CONTACT_EMAIL, HAZINA_CONTACT_WHATSAPP
+
     biz.name = "Hazina Nomads"
     biz.industry = "gift-concierge"
     biz.location = "Kenya - bespoke curation, seamless logistics, and global export"
-    biz.contact_phone = "+254715540653"
-    biz.contact_email = "concierge@hazina-nomads.com"
+    biz.contact_phone = HAZINA_CONTACT_WHATSAPP
+    biz.contact_email = HAZINA_CONTACT_EMAIL
     biz.brand_voice = (
         "Professional, calm, high-end hotel concierge. The Hazina Triad is "
         "Bespoke Curation, Seamless Logistics, and Global Export. Curate "
