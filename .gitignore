@@ -48,6 +48,9 @@ gen-eat-portal/tsconfig.tsbuildinfo
 
 # Local scratch utilities
 drop_table.py
+
+# Render env bundle — contains live secrets, never commit
+deploy/render/render.local.env
 test_keys.py
 
 # Render local export bundles

@@ -1424,11 +1424,11 @@ async def try_hazina_automation(
     )
     if greeter is not None:
         if greeter.handle_resend_payment:
-            if looks_like_greeter_payment_followup(text or ""):
-                return None
-            # Pending payment + greeting: gate already serves cart buttons.
-            return None
-        if greeter.handle_eta:
+            # Pending payment: gate already served cart buttons for this turn.
+            # Fall through to the deterministic catch-all (main menu) rather
+            # than sending the customer to the LLM.
+            pass
+        elif greeter.handle_eta:
             track = await _track_delivery_reply(
                 db,
                 customer_id=customer.id,
@@ -1570,7 +1570,8 @@ async def try_hazina_automation(
         )
 
     if checkout and should_pause_checkout_for_customer_request(text):
-        return None
+        # Payment/photo interrupt mid-checkout: re-prompt the current step.
+        return await _ask_next_checkout_step(conversation_id, checkout, is_sw=is_sw)
 
     if checkout and checkout.get("step") in {
         "name",
@@ -1685,11 +1686,19 @@ async def try_hazina_automation(
                 parsed_data = checkout.get("custom_box") or {}
                 if not isinstance(parsed_data, dict):
                     await _clear_checkout(conversation_id)
-                    return None
+                    return GiftAutomationResult(
+                        reply=_checkout_restart_reply(is_sw=is_sw),
+                        interactive=product_list_payload(language=language),
+                        safety_flag="deterministic:hazina_custom_box_corrupt",
+                    )
                 parsed = _parsed_custom_box_from_checkout_data(parsed_data)
                 if len(parsed.items) < MIN_CUSTOM_ITEMS:
                     await _clear_checkout(conversation_id)
-                    return None
+                    return GiftAutomationResult(
+                        reply=_checkout_restart_reply(is_sw=is_sw),
+                        interactive=product_list_payload(language=language),
+                        safety_flag="deterministic:hazina_custom_box_incomplete",
+                    )
                 return await _finalize_custom_order(
                     db,
                     customer_id=customer.id,
@@ -1786,11 +1795,19 @@ async def try_hazina_automation(
                 parsed_data = checkout.get("custom_box") or {}
                 if not isinstance(parsed_data, dict):
                     await _clear_checkout(conversation_id)
-                    return None
+                    return GiftAutomationResult(
+                        reply=_checkout_restart_reply(is_sw=is_sw),
+                        interactive=product_list_payload(language=language),
+                        safety_flag="deterministic:hazina_legacy_custom_corrupt",
+                    )
                 parsed = _parsed_custom_box_from_checkout_data(parsed_data)
                 if len(parsed.items) < MIN_CUSTOM_ITEMS:
                     await _clear_checkout(conversation_id)
-                    return None
+                    return GiftAutomationResult(
+                        reply=_checkout_restart_reply(is_sw=is_sw),
+                        interactive=product_list_payload(language=language),
+                        safety_flag="deterministic:hazina_legacy_custom_incomplete",
+                    )
                 pay_cur = detect_payment_currency(text, checkout=checkout)
                 return await _finalize_custom_order(
                     db,
@@ -1951,9 +1968,18 @@ async def try_hazina_automation(
         )
 
     if tapped_list:
-        return None
+        # Product list tap that didn't resolve to a known product — show full collections.
+        return GiftAutomationResult(
+            reply=(
+                "Hizi ndizo signature collections zetu — chagua moja kuona maelezo zaidi:"
+                if is_sw else
+                "Here are our signature collections — pick one to see full details:"
+            ),
+            interactive=product_list_payload(language=language),
+            safety_flag="deterministic:hazina_tapped_list_unknown",
+        )
 
-    if product_id and re.search(r"\b(?:about|tell me|what is|details|bei)\b", text or "", re.I) and not tapped_order:
+    if product_id and re.search(r"\b(?:about|tell me|what is|details|bei|how much|price|cost)\b", text or "", re.I) and not tapped_order:
         return GiftAutomationResult(
             reply=_product_detail_reply(product_id, is_sw=is_sw),
             safety_flag="deterministic:hazina_product_info",
@@ -1962,7 +1988,16 @@ async def try_hazina_automation(
     if tapped_order or (product_id and looks_like_hazina_order_intent(text)):
         pid = product_id or product_id_from_hazina_interactive(interactive_id)
         if not pid:
-            return None
+            # No recognisable product — show collections so the customer can choose.
+            return GiftAutomationResult(
+                reply=(
+                    "Hizi ndizo signature collections zetu — chagua moja kuanza:"
+                    if is_sw else
+                    "Here are our signature collections — pick one to begin:"
+                ),
+                interactive=product_list_payload(language=language),
+                safety_flag="deterministic:hazina_order_no_product",
+            )
         await clear_hazina_checkout_state(conversation_id)
         checkout_details = parse_checkout_details(text)
         has_delivery = (
@@ -2045,7 +2080,71 @@ async def try_hazina_automation(
                     safety_flag="deterministic:hazina_recommendation",
                 )
 
-    return None
+    # ── Deterministic FAQ / info handler ────────────────────────────────────
+    # Covers delivery, returns, prices, contact, engraving, brand story, etc.
+    # so the LLM is NEVER reached for Hazina WhatsApp turns.
+    if not checkout:
+        from app.services.hazina_faq import try_hazina_faq
+
+        faq = await try_hazina_faq(
+            db,
+            text=text or "",
+            customer=customer,
+            conversation_id=conversation_id,
+            business_id=business_id,
+            language=language,
+            business_slug=business_slug,
+        )
+        if faq is not None:
+            if faq.escalated:
+                from app.services.hazina_escalation import open_hazina_desk_issue
+                try:
+                    await open_hazina_desk_issue(
+                        db,
+                        customer_id=customer.id,
+                        business_id=business_id,
+                        reason="faq_escalation",
+                        msisdn=getattr(customer, "phone_number", None),
+                    )
+                except Exception:
+                    pass
+            return GiftAutomationResult(
+                reply=faq.reply,
+                interactive=faq.interactive,
+                escalated=faq.escalated,
+                safety_flag=faq.safety_flag,
+            )
+
+    # ── Guaranteed catch-all: NEVER fall through to LLM for Hazina ──────────
+    # Re-prompt the active checkout step when one is in-progress, otherwise
+    # surface the main menu so the customer always gets a useful response.
+    if checkout:
+        return await _ask_next_checkout_step(conversation_id, checkout, is_sw=is_sw)
+
+    catch_all_reply = (
+        "Niko hapa kukusaidia. Chagua chaguo hapa chini au niambie:\n"
+        "• *Shop* — catalog yetu\n"
+        "• *Bei* — orodha ya bei\n"
+        "• *Delivery* — jinsi ya kupata\n"
+        "• *Custom* — bespoke sourcing\n"
+        "• *Track* — hali ya oda"
+        if is_sw else
+        "I'm here to help. Choose an option below, or just tell me:\n"
+        "• *Shop* — browse our catalog\n"
+        "• *Prices* — see all prices\n"
+        "• *Delivery* — how we get it to you\n"
+        "• *Custom* — bespoke sourcing brief\n"
+        "• *Track* — order status"
+    )
+    return GiftAutomationResult(
+        reply=catch_all_reply,
+        interactive=main_menu_payload(
+            business_name="Hazina Nomads",
+            language=language,
+            business_slug=business_slug,
+        ),
+        safety_flag="deterministic:hazina_catch_all",
+    )
 
 
 async def finalize_checkout_from_ai(

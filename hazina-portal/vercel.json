@@ -6,7 +6,11 @@
   "regions": ["fra1"],
   "env": {
     "BACKEND_URL": "https://hazina-api.onrender.com",
-    "NEXT_PUBLIC_BACKEND_URL": "https://hazina-api.onrender.com"
+    "NEXT_PUBLIC_BACKEND_URL": "https://hazina-api.onrender.com",
+    "PUBLIC_HAZINA_PORTAL_URL": "https://hazina.lesnarai.co.ke",
+    "NEXT_PUBLIC_HAZINA_PORTAL_URL": "https://hazina.lesnarai.co.ke",
+    "HAZINA_CATALOG_CACHE_SECONDS": "300",
+    "NODE_ENV": "production"
   },
   "redirects": [
     {

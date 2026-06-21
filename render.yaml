@@ -132,45 +132,18 @@ services:
       - key: SENTRY_TRACES_SAMPLE_RATE
         value: "0.2"
 
+  # hazina-portal has moved to Vercel (fra1 region).
+  # Deploy via: cd hazina-portal && vercel --prod
+  # Set these env vars in the Vercel dashboard:
+  #   BACKEND_URL, NEXT_PUBLIC_BACKEND_URL, PUBLIC_HAZINA_PORTAL_URL,
+  #   HAZINA_CATALOG_CACHE_SECONDS, NEXT_PUBLIC_HAZINA_WHATSAPP,
+  #   NEXT_PUBLIC_HAZINA_PHONE, ADMIN_API_TOKEN
+
   - name: hazina-redis-fra
     type: keyvalue
     plan: starter
     region: frankfurt
     ipAllowList: []
-
-  - name: hazina-portal
-    type: web
-    runtime: node
-    plan: starter
-    region: frankfurt
-    rootDir: hazina-portal
-    buildCommand: npm install --include=dev && npm run build
-    startCommand: npm start
-    autoDeployTrigger: commit
-    domains:
-      - hazina.lesnarai.co.ke
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: BACKEND_URL
-        value: https://hazina-api.onrender.com
-      - key: BACKEND_INTERNAL_HOSTPORT
-        fromService:
-          type: web
-          name: hazina-api
-          property: hostport
-      - key: NEXT_PUBLIC_BACKEND_URL
-        value: https://hazina-api.onrender.com
-      - key: HAZINA_CATALOG_CACHE_SECONDS
-        value: "300"
-      - key: PUBLIC_HAZINA_PORTAL_URL
-        value: https://hazina.lesnarai.co.ke
-      - key: NEXT_PUBLIC_HAZINA_WHATSAPP
-        sync: false
-      - key: NEXT_PUBLIC_HAZINA_PHONE
-        sync: false
-      - key: ADMIN_API_TOKEN
-        sync: false
 
 databases:
   - name: hazina-postgres-fra
