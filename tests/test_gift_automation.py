@@ -335,3 +335,13 @@ async def test_checkout_photo_uses_active_product_context(db, monkeypatch) -> No
 def test_is_custom_box_handoff() -> None:
     assert ga.is_custom_box_handoff("I'd like to build a custom gift box")
     assert ga.is_custom_box_handoff("• Coffee (HN-T-001)\n• Tea (HN-T-002)")
+
+
+def test_custom_bespoke_requests_are_deterministic() -> None:
+    assert ga.looks_like_hazina_custom_request("can you customize a gift")
+    assert ga.looks_like_hazina_custom_request("I want something custom for my folk")
+    assert ga.looks_like_hazina_custom_request("do you do bespoke sourcing?")
+    assert ga.looks_like_hazina_custom_request("can you engrave it?")
+    # A plain catalogue item is not a custom request.
+    assert not ga.looks_like_hazina_custom_request("i want a rungu")
+    assert not ga.looks_like_hazina_custom_request("show me collections")

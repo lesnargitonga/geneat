@@ -759,6 +759,35 @@ def _logistics_reply(kind: str, *, is_sw: bool) -> str:
     )
 
 
+_CUSTOM_BRIEF_RE = re.compile(
+    r"\b(custom(?:is|iz)e|custom(?:is|iz)ed|customis(?:ation|ed)|bespoke|"
+    r"personali[sz]e|personalis(?:ed|ation)|made[\s-]?to[\s-]?order|tailor(?:ed|[\s-]?made)?|"
+    r"special order|sourcing (?:request|brief)|engrav\w*|monogram\w*|"
+    r"something (?:specific|unique|special|custom)|"
+    r"can you (?:make|create|source|find|build) (?:me )?(?:a|an|some|something)|"
+    r"source (?:me |us )?(?:a|an|some|something|specific))\b",
+    re.IGNORECASE,
+)
+
+
+def looks_like_hazina_custom_request(text: str) -> bool:
+    return bool(_CUSTOM_BRIEF_RE.search(text or ""))
+
+
+def _custom_brief_reply(*, is_sw: bool) -> str:
+    if is_sw:
+        return (
+            "Ndiyo — uratibu maalum (bespoke) ndio utaalamu wetu. Niambie mpokeaji, "
+            "tukio, na bajeti ya takriban — au tuma picha ya mfano — nitafungua sourcing "
+            "brief kwa timu yetu ya field."
+        )
+    return (
+        "Yes — bespoke sourcing is exactly what we do. Tell me the recipient, the occasion, "
+        "and a rough budget (or send a reference photo) and I'll open a sourcing brief with "
+        "our field team. You can also start from a signature collection below."
+    )
+
+
 def _cafe_boundary_reply(*, is_sw: bool) -> str:
     return (
         "Hazina si cafe; tunashughulikia Bespoke Curation, Seamless Logistics, na Global Export. Chagua collection tuanze."
@@ -1982,6 +2011,14 @@ async def try_hazina_automation(
                 else _checkout_prompt(draft_checkout, is_sw=is_sw)
             ),
             safety_flag="deterministic:hazina_order_start",
+        )
+
+    # ── Bespoke / custom sourcing request ───────────────────────────────────
+    if not checkout and looks_like_hazina_custom_request(text):
+        return GiftAutomationResult(
+            reply=_custom_brief_reply(is_sw=is_sw),
+            interactive=product_list_payload(language=language),
+            safety_flag="deterministic:hazina_custom_brief",
         )
 
     # ── Deterministic gift recommender (LLM-independent) ────────────────────

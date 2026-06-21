@@ -531,7 +531,15 @@ def _safe_payment_start_error(*, is_sw: bool) -> str:
 
 def _looks_like_sanitizer_fallback(reply: str) -> bool:
     lowered = (reply or "").lower()
-    return "formatting hiccup" in lowered or ("one moment" in lowered and "right answer" in lowered)
+    return (
+        "formatting hiccup" in lowered
+        # Hazina channel fallback ("I could not format that cleanly…") — without
+        # this the menu-recovery is skipped and the dead-end string reaches the
+        # customer.
+        or "format that cleanly" in lowered
+        or "could not format" in lowered
+        or ("one moment" in lowered and "right answer" in lowered)
+    )
 
 
 def _promises_ready_before_payment(reply: str) -> bool:
@@ -2553,6 +2561,9 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         # Final sanitiser: strip CoT/tool-call/markdown leakage. Voice channel
         # gets a plain-prose variant (no asterisks, no URLs).
         from app.services.output_sanitizer import sanitize_reply
+        # Declared here so a menu attached by sanitizer recovery survives (it used
+        # to be reset to None further down, wiping the recovery's chips).
+        post_interactive: dict | None = None
         if turn.channel == Channel.voice:
             sanitiser_channel = "voice"
         elif is_hazina_slug(_biz_slug):
@@ -2627,7 +2638,6 @@ async def handle_inbound(db: AsyncSession, turn: InboundTurn) -> TurnResult:
         if out_flags:
             log.info("output_safety_redacted", flags=out_flags[:6])
 
-        post_interactive: dict | None = None
         from app.services.hazina_customer_fallbacks import looks_like_leaked_internal_copy
 
         if is_hazina_slug(_biz_slug) and (

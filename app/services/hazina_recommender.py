@@ -57,6 +57,16 @@ _CATEGORY_KEYWORDS: dict[str, str] = {
 }
 _COMPILED_CATEGORIES = {k: re.compile(v, re.IGNORECASE) for k, v in _CATEGORY_KEYWORDS.items()}
 
+# Occasions / vague gift framings — no specific category, but a clear ask for a
+# gift, so we should still offer curated collections rather than defer.
+_OCCASION_RE = re.compile(
+    r"\b(wedding|birthday|anniversary|graduation|valentine'?s?|christmas|"
+    r"engagement|baby\s*shower|housewarming|retirement|festive|holiday|"
+    r"mother'?s?\s*day|father'?s?\s*day|thank\s*you|congratulations?|"
+    r"corporate|client gift|appreciation)\b",
+    re.IGNORECASE,
+)
+
 _BUDGET_USD_RE = re.compile(
     r"\$\s*(\d{1,5})|\b(\d{1,5})\s*(?:usd|dollars?|bucks?)\b",
     re.IGNORECASE,
@@ -176,9 +186,15 @@ def recommend(payload: dict[str, Any], text: str, *, is_sw: bool = False) -> dic
                 "currency": currency,
             }
 
-    # A bare "i want ..." with no item, category, or budget (and not an explicit
-    # "recommend") — don't dump the whole catalog; let conversation handle it.
-    if not categories and amount is None and not _RECOMMEND_INTENT_RE.search(text or ""):
+    occasion = _OCCASION_RE.search(text or "")
+    # A bare "i want ..." with no item, category, budget, occasion, or explicit
+    # "recommend" — don't dump the whole catalog; let conversation handle it.
+    if (
+        not categories
+        and amount is None
+        and not occasion
+        and not _RECOMMEND_INTENT_RE.search(text or "")
+    ):
         return None
 
     # Treasures matching the requested category (and budget if any).
@@ -204,8 +220,10 @@ def recommend(payload: dict[str, Any], text: str, *, is_sw: bool = False) -> dic
     money = _money
 
     lead = "Hapa kuna mapendekezo: " if is_sw else "Here's what I'd recommend"
-    if categories or amount:
+    if categories or amount or occasion:
         bits = []
+        if occasion:
+            bits.append(f"a {occasion.group(0).lower()} gift")
         if categories:
             bits.append(", ".join(c.replace("-", " ") for c in categories))
         if amount:

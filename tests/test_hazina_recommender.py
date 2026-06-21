@@ -56,6 +56,15 @@ def test_conversational_turns_do_not_hijack_to_recommender() -> None:
     assert rec.recommend(hazina_catalog_search_payload(), "my dad") is None
 
 
+def test_occasion_requests_offer_collections() -> None:
+    payload = hazina_catalog_search_payload()
+    for q in ("do you have anything for a wedding", "a birthday gift for my dad",
+              "something for an anniversary"):
+        out = rec.recommend(payload, q)
+        assert out is not None, q
+        assert out["collection_ids"], q  # offer curated collections, never a dead end
+
+
 def test_no_recommendation_when_no_intent() -> None:
     payload = hazina_catalog_search_payload()
     assert rec.recommend(payload, "I want to pay with mpesa") is None
