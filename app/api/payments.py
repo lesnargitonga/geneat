@@ -24,8 +24,8 @@ from app.core.redis_client import claim_idempotency
 from app.core.security import normalize_msisdn, verify_mpesa_source_ip
 from app.db.models import AuditEvent, Business, Conversation, Customer, Order, PaymentStatus
 from app.db.session import SessionLocal
-from app.integrations import mpesa_client
 from app.integrations import whatsapp_client
+from app.integrations.payments import resolve_payment_service
 from app.jobs.runner import enqueue_job
 
 log = get_logger("payments")
@@ -396,9 +396,11 @@ async def stk_push_endpoint(payload: STKIn, db: AsyncSession = Depends(db_sessio
         raise HTTPException(404, "order not found")
     if order.payment_status == PaymentStatus.paid:
         raise HTTPException(409, "order already paid")
+    business_id = await _business_id_for_order(db, order)
     try:
-        result = await mpesa_client.stk_push(
-            msisdn=msisdn, amount=payload.amount, reference=payload.reference,
+        svc = resolve_payment_service(currency="KES")
+        result = await svc.request_payment(
+            msisdn=msisdn, amount=payload.amount, reference=payload.reference[:8],
             description="Order Payment",
         )
     except RateLimited as e:
@@ -406,8 +408,7 @@ async def stk_push_endpoint(payload: STKIn, db: AsyncSession = Depends(db_sessio
     except UpstreamError as e:
         raise HTTPException(502, e.message)
 
-    checkout_id = result["CheckoutRequestID"]
-    business_id = await _business_id_for_order(db, order)
+    checkout_id = result.reference
     transitioned = await _transition_payment_status(
         db,
         order,
@@ -417,11 +418,12 @@ async def stk_push_endpoint(payload: STKIn, db: AsyncSession = Depends(db_sessio
     if not transitioned:
         raise HTTPException(409, "order payment state changed")
     order.mpesa_checkout_id = checkout_id
+    job_kind = "payment.intasend_poll" if svc.name == "intasend" else "payment.unpaid_followup"
     await enqueue_job(
         db,
-        kind="payment.unpaid_followup",
+        kind=job_kind,
         business_id=business_id,
-        run_at=datetime.now(timezone.utc) + timedelta(seconds=300),
+        run_at=datetime.now(timezone.utc) + timedelta(seconds=300 if svc.name != "intasend" else 20),
         max_attempts=5,
         ttl_seconds=20 * 60,
         payload={"order_id": str(order.id), "checkout_id": checkout_id},
