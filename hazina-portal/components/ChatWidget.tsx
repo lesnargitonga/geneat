@@ -793,9 +793,11 @@ export function ChatWidget() {
       // If the reply runs long (e.g. a cold backend), reassure rather than
       // leaving the client staring at a silent typing dot.
       let settled = false;
+      // Most turns are now answered deterministically (fast); only reassure on a
+      // genuinely long wait so the line doesn't appear on every message.
       const reassure = window.setTimeout(() => {
         if (!settled) append("system", "Still here — bringing up the exact details for you…");
-      }, 4500);
+      }, 9000);
       try {
         const r = await fetch("/api/chat", {
           method: "POST",
