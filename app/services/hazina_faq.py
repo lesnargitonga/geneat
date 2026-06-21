@@ -115,7 +115,31 @@ _AVAILABILITY_SPECIFIC_RE = re.compile(
 _OFF_CATALOG_RE = re.compile(
     r"\b(?:masks?|curios?|sculptures?|paintings?|cloths?|textiles?|shirts?|kanga|"
     r"kikoi|kiondo|baskets?|candles?|soaps?|oils?|perfume|jewel(?:ry|lery)|"
-    r"necklace|bracelet|earrings?|ring(?:s)?|ceramics?|pottery|glassware)\b",
+    r"necklace|bracelet|earrings?|ring(?:s)?|ceramics?|pottery|glassware|"
+    r"carved?\b|wood(?:en)?\s*(?:animal|figure|statue|bowl|carving|elephant|giraffe|rhino|lion|zebra)|"
+    r"sisal|beads?\b|beaded|hand(?:made|crafted|\s*made|\s*crafted)|artisan\b|craft(?:s|ed|work)?\b|"
+    r"soapstone|makonde|tingatinga|batik|african\s*print|kitenge|"
+    r"maasai|masai|swahili\s*(?:art|craft|gift|item|piece)|"
+    r"figurine|statue\b|vase\b|wall\s*hang(?:ing)?|tapestry|rug\b|woven\s*mat|"
+    r"tote\b|leather\s*(?:bag|wallet|belt|purse|sandal)|"
+    r"safari\s*(?:gear|hat|bag)|african\s*(?:art|craft|gift))\b",
+    re.IGNORECASE,
+)
+
+# Items that are completely outside Hazina's domain — not sourceable by us.
+# Checked before _OFF_CATALOG_RE so we give a clear "not our business" reply
+# rather than accidentally implying we could source electronics or food.
+_OUTSIDE_DOMAIN_RE = re.compile(
+    r"\b(?:laptops?|computers?|pc\b|desktops?|monitors?|keyboards?|mouse\b|mice\b|printers?|servers?\b|"
+    r"phones?|smartphones?|iphones?|android|samsung|tablets?\b|ipad|kindle|"
+    r"tvs?\b|television|smart\s*tv|netflix|streaming|gaming|"
+    r"cars?\b|vehicles?|motorbikes?|motorcycles?|tyres?|engine\b|fuel|petrol|diesel|"
+    r"food\b|restaurants?|meals?\b|pizza|burgers?|chips\b|ugali|nyama\s*choma|grocery|groceries|"
+    r"medicine|drugs?\b|pharmacy|prescription|doctors?|hospitals?|clinics?|"
+    r"software|apps?\b|website|domain\b|hosting|subscription|saas|"
+    r"shoes?\b|sneakers?|boots?\b|heels?|sandals?\b|"
+    r"hair\b|wigs?\b|weaves?\b|salons?\b|barber|"
+    r"mattresses?|bedding|pillows?\b|sofas?\b|couches?\b|beds?\b|furniture)\b",
     re.IGNORECASE,
 )
 
@@ -373,8 +397,9 @@ def _hazina_price_reply(text: str, *, is_sw: bool) -> str:
 
 
 def _hazina_availability_reply(text: str, *, is_sw: bool) -> str:
-    """Confirm availability for matched products or general stock."""
+    """Confirm availability for matched products, pivot to bespoke for unknowns, or reject out-of-scope items."""
     lowered = (text or "").lower()
+    # 1. Direct catalog match → show it
     for row in HAZINA_COLLECTIONS:
         name_lower = row["name"].lower()
         tokens = [tok for tok in name_lower.split() if len(tok) >= 4]
@@ -395,14 +420,20 @@ def _hazina_availability_reply(text: str, *, is_sw: bool) -> str:
                 f"{_price_label(usd=row['price_usd'], kes=row['price_kes'])}. "
                 "Let me know if you'd like to order."
             )
+    # 2. Completely outside our domain → clear redirect
+    if _OUTSIDE_DOMAIN_RE.search(lowered):
+        return _hazina_outside_domain_reply(is_sw=is_sw)
+    # 3. Unknown item but could be artisan/sourceable → pivot to bespoke
     if is_sw:
         return (
-            "✅ Collections zetu zote zinapatikana — vipande vyote viko tayari. "
-            "Chagua collection hapa chini, au niambie unatafuta nini na nitakusaidia."
+            "Hiyo haipatikani kama collection yetu ya sasa, lakini tunaweza kuisource kupitia "
+            "*Bespoke Curation* — niambie mpokeaji, tukio, na bajeti ya takriban "
+            "na timu yetu ya field itapata kipande sahihi."
         )
     return (
-        "✅ All our signature collections are available — pieces are ready to dispatch. "
-        "Pick a collection below, or tell me what you're looking for and I'll help."
+        "That specific item isn't in our current collections, but we can source it through "
+        "*Bespoke Curation* — share the recipient, occasion, and rough budget and "
+        "our field team will track down the right piece. Or browse what we have ready below."
     )
 
 
@@ -417,6 +448,20 @@ def _hazina_off_catalog_reply(*, is_sw: bool) -> str:
         "That item is not in our current signature collections. We do *Bespoke Curation* though — "
         "if you have something specific in mind, share the recipient, occasion, and budget and "
         "our sourcing team will find the right piece."
+    )
+
+
+def _hazina_outside_domain_reply(*, is_sw: bool) -> str:
+    if is_sw:
+        return (
+            "Hiyo iko nje ya anuwai yetu. Hazina Nomads inashughulikia *zawadi za kiswahili* — "
+            "curated collections, bespoke sourcing kutoka pwani ya Kiswahili, na Global Export. "
+            "Tazama collections zetu hapa chini."
+        )
+    return (
+        "That's outside what we do. Hazina Nomads specialises in *Swahili Coast gifts* — "
+        "curated artisan collections, bespoke sourcing, and Global Export. "
+        "Browse our collections below."
     )
 
 
@@ -772,7 +817,18 @@ async def try_hazina_faq(
             interactive=product_list_payload(language=language),
         )
 
-    # ── Off-catalog product query ("do you have X?") ────────────────────────
+    # ── Items completely outside Hazina's domain (electronics, food, etc.) ──
+    # Must be checked BEFORE off-catalog so we don't imply we can source a laptop.
+    if _OUTSIDE_DOMAIN_RE.search(body):
+        return HazinaFaqResult(
+            reply=_hazina_outside_domain_reply(is_sw=is_sw),
+            safety_flag="deterministic:hazina_faq_outside_domain",
+            interactive=product_list_payload(language=language),
+        )
+
+    # ── Off-catalog artisan/gift item ("I want some pottery / sisal bags") ──
+    # Falls through from availability check when item not in catalog AND not
+    # outside domain. Pivots to Bespoke Curation.
     if _OFF_CATALOG_RE.search(body):
         return HazinaFaqResult(
             reply=_hazina_off_catalog_reply(is_sw=is_sw),
