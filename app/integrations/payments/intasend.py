@@ -24,26 +24,33 @@ class IntaSendAdapter:
     name = "intasend"
 
     def _base(self) -> str:
+        """Base URL for STK push and status endpoints."""
         s = get_settings()
         if getattr(s, "intasend_test_mode", True):
             return "https://sandbox.intasend.com"
         return "https://payment.intasend.com"
 
-    def _auth_headers(self) -> dict[str, str]:
+    def _api_base(self) -> str:
+        """Base URL for the REST API (checkout, payment links)."""
+        s = get_settings()
+        if getattr(s, "intasend_test_mode", True):
+            return "https://sandbox.intasend.com"
+        return "https://api.intasend.com"
+
+    def _token_value(self) -> str:
         s = get_settings()
         token = getattr(s, "intasend_api_token", None)
         if not token:
             raise UpstreamError("intasend credentials missing")
-        token_value = token.get_secret_value() if hasattr(token, "get_secret_value") else str(token)
-        return {"Authorization": f"Bearer {token_value}"}
+        return token.get_secret_value() if hasattr(token, "get_secret_value") else str(token)
+
+    def _auth_headers(self) -> dict[str, str]:
+        # STK push uses Bearer token auth
+        return {"Authorization": f"Bearer {self._token_value()}"}
 
     def _checkout_headers(self) -> dict[str, str]:
-        s = get_settings()
-        public_key = (getattr(s, "intasend_publishable_key", "") or "").strip()
-        headers = self._auth_headers()
-        if public_key:
-            headers["X-IntaSend-Public-API-Key"] = public_key
-        return headers
+        # Checkout API uses TOKEN header (not Bearer)
+        return {"TOKEN": self._token_value()}
 
     @retry(stop=stop_after_attempt(2), wait=wait_exponential_jitter(initial=0.5, max=3.0))
     async def request_payment(
@@ -100,19 +107,27 @@ class IntaSendAdapter:
         email: Optional[str] = None,
     ) -> PaymentResult:
         s = get_settings()
-        payload = {
-            "amount": round(float(amount), 2),
-            "currency": (currency or "USD").upper(),
+        public_key = (getattr(s, "intasend_publishable_key", "") or "").strip()
+        checkout_currency = (currency or "KES").upper()
+        # IntaSend checkout does not support USD; bill in KES using KES amount
+        if checkout_currency == "USD":
+            checkout_currency = "KES"
+            amount = round(float(amount) * 129.0, 0)  # approx KES equivalent
+        payload: dict = {
+            "amount": str(int(round(float(amount)))),
+            "currency": checkout_currency,
             "api_ref": reference[:32],
             "comment": description[:120],
             "email": email or f"{msisdn.lstrip('+')}@hazina-nomads.local",
             "redirect_url": getattr(s, "public_hazina_portal_url", "https://hazina.lesnarai.co.ke"),
         }
+        if public_key:
+            payload["public_key"] = public_key
         if msisdn:
             payload["phone_number"] = msisdn.lstrip("+")
         async with httpx.AsyncClient(timeout=15) as c:
             r = await c.post(
-                f"{self._base()}/api/v1/checkout/",
+                f"{self._api_base()}/api/v1/checkout/",
                 json=payload,
                 headers=self._checkout_headers(),
             )

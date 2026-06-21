@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import httpx
 import pytest
 
@@ -81,9 +83,10 @@ async def test_intasend_usd_checkout_returns_redirect(monkeypatch) -> None:
 
     async def handler(request: httpx.Request) -> httpx.Response:
         seen["url"] = str(request.url)
-        seen["public_key"] = request.headers.get("x-intasend-public-api-key")
+        seen["token_header"] = request.headers.get("token")
         seen["auth"] = request.headers.get("authorization")
-        seen["json"] = request.read().decode()
+        body = json.loads(request.read().decode())
+        seen["public_key_body"] = body.get("public_key")
         return httpx.Response(
             200,
             json={
@@ -113,8 +116,9 @@ async def test_intasend_usd_checkout_returns_redirect(monkeypatch) -> None:
     assert result.provider == "intasend"
     assert result.redirect_url == "https://payment.intasend.com/checkout/checkout_123"
     assert result.reference == "checkout_123"
-    assert seen["public_key"] == "public-token"
-    assert seen["auth"] == "Bearer secret-token"
+    assert seen["public_key_body"] == "public-token"
+    assert seen["token_header"] == "secret-token"
+    assert seen["auth"] is None
 
 
 @pytest.mark.asyncio
@@ -132,8 +136,10 @@ async def test_intasend_usd_checkout_works_without_publishable_key(monkeypatch) 
     seen: dict[str, object] = {}
 
     async def handler(request: httpx.Request) -> httpx.Response:
-        seen["public_key"] = request.headers.get("x-intasend-public-api-key")
+        seen["token_header"] = request.headers.get("token")
         seen["auth"] = request.headers.get("authorization")
+        body = json.loads(request.read().decode())
+        seen["public_key_body"] = body.get("public_key")
         return httpx.Response(200, json={"id": "checkout_456", "url": "https://payment.intasend.com/checkout/checkout_456"})
 
     transport = httpx.MockTransport(handler)
@@ -153,5 +159,6 @@ async def test_intasend_usd_checkout_works_without_publishable_key(monkeypatch) 
     )
 
     assert result.redirect_url == "https://payment.intasend.com/checkout/checkout_456"
-    assert seen["public_key"] is None
-    assert seen["auth"] == "Bearer secret-token"
+    assert seen["public_key_body"] is None
+    assert seen["token_header"] == "secret-token"
+    assert seen["auth"] is None
