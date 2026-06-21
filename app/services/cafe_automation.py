@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import re
+import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -321,15 +322,23 @@ async def request_order_payment(
     # (network/upstream hiccups) so a clear order intent still gets its STK
     # instead of an awkward "could not start payment" on the first attempt.
     result = None
+    # Use a time-bucketed suffix so rapid resends don't collide on the same
+    # api_ref at the provider (IntaSend rejects duplicate api_ref within a window).
+    ref_suffix = str(int(time.time()) // 60)[-4:]  # changes every minute
+    api_ref = f"{str(order.id)[:6]}{ref_suffix}"[:32]
     for attempt in range(2):
         try:
             kwargs: dict[str, object] = {
                 "msisdn": msisdn,
                 "amount": pay_amount,
-                "reference": str(order.id)[:8],
+                "reference": api_ref,
                 "description": "Order Payment",
             }
             if pay_currency == "USD" and svc.name == "paystack":
+                kwargs["currency"] = "USD"
+                if payment_email:
+                    kwargs["email"] = payment_email
+            elif pay_currency == "USD" and svc.name == "intasend":
                 kwargs["currency"] = "USD"
                 if payment_email:
                     kwargs["email"] = payment_email
@@ -343,10 +352,14 @@ async def request_order_payment(
                 continue
             return PaymentAttempt(ok=False, message=exc.message, error="upstream")
         except Exception as exc:  # noqa: BLE001
+            # Unwrap tenacity RetryError to surface the real provider message.
+            cause = getattr(exc, "last_attempt", None)
+            inner = cause.exception() if cause is not None else getattr(exc, "__cause__", None)
+            real_msg = getattr(inner, "message", None) or str(inner or exc)
             if attempt == 0:
                 await asyncio.sleep(0.6)
                 continue
-            return PaymentAttempt(ok=False, message=str(exc), error="unexpected")
+            return PaymentAttempt(ok=False, message=real_msg, error="unexpected")
 
     try:
         order.mpesa_checkout_id = result.reference
