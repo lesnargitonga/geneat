@@ -485,13 +485,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   const chapterLinks = [...document.querySelectorAll("[data-section-link]")];
   const chapters = [...document.querySelectorAll("[data-chapter]")];
-  const chapterOrder = ["top", "systems", "pillars", "capabilities", "method", "contact"];
+  const chapterOrder = ["top", "systems", "pillars", "capabilities", "method", "services", "contact"];
   const chapterNames = {
     top: "Intro",
     systems: "Work",
     pillars: "Build",
     capabilities: "Expertise",
     method: "Approach",
+    services: "Services",
     contact: "Contact",
   };
   const pageOrbit = document.querySelector("[data-page-orbit]");

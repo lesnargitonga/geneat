@@ -196,9 +196,9 @@ body.cursor-labeled .cursor-label {
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  opacity: 0.42;
+  opacity: 0.2;
   background:
-    radial-gradient(520px circle at var(--ambient-x) var(--ambient-y), rgba(154, 174, 174, .058), transparent 68%);
+    radial-gradient(520px circle at var(--ambient-x) var(--ambient-y), rgba(154, 174, 174, .04), transparent 70%);
   mix-blend-mode: screen;
   transition: opacity 300ms ease;
 }
@@ -206,7 +206,7 @@ body.cursor-labeled .cursor-label {
 #webgl-container {
   --wave-x: 70vw;
   --wave-y: 56vh;
-  --wave-glow-opacity: .42;
+  --wave-glow-opacity: .22;
   position: fixed;
   inset: 0;
   z-index: 0;
@@ -215,10 +215,9 @@ body.cursor-labeled .cursor-label {
   overflow: hidden;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 72% 42%, rgba(145, 133, 162, 0.12), transparent 34%),
-    radial-gradient(ellipse at 58% 68%, rgba(126, 169, 173, 0.105), transparent 48%),
-    radial-gradient(ellipse at 90% 78%, rgba(185, 154, 100, 0.065), transparent 33%),
-    radial-gradient(ellipse at 18% 86%, rgba(164, 119, 125, 0.045), transparent 28%),
+    radial-gradient(ellipse at 72% 42%, rgba(145, 133, 162, 0.05), transparent 40%),
+    radial-gradient(ellipse at 58% 68%, rgba(126, 169, 173, 0.05), transparent 52%),
+    radial-gradient(ellipse at 90% 78%, rgba(185, 154, 100, 0.03), transparent 38%),
     #020202;
 }
 #webgl-container::before {
@@ -367,7 +366,7 @@ nav {
   width: 4px;
   height: 4px;
   background: var(--accent-cyan);
-  box-shadow: 0 0 10px rgba(126,169,173,.62);
+  box-shadow: 0 0 5px rgba(126,169,173,.26);
   animation: logo-signal-pulse 2.4s ease-in-out infinite;
 }
 .logo:hover,
@@ -475,7 +474,7 @@ nav {
   height: 6px;
   border-radius: 50%;
   background: var(--accent-cyan);
-  box-shadow: 0 0 12px rgba(126, 169, 173, 0.45);
+  box-shadow: 0 0 5px rgba(126, 169, 173, 0.24);
 }
 /* Chapter rail */
 .journey-rail {
@@ -1242,7 +1241,7 @@ a.telemetry-value:hover {
   height: 5px;
   border-radius: 50%;
   background: var(--accent-cyan);
-  box-shadow: 0 0 12px rgba(126, 169, 173, .42);
+  box-shadow: 0 0 5px rgba(126, 169, 173, .24);
 }
 @keyframes expertise-flow {
   to { transform: translateX(-50%); }
@@ -1308,12 +1307,11 @@ a.telemetry-value:hover {
   pointer-events: none;
   opacity: 0;
   background:
-    radial-gradient(circle at var(--glow-x) var(--glow-y), rgba(var(--surface-rgb), 0.13), transparent 38%);
+    radial-gradient(circle at var(--glow-x) var(--glow-y), rgba(var(--surface-rgb), 0.06), transparent 42%);
   transition: opacity 350ms ease;
 }
 .tilt-surface:hover .card-glow,
-.tilt-surface.is-touch-active .card-glow,
-.tilt-surface.is-inview .card-glow { opacity: 1; }
+.tilt-surface.is-touch-active .card-glow { opacity: 0.6; }
 .accent-cyan {
   --surface-accent: #7ea9ad;
   --surface-rgb: 126, 169, 173;
@@ -4323,7 +4321,7 @@ body[data-active-chapter="systems"] .systems-orbit {
 }
 .contact-field span:nth-child(4) {
   width: 10px; height: 10px; right: 25%; top: 45%;
-  border: 0; background: var(--accent-violet); box-shadow: 0 0 18px rgba(145, 133, 162, .48);
+  border: 0; background: var(--accent-violet); box-shadow: 0 0 7px rgba(145, 133, 162, .26);
   transform: rotate(45deg);
   animation: contact-node 2.6s ease-in-out infinite paused;
 }
@@ -10051,7 +10049,7 @@ body.magic-off .contact-link {
   height: .42rem;
   border-radius: 50%;
   background: var(--accent-cyan);
-  box-shadow: 0 0 14px rgba(126, 169, 173, .62);
+  box-shadow: 0 0 5px rgba(126, 169, 173, .26);
 }
 
 .proof-strip {
@@ -13972,4 +13970,136 @@ body.webgl-unavailable .hero-sculpture-control {
   visibility: hidden !important;
   opacity: 0 !important;
   pointer-events: none !important;
+}
+
+/* ============================================================
+   Services & pricing section
+   Deliberately restrained: borders and flat surfaces, no glow.
+   ============================================================ */
+.services-section {
+  padding-block: clamp(8rem, 12vw, 12rem);
+}
+.services-grid {
+  margin-top: clamp(3rem, 6vw, 5rem);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 1.5rem);
+  align-items: stretch;
+}
+.service-plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: clamp(1.75rem, 2.6vw, 2.4rem);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--bg-surface);
+}
+.service-plan-featured {
+  border-color: var(--border-strong);
+  background: var(--bg-elevated);
+}
+.service-plan-flag {
+  position: absolute;
+  top: -0.7rem;
+  left: clamp(1.75rem, 2.6vw, 2.4rem);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: var(--accent-cyan);
+  color: var(--bg-pure);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.service-plan-index {
+  display: block;
+  margin-bottom: 1rem;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+}
+.service-plan-head h3 {
+  font-size: 1.45rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.service-plan-head p {
+  margin-top: 0.85rem;
+  color: var(--text-secondary);
+  font-size: 0.98rem;
+  line-height: 1.7;
+}
+.service-plan-price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-block: 1.25rem;
+  border-block: 1px solid var(--border);
+}
+.service-plan-price span {
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.service-plan-price strong {
+  font-size: 1.85rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.service-plan-price small {
+  color: var(--text-tertiary);
+  font-size: 0.85rem;
+}
+.service-plan-list {
+  list-style: none;
+  display: grid;
+  gap: 0.7rem;
+}
+.service-plan-list li {
+  position: relative;
+  padding-left: 1.4rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.service-plan-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+}
+.service-plan-cta {
+  margin-top: auto;
+  width: 100%;
+  justify-content: center;
+}
+.services-note {
+  margin-top: clamp(2rem, 4vw, 3rem);
+  color: var(--text-secondary);
+  font-size: 0.98rem;
+  text-align: center;
+}
+.services-note a {
+  color: var(--accent-bright);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 900px) {
+  .services-grid {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+    margin-inline: auto;
+  }
 }
