@@ -6,7 +6,7 @@
   <title>LESNAR AI LTD</title>
   <meta name="description" content="LESNAR AI LTD is an independent engineering studio in Nairobi building AI systems, software products, and physical automation with real-world discipline.">
   <meta name="application-name" content="LESNAR AI LTD">
-  <meta name="theme-color" content="#030404">
+  <meta name="theme-color" content="#0a0a0b">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://lesnarai.co.ke/">
   <meta property="og:title" content="LESNAR AI LTD">
@@ -72,7 +72,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400..700&family=Newsreader:ital,opsz,wght@1,6..72,300&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260615-globe-clean">
+  <link rel="stylesheet" href="css/styles.css?v=20260624-premium3">
 </head>
 <body>
   <div id="cursor-lens" aria-hidden="true">
@@ -80,8 +80,8 @@
       <defs>
         <linearGradient id="cursor-liquid-gradient" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stop-color="#f4f2eb" stop-opacity=".78"></stop>
-          <stop offset=".46" stop-color="#9fc3c2" stop-opacity=".56"></stop>
-          <stop offset="1" stop-color="#718f94" stop-opacity=".16"></stop>
+          <stop offset=".46" stop-color="#cdb48a" stop-opacity=".56"></stop>
+          <stop offset="1" stop-color="#8a7355" stop-opacity=".16"></stop>
         </linearGradient>
       </defs>
       <path class="cursor-drop-path"></path>
@@ -113,10 +113,6 @@
         <a href="#method" data-magnetic data-cursor="expand">Approach</a>
         <a href="#services" data-magnetic data-cursor="expand">Services</a>
       </div>
-      <button class="magic-toggle" type="button" data-magic-toggle aria-pressed="true" data-cursor="expand" data-cursor-label="MAGIC">
-        <span>Magic</span>
-        <b data-magic-toggle-state>On</b>
-      </button>
       <a class="nav-cta" href="#contact" data-magnetic data-cursor="expand" data-cursor-label="TALK">Contact</a>
     </div>
   </nav>
@@ -158,24 +154,6 @@
             <a class="button button-primary" href="#capabilities" data-magnetic data-cursor="expand" data-cursor-label="VIEW">See our expertise</a>
             <a class="button button-secondary" href="#contact" data-magnetic data-cursor="expand" data-cursor-label="TALK">Start a project</a>
           </div>
-        </div>
-        <div class="hero-sculpture-control reveal-up" data-globe-focus role="group" aria-label="Interactive Lesnar world connector globe" data-cursor="expand" data-cursor-label="CONNECT">
-          <div class="globe-stage-ui" aria-hidden="true">
-            <span class="globe-stage-label">World connector</span>
-            <span class="globe-stage-gesture"><i></i>Tap a point</span>
-            <span class="globe-stage-scroll">Swipe outside to scroll</span>
-          </div>
-          <button class="globe-popover" type="button" data-globe-popover aria-live="polite" aria-label="Show the next Lesnar world connection">
-            <span data-globe-title>Customer Product</span>
-            <small data-globe-detail>Customer portals, dashboards, and tools connect to Lesnar-built services without feeling fragile.</small>
-            <b data-globe-status>Products reach customers through Lesnar</b>
-            <span class="globe-card-cue">
-              <i aria-hidden="true"></i>
-              <span data-globe-cue>Tap for another world connection</span>
-              <em data-globe-count>01 / 10</em>
-            </span>
-          </button>
-          <div class="globe-connector-rail" data-globe-connector-rail role="group" aria-label="World connectors"></div>
         </div>
         <a class="scroll-cue reveal-up" href="#systems" data-cursor="expand">
           <span>See selected work</span>
@@ -869,25 +847,10 @@
           script.onerror = resolve;
           document.head.appendChild(script);
         });
-      let threePromise;
-      window.__loadLesnarThree = () => {
-        if (window.THREE) return Promise.resolve();
-        if (!threePromise) {
-          threePromise = loadScript("https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js");
-        }
-        return threePromise;
-      };
-      let savedMagic = null;
-      try {
-        savedMagic = window.localStorage.getItem("lesnar-magic");
-      } catch {
-        savedMagic = null;
-      }
+      // WebGL globe retired: never load three.js. Hero is now a lightweight CSS surface.
+      window.__loadLesnarThree = () => Promise.resolve();
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      window.__lesnarThreeReady =
-        savedMagic === "off" || reduceMotion
-          ? Promise.resolve()
-          : window.__loadLesnarThree();
+      window.__lesnarThreeReady = Promise.resolve();
       const useDesktopMotion =
         window.matchMedia("(hover: hover) and (pointer: fine) and (min-width: 901px)").matches &&
         !reduceMotion;
@@ -897,6 +860,6 @@
         : Promise.resolve();
     })();
   </script>
-  <script defer src="js/app.js?v=20260615-globe-clean"></script>
+  <script defer src="js/app.js?v=20260624-premium3"></script>
 </body>
 </html>

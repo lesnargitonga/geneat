@@ -1,8 +1,12 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  await Promise.all([
-    window.__lesnarMotionReady || Promise.resolve(),
-    window.__lesnarThreeReady || Promise.resolve(),
-  ]);
+  // Never let a slow CDN (GSAP) keep the page blank. Enhance if it arrives in
+  // time; otherwise fall through to the visible, un-animated layout.
+  const withTimeout = (promise, ms) =>
+    Promise.race([
+      promise || Promise.resolve(),
+      new Promise((resolve) => window.setTimeout(resolve, ms)),
+    ]);
+  await withTimeout(window.__lesnarMotionReady, 1200);
   document.body.classList.add("js-ready");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const isTouch =
