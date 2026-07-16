@@ -1,0 +1,30 @@
+{
+  "_comment": "DEMO-SAFE seed for the Hazina Nomads portal. Everything below is FAKE: no real customers, phone numbers, payment keys, or WhatsApp credentials. Phone numbers use the reserved +254-700-000-0xx demo range. This seeds the standalone demo backend (demo/hazina_demo_backend.py), which mirrors the real FastAPI contract with MOCK WhatsApp + payment providers.",
+  "business": {
+    "slug": "hazina-nomads",
+    "brand": "Hazina Nomads",
+    "tagline": "Curated Kenyan safari treasures, packed and shipped worldwide."
+  },
+  "collections": [
+    { "id": "savannah-sunset", "title": "Savannah Sunset Box", "price_usd": 89, "price_kes": 11500, "items": ["Maasai beaded throw", "Acacia honey", "Hand-carved bowl"] },
+    { "id": "coastal-breeze", "title": "Coastal Breeze Box", "price_usd": 74, "price_kes": 9600, "items": ["Lamu woven mat", "Coconut soap trio", "Kikoi wrap"] },
+    { "id": "highland-roast", "title": "Highland Roast Box", "price_usd": 62, "price_kes": 8000, "items": ["AA coffee 500g", "Ceramic pour-over", "Macadamia brittle"] }
+  ],
+  "treasures": [
+    { "id": "maasai-throw", "name": "Maasai Beaded Throw", "category": "textiles", "price_usd": 45 },
+    { "id": "acacia-honey", "name": "Wild Acacia Honey", "category": "pantry", "price_usd": 18 },
+    { "id": "kikoi-wrap", "name": "Kikoi Wrap", "category": "textiles", "price_usd": 28 },
+    { "id": "aa-coffee", "name": "Kenya AA Coffee 500g", "category": "pantry", "price_usd": 22 }
+  ],
+  "categories": ["textiles", "pantry", "homeware"],
+  "seed_orders": [
+    {
+      "reference": "HN-ORD-48210",
+      "token": "demo-token-48210",
+      "destination": "Berlin, Germany",
+      "lines": [{ "name": "Savannah Sunset Box", "quantity": 1, "price_usd": 89 }],
+      "payment_status": "paid",
+      "fulfillment_status": "packed"
+    }
+  ]
+}
