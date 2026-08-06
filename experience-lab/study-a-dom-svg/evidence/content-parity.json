@@ -1,0 +1,248 @@
+{
+  "checkedAt": "2026-08-06T18:55:06.651Z",
+  "studyA": {
+    "path": "experience-lab/study-a-dom-svg/index.html",
+    "source": "working tree"
+  },
+  "studyB": {
+    "path": "experience-lab/study-b-webgl/index.html",
+    "source": "git 7dc29a231f442ee3d09fb908658e16ecd654dc3d"
+  },
+  "summary": {
+    "comparedFields": 14,
+    "matched": 10,
+    "intentionalDifferences": 4,
+    "undeclaredDifferences": 0,
+    "verdict": "PASS"
+  },
+  "declaredDifferences": {
+    "physical-action.steps": {
+      "reason": "Study A's seven step labels (Observe/Detect/Verify/Approve/Command/Act/Record) are specified in the Study A brief and follow dossier 13.13 more literally than Study B's committed labels (Observe/Model/Evidence/Boundary/Approve/Act/Prove). Same process, same truth label, different granularity: Study A merges Evidence+Boundary into Verify and adds an explicit Command step. Study B is frozen at 7dc29a2 and may not be edited to match; aligning the two is a follow-up that needs authorisation.",
+      "impact": "none on claims — no capability is asserted in one study and withheld in the other"
+    },
+    "limitations.visible": {
+      "reason": "Study A renders a visible 'Current limitations' block on the page, required by the Study A brief. Study B carries the equivalent content in research/limitations.md and in its pending-evidence panel, but not as a page section.",
+      "impact": "favours Study A on honesty, not on capability. Study B should gain the same block before any comparative scoring, or the difference must be neutralised in the score."
+    },
+    "lab-banner.text": {
+      "reason": "Each banner names its own study. Structural, not substantive.",
+      "impact": "none"
+    },
+    "document.title": {
+      "reason": "Each page names its own study and rendering approach.",
+      "impact": "none"
+    },
+    "stage.canvas": {
+      "reason": "Study B has a <canvas> element behind the SVG poster; Study A has no canvas at all. This is the entire subject of the comparison.",
+      "impact": "none on content"
+    },
+    "evidence-pending.wording": {
+      "reason": "Study A uses the literal token 'EVIDENCE PENDING' required by the Study A brief; Study B committed 'Evidence pending'. Same meaning, same panel, same absence of any figure.",
+      "impact": "none — neither study states a measured outcome"
+    }
+  },
+  "fields": [
+    {
+      "field": "headline",
+      "match": true,
+      "studyA": "We make ambitious ideas real.",
+      "studyB": "We make ambitious ideas real.",
+      "intentional": false,
+      "differenceId": null,
+      "reason": null,
+      "impact": null,
+      "status": "MATCH"
+    },
+    {
+      "field": "supportingCopy",
+      "match": true,
+      "studyA": "A difficult idea enters the system, becomes understandable, is engineered, protected, tested, and finally acts in the real world.",
+      "studyB": "A difficult idea enters the system, becomes understandable, is engineered, protected, tested, and finally acts in the real world.",
+      "intentional": false,
+      "differenceId": null,
+      "reason": null,
+      "impact": null,
+      "status": "MATCH"
+    },
+    {
+      "field": "chapters",
+      "match": true,
+      "studyA": [
+        "idea:00 Idea",
+        "product:01 Product",
+        "system:02 System",
+        "action:03 Action"
+      ],
+      "studyB": [
+        "idea:00 Idea",
+        "product:01 Product",
+        "system:02 System",
+        "action:03 Action"
+      ],
+      "intentional": false,
+      "differenceId": null,
+      "reason": null,
+      "impact": null,
+      "status": "MATCH"
+    },
+    {
+      "field": "projectName",
+      "match": true,
+      "studyA": "Gen-Eat",
+      "studyB": "Gen-Eat",
+      "intentional": false,
+      "differenceId": null,
+      "reason": null,
+      "impact": null,
+      "status": "MATCH"
+    },
+    {
+      "field": "architectureClaims",
+      "match": true,
+      "studyA": [
+        "Backend: FastAPI service under app/ , Alembic migrations, Postgres and Redis.",
+        "Channels: Adapter contract in app/channels/base.py with WhatsApp, voice and mock implementations behind a registry — the channel is swappable, not hard-wired.",
+        "Payments: Provider factory in app/integrations/payments/ : M-Pesa Daraja, IntaSend, Paystack, Stripe and a simulator behind one base.py interface.",
+        "Storefront: Next.js app router portal in gen-eat-portal/ , deployed on Vercel."
+      ],
+      "studyB": [
+        "Backend: FastAPI service under app/ , Alembic migrations, Postgres and Redis.",
+        "Channels: Adapter contract in app/channels/base.py with WhatsApp, voice and mock implementations behind a registry — the channel is swappable, not hard-wired.",
+        "Payments: Provider factory in app/integrations/payments/ : M-Pesa Daraja, IntaSend, Paystack, Stripe and a simulator behind one base.py interface.",
+        "Storefront: Next.js app router portal in gen-eat-portal/ , deployed on Vercel."
+      ],
+      "intentional": false,
+      "differenceId": null,
+      "reason": null,
+      "impact": null,
+      "status": "MATCH"
+    },
+    {
+      "field": "proofVerifiedCount",
+      "match": true,
+      "studyA": 3,
+      "studyB": 3,
+      "intentional": false,
+      "differenceId": null,
+      "reason": null,
+      "impact": null,
+      "status": "MATCH"
+    },
+    {
+      "field": "proofPendingCount",
+      "match": true,
+      "studyA": 1,
+      "studyB": 1,
+      "intentional": false,
+      "differenceId": null,
+      "reason": null,
+      "impact": null,
+      "status": "MATCH"
+    },
+    {
+      "field": "pendingWording",
+      "match": false,
+      "studyA": "EVIDENCE PENDING — not collected in this wave",
+      "studyB": "Evidence pending — not collected in this wave",
+      "intentional": true,
+      "differenceId": "evidence-pending.wording",
+      "reason": "Study A uses the literal token 'EVIDENCE PENDING' required by the Study A brief; Study B committed 'Evidence pending'. Same meaning, same panel, same absence of any figure.",
+      "impact": "none — neither study states a measured outcome",
+      "status": "INTENTIONAL"
+    },
+    {
+      "field": "projectStatus",
+      "match": true,
+      "studyA": "LIVE",
+      "studyB": "LIVE",
+      "intentional": false,
+      "differenceId": null,
+      "reason": null,
+      "impact": null,
+      "status": "MATCH"
+    },
+    {
+      "field": "physicalActionStatus",
+      "match": true,
+      "studyA": "PROTOTYPE — engineering demonstration",
+      "studyB": "PROTOTYPE — engineering demonstration",
+      "intentional": false,
+      "differenceId": null,
+      "reason": null,
+      "impact": null,
+      "status": "MATCH"
+    },
+    {
+      "field": "actionSteps",
+      "match": false,
+      "studyA": [
+        "Observe",
+        "Detect",
+        "Verify",
+        "Approve",
+        "Command",
+        "Act",
+        "Record"
+      ],
+      "studyB": [
+        "Observe",
+        "Model",
+        "Evidence",
+        "Boundary",
+        "Approve",
+        "Act",
+        "Prove"
+      ],
+      "intentional": true,
+      "differenceId": "physical-action.steps",
+      "reason": "Study A's seven step labels (Observe/Detect/Verify/Approve/Command/Act/Record) are specified in the Study A brief and follow dossier 13.13 more literally than Study B's committed labels (Observe/Model/Evidence/Boundary/Approve/Act/Prove). Same process, same truth label, different granularity: Study A merges Evidence+Boundary into Verify and adds an explicit Command step. Study B is frozen at 7dc29a2 and may not be edited to match; aligning the two is a follow-up that needs authorisation.",
+      "impact": "none on claims — no capability is asserted in one study and withheld in the other",
+      "status": "INTENTIONAL"
+    },
+    {
+      "field": "ctas",
+      "match": true,
+      "studyA": [
+        "See a real system",
+        "Start a project",
+        "Open the live product",
+        "Start a project",
+        "Back to the signal"
+      ],
+      "studyB": [
+        "See a real system",
+        "Start a project",
+        "Open the live product",
+        "Start a project",
+        "Back to the signal"
+      ],
+      "intentional": false,
+      "differenceId": null,
+      "reason": null,
+      "impact": null,
+      "status": "MATCH"
+    },
+    {
+      "field": "hasVisibleLimitations",
+      "match": false,
+      "studyA": true,
+      "studyB": false,
+      "intentional": true,
+      "differenceId": "limitations.visible",
+      "reason": "Study A renders a visible 'Current limitations' block on the page, required by the Study A brief. Study B carries the equivalent content in research/limitations.md and in its pending-evidence panel, but not as a page section.",
+      "impact": "favours Study A on honesty, not on capability. Study B should gain the same block before any comparative scoring, or the difference must be neutralised in the score.",
+      "status": "INTENTIONAL"
+    },
+    {
+      "field": "hasCanvas",
+      "match": false,
+      "studyA": false,
+      "studyB": true,
+      "intentional": true,
+      "differenceId": "stage.canvas",
+      "reason": "Study B has a <canvas> element behind the SVG poster; Study A has no canvas at all. This is the entire subject of the comparison.",
+      "impact": "none on content",
+      "status": "INTENTIONAL"
+    }
+  ]
+}

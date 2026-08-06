@@ -1,0 +1,78 @@
+/**
+ * Design tokens (dossier 7.5).
+ *
+ * Identical to Study B's palette, deliberately. The two studies are being
+ * compared on whether spatial rendering earns its cost — if one of them also
+ * had warmer colour or better type, the comparison would measure the wrong
+ * thing. Colour communicates state, not category, in both.
+ *
+ * Authored in oklch so lightness steps are perceptually even.
+ */
+
+:root {
+  /* ---- surfaces: near-black, warm, graphite ---- */
+  --surface-base: oklch(16% 0.008 60);
+  --surface-raised: oklch(20% 0.01 62);
+  --surface-inset: oklch(13% 0.008 58);
+  --surface-line: oklch(30% 0.012 62);
+
+  /* ---- text ---- */
+  --text-primary: oklch(94% 0.012 82);
+  --text-secondary: oklch(72% 0.014 74);
+  --text-tertiary: oklch(56% 0.012 70);
+
+  /* ---- signal state roles ---- */
+  --signal-dormant: oklch(52% 0.055 68);
+  --signal-active: oklch(88% 0.095 84);
+  --evidence: oklch(78% 0.105 205);
+  --human: oklch(76% 0.095 152);
+  --risk: oklch(58% 0.115 38);
+  --recovery: oklch(93% 0.032 168);
+
+  /* ---- typography ----
+     System stacks only. The performance contract forbids a runtime
+     third-party font dependency, and self-hosted subsets are a later decision
+     that should follow the visual direction rather than precede it. */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Menlo, Consolas,
+    monospace;
+
+  --text-micro: 0.6875rem;
+  --text-small: 0.8125rem;
+  --text-body: clamp(1rem, 0.95rem + 0.22vw, 1.0625rem);
+  --text-lede: clamp(1.0625rem, 0.98rem + 0.42vw, 1.25rem);
+  --text-h3: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --text-h2: clamp(1.75rem, 1.4rem + 1.5vw, 2.75rem);
+  --text-hero: clamp(2.5rem, 1.6rem + 4.2vw, 5.5rem);
+
+  --tracking-label: 0.14em;
+
+  /* ---- space ---- */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1.25rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-section: clamp(4rem, 3rem + 5vw, 9rem);
+
+  --measure: 62ch;
+  --radius-sm: 3px;
+  --radius-md: 6px;
+
+  /* ---- motion ----
+     Only transitions on interactive states exist at this wave. There is no
+     entrance animation, no scroll-linked movement and no animated SVG. */
+  --duration-fast: 140ms;
+  --duration-normal: 320ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/** Reduced motion collapses durations at the token level, so a component
+    cannot opt out by animating a property nobody remembered to guard. */
+:root[data-motion="reduced"] {
+  --duration-fast: 0ms;
+  --duration-normal: 0ms;
+}

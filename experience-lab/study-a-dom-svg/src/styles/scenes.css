@@ -1,0 +1,290 @@
+/**
+ * Content scenes: route, project proof, inspector, action sequence,
+ * limitations.
+ *
+ * Every status and evidence state is carried by a word as well as a colour.
+ * "LIVE", "PROTOTYPE", "Verified" and "EVIDENCE PENDING" are all readable with
+ * no colour perception at all (7.17).
+ */
+
+/* -------------------------------------------------------------- routes */
+
+.route {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xl);
+}
+
+.route__step {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--surface-inset);
+  border: 1px solid var(--surface-line);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+}
+
+.route__index {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: var(--signal-dormant);
+}
+
+/* ------------------------------------------------------------- project */
+
+.project {
+  padding: var(--space-lg);
+  background: var(--surface-raised);
+  border: 1px solid var(--surface-line);
+  border-radius: var(--radius-md);
+}
+
+.project__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.project__name {
+  font-size: var(--text-h2);
+}
+
+.project__status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-2xs) var(--space-sm);
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+}
+
+.project__status[data-status="live"] {
+  color: var(--human);
+}
+
+.project__status[data-status="prototype"] {
+  color: var(--signal-dormant);
+}
+
+.project__status--inline {
+  margin-bottom: var(--space-lg);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.project__problem {
+  max-width: var(--measure);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-lg);
+}
+
+.project__grid {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+}
+
+.proof {
+  padding: var(--space-md);
+  background: var(--surface-inset);
+  border: 1px solid var(--surface-line);
+  border-radius: var(--radius-sm);
+}
+
+/* Pending evidence is dashed as well as differently coloured, so the
+   distinction survives greyscale and forced-colours. */
+.proof--pending {
+  border-style: dashed;
+  border-color: color-mix(in oklch, var(--signal-dormant) 60%, transparent);
+}
+
+.proof__heading {
+  font-size: var(--text-h3);
+  margin-bottom: var(--space-2xs);
+}
+
+.proof__verified {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-sm);
+}
+
+.proof__verified[data-evidence="verified"] {
+  color: var(--evidence);
+}
+
+.proof__verified[data-evidence="pending"] {
+  color: var(--signal-dormant);
+}
+
+.proof,
+.proof p {
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+}
+
+.proof__list {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.proof__list dt {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.proof__list dd {
+  margin-bottom: var(--space-xs);
+}
+
+.project__link {
+  margin-top: var(--space-lg);
+}
+
+/* ----------------------------------------------------------- inspector */
+
+.inspector {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+}
+
+.inspector__stage {
+  padding: var(--space-md);
+  background: var(--surface-raised);
+  border: 1px solid var(--surface-line);
+  border-left: 2px solid var(--signal-dormant);
+  border-radius: var(--radius-sm);
+}
+
+.inspector__title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  font-size: var(--text-h3);
+  margin-bottom: var(--space-sm);
+}
+
+.inspector__index {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: var(--signal-dormant);
+}
+
+.inspector__stage dl {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: var(--space-2xs) var(--space-sm);
+  font-size: var(--text-small);
+}
+
+.inspector__stage dt {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  padding-top: 0.22em;
+}
+
+.inspector__stage dd {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 34rem) {
+  .inspector__stage dl {
+    grid-template-columns: 1fr;
+    gap: var(--space-2xs);
+  }
+
+  .inspector__stage dd {
+    margin-bottom: var(--space-xs);
+  }
+}
+
+/* ----------------------------------------------------- action sequence */
+
+.action-sequence {
+  display: grid;
+  gap: var(--space-xs);
+  max-width: var(--measure);
+  counter-reset: step;
+}
+
+.action-sequence li {
+  position: relative;
+  padding: var(--space-sm) var(--space-sm) var(--space-sm) var(--space-xl);
+  background: var(--surface-inset);
+  border: 1px solid var(--surface-line);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  counter-increment: step;
+}
+
+.action-sequence li::before {
+  content: counter(step, decimal-leading-zero);
+  position: absolute;
+  left: var(--space-md);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: var(--signal-dormant);
+}
+
+.action-sequence strong {
+  color: var(--text-primary);
+  font-weight: 560;
+}
+
+/* -------------------------------------------------------- limitations */
+
+.limitations {
+  margin-top: var(--space-xl);
+  padding: var(--space-lg);
+  background: var(--surface-inset);
+  border: 1px dashed color-mix(in oklch, var(--signal-dormant) 60%, transparent);
+  border-radius: var(--radius-sm);
+  max-width: var(--measure);
+}
+
+.limitations__heading {
+  font-size: var(--text-h3);
+  margin-bottom: var(--space-md);
+  color: var(--text-primary);
+}
+
+.limitations__list {
+  display: grid;
+  gap: var(--space-sm);
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+}
+
+.limitations__list li {
+  padding-left: var(--space-md);
+  border-left: 1px solid var(--surface-line);
+}
+
+.limitations__list strong {
+  color: var(--text-primary);
+  font-weight: 560;
+}

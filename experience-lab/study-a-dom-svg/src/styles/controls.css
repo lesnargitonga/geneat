@@ -1,0 +1,118 @@
+/**
+ * Buttons and the Effects control.
+ *
+ * Touch targets are 44px minimum. The Effects control is a real radio group
+ * rather than styled divs, so keyboard and screen-reader behaviour is the
+ * platform's and cannot be got wrong.
+ */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-small);
+  font-weight: 560;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-out-expo);
+}
+
+.button--primary {
+  background: var(--signal-active);
+  color: oklch(18% 0.01 60);
+}
+
+.button--primary:hover {
+  background: color-mix(in oklch, var(--signal-active) 88%, white);
+}
+
+.button--secondary {
+  border-color: var(--surface-line);
+  color: var(--text-primary);
+}
+
+.button--secondary:hover {
+  border-color: var(--signal-active);
+}
+
+/* 1px of displacement, only where a pointer genuinely hovers. No magnetic
+   attraction, no tilt — both are removed by the dossier's motion inventory. */
+@media (hover: hover) and (pointer: fine) {
+  .button:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+/* --------------------------------------------------------- effects control */
+
+.effects {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  margin: 0;
+  padding: var(--space-2xs);
+  border: 1px solid var(--surface-line);
+  border-radius: var(--radius-sm);
+}
+
+.effects__legend {
+  padding: 0 var(--space-xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  float: left; /* keeps the legend inline inside a flex fieldset */
+}
+
+.effects__option {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: var(--space-2xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-small);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.effects__option:hover {
+  color: var(--text-primary);
+}
+
+/* The native input stays in the accessibility tree; only its box is hidden. */
+.effects__option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Selection is shown by background, text colour AND an underline bar — not by
+   colour alone. */
+.effects__option:has(input:checked) {
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  box-shadow: inset 0 -2px 0 var(--signal-active);
+}
+
+.effects__option:has(input:focus-visible) {
+  outline: 2px solid var(--signal-active);
+  outline-offset: 2px;
+}

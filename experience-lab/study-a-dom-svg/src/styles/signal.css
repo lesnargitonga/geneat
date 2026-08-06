@@ -1,0 +1,106 @@
+/**
+ * The Lesnar Signal, as static SVG.
+ *
+ * Layers are styled by *role* rather than by shape (dossier 7.6): dormant path,
+ * residual trace, active path, signal head, evidence nodes, constraint
+ * boundaries, human gate, action node. A reader should be able to tell which
+ * layer means what from the stylesheet alone.
+ *
+ * There is no animation here. No `@keyframes`, no `stroke-dashoffset`
+ * transition, no `animateMotion`. Study A's Wave B thesis is that the resolved
+ * composition reads as "a system now exists" while completely still — motion
+ * is only permitted to help once the still frame already works.
+ */
+
+.stage {
+  grid-area: stage;
+  width: 100%;
+  /* Reserving the aspect ratio prevents layout shift when the SVG paints. */
+  aspect-ratio: 880 / 460;
+}
+
+.signal {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Possible structure, not the answer: dashed and quiet. */
+.signal__dormant {
+  stroke: var(--signal-dormant);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 7;
+  stroke-linecap: round;
+  opacity: 0.55;
+}
+
+/* What the signal leaves behind — the system that now exists. */
+.signal__residual {
+  stroke: var(--signal-dormant);
+  stroke-width: 6;
+  stroke-linecap: round;
+  opacity: 0.22;
+}
+
+.signal__active {
+  stroke: var(--signal-active);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.signal__head {
+  fill: var(--signal-active);
+}
+
+.signal__evidence circle {
+  fill: var(--evidence);
+}
+
+.signal__evidence path {
+  stroke: var(--evidence);
+  stroke-width: 1;
+  stroke-dasharray: 2 5;
+  opacity: 0.6;
+}
+
+.signal__boundaries rect {
+  fill: var(--risk);
+  opacity: 0.34;
+}
+
+.signal__gate path {
+  stroke: var(--human);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.signal__gate circle {
+  fill: none;
+  stroke: var(--human);
+  stroke-width: 2;
+}
+
+.signal__action {
+  fill: var(--recovery);
+}
+
+/* ------------------------------------------------------------- legend */
+
+.signal-legend {
+  grid-area: legend;
+  display: grid;
+  gap: var(--space-2xs);
+  max-width: 52ch;
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+}
+
+.signal-legend li {
+  padding-left: var(--space-md);
+  border-left: 1px solid var(--surface-line);
+}
+
+.signal-legend strong {
+  color: var(--text-primary);
+  font-weight: 560;
+}

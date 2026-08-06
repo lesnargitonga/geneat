@@ -1,0 +1,206 @@
+/**
+ * Page structure.
+ *
+ * The rail is sticky rather than a floating widget: the dossier removes the
+ * page-orbit concept so that exactly one device owns chapter position (7.13).
+ */
+
+.lab-banner {
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  background: color-mix(in oklch, var(--risk) 16%, var(--surface-inset));
+  border-bottom: 1px solid color-mix(in oklch, var(--risk) 34%, transparent);
+  color: var(--text-primary);
+  font-size: var(--text-small);
+  text-align: center;
+}
+
+.lab-banner strong {
+  color: var(--risk);
+  letter-spacing: 0.02em;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) clamp(var(--space-md), 4vw, var(--space-xl));
+  background: color-mix(in oklch, var(--surface-base) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--surface-line);
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  margin-right: auto;
+}
+
+.brand__name {
+  font-size: var(--text-small);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.brand__lab {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+/* ------------------------------------------------------------------ rail */
+
+.rail__list {
+  display: flex;
+  gap: clamp(var(--space-xs), 2vw, var(--space-md));
+}
+
+.rail__link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  /* 44px minimum target height on touch, met through padding + line box. */
+  min-height: 44px;
+  padding: var(--space-sm) var(--space-xs);
+  font-size: var(--text-small);
+  color: var(--text-tertiary);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+
+.rail__index {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.08em;
+  color: var(--signal-dormant);
+}
+
+.rail__link:hover {
+  color: var(--text-primary);
+}
+
+/* Current chapter is marked by weight, underline AND aria-current — never by
+   colour alone (7.17). */
+.rail__link[data-active="true"] {
+  color: var(--text-primary);
+  border-bottom-color: var(--signal-active);
+  font-weight: 600;
+}
+
+.rail__link[data-active="true"] .rail__index {
+  color: var(--signal-active);
+}
+
+/* -------------------------------------------------------------- chapters */
+
+.chapter {
+  padding: var(--space-section) clamp(var(--space-md), 6vw, 5rem);
+  border-bottom: 1px solid var(--surface-line);
+  scroll-margin-top: 5rem;
+}
+
+.chapter:last-of-type {
+  border-bottom: none;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-md);
+}
+
+.section-heading {
+  font-size: var(--text-h2);
+  max-width: 20ch;
+  margin-bottom: var(--space-md);
+}
+
+.section-lede {
+  font-size: var(--text-lede);
+  color: var(--text-secondary);
+  max-width: var(--measure);
+  margin-bottom: var(--space-xl);
+}
+
+.note {
+  margin-top: var(--space-lg);
+  padding-left: var(--space-md);
+  border-left: 2px solid var(--surface-line);
+  font-size: var(--text-small);
+  color: var(--text-tertiary);
+  max-width: var(--measure);
+}
+
+.site-footer {
+  padding: var(--space-xl) clamp(var(--space-md), 6vw, 5rem);
+  border-top: 1px solid var(--surface-line);
+  font-size: var(--text-small);
+  color: var(--text-tertiary);
+  max-width: var(--measure);
+}
+
+/* ----------------------------------------------------------------- hero */
+
+.chapter--hero {
+  display: grid;
+  gap: var(--space-xl);
+  align-items: center;
+  min-height: min(88vh, 820px);
+  grid-template-areas:
+    "copy"
+    "stage"
+    "legend";
+}
+
+@media (min-width: 62rem) {
+  .chapter--hero {
+    grid-template-columns: minmax(28ch, 44%) 1fr;
+    grid-template-areas:
+      "copy stage"
+      "legend stage";
+    column-gap: clamp(var(--space-lg), 5vw, 5rem);
+  }
+}
+
+.hero__copy {
+  grid-area: copy;
+}
+
+.hero__headline {
+  font-size: var(--text-hero);
+  margin-bottom: var(--space-md);
+}
+
+.hero__lede {
+  font-size: var(--text-lede);
+  color: var(--text-secondary);
+  max-width: 46ch;
+  margin-bottom: var(--space-lg);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.hero__next {
+  margin-top: var(--space-lg);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}

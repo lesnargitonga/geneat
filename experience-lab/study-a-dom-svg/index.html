@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en" data-js="false" data-motion="full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Study A — DOM and SVG signal prototype | Lesnar AI experience lab</title>
+    <meta
+      name="description"
+      content="Isolated DOM and SVG prototype for the Lesnar AI V2 experience programme. Not a production page."
+    />
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <p class="lab-banner" role="note">
+      <strong>Experience lab — Study A.</strong>
+      Isolated prototype for concept evaluation. Not production, not indexed, and never deployed to
+      lesnarai.co.ke. The live site is unchanged.
+    </p>
+
+    <header class="site-header">
+      <p class="brand">
+        <span class="brand__name">Lesnar AI</span>
+        <span class="brand__lab">experience lab / study a</span>
+      </p>
+
+      <nav class="rail" aria-label="Chapters">
+        <ol class="rail__list">
+          <li><a class="rail__link" href="#idea" data-chapter-link="idea"><span class="rail__index">00</span> Idea</a></li>
+          <li><a class="rail__link" href="#product" data-chapter-link="product"><span class="rail__index">01</span> Product</a></li>
+          <li><a class="rail__link" href="#system" data-chapter-link="system"><span class="rail__index">02</span> System</a></li>
+          <li><a class="rail__link" href="#action" data-chapter-link="action"><span class="rail__index">03</span> Action</a></li>
+        </ol>
+      </nav>
+
+      <fieldset class="effects">
+        <legend class="effects__legend">Effects</legend>
+        <label class="effects__option">
+          <input type="radio" name="effects" value="auto" checked />
+          <span>Auto</span>
+        </label>
+        <label class="effects__option">
+          <input type="radio" name="effects" value="full" />
+          <span>Full</span>
+        </label>
+        <label class="effects__option">
+          <input type="radio" name="effects" value="reduced" />
+          <span>Reduced</span>
+        </label>
+      </fieldset>
+    </header>
+
+    <main id="main">
+      <!-- ================= UNIT 1 — HERO AND UNRESOLVED IDEA ================= -->
+      <section class="chapter chapter--hero" id="idea" data-chapter="idea" aria-labelledby="hero-heading">
+        <div class="hero__copy">
+          <p class="eyebrow">Nairobi · engineering studio</p>
+          <h1 class="hero__headline" id="hero-heading">
+            We make <em>ambitious ideas</em> real.
+          </h1>
+          <p class="hero__lede">
+            A difficult idea enters the system, becomes understandable, is engineered, protected,
+            tested, and finally acts in the real world.
+          </p>
+          <p class="hero__actions">
+            <a class="button button--primary" href="#product">See a real system</a>
+            <a class="button button--secondary" href="#contact">Start a project</a>
+          </p>
+          <p class="hero__next"><span aria-hidden="true">↓</span> Observe the system</p>
+        </div>
+
+        <!--
+          The signal, as static SVG.
+
+          Study A's entire thesis is that this can carry the concept without a
+          renderer. In Waves A and B it is deliberately unanimated: the shape
+          has to read as "a system that now exists" while completely still,
+          before any motion is allowed to help it (dossier 7.6).
+        -->
+        <div class="stage" data-stage>
+          <svg
+            class="signal"
+            viewBox="0 0 880 460"
+            role="img"
+            aria-labelledby="signal-title signal-desc"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <title id="signal-title">The Lesnar Signal, resolved</title>
+            <desc id="signal-desc">
+              A signal path passing through evidence, two constraint boundaries, a human approval
+              gate, and a final action node, leaving a residual trace behind it. The same sequence
+              is described in text below this graphic.
+            </desc>
+
+            <g class="signal__boundaries">
+              <rect x="452" y="86" width="4" height="288" rx="2" />
+              <rect x="586" y="112" width="4" height="236" rx="2" />
+            </g>
+
+            <path
+              class="signal__dormant"
+              d="M52 322 C 150 322, 152 214, 250 214 S 366 196, 452 196 S 560 214, 640 214 S 760 268, 838 268"
+              fill="none"
+            />
+
+            <path
+              class="signal__residual"
+              d="M52 322 C 150 322, 152 214, 250 214 S 366 196, 452 196"
+              fill="none"
+            />
+
+            <path
+              class="signal__active"
+              d="M52 322 C 150 322, 152 214, 250 214 S 366 196, 452 196 S 560 214, 640 214 S 760 268, 838 268"
+              fill="none"
+            />
+
+            <g class="signal__evidence">
+              <circle cx="150" cy="392" r="5" />
+              <circle cx="214" cy="118" r="5" />
+              <circle cx="332" cy="386" r="5" />
+              <circle cx="386" cy="104" r="5" />
+              <path d="M150 386 L 178 268" />
+              <path d="M214 126 L 238 206" />
+              <path d="M332 380 L 348 226" />
+              <path d="M386 112 L 404 190" />
+            </g>
+
+            <g class="signal__gate">
+              <path d="M604 168 L 586 168 L 586 128" fill="none" />
+              <path d="M604 292 L 586 292 L 586 332" fill="none" />
+              <circle cx="640" cy="214" r="11" />
+            </g>
+
+            <circle class="signal__action" cx="838" cy="268" r="14" />
+            <circle class="signal__head" cx="452" cy="196" r="7" />
+          </svg>
+        </div>
+
+        <!--
+          Structured text equivalent for the diagram (7.17). Not a caption —
+          the same information, available to a screen reader, to a printout,
+          and to anyone reading with images or CSS unavailable.
+        -->
+        <ol class="signal-legend">
+          <li><strong>Idea.</strong> Unstable fragments and incomplete possibilities.</li>
+          <li><strong>Observe.</strong> Evidence, people and constraints join the path.</li>
+          <li><strong>Model.</strong> Routes and boundaries become clear.</li>
+          <li><strong>Engineer.</strong> The signal becomes an operational system.</li>
+          <li><strong>Protect.</strong> Trust boundaries and recovery states form around it.</li>
+          <li><strong>Approve.</strong> Human judgment pauses or redirects the flow.</li>
+          <li><strong>Act.</strong> The signal reaches a real product, order or device.</li>
+          <li><strong>Prove.</strong> Outcomes and failure recovery become visible.</li>
+        </ol>
+      </section>
+
+      <!-- ============ UNIT 2 — IDEA TO GEN-EAT TRANSITION ==================== -->
+      <section class="chapter chapter--transition" id="product" data-chapter="product" aria-labelledby="transition-heading">
+        <h2 class="section-heading" id="transition-heading">The abstract path becomes an operational one</h2>
+        <p class="section-lede">
+          The signal does not fade out so a card grid can appear. It reorganises into the routes a
+          real order actually travels.
+        </p>
+
+        <ol class="route">
+          <li class="route__step"><span class="route__index">01</span> Customer request</li>
+          <li class="route__step"><span class="route__index">02</span> Conversation state</li>
+          <li class="route__step"><span class="route__index">03</span> Menu and catalog</li>
+          <li class="route__step"><span class="route__index">04</span> Order validation</li>
+          <li class="route__step"><span class="route__index">05</span> Payment</li>
+          <li class="route__step"><span class="route__index">06</span> Merchant routing</li>
+          <li class="route__step"><span class="route__index">07</span> Fulfilment status</li>
+        </ol>
+
+        <!-- ================= UNIT 3 — GEN-EAT PROJECT PROOF ================== -->
+        <article class="project" aria-labelledby="project-heading">
+          <header class="project__header">
+            <h3 class="project__name" id="project-heading">Gen-Eat</h3>
+            <p class="project__status" data-status="live">
+              <span class="status-dot" aria-hidden="true"></span> LIVE
+            </p>
+          </header>
+
+          <p class="project__problem">
+            Ordering food in Nairobi happens in conversation, not in an app store. Gen-Eat treats the
+            chat thread as the interface: a customer orders in the channel they already use, and the
+            system behind it handles catalog, validation, payment, dispatch and recovery.
+          </p>
+
+          <div class="project__grid">
+            <section class="proof" aria-labelledby="proof-architecture">
+              <h4 class="proof__heading" id="proof-architecture">Architecture</h4>
+              <p class="proof__verified" data-evidence="verified">Verified — read from this repository</p>
+              <dl class="proof__list">
+                <dt>Backend</dt>
+                <dd>FastAPI service under <code>app/</code>, Alembic migrations, Postgres and Redis.</dd>
+                <dt>Channels</dt>
+                <dd>
+                  Adapter contract in <code>app/channels/base.py</code> with WhatsApp, voice and mock
+                  implementations behind a registry — the channel is swappable, not hard-wired.
+                </dd>
+                <dt>Payments</dt>
+                <dd>
+                  Provider factory in <code>app/integrations/payments/</code>: M-Pesa Daraja,
+                  IntaSend, Paystack, Stripe and a simulator behind one <code>base.py</code>
+                  interface.
+                </dd>
+                <dt>Storefront</dt>
+                <dd>Next.js app router portal in <code>gen-eat-portal/</code>, deployed on Vercel.</dd>
+              </dl>
+            </section>
+
+            <section class="proof" aria-labelledby="proof-decision">
+              <h4 class="proof__heading" id="proof-decision">Technical decision</h4>
+              <p class="proof__verified" data-evidence="verified">Verified — read from this repository</p>
+              <p>
+                Payment providers sit behind a factory rather than a direct SDK call. Kenyan mobile
+                money and card rails fail differently and change terms independently; a system that
+                hard-codes one provider has to be rewritten when that provider changes, and cannot be
+                tested without touching live money. The simulator adapter exists for exactly that
+                reason.
+              </p>
+            </section>
+
+            <section class="proof" aria-labelledby="proof-deployment">
+              <h4 class="proof__heading" id="proof-deployment">Deployment</h4>
+              <p class="proof__verified" data-evidence="verified">Verified — read from this repository</p>
+              <p>
+                Infrastructure is declared in <code>render.yaml</code>: a Docker web service with a
+                managed Postgres instance and a Redis key-value store, all in the Frankfurt region.
+                The storefront is a separate Vercel project; the production landing links the product
+                at <code>geneat.lesnarai.co.ke</code> and the portal targets
+                <code>api.lesnarai.co.ke</code>.
+              </p>
+            </section>
+
+            <section class="proof proof--pending" aria-labelledby="proof-outcomes">
+              <h4 class="proof__heading" id="proof-outcomes">Measured outcomes</h4>
+              <p class="proof__verified" data-evidence="pending">EVIDENCE PENDING — not collected in this wave</p>
+              <p>
+                Interface screenshots, live endpoint status and operational figures are required
+                before this section can make a claim. Waves A and B build the static narrative only.
+                No number appears here until it has been measured.
+              </p>
+            </section>
+          </div>
+
+          <p class="project__link">
+            <a class="button button--secondary" href="https://geneat.lesnarai.co.ke" rel="noreferrer noopener">
+              Open the live product
+            </a>
+          </p>
+        </article>
+      </section>
+
+      <!-- ==================== UNIT 4 — SYSTEM INSPECTOR ====================== -->
+      <section class="chapter chapter--inspector" id="system" data-chapter="system" aria-labelledby="inspector-heading">
+        <h2 class="section-heading" id="inspector-heading">One request, all the way through</h2>
+        <p class="section-lede">
+          Each stage names what enters it, what acts, what can fail, and what recovery exists. The
+          module paths are the ones that implement it in the repository.
+        </p>
+
+        <div class="inspector">
+          <article class="inspector__stage" data-stage-id="request" aria-labelledby="stage-request">
+            <h3 class="inspector__title" id="stage-request"><span class="inspector__index">01</span> Request</h3>
+            <dl>
+              <dt>Enters</dt><dd>An inbound message or call from a customer channel.</dd>
+              <dt>Acts</dt><dd><code>app/api/whatsapp.py</code>, <code>app/api/voice.py</code>, <code>app/channels/base.py</code></dd>
+              <dt>Can fail</dt><dd>Webhook signature mismatch, provider retry storms, duplicate delivery.</dd>
+              <dt>Recovery</dt><dd>Idempotent handling; the channel adapter contract keeps provider quirks out of business logic.</dd>
+            </dl>
+          </article>
+
+          <article class="inspector__stage" data-stage-id="context" aria-labelledby="stage-context">
+            <h3 class="inspector__title" id="stage-context"><span class="inspector__index">02</span> Context</h3>
+            <dl>
+              <dt>Enters</dt><dd>The message, plus whatever this customer was already doing.</dd>
+              <dt>Acts</dt><dd><code>app/services/conversation_context.py</code>, <code>session_manager.py</code>, <code>language.py</code></dd>
+              <dt>Can fail</dt><dd>Lost session state; a returning customer treated as new; wrong language.</dd>
+              <dt>Recovery</dt><dd>Session state is reconstructed rather than assumed, and language is resolved per turn.</dd>
+            </dl>
+          </article>
+
+          <article class="inspector__stage" data-stage-id="decision" aria-labelledby="stage-decision">
+            <h3 class="inspector__title" id="stage-decision"><span class="inspector__index">03</span> Decision</h3>
+            <dl>
+              <dt>Enters</dt><dd>Intent plus context.</dd>
+              <dt>Acts</dt><dd><code>app/services/conversation_service.py</code>, <code>hazina_deterministic_gate.py</code>, <code>output_sanitizer.py</code></dd>
+              <dt>Can fail</dt><dd>A model producing a confident answer it should not give.</dd>
+              <dt>Recovery</dt><dd>A deterministic gate constrains what may be said, and output is sanitised before it reaches a customer. The model does not get the last word.</dd>
+            </dl>
+          </article>
+
+          <article class="inspector__stage" data-stage-id="payment" aria-labelledby="stage-payment">
+            <h3 class="inspector__title" id="stage-payment"><span class="inspector__index">04</span> Payment</h3>
+            <dl>
+              <dt>Enters</dt><dd>A validated order awaiting settlement.</dd>
+              <dt>Acts</dt><dd><code>app/integrations/payments/factory.py</code>, <code>daraja.py</code>, <code>intasend.py</code></dd>
+              <dt>Can fail</dt><dd>STK push never confirmed; callback arrives late, twice, or not at all.</dd>
+              <dt>Recovery</dt><dd>Provider-specific behaviour is isolated behind one interface, so a stalled payment is a known state rather than an unhandled branch.</dd>
+            </dl>
+          </article>
+
+          <article class="inspector__stage" data-stage-id="routing" aria-labelledby="stage-routing">
+            <h3 class="inspector__title" id="stage-routing"><span class="inspector__index">05</span> Routing</h3>
+            <dl>
+              <dt>Enters</dt><dd>A paid order that a human now has to fulfil.</dd>
+              <dt>Acts</dt><dd><code>app/services/staff_dispatch.py</code>, <code>outbox.py</code>, <code>webhook_dispatcher.py</code></dd>
+              <dt>Can fail</dt><dd>Notification lost; a merchant never sees the order.</dd>
+              <dt>Recovery</dt><dd>Outbound work goes through an outbox rather than a fire-and-forget call, so delivery survives a restart.</dd>
+            </dl>
+          </article>
+
+          <article class="inspector__stage" data-stage-id="recovery" aria-labelledby="stage-recovery">
+            <h3 class="inspector__title" id="stage-recovery"><span class="inspector__index">06</span> Recovery</h3>
+            <dl>
+              <dt>Enters</dt><dd>Anything that did not go as planned.</dd>
+              <dt>Acts</dt><dd><code>app/services/hazina_escalation.py</code>, <code>hazina_customer_fallbacks.py</code>, <code>order_tracking.py</code></dd>
+              <dt>Can fail</dt><dd>Silent failure — the worst outcome, where nobody is told anything.</dd>
+              <dt>Recovery</dt><dd>Escalation paths hand the conversation to a person, and the customer is told what is happening.</dd>
+            </dl>
+          </article>
+        </div>
+
+        <p class="note">
+          Every stage is readable here as plain content. Wave F turns this into a keyboard-navigable
+          inspector; nothing in that wave may become the only route to this information.
+        </p>
+      </section>
+
+      <!-- ============== UNIT 5 — SOFTWARE TO PHYSICAL ACTION ================= -->
+      <section class="chapter chapter--action" id="action" data-chapter="action" aria-labelledby="action-heading">
+        <h2 class="section-heading" id="action-heading">Software becomes physical action</h2>
+        <p class="section-lede">
+          The same discipline applied past the screen: observation, evidence, a confidence boundary,
+          a person who decides, and only then a machine that moves.
+        </p>
+
+        <p class="project__status project__status--inline" data-status="prototype">
+          <span class="status-dot" aria-hidden="true"></span> PROTOTYPE — engineering demonstration
+        </p>
+
+        <ol class="action-sequence">
+          <li data-action-step="observe">
+            <strong>Observe.</strong> A camera frame is captured as a package passes.
+          </li>
+          <li data-action-step="detect">
+            <strong>Detect.</strong> A model proposes that the package may be damaged.
+          </li>
+          <li data-action-step="verify">
+            <strong>Verify.</strong> Confidence and supporting frames are assembled and checked
+            against a threshold. Below it, nothing is actuated.
+          </li>
+          <li data-action-step="approve">
+            <strong>Approve.</strong> A person confirms or rejects the proposed action.
+          </li>
+          <li data-action-step="command">
+            <strong>Command.</strong> A control instruction is issued to the diverter.
+          </li>
+          <li data-action-step="act">
+            <strong>Act.</strong> The package is diverted to an inspection lane.
+          </li>
+          <li data-action-step="record">
+            <strong>Record.</strong> The operational record is updated with what was decided and why.
+          </li>
+        </ol>
+
+        <p class="note">
+          Labelled a prototype because that is what the evidence supports. No production
+          computer-vision system, no deployed robotics, and no recorded operational run backs this
+          sequence.
+        </p>
+      </section>
+
+      <!-- =================== UNIT 6 — VERDICT AND CONTACT ==================== -->
+      <section class="chapter chapter--contact" id="contact" aria-labelledby="contact-heading">
+        <h2 class="section-heading" id="contact-heading">If your idea is difficult, that is the point</h2>
+        <p class="section-lede">
+          Systems that take payments, talk to customers, and move things in the physical world.
+        </p>
+        <p class="hero__actions">
+          <a class="button button--primary" href="mailto:hello@lesnarai.co.ke">Start a project</a>
+          <a class="button button--secondary" href="#idea">Back to the signal</a>
+        </p>
+
+        <!--
+          Visible limitations, on the page rather than only in research notes.
+
+          A prototype that states its own gaps in public is making a different
+          claim from one that states them in a file nobody opens.
+        -->
+        <section class="limitations" aria-labelledby="limitations-heading">
+          <h3 class="limitations__heading" id="limitations-heading">Current limitations of this prototype</h3>
+          <ul class="limitations__list">
+            <li>
+              <strong>No motion yet.</strong> Waves A and B build the static narrative only. The
+              Effects control is wired and persists a choice, but there is currently no animation
+              for “Reduced” to reduce.
+            </li>
+            <li>
+              <strong>The inspector is not interactive.</strong> All six stages are shown at once.
+              Stage selection, keyboard locking and the text-alternative pairing arrive in Wave F.
+            </li>
+            <li>
+              <strong>No measured outcomes.</strong> No Gen-Eat metrics, adoption figures, payment
+              volumes or performance numbers appear anywhere on this page, because none have been
+              measured in this wave.
+            </li>
+            <li>
+              <strong>Live status is inferred, not probed.</strong> The <code>LIVE</code> label rests
+              on the production landing linking the product and on the deployment target declared in
+              this repository. No request was made to the running service.
+            </li>
+            <li>
+              <strong>No physical deployment.</strong> The action sequence describes an engineering
+              demonstration. Nothing here claims a deployed robotics or computer-vision system.
+            </li>
+            <li>
+              <strong>Not comparable to Study B yet.</strong> Neither prototype has visual or motion
+              work, so no score under the comparative framework is available.
+            </li>
+          </ul>
+        </section>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        Lesnar AI V2 experience programme — Prototype Study A (DOM and SVG). Waves A and B: semantic
+        baseline, static narrative, accessibility foundations and content parity with Study B. No
+        animated SVG, no renderer, no motion work yet.
+      </p>
+    </footer>
+  </body>
+</html>

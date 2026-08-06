@@ -1,0 +1,25 @@
+{
+  "name": "lesnarai-v2-study-a-dom-svg",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Lesnar AI V2 Prototype Study A — DOM + SVG signal. Isolated experience lab. Never deployed.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview --port 4184 --strictPort",
+    "test": "playwright test",
+    "parity": "node scripts/check-content-parity.mjs",
+    "check:parity": "node scripts/check-content-parity.mjs",
+    "verify:isolation": "node scripts/verify-isolation.mjs",
+    "evidence": "node scripts/capture-evidence.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@playwright/test": "1.60.0",
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.9"
+  }
+}
