@@ -1,0 +1,362 @@
+{
+  "method": "Isolation scenarios, CPU 4x unless stated.",
+  "scenarios": [
+    {
+      "label": "synthetic scroll, settled",
+      "scrollWindowMs": 1228.3,
+      "marks": {
+        "settled": 2930,
+        "scrollStart": 2941.7,
+        "scrollEnd": 4170
+      },
+      "allLongTasks": 1,
+      "longTasksBeforeScroll": 1,
+      "longestBeforeScrollMs": 154,
+      "longTasksDuringScroll": 0,
+      "longestDuringScrollMs": 0,
+      "overBudgetDuringScroll": 0,
+      "lifetimeLongestMs": 154,
+      "duringScrollDetail": [],
+      "beforeScrollDetail": [
+        {
+          "start": 32.4,
+          "end": 186.4,
+          "dur": 154,
+          "name": "self",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        }
+      ],
+      "cdpDeltaDuringScroll": {
+        "TaskDuration": 212.5,
+        "ScriptDuration": 0.1,
+        "LayoutDuration": 9.5,
+        "RecalcStyleDuration": 14.7,
+        "LayoutCount": 31,
+        "RecalcStyleCount": 32
+      }
+    },
+    {
+      "label": "natural wheel scroll, settled",
+      "scrollWindowMs": 1717.1,
+      "marks": {
+        "settled": 2941.5,
+        "scrollStart": 2948.4,
+        "scrollEnd": 4665.5
+      },
+      "allLongTasks": 1,
+      "longTasksBeforeScroll": 1,
+      "longestBeforeScrollMs": 160,
+      "longTasksDuringScroll": 0,
+      "longestDuringScrollMs": 0,
+      "overBudgetDuringScroll": 0,
+      "lifetimeLongestMs": 160,
+      "duringScrollDetail": [],
+      "beforeScrollDetail": [
+        {
+          "start": 35.7,
+          "end": 195.7,
+          "dur": 160,
+          "name": "self",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        }
+      ],
+      "cdpDeltaDuringScroll": {
+        "TaskDuration": 276.9,
+        "ScriptDuration": 3.6,
+        "LayoutDuration": 8.2,
+        "RecalcStyleDuration": 29,
+        "LayoutCount": 29,
+        "RecalcStyleCount": 50
+      }
+    },
+    {
+      "label": "natural wheel, hero playing",
+      "scrollWindowMs": 1648.9,
+      "marks": {
+        "scrollStart": 210.4,
+        "scrollEnd": 1859.3
+      },
+      "allLongTasks": 1,
+      "longTasksBeforeScroll": 1,
+      "longestBeforeScrollMs": 152,
+      "longTasksDuringScroll": 0,
+      "longestDuringScrollMs": 0,
+      "overBudgetDuringScroll": 0,
+      "lifetimeLongestMs": 152,
+      "duringScrollDetail": [],
+      "beforeScrollDetail": [
+        {
+          "start": 32.3,
+          "end": 184.3,
+          "dur": 152,
+          "name": "self",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        }
+      ],
+      "cdpDeltaDuringScroll": {
+        "TaskDuration": 195.7,
+        "ScriptDuration": 5.2,
+        "LayoutDuration": 3.9,
+        "RecalcStyleDuration": 22.9,
+        "LayoutCount": 3,
+        "RecalcStyleCount": 33
+      }
+    },
+    {
+      "label": "synthetic, hero playing",
+      "scrollWindowMs": 1212.4,
+      "marks": {
+        "scrollStart": 211,
+        "scrollEnd": 1423.4
+      },
+      "allLongTasks": 1,
+      "longTasksBeforeScroll": 1,
+      "longestBeforeScrollMs": 150,
+      "longTasksDuringScroll": 0,
+      "longestDuringScrollMs": 0,
+      "overBudgetDuringScroll": 0,
+      "lifetimeLongestMs": 150,
+      "duringScrollDetail": [],
+      "beforeScrollDetail": [
+        {
+          "start": 33.8,
+          "end": 183.8,
+          "dur": 150,
+          "name": "self",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        }
+      ],
+      "cdpDeltaDuringScroll": {
+        "TaskDuration": 84.8,
+        "ScriptDuration": 2.7,
+        "LayoutDuration": 0,
+        "RecalcStyleDuration": 0.6,
+        "LayoutCount": 0,
+        "RecalcStyleCount": 1
+      }
+    },
+    {
+      "label": "reduced motion, natural",
+      "scrollWindowMs": 1588.1,
+      "marks": {
+        "settled": 286.6,
+        "scrollStart": 289,
+        "scrollEnd": 1877.1
+      },
+      "allLongTasks": 1,
+      "longTasksBeforeScroll": 1,
+      "longestBeforeScrollMs": 173,
+      "longTasksDuringScroll": 0,
+      "longestDuringScrollMs": 0,
+      "overBudgetDuringScroll": 0,
+      "lifetimeLongestMs": 173,
+      "duringScrollDetail": [],
+      "beforeScrollDetail": [
+        {
+          "start": 34.5,
+          "end": 207.5,
+          "dur": 173,
+          "name": "self",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        }
+      ],
+      "cdpDeltaDuringScroll": {
+        "TaskDuration": 96.2,
+        "ScriptDuration": 2.2,
+        "LayoutDuration": 5.9,
+        "RecalcStyleDuration": 6.2,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 6
+      }
+    },
+    {
+      "label": "diagnostics OFF, natural",
+      "scrollWindowMs": 1340.5,
+      "marks": {
+        "settled": 2943.2,
+        "scrollStart": 2945.7,
+        "scrollEnd": 4286.2
+      },
+      "allLongTasks": 1,
+      "longTasksBeforeScroll": 1,
+      "longestBeforeScrollMs": 110,
+      "longTasksDuringScroll": 0,
+      "longestDuringScrollMs": 0,
+      "overBudgetDuringScroll": 0,
+      "lifetimeLongestMs": 110,
+      "duringScrollDetail": [],
+      "beforeScrollDetail": [
+        {
+          "start": 33.9,
+          "end": 143.9,
+          "dur": 110,
+          "name": "unknown",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        }
+      ],
+      "cdpDeltaDuringScroll": {
+        "TaskDuration": 190,
+        "ScriptDuration": 2.6,
+        "LayoutDuration": 10.1,
+        "RecalcStyleDuration": 23.3,
+        "LayoutCount": 30,
+        "RecalcStyleCount": 50
+      }
+    },
+    {
+      "label": "diagnostics ON, natural",
+      "scrollWindowMs": 1719.1,
+      "marks": {
+        "settled": 2942.4,
+        "scrollStart": 2948,
+        "scrollEnd": 4667.1
+      },
+      "allLongTasks": 2,
+      "longTasksBeforeScroll": 2,
+      "longestBeforeScrollMs": 112,
+      "longTasksDuringScroll": 0,
+      "longestDuringScrollMs": 0,
+      "overBudgetDuringScroll": 0,
+      "lifetimeLongestMs": 112,
+      "duringScrollDetail": [],
+      "beforeScrollDetail": [
+        {
+          "start": 31.4,
+          "end": 143.4,
+          "dur": 112,
+          "name": "unknown",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        },
+        {
+          "start": 144.1,
+          "end": 202.1,
+          "dur": 58,
+          "name": "self",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        }
+      ],
+      "cdpDeltaDuringScroll": {
+        "TaskDuration": 279.9,
+        "ScriptDuration": 2.3,
+        "LayoutDuration": 8.7,
+        "RecalcStyleDuration": 36.2,
+        "LayoutCount": 32,
+        "RecalcStyleCount": 53
+      }
+    },
+    {
+      "label": "mobile Pixel 5, natural",
+      "scrollWindowMs": 2833.8,
+      "marks": {
+        "settled": 2924.5,
+        "scrollStart": 2931.8,
+        "scrollEnd": 5765.6
+      },
+      "allLongTasks": 1,
+      "longTasksBeforeScroll": 1,
+      "longestBeforeScrollMs": 139,
+      "longTasksDuringScroll": 0,
+      "longestDuringScrollMs": 0,
+      "overBudgetDuringScroll": 0,
+      "lifetimeLongestMs": 139,
+      "duringScrollDetail": [],
+      "beforeScrollDetail": [
+        {
+          "start": 39.2,
+          "end": 178.2,
+          "dur": 139,
+          "name": "self",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        }
+      ],
+      "cdpDeltaDuringScroll": {
+        "TaskDuration": 319.4,
+        "ScriptDuration": 1.6,
+        "LayoutDuration": 7.1,
+        "RecalcStyleDuration": 27.1,
+        "LayoutCount": 33,
+        "RecalcStyleCount": 61
+      }
+    },
+    {
+      "label": "no CPU throttle, natural",
+      "scrollWindowMs": 1699.4,
+      "marks": {
+        "settled": 2814.5,
+        "scrollStart": 2816.6,
+        "scrollEnd": 4516
+      },
+      "allLongTasks": 0,
+      "longTasksBeforeScroll": 0,
+      "longestBeforeScrollMs": 0,
+      "longTasksDuringScroll": 0,
+      "longestDuringScrollMs": 0,
+      "overBudgetDuringScroll": 0,
+      "lifetimeLongestMs": 0,
+      "duringScrollDetail": [],
+      "beforeScrollDetail": [],
+      "cdpDeltaDuringScroll": {
+        "TaskDuration": 101.5,
+        "ScriptDuration": 0.8,
+        "LayoutDuration": 2.7,
+        "RecalcStyleDuration": 12.3,
+        "LayoutCount": 33,
+        "RecalcStyleCount": 50
+      }
+    }
+  ]
+}

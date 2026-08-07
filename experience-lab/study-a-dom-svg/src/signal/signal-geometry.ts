@@ -67,9 +67,11 @@ export function fullPath(points: readonly Point[]): string {
 
 export function segmentPaths(points: readonly Point[]): Map<string, string> {
   const paths = new Map<string, string>();
+  // Ids are derived from position rather than read from the fixed canonical
+  // list, so a grammar with more or fewer than eight steps still gets a
+  // complete set of segments.
   for (let i = 0; i < points.length - 1; i += 1) {
-    const id = SEGMENT_IDS[i];
-    if (id) paths.set(id, segmentPath(points, i));
+    paths.set(`seg-${i + 1}`, segmentPath(points, i));
   }
   return paths;
 }
@@ -142,6 +144,49 @@ export const VERTICAL_GEOMETRY: SignalGeometry = {
   nodes: VERTICAL_NODES,
   segments: SEGMENT_IDS,
 };
+
+/**
+ * Builds a geometry for an arbitrary step count.
+ *
+ * Needed because project grammars have different lengths — six steps for
+ * conversational commerce, seven for controlled execution, eight for regulated
+ * care. If geometry only existed for eight waypoints, the signal system would
+ * be structurally hard-wired to the canonical sequence, which is exactly the
+ * assumption §25.1 warns against.
+ *
+ * The curve is the same generated Catmull-Rom used by the authored geometries;
+ * only the waypoint count changes.
+ */
+export function createSequenceGeometry(
+  id: "horizontal" | "vertical",
+  stepCount: number,
+  options: { width?: number; height?: number } = {},
+): SignalGeometry {
+  if (stepCount < 2) throw new Error(`geometry needs at least 2 steps, got ${stepCount}`);
+
+  const width = options.width ?? 880;
+  const height = options.height ?? 240;
+  const marginX = 48;
+  const usable = width - marginX * 2;
+
+  const waypoints: Point[] = Array.from({ length: stepCount }, (_, index) => {
+    const t = index / (stepCount - 1);
+    // A shallow arc: high enough to read as a path, flat enough that a long
+    // grammar does not run off the top of a short viewBox.
+    const arc = Math.sin(t * Math.PI) * (height * 0.22);
+    return { x: round(marginX + usable * t), y: round(height * 0.62 - arc) };
+  });
+
+  const segments = Array.from({ length: stepCount - 1 }, (_, i) => `seg-${i + 1}`);
+
+  return {
+    id,
+    viewBox: `0 0 ${width} ${height}`,
+    waypoints,
+    nodes: [],
+    segments,
+  };
+}
 
 /** Below this width the vertical geometry is used. */
 export const VERTICAL_BREAKPOINT_PX = 720;

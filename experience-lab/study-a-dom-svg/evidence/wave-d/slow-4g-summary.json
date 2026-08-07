@@ -1,0 +1,25 @@
+{
+  "method": "Laboratory measurement, headless Chromium, single machine, CDP-emulated conditions. Not a field measurement and not a p75 claim.",
+  "scenario": "Pixel 5 viewport, CPU 4x + Slow 4G (400ms RTT, 400kbps) via CDP",
+  "wallClockLoadMs": 1268,
+  "headlineVisibleAtLoad": true,
+  "primaryCtaVisibleAtLoad": true,
+  "paint": {
+    "firstPaintMs": 1156,
+    "firstContentfulPaintMs": 1156,
+    "largestContentfulPaintMs": 1156,
+    "domContentLoadedMs": 1267,
+    "loadMs": 1267,
+    "cumulativeLayoutShift": 0,
+    "longTasks": [
+      {
+        "start": 1054,
+        "end": 1145,
+        "dur": 91
+      }
+    ],
+    "longestTaskMs": 91
+  },
+  "loaderPresent": false,
+  "loaderNote": "No loader exists in the markup; the static hero is the first paint."
+}

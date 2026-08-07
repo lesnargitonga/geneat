@@ -157,47 +157,70 @@
 
 /* ----------------------------------------------------------------- hero */
 
+/**
+ * The hero.
+ *
+ * Two bands rather than one grid of four things:
+ *
+ *   band 1 — the argument (copy) and the system (signal), side by side
+ *   band 2 — the reading material (state detail, full sequence), quieter,
+ *            separated by a rule
+ *
+ * Wave C put copy, signal, stepper, text panel and legend into a single grid,
+ * which gave five items equal claim on attention and left the signal floating
+ * in dead space. Splitting the bands lets the signal be genuinely large in
+ * band 1 and lets the detail recede in band 2.
+ */
 .chapter--hero {
   display: grid;
-  gap: var(--space-lg);
+  gap: var(--space-xl);
   align-items: start;
-  min-height: min(88vh, 820px);
+  min-height: min(92vh, 900px);
+  padding-block: clamp(var(--space-xl), 8vh, 7rem) var(--space-section);
   grid-template-areas:
     "copy"
-    "stage"
-    "stepper"
+    "signal"
     "text"
     "legend";
 }
 
 @media (min-width: 62rem) {
   .chapter--hero {
-    grid-template-columns: minmax(28ch, 44%) 1fr;
-    /* The stepper spans both columns: it is a control for the whole signal,
-       not a caption belonging to either the copy or the graphic. */
+    /* The copy column is measured in characters so the headline breaks the
+       same way regardless of viewport width. */
+    grid-template-columns: minmax(30ch, 40fr) 60fr;
     grid-template-areas:
-      "copy stage"
-      "stepper stepper"
+      "copy signal"
       "text legend";
-    column-gap: clamp(var(--space-lg), 5vw, 5rem);
+    column-gap: clamp(var(--space-xl), 6vw, 6rem);
+    row-gap: var(--space-section);
     align-items: center;
   }
 }
 
 .hero__copy {
   grid-area: copy;
+  /* Optical alignment: the headline's cap-height sits closer to the signal's
+     vertical centre than a pure grid centring would put it. */
+  padding-block-start: clamp(0rem, 1vh, var(--space-md));
 }
 
 .hero__headline {
   font-size: var(--text-hero);
-  margin-bottom: var(--space-md);
+  line-height: 0.94;
+  letter-spacing: -0.032em;
+  margin-bottom: var(--space-lg);
+  /* Prevents "real." landing alone on a line at awkward widths. */
+  text-wrap: balance;
+  max-width: 14ch;
 }
 
 .hero__lede {
   font-size: var(--text-lede);
+  line-height: 1.5;
   color: var(--text-secondary);
-  max-width: 46ch;
-  margin-bottom: var(--space-lg);
+  max-width: 44ch;
+  margin-bottom: var(--space-xl);
 }
 
 .hero__actions {
@@ -207,10 +230,22 @@
 }
 
 .hero__next {
-  margin-top: var(--space-lg);
+  margin-top: var(--space-xl);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--surface-line);
+  max-width: 32ch;
   font-family: var(--font-mono);
   font-size: var(--text-micro);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--text-tertiary);
+}
+
+/* --------------------------------------------------------- signal column */
+
+.hero__signal {
+  grid-area: signal;
+  display: grid;
+  gap: var(--space-md);
+  min-width: 0;
 }

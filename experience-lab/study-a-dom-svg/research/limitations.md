@@ -1,4 +1,42 @@
-# Study A — Limitations after Waves A, B and C
+# Study A — Limitations after Waves A, B, C and D
+
+> ## Wave D update
+>
+> **Resolved since Wave C:** the hero is now authored and choreographed; the
+> signal is a full-scale composition rather than a thread in dead space; the
+> development stepper no longer reads as navigation; colour contrast is
+> measured and passing on all 15 pairs; layout shift is measured at ~0.
+>
+> **Still open after Wave D:**
+>
+> - **Long task under CPU throttle.** 142–153 ms longest task during a
+>   synthetic full-page scroll at 4× CPU, against a 50 ms budget. The scroll is
+>   harsher than ordinary reading and the task is not yet attributed. **Not
+>   claimed as passing.** See `production-readiness/NETWORK_FAILURE_MATRIX.md`.
+> - **Field performance is unobtainable.** LCP/INP/CLS targets are p75 *field*
+>   values. Everything measured here is laboratory data on one machine, and
+>   every evidence file says so. This cannot be resolved before deployment.
+> - **Mono-label density.** Mono uppercase micro-text is now the page's default
+>   label voice. Flagged in `wave-d-type-review.md` as needing a decision, not a
+>   tweak.
+> - **No custom typeface.** Brand typographic ownership is deliberately
+>   deferred; the system stack means the headline looks like any system-stack
+>   site.
+> - **Cross-platform type unverified.** The `14ch` headline cap may break
+>   differently on macOS/Windows/iOS metrics.
+> - **Portfolio grammars are a fixture, not case studies.** CarePro and
+>   SentinelCore appear only as dev-only operational vocabularies with no
+>   status, metrics or client detail. Publication remains provisional.
+> - **No global navigation, work index, case-study pages, forms, routes or
+>   real proof media.** All PENDING in the production matrices.
+> - **Still no axe/Lighthouse run, no screen-reader pass, no zoom testing, no
+>   Firefox/Safari run.**
+> - **Study A remains a wave ahead of Study B.** No §8 comparative score is
+>   valid until Study B reaches an equivalent wave.
+
+---
+
+# Limitations after Waves A, B and C
 
 > **Wave C update.** Items 1 and 2 below have changed. The signal now has a
 > deterministic eight-state system with bounded motion; what remains absent is

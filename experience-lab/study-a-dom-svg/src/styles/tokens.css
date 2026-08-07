@@ -14,18 +14,29 @@
   --surface-base: oklch(16% 0.008 60);
   --surface-raised: oklch(20% 0.01 62);
   --surface-inset: oklch(13% 0.008 58);
-  --surface-line: oklch(30% 0.012 62);
+  /* Raised from 30% in Wave D: measured 1.43:1 against the base surface,
+     below the 1.5:1 floor this project holds decorative separators to. */
+  --surface-line: oklch(33% 0.012 62);
 
   /* ---- text ---- */
   --text-primary: oklch(94% 0.012 82);
   --text-secondary: oklch(72% 0.014 74);
-  --text-tertiary: oklch(56% 0.012 70);
+  /* Raised from 56% in Wave D: measured 4.16:1 on base and 4.29:1 on the
+     inset surface, both below the 4.5:1 body-text requirement. Tertiary text
+     carries real content (eyebrows, captions, meta), so it is held to the body
+     threshold rather than the large-text one. */
+  --text-tertiary: oklch(60% 0.012 70);
 
   /* ---- signal state roles ---- */
   --signal-dormant: oklch(52% 0.055 68);
   --signal-active: oklch(88% 0.095 84);
-  --evidence: oklch(78% 0.105 205);
+  --evidence: oklch(76% 0.085 205);
   --human: oklch(76% 0.095 152);
+  /* Constraint, not failure. Wave D split this away from --risk: boundaries
+     are a normal, healthy part of the system, and colouring them with the
+     failure hue made the composition read as an alarm (dossier 7.5 warns
+     against alarm/cyberpunk styling for the Protect state). */
+  --boundary: oklch(62% 0.048 62);
   --risk: oklch(58% 0.115 38);
   --recovery: oklch(93% 0.032 168);
 

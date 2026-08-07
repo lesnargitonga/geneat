@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { gotoAndReady } from "./helpers";
+import { gotoAndReady, settleChapterNavigation } from "./helpers";
 
 /**
  * Desktop and mobile responsive behaviour.
@@ -27,12 +27,12 @@ test.describe("responsive behaviour", () => {
 
   test("the whole story is present at every viewport", async ({ page }) => {
     await expect(page.locator("h1")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Gen-Eat" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Gen-Eat", exact: true })).toBeVisible();
     await expect(page.locator("[data-stage-id]")).toHaveCount(6);
     await expect(page.locator("[data-action-step]")).toHaveCount(7);
     await expect(page.locator(".signal-legend li")).toHaveCount(8);
     await expect(page.locator(".limitations li")).toHaveCount(6);
-    await expect(page.locator(".signal")).toBeVisible();
+    await expect(page.locator("svg[data-signal]")).toBeVisible();
   });
 
   test("primary call to action is visible and large enough to tap", async ({ page }) => {
@@ -60,6 +60,9 @@ test.describe("responsive behaviour", () => {
   test("chapter anchors navigate correctly", async ({ page }) => {
     for (const id of ["product", "system", "action"]) {
       await page.locator(`[data-chapter-link="${id}"]`).click();
+      // Same smooth-scroll overlap as the keyboard path: settle before
+      // asserting, and before activating the next link.
+      await settleChapterNavigation(page, id);
       await expect(page.locator(`section#${id}`)).toBeInViewport();
     }
   });

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { gotoAndReady, state } from "./helpers";
+import { gotoAndReady, settleChapterNavigation, state } from "./helpers";
 
 /**
  * Keyboard navigation smoke.
@@ -32,6 +32,8 @@ test.describe("keyboard navigation", () => {
       await expect(link).toBeFocused();
 
       await page.keyboard.press("Enter");
+      await settleChapterNavigation(page, id);
+
       await expect(page.locator(`section#${id}`)).toBeInViewport();
 
       // Focus follows the navigation rather than staying in the header —

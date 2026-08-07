@@ -84,6 +84,7 @@
           state. With JavaScript, `signal-view.ts` rebuilds these layers from
           geometry data so the shape has one source of truth rather than two.
         -->
+        <div class="hero__signal">
         <div class="stage" data-stage>
           <svg
             class="signal"
@@ -110,7 +111,7 @@
             <g id="signal-layer-action-node" data-layer="action-node" data-active="false"></g>
             <g id="signal-layer-residual-trace" data-layer="residual-trace" data-active="false"></g>
             <g id="signal-layer-signal-head" data-layer="signal-head" data-active="false">
-              <g id="signal-head-marker" data-dormant="true" style="transform: translate(52px, 322px)">
+              <g id="signal-head-marker" data-head-marker="true" data-dormant="true" style="transform: translate(52px, 322px)">
                 <circle data-role="halo" r="13" />
                 <circle data-role="core" r="7" />
               </g>
@@ -118,16 +119,22 @@
           </svg>
         </div>
 
-        <!--
-          Development state stepper.
+          <!--
+            The authored state indicator.
 
-          Ships `hidden` and is revealed by script. A control that cannot do
-          anything without JavaScript should not be shown to someone who has
-          none — the no-JS reader gets the full eight-state legend below
-          instead, which is the same information without the pretence of
-          interactivity.
-        -->
-        <div class="stepper" data-signal-stepper hidden></div>
+            This is editorial, not a control: it names where the signal
+            currently is, the way a caption names a figure. It replaces the
+            development stepper as the *visible* state marker so the hero does
+            not present a row of debug buttons as if it were navigation
+            (§26.4). The stepper still exists, behind diagnostics.
+          -->
+          <p class="signal-caption" data-signal-caption>
+            <span class="signal-caption__index" aria-hidden="true">00</span>
+            <span class="signal-caption__label">Idea</span>
+            <span class="signal-caption__rule" aria-hidden="true"></span>
+            <span class="signal-caption__meta">Lesnar Signal · state 1 of 8</span>
+          </p>
+        </div>
 
         <!--
           Structured textual equivalent. Replaces the SVG for assistive
@@ -452,6 +459,19 @@
         </section>
       </section>
     </main>
+
+    <!--
+      Development controls.
+
+      Ships `hidden` and is revealed by script only under `?diagnostics=1` or in
+      dev. §26.4: the stepper must not be mistaken for final homepage
+      navigation — so it is not on the page at all for an ordinary visitor,
+      while remaining fully functional for review and qualification.
+    -->
+    <aside class="lab-tools" data-lab-tools hidden aria-label="Development controls">
+      <div class="stepper" data-signal-stepper hidden></div>
+      <div class="fixture" data-portfolio-fixture hidden></div>
+    </aside>
 
     <footer class="site-footer">
       <p>

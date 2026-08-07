@@ -24,6 +24,18 @@ const STUDY_B_COMMIT = "7dc29a231f442ee3d09fb908658e16ecd654dc3d";
 const STUDY_B_BRANCH = "experience/lesnarai-v2-study-b";
 const STUDY_A_BRANCH = "experience/lesnarai-v2-study-a";
 const STUDY_A_PATH = "experience-lab/study-a-dom-svg/";
+/**
+ * Paths outside Study A that Wave D is *supposed* to create.
+ *
+ * §24.2 places the production-readiness matrices at the experience-lab root,
+ * not inside a study, because they qualify the programme rather than one
+ * prototype. Without this list the staging warning lumps them in with Study B
+ * build residue, and a warning that cries wolf stops being read.
+ */
+const ALLOWED_NEW_PATHS = ["experience-lab/production-readiness/"];
+
+const isAllowed = (path) =>
+  path.startsWith(STUDY_A_PATH) || ALLOWED_NEW_PATHS.some((p) => path.startsWith(p));
 
 /** Paths the Study A brief forbids touching. */
 const PROTECTED_PATHS = [
@@ -81,7 +93,7 @@ check(
 const committedSinceBaseline = git("diff", "--name-only", BASELINE, "HEAD")
   .split("\n")
   .filter(Boolean)
-  .filter((path) => !path.startsWith(STUDY_A_PATH));
+  .filter((path) => !isAllowed(path));
 check(
   "commits since baseline touch only Study A",
   committedSinceBaseline.length === 0,
@@ -125,7 +137,7 @@ const workingChanges = [
   ...git("diff", "--name-only", "--cached").split("\n"),
 ]
   .filter(Boolean)
-  .filter((path) => !path.startsWith(STUDY_A_PATH));
+  .filter((path) => !isAllowed(path));
 
 check(
   "no tracked file outside Study A is modified",
@@ -146,22 +158,32 @@ const wouldStage = git("add", "--dry-run", "--", "experience-lab/")
   .filter(Boolean)
   .map((line) => line.replace(/^add '(.*)'$/, "$1"));
 
-const strayFromStudyB = wouldStage.filter((path) => !path.startsWith(STUDY_A_PATH));
+const intendedNew = wouldStage.filter(
+  (path) => !path.startsWith(STUDY_A_PATH) && ALLOWED_NEW_PATHS.some((p) => path.startsWith(p)),
+);
+const strayFromStudyB = wouldStage.filter((path) => !isAllowed(path));
+
+if (intendedNew.length > 0) {
+  console.log("");
+  console.log(`  note  ${intendedNew.length} intended new file(s) outside Study A:`);
+  console.log("        experience-lab/production-readiness/ — programme qualification artefacts (24.2)");
+}
 
 if (strayFromStudyB.length > 0) {
   console.log("");
   console.log(`  WARN  a broad 'git add experience-lab/' would stage ${strayFromStudyB.length} file(s)`);
-  console.log("        outside Study A — leftover Study B build residue on disk.");
-  console.log(`        Scope any future add to '${STUDY_A_PATH}' instead.`);
-  for (const path of strayFromStudyB.slice(0, 5)) console.log(`          ${path}`);
-  if (strayFromStudyB.length > 5) console.log(`          … ${strayFromStudyB.length - 5} more`);
+  console.log("        that must NOT be committed — leftover Study B build residue on disk.");
+  console.log("        Scope any future add to the intended paths instead.");
+  for (const path of strayFromStudyB.slice(0, 4)) console.log(`          ${path}`);
+  if (strayFromStudyB.length > 4) console.log(`          … ${strayFromStudyB.length - 4} more`);
 }
 
 console.log("");
 console.log(failed ? "ISOLATION VALIDATION FAILED" : "isolation validation passed");
 console.log(
   `${results.filter((r) => r.passed).length}/${results.length} checks passed` +
-    (strayFromStudyB.length ? `, ${strayFromStudyB.length} staging hazard(s) warned` : ""),
+    (strayFromStudyB.length ? `, ${strayFromStudyB.length} staging hazard(s) warned` : "") +
+    (intendedNew.length ? `, ${intendedNew.length} intended new file(s) noted` : ""),
 );
 
 process.exitCode = failed ? 1 : 0;

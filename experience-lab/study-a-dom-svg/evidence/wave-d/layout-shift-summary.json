@@ -1,0 +1,27 @@
+{
+  "method": "Laboratory measurement, headless Chromium, single machine, CDP-emulated conditions. Not a field measurement and not a p75 claim.",
+  "budget": "CLS <= 0.1",
+  "results": [
+    {
+      "scenario": "desktop-1440",
+      "clsDuringLoad": 0,
+      "clsAfterSteppingAllStates": 0.0001,
+      "clsAddedByStateChanges": 0.0001,
+      "withinBudget": true
+    },
+    {
+      "scenario": "mobile-393",
+      "clsDuringLoad": 0,
+      "clsAfterSteppingAllStates": 0,
+      "clsAddedByStateChanges": 0,
+      "withinBudget": true
+    },
+    {
+      "scenario": "mobile-320",
+      "clsDuringLoad": 0,
+      "clsAfterSteppingAllStates": 0,
+      "clsAddedByStateChanges": 0,
+      "withinBudget": true
+    }
+  ]
+}

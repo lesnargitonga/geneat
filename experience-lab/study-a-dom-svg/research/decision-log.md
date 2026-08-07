@@ -1,7 +1,118 @@
 # Study A — Decision log
 
-Waves A, B and C. Each entry records what was decided, why, and what would
+Waves A, B, C and D. Each entry records what was decided, why, and what would
 reverse it.
+
+---
+
+## D-01 — Guide v1.1 located; §22/§23 confusion resolved
+
+Wave C was asked for §22/§23 of a guide that ended at §19. **v1.1 exists** (6,417
+lines) and contains §24 Production Experience Completeness Contract, §25
+Portfolio-Aware Experience Rule and §26 Study A Wave D. All three were read in
+full and are the basis for this wave. §22 and §23 in v1.1 are the Study A
+baseline checkpoint and the Wave C spec respectively — so the earlier prompt's
+reference was to a later document than the one on disk at the time.
+
+---
+
+## D-02 — The hero schedules the Wave C machine; it is not a machine
+
+`HeroChoreography` holds timing only. It calls `SignalController.goTo` and owns
+no state. §26.2 forbids a second hero-only state machine, and the assertion that
+`HERO_SEQUENCE` equals the canonical state ids fails the build if one appears.
+
+Dwell: 340 ms per state, 420 ms for Protect, 620 ms for Human review — total
+2740 ms, inside the 2.2–3.2 s window. Human review is longest because the gate
+is the one moment the sequence should feel *held* rather than paced.
+
+---
+
+## D-03 — The sequence yields; it never fights the visitor
+
+Wheel, touch, key, pointer or a >24 px scroll cancels the remaining schedule and
+leaves the signal where it is. It deliberately does **not** snap to `prove`:
+jumping the composition under someone who has started driving is the animation
+overriding the person. All listeners are passive so scrolling is never delayed.
+
+---
+
+## D-04 — Reduced motion does not run the sequence at all
+
+Rather than running it faster, reduced mode places the signal directly on
+`prove` and reports `settled` with 0 ms elapsed. A faster movement is still a
+movement. Nothing is lost: `prove` is the most complete state, so the reduced
+view is the whole story rather than an abbreviation.
+
+---
+
+## D-05 — The stepper leaves the page; a caption replaces it
+
+§26.4 requires the development stepper not to read as homepage navigation. It is
+now inside `[data-lab-tools]`, hidden unless `?diagnostics=1`, with all
+functionality intact.
+
+Its visible replacement is an **authored caption** — index, state name, rule,
+"state N of 8" — which reports where the signal is the way a caption reports
+what a figure shows. Editorial, not a control.
+
+---
+
+## D-06 — The engine is parameterised over its sequence
+
+`SignalController<S extends SequenceState>` takes a `states` array, defaulting
+to the canonical eight. Project grammars are different arrays driven by the same
+class, and `SequenceState` was introduced so they are first-class inputs rather
+than casts smuggled past the type system.
+
+Geometry became a function of step count (`createSequenceGeometry`) for the same
+reason: geometry that only existed for eight waypoints would have hard-wired the
+canonical sequence into the renderer.
+
+---
+
+## D-07 — `--boundary` split from `--risk`
+
+Boundary bars used the failure hue, which made the Protect state read as an
+alarm — §7.5 warns against exactly that. A constraint is a healthy part of the
+system, not a fault. `--risk` is now reserved for genuine failure surfaces.
+
+---
+
+## D-08 — Contrast measured, not eyeballed; two tokens raised
+
+The audit found `--text-tertiary` at 4.16:1 and `--surface-line` at 1.43:1, both
+below threshold. Raised to 60% and 33% lightness. Neither was visible to
+inspection.
+
+The first version of the audit reported **every** pair at ~1:1 because it parsed
+`getComputedStyle(...).color`, which Chromium leaves in `oklch()` form — so
+"0.94 0.012 82" was read as an RGB triple. Replaced with a canvas pixel read.
+Recorded because a broken ruler that fails everything looks like a catastrophic
+palette.
+
+---
+
+## D-09 — View element ids are namespaced per instance
+
+Four `SignalView` instances now exist on one page (hero + three grammars).
+Hard-coded ids produced duplicates — invalid HTML, and ambiguous for
+`getElementById`, anchors and assistive technology. Ids take an `idPrefix`;
+styling and tests key off `data-` attributes so they work across every instance.
+
+---
+
+## D-10 — The state panel reserves its height
+
+Explanation length differs per state, so advancing the signal reflowed
+everything below it — a layout-shift source, and it made "selecting a state must
+not scroll the page" untrue by ~21 px. Heights are now reserved per breakpoint
+from measured worst cases (32 / 28.5 / 21.5 rem). Measured CLS after stepping
+all eight states: 0.0001 desktop, 0 on both mobile widths.
+
+---
+
+## Waves A, B and C
 
 ---
 

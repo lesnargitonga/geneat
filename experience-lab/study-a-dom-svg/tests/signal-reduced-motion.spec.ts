@@ -26,7 +26,7 @@ test.describe("reduced motion", () => {
     await gotoAndReady(page);
 
     const transition = await page
-      .locator("#signal-head-marker")
+      .locator("svg[data-signal] [data-head-marker]")
       .evaluate((node) => getComputedStyle(node).transitionProperty);
 
     // Structurally none, not merely short.

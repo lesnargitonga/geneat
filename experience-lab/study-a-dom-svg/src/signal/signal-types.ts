@@ -59,7 +59,31 @@ export type SignalEmphasis =
   | "action"
   | "proof";
 
-export interface SignalState {
+/**
+ * One step in *any* sequence the signal engine can drive.
+ *
+ * `SignalState` below narrows `id` to the eight canonical company-level states.
+ * This wider shape exists so project grammars — a Gen-Eat route, a CarePro
+ * route — are first-class inputs to the same engine rather than casts smuggled
+ * past the type system (§25.3). The engine is generic over this; the canonical
+ * eight remain its default.
+ */
+export interface SequenceState {
+  readonly id: string;
+  readonly index: number;
+  readonly label: string;
+  readonly explanation: string;
+  readonly input: string;
+  readonly boundary: string;
+  readonly output: string;
+  readonly activeLayers: readonly SignalLayerId[];
+  readonly activeNodes: readonly string[];
+  readonly completedSegments: readonly string[];
+  readonly currentSegment: string | null;
+  readonly emphasis: SignalEmphasis;
+}
+
+export interface SignalState extends SequenceState {
   readonly id: SignalStateId;
   readonly index: number;
   readonly label: string;

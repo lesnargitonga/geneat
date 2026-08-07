@@ -15,10 +15,48 @@
  */
 
 .stage {
-  grid-area: stage;
+  position: relative;
   width: 100%;
   /* Reserves the box before paint so the SVG cannot shift content. */
   aspect-ratio: 880 / 460;
+  isolation: isolate;
+  /**
+   * Contains the atmosphere wash.
+   *
+   * `.stage::before` bleeds outward, which pushed `scrollWidth` past
+   * `clientWidth` on narrow viewports — a horizontal scroll invisible to a DOM
+   * sweep, because a pseudo-element is not in the DOM.
+   *
+   * Clipped here rather than on the parent: containing it at `.hero__signal`
+   * also clipped the state caption's trailing text ("state 8 of 8" lost its
+   * last character). `clip` rather than `hidden` so this never becomes a
+   * nested scroll container.
+   */
+  overflow: clip;
+}
+
+/**
+ * Atmosphere behind the signal.
+ *
+ * One wide radial wash, not a glow on the path itself. The purpose is depth —
+ * separating the signal from a flat black field so it reads as occupying
+ * space — without becoming the "cool tech background" the dossier rejects. It
+ * does not move, and in greyscale it survives as a subtle lift rather than a
+ * colour effect.
+ */
+.stage::before {
+  content: "";
+  position: absolute;
+  /* Inset zero: the box is clipped, so an outward bleed would only be cut.
+     The falloff does the softening instead. */
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    72% 66% at 52% 48%,
+    color-mix(in oklch, var(--signal-active) 9%, transparent) 0%,
+    transparent 68%
+  );
+  pointer-events: none;
 }
 
 .signal {
@@ -30,8 +68,65 @@
 @media (max-width: 44.9375rem) {
   .stage {
     aspect-ratio: 360 / 736;
-    max-height: 70vh;
+    max-height: 64vh;
     margin-inline: auto;
+  }
+
+  .stage::before {
+    background: radial-gradient(
+      80% 52% at 50% 46%,
+      color-mix(in oklch, var(--signal-active) 9%, transparent) 0%,
+      transparent 70%
+    );
+  }
+}
+
+/* ------------------------------------------------------- signal caption */
+
+/**
+ * The authored state indicator. Editorial, not a control — it reports where
+ * the signal is, the way a caption reports what a figure shows. This is what
+ * replaces the development stepper as the visible state marker (§26.4).
+ */
+.signal-caption {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-height: 1.75rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.signal-caption__index {
+  color: var(--signal-dormant);
+}
+
+.signal-caption__label {
+  color: var(--signal-active);
+  font-weight: 600;
+}
+
+.signal-caption__rule {
+  flex: 1 1 auto;
+  height: 1px;
+  min-width: var(--space-md);
+  background: linear-gradient(
+    to right,
+    var(--surface-line),
+    color-mix(in oklch, var(--surface-line) 20%, transparent)
+  );
+}
+
+.signal-caption__meta {
+  white-space: nowrap;
+}
+
+@media (max-width: 30rem) {
+  .signal-caption__meta {
+    display: none;
   }
 }
 
@@ -57,7 +152,7 @@
 
 [data-role="dormant"] {
   stroke: var(--signal-dormant);
-  stroke-width: 1.5;
+  stroke-width: 2;
   stroke-dasharray: 3 7;
   stroke-linecap: round;
   opacity: 0.55;
@@ -65,14 +160,14 @@
 
 [data-role="residual"] {
   stroke: var(--signal-dormant);
-  stroke-width: 7;
+  stroke-width: 11;
   stroke-linecap: round;
-  opacity: 0.26;
+  opacity: 0.28;
 }
 
 [data-segment] {
   stroke: var(--signal-active);
-  stroke-width: 2;
+  stroke-width: 3.25;
   stroke-linecap: round;
   transition:
     opacity var(--signal-transition) var(--ease-standard),
@@ -92,33 +187,33 @@
 [data-segment][data-state="current"] {
   opacity: 1;
   stroke: color-mix(in oklch, var(--signal-active) 88%, white);
-  stroke-width: 2.5;
+  stroke-width: 4;
 }
 
 /* ---------------------------------------------------------- signal head */
 
-#signal-head-marker {
+[data-head-marker] {
   /* Head travel is the one movement permitted across a segment. */
   transition: transform var(--signal-head-travel) var(--ease-out-expo);
 }
 
-#signal-head-marker [data-role="core"] {
+[data-head-marker] [data-role="core"] {
   fill: var(--signal-active);
   transition: fill var(--signal-transition) var(--ease-standard);
 }
 
-#signal-head-marker [data-role="halo"] {
+[data-head-marker] [data-role="halo"] {
   fill: var(--signal-active);
   opacity: 0.14;
   transition: opacity var(--signal-transition) var(--ease-standard);
 }
 
 /* Dormant head: the idea exists but nothing has moved. */
-#signal-head-marker[data-dormant="true"] [data-role="core"] {
+[data-head-marker][data-dormant="true"] [data-role="core"] {
   fill: var(--signal-dormant);
 }
 
-#signal-head-marker[data-dormant="true"] [data-role="halo"] {
+[data-head-marker][data-dormant="true"] [data-role="halo"] {
   opacity: 0;
 }
 
@@ -133,7 +228,7 @@
 
 [data-layer="evidence-nodes"] [data-role="connector"] {
   stroke: var(--evidence);
-  stroke-width: 1;
+  stroke-width: 1.25;
   stroke-dasharray: 2 5;
   opacity: 0.6;
 }
@@ -150,20 +245,20 @@
 
 /* Constraints, not alarms — no red flash, no warning iconography (7.5). */
 [data-layer="boundary-nodes"] rect {
-  fill: var(--risk);
-  opacity: 0.34;
+  fill: var(--boundary);
+  opacity: 0.42;
   transition: opacity var(--signal-transition) var(--ease-standard);
 }
 
 [data-layer="boundary-nodes"] [data-node][data-active="true"] rect {
-  opacity: 0.46;
+  opacity: 0.62;
 }
 
 /* ---------------------------------------------------------- human gate */
 
 [data-layer="human-gate"] path {
   stroke: var(--human);
-  stroke-width: 2;
+  stroke-width: 2.5;
   stroke-linecap: round;
   fill: none;
 }
@@ -171,7 +266,7 @@
 [data-layer="human-gate"] circle {
   fill: none;
   stroke: var(--human);
-  stroke-width: 2;
+  stroke-width: 2.5;
   transition:
     stroke-width var(--signal-transition) var(--ease-standard),
     fill var(--signal-transition) var(--ease-standard);
@@ -180,7 +275,7 @@
 /* Holding: the gate is closed and the signal cannot pass. Shown by a filled
    ring plus a heavier stroke — two signals, so it survives greyscale. */
 [data-node="gate"][data-gate="holding"] circle {
-  stroke-width: 3.5;
+  stroke-width: 4.5;
   fill: color-mix(in oklch, var(--human) 26%, transparent);
 }
 
@@ -207,7 +302,7 @@
 [data-node="act"][data-action="recorded"] circle {
   fill: none;
   stroke: var(--recovery);
-  stroke-width: 3;
+  stroke-width: 4;
 }
 
 /* ---------------------------------------------------------- emphasis */
@@ -215,11 +310,11 @@
 /* Emphasis lifts the layer the current state is *about*, rather than
    recolouring the whole composition. */
 .signal[data-emphasis="evidence"] [data-layer="evidence-nodes"] circle {
-  r: 6;
+  r: 8;
 }
 
 .signal[data-emphasis="boundary"] [data-layer="boundary-nodes"] rect {
-  opacity: 0.55;
+  opacity: 0.8;
 }
 
 .signal[data-emphasis="proof"] [data-layer="residual-trace"] [data-role="residual"] {
@@ -234,11 +329,11 @@
  * the second of two independent guarantees rather than the only one.
  */
 .signal[data-motion="reduced"] *,
-.signal[data-animate="false"] #signal-head-marker {
+.signal[data-animate="false"] [data-head-marker] {
   transition-duration: var(--signal-transition) !important;
 }
 
-.signal[data-motion="reduced"] #signal-head-marker {
+.signal[data-motion="reduced"] [data-head-marker] {
   transition: none !important;
 }
 

@@ -44,7 +44,7 @@ test.describe("no JavaScript", () => {
       "true",
     );
     await expect(page.locator('[data-role="dormant"]')).toBeAttached();
-    await expect(page.locator("#signal-head-marker")).toHaveAttribute("data-dormant", "true");
+    await expect(page.locator("svg[data-signal] [data-head-marker]")).toHaveAttribute("data-dormant", "true");
   });
 
   test("the signal has a structured text equivalent", async ({ page }) => {
@@ -85,7 +85,7 @@ test.describe("no JavaScript", () => {
       "action-node",
       "residual-trace",
     ]) {
-      await expect(page.locator(`[data-layer="${layer}"]`)).toHaveCount(1);
+      await expect(page.locator(`svg[data-signal] [data-layer="${layer}"]`)).toHaveCount(1);
     }
   });
 
@@ -118,7 +118,7 @@ test.describe("no JavaScript", () => {
   });
 
   test("truth labels and evidence states survive", async ({ page }) => {
-    await expect(page.getByRole("heading", { name: "Gen-Eat" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Gen-Eat", exact: true })).toBeVisible();
     await expect(page.locator('[data-status="live"]')).toContainText("LIVE");
     await expect(page.locator('[data-status="prototype"]')).toContainText("PROTOTYPE");
 

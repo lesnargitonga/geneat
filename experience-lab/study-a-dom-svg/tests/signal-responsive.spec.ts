@@ -47,7 +47,7 @@ for (const viewport of VIEWPORTS) {
 
     test("preserves all node ids regardless of geometry", async ({ page }) => {
       for (const node of ["ev-1", "ev-2", "ev-3", "ev-4", "bd-1", "bd-2", "gate", "act"]) {
-        await expect(page.locator(`[data-node="${node}"]`)).toHaveCount(1);
+        await expect(page.locator(`svg[data-signal] [data-node="${node}"]`)).toHaveCount(1);
       }
     });
 
@@ -132,7 +132,7 @@ test.describe("geometry switching", () => {
     expect(await page.locator("[data-signal-text]").textContent()).toBe(desktopText);
     await expect(page.locator("svg[data-signal]")).toHaveAttribute("data-state", "protect");
     for (const node of ["ev-1", "bd-1", "bd-2", "gate", "act"]) {
-      await expect(page.locator(`[data-node="${node}"]`)).toHaveCount(1);
+      await expect(page.locator(`svg[data-signal] [data-node="${node}"]`)).toHaveCount(1);
     }
   });
 });

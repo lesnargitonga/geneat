@@ -1,0 +1,298 @@
+{
+  "method": "Wave D scenario repeated 6x: desktop 1440x900, CPU 4x, diagnostics on, hero settled, synthetic full-page scroll. Long tasks classified by whether they overlap the scroll window.",
+  "budgetMs": 50,
+  "lifetimeLongest": {
+    "note": "What Wave D actually reported: the maximum long task over the whole page lifetime, including boot.",
+    "runs": [
+      174,
+      156,
+      147,
+      110,
+      150,
+      102
+    ],
+    "median": 148.5,
+    "max": 174
+  },
+  "duringScrollOnly": {
+    "note": "Long tasks that overlap the scroll window — what the budget is about.",
+    "runs": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "median": 0,
+    "max": 0
+  },
+  "runs": [
+    {
+      "label": "run-1",
+      "scrollWindowMs": 1216.5,
+      "marks": {
+        "settled": 2958.3,
+        "scrollStart": 2968.1,
+        "scrollEnd": 4184.6
+      },
+      "allLongTasks": 1,
+      "longTasksBeforeScroll": 1,
+      "longestBeforeScrollMs": 174,
+      "longTasksDuringScroll": 0,
+      "longestDuringScrollMs": 0,
+      "overBudgetDuringScroll": 0,
+      "lifetimeLongestMs": 174,
+      "duringScrollDetail": [],
+      "beforeScrollDetail": [
+        {
+          "start": 33.3,
+          "end": 207.3,
+          "dur": 174,
+          "name": "self",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        }
+      ],
+      "cdpDeltaDuringScroll": {
+        "TaskDuration": 154.3,
+        "ScriptDuration": 0.1,
+        "LayoutDuration": 4.6,
+        "RecalcStyleDuration": 11.9,
+        "LayoutCount": 31,
+        "RecalcStyleCount": 32
+      }
+    },
+    {
+      "label": "run-2",
+      "scrollWindowMs": 1217.2,
+      "marks": {
+        "settled": 2934.9,
+        "scrollStart": 2938.1,
+        "scrollEnd": 4155.3
+      },
+      "allLongTasks": 1,
+      "longTasksBeforeScroll": 1,
+      "longestBeforeScrollMs": 156,
+      "longTasksDuringScroll": 0,
+      "longestDuringScrollMs": 0,
+      "overBudgetDuringScroll": 0,
+      "lifetimeLongestMs": 156,
+      "duringScrollDetail": [],
+      "beforeScrollDetail": [
+        {
+          "start": 31.9,
+          "end": 187.9,
+          "dur": 156,
+          "name": "self",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        }
+      ],
+      "cdpDeltaDuringScroll": {
+        "TaskDuration": 159.5,
+        "ScriptDuration": 0.9,
+        "LayoutDuration": 5,
+        "RecalcStyleDuration": 15.2,
+        "LayoutCount": 31,
+        "RecalcStyleCount": 32
+      }
+    },
+    {
+      "label": "run-3",
+      "scrollWindowMs": 1215.2,
+      "marks": {
+        "settled": 2925,
+        "scrollStart": 2931,
+        "scrollEnd": 4146.2
+      },
+      "allLongTasks": 1,
+      "longTasksBeforeScroll": 1,
+      "longestBeforeScrollMs": 147,
+      "longTasksDuringScroll": 0,
+      "longestDuringScrollMs": 0,
+      "overBudgetDuringScroll": 0,
+      "lifetimeLongestMs": 147,
+      "duringScrollDetail": [],
+      "beforeScrollDetail": [
+        {
+          "start": 33,
+          "end": 180,
+          "dur": 147,
+          "name": "self",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        }
+      ],
+      "cdpDeltaDuringScroll": {
+        "TaskDuration": 162.1,
+        "ScriptDuration": 0.2,
+        "LayoutDuration": 6,
+        "RecalcStyleDuration": 12.5,
+        "LayoutCount": 31,
+        "RecalcStyleCount": 32
+      }
+    },
+    {
+      "label": "run-4",
+      "scrollWindowMs": 1219.4,
+      "marks": {
+        "settled": 2944.5,
+        "scrollStart": 2947.2,
+        "scrollEnd": 4166.6
+      },
+      "allLongTasks": 2,
+      "longTasksBeforeScroll": 2,
+      "longestBeforeScrollMs": 110,
+      "longTasksDuringScroll": 0,
+      "longestDuringScrollMs": 0,
+      "overBudgetDuringScroll": 0,
+      "lifetimeLongestMs": 110,
+      "duringScrollDetail": [],
+      "beforeScrollDetail": [
+        {
+          "start": 32.2,
+          "end": 142.2,
+          "dur": 110,
+          "name": "unknown",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        },
+        {
+          "start": 142.4,
+          "end": 199.4,
+          "dur": 57,
+          "name": "self",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        }
+      ],
+      "cdpDeltaDuringScroll": {
+        "TaskDuration": 178,
+        "ScriptDuration": 0.1,
+        "LayoutDuration": 5.9,
+        "RecalcStyleDuration": 13.8,
+        "LayoutCount": 32,
+        "RecalcStyleCount": 33
+      }
+    },
+    {
+      "label": "run-5",
+      "scrollWindowMs": 1213.3,
+      "marks": {
+        "settled": 2939,
+        "scrollStart": 2945.2,
+        "scrollEnd": 4158.5
+      },
+      "allLongTasks": 1,
+      "longTasksBeforeScroll": 1,
+      "longestBeforeScrollMs": 150,
+      "longTasksDuringScroll": 0,
+      "longestDuringScrollMs": 0,
+      "overBudgetDuringScroll": 0,
+      "lifetimeLongestMs": 150,
+      "duringScrollDetail": [],
+      "beforeScrollDetail": [
+        {
+          "start": 34.4,
+          "end": 184.4,
+          "dur": 150,
+          "name": "self",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        }
+      ],
+      "cdpDeltaDuringScroll": {
+        "TaskDuration": 156.5,
+        "ScriptDuration": 0.1,
+        "LayoutDuration": 4.6,
+        "RecalcStyleDuration": 10.9,
+        "LayoutCount": 31,
+        "RecalcStyleCount": 32
+      }
+    },
+    {
+      "label": "run-6",
+      "scrollWindowMs": 1210.8,
+      "marks": {
+        "settled": 2943.8,
+        "scrollStart": 2950,
+        "scrollEnd": 4160.8
+      },
+      "allLongTasks": 2,
+      "longTasksBeforeScroll": 2,
+      "longestBeforeScrollMs": 102,
+      "longTasksDuringScroll": 0,
+      "longestDuringScrollMs": 0,
+      "overBudgetDuringScroll": 0,
+      "lifetimeLongestMs": 102,
+      "duringScrollDetail": [],
+      "beforeScrollDetail": [
+        {
+          "start": 31.9,
+          "end": 133.9,
+          "dur": 102,
+          "name": "unknown",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        },
+        {
+          "start": 134.9,
+          "end": 191.9,
+          "dur": 57,
+          "name": "self",
+          "attribution": [
+            {
+              "containerType": "window",
+              "containerName": "",
+              "containerSrc": ""
+            }
+          ]
+        }
+      ],
+      "cdpDeltaDuringScroll": {
+        "TaskDuration": 162,
+        "ScriptDuration": 0.1,
+        "LayoutDuration": 5.2,
+        "RecalcStyleDuration": 15.9,
+        "LayoutCount": 31,
+        "RecalcStyleCount": 32
+      }
+    }
+  ]
+}

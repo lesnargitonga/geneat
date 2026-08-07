@@ -1,5 +1,4 @@
 import {
-  SEGMENT_IDS,
   boundaryIsVerticalBar,
   fullPath,
   geometryForViewport,
@@ -7,7 +6,7 @@ import {
 } from "./signal-geometry";
 import { applyMotionBudget } from "./signal-motion";
 import { SIGNAL_LAYER_IDS } from "./signal-types";
-import type { SignalGeometry, SignalLayerId, SignalState } from "./signal-types";
+import type { SequenceState, SignalGeometry, SignalLayerId } from "./signal-types";
 import type { ResolvedMotion } from "../state/experience-state";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -24,6 +23,9 @@ const SVG_NS = "http://www.w3.org/2000/svg";
  * moves the frame.
  */
 export class SignalView {
+  /** Stable engine identity; see SignalController.engineId. */
+  static readonly engineId = "SignalView" as const;
+
   readonly #svg: SVGSVGElement;
   readonly #layers = new Map<SignalLayerId, SVGGElement>();
   readonly #segments = new Map<string, SVGPathElement>();
@@ -32,11 +34,34 @@ export class SignalView {
   #dormant: SVGPathElement | null = null;
   #residual: SVGPathElement | null = null;
   #geometry: SignalGeometry;
+  readonly #idPrefix: string;
+  readonly #fixedGeometry: boolean;
   #motion: ResolvedMotion = "full";
 
-  constructor(svg: SVGSVGElement, viewportWidth: number) {
+  /**
+   * `geometry` overrides breakpoint selection. Used by the portfolio fixture,
+   * where the shape is determined by the grammar's step count rather than by
+   * the viewport.
+   */
+  /**
+   * `idPrefix` namespaces every generated element id.
+   *
+   * More than one view can exist on a page — the hero plus one per portfolio
+   * grammar — and hard-coded ids would produce duplicates, which is invalid
+   * HTML and makes `getElementById`, anchors and assistive technology
+   * ambiguous. Styling and tests key off `data-` attributes instead, so they
+   * work across every instance regardless of prefix.
+   */
+  constructor(
+    svg: SVGSVGElement,
+    viewportWidth: number,
+    geometry?: SignalGeometry,
+    idPrefix = "signal",
+  ) {
     this.#svg = svg;
-    this.#geometry = geometryForViewport(viewportWidth);
+    this.#idPrefix = idPrefix;
+    this.#geometry = geometry ?? geometryForViewport(viewportWidth);
+    this.#fixedGeometry = geometry !== undefined;
     this.#build();
   }
 
@@ -70,7 +95,7 @@ export class SignalView {
 
     for (const id of SIGNAL_LAYER_IDS) {
       const group = document.createElementNS(SVG_NS, "g");
-      group.setAttribute("id", `signal-layer-${id}`);
+      group.setAttribute("id", `${this.#idPrefix}-layer-${id}`);
       group.dataset["layer"] = id;
       group.dataset["active"] = "false";
       this.#svg.append(group);
@@ -97,11 +122,13 @@ export class SignalView {
     // deterministic — no path-length arithmetic, no dash-offset guessing.
     const active = this.#layers.get("active-path");
     const paths = segmentPaths(points);
-    for (const id of SEGMENT_IDS) {
+    // Driven by this geometry's own segment list, not the canonical eight-state
+    // one, so project grammars of any length render correctly.
+    for (const id of geometry.segments) {
       const d = paths.get(id);
       if (!d) continue;
       const path = document.createElementNS(SVG_NS, "path");
-      path.setAttribute("id", `signal-${id}`);
+      path.setAttribute("id", `${this.#idPrefix}-${id}`);
       path.setAttribute("d", d);
       path.setAttribute("fill", "none");
       path.dataset["segment"] = id;
@@ -112,7 +139,7 @@ export class SignalView {
 
     for (const node of geometry.nodes) {
       const group = document.createElementNS(SVG_NS, "g");
-      group.setAttribute("id", `signal-node-${node.id}`);
+      group.setAttribute("id", `${this.#idPrefix}-node-${node.id}`);
       group.dataset["node"] = node.id;
       group.dataset["active"] = "false";
 
@@ -130,11 +157,11 @@ export class SignalView {
         const dot = document.createElementNS(SVG_NS, "circle");
         dot.setAttribute("cx", String(node.x));
         dot.setAttribute("cy", String(node.y));
-        dot.setAttribute("r", "5");
+        dot.setAttribute("r", "6.5");
         group.append(dot);
       } else if (node.layer === "boundary-nodes") {
         const bar = document.createElementNS(SVG_NS, "rect");
-        const thickness = 4;
+        const thickness = 5;
         const extent = node.extent ?? 200;
         if (boundaryIsVerticalBar(geometry)) {
           bar.setAttribute("x", String(node.x));
@@ -166,7 +193,7 @@ export class SignalView {
         const ring = document.createElementNS(SVG_NS, "circle");
         ring.setAttribute("cx", String(node.x));
         ring.setAttribute("cy", String(node.y));
-        ring.setAttribute("r", "11");
+        ring.setAttribute("r", "14");
         ring.setAttribute("fill", "none");
         group.append(bracketA, bracketB, ring);
       } else {
@@ -185,12 +212,13 @@ export class SignalView {
     // used so the transform is a plain translate — animating cx/cy directly is
     // less consistently transitionable across engines.
     const head = document.createElementNS(SVG_NS, "g");
-    head.setAttribute("id", "signal-head-marker");
+    head.setAttribute("id", `${this.#idPrefix}-head-marker`);
+    head.dataset["headMarker"] = "true";
     const halo = document.createElementNS(SVG_NS, "circle");
-    halo.setAttribute("r", "13");
+    halo.setAttribute("r", "18");
     halo.dataset["role"] = "halo";
     const core = document.createElementNS(SVG_NS, "circle");
-    core.setAttribute("r", "7");
+    core.setAttribute("r", "9");
     core.dataset["role"] = "core";
     head.append(halo, core);
     this.#layers.get("signal-head")?.append(head);
@@ -198,7 +226,8 @@ export class SignalView {
   }
 
   /** Rebuilds for a new breakpoint. Ids and meaning are preserved. */
-  setViewportWidth(width: number, state: SignalState): void {
+  setViewportWidth(width: number, state: SequenceState): void {
+    if (this.#fixedGeometry) return;
     const next = geometryForViewport(width);
     if (next.id === this.#geometry.id) return;
     this.#geometry = next;
@@ -214,7 +243,7 @@ export class SignalView {
 
   // ----------------------------------------------------------------- render
 
-  render(state: SignalState, options: { animate?: boolean } = {}): void {
+  render(state: SequenceState, options: { animate?: boolean } = {}): void {
     // Reduced motion never travels the head along a segment, regardless of
     // what the caller asks for. The budget is a ceiling, not the mechanism.
     const animate = options.animate !== false && this.#motion !== "reduced";
@@ -256,7 +285,7 @@ export class SignalView {
     this.#positionHead(state);
   }
 
-  #positionHead(state: SignalState): void {
+  #positionHead(state: SequenceState): void {
     const head = this.#head;
     if (!head) return;
 

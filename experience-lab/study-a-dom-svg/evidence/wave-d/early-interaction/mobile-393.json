@@ -1,0 +1,998 @@
+{
+  "method": "Clicks dispatched through CDP Input.dispatchTouchEvent (touch-emulated context). Input delay measured by the browser via PerformanceEventTiming first-input. Laboratory measurement, single machine.",
+  "label": "mobile 393 4x",
+  "conditions": {
+    "cpuRate": 4,
+    "diagnostics": false,
+    "reducedMotion": false,
+    "viewport": "Pixel 5 (393px)"
+  },
+  "cta_visible_ms": {
+    "median": 142.4,
+    "max": 162.8
+  },
+  "cta_focusable_ms": {
+    "median": 142.4,
+    "max": 162.8
+  },
+  "early_input_delay_ms": {
+    "median": 64.4,
+    "worst": 155.1
+  },
+  "bootLongTaskMs": {
+    "median": 106,
+    "max": 123,
+    "count": 35
+  },
+  "points": [
+    {
+      "requested_click_time": 50,
+      "repetitions": 5,
+      "event_delay_ms": {
+        "median": 137.7,
+        "max": 155.1,
+        "all": [
+          155.1,
+          138.1,
+          137.7,
+          135.4,
+          137.7
+        ]
+      },
+      "navigated": 0,
+      "clicksInsideBootTask": 5,
+      "trials": [
+        {
+          "requested_click_time": 50,
+          "node_dispatch_offset_ms": 50,
+          "actual_event_dispatch_time": 49.3,
+          "event_delay_ms": 155.1,
+          "handler_start_time": 232.6,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 38.5,
+            "end": 150.5,
+            "dur": 112,
+            "waitedMs": 101.2
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 151.7,
+          "ctaFocusableAt": 151.7,
+          "scriptBootAt": 152.1,
+          "longTasks": [
+            {
+              "start": 38.5,
+              "end": 150.5,
+              "dur": 112
+            }
+          ]
+        },
+        {
+          "requested_click_time": 50,
+          "node_dispatch_offset_ms": 50,
+          "actual_event_dispatch_time": 49.6,
+          "event_delay_ms": 138.1,
+          "handler_start_time": 222.9,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 37.2,
+            "end": 129.2,
+            "dur": 92,
+            "waitedMs": 79.6
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 115.7,
+          "ctaFocusableAt": 116.4,
+          "scriptBootAt": 166.4,
+          "longTasks": [
+            {
+              "start": 37.2,
+              "end": 129.2,
+              "dur": 92
+            }
+          ]
+        },
+        {
+          "requested_click_time": 50,
+          "node_dispatch_offset_ms": 50,
+          "actual_event_dispatch_time": 49.5,
+          "event_delay_ms": 137.7,
+          "handler_start_time": 221.6,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 35,
+            "end": 130,
+            "dur": 95,
+            "waitedMs": 80.5
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 115.8,
+          "ctaFocusableAt": 115.9,
+          "scriptBootAt": 161.8,
+          "longTasks": [
+            {
+              "start": 35,
+              "end": 130,
+              "dur": 95
+            }
+          ]
+        },
+        {
+          "requested_click_time": 50,
+          "node_dispatch_offset_ms": 51,
+          "actual_event_dispatch_time": 50.9,
+          "event_delay_ms": 135.4,
+          "handler_start_time": 222.3,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 35.1,
+            "end": 125.1,
+            "dur": 90,
+            "waitedMs": 74.2
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 111.8,
+          "ctaFocusableAt": 111.9,
+          "scriptBootAt": 167.1,
+          "longTasks": [
+            {
+              "start": 35.1,
+              "end": 125.1,
+              "dur": 90
+            }
+          ]
+        },
+        {
+          "requested_click_time": 50,
+          "node_dispatch_offset_ms": 51,
+          "actual_event_dispatch_time": 51,
+          "event_delay_ms": 137.7,
+          "handler_start_time": 223.9,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 35.2,
+            "end": 138.2,
+            "dur": 103,
+            "waitedMs": 87.2
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 124.8,
+          "ctaFocusableAt": 124.8,
+          "scriptBootAt": 174,
+          "longTasks": [
+            {
+              "start": 35.2,
+              "end": 138.2,
+              "dur": 103
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "requested_click_time": 75,
+      "repetitions": 5,
+      "event_delay_ms": {
+        "median": 129.9,
+        "max": 130.2,
+        "all": [
+          94,
+          125.2,
+          129.9,
+          130.1,
+          130.2
+        ]
+      },
+      "navigated": 0,
+      "clicksInsideBootTask": 5,
+      "trials": [
+        {
+          "requested_click_time": 75,
+          "node_dispatch_offset_ms": 74,
+          "actual_event_dispatch_time": 74,
+          "event_delay_ms": 94,
+          "handler_start_time": 206.9,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 35.3,
+            "end": 120.3,
+            "dur": 85,
+            "waitedMs": 46.3
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 108.4,
+          "ctaFocusableAt": 108.4,
+          "scriptBootAt": 153,
+          "longTasks": [
+            {
+              "start": 35.3,
+              "end": 120.3,
+              "dur": 85
+            }
+          ]
+        },
+        {
+          "requested_click_time": 75,
+          "node_dispatch_offset_ms": 75,
+          "actual_event_dispatch_time": 74.9,
+          "event_delay_ms": 125.2,
+          "handler_start_time": 232.9,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 39.1,
+            "end": 158.1,
+            "dur": 119,
+            "waitedMs": 83.2
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 159.2,
+          "ctaFocusableAt": 159.2,
+          "scriptBootAt": 159.2,
+          "longTasks": [
+            {
+              "start": 39.1,
+              "end": 158.1,
+              "dur": 119
+            }
+          ]
+        },
+        {
+          "requested_click_time": 75,
+          "node_dispatch_offset_ms": 75,
+          "actual_event_dispatch_time": 74.8,
+          "event_delay_ms": 129.9,
+          "handler_start_time": 226.1,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 36.1,
+            "end": 151.1,
+            "dur": 115,
+            "waitedMs": 76.3
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 152.4,
+          "ctaFocusableAt": 152.4,
+          "scriptBootAt": 152.5,
+          "longTasks": [
+            {
+              "start": 36.1,
+              "end": 151.1,
+              "dur": 115
+            }
+          ]
+        },
+        {
+          "requested_click_time": 75,
+          "node_dispatch_offset_ms": 75,
+          "actual_event_dispatch_time": 75.1,
+          "event_delay_ms": 130.1,
+          "handler_start_time": 223.7,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 36.5,
+            "end": 149.5,
+            "dur": 113,
+            "waitedMs": 74.4
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 150.6,
+          "ctaFocusableAt": 151.1,
+          "scriptBootAt": 151.1,
+          "longTasks": [
+            {
+              "start": 36.5,
+              "end": 149.5,
+              "dur": 113
+            }
+          ]
+        },
+        {
+          "requested_click_time": 75,
+          "node_dispatch_offset_ms": 75,
+          "actual_event_dispatch_time": 75.2,
+          "event_delay_ms": 130.2,
+          "handler_start_time": 226,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 36.5,
+            "end": 152.5,
+            "dur": 116,
+            "waitedMs": 77.3
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 153.8,
+          "ctaFocusableAt": 153.8,
+          "scriptBootAt": 153.8,
+          "longTasks": [
+            {
+              "start": 36.5,
+              "end": 152.5,
+              "dur": 116
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "requested_click_time": 100,
+      "repetitions": 5,
+      "event_delay_ms": {
+        "median": 88.5,
+        "max": 93.4,
+        "all": [
+          93.4,
+          88.5,
+          90.3,
+          86.3,
+          69.3
+        ]
+      },
+      "navigated": 0,
+      "clicksInsideBootTask": 5,
+      "trials": [
+        {
+          "requested_click_time": 100,
+          "node_dispatch_offset_ms": 100,
+          "actual_event_dispatch_time": 99.7,
+          "event_delay_ms": 93.4,
+          "handler_start_time": 228.2,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 33.8,
+            "end": 144.8,
+            "dur": 111,
+            "waitedMs": 45.1
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 146,
+          "ctaFocusableAt": 146,
+          "scriptBootAt": 146,
+          "longTasks": [
+            {
+              "start": 33.8,
+              "end": 144.8,
+              "dur": 111
+            }
+          ]
+        },
+        {
+          "requested_click_time": 100,
+          "node_dispatch_offset_ms": 100,
+          "actual_event_dispatch_time": 100.6,
+          "event_delay_ms": 88.5,
+          "handler_start_time": 225.3,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 37.1,
+            "end": 135.1,
+            "dur": 98,
+            "waitedMs": 34.5
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 121.4,
+          "ctaFocusableAt": 121.4,
+          "scriptBootAt": 168.9,
+          "longTasks": [
+            {
+              "start": 37.1,
+              "end": 135.1,
+              "dur": 98
+            }
+          ]
+        },
+        {
+          "requested_click_time": 100,
+          "node_dispatch_offset_ms": 100,
+          "actual_event_dispatch_time": 100.1,
+          "event_delay_ms": 90.3,
+          "handler_start_time": 226.7,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 40.1,
+            "end": 135.1,
+            "dur": 95,
+            "waitedMs": 35
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 120.8,
+          "ctaFocusableAt": 120.8,
+          "scriptBootAt": 167.2,
+          "longTasks": [
+            {
+              "start": 40.1,
+              "end": 135.1,
+              "dur": 95
+            }
+          ]
+        },
+        {
+          "requested_click_time": 100,
+          "node_dispatch_offset_ms": 100,
+          "actual_event_dispatch_time": 99.9,
+          "event_delay_ms": 86.3,
+          "handler_start_time": 225.1,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 36.3,
+            "end": 126.3,
+            "dur": 90,
+            "waitedMs": 26.4
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 112.9,
+          "ctaFocusableAt": 112.9,
+          "scriptBootAt": 162.5,
+          "longTasks": [
+            {
+              "start": 36.3,
+              "end": 126.3,
+              "dur": 90
+            }
+          ]
+        },
+        {
+          "requested_click_time": 100,
+          "node_dispatch_offset_ms": 100,
+          "actual_event_dispatch_time": 99.7,
+          "event_delay_ms": 69.3,
+          "handler_start_time": 206.4,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 34.7,
+            "end": 120.7,
+            "dur": 86,
+            "waitedMs": 21
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 108.5,
+          "ctaFocusableAt": 108.5,
+          "scriptBootAt": 153.1,
+          "longTasks": [
+            {
+              "start": 34.7,
+              "end": 120.7,
+              "dur": 86
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "requested_click_time": 125,
+      "repetitions": 5,
+      "event_delay_ms": {
+        "median": 64.4,
+        "max": 81.9,
+        "all": [
+          59.8,
+          64.4,
+          63.5,
+          67.8,
+          81.9
+        ]
+      },
+      "navigated": 0,
+      "clicksInsideBootTask": 4,
+      "trials": [
+        {
+          "requested_click_time": 125,
+          "node_dispatch_offset_ms": 126,
+          "actual_event_dispatch_time": 125.5,
+          "event_delay_ms": 59.8,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": null,
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 110.4,
+          "ctaFocusableAt": 110.4,
+          "scriptBootAt": 157.4,
+          "longTasks": [
+            {
+              "start": 36.5,
+              "end": 124.5,
+              "dur": 88
+            }
+          ]
+        },
+        {
+          "requested_click_time": 125,
+          "node_dispatch_offset_ms": 125,
+          "actual_event_dispatch_time": 124.3,
+          "event_delay_ms": 64.4,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 37.7,
+            "end": 132.7,
+            "dur": 95,
+            "waitedMs": 8.4
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 118.1,
+          "ctaFocusableAt": 118.1,
+          "scriptBootAt": 168.7,
+          "longTasks": [
+            {
+              "start": 37.7,
+              "end": 132.7,
+              "dur": 95
+            }
+          ]
+        },
+        {
+          "requested_click_time": 125,
+          "node_dispatch_offset_ms": 126,
+          "actual_event_dispatch_time": 125.8,
+          "event_delay_ms": 63.5,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 35.9,
+            "end": 147.9,
+            "dur": 112,
+            "waitedMs": 22.1
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 149.5,
+          "ctaFocusableAt": 149.5,
+          "scriptBootAt": 149.5,
+          "longTasks": [
+            {
+              "start": 35.9,
+              "end": 147.9,
+              "dur": 112
+            }
+          ]
+        },
+        {
+          "requested_click_time": 125,
+          "node_dispatch_offset_ms": 125,
+          "actual_event_dispatch_time": 124.3,
+          "event_delay_ms": 67.8,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 36.6,
+            "end": 147.6,
+            "dur": 111,
+            "waitedMs": 23.3
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 148.4,
+          "ctaFocusableAt": 148.4,
+          "scriptBootAt": 148.5,
+          "longTasks": [
+            {
+              "start": 36.6,
+              "end": 147.6,
+              "dur": 111
+            }
+          ]
+        },
+        {
+          "requested_click_time": 125,
+          "node_dispatch_offset_ms": 124,
+          "actual_event_dispatch_time": 124.6,
+          "event_delay_ms": 81.9,
+          "handler_start_time": 227.1,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": {
+            "start": 38.5,
+            "end": 161.5,
+            "dur": 123,
+            "waitedMs": 36.9
+          },
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 162.8,
+          "ctaFocusableAt": 162.8,
+          "scriptBootAt": 162.8,
+          "longTasks": [
+            {
+              "start": 38.5,
+              "end": 161.5,
+              "dur": 123
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "requested_click_time": 150,
+      "repetitions": 5,
+      "event_delay_ms": {
+        "median": 43.4,
+        "max": 46.1,
+        "all": [
+          42.2,
+          46.1,
+          45.3,
+          43.4,
+          42.6
+        ]
+      },
+      "navigated": 0,
+      "clicksInsideBootTask": 0,
+      "trials": [
+        {
+          "requested_click_time": 150,
+          "node_dispatch_offset_ms": 150,
+          "actual_event_dispatch_time": 149.7,
+          "event_delay_ms": 42.2,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": null,
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 149.1,
+          "ctaFocusableAt": 149.1,
+          "scriptBootAt": 149.2,
+          "longTasks": [
+            {
+              "start": 36,
+              "end": 148,
+              "dur": 112
+            }
+          ]
+        },
+        {
+          "requested_click_time": 150,
+          "node_dispatch_offset_ms": 151,
+          "actual_event_dispatch_time": 151.4,
+          "event_delay_ms": 46.1,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": null,
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 149.8,
+          "ctaFocusableAt": 149.8,
+          "scriptBootAt": 149.8,
+          "longTasks": [
+            {
+              "start": 33.4,
+              "end": 148.4,
+              "dur": 115
+            }
+          ]
+        },
+        {
+          "requested_click_time": 150,
+          "node_dispatch_offset_ms": 151,
+          "actual_event_dispatch_time": 150.3,
+          "event_delay_ms": 45.3,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": null,
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 146.9,
+          "ctaFocusableAt": 146.9,
+          "scriptBootAt": 146.9,
+          "longTasks": [
+            {
+              "start": 34.9,
+              "end": 145.9,
+              "dur": 111
+            }
+          ]
+        },
+        {
+          "requested_click_time": 150,
+          "node_dispatch_offset_ms": 150,
+          "actual_event_dispatch_time": 149.7,
+          "event_delay_ms": 43.4,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": null,
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 142.1,
+          "ctaFocusableAt": 142.2,
+          "scriptBootAt": 142.2,
+          "longTasks": [
+            {
+              "start": 34.8,
+              "end": 140.8,
+              "dur": 106
+            }
+          ]
+        },
+        {
+          "requested_click_time": 150,
+          "node_dispatch_offset_ms": 151,
+          "actual_event_dispatch_time": 150.5,
+          "event_delay_ms": 42.6,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": null,
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 147.9,
+          "ctaFocusableAt": 147.9,
+          "scriptBootAt": 147.9,
+          "longTasks": [
+            {
+              "start": 34.8,
+              "end": 146.8,
+              "dur": 112
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "requested_click_time": 200,
+      "repetitions": 5,
+      "event_delay_ms": {
+        "median": 7.8,
+        "max": 36.5,
+        "all": [
+          10.9,
+          6.5,
+          7.8,
+          3.9,
+          36.5
+        ]
+      },
+      "navigated": 0,
+      "clicksInsideBootTask": 0,
+      "trials": [
+        {
+          "requested_click_time": 200,
+          "node_dispatch_offset_ms": 199,
+          "actual_event_dispatch_time": 199.3,
+          "event_delay_ms": 10.9,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": null,
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 141.6,
+          "ctaFocusableAt": 141.6,
+          "scriptBootAt": 141.6,
+          "longTasks": [
+            {
+              "start": 34.9,
+              "end": 139.9,
+              "dur": 105
+            }
+          ]
+        },
+        {
+          "requested_click_time": 200,
+          "node_dispatch_offset_ms": 200,
+          "actual_event_dispatch_time": 199.9,
+          "event_delay_ms": 6.5,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": null,
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 142.4,
+          "ctaFocusableAt": 142.4,
+          "scriptBootAt": 142.4,
+          "longTasks": [
+            {
+              "start": 33.2,
+              "end": 141.2,
+              "dur": 108
+            }
+          ]
+        },
+        {
+          "requested_click_time": 200,
+          "node_dispatch_offset_ms": 200,
+          "actual_event_dispatch_time": 200.4,
+          "event_delay_ms": 7.8,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": null,
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 142,
+          "ctaFocusableAt": 142,
+          "scriptBootAt": 142.1,
+          "longTasks": [
+            {
+              "start": 35.6,
+              "end": 140.6,
+              "dur": 105
+            }
+          ]
+        },
+        {
+          "requested_click_time": 200,
+          "node_dispatch_offset_ms": 201,
+          "actual_event_dispatch_time": 201.2,
+          "event_delay_ms": 3.9,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": null,
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 145,
+          "ctaFocusableAt": 145,
+          "scriptBootAt": 145,
+          "longTasks": [
+            {
+              "start": 35.3,
+              "end": 143.3,
+              "dur": 108
+            }
+          ]
+        },
+        {
+          "requested_click_time": 200,
+          "node_dispatch_offset_ms": 199,
+          "actual_event_dispatch_time": 199.1,
+          "event_delay_ms": 36.5,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": null,
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 135.1,
+          "ctaFocusableAt": 135.1,
+          "scriptBootAt": 183.9,
+          "longTasks": [
+            {
+              "start": 45.5,
+              "end": 149.5,
+              "dur": 104
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "requested_click_time": 250,
+      "repetitions": 5,
+      "event_delay_ms": {
+        "median": 8.7,
+        "max": 24.3,
+        "all": [
+          24.3,
+          8.7,
+          8.1,
+          11.1,
+          6.2
+        ]
+      },
+      "navigated": 0,
+      "clicksInsideBootTask": 0,
+      "trials": [
+        {
+          "requested_click_time": 250,
+          "node_dispatch_offset_ms": 251,
+          "actual_event_dispatch_time": 251,
+          "event_delay_ms": 24.3,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": null,
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 125.8,
+          "ctaFocusableAt": 125.8,
+          "scriptBootAt": 171.6,
+          "longTasks": [
+            {
+              "start": 38.1,
+              "end": 140.1,
+              "dur": 102
+            }
+          ]
+        },
+        {
+          "requested_click_time": 250,
+          "node_dispatch_offset_ms": 251,
+          "actual_event_dispatch_time": 251.1,
+          "event_delay_ms": 8.7,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": null,
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 142.9,
+          "ctaFocusableAt": 142.9,
+          "scriptBootAt": 143,
+          "longTasks": [
+            {
+              "start": 36.3,
+              "end": 141.3,
+              "dur": 105
+            }
+          ]
+        },
+        {
+          "requested_click_time": 250,
+          "node_dispatch_offset_ms": 250,
+          "actual_event_dispatch_time": 250.3,
+          "event_delay_ms": 8.1,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": null,
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 140.2,
+          "ctaFocusableAt": 140.2,
+          "scriptBootAt": 140.2,
+          "longTasks": [
+            {
+              "start": 35.4,
+              "end": 139.4,
+              "dur": 104
+            }
+          ]
+        },
+        {
+          "requested_click_time": 250,
+          "node_dispatch_offset_ms": 249,
+          "actual_event_dispatch_time": 248.9,
+          "event_delay_ms": 11.1,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": null,
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 148.8,
+          "ctaFocusableAt": 148.8,
+          "scriptBootAt": 148.8,
+          "longTasks": [
+            {
+              "start": 35.7,
+              "end": 147.7,
+              "dur": 112
+            }
+          ]
+        },
+        {
+          "requested_click_time": 250,
+          "node_dispatch_offset_ms": 250,
+          "actual_event_dispatch_time": 249.8,
+          "event_delay_ms": 6.2,
+          "handler_start_time": null,
+          "navigation_or_action_time": null,
+          "boot_long_task_overlap": null,
+          "result": "click seen, no navigation",
+          "hash": "",
+          "ctaVisibleAt": 152.9,
+          "ctaFocusableAt": 152.9,
+          "scriptBootAt": 152.9,
+          "longTasks": [
+            {
+              "start": 37.9,
+              "end": 151.9,
+              "dur": 114
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "harnessLimitation": {
+    "issue": "navigated 0/5 in every mobile trial",
+    "isApplicationDefect": false,
+    "verification": "On a Pixel 5 context a normal touch-aware click navigates correctly (location.hash -> '#product'). A raw CDP Input.dispatchMouseEvent leaves the hash empty because Chromium routes link activation through the touch path when hasTouch is set. Switching to Input.dispatchTouchEvent still did not synthesise a tap complete enough to activate the link.",
+    "consequence": "Delay measurements remain valid \u2014 first-input recorded real input events and real queueing. The navigation-confirmation column is NOT valid on mobile. Mobile CTA behaviour is confirmed working separately and by responsive.spec.ts."
+  }
+}

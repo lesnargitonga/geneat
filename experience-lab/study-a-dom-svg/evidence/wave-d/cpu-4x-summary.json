@@ -1,0 +1,54 @@
+{
+  "method": "Laboratory measurement, headless Chromium, single machine, CDP-emulated conditions. Not a field measurement and not a p75 claim.",
+  "scenario": "desktop 1440x900, CPU throttled 4x via CDP",
+  "heroElapsedMs": 2759,
+  "paint": {
+    "firstPaintMs": 168,
+    "firstContentfulPaintMs": 168,
+    "largestContentfulPaintMs": 168,
+    "domContentLoadedMs": 193,
+    "loadMs": 201,
+    "cumulativeLayoutShift": 0,
+    "longTasks": [
+      {
+        "start": 36,
+        "end": 147,
+        "dur": 111
+      },
+      {
+        "start": 148,
+        "end": 211,
+        "dur": 63
+      }
+    ],
+    "longestTaskMs": 111
+  },
+  "scrollWindowMs": 1215,
+  "duringFullPageScroll": {
+    "longTasks": [],
+    "longestTaskMs": 0,
+    "overBudget": 0,
+    "withinBudget": true
+  },
+  "duringBoot": {
+    "longTasks": [
+      {
+        "start": 36,
+        "end": 147,
+        "dur": 111
+      },
+      {
+        "start": 148,
+        "end": 211,
+        "dur": 63
+      }
+    ],
+    "longestTaskMs": 111,
+    "note": "Initial parse, execute and first render at 4x CPU throttle. Not a scroll task and not governed by the scroll budget. Reported so it is visible rather than hidden."
+  },
+  "budgetNote": "Programme budget: no long task above 50ms during ordinary scroll. Boot and scroll are attributed separately — see evidence/wave-d/scroll-performance/attribution.md for the Wave D.1 investigation that established the distinction.",
+  "supersedes": {
+    "waveDReported": "longest scroll task @ 4x CPU: 142 ms",
+    "why": "That figure was the maximum long task over the entire page lifetime, not over the scroll window. The harness reduced one cumulative list and labelled the result a scroll measurement. The original number is retained in evidence/wave-d/scroll-performance/attribution.md rather than deleted."
+  }
+}

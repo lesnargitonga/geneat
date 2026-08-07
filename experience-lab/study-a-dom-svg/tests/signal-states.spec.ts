@@ -56,16 +56,16 @@ test.describe("signal state system", () => {
       "action-node",
       "residual-trace",
     ]) {
-      await expect(page.locator(`[data-layer="${layer}"]`)).toHaveCount(1);
+      await expect(page.locator(`svg[data-signal] [data-layer="${layer}"]`)).toHaveCount(1);
     }
   });
 
   test("every node and segment referenced by the model is in the DOM", async ({ page }) => {
     for (const node of ["ev-1", "ev-2", "ev-3", "ev-4", "bd-1", "bd-2", "gate", "act"]) {
-      await expect(page.locator(`[data-node="${node}"]`)).toHaveCount(1);
+      await expect(page.locator(`svg[data-signal] [data-node="${node}"]`)).toHaveCount(1);
     }
     for (let i = 1; i <= 7; i += 1) {
-      await expect(page.locator(`[data-segment="seg-${i}"]`)).toHaveCount(1);
+      await expect(page.locator(`svg[data-signal] [data-segment="seg-${i}"]`)).toHaveCount(1);
     }
   });
 
@@ -164,31 +164,39 @@ test.describe("signal state system", () => {
   test("the human gate visibly holds and later passes", async ({ page }) => {
     await goTo(page, "human-review");
 
-    const gate = page.locator('[data-node="gate"]');
+    const gate = page.locator('svg[data-signal] [data-node="gate"]');
     await expect(gate).toHaveAttribute("data-gate", "holding");
     // The onward segment must not be drawn while the gate holds.
-    await expect(page.locator('[data-segment="seg-6"]')).toHaveAttribute("data-state", "hidden");
-    await expect(page.locator('[data-node="act"]')).toHaveAttribute("data-active", "false");
+    await expect(
+      page.locator('svg[data-signal] [data-segment="seg-6"]'),
+    ).toHaveAttribute("data-state", "hidden");
+    await expect(
+      page.locator('svg[data-signal] [data-node="act"]'),
+    ).toHaveAttribute("data-active", "false");
 
     await goTo(page, "act");
     await expect(gate).toHaveAttribute("data-gate", "passed");
-    await expect(page.locator('[data-node="act"]')).toHaveAttribute("data-active", "true");
+    await expect(
+      page.locator('svg[data-signal] [data-node="act"]'),
+    ).toHaveAttribute("data-active", "true");
   });
 
   test("Act and Prove render differently", async ({ page }) => {
     await goTo(page, "act");
-    await expect(page.locator('[data-node="act"]')).toHaveAttribute("data-action", "firing");
-    await expect(page.locator('[data-layer="residual-trace"]')).toHaveAttribute(
-      "data-active",
-      "false",
-    );
+    await expect(
+      page.locator('svg[data-signal] [data-node="act"]'),
+    ).toHaveAttribute("data-action", "firing");
+    await expect(
+      page.locator('svg[data-signal] [data-layer="residual-trace"]'),
+    ).toHaveAttribute("data-active", "false");
 
     await goTo(page, "prove");
-    await expect(page.locator('[data-node="act"]')).toHaveAttribute("data-action", "recorded");
-    await expect(page.locator('[data-layer="residual-trace"]')).toHaveAttribute(
-      "data-active",
-      "true",
-    );
+    await expect(
+      page.locator('svg[data-signal] [data-node="act"]'),
+    ).toHaveAttribute("data-action", "recorded");
+    await expect(
+      page.locator('svg[data-signal] [data-layer="residual-trace"]'),
+    ).toHaveAttribute("data-active", "true");
   });
 
   test("state rendering is deterministic — same state, same DOM", async ({ page }) => {

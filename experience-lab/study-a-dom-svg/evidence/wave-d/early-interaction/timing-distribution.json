@@ -1,0 +1,400 @@
+{
+  "method": "Clicks dispatched through CDP Input.dispatchMouseEvent (real input pipeline). Input delay measured by the browser via PerformanceEventTiming first-input: processingStart - startTime. All arithmetic uses page-relative timestamps. Laboratory measurement, single machine.",
+  "targetsMs": [
+    50,
+    75,
+    100,
+    125,
+    150,
+    200,
+    250
+  ],
+  "repetitionsPerPoint": 5,
+  "scenarios": [
+    {
+      "label": "4x CPU diagnostics ON",
+      "conditions": {
+        "cpuRate": 4,
+        "diagnostics": true,
+        "reducedMotion": false,
+        "viewport": "1440x900"
+      },
+      "cta_visible_ms": {
+        "median": 192.7,
+        "max": 225
+      },
+      "cta_focusable_ms": {
+        "median": 192.7,
+        "max": 225.1
+      },
+      "early_input_delay_ms": {
+        "median": 46.6,
+        "worst": 150.9
+      },
+      "bootLongTaskMs": {
+        "median": 117,
+        "max": 180,
+        "count": 49
+      },
+      "byTarget": [
+        {
+          "requested_click_time": 50,
+          "delayMedian": 107.9,
+          "delayMax": 150.9,
+          "clicksInsideBootTask": 5,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 75,
+          "delayMedian": 113,
+          "delayMax": 127.1,
+          "clicksInsideBootTask": 5,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 100,
+          "delayMedian": 64.4,
+          "delayMax": 105.4,
+          "clicksInsideBootTask": 5,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 125,
+          "delayMedian": 73.3,
+          "delayMax": 75.7,
+          "clicksInsideBootTask": 5,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 150,
+          "delayMedian": 43.3,
+          "delayMax": 67.6,
+          "clicksInsideBootTask": 5,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 200,
+          "delayMedian": 13,
+          "delayMax": 19.6,
+          "clicksInsideBootTask": 2,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 250,
+          "delayMedian": 1.7,
+          "delayMax": 1.8,
+          "clicksInsideBootTask": 0,
+          "navigated": 5
+        }
+      ]
+    },
+    {
+      "label": "4x CPU diagnostics OFF",
+      "conditions": {
+        "cpuRate": 4,
+        "diagnostics": false,
+        "reducedMotion": false,
+        "viewport": "1440x900"
+      },
+      "cta_visible_ms": {
+        "median": 171.7,
+        "max": 198.7
+      },
+      "cta_focusable_ms": {
+        "median": 171.7,
+        "max": 198.7
+      },
+      "early_input_delay_ms": {
+        "median": 37,
+        "worst": 134.3
+      },
+      "bootLongTaskMs": {
+        "median": 132,
+        "max": 152,
+        "count": 35
+      },
+      "byTarget": [
+        {
+          "requested_click_time": 50,
+          "delayMedian": 121.4,
+          "delayMax": 134.3,
+          "clicksInsideBootTask": 5,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 75,
+          "delayMedian": 89.5,
+          "delayMax": 98.6,
+          "clicksInsideBootTask": 5,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 100,
+          "delayMedian": 79.2,
+          "delayMax": 94.4,
+          "clicksInsideBootTask": 5,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 125,
+          "delayMedian": 33.8,
+          "delayMax": 59.3,
+          "clicksInsideBootTask": 5,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 150,
+          "delayMedian": 15,
+          "delayMax": 37,
+          "clicksInsideBootTask": 5,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 200,
+          "delayMedian": 1.3,
+          "delayMax": 2.8,
+          "clicksInsideBootTask": 0,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 250,
+          "delayMedian": 1.3,
+          "delayMax": 2,
+          "clicksInsideBootTask": 0,
+          "navigated": 5
+        }
+      ]
+    },
+    {
+      "label": "1x CPU diagnostics OFF",
+      "conditions": {
+        "cpuRate": 1,
+        "diagnostics": false,
+        "reducedMotion": false,
+        "viewport": "1440x900"
+      },
+      "cta_visible_ms": {
+        "median": 51.2,
+        "max": 58.4
+      },
+      "cta_focusable_ms": {
+        "median": 51.2,
+        "max": 58.4
+      },
+      "early_input_delay_ms": {
+        "median": 0.5,
+        "worst": 6.9
+      },
+      "bootLongTaskMs": {
+        "median": null,
+        "max": null,
+        "count": 0
+      },
+      "byTarget": [
+        {
+          "requested_click_time": 50,
+          "delayMedian": 6.8,
+          "delayMax": 6.9,
+          "clicksInsideBootTask": 0,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 75,
+          "delayMedian": 0.4,
+          "delayMax": 0.4,
+          "clicksInsideBootTask": 0,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 100,
+          "delayMedian": 0.5,
+          "delayMax": 0.5,
+          "clicksInsideBootTask": 0,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 125,
+          "delayMedian": 0.5,
+          "delayMax": 0.9,
+          "clicksInsideBootTask": 0,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 150,
+          "delayMedian": 0.5,
+          "delayMax": 0.6,
+          "clicksInsideBootTask": 0,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 200,
+          "delayMedian": 0.5,
+          "delayMax": 0.5,
+          "clicksInsideBootTask": 0,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 250,
+          "delayMedian": 0.7,
+          "delayMax": 0.8,
+          "clicksInsideBootTask": 0,
+          "navigated": 5
+        }
+      ]
+    },
+    {
+      "label": "reduced motion 4x",
+      "conditions": {
+        "cpuRate": 4,
+        "diagnostics": false,
+        "reducedMotion": true,
+        "viewport": "1440x900"
+      },
+      "cta_visible_ms": {
+        "median": 193.8,
+        "max": 212.7
+      },
+      "cta_focusable_ms": {
+        "median": 194,
+        "max": 212.7
+      },
+      "early_input_delay_ms": {
+        "median": 58,
+        "worst": 154
+      },
+      "bootLongTaskMs": {
+        "median": 123,
+        "max": 169,
+        "count": 47
+      },
+      "byTarget": [
+        {
+          "requested_click_time": 50,
+          "delayMedian": 144,
+          "delayMax": 154,
+          "clicksInsideBootTask": 5,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 75,
+          "delayMedian": 120.1,
+          "delayMax": 134,
+          "clicksInsideBootTask": 5,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 100,
+          "delayMedian": 95.3,
+          "delayMax": 104.8,
+          "clicksInsideBootTask": 5,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 125,
+          "delayMedian": 63.5,
+          "delayMax": 77.8,
+          "clicksInsideBootTask": 5,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 150,
+          "delayMedian": 40.8,
+          "delayMax": 49.7,
+          "clicksInsideBootTask": 5,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 200,
+          "delayMedian": 7,
+          "delayMax": 17.1,
+          "clicksInsideBootTask": 0,
+          "navigated": 5
+        },
+        {
+          "requested_click_time": 250,
+          "delayMedian": 1,
+          "delayMax": 4,
+          "clicksInsideBootTask": 0,
+          "navigated": 5
+        }
+      ]
+    },
+    {
+      "label": "mobile 393 4x",
+      "conditions": {
+        "cpuRate": 4,
+        "diagnostics": false,
+        "reducedMotion": false,
+        "viewport": "Pixel 5 (393px)"
+      },
+      "cta_visible_ms": {
+        "median": 153.2,
+        "max": 170.4
+      },
+      "cta_focusable_ms": {
+        "median": 153.2,
+        "max": 170.5
+      },
+      "early_input_delay_ms": {
+        "median": 28.7,
+        "worst": 116.3
+      },
+      "bootLongTaskMs": {
+        "median": 111,
+        "max": 126,
+        "count": 35
+      },
+      "byTarget": [
+        {
+          "requested_click_time": 50,
+          "delayMedian": 104.3,
+          "delayMax": 116.3,
+          "clicksInsideBootTask": 5,
+          "navigated": 0
+        },
+        {
+          "requested_click_time": 75,
+          "delayMedian": 70.8,
+          "delayMax": 76.5,
+          "clicksInsideBootTask": 5,
+          "navigated": 0
+        },
+        {
+          "requested_click_time": 100,
+          "delayMedian": 50.2,
+          "delayMax": 57.7,
+          "clicksInsideBootTask": 5,
+          "navigated": 0
+        },
+        {
+          "requested_click_time": 125,
+          "delayMedian": 28.7,
+          "delayMax": 40.4,
+          "clicksInsideBootTask": 5,
+          "navigated": 0
+        },
+        {
+          "requested_click_time": 150,
+          "delayMedian": 5.6,
+          "delayMax": 16.2,
+          "clicksInsideBootTask": 3,
+          "navigated": 0
+        },
+        {
+          "requested_click_time": 200,
+          "delayMedian": 0.9,
+          "delayMax": 1,
+          "clicksInsideBootTask": 0,
+          "navigated": 0
+        },
+        {
+          "requested_click_time": 250,
+          "delayMedian": 1.1,
+          "delayMax": 3.4,
+          "clicksInsideBootTask": 0,
+          "navigated": 0
+        }
+      ]
+    }
+  ]
+}

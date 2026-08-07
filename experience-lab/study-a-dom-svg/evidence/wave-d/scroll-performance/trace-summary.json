@@ -1,0 +1,111 @@
+{
+  "method": "CDP Tracing over the synthetic scroll window only, CPU 4x. Complete ('X') events aggregated by name.",
+  "totalTraceEvents": 3650,
+  "scrollWindowMs": 1218,
+  "topByTotalDuration": [
+    {
+      "name": "RunTask",
+      "count": 1502,
+      "totalMs": 637.26,
+      "maxMs": 12.73
+    },
+    {
+      "name": "Paint",
+      "count": 43,
+      "totalMs": 59.55,
+      "maxMs": 2.39
+    },
+    {
+      "name": "RasterTask",
+      "count": 109,
+      "totalMs": 39.22,
+      "maxMs": 1.88
+    },
+    {
+      "name": "PrePaint",
+      "count": 74,
+      "totalMs": 27.32,
+      "maxMs": 1.09
+    },
+    {
+      "name": "Commit",
+      "count": 74,
+      "totalMs": 18.91,
+      "maxMs": 0.97
+    },
+    {
+      "name": "UpdateLayoutTree",
+      "count": 32,
+      "totalMs": 17.51,
+      "maxMs": 1.52
+    },
+    {
+      "name": "Layerize",
+      "count": 74,
+      "totalMs": 9.87,
+      "maxMs": 0.76
+    },
+    {
+      "name": "Layout",
+      "count": 31,
+      "totalMs": 6.95,
+      "maxMs": 1.03
+    },
+    {
+      "name": "TimerFire",
+      "count": 20,
+      "totalMs": 6.31,
+      "maxMs": 0.85
+    },
+    {
+      "name": "ScrollLayer",
+      "count": 63,
+      "totalMs": 2.79,
+      "maxMs": 0.58
+    },
+    {
+      "name": "IntersectionObserverController::computeIntersections",
+      "count": 148,
+      "totalMs": 2.62,
+      "maxMs": 0.76
+    },
+    {
+      "name": "UpdateLayer",
+      "count": 436,
+      "totalMs": 2.09,
+      "maxMs": 0.71
+    },
+    {
+      "name": "FunctionCall",
+      "count": 20,
+      "totalMs": 0.56,
+      "maxMs": 0.24
+    },
+    {
+      "name": "EventDispatch",
+      "count": 63,
+      "totalMs": 0.4,
+      "maxMs": 0.28
+    },
+    {
+      "name": "HitTest",
+      "count": 2,
+      "totalMs": 0.17,
+      "maxMs": 0.12
+    }
+  ],
+  "taskLikeEvents": [
+    {
+      "name": "RunTask",
+      "count": 1502,
+      "totalMs": 637.26,
+      "maxMs": 12.73
+    },
+    {
+      "name": "EventDispatch",
+      "count": 63,
+      "totalMs": 0.4,
+      "maxMs": 0.28
+    }
+  ]
+}
