@@ -54,16 +54,24 @@ test.describe("document structure", () => {
     }
   });
 
-  test("the signal SVG is a labelled image with a description", async ({ page }) => {
-    const svg = page.locator(".signal");
-    await expect(svg).toHaveAttribute("role", "img");
+  test("the signal SVG is decorative, with the meaning carried in text", async ({ page }) => {
+    // Wave C changed this contract. In Wave B the SVG was a labelled image
+    // (`role="img"` + aria-labelledby). It is now `aria-hidden` because the
+    // graphic changes with every state, and a static label would go stale the
+    // moment the state moved. The per-state text panel replaces it.
+    const svg = page.locator("svg[data-signal]");
+    await expect(svg).toHaveAttribute("aria-hidden", "true");
+    await expect(svg).toHaveAttribute("focusable", "false");
+    await expect(svg).not.toHaveAttribute("role", "img");
 
-    const labelledBy = await svg.getAttribute("aria-labelledby");
-    expect(labelledBy).toContain("signal-title");
-    expect(labelledBy).toContain("signal-desc");
+    // The replacement must actually be there, and must be labelled.
+    const panel = page.locator("[data-signal-text]");
+    await expect(panel).toBeVisible();
+    await expect(panel).toHaveAttribute("aria-labelledby", "signal-text-title");
+    await expect(page.locator("#signal-text-title")).toHaveCount(1);
 
-    await expect(page.locator("#signal-title")).toHaveCount(1);
-    await expect(page.locator("#signal-desc")).toHaveCount(1);
+    // And the full sequence stays available independently of current state.
+    await expect(page.locator(".signal-legend li")).toHaveCount(8);
   });
 
   test("no essential state is conveyed by colour alone", async ({ page }) => {

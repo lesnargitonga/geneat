@@ -73,87 +73,112 @@
         </div>
 
         <!--
-          The signal, as static SVG.
+          The signal, as static SVG with the eight named layers of dossier 7.6.
 
-          Study A's entire thesis is that this can carry the concept without a
-          renderer. In Waves A and B it is deliberately unanimated: the shape
-          has to read as "a system that now exists" while completely still,
-          before any motion is allowed to help it (dossier 7.6).
+          `aria-hidden="true"`: the graphic is decorative because the structured
+          text equivalent below carries every relationship it expresses. No
+          relationship may exist only visually (7.17).
+
+          This markup is the no-JavaScript state — the dormant path, showing
+          possible structure with nothing resolved, which is exactly the `idea`
+          state. With JavaScript, `signal-view.ts` rebuilds these layers from
+          geometry data so the shape has one source of truth rather than two.
         -->
         <div class="stage" data-stage>
           <svg
             class="signal"
+            data-signal
+            data-state="idea"
+            data-emphasis="uncertain"
+            data-geometry="horizontal"
             viewBox="0 0 880 460"
-            role="img"
-            aria-labelledby="signal-title signal-desc"
+            aria-hidden="true"
+            focusable="false"
             preserveAspectRatio="xMidYMid meet"
           >
-            <title id="signal-title">The Lesnar Signal, resolved</title>
-            <desc id="signal-desc">
-              A signal path passing through evidence, two constraint boundaries, a human approval
-              gate, and a final action node, leaving a residual trace behind it. The same sequence
-              is described in text below this graphic.
-            </desc>
-
-            <g class="signal__boundaries">
-              <rect x="452" y="86" width="4" height="288" rx="2" />
-              <rect x="586" y="112" width="4" height="236" rx="2" />
+            <g id="signal-layer-dormant-path" data-layer="dormant-path" data-active="true">
+              <path
+                data-role="dormant"
+                fill="none"
+                d="M 52 322 C 75 318.33, 148.67 313.67, 190 300 C 231.33 286.33, 263.33 255.83, 300 240 C 336.67 224.17, 373.33 211.67, 410 205 C 446.67 198.33, 481.67 198.5, 520 200 C 558.33 201.5, 600 205.67, 640 214 C 680 222.33, 727 241, 760 250 C 793 259, 825 265, 838 268"
+              />
             </g>
-
-            <path
-              class="signal__dormant"
-              d="M52 322 C 150 322, 152 214, 250 214 S 366 196, 452 196 S 560 214, 640 214 S 760 268, 838 268"
-              fill="none"
-            />
-
-            <path
-              class="signal__residual"
-              d="M52 322 C 150 322, 152 214, 250 214 S 366 196, 452 196"
-              fill="none"
-            />
-
-            <path
-              class="signal__active"
-              d="M52 322 C 150 322, 152 214, 250 214 S 366 196, 452 196 S 560 214, 640 214 S 760 268, 838 268"
-              fill="none"
-            />
-
-            <g class="signal__evidence">
-              <circle cx="150" cy="392" r="5" />
-              <circle cx="214" cy="118" r="5" />
-              <circle cx="332" cy="386" r="5" />
-              <circle cx="386" cy="104" r="5" />
-              <path d="M150 386 L 178 268" />
-              <path d="M214 126 L 238 206" />
-              <path d="M332 380 L 348 226" />
-              <path d="M386 112 L 404 190" />
+            <g id="signal-layer-active-path" data-layer="active-path" data-active="false"></g>
+            <g id="signal-layer-evidence-nodes" data-layer="evidence-nodes" data-active="false"></g>
+            <g id="signal-layer-boundary-nodes" data-layer="boundary-nodes" data-active="false"></g>
+            <g id="signal-layer-human-gate" data-layer="human-gate" data-active="false"></g>
+            <g id="signal-layer-action-node" data-layer="action-node" data-active="false"></g>
+            <g id="signal-layer-residual-trace" data-layer="residual-trace" data-active="false"></g>
+            <g id="signal-layer-signal-head" data-layer="signal-head" data-active="false">
+              <g id="signal-head-marker" data-dormant="true" style="transform: translate(52px, 322px)">
+                <circle data-role="halo" r="13" />
+                <circle data-role="core" r="7" />
+              </g>
             </g>
-
-            <g class="signal__gate">
-              <path d="M604 168 L 586 168 L 586 128" fill="none" />
-              <path d="M604 292 L 586 292 L 586 332" fill="none" />
-              <circle cx="640" cy="214" r="11" />
-            </g>
-
-            <circle class="signal__action" cx="838" cy="268" r="14" />
-            <circle class="signal__head" cx="452" cy="196" r="7" />
           </svg>
         </div>
 
         <!--
-          Structured text equivalent for the diagram (7.17). Not a caption —
-          the same information, available to a screen reader, to a printout,
-          and to anyone reading with images or CSS unavailable.
+          Development state stepper.
+
+          Ships `hidden` and is revealed by script. A control that cannot do
+          anything without JavaScript should not be shown to someone who has
+          none — the no-JS reader gets the full eight-state legend below
+          instead, which is the same information without the pretence of
+          interactivity.
         -->
-        <ol class="signal-legend">
-          <li><strong>Idea.</strong> Unstable fragments and incomplete possibilities.</li>
-          <li><strong>Observe.</strong> Evidence, people and constraints join the path.</li>
-          <li><strong>Model.</strong> Routes and boundaries become clear.</li>
-          <li><strong>Engineer.</strong> The signal becomes an operational system.</li>
-          <li><strong>Protect.</strong> Trust boundaries and recovery states form around it.</li>
-          <li><strong>Approve.</strong> Human judgment pauses or redirects the flow.</li>
-          <li><strong>Act.</strong> The signal reaches a real product, order or device.</li>
-          <li><strong>Prove.</strong> Outcomes and failure recovery become visible.</li>
+        <div class="stepper" data-signal-stepper hidden></div>
+
+        <!--
+          Structured textual equivalent. Replaces the SVG for assistive
+          technology and updates with every state. Rendered statically here for
+          the `idea` state so the no-JavaScript view is complete.
+        -->
+        <section
+          class="signal-text"
+          data-signal-text
+          data-state="idea"
+          aria-labelledby="signal-text-title"
+        >
+          <h2 class="signal-text__title" id="signal-text-title">00 · Idea</h2>
+          <dl class="signal-text__list">
+            <dt>What happens</dt>
+            <dd>
+              An ambitious idea arrives as incomplete fragments. Possible structure is visible, but
+              no route through the system has been established yet.
+            </dd>
+            <dt>Input</dt>
+            <dd>An unstructured ambition, with no agreed shape.</dd>
+            <dt>Boundary</dt>
+            <dd>Nothing is committed to. No route is treated as valid yet.</dd>
+            <dt>Output</dt>
+            <dd>A set of open possibilities and an unresolved question.</dd>
+          </dl>
+          <p class="signal-text__position">State 1 of 8 in the Lesnar Signal sequence.</p>
+        </section>
+
+        <p class="visually-hidden" data-signal-live role="status" aria-live="polite"></p>
+
+        <!--
+          The eight canonical signal states as a permanent list (7.17). This is
+          the sequence in full, always present, independent of which state the
+          stepper happens to be showing — so a reader with no JavaScript, or one
+          who simply wants the whole story at once, is never sent through eight
+          interactions to get it.
+
+          These are the *company-level* signal states of dossier 3.3. They are
+          not the physical-action sequence in the Action chapter, which is a
+          separate seven-step system with its own labels.
+        -->
+        <ol class="signal-legend" data-signal-legend>
+          <li data-signal-legend-state="idea"><strong>Idea.</strong> Unstable fragments and incomplete possibilities.</li>
+          <li data-signal-legend-state="observe"><strong>Observe.</strong> Evidence, people and constraints join the path.</li>
+          <li data-signal-legend-state="model"><strong>Model.</strong> Routes and boundaries become clear.</li>
+          <li data-signal-legend-state="engineer"><strong>Engineer.</strong> The signal becomes an operational system.</li>
+          <li data-signal-legend-state="protect"><strong>Protect.</strong> Trust boundaries and recovery states form around it.</li>
+          <li data-signal-legend-state="human-review"><strong>Human review.</strong> Human judgment pauses or redirects the flow.</li>
+          <li data-signal-legend-state="act"><strong>Act.</strong> The signal reaches a real product, order or device.</li>
+          <li data-signal-legend-state="prove"><strong>Prove.</strong> Outcomes and failure recovery become visible.</li>
         </ol>
       </section>
 

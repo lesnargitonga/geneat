@@ -39,7 +39,10 @@ export default defineConfig({
       // enforcement, none of which a resized desktop profile exercises.
       name: "mobile",
       use: { ...devices["Pixel 5"] },
-      testMatch: /(responsive|structure)\.spec\.ts/,
+      // Anchored so `signal-responsive.spec.ts` does not also match — it sets
+      // its own five viewports and would otherwise run them twice, the second
+      // time inside a device profile it immediately overrides.
+      testMatch: /(^|\/)(responsive|structure)\.spec\.ts$/,
     },
     {
       name: "no-javascript",

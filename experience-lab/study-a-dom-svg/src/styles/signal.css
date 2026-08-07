@@ -1,21 +1,23 @@
 /**
- * The Lesnar Signal, as static SVG.
+ * The Lesnar Signal — layered SVG state system.
  *
- * Layers are styled by *role* rather than by shape (dossier 7.6): dormant path,
- * residual trace, active path, signal head, evidence nodes, constraint
- * boundaries, human gate, action node. A reader should be able to tell which
- * layer means what from the stylesheet alone.
+ * Layers are styled by *role* (dossier 7.6): dormant path, residual trace,
+ * active path, signal head, evidence nodes, constraint boundaries, human gate,
+ * action node. A reader should be able to tell what each layer means from this
+ * stylesheet alone.
  *
- * There is no animation here. No `@keyframes`, no `stroke-dashoffset`
- * transition, no `animateMotion`. Study A's Wave B thesis is that the resolved
- * composition reads as "a system now exists" while completely still — motion
- * is only permitted to help once the still frame already works.
+ * Motion is bounded by two custom properties published from `signal-motion.ts`:
+ * `--signal-transition` (cap 450ms) and `--signal-head-travel` (cap 650ms).
+ * No duration is hard-coded here, so the budget has exactly one owner.
+ *
+ * Permitted: opacity, short position shift, node scale, colour change, stroke
+ * reveal, head travel across one segment. Nothing loops. Nothing pulses.
  */
 
 .stage {
   grid-area: stage;
   width: 100%;
-  /* Reserving the aspect ratio prevents layout shift when the SVG paints. */
+  /* Reserves the box before paint so the SVG cannot shift content. */
   aspect-ratio: 880 / 460;
 }
 
@@ -25,8 +27,35 @@
   overflow: visible;
 }
 
-/* Possible structure, not the answer: dashed and quiet. */
-.signal__dormant {
+@media (max-width: 44.9375rem) {
+  .stage {
+    aspect-ratio: 360 / 736;
+    max-height: 70vh;
+    margin-inline: auto;
+  }
+}
+
+/* Layer groups fade as a whole; individual elements carry their own state. */
+.signal [data-layer] {
+  transition: opacity var(--signal-transition) var(--ease-standard);
+}
+
+.signal [data-layer][data-active="false"] {
+  opacity: 0;
+}
+
+.signal [data-layer][data-active="true"] {
+  opacity: 1;
+}
+
+/* The dormant path is always visible: possible structure, never the answer. */
+.signal [data-layer="dormant-path"][data-active="false"] {
+  opacity: 0.55;
+}
+
+/* --------------------------------------------------------------- paths */
+
+[data-role="dormant"] {
   stroke: var(--signal-dormant);
   stroke-width: 1.5;
   stroke-dasharray: 3 7;
@@ -34,57 +63,186 @@
   opacity: 0.55;
 }
 
-/* What the signal leaves behind — the system that now exists. */
-.signal__residual {
+[data-role="residual"] {
   stroke: var(--signal-dormant);
-  stroke-width: 6;
+  stroke-width: 7;
   stroke-linecap: round;
-  opacity: 0.22;
+  opacity: 0.26;
 }
 
-.signal__active {
+[data-segment] {
   stroke: var(--signal-active);
   stroke-width: 2;
   stroke-linecap: round;
+  transition:
+    opacity var(--signal-transition) var(--ease-standard),
+    stroke var(--signal-transition) var(--ease-standard);
 }
 
-.signal__head {
+[data-segment][data-state="hidden"] {
+  opacity: 0;
+}
+
+[data-segment][data-state="complete"] {
+  opacity: 1;
+}
+
+/* The segment just travelled reads slightly brighter, so the direction of
+   travel is legible in a still frame — which is what a screenshot is. */
+[data-segment][data-state="current"] {
+  opacity: 1;
+  stroke: color-mix(in oklch, var(--signal-active) 88%, white);
+  stroke-width: 2.5;
+}
+
+/* ---------------------------------------------------------- signal head */
+
+#signal-head-marker {
+  /* Head travel is the one movement permitted across a segment. */
+  transition: transform var(--signal-head-travel) var(--ease-out-expo);
+}
+
+#signal-head-marker [data-role="core"] {
   fill: var(--signal-active);
+  transition: fill var(--signal-transition) var(--ease-standard);
 }
 
-.signal__evidence circle {
+#signal-head-marker [data-role="halo"] {
+  fill: var(--signal-active);
+  opacity: 0.14;
+  transition: opacity var(--signal-transition) var(--ease-standard);
+}
+
+/* Dormant head: the idea exists but nothing has moved. */
+#signal-head-marker[data-dormant="true"] [data-role="core"] {
+  fill: var(--signal-dormant);
+}
+
+#signal-head-marker[data-dormant="true"] [data-role="halo"] {
+  opacity: 0;
+}
+
+/* ------------------------------------------------------- evidence nodes */
+
+[data-layer="evidence-nodes"] circle {
   fill: var(--evidence);
+  transition:
+    opacity var(--signal-transition) var(--ease-standard),
+    r var(--signal-transition) var(--ease-standard);
 }
 
-.signal__evidence path {
+[data-layer="evidence-nodes"] [data-role="connector"] {
   stroke: var(--evidence);
   stroke-width: 1;
   stroke-dasharray: 2 5;
   opacity: 0.6;
 }
 
-.signal__boundaries rect {
-  fill: var(--risk);
-  opacity: 0.34;
+[data-layer="evidence-nodes"] [data-node][data-active="false"] {
+  opacity: 0.18;
 }
 
-.signal__gate path {
+[data-layer="evidence-nodes"] [data-node] {
+  transition: opacity var(--signal-transition) var(--ease-standard);
+}
+
+/* ------------------------------------------------------ boundary nodes */
+
+/* Constraints, not alarms — no red flash, no warning iconography (7.5). */
+[data-layer="boundary-nodes"] rect {
+  fill: var(--risk);
+  opacity: 0.34;
+  transition: opacity var(--signal-transition) var(--ease-standard);
+}
+
+[data-layer="boundary-nodes"] [data-node][data-active="true"] rect {
+  opacity: 0.46;
+}
+
+/* ---------------------------------------------------------- human gate */
+
+[data-layer="human-gate"] path {
   stroke: var(--human);
   stroke-width: 2;
   stroke-linecap: round;
+  fill: none;
 }
 
-.signal__gate circle {
+[data-layer="human-gate"] circle {
   fill: none;
   stroke: var(--human);
   stroke-width: 2;
+  transition:
+    stroke-width var(--signal-transition) var(--ease-standard),
+    fill var(--signal-transition) var(--ease-standard);
 }
 
-.signal__action {
+/* Holding: the gate is closed and the signal cannot pass. Shown by a filled
+   ring plus a heavier stroke — two signals, so it survives greyscale. */
+[data-node="gate"][data-gate="holding"] circle {
+  stroke-width: 3.5;
+  fill: color-mix(in oklch, var(--human) 26%, transparent);
+}
+
+[data-node="gate"][data-gate="passed"] circle {
+  stroke-width: 2;
+  fill: color-mix(in oklch, var(--human) 12%, transparent);
+}
+
+/* ---------------------------------------------------------- action node */
+
+[data-layer="action-node"] circle {
+  fill: var(--recovery);
+  transition:
+    opacity var(--signal-transition) var(--ease-standard),
+    fill var(--signal-transition) var(--ease-standard);
+}
+
+/* Firing and recorded must not look the same: Act is the crossing into
+   execution, Prove is the durable record of it. */
+[data-node="act"][data-action="firing"] circle {
   fill: var(--recovery);
 }
 
-/* ------------------------------------------------------------- legend */
+[data-node="act"][data-action="recorded"] circle {
+  fill: none;
+  stroke: var(--recovery);
+  stroke-width: 3;
+}
+
+/* ---------------------------------------------------------- emphasis */
+
+/* Emphasis lifts the layer the current state is *about*, rather than
+   recolouring the whole composition. */
+.signal[data-emphasis="evidence"] [data-layer="evidence-nodes"] circle {
+  r: 6;
+}
+
+.signal[data-emphasis="boundary"] [data-layer="boundary-nodes"] rect {
+  opacity: 0.55;
+}
+
+.signal[data-emphasis="proof"] [data-layer="residual-trace"] [data-role="residual"] {
+  opacity: 0.4;
+}
+
+/* ------------------------------------------------------ reduced motion */
+
+/**
+ * Reduced mode removes movement structurally, not by shortening it.
+ * `signal-view.ts` also refuses to mark a transition as animated, so this is
+ * the second of two independent guarantees rather than the only one.
+ */
+.signal[data-motion="reduced"] *,
+.signal[data-animate="false"] #signal-head-marker {
+  transition-duration: var(--signal-transition) !important;
+}
+
+.signal[data-motion="reduced"] #signal-head-marker {
+  transition: none !important;
+}
+
+/* --------------------------------------------------------------- legend */
 
 .signal-legend {
   grid-area: legend;

@@ -15,8 +15,28 @@ An undeclared difference **fails** the run. A difference declared in
 `INTENTIONAL_DIFFERENCES` with a reason and an impact assessment passes and is
 reported as intentional. Silence is never treated as parity.
 
-**Result:** 10 exact matches, 4 declared differences, **0 undeclared**. PASS.
-Machine-readable output: `evidence/content-parity.json`.
+**Result after Wave C:** 10 exact matches, 8 declared differences,
+**0 undeclared**. PASS. Machine-readable output: `evidence/content-parity.json`.
+
+> ## ⚠ Scoring hazard — the studies are no longer at the same wave
+>
+> Study A has completed **Wave C** (the signal state system). Study B is frozen
+> at **Waves A and B**. Four of the eight declared differences exist only
+> because of that gap:
+>
+> - `wave-c.stepper` — Study A has a state stepper; Study B has no states to step
+> - `wave-c.state-text` — Study A has a per-state text panel
+> - `svg.aria` — Study A's SVG is `aria-hidden` because it is now stateful;
+>   Study B's static poster is still a labelled image, which is correct for it
+> - `signal-legend.human-review` — see below
+>
+> **No comparative score under the §8 framework is valid right now.** Either
+> Study B completes an equivalent Wave C, or the comparison is explicitly
+> restricted to the waves both studies have finished. Scoring today would
+> measure wave progress, not rendering approach.
+>
+> This is a larger version of exactly the problem the parity rule exists to
+> prevent, so it is recorded at the top rather than in a footnote.
 
 ---
 
@@ -97,7 +117,27 @@ Study B: `Evidence pending — not collected in this wave`
 The Study A brief specifies the literal token `EVIDENCE PENDING`. Same panel,
 same meaning, same complete absence of any figure. **Impact: none.**
 
-### 4. Canvas element — `stage.canvas`
+### 4. Signal legend sixth entry — `signal-legend.human-review`
+
+Study A: **Human review**. Study B (7dc29a2): **Approve**.
+
+§3.3's canonical sixth state is *Human review*, and Wave C makes it a real state
+id (`human-review`). The legend was corrected to match the state model.
+
+"Approve" remains correct — and unchanged in both studies — as step 4 of the
+*physical-action* sequence, which is a separate seven-step system.
+
+**Impact: none on claims.** Same position, same meaning. Study B's legend should
+be corrected when it is next authorised for edit.
+
+`signalLegend` was added as a compared field in the same change that introduced
+the divergence, so the difference could not pass silently.
+
+### 5. Wave C deliverables — `wave-c.stepper`, `wave-c.state-text`, `svg.aria`
+
+See the scoring hazard at the top of this document.
+
+### 6. Canvas element — `stage.canvas`
 
 Study B has a `<canvas>` behind its SVG poster. Study A has no canvas at all.
 

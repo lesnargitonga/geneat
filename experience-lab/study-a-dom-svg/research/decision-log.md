@@ -1,6 +1,153 @@
 # Study A — Decision log
 
-Waves A and B. Each entry records what was decided, why, and what would reverse it.
+Waves A, B and C. Each entry records what was decided, why, and what would
+reverse it.
+
+---
+
+## C-01 — Sections 22 and 23 do not exist
+
+**Context.** The Wave C brief asked for Sections 22 and 23 of the latest master
+guide. The newest guide on disk is **v0.7** (4,487 lines) and it ends at
+**Section 19**.
+
+**Decision.** Proceed using §7.6 (SVG anatomy), §7.18 (Wave C definition), §7.14,
+§7.17, §3.3 and §19, and treat the brief as authoritative where it is richer.
+
+**Reasoning.** §7.6 is byte-identical between v0.4 and v0.7, so the layer
+contract is stable. §7.18's Wave C is four lines; the brief specifies the state
+contract, stepper, motion budget and evidence in detail. Inventing content for
+non-existent sections would have been worse than working from what exists and
+saying so.
+
+---
+
+## C-02 — The two sequences stay separate, and a test enforces it
+
+**Decision.** The eight company-level signal states live in
+`signal/signal-states.ts`; the seven-step physical-action sequence stays in
+`content.ts`. Separate types, separate modules.
+
+**Reasoning.** They share two words — Observe and Act — and nothing else.
+Merging or renaming either is explicitly forbidden, and shared vocabulary is
+exactly how such a merge happens by accident.
+
+`signal-contract.spec.ts` asserts the separation directly: `detect`, `verify`,
+`command` and `record` must exist in the action sequence and must **not** appear
+in the signal states; `idea`, `model`, `engineer`, `protect`, `human-review` and
+`prove` must hold the reverse.
+
+---
+
+## C-03 — Geometry is generated from waypoints
+
+**Decision.** Eight waypoints per geometry; the path is a Catmull-Rom curve
+converted to cubic Bézier at build time in `signal-geometry.ts`.
+
+**Reasoning.** §7.20 rejects Study A if the SVG becomes "an unmaintainable
+illustration with hundreds of hand-coded coordinates". Catmull-Rom specifically
+because it passes *through* its control points — the waypoints are the states,
+so the head must land exactly on them, and a spline that merely approximates
+would place the signal head slightly off its own state.
+
+---
+
+## C-04 — Segments are separate elements, not one dash-offset path
+
+**Decision.** Seven `<path>` elements, each toggled between hidden / current /
+complete.
+
+**Reasoning.** Stroke reveal via `stroke-dashoffset` requires path-length
+arithmetic that changes with every geometry edit and differs between the two
+geometries. Per-segment elements make reveal deterministic, make "which segments
+are drawn" directly assertable in a test, and make the state contract
+checkable from the DOM rather than inferred from a computed style.
+
+---
+
+## C-05 — The SVG became `aria-hidden`
+
+**Decision.** `aria-hidden="true"`, `focusable="false"`, replaced by a per-state
+text panel plus the permanent legend.
+
+**Reasoning.** Required by the brief, and correct: the graphic now changes with
+state, so the Wave B `role="img"` + static description would describe the wrong
+state as soon as anything moved.
+
+**Risk accepted and mitigated.** This removes the labelling Wave B shipped, so
+the text must carry everything. Mitigations: the panel renders all five required
+fields for every state; the eight-state legend is always present; the static
+markup ships the `idea` state so the no-JavaScript view is complete; and the
+no-JS suite asserts all of it.
+
+---
+
+## C-06 — Reduced motion removes travel structurally
+
+**Decision.** In reduced mode the head marker gets `transition: none`, not a
+short duration.
+
+**Reasoning.** "Reduced motion: 0–80 ms, no path travel" is two requirements,
+not one. A 60 ms head travel is still travel. Enforced twice — the view refuses
+to mark a transition as animated, and the stylesheet removes the transition —
+and asserted by reading computed style rather than trusting the token.
+
+---
+
+## C-07 — Rapid selection coalesces to the last request
+
+**Decision.** `SignalController.goTo` stores a pending id and applies once per
+frame; intermediate requests are discarded rather than queued.
+
+**Reasoning.** The requirement is that rapid selection settles on the *final
+requested* state, not that it replays the sequence. Queuing would make the
+composition visibly chase the input.
+
+**Consequence.** `goToNow` exists for the initial render, which must not wait a
+frame.
+
+---
+
+## C-08 — The stepper ships hidden and is revealed by script
+
+**Decision.** `hidden` in the markup, unhidden in `mount()`.
+
+**Reasoning.** A stepper without JavaScript is a row of buttons that do nothing.
+The no-JS reader gets the eight-state legend instead — the same information,
+without the pretence of interactivity.
+
+---
+
+## C-09 — Study A is now a wave ahead of Study B
+
+**Observed.** Study A has completed Wave C; Study B is frozen at Waves A and B.
+
+**Decision.** Declare it in the parity script as `wave-c.stepper` and
+`wave-c.state-text`, both marked **SCORING HAZARD**.
+
+**Reasoning.** The parity rule exists so neither study looks stronger through
+content rather than approach. A wave gap is a much larger version of that
+problem than any wording difference. No comparative score is valid until Study B
+completes an equivalent Wave C, or the comparison is explicitly restricted to
+the waves both have finished.
+
+---
+
+## C-10 — Legend corrected to "Human review"
+
+**Decision.** The sixth legend entry changed from "Approve" to "Human review",
+and `signalLegend` was added as a *newly compared* parity field.
+
+**Reasoning.** §3.3's canonical state is Human review, and Wave C makes it a
+real state id. Leaving the legend uncompared would have let the divergence pass
+silently, so the comparison was widened at the same time as the change.
+
+"Approve" remains correct in the physical-action sequence, which is untouched in
+both studies.
+
+---
+
+## Waves A and B
 
 ---
 

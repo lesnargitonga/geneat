@@ -129,17 +129,16 @@ export const ACTION_SEQUENCE: readonly ActionStep[] = [
   { id: "record", label: "Record" },
 ];
 
-/** The eight signal states (dossier 3.3), shown as the text legend. */
-export const SIGNAL_STATES = [
-  "Idea",
-  "Observe",
-  "Model",
-  "Engineer",
-  "Protect",
-  "Approve",
-  "Act",
-  "Prove",
-] as const;
+/**
+ * The eight company-level signal states used to live here as a string list.
+ * They now live in `signal/signal-states.ts` as full state objects, because
+ * Wave C needs each one to carry layers, nodes, segments and text — and two
+ * definitions of the same sequence is exactly the drift this module exists to
+ * prevent. Import `SIGNAL_STATES` from `../signal/signal-states`.
+ *
+ * Note the sixth state is **Human review**, not "Approve". "Approve" belongs
+ * to the physical-action sequence below, which is a different system.
+ */
 
 /**
  * Claims both studies must state identically. Used by the parity check as the

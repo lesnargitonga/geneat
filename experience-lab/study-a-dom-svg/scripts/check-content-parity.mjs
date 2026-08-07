@@ -76,6 +76,40 @@ const INTENTIONAL_DIFFERENCES = {
       "committed 'Evidence pending'. Same meaning, same panel, same absence of any figure.",
     impact: "none — neither study states a measured outcome",
   },
+  "signal-legend.human-review": {
+    reason:
+      "Study A's sixth legend entry is 'Human review'; Study B committed 'Approve'. The canonical " +
+      "company-level state in dossier 3.3 is Human review, and Wave C makes it a real state id " +
+      "('human-review'), so the legend was corrected to match the state model. 'Approve' remains " +
+      "correct in the physical-action sequence, which is a separate seven-step system and is " +
+      "unchanged in both studies.",
+    impact:
+      "none on claims — same position, same meaning. Study B's legend should be corrected to " +
+      "match when it is next authorised for edit.",
+  },
+  "wave-c.stepper": {
+    reason:
+      "Study A has completed Wave C (signal state system); Study B is frozen at Waves A and B. " +
+      "The state stepper and the per-state text panel are Wave C deliverables that Study B has " +
+      "not reached yet.",
+    impact:
+      "SCORING HAZARD. The two studies are no longer at the same wave. No comparative score is " +
+      "valid until Study B completes an equivalent Wave C, or the comparison is explicitly " +
+      "restricted to the waves both have finished.",
+  },
+  "wave-c.state-text": {
+    reason: "Per-state accessible text panel — a Wave C deliverable, as above.",
+    impact: "SCORING HAZARD — see wave-c.stepper.",
+  },
+  "svg.aria": {
+    reason:
+      "Study A's signal SVG is now aria-hidden with a per-state text equivalent, because the " +
+      "graphic changes with state and a static label would go stale. Study B's static poster is " +
+      "still a labelled image, which is correct for a composition that does not change.",
+    impact:
+      "none on content — both studies expose the same information, through the mechanism " +
+      "appropriate to whether their graphic is static or stateful.",
+  },
 };
 
 // --------------------------------------------------------------- extraction
@@ -160,6 +194,20 @@ function extract(html) {
   const hasCanvas = /<canvas/i.test(html);
   const projectName = firstText(html, /class="project__name"[^>]*>([\s\S]*?)<\/h3>/i);
 
+  // The eight company-level signal states as the page presents them. Compared
+  // because this is narrative content and it is now diverging — leaving it
+  // uncompared would let the divergence pass silently.
+  const legendBlock = html.match(/class="signal-legend"[^>]*>([\s\S]*?)<\/ol>/i)?.[1] ?? "";
+  const signalLegend = matchAll(legendBlock, /<strong>([^<]+?)\.?<\/strong>/gi).map(([, label]) =>
+    normalise(label),
+  );
+
+  // Wave C deliverables. Their presence in one study and not the other is the
+  // clearest signal that the two are no longer at the same wave.
+  const hasSignalStepper = /data-signal-stepper/i.test(html);
+  const hasStateTextPanel = /data-signal-text/i.test(html);
+  const svgAriaHidden = /<svg[^>]*data-signal[^>]*aria-hidden="true"/i.test(html);
+
   return {
     headline,
     supportingCopy: lede,
@@ -176,6 +224,10 @@ function extract(html) {
     hasVisibleLimitations,
     hasCanvas,
     actionStepCount: actionSteps.length,
+    signalLegend,
+    hasSignalStepper,
+    hasStateTextPanel,
+    svgAriaHidden,
   };
 }
 
@@ -187,6 +239,10 @@ const FIELD_TO_DIFFERENCE = {
   hasVisibleLimitations: "limitations.visible",
   hasCanvas: "stage.canvas",
   pendingWording: "evidence-pending.wording",
+  signalLegend: "signal-legend.human-review",
+  hasSignalStepper: "wave-c.stepper",
+  hasStateTextPanel: "wave-c.state-text",
+  svgAriaHidden: "svg.aria",
 };
 
 const COMPARED_FIELDS = [
@@ -204,6 +260,10 @@ const COMPARED_FIELDS = [
   "ctas",
   "hasVisibleLimitations",
   "hasCanvas",
+  "signalLegend",
+  "hasSignalStepper",
+  "hasStateTextPanel",
+  "svgAriaHidden",
 ];
 
 const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);

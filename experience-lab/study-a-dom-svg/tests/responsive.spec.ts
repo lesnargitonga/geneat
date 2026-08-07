@@ -71,9 +71,10 @@ test.describe("responsive behaviour", () => {
     expect(box!.height).toBeGreaterThan(0);
 
     // aspect-ratio reserves the box before paint, so the SVG cannot push
-    // content down as it renders.
+    // content down as it renders. Wave C introduced a second geometry, so
+    // either ratio is valid — what must hold is that *some* ratio is reserved.
     const ratio = await stage.evaluate((node) => getComputedStyle(node).aspectRatio);
-    expect(ratio.replace(/\s/g, "")).toBe("880/460");
+    expect(["880/460", "360/736"]).toContain(ratio.replace(/\s/g, ""));
   });
 
   test("proof panels stack rather than overflow on narrow viewports", async ({ page }, testInfo) => {

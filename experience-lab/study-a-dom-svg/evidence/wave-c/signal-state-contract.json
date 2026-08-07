@@ -1,0 +1,247 @@
+{
+  "capturedAt": "2026-08-06T19:30:49.371Z",
+  "states": [
+    {
+      "id": "idea",
+      "index": 0,
+      "label": "Idea",
+      "emphasis": "uncertain",
+      "activeLayers": [
+        "dormant-path"
+      ],
+      "activeNodes": [],
+      "completedSegments": [],
+      "currentSegment": null,
+      "gate": "idle",
+      "action": "idle",
+      "viewBox": "0 0 880 460",
+      "geometry": "horizontal",
+      "textEquivalent": "00 · IdeaWhat happensAn ambitious idea arrives as incomplete fragments. Possible structure is visible, but no route through the system has been established yet.InputAn unstructured ambition, with no agreed shape.BoundaryNothing is committed to. No route is treated as valid yet.OutputA set of open possibilities and an unresolved question.State 1 of 8 in the Lesnar Signal sequence."
+    },
+    {
+      "id": "observe",
+      "index": 1,
+      "label": "Observe",
+      "emphasis": "evidence",
+      "activeLayers": [
+        "dormant-path",
+        "active-path",
+        "signal-head",
+        "evidence-nodes"
+      ],
+      "activeNodes": [
+        "ev-1",
+        "ev-2",
+        "ev-3",
+        "ev-4"
+      ],
+      "completedSegments": [],
+      "currentSegment": "seg-1",
+      "gate": "idle",
+      "action": "idle",
+      "viewBox": "0 0 880 460",
+      "geometry": "horizontal",
+      "textEquivalent": "01 · ObserveWhat happensEvidence enters from separate sources — people, data, constraints. The signal begins at the idea source. Fragments that are not relevant stay quiet rather than being deleted.InputField evidence, operational data, and stated constraints.BoundaryEvidence is gathered before conclusions; nothing is inferred yet.OutputA body of observations attached to the question.State 2 of 8 in the Lesnar Signal sequence."
+    },
+    {
+      "id": "model",
+      "index": 2,
+      "label": "Model",
+      "emphasis": "structure",
+      "activeLayers": [
+        "dormant-path",
+        "active-path",
+        "signal-head",
+        "evidence-nodes"
+      ],
+      "activeNodes": [
+        "ev-1",
+        "ev-2",
+        "ev-3",
+        "ev-4"
+      ],
+      "completedSegments": [
+        "seg-1"
+      ],
+      "currentSegment": "seg-2",
+      "gate": "idle",
+      "action": "idle",
+      "viewBox": "0 0 880 460",
+      "geometry": "horizontal",
+      "textEquivalent": "02 · ModelWhat happensRelationships between the observations appear and a candidate route becomes visible. Uncertainty is still shown rather than hidden — the dormant structure remains under the active path.InputObservations and the relationships between them.BoundaryA candidate route only. Alternatives are not yet discarded.OutputA proposed route with its uncertainty still visible.State 3 of 8 in the Lesnar Signal sequence."
+    },
+    {
+      "id": "engineer",
+      "index": 3,
+      "label": "Engineer",
+      "emphasis": "structure",
+      "activeLayers": [
+        "dormant-path",
+        "active-path",
+        "signal-head",
+        "evidence-nodes"
+      ],
+      "activeNodes": [
+        "ev-1",
+        "ev-2",
+        "ev-3",
+        "ev-4"
+      ],
+      "completedSegments": [
+        "seg-1",
+        "seg-2"
+      ],
+      "currentSegment": "seg-3",
+      "gate": "idle",
+      "action": "idle",
+      "viewBox": "0 0 880 460",
+      "geometry": "horizontal",
+      "textEquivalent": "03 · EngineerWhat happensOne route becomes structurally complete and its supporting nodes align. Invalid alternatives stay faint rather than disappearing, so the choice that was made remains legible.InputThe proposed route and the constraints it must satisfy.BoundaryOne route is built. Rejected alternatives remain visible but inactive.OutputAn operational system with a defined path through it.State 4 of 8 in the Lesnar Signal sequence."
+    },
+    {
+      "id": "protect",
+      "index": 4,
+      "label": "Protect",
+      "emphasis": "boundary",
+      "activeLayers": [
+        "dormant-path",
+        "active-path",
+        "signal-head",
+        "evidence-nodes",
+        "boundary-nodes"
+      ],
+      "activeNodes": [
+        "ev-1",
+        "ev-2",
+        "ev-3",
+        "ev-4",
+        "bd-1",
+        "bd-2"
+      ],
+      "completedSegments": [
+        "seg-1",
+        "seg-2",
+        "seg-3"
+      ],
+      "currentSegment": "seg-4",
+      "gate": "idle",
+      "action": "idle",
+      "viewBox": "0 0 880 460",
+      "geometry": "horizontal",
+      "textEquivalent": "04 · ProtectWhat happensTrust and safety boundaries become explicit. Unsafe routes are blocked or redirected. The boundaries are structural constraints, not alarms.InputThe engineered route and its failure modes.BoundaryTrust boundaries are enforced. Unsafe routes cannot proceed.OutputA constrained system with defined recovery behaviour.State 5 of 8 in the Lesnar Signal sequence."
+    },
+    {
+      "id": "human-review",
+      "index": 5,
+      "label": "Human review",
+      "emphasis": "human",
+      "activeLayers": [
+        "dormant-path",
+        "active-path",
+        "signal-head",
+        "evidence-nodes",
+        "boundary-nodes",
+        "human-gate"
+      ],
+      "activeNodes": [
+        "ev-1",
+        "ev-2",
+        "ev-3",
+        "ev-4",
+        "bd-1",
+        "bd-2",
+        "gate"
+      ],
+      "completedSegments": [
+        "seg-1",
+        "seg-2",
+        "seg-3",
+        "seg-4"
+      ],
+      "currentSegment": "seg-5",
+      "gate": "holding",
+      "action": "idle",
+      "viewBox": "0 0 880 460",
+      "geometry": "horizontal",
+      "textEquivalent": "05 · Human reviewWhat happensThe signal reaches the human gate and stops. No onward route is drawn and the action node cannot activate. A person decides whether this proceeds.InputA validated route awaiting a decision.BoundaryThe gate holds. Nothing downstream can act without approval.OutputA held decision — nothing has executed.State 6 of 8 in the Lesnar Signal sequence."
+    },
+    {
+      "id": "act",
+      "index": 6,
+      "label": "Act",
+      "emphasis": "action",
+      "activeLayers": [
+        "dormant-path",
+        "active-path",
+        "signal-head",
+        "evidence-nodes",
+        "boundary-nodes",
+        "human-gate",
+        "action-node"
+      ],
+      "activeNodes": [
+        "ev-1",
+        "ev-2",
+        "ev-3",
+        "ev-4",
+        "bd-1",
+        "bd-2",
+        "gate",
+        "act"
+      ],
+      "completedSegments": [
+        "seg-1",
+        "seg-2",
+        "seg-3",
+        "seg-4",
+        "seg-5"
+      ],
+      "currentSegment": "seg-6",
+      "gate": "passed",
+      "action": "firing",
+      "viewBox": "0 0 880 460",
+      "geometry": "horizontal",
+      "textEquivalent": "06 · ActWhat happensApproval is given and the route continues past the gate to the action node. The system crosses from decision into execution and the composition becomes more solid.InputAn approved decision.BoundaryOnly the approved route executes. The gate records that it passed.OutputA real change in the world — an order, a device, a customer outcome.State 7 of 8 in the Lesnar Signal sequence."
+    },
+    {
+      "id": "prove",
+      "index": 7,
+      "label": "Prove",
+      "emphasis": "proof",
+      "activeLayers": [
+        "dormant-path",
+        "active-path",
+        "signal-head",
+        "evidence-nodes",
+        "boundary-nodes",
+        "human-gate",
+        "action-node",
+        "residual-trace"
+      ],
+      "activeNodes": [
+        "ev-1",
+        "ev-2",
+        "ev-3",
+        "ev-4",
+        "bd-1",
+        "bd-2",
+        "gate",
+        "act"
+      ],
+      "completedSegments": [
+        "seg-1",
+        "seg-2",
+        "seg-3",
+        "seg-4",
+        "seg-5",
+        "seg-6"
+      ],
+      "currentSegment": "seg-7",
+      "gate": "passed",
+      "action": "recorded",
+      "viewBox": "0 0 880 460",
+      "geometry": "horizontal",
+      "textEquivalent": "07 · ProveWhat happensWhat happened remains recorded. A residual trace shows the system that now exists, the evidence that supported it stays visible, and the outcome can be inspected after the fact.InputThe executed action and everything that led to it.BoundaryThe record is durable. Outcomes and failures are both retained.OutputA system that exists, with its decisions still accountable.State 8 of 8 in the Lesnar Signal sequence."
+    }
+  ]
+}

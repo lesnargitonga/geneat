@@ -31,30 +31,68 @@ test.describe("no JavaScript", () => {
     await expect(page.getByRole("link", { name: "Start a project" }).first()).toBeVisible();
   });
 
-  test("the static signal composition renders", async ({ page }) => {
-    const svg = page.locator(".stage .signal");
+  test("the static signal composition renders in the idea state", async ({ page }) => {
+    const svg = page.locator(".stage svg[data-signal]");
     await expect(svg).toBeVisible();
+    await expect(svg).toHaveAttribute("data-state", "idea");
 
-    // Every layer of the 7.6 anatomy must be present in the static state.
-    for (const layer of [
-      ".signal__dormant",
-      ".signal__active",
-      ".signal__head",
-      ".signal__evidence",
-      ".signal__boundaries",
-      ".signal__gate",
-      ".signal__action",
-      ".signal__residual",
-    ]) {
-      await expect(page.locator(layer).first()).toBeAttached();
-    }
+    // Without JavaScript the page shows the dormant path — possible structure,
+    // nothing resolved — which is precisely what `idea` means. The remaining
+    // layers exist but are inactive, asserted by the named-layer test below.
+    await expect(page.locator('[data-layer="dormant-path"]')).toHaveAttribute(
+      "data-active",
+      "true",
+    );
+    await expect(page.locator('[data-role="dormant"]')).toBeAttached();
+    await expect(page.locator("#signal-head-marker")).toHaveAttribute("data-dormant", "true");
   });
 
   test("the signal has a structured text equivalent", async ({ page }) => {
     const legend = page.locator(".signal-legend li");
     await expect(legend).toHaveCount(8);
     await expect(legend.first()).toContainText("Idea");
+    await expect(legend.nth(5)).toContainText("Human review");
     await expect(legend.last()).toContainText("Prove");
+  });
+
+  test("the SVG is decorative and the text carries the meaning", async ({ page }) => {
+    // aria-hidden is only defensible because the panel and legend below say
+    // everything the graphic does.
+    await expect(page.locator("svg[data-signal]")).toHaveAttribute("aria-hidden", "true");
+
+    const panel = page.locator("[data-signal-text]");
+    await expect(panel).toBeVisible();
+    await expect(panel).toHaveAttribute("data-state", "idea");
+    expect(await panel.locator("dt").allTextContents()).toEqual([
+      "What happens",
+      "Input",
+      "Boundary",
+      "Output",
+    ]);
+    for (const definition of await panel.locator("dd").allTextContents()) {
+      expect(definition.trim().length).toBeGreaterThan(10);
+    }
+  });
+
+  test("the eight named signal layers exist in the static markup", async ({ page }) => {
+    for (const layer of [
+      "dormant-path",
+      "active-path",
+      "signal-head",
+      "evidence-nodes",
+      "boundary-nodes",
+      "human-gate",
+      "action-node",
+      "residual-trace",
+    ]) {
+      await expect(page.locator(`[data-layer="${layer}"]`)).toHaveCount(1);
+    }
+  });
+
+  test("the stepper is hidden without JavaScript", async ({ page }) => {
+    // A control that cannot do anything must not be offered. The legend
+    // carries all eight states instead.
+    await expect(page.locator("[data-signal-stepper]")).toBeHidden();
   });
 
   test("all six system stages are readable in full", async ({ page }) => {

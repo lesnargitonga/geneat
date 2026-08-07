@@ -57,8 +57,36 @@ console.log("Study A isolation validation\n");
 const branch = git("rev-parse", "--abbrev-ref", "HEAD");
 check("on the Study A branch", branch === STUDY_A_BRANCH, `branch is ${branch}`);
 
+/**
+ * HEAD moves as Study A's waves are committed, so pinning it to the baseline
+ * was only correct before the first commit. What must remain true is that HEAD
+ * *descends* from the accepted baseline — that is the actual isolation
+ * property, and it keeps holding as more waves land.
+ */
 const head = git("rev-parse", "HEAD");
-check("HEAD is the accepted baseline", head === BASELINE, head);
+let descendsFromBaseline = false;
+try {
+  execFileSync("git", ["merge-base", "--is-ancestor", BASELINE, "HEAD"], { cwd: REPO_ROOT });
+  descendsFromBaseline = true;
+} catch {
+  descendsFromBaseline = false;
+}
+check(
+  "HEAD descends from the accepted baseline",
+  descendsFromBaseline,
+  head === BASELINE ? `${head} (at baseline)` : head,
+);
+
+// Everything committed since the baseline must be Study A and nothing else.
+const committedSinceBaseline = git("diff", "--name-only", BASELINE, "HEAD")
+  .split("\n")
+  .filter(Boolean)
+  .filter((path) => !path.startsWith(STUDY_A_PATH));
+check(
+  "commits since baseline touch only Study A",
+  committedSinceBaseline.length === 0,
+  committedSinceBaseline.join("; "),
+);
 
 // --- Study B was not used as the branch point -------------------------------
 let branchedFromStudyB = false;
@@ -86,11 +114,24 @@ const studyBFiles = git("ls-tree", "-r", "--name-only", STUDY_B_COMMIT, "--", "e
 check("Study B commit still holds 55 files", studyBFiles.length === 55, `${studyBFiles.length} files`);
 
 // --- nothing tracked changed outside Study A --------------------------------
-const trackedChanges = git("status", "--porcelain")
-  .split("\n")
+/**
+ * Uncommitted work inside Study A is expected mid-wave; work outside it is the
+ * failure. `git diff --name-only` is used rather than parsing `--porcelain`,
+ * whose status columns are position-sensitive and whose first line loses its
+ * leading space to the helper's `.trim()`.
+ */
+const workingChanges = [
+  ...git("diff", "--name-only", "HEAD").split("\n"),
+  ...git("diff", "--name-only", "--cached").split("\n"),
+]
   .filter(Boolean)
-  .filter((line) => !line.startsWith("??"));
-check("no tracked file modified anywhere", trackedChanges.length === 0, trackedChanges.join("; "));
+  .filter((path) => !path.startsWith(STUDY_A_PATH));
+
+check(
+  "no tracked file outside Study A is modified",
+  workingChanges.length === 0,
+  workingChanges.join("; "),
+);
 
 // --- staging-hazard guard ---------------------------------------------------
 /**

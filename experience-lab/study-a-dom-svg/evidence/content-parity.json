@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-06T18:55:06.651Z",
+  "checkedAt": "2026-08-06T19:41:15.354Z",
   "studyA": {
     "path": "experience-lab/study-a-dom-svg/index.html",
     "source": "working tree"
@@ -9,9 +9,9 @@
     "source": "git 7dc29a231f442ee3d09fb908658e16ecd654dc3d"
   },
   "summary": {
-    "comparedFields": 14,
+    "comparedFields": 18,
     "matched": 10,
-    "intentionalDifferences": 4,
+    "intentionalDifferences": 8,
     "undeclaredDifferences": 0,
     "verdict": "PASS"
   },
@@ -39,6 +39,22 @@
     "evidence-pending.wording": {
       "reason": "Study A uses the literal token 'EVIDENCE PENDING' required by the Study A brief; Study B committed 'Evidence pending'. Same meaning, same panel, same absence of any figure.",
       "impact": "none — neither study states a measured outcome"
+    },
+    "signal-legend.human-review": {
+      "reason": "Study A's sixth legend entry is 'Human review'; Study B committed 'Approve'. The canonical company-level state in dossier 3.3 is Human review, and Wave C makes it a real state id ('human-review'), so the legend was corrected to match the state model. 'Approve' remains correct in the physical-action sequence, which is a separate seven-step system and is unchanged in both studies.",
+      "impact": "none on claims — same position, same meaning. Study B's legend should be corrected to match when it is next authorised for edit."
+    },
+    "wave-c.stepper": {
+      "reason": "Study A has completed Wave C (signal state system); Study B is frozen at Waves A and B. The state stepper and the per-state text panel are Wave C deliverables that Study B has not reached yet.",
+      "impact": "SCORING HAZARD. The two studies are no longer at the same wave. No comparative score is valid until Study B completes an equivalent Wave C, or the comparison is explicitly restricted to the waves both have finished."
+    },
+    "wave-c.state-text": {
+      "reason": "Per-state accessible text panel — a Wave C deliverable, as above.",
+      "impact": "SCORING HAZARD — see wave-c.stepper."
+    },
+    "svg.aria": {
+      "reason": "Study A's signal SVG is now aria-hidden with a per-state text equivalent, because the graphic changes with state and a static label would go stale. Study B's static poster is still a labelled image, which is correct for a composition that does not change.",
+      "impact": "none on content — both studies expose the same information, through the mechanism appropriate to whether their graphic is static or stateful."
     }
   },
   "fields": [
@@ -242,6 +258,68 @@
       "differenceId": "stage.canvas",
       "reason": "Study B has a <canvas> element behind the SVG poster; Study A has no canvas at all. This is the entire subject of the comparison.",
       "impact": "none on content",
+      "status": "INTENTIONAL"
+    },
+    {
+      "field": "signalLegend",
+      "match": false,
+      "studyA": [
+        "Idea",
+        "Observe",
+        "Model",
+        "Engineer",
+        "Protect",
+        "Human review",
+        "Act",
+        "Prove"
+      ],
+      "studyB": [
+        "Idea",
+        "Observe",
+        "Model",
+        "Engineer",
+        "Protect",
+        "Approve",
+        "Act",
+        "Prove"
+      ],
+      "intentional": true,
+      "differenceId": "signal-legend.human-review",
+      "reason": "Study A's sixth legend entry is 'Human review'; Study B committed 'Approve'. The canonical company-level state in dossier 3.3 is Human review, and Wave C makes it a real state id ('human-review'), so the legend was corrected to match the state model. 'Approve' remains correct in the physical-action sequence, which is a separate seven-step system and is unchanged in both studies.",
+      "impact": "none on claims — same position, same meaning. Study B's legend should be corrected to match when it is next authorised for edit.",
+      "status": "INTENTIONAL"
+    },
+    {
+      "field": "hasSignalStepper",
+      "match": false,
+      "studyA": true,
+      "studyB": false,
+      "intentional": true,
+      "differenceId": "wave-c.stepper",
+      "reason": "Study A has completed Wave C (signal state system); Study B is frozen at Waves A and B. The state stepper and the per-state text panel are Wave C deliverables that Study B has not reached yet.",
+      "impact": "SCORING HAZARD. The two studies are no longer at the same wave. No comparative score is valid until Study B completes an equivalent Wave C, or the comparison is explicitly restricted to the waves both have finished.",
+      "status": "INTENTIONAL"
+    },
+    {
+      "field": "hasStateTextPanel",
+      "match": false,
+      "studyA": true,
+      "studyB": false,
+      "intentional": true,
+      "differenceId": "wave-c.state-text",
+      "reason": "Per-state accessible text panel — a Wave C deliverable, as above.",
+      "impact": "SCORING HAZARD — see wave-c.stepper.",
+      "status": "INTENTIONAL"
+    },
+    {
+      "field": "svgAriaHidden",
+      "match": false,
+      "studyA": true,
+      "studyB": false,
+      "intentional": true,
+      "differenceId": "svg.aria",
+      "reason": "Study A's signal SVG is now aria-hidden with a per-state text equivalent, because the graphic changes with state and a static label would go stale. Study B's static poster is still a labelled image, which is correct for a composition that does not change.",
+      "impact": "none on content — both studies expose the same information, through the mechanism appropriate to whether their graphic is static or stateful.",
       "status": "INTENTIONAL"
     }
   ]

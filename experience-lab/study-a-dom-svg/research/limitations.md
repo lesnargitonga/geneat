@@ -1,4 +1,33 @@
-# Study A — Limitations after Waves A and B
+# Study A — Limitations after Waves A, B and C
+
+> **Wave C update.** Items 1 and 2 below have changed. The signal now has a
+> deterministic eight-state system with bounded motion; what remains absent is
+> the *hero choreography* (Wave D), the project transition (Wave E), the
+> interactive inspector (Wave F) and the physical-action visual (Wave G).
+>
+> **Study A is now a wave ahead of Study B**, which is a scoring hazard in its
+> own right — see item 3 and `content-parity.md`. No comparative score is valid
+> until Study B reaches an equivalent wave.
+>
+> **New gaps introduced by Wave C:**
+>
+> - The stepper is a development control, not homepage navigation. What the
+>   final experience uses to move between states is undecided.
+> - Mobile without JavaScript keeps the *horizontal* geometry, scaled. The
+>   vertical geometry is applied by script. Since the SVG is `aria-hidden` and
+>   the text equivalent carries the meaning, this is legibility loss rather than
+>   information loss — but it is a real difference between the JS and no-JS
+>   mobile views.
+> - Motion budgets (320 ms / 520 ms) are reasoned from the caps, **not**
+>   measured against perception or on real hardware.
+> - The eight states have not been shown to a first-time viewer. Whether the
+>   concept reads without explanation — a §7.19 acceptance criterion — is
+>   still untested.
+> - No axe or Lighthouse run. Accessibility remains structurally asserted only.
+
+---
+
+# Original limitations after Waves A and B
 
 Read before forming any opinion about Study A. Everything below is a known gap,
 not a discovered defect.

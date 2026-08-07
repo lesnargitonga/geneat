@@ -1,0 +1,174 @@
+/**
+ * The development state stepper and the structured text equivalent.
+ *
+ * The stepper is a prototype control, and it is styled to look like one — it
+ * sits in a dashed container with a mono label so nobody mistakes it for the
+ * final homepage navigation.
+ */
+
+.stepper {
+  grid-area: stepper;
+  display: grid;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  border: 1px dashed color-mix(in oklch, var(--signal-dormant) 55%, transparent);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+}
+
+.stepper__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.stepper__group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+/**
+ * The state strip scrolls horizontally on narrow viewports rather than
+ * wrapping or collapsing into a select. Real buttons are kept at every size —
+ * a select on mobile and buttons on desktop would mean two keyboard models to
+ * test and two ways for the state to get out of sync.
+ */
+.stepper__states {
+  display: flex;
+  gap: var(--space-2xs);
+  min-width: 0;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  /* Room for the focus ring, which would otherwise be clipped by overflow. */
+  padding: 3px;
+  margin: -3px;
+}
+
+.stepper__states::-webkit-scrollbar {
+  height: 4px;
+}
+
+.stepper__states::-webkit-scrollbar-thumb {
+  background: var(--surface-line);
+  border-radius: 2px;
+}
+
+.stepper__button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: var(--space-2xs) var(--space-sm);
+  scroll-snap-align: center;
+  background: transparent;
+  border: 1px solid var(--surface-line);
+  border-radius: var(--radius-sm);
+  color: var(--text-tertiary);
+  font: inherit;
+  font-size: var(--text-small);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.stepper__button:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: color-mix(in oklch, var(--signal-active) 60%, var(--surface-line));
+}
+
+.stepper__button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stepper__index {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: var(--signal-dormant);
+}
+
+/* Current state: background, text colour, border AND an underline bar. Never
+   colour alone (7.17). `aria-current` carries it semantically. */
+.stepper__button[aria-current="true"] {
+  background: var(--surface-raised);
+  border-color: var(--signal-active);
+  color: var(--text-primary);
+  box-shadow: inset 0 -2px 0 var(--signal-active);
+  font-weight: 600;
+}
+
+.stepper__button[aria-current="true"] .stepper__index {
+  color: var(--signal-active);
+}
+
+.stepper__button--nav {
+  color: var(--text-secondary);
+}
+
+/* ------------------------------------------------------ text equivalent */
+
+.signal-text {
+  grid-area: text;
+  padding: var(--space-md);
+  background: var(--surface-raised);
+  border: 1px solid var(--surface-line);
+  border-left: 2px solid var(--signal-active);
+  border-radius: var(--radius-sm);
+  max-width: 60ch;
+}
+
+.signal-text__title {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--signal-active);
+  margin-bottom: var(--space-sm);
+}
+
+.signal-text__list {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: var(--space-2xs) var(--space-sm);
+  font-size: var(--text-small);
+}
+
+.signal-text__list dt {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  padding-top: 0.22em;
+}
+
+.signal-text__list dd {
+  color: var(--text-secondary);
+}
+
+.signal-text__position {
+  margin-top: var(--space-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 34rem) {
+  .signal-text__list {
+    grid-template-columns: 1fr;
+    gap: var(--space-2xs);
+  }
+
+  .signal-text__list dd {
+    margin-bottom: var(--space-xs);
+  }
+}

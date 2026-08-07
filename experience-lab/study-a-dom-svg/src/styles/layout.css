@@ -58,7 +58,11 @@
 
 .rail__list {
   display: flex;
-  gap: clamp(var(--space-xs), 2vw, var(--space-md));
+  /* Wraps rather than overflowing. At 320px the four links total ~359px, so
+     without this the document scrolls horizontally — which the responsive
+     suite treats as a failure at every viewport, correctly. */
+  flex-wrap: wrap;
+  gap: clamp(var(--space-2xs), 2vw, var(--space-md));
 }
 
 .rail__link {
@@ -155,22 +159,28 @@
 
 .chapter--hero {
   display: grid;
-  gap: var(--space-xl);
-  align-items: center;
+  gap: var(--space-lg);
+  align-items: start;
   min-height: min(88vh, 820px);
   grid-template-areas:
     "copy"
     "stage"
+    "stepper"
+    "text"
     "legend";
 }
 
 @media (min-width: 62rem) {
   .chapter--hero {
     grid-template-columns: minmax(28ch, 44%) 1fr;
+    /* The stepper spans both columns: it is a control for the whole signal,
+       not a caption belonging to either the copy or the graphic. */
     grid-template-areas:
       "copy stage"
-      "legend stage";
+      "stepper stepper"
+      "text legend";
     column-gap: clamp(var(--space-lg), 5vw, 5rem);
+    align-items: center;
   }
 }
 
