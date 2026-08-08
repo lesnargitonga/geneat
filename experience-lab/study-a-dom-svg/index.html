@@ -207,85 +207,325 @@
           <li class="route__step"><span class="route__index">07</span> Fulfilment status</li>
         </ol>
 
-        <!-- ================= UNIT 3 — GEN-EAT PROJECT PROOF ================== -->
-        <article class="project" aria-labelledby="project-heading">
-          <header class="project__header">
-            <h3 class="project__name" id="project-heading">Gen-Eat</h3>
-            <p class="project__status" data-status="live">
-              <span class="status-dot" aria-hidden="true"></span> LIVE
+        <!-- ============ UNIT 3 — FLAGSHIP PROOF: GEN-EAT + HAZINA ============= -->
+        <article class="flagship" aria-labelledby="flagship-heading">
+          <header class="flagship__header">
+            <p class="eyebrow">Flagship · commerce and operations</p>
+            <h3 class="flagship__name" id="flagship-heading">Gen-Eat <span aria-hidden="true">+</span><span class="visually-hidden">and</span> Hazina Nomads</h3>
+            <p class="flagship__claim">
+              Two very different businesses — campus food and private luxury sourcing — began on
+              <em>one</em> shared multi-tenant backend and were separated into
+              <em>independently deployable</em> product runtimes with isolated databases,
+              credentials, Redis namespaces, health checks and proven failure domains.
             </p>
           </header>
 
-          <p class="project__problem">
-            Ordering food in Nairobi happens in conversation, not in an app store. Gen-Eat treats the
-            chat thread as the interface: a customer orders in the channel they already use, and the
-            system behind it handles catalog, validation, payment, dispatch and recovery.
-          </p>
+          <!--
+            The transformation, as a specimen plate rather than prose. This is the
+            visual centre of the chapter: what was one column became two, and the
+            seam between them is the separation itself.
+          -->
+          <figure class="transform" data-transform>
+            <figcaption class="transform__caption">
+              <span class="eyebrow">The separation</span>
+            </figcaption>
+            <div class="transform__grid">
+              <div class="transform__side transform__side--before">
+                <p class="transform__state">Before</p>
+                <p class="transform__head">One shared runtime</p>
+                <ul class="transform__list">
+                  <li>one database, one migration history</li>
+                  <li>one credential set</li>
+                  <li>one process — one failure domain</li>
+                  <li>tenant branches inside the shared core</li>
+                </ul>
+              </div>
+              <div class="transform__seam" aria-hidden="true"></div>
+              <div class="transform__side transform__side--after">
+                <p class="transform__state">After</p>
+                <p class="transform__head">Two independent runtimes</p>
+                <ul class="transform__list">
+                  <li><code>geneat_prod</code> · <code>hazina_prod</code></li>
+                  <li>separate database users, cache namespaces</li>
+                  <li>separate services — either can fail alone</li>
+                  <li>product logic extracted, not flagged</li>
+                </ul>
+              </div>
+            </div>
+          </figure>
 
-          <div class="project__grid">
-            <section class="proof" aria-labelledby="proof-architecture">
-              <h4 class="proof__heading" id="proof-architecture">Architecture</h4>
-              <p class="proof__verified" data-evidence="verified">Verified — read from this repository</p>
-              <dl class="proof__list">
-                <dt>Backend</dt>
-                <dd>FastAPI service under <code>app/</code>, Alembic migrations, Postgres and Redis.</dd>
-                <dt>Channels</dt>
+          <!--
+            Status. Verified by probe, with the date, and honest about the half
+            that is currently down. Each label carries a word, not just a colour.
+            The three live facts sit on one row; the limitation is deliberately
+            given its own full-width band so it cannot be skimmed past.
+          -->
+          <ul class="status-set">
+            <li class="status" data-status="live" data-project="gen-eat">
+              <span class="status__dot" aria-hidden="true"></span>
+              <span class="status__label">LIVE · PILOT</span>
+              <span class="status__what">Gen-Eat storefront</span>
+              <span class="status__verified">Reachable, verified 2026-08-07</span>
+            </li>
+            <li class="status" data-status="live" data-project="hazina">
+              <span class="status__dot" aria-hidden="true"></span>
+              <span class="status__label">LIVE</span>
+              <span class="status__what">Hazina Nomads storefront</span>
+              <span class="status__verified">Reachable, verified 2026-08-07</span>
+            </li>
+            <li class="status" data-status="live" data-project="apis">
+              <span class="status__dot" aria-hidden="true"></span>
+              <span class="status__label">LIVE</span>
+              <span class="status__what">Two independent product APIs</span>
+              <span class="status__verified">
+                <code>geneat-api</code> and <code>hazina-api</code> answering over HTTPS,
+                verified 2026-08-09
+              </span>
+            </li>
+            <li class="status" data-status="down" data-project="conversation">
+              <span class="status__dot" aria-hidden="true"></span>
+              <span class="status__label">NOT CURRENTLY REACHABLE</span>
+              <span class="status__what">Model-backed conversation</span>
+              <span class="status__verified">
+                No language-model credential configured, verified 2026-08-09
+              </span>
+            </li>
+          </ul>
+
+          <!-- ---------------- the signal becomes the route ------------------ -->
+          <div class="flagship__route" data-flagship-route>
+            <svg
+              class="signal signal--flagship"
+              data-flagship-signal
+              viewBox="0 0 880 200"
+              aria-hidden="true"
+              focusable="false"
+              preserveAspectRatio="xMidYMid meet"
+            ></svg>
+
+            <ol class="route-steps" data-flagship-steps aria-label="Operational route"></ol>
+            <p class="route-caption" data-flagship-caption></p>
+
+            <!--
+              Structured text equivalent. The route is meaningful with no SVG,
+              no script and no images.
+            -->
+            <ol class="route-text">
+              <li><strong>Conversation.</strong> A customer states intent in the channel they already use.</li>
+              <li><strong>Catalog.</strong> Intent is matched against what can actually be sold right now.</li>
+              <li><strong>Payment.</strong> Settlement runs through a provider-agnostic interface.</li>
+              <li><strong>Routing.</strong> The order reaches the person or merchant who must fulfil it.</li>
+              <li><strong>Fulfilment.</strong> The physical outcome happens and status becomes observable.</li>
+              <li><strong>Recovery.</strong> Anything that did not go to plan is escalated to a person.</li>
+            </ol>
+          </div>
+
+          <!-- --------------------------- evidence --------------------------- -->
+          <h4 class="flagship__section-title" id="flagship-evidence">Evidence</h4>
+          <div class="proof-set" aria-labelledby="flagship-evidence">
+
+            <figure class="proof-object" data-proof="geneat-storefront" data-evidence="verified">
+              <div class="proof-object__media">
+                <img
+                  src="/proof/geneat-storefront.jpg"
+                  width="1080"
+                  height="675"
+                  loading="lazy"
+                  decoding="async"
+                  alt="The public Gen-Eat storefront, headlined 'Eat between classes', with a pilot-live label for USIU-Africa and links to order or browse cafes."
+                />
+                <p class="proof-object__fallback">Screenshot unavailable — the claim and its verification are described below.</p>
+              </div>
+              <figcaption>
+                <p class="proof-object__claim">The Gen-Eat storefront is publicly reachable and serves real product content.</p>
+                <dl class="proof-object__meta">
+                  <dt>Type</dt><dd>Public screenshot</dd>
+                  <dt>Source</dt><dd>geneat.lesnarai.co.ke</dd>
+                  <dt>Verified</dt><dd>2026-08-07 · HTTP 200</dd>
+                  <dt>Limit</dt><dd>Reachability only. No order, chat or payment was attempted.</dd>
+                </dl>
+              </figcaption>
+            </figure>
+
+            <figure class="proof-object" data-proof="hazina-storefront" data-evidence="verified">
+              <div class="proof-object__media">
+                <img
+                  src="/proof/hazina-storefront.jpg"
+                  width="1728"
+                  height="1080"
+                  loading="lazy"
+                  decoding="async"
+                  alt="The public Hazina Nomads storefront, headlined 'Private Kenyan curation, delivered with discretion', describing bespoke curation, logistics and export."
+                />
+                <p class="proof-object__fallback">Screenshot unavailable — the claim and its verification are described below.</p>
+              </div>
+              <figcaption>
+                <p class="proof-object__claim">The Hazina Nomads storefront is publicly reachable and serves real product content.</p>
+                <dl class="proof-object__meta">
+                  <dt>Type</dt><dd>Public screenshot</dd>
+                  <dt>Source</dt><dd>hazina.lesnarai.co.ke</dd>
+                  <dt>Verified</dt><dd>2026-08-07 · HTTP 200</dd>
+                  <dt>Limit</dt><dd>Reachability only. Partner and admin areas were not probed.</dd>
+                </dl>
+              </figcaption>
+            </figure>
+
+            <section class="proof-object proof-object--text" data-proof="shared-foundation" data-evidence="verified">
+              <p class="proof-object__claim">
+                The two products <em>were</em> one multi-tenant backend. They have since been
+                separated into independent runtimes that share no database, no credentials and
+                no process.
+              </p>
+              <dl class="proof-object__meta">
+                <dt>Type</dt><dd>Repository architecture · migration</dd>
+                <dt>Source</dt>
                 <dd>
-                  Adapter contract in <code>app/channels/base.py</code> with WhatsApp, voice and mock
-                  implementations behind a registry — the channel is swappable, not hard-wired.
+                  Historically <code>app/db/models.py</code> defined <code>Business</code> as
+                  “a tenant — each SME using the platform”, and both portals resolved the same
+                  <code>BACKEND_URL</code>. Each product now owns its own extraction, database
+                  (<code>geneat_prod</code>, <code>hazina_prod</code>), database user, Redis
+                  namespace, migration history and service unit.
                 </dd>
-                <dt>Payments</dt>
+                <dt>Verified</dt>
                 <dd>
-                  Provider factory in <code>app/integrations/payments/</code>: M-Pesa Daraja,
-                  IntaSend, Paystack, Stripe and a simulator behind one <code>base.py</code>
-                  interface.
+                  2026-08-09 · each database user was proved unable to connect to the other’s
+                  database; Redis namespaces are mutually invisible; each suite passes
+                  independently — 183 and 284 tests. Stopping either API returns 502 for that
+                  product alone <em>through the public edge</em>, while the other product and a
+                  third unrelated application on the same host keep serving.
                 </dd>
-                <dt>Storefront</dt>
-                <dd>Next.js app router portal in <code>gen-eat-portal/</code>, deployed on Vercel.</dd>
+                <dt>Limit</dt>
+                <dd>
+                  One host, one PostgreSQL engine, one Redis server: the infrastructure is
+                  shared, the application runtime is not. No historical operational data was
+                  migrated — both databases start empty. Generic modules are duplicated rather
+                  than shared, and that duplication will drift.
+                </dd>
               </dl>
             </section>
 
-            <section class="proof" aria-labelledby="proof-decision">
-              <h4 class="proof__heading" id="proof-decision">Technical decision</h4>
-              <p class="proof__verified" data-evidence="verified">Verified — read from this repository</p>
+            <section class="proof-object proof-object--text" data-proof="backend-reachability" data-evidence="verified">
+              <p class="proof-object__claim">
+                The original hosted backend is <strong>not currently running</strong>. Its two
+                independent replacements are, on a different host, behind their own public
+                addresses.
+              </p>
+              <dl class="proof-object__meta">
+                <dt>Type</dt><dd>Reachability probe</dd>
+                <dt>Source</dt>
+                <dd>
+                  Two health endpoints, inspectable directly — both return
+                  <code>{"status":"ok"}</code> over HTTPS:
+                  <span class="proof-object__endpoints">
+                    <a
+                      class="endpoint-link"
+                      href="https://geneat-api.lesnarai.co.ke/healthz"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-endpoint="geneat"
+                    >Gen-Eat API health check<span class="visually-hidden"> — opens in a new tab</span></a>
+                    <a
+                      class="endpoint-link"
+                      href="https://hazina-api.lesnarai.co.ke/healthz"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-endpoint="hazina"
+                    >Hazina API health check<span class="visually-hidden"> — opens in a new tab</span></a>
+                  </span>
+                </dd>
+                <dt>Verified</dt>
+                <dd>
+                  2026-08-09 · resolved consistently by the authoritative nameserver and two
+                  independent public resolvers. The predecessor endpoints still return a DNS
+                  misconfiguration and a suspended service respectively.
+                </dd>
+                <dt>Limit</dt>
+                <dd>
+                  A health check proves the process answers, not that the product works.
+                  Conversation is not exercised: neither runtime holds a language-model
+                  credential, so no reply is generated. Administrative and introspection
+                  surfaces are deliberately unreachable from these hostnames.
+                </dd>
+              </dl>
+            </section>
+          </div>
+
+          <!-- ------------------- difficulty + limitation -------------------- -->
+          <div class="flagship__pair">
+            <section class="flagship__note" aria-labelledby="flagship-hard">
+              <h4 class="flagship__section-title" id="flagship-hard">The difficult part</h4>
               <p>
-                Payment providers sit behind a factory rather than a direct SDK call. Kenyan mobile
-                money and card rails fail differently and change terms independently; a system that
-                hard-codes one provider has to be rewritten when that provider changes, and cannot be
-                tested without touching live money. The simulator adapter exists for exactly that
-                reason.
+                Two businesses with almost nothing in common — a campus café serving students
+                between lectures and a private sourcing house shipping heritage pieces abroad —
+                have to share
+                catalog, payment and routing without either inheriting the other's assumptions.
+                The tenant boundary was the whole design: currency, hours, escalation and brand
+                voice are per-business data, so adding a business was configuration rather than
+                a fork. Separating the two products tested that claim and found it only partly
+                true — tenant-specific branches had leaked into the channel adapter that both
+                products depend on, so the “shared core” was never as clean as the module names
+                suggested. Splitting them is what surfaced it.
               </p>
             </section>
 
-            <section class="proof" aria-labelledby="proof-deployment">
-              <h4 class="proof__heading" id="proof-deployment">Deployment</h4>
-              <p class="proof__verified" data-evidence="verified">Verified — read from this repository</p>
+            <section class="flagship__note flagship__note--gap" aria-labelledby="flagship-gap">
+              <h4 class="flagship__section-title" id="flagship-gap">What is not proven here</h4>
               <p>
-                Infrastructure is declared in <code>render.yaml</code>: a Docker web service with a
-                managed Postgres instance and a Redis key-value store, all in the Frankfurt region.
-                The storefront is a separate Vercel project; the production landing links the product
-                at <code>geneat.lesnarai.co.ke</code> and the portal targets
-                <code>api.lesnarai.co.ke</code>.
-              </p>
-            </section>
-
-            <section class="proof proof--pending" aria-labelledby="proof-outcomes">
-              <h4 class="proof__heading" id="proof-outcomes">Measured outcomes</h4>
-              <p class="proof__verified" data-evidence="pending">EVIDENCE PENDING — not collected in this wave</p>
-              <p>
-                Interface screenshots, live endpoint status and operational figures are required
-                before this section can make a claim. Waves A and B build the static narrative only.
-                No number appears here until it has been measured.
+                No usage, revenue, order volume or customer count is claimed — none was
+                measured, and a reachable page proves none of it. The conversational path was
+                not exercised end to end: the separated runtimes answer their health checks but
+                carry no language-model credential, so no reply was generated. Gen-Eat's in-page chat
+                proxies to a documented test surface, not the production ordering channel; the
+                production channel is WhatsApp.
               </p>
             </section>
           </div>
 
-          <p class="project__link">
-            <a class="button button--secondary" href="https://geneat.lesnarai.co.ke" rel="noreferrer noopener">
-              Open the live product
+          <p class="flagship__links">
+            <a class="button button--secondary" href="https://geneat.lesnarai.co.ke" target="_blank" rel="noreferrer noopener">
+              Open Gen-Eat<span class="visually-hidden"> (opens in a new tab)</span>
+            </a>
+            <a class="button button--secondary" href="https://hazina.lesnarai.co.ke" target="_blank" rel="noreferrer noopener">
+              Open Hazina Nomads<span class="visually-hidden"> (opens in a new tab)</span>
             </a>
           </p>
         </article>
+
+        <!-- ============== UNIT 3b — WIDER PORTFOLIO RANGE CUE ================= -->
+        <section class="portfolio" aria-labelledby="portfolio-heading" data-portfolio-cue>
+          <h3 class="portfolio__heading" id="portfolio-heading">The same discipline, other problem classes</h3>
+          <p class="portfolio__lede">
+            Commerce is where the evidence is strongest today. It is not the range of the work.
+          </p>
+          <ul class="portfolio__list" data-portfolio-list>
+            <li class="portfolio__item" data-portfolio-class="care">
+              <span class="portfolio__class">Trust and care delivery</span>
+              <span class="portfolio__programme">CarePro</span>
+              <span class="portfolio__evidence" data-evidence="pending">EVIDENCE PENDING</span>
+            </li>
+            <li class="portfolio__item" data-portfolio-class="public-trust">
+              <span class="portfolio__class">Public trust and controlled administration</span>
+              <span class="portfolio__programme">Sarepta</span>
+              <span class="portfolio__evidence" data-evidence="pending">EVIDENCE PENDING</span>
+            </li>
+            <li class="portfolio__item" data-portfolio-class="governance">
+              <span class="portfolio__class">Security, governance and controlled intelligence</span>
+              <span class="portfolio__programme">SentinelCore / Cypher</span>
+              <span class="portfolio__evidence" data-evidence="pending">EVIDENCE PENDING</span>
+            </li>
+            <li class="portfolio__item" data-portfolio-class="physical">
+              <span class="portfolio__class">Physical intelligence research</span>
+              <span class="portfolio__programme">Robotics and computer vision</span>
+              <span class="portfolio__evidence" data-evidence="pending">EVIDENCE PENDING</span>
+            </li>
+          </ul>
+          <p class="note">
+            These are problem classes, not case studies. Nothing above claims a status,
+            capability or outcome, because this repository holds no artefact for them yet.
+            For care and public-trust systems the absence of screenshots is deliberate — that
+            evidence cannot be shown without exposing people.
+          </p>
+        </section>
       </section>
 
       <!-- ==================== UNIT 4 — SYSTEM INSPECTOR ====================== -->

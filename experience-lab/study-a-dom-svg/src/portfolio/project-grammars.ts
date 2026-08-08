@@ -65,7 +65,7 @@ function buildSteps(
     boundary: step.boundary,
     output: step.output,
     activeLayers: step.layers,
-    activeNodes: [],
+    activeNodes: Array.from({ length: index + 1 }, (_, i) => `step-${i}`),
     completedSegments: Array.from({ length: Math.max(0, index - 1) }, (_, i) => `seg-${i + 1}`),
     currentSegment: index === 0 ? null : `seg-${index}`,
     emphasis: step.emphasis,

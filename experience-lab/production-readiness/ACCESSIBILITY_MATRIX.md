@@ -42,3 +42,23 @@ prototype; this records what is actually verified.
 | Forced colours | Yes | Survives | PARTIAL | CSS present | — | No | Unverified |
 | Form labelling / errors | Yes | — | PENDING | — | — | No | No form exists yet |
 | Motion-triggered vestibular risk | Yes | Nothing large or parallax | PASS | Motion inventory | — | — | Only opacity, stroke reveal, one head translate |
+
+## Wave E visual acceptance — 2026-08-09
+
+| Check | Result | Verdict |
+|---|---|---|
+| Heading order | 18 headings, 0 skipped levels | PASS |
+| Status meaning not colour-only | all four carry a word label | PASS |
+| Contrast — separation head | 16.36:1 | PASS |
+| Contrast — separation list | 7.80:1 | PASS |
+| Contrast — endpoint link | 9.36:1 | PASS |
+| Contrast — live status label | 9.43:1 | PASS |
+| Contrast — limitation label | **6.43:1** (was 4.34:1 — `--risk` raised to `oklch(68% 0.135 38)`) | PASS |
+| Endpoint links keyboard reachable | tabbable, 2px solid focus outline | PASS |
+| Endpoint link touch target | **44px** (was 23px — corrected) | PASS |
+| Accessible link names | name states destination and new-tab behaviour | PASS |
+| Reduced motion | full meaning present, nothing gated behind a reveal | PASS |
+
+Two defects were found by measurement and fixed in the interface rather than in
+the assertions: the limitation label failed AA contrast, and the endpoint links
+were below the 44px touch minimum at every viewport.

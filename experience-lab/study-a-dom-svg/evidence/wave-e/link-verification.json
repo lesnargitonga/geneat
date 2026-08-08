@@ -1,0 +1,58 @@
+{
+  "method": "Unauthenticated HTTPS GET, 15s timeout, redirects followed, no credentials, no admin or private endpoints, no form submission, no transaction.",
+  "probeDate": "2026-08-07T07:49:04Z",
+  "rule": "A dead or unverified link is never published as proof (guide 28.14).",
+  "links": [
+    {
+      "url": "https://geneat.lesnarai.co.ke",
+      "expected_destination": "Gen-Eat public storefront",
+      "probe_result": "HTTP 200, 50170 B, title 'Gen-Eat \u00b7 USIU campus food, on tap'",
+      "date": "2026-08-07T07:49:04Z",
+      "same_or_new_tab": "new tab (target=_blank, rel=noreferrer noopener)",
+      "fallback_if_unavailable": "Link is removed and the proof object states the storefront could not be reached on the stated date.",
+      "published": true
+    },
+    {
+      "url": "https://hazina.lesnarai.co.ke",
+      "expected_destination": "Hazina Nomads public storefront",
+      "probe_result": "HTTP 200, 65197 B, title 'Hazina Nomads \u00b7 Private Sourcing Concierge'",
+      "date": "2026-08-07T07:49:04Z",
+      "same_or_new_tab": "new tab (target=_blank, rel=noreferrer noopener)",
+      "fallback_if_unavailable": "Link is removed and the proof object states the storefront could not be reached on the stated date.",
+      "published": true
+    },
+    {
+      "url": "https://api.lesnarai.co.ke/health",
+      "expected_destination": "Shared backend health endpoint",
+      "probe_result": "HTTP 403 \u2014 Cloudflare error 1000 'DNS points to prohibited IP'",
+      "date": "2026-08-07T07:49:04Z",
+      "same_or_new_tab": "n/a",
+      "fallback_if_unavailable": "Not published as a link. Reported in prose as a verified negative.",
+      "published": false
+    },
+    {
+      "url": "https://hazina-api.onrender.com/health",
+      "expected_destination": "Shared backend health endpoint (Render)",
+      "probe_result": "HTTP 503 \u2014 'Service Suspended'",
+      "date": "2026-08-07T07:49:04Z",
+      "same_or_new_tab": "n/a",
+      "fallback_if_unavailable": "Not published as a link. Reported in prose as a verified negative.",
+      "published": false
+    },
+    {
+      "url": "https://lesnarai.co.ke",
+      "expected_destination": "Production landing (context only, not linked from the lab)",
+      "probe_result": "HTTP 200 \u2192 https://www.lesnarai.co.ke/",
+      "date": "2026-08-07T07:49:04Z",
+      "same_or_new_tab": "n/a",
+      "fallback_if_unavailable": "n/a",
+      "published": false
+    }
+  ],
+  "summary": {
+    "probed": 5,
+    "published_as_links": 2,
+    "withheld_because_unreachable": 2,
+    "dead_links_published": 0
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "capturedAt": "2026-08-08T21:57:41.141Z",
+  "note": "measured against production build via vite preview; observer overhead excluded from reported tasks",
+  "results": {
+    "normal": {
+      "load": {
+        "cls": 0,
+        "lcp": 116,
+        "long": [
+          {
+            "s": 17,
+            "d": 72
+          }
+        ]
+      },
+      "flagshipEntry": {
+        "cls": 0.0002,
+        "long": []
+      }
+    },
+    "cpu4x": {
+      "load": {
+        "cls": 0,
+        "lcp": 248,
+        "long": [
+          {
+            "s": 35,
+            "d": 175
+          }
+        ]
+      },
+      "flagshipEntry": {
+        "cls": 0.0002,
+        "long": []
+      }
+    }
+  }
+}

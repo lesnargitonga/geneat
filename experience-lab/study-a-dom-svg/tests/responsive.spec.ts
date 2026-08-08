@@ -27,7 +27,7 @@ test.describe("responsive behaviour", () => {
 
   test("the whole story is present at every viewport", async ({ page }) => {
     await expect(page.locator("h1")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Gen-Eat", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Gen-Eat/ }).first()).toBeVisible();
     await expect(page.locator("[data-stage-id]")).toHaveCount(6);
     await expect(page.locator("[data-action-step]")).toHaveCount(7);
     await expect(page.locator(".signal-legend li")).toHaveCount(8);
@@ -83,7 +83,7 @@ test.describe("responsive behaviour", () => {
   test("proof panels stack rather than overflow on narrow viewports", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "mobile", "mobile project only");
 
-    const panels = page.locator(".proof");
+    const panels = page.locator(".proof-object");
     const count = await panels.count();
     expect(count).toBe(4);
 

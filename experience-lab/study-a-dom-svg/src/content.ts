@@ -151,8 +151,8 @@ export const PARITY_CLAIMS = {
   firstProject: "Gen-Eat",
   projectStatus: "LIVE" satisfies TruthLabel,
   physicalActionStatus: "PROTOTYPE" satisfies TruthLabel,
-  verifiedProofPanels: 3,
-  pendingProofPanels: 1,
+  verifiedProofPanels: 4,
+  pendingProofPanels: 4,
   systemStageCount: 6,
   chapterCount: 4,
 } as const;

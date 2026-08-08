@@ -50,3 +50,13 @@ do not masquerade as navigation; touch targets usable on small phones.
 | Loading state | any component | Yes | Skeletons matching final geometry | PENDING | — | — | No | Nothing async yet; no spinner exists |
 | Pressed state | buttons | Yes | `:active` returns to baseline | PASS | CSS review | — | — | |
 | Visited link | external links | Yes | — | PENDING | — | — | No | §24.3 lists it; not yet defined |
+
+## Wave E visual acceptance — 2026-08-09
+
+| Component | State | Evidence | Verdict |
+|---|---|---|---|
+| Separation plate (`[data-transform]`) | before / after with seam | `evidence/wave-e/visual/detail-transform-status-*.png` | PASS |
+| Status set — three live | one row, equal 408px columns at desktop | same | PASS |
+| Status set — limitation | full-width band, risk-toned treatment, hollow ring dot | same | PASS |
+| Endpoint proof links | 44px hit area, baseline underline, `↗` affordance | `detail-endpoint-proof-1440x900.png` | PASS |
+| Evidence plates | 4 proof objects, each with type/source/verified/limit | flagship captures | PASS |

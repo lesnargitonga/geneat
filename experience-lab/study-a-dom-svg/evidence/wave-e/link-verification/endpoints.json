@@ -1,0 +1,12 @@
+{
+  "verifiedAt": "2026-08-08T21:54:19Z",
+  "endpoints": [
+    {"url": "https://geneat-api.lesnarai.co.ke/healthz", "http": 200, "bodyHead": "{status:ok}"},
+    {"url": "https://hazina-api.lesnarai.co.ke/healthz", "http": 200, "bodyHead": "{status:ok}"},
+    {"url": "https://geneat.lesnarai.co.ke", "http": 200, "bodyHead": "<!DOCTYPE html><html lang=en><head><me"},
+    {"url": "https://hazina.lesnarai.co.ke", "http": 200, "bodyHead": "<!DOCTYPE html><html lang=en class=sc"}
+  ],
+  "provesOnly": "the process answers an unauthenticated request over TLS at the stated hostname",
+  "doesNotProve": ["model-backed conversation works", "orders or payments function", "any customer or traffic volume", "uptime over any period", "historical data was migrated"],
+  "adminSurfaceProbe": "admin, docs, openapi and mock paths return 404 from the public edge by design"
+}

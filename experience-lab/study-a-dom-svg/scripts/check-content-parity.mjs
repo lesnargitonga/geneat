@@ -101,6 +101,29 @@ const INTENTIONAL_DIFFERENCES = {
     reason: "Per-state accessible text panel — a Wave C deliverable, as above.",
     impact: "SCORING HAZARD — see wave-c.stepper.",
   },
+  "wave-e.flagship-restructure": {
+    reason:
+      "Wave E replaced Study A's single Gen-Eat proof panel set with a Gen-Eat + Hazina " +
+      "flagship composition: a project *family* identity, three dated status rows, an " +
+      "operational route driven by the shared signal engine, and four ProofArtifact objects " +
+      "each carrying claim / type / source / verified / limit. Study B is frozen at Waves A " +
+      "and B and has none of this. Affects projectName, architectureClaims, projectStatus, " +
+      "proofVerifiedCount, proofPendingCount and ctas together — they are one change, not six.",
+    impact:
+      "SCORING HAZARD, and the largest one yet. Study A is now three waves ahead of Study B " +
+      "(C, D, E). No comparative score under the section 8 framework is valid until Study B " +
+      "reaches an equivalent wave, or the comparison is explicitly restricted to Waves A and B.",
+  },
+  "wave-e.status-truth": {
+    reason:
+      "Study B renders a single unqualified 'LIVE' for Gen-Eat, inherited from Waves A and B " +
+      "where public availability was explicitly recorded as unverified. Wave E probed the " +
+      "public URLs on 2026-08-07 and found both storefronts reachable but the shared backend " +
+      "suspended, so Study A now renders three dated status rows instead of one badge.",
+    impact:
+      "Study A is strictly more truthful here. Study B's label is not wrong, it is " +
+      "under-evidenced — and it should be corrected when Study B is next authorised for edit.",
+  },
   "svg.aria": {
     reason:
       "Study A's signal SVG is now aria-hidden with a per-state text equivalent, because the " +
@@ -240,6 +263,12 @@ const FIELD_TO_DIFFERENCE = {
   hasCanvas: "stage.canvas",
   pendingWording: "evidence-pending.wording",
   signalLegend: "signal-legend.human-review",
+  projectName: "wave-e.flagship-restructure",
+  architectureClaims: "wave-e.flagship-restructure",
+  proofVerifiedCount: "wave-e.flagship-restructure",
+  proofPendingCount: "wave-e.flagship-restructure",
+  ctas: "wave-e.flagship-restructure",
+  projectStatus: "wave-e.status-truth",
   hasSignalStepper: "wave-c.stepper",
   hasStateTextPanel: "wave-c.state-text",
   svgAriaHidden: "svg.aria",

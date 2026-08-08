@@ -43,3 +43,22 @@ Automated coverage: `signal-responsive.spec.ts` (5 viewports × 8 assertions),
 Verified at every tested viewport: identical state ids, node ids, narrative
 order and accessible text across both geometries. Only the drawing changes.
 Switching breakpoint preserves the current state and its text verbatim.
+
+## Wave E visual acceptance — 2026-08-09
+
+Full-page and flagship-detail captured at each viewport; audit measured document
+overflow, element clipping and sub-44px interactive targets.
+
+| Viewport | Overflow | Clipped | Small targets | Verdict |
+|---|---|---|---|---|
+| 1440×900 | 0px | 0 | 0 | PASS |
+| 1280×800 | 0px | 0 | 0 | PASS |
+| 1024×768 | 0px | 0 | 0 | PASS |
+| 768×1024 | 0px | 0 | 0 | PASS |
+| 430×932 | 0px | 0 | 0 | PASS |
+| 390×844 | 0px | 0 | 0 | PASS |
+| 360×800 | 0px | 0 | 0 | PASS |
+| 200% zoom (720×450 @2dpr) | 0px | 0 | 0 | PASS |
+
+Below 900px the separation plate stacks with a horizontal seam and the status set
+becomes a single column. Machine evidence: `evidence/wave-e/visual/audit.json`.

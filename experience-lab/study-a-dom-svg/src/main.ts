@@ -3,6 +3,7 @@ import "./styles/base.css";
 import "./styles/layout.css";
 import "./styles/signal.css";
 import "./styles/stepper.css";
+import "./styles/flagship.css";
 import "./styles/scenes.css";
 import "./styles/controls.css";
 import "./styles/accessibility.css";
@@ -20,6 +21,7 @@ import { isSignalStateId, SIGNAL_STATES } from "./signal/signal-states";
 import { VERTICAL_BREAKPOINT_PX } from "./signal/signal-geometry";
 import { HeroChoreography, HERO_TOTAL_MS } from "./signal/hero-choreography";
 import { PortfolioFixture } from "./portfolio/portfolio-fixture";
+import { FlagshipSignal } from "./proof/flagship-signal";
 import type { SignalState, SignalStateId } from "./signal/signal-types";
 
 /**
@@ -155,6 +157,9 @@ function boot(): void {
 
   const store = new ExperienceStore();
   const signal = mountSignal();
+  // Late-bound: the flagship is constructed after the motion preference, but the
+  // preference's change callback must be able to reach it.
+  let flagshipRef: FlagshipSignal | null = null;
 
   const motion = new MotionPreference({
     onChange: (motionMode, resolvedMotion) => {
@@ -163,6 +168,7 @@ function boot(): void {
       // scale pulse — not merely a shorter duration.
       signal?.view.applyMotion(resolvedMotion);
       signal?.view.render(signal.controller.current, { animate: false });
+      flagshipRef?.setMotion(resolvedMotion);
     },
   });
   motion.attach(document);
@@ -175,6 +181,27 @@ function boot(): void {
   chapters.attach();
 
   new AnchorFocus(document).attach();
+
+  /**
+   * The flagship transformation: the same signal engine, driven by the
+   * Gen-Eat/Hazina operational grammar. Mounted after the hero so the abstract
+   * signal is established first — but it paints its complete route immediately,
+   * so nothing about the proof depends on the reveal running.
+   */
+  const flagshipSvg = document.querySelector<SVGSVGElement>("svg[data-flagship-signal]");
+  const flagshipRoute = document.querySelector<HTMLElement>("[data-flagship-route]");
+  let flagship: FlagshipSignal | null = null;
+
+  if (flagshipSvg && flagshipRoute) {
+    flagship = new FlagshipSignal({
+      svg: flagshipSvg,
+      stepList: document.querySelector<HTMLElement>("[data-flagship-steps]"),
+      caption: document.querySelector<HTMLElement>("[data-flagship-caption]"),
+      motion: motion.resolved,
+    });
+    flagship.mount(flagshipRoute);
+    flagshipRef = flagship;
+  }
 
   /**
    * The formation sequence starts *after* every other system is attached, so
@@ -219,6 +246,8 @@ function boot(): void {
       heroBudgetMs: () => HERO_TOTAL_MS,
       cancelHero: () => signal?.hero.cancel(),
       portfolioGrammars: () => fixture?.describe() ?? [],
+      flagshipPhase: () => flagship?.phase ?? null,
+      flagshipEngine: () => flagship?.describe() ?? null,
     };
   }
 }
@@ -245,6 +274,13 @@ declare global {
         engine: string;
         viewEngine: string;
       }[];
+      flagshipPhase: () => string | null;
+      flagshipEngine: () => {
+        engine: string;
+        viewEngine: string;
+        steps: number;
+        grammar: string;
+      } | null;
     };
   }
 }

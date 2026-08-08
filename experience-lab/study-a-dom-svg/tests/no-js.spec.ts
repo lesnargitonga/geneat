@@ -118,13 +118,13 @@ test.describe("no JavaScript", () => {
   });
 
   test("truth labels and evidence states survive", async ({ page }) => {
-    await expect(page.getByRole("heading", { name: "Gen-Eat", exact: true })).toBeVisible();
-    await expect(page.locator('[data-status="live"]')).toContainText("LIVE");
+    await expect(page.getByRole("heading", { name: /Gen-Eat/ }).first()).toBeVisible();
+    await expect(page.locator('[data-status="live"]').first()).toContainText("LIVE");
     await expect(page.locator('[data-status="prototype"]')).toContainText("PROTOTYPE");
 
-    await expect(page.locator('[data-evidence="verified"]')).toHaveCount(3);
-    await expect(page.locator('[data-evidence="pending"]')).toHaveCount(1);
-    await expect(page.locator('[data-evidence="pending"]')).toContainText("EVIDENCE PENDING");
+    await expect(page.locator('[data-evidence="verified"]')).toHaveCount(4);
+    await expect(page.locator('[data-evidence="pending"]')).toHaveCount(4);
+    await expect(page.locator('[data-evidence="pending"]').first()).toContainText("EVIDENCE PENDING");
   });
 
   test("no fabricated metric appears anywhere on the page", async ({ page }) => {

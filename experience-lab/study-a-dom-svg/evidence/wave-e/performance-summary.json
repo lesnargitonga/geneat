@@ -1,0 +1,54 @@
+{
+  "method": "Laboratory measurement, headless Chromium, single machine, CDP-emulated CPU throttling. NOT field p75 data.",
+  "measuredAfterRealMediaIntegration": true,
+  "budgets": {
+    "lcpMs": 2500,
+    "cls": 0.1,
+    "ordinaryScrollLongTaskMs": 50
+  },
+  "note": "Long tasks attributed to the scroll window by timestamp overlap; boot reported separately (see Wave D.1).",
+  "results": [
+    {
+      "scenario": "desktop 1440, unthrottled",
+      "firstContentfulPaintMs": 96,
+      "largestContentfulPaintMs": 96,
+      "loadMs": 64,
+      "cumulativeLayoutShift": 0.0002,
+      "ordinaryScrollLongestTaskMs": 0,
+      "ordinaryScrollTasksOverBudget": 0,
+      "bootLongestTaskMs": 52,
+      "proofMediaRequests": 2,
+      "proofMediaBytes": 186402,
+      "largestProofAssetBytes": 134224,
+      "totalFirstViewBytes": 186402
+    },
+    {
+      "scenario": "desktop 1440, CPU 4x",
+      "firstContentfulPaintMs": 192,
+      "largestContentfulPaintMs": 192,
+      "loadMs": 221,
+      "cumulativeLayoutShift": 0.0002,
+      "ordinaryScrollLongestTaskMs": 0,
+      "ordinaryScrollTasksOverBudget": 0,
+      "bootLongestTaskMs": 138,
+      "proofMediaRequests": 2,
+      "proofMediaBytes": 186402,
+      "largestProofAssetBytes": 134224,
+      "totalFirstViewBytes": 186402
+    },
+    {
+      "scenario": "mobile 393 (Pixel 5), CPU 4x",
+      "firstContentfulPaintMs": 180,
+      "largestContentfulPaintMs": 180,
+      "loadMs": 209,
+      "cumulativeLayoutShift": 0.0006,
+      "ordinaryScrollLongestTaskMs": 0,
+      "ordinaryScrollTasksOverBudget": 0,
+      "bootLongestTaskMs": 124,
+      "proofMediaRequests": 2,
+      "proofMediaBytes": 186402,
+      "largestProofAssetBytes": 134224,
+      "totalFirstViewBytes": 186402
+    }
+  ]
+}

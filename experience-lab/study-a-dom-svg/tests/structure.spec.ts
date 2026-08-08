@@ -76,10 +76,12 @@ test.describe("document structure", () => {
 
   test("no essential state is conveyed by colour alone", async ({ page }) => {
     // Each status and evidence marker must carry a word, not just a hue.
-    await expect(page.locator('[data-status="live"]')).toContainText("LIVE");
+    await expect(page.locator('[data-status="live"]').first()).toContainText("LIVE");
     await expect(page.locator('[data-status="prototype"]')).toContainText("PROTOTYPE");
+    // The backend status must read as down in words, not only by colour.
+    await expect(page.locator('[data-status="down"]')).toContainText("NOT CURRENTLY REACHABLE");
     await expect(page.locator('[data-evidence="verified"]').first()).toContainText("Verified");
-    await expect(page.locator('[data-evidence="pending"]')).toContainText("EVIDENCE PENDING");
+    await expect(page.locator('[data-evidence="pending"]').first()).toContainText("EVIDENCE PENDING");
 
     // The active rail link is marked semantically, not only visually.
     await expect(page.locator('[data-chapter-link][aria-current="true"]')).toHaveCount(1);

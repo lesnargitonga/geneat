@@ -69,3 +69,15 @@ deleted.
 parse, execute and first render; it does not appear as a long task at 1× CPU;
 and it precedes interactivity, with CTA availability measured at 64 ms. It is
 not governed by the scroll budget, and no claim is made that boot is optimal.
+
+## Wave E — public edge failure isolation, 2026-08-09
+
+| Scenario | Gen-Eat public | Hazina public | CarePro | Connector | Verdict |
+|---|---|---|---|---|---|
+| Baseline | 200 | 200 | 200 | active | PASS |
+| `geneat-api` stopped | **502** | 200 | 200 | active | PASS |
+| `hazina-api` stopped | 200 | **502** | 200 | active | PASS |
+| Restored | 200 | 200 | 200 | active | PASS |
+| All proof media blocked | argument intact — 4 proof objects, 6 route steps | — | — | — | PASS |
+
+Failure of one product is visible only on that product's public hostname.

@@ -160,7 +160,7 @@ export const VERTICAL_GEOMETRY: SignalGeometry = {
 export function createSequenceGeometry(
   id: "horizontal" | "vertical",
   stepCount: number,
-  options: { width?: number; height?: number } = {},
+  options: { width?: number; height?: number; stepMarkers?: boolean } = {},
 ): SignalGeometry {
   if (stepCount < 2) throw new Error(`geometry needs at least 2 steps, got ${stepCount}`);
 
@@ -179,11 +179,27 @@ export function createSequenceGeometry(
 
   const segments = Array.from({ length: stepCount - 1 }, (_, i) => `seg-${i + 1}`);
 
+  /**
+   * One marker per waypoint.
+   *
+   * Without these the generated route is a bare curve — legible as a line, but
+   * not as a *route with stages*. The markers are what let a reader see six
+   * operational steps rather than one arc.
+   */
+  const nodes: SignalNode[] = options.stepMarkers
+    ? waypoints.map((point, index) => ({
+        id: `step-${index}`,
+        layer: "evidence-nodes" as const,
+        x: point.x,
+        y: point.y,
+      }))
+    : [];
+
   return {
     id,
     viewBox: `0 0 ${width} ${height}`,
     waypoints,
-    nodes: [],
+    nodes,
     segments,
   };
 }

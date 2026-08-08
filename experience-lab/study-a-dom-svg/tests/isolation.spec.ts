@@ -15,7 +15,14 @@ import { resolve } from "node:path";
 
 const REPO_ROOT = resolve(process.cwd(), "../..");
 const BASELINE = "5479845ca8615cee3fc785c7ddd069e1f5f7671b";
-const STUDY_A_COMMIT = "e6a537c77adbf14ea4968ebb4280d99bd64f6f39";
+const STUDY_A_COMMIT = "8b515d9be0fa886621dd23006f8508c180edce6a";
+
+/** Wave D placed the production matrices outside the study, per guide 24.2. */
+const ALLOWED_PREFIXES = [
+  "experience-lab/study-a-dom-svg/",
+  "experience-lab/production-readiness/",
+];
+const isAllowed = (path: string): boolean => ALLOWED_PREFIXES.some((p) => path.startsWith(p));
 const STUDY_B_COMMIT = "7dc29a231f442ee3d09fb908658e16ecd654dc3d";
 
 const git = (...args: string[]): string =>
@@ -73,16 +80,14 @@ test.describe("isolation", () => {
     expect(isAncestor, "Study A must branch from the baseline, not from Study B").toBe(false);
   });
 
-  test("Wave C changes are confined to Study A", () => {
+  test("changes since the checkpoint are confined to the Study A programme paths", () => {
     // Working-tree changes since the Study A commit.
     const changed = git("diff", "--name-only", STUDY_A_COMMIT)
       .split("\n")
       .filter(Boolean);
 
     for (const path of changed) {
-      expect(path.startsWith("experience-lab/study-a-dom-svg/"), `${path} is outside Study A`).toBe(
-        true,
-      );
+      expect(isAllowed(path), `${path} is outside the Study A programme paths`).toBe(true);
     }
   });
 
@@ -97,9 +102,7 @@ test.describe("isolation", () => {
     ].filter(Boolean);
 
     for (const path of modified) {
-      expect(path.startsWith("experience-lab/study-a-dom-svg/"), `${path} is outside Study A`).toBe(
-        true,
-      );
+      expect(isAllowed(path), `${path} is outside the Study A programme paths`).toBe(true);
     }
   });
 });

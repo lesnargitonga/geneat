@@ -28,3 +28,17 @@ scope for this artefact and live with the systems themselves.
 | Proof media sanitisation | Yes | Reviewed before commit | PENDING | — | `public/proof/README.md` | No | Directory is empty; the requirement is recorded there |
 | Truthful status labels | Yes | Five labels, evidence-backed | PASS | Playwright + content review | `no-js.spec.ts` | — | `LIVE` is inferred from the production landing linking the product and the repo's deploy target — stated on the page, not probed |
 | Fabricated metrics | Yes | None anywhere | PASS | Regex guard in suite | `no-js.spec.ts`, `hero-choreography.spec.ts` | — | Build fails if an unmeasured figure appears |
+
+## Wave E — public surface, 2026-08-09
+
+| Surface | Public result | Verdict |
+|---|---|---|
+| `/healthz` | 200 | intentionally public |
+| `/admin/*` | 404 | PASS — not advertised |
+| `/openapi.json` | 404 | PASS |
+| `/docs`, `/redoc` | 404 | PASS |
+| `/mock/*` | 404 | PASS |
+| `/health/deep` | 404 | PASS |
+| Links published on page | storefronts ×2, health endpoints ×2 | PASS — no admin or dev path linked |
+| Outbound links | `target="_blank"` + `rel="noopener noreferrer"` | PASS |
+| Media | real public screenshots only; no customer or private data | PASS |

@@ -56,7 +56,7 @@ test.describe("hero formation sequence", () => {
 
     // The signal is a coherent composition from the first frame — the dormant
     // path is in the served HTML, not drawn by script.
-    await expect(page.locator('[data-layer="dormant-path"]')).toBeAttached();
+    await expect(page.locator('svg[data-signal] [data-layer="dormant-path"]')).toBeAttached();
     await expect(page.locator("h1")).toBeVisible();
   });
 
@@ -192,7 +192,7 @@ test.describe("reduced motion", () => {
     await expect(page.locator("[data-action-step]")).toHaveCount(7);
     await expect(page.locator(".limitations li")).toHaveCount(6);
     await expect(page.getByRole("link", { name: "See a real system" })).toBeVisible();
-    await expect(page.locator('[data-evidence="pending"]')).toContainText("EVIDENCE PENDING");
+    await expect(page.locator('[data-evidence="pending"]').first()).toContainText("EVIDENCE PENDING");
 
     // And every state is still reachable.
     for (const state of ["idea", "protect", "act"]) {

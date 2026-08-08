@@ -37,7 +37,7 @@
      failure hue made the composition read as an alarm (dossier 7.5 warns
      against alarm/cyberpunk styling for the Protect state). */
   --boundary: oklch(62% 0.048 62);
-  --risk: oklch(58% 0.115 38);
+  --risk: oklch(68% 0.135 38);
   --recovery: oklch(93% 0.032 168);
 
   /* ---- typography ----

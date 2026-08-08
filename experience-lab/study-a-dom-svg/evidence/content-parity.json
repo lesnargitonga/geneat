@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-07T07:36:56.693Z",
+  "checkedAt": "2026-08-08T23:11:48.238Z",
   "studyA": {
     "path": "experience-lab/study-a-dom-svg/index.html",
     "source": "working tree"
@@ -10,8 +10,8 @@
   },
   "summary": {
     "comparedFields": 18,
-    "matched": 10,
-    "intentionalDifferences": 8,
+    "matched": 4,
+    "intentionalDifferences": 14,
     "undeclaredDifferences": 0,
     "verdict": "PASS"
   },
@@ -51,6 +51,14 @@
     "wave-c.state-text": {
       "reason": "Per-state accessible text panel — a Wave C deliverable, as above.",
       "impact": "SCORING HAZARD — see wave-c.stepper."
+    },
+    "wave-e.flagship-restructure": {
+      "reason": "Wave E replaced Study A's single Gen-Eat proof panel set with a Gen-Eat + Hazina flagship composition: a project *family* identity, three dated status rows, an operational route driven by the shared signal engine, and four ProofArtifact objects each carrying claim / type / source / verified / limit. Study B is frozen at Waves A and B and has none of this. Affects projectName, architectureClaims, projectStatus, proofVerifiedCount, proofPendingCount and ctas together — they are one change, not six.",
+      "impact": "SCORING HAZARD, and the largest one yet. Study A is now three waves ahead of Study B (C, D, E). No comparative score under the section 8 framework is valid until Study B reaches an equivalent wave, or the comparison is explicitly restricted to Waves A and B."
+    },
+    "wave-e.status-truth": {
+      "reason": "Study B renders a single unqualified 'LIVE' for Gen-Eat, inherited from Waves A and B where public availability was explicitly recorded as unverified. Wave E probed the public URLs on 2026-08-07 and found both storefronts reachable but the shared backend suspended, so Study A now renders three dated status rows instead of one badge.",
+      "impact": "Study A is strictly more truthful here. Study B's label is not wrong, it is under-evidenced — and it should be corrected when Study B is next authorised for edit."
     },
     "svg.aria": {
       "reason": "Study A's signal SVG is now aria-hidden with a per-state text equivalent, because the graphic changes with state and a static label would go stale. Study B's static poster is still a labelled image, which is correct for a composition that does not change.",
@@ -103,62 +111,57 @@
     },
     {
       "field": "projectName",
-      "match": true,
-      "studyA": "Gen-Eat",
+      "match": false,
+      "studyA": null,
       "studyB": "Gen-Eat",
-      "intentional": false,
-      "differenceId": null,
-      "reason": null,
-      "impact": null,
-      "status": "MATCH"
+      "intentional": true,
+      "differenceId": "wave-e.flagship-restructure",
+      "reason": "Wave E replaced Study A's single Gen-Eat proof panel set with a Gen-Eat + Hazina flagship composition: a project *family* identity, three dated status rows, an operational route driven by the shared signal engine, and four ProofArtifact objects each carrying claim / type / source / verified / limit. Study B is frozen at Waves A and B and has none of this. Affects projectName, architectureClaims, projectStatus, proofVerifiedCount, proofPendingCount and ctas together — they are one change, not six.",
+      "impact": "SCORING HAZARD, and the largest one yet. Study A is now three waves ahead of Study B (C, D, E). No comparative score under the section 8 framework is valid until Study B reaches an equivalent wave, or the comparison is explicitly restricted to Waves A and B.",
+      "status": "INTENTIONAL"
     },
     {
       "field": "architectureClaims",
-      "match": true,
-      "studyA": [
-        "Backend: FastAPI service under app/ , Alembic migrations, Postgres and Redis.",
-        "Channels: Adapter contract in app/channels/base.py with WhatsApp, voice and mock implementations behind a registry — the channel is swappable, not hard-wired.",
-        "Payments: Provider factory in app/integrations/payments/ : M-Pesa Daraja, IntaSend, Paystack, Stripe and a simulator behind one base.py interface.",
-        "Storefront: Next.js app router portal in gen-eat-portal/ , deployed on Vercel."
-      ],
+      "match": false,
+      "studyA": [],
       "studyB": [
         "Backend: FastAPI service under app/ , Alembic migrations, Postgres and Redis.",
         "Channels: Adapter contract in app/channels/base.py with WhatsApp, voice and mock implementations behind a registry — the channel is swappable, not hard-wired.",
         "Payments: Provider factory in app/integrations/payments/ : M-Pesa Daraja, IntaSend, Paystack, Stripe and a simulator behind one base.py interface.",
         "Storefront: Next.js app router portal in gen-eat-portal/ , deployed on Vercel."
       ],
-      "intentional": false,
-      "differenceId": null,
-      "reason": null,
-      "impact": null,
-      "status": "MATCH"
+      "intentional": true,
+      "differenceId": "wave-e.flagship-restructure",
+      "reason": "Wave E replaced Study A's single Gen-Eat proof panel set with a Gen-Eat + Hazina flagship composition: a project *family* identity, three dated status rows, an operational route driven by the shared signal engine, and four ProofArtifact objects each carrying claim / type / source / verified / limit. Study B is frozen at Waves A and B and has none of this. Affects projectName, architectureClaims, projectStatus, proofVerifiedCount, proofPendingCount and ctas together — they are one change, not six.",
+      "impact": "SCORING HAZARD, and the largest one yet. Study A is now three waves ahead of Study B (C, D, E). No comparative score under the section 8 framework is valid until Study B reaches an equivalent wave, or the comparison is explicitly restricted to Waves A and B.",
+      "status": "INTENTIONAL"
     },
     {
       "field": "proofVerifiedCount",
-      "match": true,
-      "studyA": 3,
+      "match": false,
+      "studyA": 4,
       "studyB": 3,
-      "intentional": false,
-      "differenceId": null,
-      "reason": null,
-      "impact": null,
-      "status": "MATCH"
+      "intentional": true,
+      "differenceId": "wave-e.flagship-restructure",
+      "reason": "Wave E replaced Study A's single Gen-Eat proof panel set with a Gen-Eat + Hazina flagship composition: a project *family* identity, three dated status rows, an operational route driven by the shared signal engine, and four ProofArtifact objects each carrying claim / type / source / verified / limit. Study B is frozen at Waves A and B and has none of this. Affects projectName, architectureClaims, projectStatus, proofVerifiedCount, proofPendingCount and ctas together — they are one change, not six.",
+      "impact": "SCORING HAZARD, and the largest one yet. Study A is now three waves ahead of Study B (C, D, E). No comparative score under the section 8 framework is valid until Study B reaches an equivalent wave, or the comparison is explicitly restricted to Waves A and B.",
+      "status": "INTENTIONAL"
     },
     {
       "field": "proofPendingCount",
-      "match": true,
-      "studyA": 1,
+      "match": false,
+      "studyA": 4,
       "studyB": 1,
-      "intentional": false,
-      "differenceId": null,
-      "reason": null,
-      "impact": null,
-      "status": "MATCH"
+      "intentional": true,
+      "differenceId": "wave-e.flagship-restructure",
+      "reason": "Wave E replaced Study A's single Gen-Eat proof panel set with a Gen-Eat + Hazina flagship composition: a project *family* identity, three dated status rows, an operational route driven by the shared signal engine, and four ProofArtifact objects each carrying claim / type / source / verified / limit. Study B is frozen at Waves A and B and has none of this. Affects projectName, architectureClaims, projectStatus, proofVerifiedCount, proofPendingCount and ctas together — they are one change, not six.",
+      "impact": "SCORING HAZARD, and the largest one yet. Study A is now three waves ahead of Study B (C, D, E). No comparative score under the section 8 framework is valid until Study B reaches an equivalent wave, or the comparison is explicitly restricted to Waves A and B.",
+      "status": "INTENTIONAL"
     },
     {
       "field": "pendingWording",
       "match": false,
-      "studyA": "EVIDENCE PENDING — not collected in this wave",
+      "studyA": "EVIDENCE PENDING Public trust and controlled administration Sarepta EVIDENCE PENDING Security, governance and controlled intelligence SentinelCore / Cypher EVIDENCE PENDING Physical intelligence research Robotics and computer vision EVIDENCE PENDING These are problem classes, not case studies. Nothing above claims a status, capability or outcome, because this repository holds no artefact for them yet. For care and public-trust systems the absence of screenshots is deliberate — that evidence cannot be shown without exposing people.",
       "studyB": "Evidence pending — not collected in this wave",
       "intentional": true,
       "differenceId": "evidence-pending.wording",
@@ -168,14 +171,14 @@
     },
     {
       "field": "projectStatus",
-      "match": true,
-      "studyA": "LIVE",
+      "match": false,
+      "studyA": "LIVE · PILOT Gen-Eat storefront Reachable, verified 2026-08-07 LIVE Hazina Nomads storefront Reachable, verified 2026-08-07 LIVE Two independent product APIs geneat-api and hazina-api answering over HTTPS, verified 2026-08-09 NOT CURRENTLY REACHABLE Model-backed conversation No language-model credential configured, verified 2026-08-09",
       "studyB": "LIVE",
-      "intentional": false,
-      "differenceId": null,
-      "reason": null,
-      "impact": null,
-      "status": "MATCH"
+      "intentional": true,
+      "differenceId": "wave-e.status-truth",
+      "reason": "Study B renders a single unqualified 'LIVE' for Gen-Eat, inherited from Waves A and B where public availability was explicitly recorded as unverified. Wave E probed the public URLs on 2026-08-07 and found both storefronts reachable but the shared backend suspended, so Study A now renders three dated status rows instead of one badge.",
+      "impact": "Study A is strictly more truthful here. Study B's label is not wrong, it is under-evidenced — and it should be corrected when Study B is next authorised for edit.",
+      "status": "INTENTIONAL"
     },
     {
       "field": "physicalActionStatus",
@@ -217,11 +220,12 @@
     },
     {
       "field": "ctas",
-      "match": true,
+      "match": false,
       "studyA": [
         "See a real system",
         "Start a project",
-        "Open the live product",
+        "Open Gen-Eat (opens in a new tab)",
+        "Open Hazina Nomads (opens in a new tab)",
         "Start a project",
         "Back to the signal"
       ],
@@ -232,11 +236,11 @@
         "Start a project",
         "Back to the signal"
       ],
-      "intentional": false,
-      "differenceId": null,
-      "reason": null,
-      "impact": null,
-      "status": "MATCH"
+      "intentional": true,
+      "differenceId": "wave-e.flagship-restructure",
+      "reason": "Wave E replaced Study A's single Gen-Eat proof panel set with a Gen-Eat + Hazina flagship composition: a project *family* identity, three dated status rows, an operational route driven by the shared signal engine, and four ProofArtifact objects each carrying claim / type / source / verified / limit. Study B is frozen at Waves A and B and has none of this. Affects projectName, architectureClaims, projectStatus, proofVerifiedCount, proofPendingCount and ctas together — they are one change, not six.",
+      "impact": "SCORING HAZARD, and the largest one yet. Study A is now three waves ahead of Study B (C, D, E). No comparative score under the section 8 framework is valid until Study B reaches an equivalent wave, or the comparison is explicitly restricted to Waves A and B.",
+      "status": "INTENTIONAL"
     },
     {
       "field": "hasVisibleLimitations",

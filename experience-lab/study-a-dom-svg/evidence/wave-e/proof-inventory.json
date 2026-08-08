@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-08-08T22:05:35Z",
+  "wave": "E",
+  "claims": [
+    {
+      "claim": "The Gen-Eat storefront is publicly reachable and serves real product content.",
+      "source": "geneat.lesnarai.co.ke",
+      "verified": "2026-08-07",
+      "maturity": "live-pilot",
+      "publicSafeEvidence": "public screenshot, HTTP 200",
+      "limitations": [
+        "reachability only",
+        "no order, chat or payment was attempted"
+      ]
+    },
+    {
+      "claim": "The Hazina Nomads storefront is publicly reachable and serves real product content.",
+      "source": "hazina.lesnarai.co.ke",
+      "verified": "2026-08-07",
+      "maturity": "live",
+      "publicSafeEvidence": "public screenshot, HTTP 200",
+      "limitations": [
+        "reachability only",
+        "partner and admin areas were not probed"
+      ]
+    },
+    {
+      "claim": "The two products were one multi-tenant backend and are now independent runtimes sharing no database, credentials or process.",
+      "source": "repository architecture; extraction and deployment records",
+      "verified": "2026-08-09",
+      "maturity": "verified-on-host-and-public",
+      "publicSafeEvidence": "cross-database access denied both directions; Redis namespaces mutually invisible; 183 and 284 tests passing independently; stopping either API returns 502 for that product alone through the public edge",
+      "limitations": [
+        "one host, one PostgreSQL engine, one Redis server \u2014 infrastructure is shared, runtime is not",
+        "no historical operational data migrated; both databases start empty",
+        "generic modules duplicated rather than shared; duplication will drift"
+      ]
+    },
+    {
+      "claim": "The original hosted backend is not running; its two independent replacements are, behind their own public addresses.",
+      "source": "geneat-api.lesnarai.co.ke/healthz, hazina-api.lesnarai.co.ke/healthz",
+      "verified": "2026-08-09",
+      "maturity": "live",
+      "publicSafeEvidence": "both return {\"status\":\"ok\"} over HTTPS; resolved consistently by the authoritative nameserver, 1.1.1.1 and 8.8.8.8",
+      "limitations": [
+        "a health check proves the process answers, not that the product works",
+        "conversation is not exercised \u2014 neither runtime holds a language-model credential",
+        "admin, docs, openapi and mock paths return 404 from the public edge by design"
+      ]
+    },
+    {
+      "claim": "Model-backed conversation is not currently available.",
+      "source": "deployed configuration \u2014 LLM_PROVIDER has no external credential",
+      "verified": "2026-08-09",
+      "maturity": "not-operational",
+      "publicSafeEvidence": "stated on the page as a distinct status band",
+      "limitations": [
+        "this is the current truthful limitation, not a temporary outage"
+      ]
+    }
+  ],
+  "explicitlyNotClaimed": [
+    "historical customer or order data was migrated",
+    "AI conversation currently works",
+    "Cloud VPS 2 resources were delivered",
+    "any traffic volume, adoption, revenue or uptime percentage"
+  ]
+}

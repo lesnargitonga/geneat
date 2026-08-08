@@ -1,0 +1,531 @@
+/**
+ * Flagship proof chapter and portfolio range cue.
+ *
+ * Rhythm target (§28.18): claim → visual proof → short explanation → evidence
+ * → breathing room → next idea. The generous vertical spacing is the point,
+ * not an oversight: Wave D's inspector already proved this project can produce
+ * a wall of technical text, and §28.22 rejects that outright.
+ */
+
+.flagship {
+  display: grid;
+  gap: var(--space-xl);
+  max-width: 78rem;
+}
+
+.flagship__header {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.flagship__name {
+  font-size: var(--text-h2);
+  letter-spacing: -0.02em;
+}
+
+.flagship__claim {
+  font-size: var(--text-lede);
+  color: var(--text-secondary);
+  max-width: 52ch;
+}
+
+/* ----------------------------------------------------------- status set */
+
+/**
+ * Status is a list of facts with dates, not a badge.
+ *
+ * Every state carries a word AND a distinct dot treatment: `live` is filled,
+ * `down` is a hollow ring. Colour never carries the meaning alone (§28.16).
+ */
+.status-set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.status {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2xs) var(--space-xs);
+  align-items: baseline;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-inset);
+  border: 1px solid var(--surface-line);
+  border-radius: var(--radius-sm);
+  min-width: min(100%, 15rem);
+}
+
+.status__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  align-self: center;
+}
+
+.status[data-status="live"] .status__dot {
+  background: var(--human);
+}
+
+/* Hollow ring, not just a different hue. */
+.status[data-status="down"] .status__dot {
+  background: transparent;
+  border: 2px solid var(--risk);
+}
+
+.status__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  font-weight: 600;
+}
+
+.status[data-status="live"] .status__label {
+  color: var(--human);
+}
+
+.status[data-status="down"] .status__label {
+  color: var(--risk);
+}
+
+.status__what {
+  grid-column: 2;
+  color: var(--text-primary);
+  font-size: var(--text-small);
+}
+
+.status__verified {
+  grid-column: 2;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: var(--text-tertiary);
+}
+
+/* --------------------------------------------------------------- route */
+
+.flagship__route {
+  display: grid;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--surface-raised);
+  border: 1px solid var(--surface-line);
+  border-radius: var(--radius-md);
+}
+
+.signal--flagship {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 880 / 200;
+}
+
+.route-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+}
+
+.route-step {
+  min-height: 44px;
+  padding: var(--space-2xs) var(--space-sm);
+  background: transparent;
+  border: 1px solid var(--surface-line);
+  border-radius: var(--radius-sm);
+  color: var(--text-tertiary);
+  font: inherit;
+  font-size: var(--text-small);
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+
+.route-step:hover {
+  color: var(--text-primary);
+  border-color: var(--signal-active);
+}
+
+.route-step[aria-current="true"] {
+  color: var(--text-primary);
+  border-color: var(--signal-active);
+  box-shadow: inset 0 -2px 0 var(--signal-active);
+  font-weight: 600;
+}
+
+.route-caption {
+  min-height: 3em;
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  max-width: var(--measure);
+}
+
+/* The route in words. Always present — the composition never depends on SVG. */
+.route-text {
+  display: grid;
+  gap: var(--space-2xs);
+  max-width: var(--measure);
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  counter-reset: route;
+}
+
+.route-text li {
+  padding-left: var(--space-md);
+  border-left: 1px solid var(--surface-line);
+}
+
+.route-text strong {
+  color: var(--text-primary);
+  font-weight: 560;
+}
+
+/* ------------------------------------------------------- proof objects */
+
+.flagship__section-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.proof-set {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+}
+
+/**
+ * A proof object must look different from decoration (§28.12): bordered,
+ * inset, with its claim first and its metadata subordinate.
+ */
+.proof-object {
+  display: grid;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: var(--space-md);
+  background: var(--surface-inset);
+  border: 1px solid var(--surface-line);
+  border-left: 2px solid var(--evidence);
+  border-radius: var(--radius-sm);
+}
+
+.proof-object[data-evidence="pending"] {
+  border-left-color: var(--signal-dormant);
+  border-style: dashed;
+}
+
+/**
+ * Media wrapper.
+ *
+ * The aspect ratio is reserved so nothing shifts when the image arrives, and
+ * the fallback message sits *behind* the image — visible only if the image
+ * fails to paint. No spinner, no skeleton that outlives its content.
+ */
+.proof-object__media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: var(--surface-base);
+  border: 1px solid var(--surface-line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.proof-object__media img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+  display: block;
+}
+
+/* Revealed only when the image above fails to render. */
+.proof-object__fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-content: center;
+  padding: var(--space-md);
+  text-align: center;
+  font-size: var(--text-small);
+  color: var(--text-tertiary);
+}
+
+.proof-object__claim {
+  color: var(--text-primary);
+  font-size: var(--text-small);
+  font-weight: 560;
+}
+
+.proof-object__meta {
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  gap: var(--space-2xs) var(--space-sm);
+  font-size: var(--text-micro);
+}
+
+.proof-object__meta dt {
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.proof-object__meta dd {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 34rem) {
+  .proof-object__meta {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .proof-object__meta dd {
+    margin-bottom: var(--space-2xs);
+  }
+}
+
+/* ------------------------------------------------ difficulty / gap pair */
+
+.flagship__pair {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr));
+}
+
+.flagship__note {
+  display: grid;
+  gap: var(--space-sm);
+  align-content: start;
+  padding: var(--space-md);
+  border-left: 2px solid var(--surface-line);
+}
+
+.flagship__note p {
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  max-width: var(--measure);
+}
+
+.flagship__note--gap {
+  border-left-color: var(--signal-dormant);
+}
+
+.flagship__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+/* ----------------------------------------------------------- portfolio */
+
+.portfolio {
+  display: grid;
+  gap: var(--space-md);
+  margin-top: var(--space-section);
+  padding-top: var(--space-xl);
+  border-top: 1px solid var(--surface-line);
+  max-width: 78rem;
+}
+
+.portfolio__heading {
+  font-size: var(--text-h3);
+}
+
+.portfolio__lede {
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  max-width: var(--measure);
+}
+
+/**
+ * A list, not a card grid.
+ *
+ * §28.10 and §25.4 both reject equal project cards — the range is the point,
+ * not the count. Rows keep these visually subordinate to the flagship.
+ */
+.portfolio__list {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--surface-line);
+}
+
+.portfolio__item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-2xs) var(--space-md);
+  align-items: baseline;
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--surface-line);
+}
+
+.portfolio__class {
+  color: var(--text-primary);
+  font-size: var(--text-small);
+}
+
+.portfolio__programme {
+  grid-row: 2;
+  grid-column: 1;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+.portfolio__evidence {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  align-self: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.06em;
+  color: var(--signal-dormant);
+  white-space: nowrap;
+}
+
+/* ── The separation, as a specimen plate ─────────────────────────────────
+   The transformation is the visual centre of the flagship: two columns with
+   the Cut Signal seam between them. Deliberately typographic — no network
+   diagram, no dashboard, no glow. */
+.transform {
+  margin: var(--space-lg) 0 var(--space-md);
+  padding: var(--space-md) 0 0;
+  border-top: 1px solid var(--surface-line);
+}
+.transform__caption {
+  margin-bottom: var(--space-sm);
+}
+.transform__grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: var(--space-md);
+  align-items: start;
+}
+.transform__seam {
+  align-self: stretch;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--signal-active) 18%,
+    var(--signal-active) 82%,
+    transparent
+  );
+}
+.transform__state {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 0.35rem;
+}
+.transform__head {
+  font-size: var(--text-lede);
+  line-height: 1.15;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+  text-wrap: balance;
+}
+.transform__side--after .transform__head {
+  color: var(--evidence);
+}
+.transform__list {
+  list-style: none;
+  display: grid;
+  gap: 0.4rem;
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+}
+.transform__list li {
+  padding-left: 0.9rem;
+  position: relative;
+}
+.transform__list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 4px;
+  height: 1px;
+  background: var(--surface-line);
+}
+.transform__side--after .transform__list li::before {
+  background: var(--signal-active);
+  width: 6px;
+}
+.transform__side--before .transform__head,
+.transform__side--before .transform__list {
+  opacity: 0.72;
+}
+
+/* ── Status: three live facts on a row, the limitation on its own band ──── */
+.status-set {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+.status[data-status="down"] {
+  grid-column: 1 / -1;
+  border-color: color-mix(in oklab, var(--risk) 45%, var(--surface-line));
+  background: color-mix(in oklab, var(--risk) 6%, transparent);
+}
+
+@media (max-width: 900px) {
+  .transform__grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+  }
+  .transform__seam {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--signal-active) 18%,
+      var(--signal-active) 82%,
+      transparent
+    );
+  }
+  .status-set {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Endpoint proof links — evidence, deliberately quieter than the product CTAs. */
+.proof-object__endpoints {
+  display: grid;
+  gap: 0;
+  margin-top: 0.15rem;
+}
+.endpoint-link {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: var(--evidence);
+  justify-self: start;
+  /* 44px hit area without visual bulk. text-decoration keeps the rule welded
+     to the baseline regardless of box height — a positioned pseudo-element
+     drifted above the text once the box grew. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-right: 0.25rem;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--evidence) 40%, transparent);
+  text-underline-offset: 0.25em;
+  text-decoration-thickness: 1px;
+}
+.endpoint-link::before {
+  content: "↗";
+  margin-right: 0.4ch;
+  opacity: 0.7;
+  text-decoration: none;
+}
+.endpoint-link:hover,
+.endpoint-link:focus-visible {
+  color: var(--text-primary);
+  text-decoration-color: var(--signal-active);
+}
