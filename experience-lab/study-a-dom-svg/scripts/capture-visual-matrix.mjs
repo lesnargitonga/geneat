@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT = resolve(HERE, "../evidence/wave-e/visual");
-const BASE = process.env.STUDY_A_URL ?? "http://127.0.0.1:4184";
+const BASE = process.env.STUDY_A_URL ?? "http://127.0.0.1:4190";
 
 /** The viewports Wave E must survive, widest first. */
 const VIEWPORTS = [

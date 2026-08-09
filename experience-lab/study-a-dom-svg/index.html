@@ -599,9 +599,401 @@
         </div>
 
         <p class="note">
-          Every stage is readable here as plain content. Wave F turns this into a keyboard-navigable
-          inspector; nothing in that wave may become the only route to this information.
+          Every stage is readable here as plain content. The capability register below is
+          keyboard-navigable; nothing in it is the only route to this information.
         </p>
+
+        <!-- ================ UNIT 4b — CAPABILITY REGISTER ====================== -->
+        <div class="capability-unit" aria-labelledby="capability-heading">
+          <header class="capability-unit__head">
+            <p class="eyebrow">Capability register</p>
+            <h3 class="section-heading section-heading--sub" id="capability-heading">
+              What we can actually do for you
+            </h3>
+            <p class="section-lede">
+              Six ways an idea moves toward reality. Each one carries what it changes, what we
+              actually do, where it has been demonstrated, how far it has been taken, and what we
+              are <em>not</em> claiming.
+            </p>
+          </header>
+
+        <!--
+          The capability register.
+
+          Every entry is complete in this markup: behaviours, proofs, maturity
+          and the boundary that names what is NOT being claimed. With JavaScript
+          the register becomes an inspector that shows one capability at a time;
+          without it, the whole field sheet reads top to bottom. Nothing here
+          depends on script, hover or a pointer.
+        -->
+        <div class="capability" data-capability-register>
+          <ol class="cap-index" data-capability-index aria-label="Capability register">
+            <li class="cap-index__item">
+              <a class="cap-index__link" href="#capability-build" data-capability-link="build">
+                <span class="cap-index__num" aria-hidden="true">01</span>
+                <svg class="cap-glyph" data-glyph="nodes-join" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6 C 10 6, 12 12, 20 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M4 12 H 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M4 18 C 10 18, 12 12, 20 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="4" cy="6" r="1.6" fill="currentColor" /><circle cx="4" cy="12" r="1.6" fill="currentColor" /><circle cx="4" cy="18" r="1.6" fill="currentColor" /><circle cx="20" cy="12" r="2.4" fill="currentColor" /></svg>
+                <span class="cap-index__name">Build</span>
+                <span class="cap-index__maturity" data-maturity="live-product">Live product</span>
+              </a>
+            </li>
+            <li class="cap-index__item">
+              <a class="cap-index__link" href="#capability-operate" data-capability-link="operate">
+                <span class="cap-index__num" aria-hidden="true">02</span>
+                <svg class="cap-glyph" data-glyph="trace-sustained" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12 H 21" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M7 8.5 V 15.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M12 8.5 V 15.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M17 8.5 V 15.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="21" cy="12" r="1.8" fill="currentColor" /></svg>
+                <span class="cap-index__name">Operate</span>
+                <span class="cap-index__maturity" data-maturity="controlled-client-system">Controlled client system</span>
+              </a>
+            </li>
+            <li class="cap-index__item">
+              <a class="cap-index__link" href="#capability-protect" data-capability-link="protect">
+                <span class="cap-index__num" aria-hidden="true">03</span>
+                <svg class="cap-glyph" data-glyph="boundary-closed" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 4 H 4 V 20 H 7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M17 4 H 20 V 20 H 17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M12 7 V 17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="12" cy="12" r="2.6" fill="currentColor" /></svg>
+                <span class="cap-index__name">Protect</span>
+                <span class="cap-index__maturity" data-maturity="controlled-client-system">Controlled client system</span>
+              </a>
+            </li>
+            <li class="cap-index__item">
+              <a class="cap-index__link" href="#capability-intelligence" data-capability-link="intelligence">
+                <span class="cap-index__num" aria-hidden="true">04</span>
+                <svg class="cap-glyph" data-glyph="trace-inferred" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12 H 8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M8 12 C 11 12, 11 6, 14 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M8 12 C 11 12, 11 18, 14 18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M14 6 C 17 6, 18 12, 21 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M14 18 C 17 18, 18 12, 21 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="8" cy="12" r="1.5" fill="currentColor" /><circle cx="14" cy="6" r="1.5" fill="currentColor" /><circle cx="14" cy="18" r="1.5" fill="currentColor" /><circle cx="21" cy="12" r="2.2" fill="currentColor" /></svg>
+                <span class="cap-index__name">Intelligence</span>
+                <span class="cap-index__maturity" data-maturity="validated-prototype">Validated prototype</span>
+              </a>
+            </li>
+            <li class="cap-index__item">
+              <a class="cap-index__link" href="#capability-prove" data-capability-link="prove">
+                <span class="cap-index__num" aria-hidden="true">05</span>
+                <svg class="cap-glyph" data-glyph="node-witnessed" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12 H 9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M15 12 H 21" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M12 5 V 8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M12 16 V 19" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="12" cy="12" r="3" fill="currentColor" /><circle cx="12" cy="12" r="1" fill="currentColor" /></svg>
+                <span class="cap-index__name">Prove</span>
+                <span class="cap-index__maturity" data-maturity="internal-engineering-system">Internal engineering system</span>
+              </a>
+            </li>
+            <li class="cap-index__item">
+              <a class="cap-index__link" href="#capability-physical" data-capability-link="physical">
+                <span class="cap-index__num" aria-hidden="true">06</span>
+                <svg class="cap-glyph" data-glyph="gate-crossed" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12 H 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M13 4 V 9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M13 15 V 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M14 12 H 21" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M18 9 L 21 12 L 18 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="3" cy="12" r="1.6" fill="currentColor" /></svg>
+                <span class="cap-index__name">Physical</span>
+                <span class="cap-index__maturity" data-maturity="active-research">Active research</span>
+              </a>
+            </li>
+          </ol>
+
+          <div class="cap-field" data-capability-field>
+          <article
+            class="cap-entry"
+            id="capability-build"
+            data-capability="build"
+            aria-labelledby="capability-build-name"
+          >
+            <header class="cap-entry__head">
+              <span class="cap-entry__index" aria-hidden="true">01</span>
+              <svg class="cap-glyph" data-glyph="nodes-join" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6 C 10 6, 12 12, 20 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M4 12 H 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M4 18 C 10 18, 12 12, 20 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="4" cy="6" r="1.6" fill="currentColor" /><circle cx="4" cy="12" r="1.6" fill="currentColor" /><circle cx="4" cy="18" r="1.6" fill="currentColor" /><circle cx="20" cy="12" r="2.4" fill="currentColor" /></svg>
+              <h4 class="cap-entry__name" id="capability-build-name">Build</h4>
+              <p class="cap-entry__maturity" data-maturity="live-product">Live product</p>
+            </header>
+
+            <p class="cap-entry__changes">An ambition becomes a system people can actually use.</p>
+
+            <div class="cap-entry__body">
+              <section class="cap-block" aria-labelledby="capability-build-behaviours">
+                <h5 class="cap-block__title" id="capability-build-behaviours">What we do</h5>
+                <ul class="cap-block__list">
+                  <li>Product and full-stack engineering, front to back</li>
+                  <li>API and data modelling, including multi-tenant boundaries</li>
+                  <li>Payment integration behind provider-agnostic interfaces, so a provider can be swapped without touching business logic</li>
+                  <li>Conversational interfaces on the channels customers already use</li>
+                </ul>
+              </section>
+
+              <section class="cap-block" aria-labelledby="capability-build-proof">
+                <h5 class="cap-block__title" id="capability-build-proof">Where it is demonstrated</h5>
+                <ul class="cap-block__list cap-block__list--proof">
+                  <li class="cap-proof">
+                    <p class="cap-proof__statement">Two customer-facing commerce products built on one tenant model — campus food ordering and private luxury sourcing — each with catalog, payment and fulfilment paths implemented end to end in code.</p>
+                    <p class="cap-proof__meta">
+                      <span class="cap-proof__source">Gen-Eat · Hazina Nomads</span>
+                    </p>
+                  </li>
+                  <li class="cap-proof">
+                    <p class="cap-proof__statement">A home-care and nursing coordination platform — credential verification, nurse assignment, visit progress and payment recording — running in production on its own infrastructure.</p>
+                    <p class="cap-proof__meta">
+                      <span class="cap-proof__source">CarePro</span>
+                    </p>
+                  </li>
+                </ul>
+              </section>
+            </div>
+
+            <p class="cap-entry__boundary">
+              <span class="cap-entry__boundary-label">Not claimed</span>
+              Two commerce products and one coordination platform. Payment paths are implemented and integrated, not qualified end to end against live settlement. Not a claim of experience across every industry.
+            </p>
+          </article>
+
+          <article
+            class="cap-entry"
+            id="capability-operate"
+            data-capability="operate"
+            aria-labelledby="capability-operate-name"
+          >
+            <header class="cap-entry__head">
+              <span class="cap-entry__index" aria-hidden="true">02</span>
+              <svg class="cap-glyph" data-glyph="trace-sustained" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12 H 21" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M7 8.5 V 15.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M12 8.5 V 15.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M17 8.5 V 15.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="21" cy="12" r="1.8" fill="currentColor" /></svg>
+              <h4 class="cap-entry__name" id="capability-operate-name">Operate</h4>
+              <p class="cap-entry__maturity" data-maturity="controlled-client-system">Controlled client system</p>
+            </header>
+
+            <p class="cap-entry__changes">The system keeps running after the launch week.</p>
+
+            <div class="cap-entry__body">
+              <section class="cap-block" aria-labelledby="capability-operate-behaviours">
+                <h5 class="cap-block__title" id="capability-operate-behaviours">What we do</h5>
+                <ul class="cap-block__list">
+                  <li>Linux hosts, process supervision, service persistence across reboots</li>
+                  <li>Nginx routing, DNS and TLS, public ingress design</li>
+                  <li>Production migrations applied deliberately, not on deploy</li>
+                  <li>Deployment sized to the hardware actually available</li>
+                </ul>
+              </section>
+
+              <section class="cap-block" aria-labelledby="capability-operate-proof">
+                <h5 class="cap-block__title" id="capability-operate-proof">Where it is demonstrated</h5>
+                <ul class="cap-block__list cap-block__list--proof">
+                  <li class="cap-proof">
+                    <p class="cap-proof__statement">Three applications, PostgreSQL, Redis, Nginx and a tunnel connector coexisting within measured capacity on a single 1 vCPU / 2 GB host. CPU and memory protections are configured to reduce cross-service contention on the constrained host.</p>
+                    <p class="cap-proof__meta">
+                      <span class="cap-proof__source">Shared VPS runtime</span>
+                      <span class="cap-proof__verified">verified 2026-08-09</span>
+                    </p>
+                  </li>
+                  <li class="cap-proof">
+                    <p class="cap-proof__statement">A reboot qualification confirmed the supervised services returned automatically — both product APIs, both data engines, the web tier and the process supervisor — with no manual intervention.</p>
+                    <p class="cap-proof__meta">
+                      <span class="cap-proof__source">Production host</span>
+                      <span class="cap-proof__verified">verified 2026-08-08</span>
+                    </p>
+                  </li>
+                </ul>
+              </section>
+            </div>
+
+            <p class="cap-entry__boundary">
+              <span class="cap-entry__boundary-label">Not claimed</span>
+              Single-host operations within measured capacity. Resource protections are configured, not load-qualified — no stress testing, no orchestration platform, no autoscaling, no multi-region claim.
+            </p>
+          </article>
+
+          <article
+            class="cap-entry"
+            id="capability-protect"
+            data-capability="protect"
+            aria-labelledby="capability-protect-name"
+          >
+            <header class="cap-entry__head">
+              <span class="cap-entry__index" aria-hidden="true">03</span>
+              <svg class="cap-glyph" data-glyph="boundary-closed" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 4 H 4 V 20 H 7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M17 4 H 20 V 20 H 17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M12 7 V 17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="12" cy="12" r="2.6" fill="currentColor" /></svg>
+              <h4 class="cap-entry__name" id="capability-protect-name">Protect</h4>
+              <p class="cap-entry__maturity" data-maturity="controlled-client-system">Controlled client system</p>
+            </header>
+
+            <p class="cap-entry__changes">A failure or a breach in one place stays in that place.</p>
+
+            <div class="cap-entry__body">
+              <section class="cap-block" aria-labelledby="capability-protect-behaviours">
+                <h5 class="cap-block__title" id="capability-protect-behaviours">What we do</h5>
+                <ul class="cap-block__list">
+                  <li>Database and credential isolation proved by attempting the access that must fail</li>
+                  <li>Fail-closed configuration — production refuses to start on a placeholder secret</li>
+                  <li>Public surface reduced to what the product genuinely needs</li>
+                  <li>Secret hygiene: nothing committed, nothing printed, nothing shared between products</li>
+                </ul>
+              </section>
+
+              <section class="cap-block" aria-labelledby="capability-protect-proof">
+                <h5 class="cap-block__title" id="capability-protect-proof">Where it is demonstrated</h5>
+                <ul class="cap-block__list cap-block__list--proof">
+                  <li class="cap-proof">
+                    <p class="cap-proof__statement">Two previously shared product runtimes separated into isolated databases, credentials, cache namespaces and independently failing public services.</p>
+                    <p class="cap-proof__meta">
+                      <span class="cap-proof__source">Gen-Eat / Hazina separation</span>
+                      <span class="cap-proof__verified">verified 2026-08-09</span>
+                      <a class="cap-proof__link" href="#product">See the full proof</a>
+                    </p>
+                  </li>
+                  <li class="cap-proof">
+                    <p class="cap-proof__statement">Cross-database access denied in both directions and re-proved after reboot; administrative and introspection surfaces return 404 from the public edge by design.</p>
+                    <p class="cap-proof__meta">
+                      <span class="cap-proof__source">Runtime qualification</span>
+                      <span class="cap-proof__verified">verified 2026-08-09</span>
+                    </p>
+                  </li>
+                </ul>
+              </section>
+            </div>
+
+            <p class="cap-entry__boundary">
+              <span class="cap-entry__boundary-label">Not claimed</span>
+              Isolation and configuration hardening that was measured. Not penetration testing, not a compliance certification, not a security audit practice.
+            </p>
+          </article>
+
+          <article
+            class="cap-entry"
+            id="capability-intelligence"
+            data-capability="intelligence"
+            aria-labelledby="capability-intelligence-name"
+          >
+            <header class="cap-entry__head">
+              <span class="cap-entry__index" aria-hidden="true">04</span>
+              <svg class="cap-glyph" data-glyph="trace-inferred" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12 H 8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M8 12 C 11 12, 11 6, 14 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M8 12 C 11 12, 11 18, 14 18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M14 6 C 17 6, 18 12, 21 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M14 18 C 17 18, 18 12, 21 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="8" cy="12" r="1.5" fill="currentColor" /><circle cx="14" cy="6" r="1.5" fill="currentColor" /><circle cx="14" cy="18" r="1.5" fill="currentColor" /><circle cx="21" cy="12" r="2.2" fill="currentColor" /></svg>
+              <h4 class="cap-entry__name" id="capability-intelligence-name">Intelligence</h4>
+              <p class="cap-entry__maturity" data-maturity="validated-prototype">Validated prototype</p>
+            </header>
+
+            <p class="cap-entry__changes">Software handles the conversation and the judgement, not just the form.</p>
+
+            <div class="cap-entry__body">
+              <section class="cap-block" aria-labelledby="capability-intelligence-behaviours">
+                <h5 class="cap-block__title" id="capability-intelligence-behaviours">What we do</h5>
+                <ul class="cap-block__list">
+                  <li>Provider-agnostic model gateways with declared fallback order</li>
+                  <li>Retrieval and knowledge systems with embedding dimensions pinned to the schema</li>
+                  <li>Deterministic gates in front of generative output, so failure is a known state</li>
+                  <li>Conversation routed to the person who must decide when the system should not</li>
+                </ul>
+              </section>
+
+              <section class="cap-block" aria-labelledby="capability-intelligence-proof">
+                <h5 class="cap-block__title" id="capability-intelligence-proof">Where it is demonstrated</h5>
+                <ul class="cap-block__list cap-block__list--proof">
+                  <li class="cap-proof">
+                    <p class="cap-proof__statement">A conversational commerce backend with a deterministic gate ahead of the model, escalation to a human desk, and output sanitisation between the model and the customer.</p>
+                    <p class="cap-proof__meta">
+                      <span class="cap-proof__source">Hazina Nomads</span>
+                    </p>
+                  </li>
+                  <li class="cap-proof">
+                    <p class="cap-proof__statement">Model provider selection, fallback ordering and embedding dimensions treated as validated configuration that refuses to start when inconsistent.</p>
+                    <p class="cap-proof__meta">
+                      <span class="cap-proof__source">Shared backend architecture</span>
+                    </p>
+                  </li>
+                </ul>
+              </section>
+            </div>
+
+            <p class="cap-entry__boundary">
+              <span class="cap-entry__boundary-label">Not claimed</span>
+              Application architecture around models. Not model training, not fine-tuning claims, and conversation is not currently operational on the separated runtimes — no provider credential is configured.
+            </p>
+          </article>
+
+          <article
+            class="cap-entry"
+            id="capability-prove"
+            data-capability="prove"
+            aria-labelledby="capability-prove-name"
+          >
+            <header class="cap-entry__head">
+              <span class="cap-entry__index" aria-hidden="true">05</span>
+              <svg class="cap-glyph" data-glyph="node-witnessed" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12 H 9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M15 12 H 21" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M12 5 V 8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M12 16 V 19" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="12" cy="12" r="3" fill="currentColor" /><circle cx="12" cy="12" r="1" fill="currentColor" /></svg>
+              <h4 class="cap-entry__name" id="capability-prove-name">Prove</h4>
+              <p class="cap-entry__maturity" data-maturity="internal-engineering-system">Internal engineering system</p>
+            </header>
+
+            <p class="cap-entry__changes">You can check the claim instead of trusting it.</p>
+
+            <div class="cap-entry__body">
+              <section class="cap-block" aria-labelledby="capability-prove-behaviours">
+                <h5 class="cap-block__title" id="capability-prove-behaviours">What we do</h5>
+                <ul class="cap-block__list">
+                  <li>Failure injection — stop a dependency and record what survives</li>
+                  <li>Accessibility, responsive and reduced-motion qualification at fixed viewports</li>
+                  <li>Performance attribution that finds the real cause instead of blaming the harness</li>
+                  <li>Evidence packages: what was verified, when, and what it does not prove</li>
+                </ul>
+              </section>
+
+              <section class="cap-block" aria-labelledby="capability-prove-proof">
+                <h5 class="cap-block__title" id="capability-prove-proof">Where it is demonstrated</h5>
+                <ul class="cap-block__list cap-block__list--proof">
+                  <li class="cap-proof">
+                    <p class="cap-proof__statement">Independent regression suites qualify the two separated product backends and this experience prototype, each passing without the others.</p>
+                    <p class="cap-proof__meta">
+                      <span class="cap-proof__source">Study A · Gen-Eat · Hazina</span>
+                      <span class="cap-proof__verified">verified 2026-08-09</span>
+                    </p>
+                  </li>
+                  <li class="cap-proof">
+                    <p class="cap-proof__statement">A performance regression traced to a measurement defect in the harness rather than the page, and a contrast failure found by pixel measurement after a computed-style check reported false confidence.</p>
+                    <p class="cap-proof__meta">
+                      <span class="cap-proof__source">Wave D · Wave E qualification</span>
+                      <a class="cap-proof__link" href="#product">See the full proof</a>
+                    </p>
+                  </li>
+                </ul>
+              </section>
+            </div>
+
+            <p class="cap-entry__boundary">
+              <span class="cap-entry__boundary-label">Not claimed</span>
+              Qualification of systems built here. Not an independent QA service, and not a formal certification.
+            </p>
+          </article>
+
+          <article
+            class="cap-entry"
+            id="capability-physical"
+            data-capability="physical"
+            aria-labelledby="capability-physical-name"
+          >
+            <header class="cap-entry__head">
+              <span class="cap-entry__index" aria-hidden="true">06</span>
+              <svg class="cap-glyph" data-glyph="gate-crossed" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12 H 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M13 4 V 9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M13 15 V 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M14 12 H 21" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M18 9 L 21 12 L 18 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="3" cy="12" r="1.6" fill="currentColor" /></svg>
+              <h4 class="cap-entry__name" id="capability-physical-name">Physical</h4>
+              <p class="cap-entry__maturity" data-maturity="active-research">Active research</p>
+            </header>
+
+            <p class="cap-entry__changes">The decision leaves the screen and happens in the world.</p>
+
+            <div class="cap-entry__body">
+              <section class="cap-block" aria-labelledby="capability-physical-behaviours">
+                <h5 class="cap-block__title" id="capability-physical-behaviours">What we do</h5>
+                <ul class="cap-block__list">
+                  <li>Embedded and electronics work at the sensor and actuator boundary</li>
+                  <li>Hardware fault isolation — separating a failing component from a failing signal path</li>
+                  <li>Research toward autonomous physical action under human authority</li>
+                </ul>
+              </section>
+
+              <section class="cap-block" aria-labelledby="capability-physical-proof">
+                <h5 class="cap-block__title" id="capability-physical-proof">Where it is demonstrated</h5>
+                <ul class="cap-block__list cap-block__list--proof">
+                  <li class="cap-proof">
+                    <p class="cap-proof__statement">Storage fault isolated to a read failure at the first block of a device, distinguishing media, cable, power and controller as candidate causes rather than condemning the drive.</p>
+                    <p class="cap-proof__meta">
+                      <span class="cap-proof__source">Workstation hardware incident</span>
+                      <span class="cap-proof__verified">verified 2026-08-08</span>
+                    </p>
+                  </li>
+                  <li class="cap-proof">
+                    <p class="cap-proof__statement">Greenhouse and embedded control experiments at the sensing and actuation boundary.</p>
+                    <p class="cap-proof__meta">
+                      <span class="cap-proof__source">Internal research</span>
+                    </p>
+                  </li>
+                </ul>
+              </section>
+            </div>
+
+            <p class="cap-entry__boundary">
+              <span class="cap-entry__boundary-label">Not claimed</span>
+              Active research. No deployed robotics, no autonomous field system, no physical product in customer hands.
+            </p>
+          </article>
+          </div>
+        </div>
+        </div>
       </section>
 
       <!-- ============== UNIT 5 — SOFTWARE TO PHYSICAL ACTION ================= -->

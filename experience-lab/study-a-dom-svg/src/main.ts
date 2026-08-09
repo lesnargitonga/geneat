@@ -4,6 +4,7 @@ import "./styles/layout.css";
 import "./styles/signal.css";
 import "./styles/stepper.css";
 import "./styles/flagship.css";
+import "./styles/capability.css";
 import "./styles/scenes.css";
 import "./styles/controls.css";
 import "./styles/accessibility.css";
@@ -22,6 +23,7 @@ import { VERTICAL_BREAKPOINT_PX } from "./signal/signal-geometry";
 import { HeroChoreography, HERO_TOTAL_MS } from "./signal/hero-choreography";
 import { PortfolioFixture } from "./portfolio/portfolio-fixture";
 import { FlagshipSignal } from "./proof/flagship-signal";
+import { CapabilityInspector } from "./capability/capability-inspector";
 import type { SignalState, SignalStateId } from "./signal/signal-types";
 
 /**
@@ -201,6 +203,26 @@ function boot(): void {
     });
     flagship.mount(flagshipRoute);
     flagshipRef = flagship;
+  }
+
+  /**
+   * The capability register becomes an inspector. The markup already carries
+   * every capability in full, so this only narrows the field — if it never
+   * runs, the section still reads as a complete field sheet.
+   *
+   * `onInspect` records the selection on the document rather than sending it
+   * anywhere. Wave F declares the semantic event; it does not install a
+   * tracking vendor.
+   */
+  const capabilityRegister = document.querySelector<HTMLElement>("[data-capability-register]");
+  if (capabilityRegister) {
+    const inspector = new CapabilityInspector({
+      register: capabilityRegister,
+      onInspect: (id) => {
+        document.documentElement.dataset["capabilityInspected"] = id;
+      },
+    });
+    inspector.mount();
   }
 
   /**

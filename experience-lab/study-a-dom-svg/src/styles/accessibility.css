@@ -14,7 +14,7 @@
   z-index: 100;
   padding: var(--space-sm) var(--space-md);
   background: var(--signal-active);
-  color: oklch(18% 0.01 60);
+  color: oklch(18.2% 0.008 48);
   font-size: var(--text-small);
   font-weight: 600;
   border-radius: var(--radius-sm);
@@ -62,9 +62,10 @@
 
 @media (prefers-contrast: more) {
   :root {
-    --text-secondary: oklch(88% 0.012 78);
-    --text-tertiary: oklch(76% 0.012 74);
-    --surface-line: oklch(46% 0.014 62);
+    /* Paper ground: more contrast means darker ink, not lighter paper. */
+    --text-secondary: oklch(26% 0.010 48);
+    --text-tertiary: oklch(32% 0.012 48);
+    --surface-line: oklch(48% 0.014 50);
   }
 }
 

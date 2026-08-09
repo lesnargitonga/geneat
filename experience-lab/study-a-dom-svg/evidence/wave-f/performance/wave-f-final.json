@@ -1,0 +1,48 @@
+{
+  "capturedAt": "2026-08-09T12:39:34.329Z",
+  "note": "exact final state, after inspector de-card and 44px target fix",
+  "results": {
+    "normal": {
+      "load": {
+        "cls": 0,
+        "lcp": 132,
+        "long": [
+          {
+            "s": 16,
+            "d": 87
+          }
+        ]
+      },
+      "inspectorEntryLong": 0,
+      "registerEntryLong": 0,
+      "finalCls": 0,
+      "selection": {
+        "avg": 29.7,
+        "max": 33.9
+      }
+    },
+    "cpu4x": {
+      "load": {
+        "cls": 0,
+        "lcp": 232,
+        "long": [
+          {
+            "s": 41,
+            "d": 172
+          },
+          {
+            "s": 213,
+            "d": 60
+          }
+        ]
+      },
+      "inspectorEntryLong": 0,
+      "registerEntryLong": 0,
+      "finalCls": 0,
+      "selection": {
+        "avg": 29.5,
+        "max": 33.5
+      }
+    }
+  }
+}

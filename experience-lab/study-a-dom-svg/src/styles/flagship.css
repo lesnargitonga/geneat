@@ -463,15 +463,79 @@
 }
 
 /* ── Status: three live facts on a row, the limitation on its own band ──── */
+/* ── Evidence ledger, not a status dashboard ──────────────────────────────
+   Three outlined boxes plus a tinted fourth read as monitoring UI. These are
+   registered observations on a sheet: ruled rows, a stamped label column, and
+   a vermilion registration mark in the margin of the one that is a limitation. */
 .status-set {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-sm);
+  grid-template-columns: 1fr;
+  gap: 0;
+  border-top: 1px solid var(--surface-line);
 }
-.status[data-status="down"] {
-  grid-column: 1 / -1;
-  border-color: color-mix(in oklab, var(--risk) 45%, var(--surface-line));
-  background: color-mix(in oklab, var(--risk) 6%, transparent);
+.status {
+  display: grid;
+  grid-template-columns: 10.5rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0 var(--space-sm);
+  padding: 0.6rem 0 0.6rem 0.9rem;
+  border: 0;
+  border-bottom: 1px solid var(--surface-line);
+  border-radius: 0;
+  background: transparent;
+  position: relative;
+}
+/* The dot rides with the label rather than orphaning onto its own row; the
+   margin rule is what registers the entry, so the dot is a small confirming
+   mark, not the carrier. */
+.status__dot {
+  display: inline-block;
+  margin-right: 0.4rem;
+  vertical-align: 0.05em;
+}
+.status__label {
+  grid-column: 1;
+  display: block;
+}
+.status__what {
+  grid-column: 2;
+  color: var(--text-primary);
+}
+.status__verified {
+  grid-column: 3;
+  text-align: right;
+}
+/* The registration mark in the margin — drawn, not a filled tint. */
+.status::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  bottom: 0.75rem;
+  width: 2px;
+  background: var(--surface-line);
+}
+.status[data-status="live"]::before {
+  background: var(--text-primary);
+}
+.status[data-status="down"]::before {
+  background: var(--signal-active);
+}
+.status[data-status="down"] .status__what {
+  font-weight: 600;
+}
+
+@media (max-width: 780px) {
+  .status {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+  .status__label,
+  .status__what,
+  .status__verified {
+    grid-column: 1;
+    text-align: left;
+  }
 }
 
 @media (max-width: 900px) {

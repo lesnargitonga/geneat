@@ -184,4 +184,18 @@ test.describe("no JavaScript", () => {
     await expect(skip).toHaveAttribute("href", "#main");
     await expect(skip).toHaveText("Skip to content");
   });
+
+  test("the whole capability register is readable without JavaScript", async ({ page }) => {
+    // With script the register narrows to one specimen at a time. Without it,
+    // every capability must still be present and complete — the inspector is an
+    // enhancement, never the only route to the content.
+    await expect(page.locator("[data-capability]")).toHaveCount(6);
+    for (const entry of await page.locator("[data-capability]").all()) {
+      await expect(entry).toBeVisible();
+    }
+    await expect(page.locator(".cap-entry__boundary")).toHaveCount(6);
+    // Behaviours and proofs are in the served markup, not injected.
+    expect(await page.locator(".cap-block__list > li").count()).toBeGreaterThanOrEqual(20);
+    expect(await page.locator(".cap-proof__statement").count()).toBeGreaterThanOrEqual(6);
+  });
 });

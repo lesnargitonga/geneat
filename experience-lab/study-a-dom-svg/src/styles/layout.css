@@ -5,19 +5,27 @@
  * page-orbit concept so that exactly one device owns chapter position (7.13).
  */
 
+/* A folio note, not a system alert. The disclaimer has to stay unmissable, so
+   it keeps a vermilion registration rule and a stamped label — but it sits on
+   the sheet as printed matter rather than shouting as an error strip. */
 .lab-banner {
   margin: 0;
-  padding: var(--space-sm) var(--space-md);
-  background: color-mix(in oklch, var(--risk) 16%, var(--surface-inset));
-  border-bottom: 1px solid color-mix(in oklch, var(--risk) 34%, transparent);
-  color: var(--text-primary);
-  font-size: var(--text-small);
+  padding: var(--space-xs) var(--space-md);
+  background: var(--surface-base);
+  border-bottom: 1px solid var(--surface-line);
+  box-shadow: inset 0 2px 0 0 var(--signal-active);
+  color: var(--text-tertiary);
+  font-size: var(--text-micro);
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
   text-align: center;
 }
 
 .lab-banner strong {
-  color: var(--risk);
-  letter-spacing: 0.02em;
+  color: var(--signal-ink);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  font-weight: 600;
 }
 
 .site-header {
@@ -85,7 +93,9 @@
   font-family: var(--font-mono);
   font-size: var(--text-micro);
   letter-spacing: 0.08em;
-  color: var(--signal-dormant);
+  /* --signal-dormant is a rule tone and measured 2.14:1 here. A chapter index
+     is read, so it is held to the text threshold. */
+  color: var(--text-tertiary);
 }
 
 .rail__link:hover {
@@ -101,7 +111,7 @@
 }
 
 .rail__link[data-active="true"] .rail__index {
-  color: var(--signal-active);
+  color: var(--signal-ink);
 }
 
 /* -------------------------------------------------------------- chapters */

@@ -10,35 +10,81 @@
  */
 
 :root {
-  /* ---- surfaces: near-black, warm, graphite ---- */
-  --surface-base: oklch(16% 0.008 60);
-  --surface-raised: oklch(20% 0.01 62);
-  --surface-inset: oklch(13% 0.008 58);
-  /* Raised from 30% in Wave D: measured 1.43:1 against the base surface,
-     below the 1.5:1 floor this project holds decorative separators to. */
-  --surface-line: oklch(33% 0.012 62);
+  /* ══ CANONICAL PALETTE ═══════════════════════════════════════════════════
+     Four colours, and only four. Everything else is a tonal derivative.
 
-  /* ---- text ---- */
-  --text-primary: oklch(94% 0.012 82);
-  --text-secondary: oklch(72% 0.014 74);
-  /* Raised from 56% in Wave D: measured 4.16:1 on base and 4.29:1 on the
-     inset surface, both below the 4.5:1 body-text requirement. Tertiary text
-     carries real content (eyebrows, captions, meta), so it is held to the body
-     threshold rather than the large-text one. */
-  --text-tertiary: oklch(60% 0.012 70);
+       warm mineral paper  #F1EBDD   oklch(94.1% 0.020  87)
+       ink black           #15110F   oklch(18.2% 0.008  48)
+       signal vermilion    #FF3D18   oklch(65.4% 0.233  32)
+       deep violet         #4D36C8   oklch(46.0% 0.212 281)
 
-  /* ---- signal state roles ---- */
-  --signal-dormant: oklch(52% 0.055 68);
-  --signal-active: oklch(88% 0.095 84);
-  --evidence: oklch(76% 0.085 205);
-  --human: oklch(76% 0.095 152);
-  /* Constraint, not failure. Wave D split this away from --risk: boundaries
-     are a normal, healthy part of the system, and colouring them with the
-     failure hue made the composition read as an alarm (dossier 7.5 warns
-     against alarm/cyberpunk styling for the Protect state). */
-  --boundary: oklch(62% 0.048 62);
-  --risk: oklch(68% 0.135 38);
-  --recovery: oklch(93% 0.032 168);
+     Cyan, teal and gold are excluded by doctrine. Earlier waves carried a teal
+     `--evidence` (hue 205) and an amber `--signal-active` (hue 84); both are
+     replaced here rather than in Wave F alone, so the hero, the flagship and
+     the capability register stay one visual system instead of two dialects.
+
+     This is a dark composition: ink is the ground, paper is the ink-on-paper.
+
+     Measured on the ink ground with a canvas pixel read — computed styles keep
+     `oklch()` unresolved in Chromium, so parsing them as RGB reports false
+     confidence (the defect Wave D's contrast ruler hit):
+
+       paper     #F1EBDD  15.79:1
+       vermilion #FF3D18   5.30:1   passes AA at its canonical value
+       violet    #4D36C8   2.39:1   FAILS — lightened to L72 for text use
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* ══ PAPER IS THE MATERIAL ═══════════════════════════════════════════════
+     The work is printed *onto* mineral paper. Paper is the ground; ink is the
+     type and the drawing; vermilion is the cut signal; violet is the witness
+     mark. An earlier pass had this inverted — paper used as text on an ink
+     ground — which read as engineering console rather than field sheet.
+
+     Measured on the paper ground with a canvas pixel read:
+
+       ink       #15110F  15.79:1  type and geometry
+       violet    #4D36C8   6.60:1  passes at its canonical value
+       vermilion #FF3D18   2.98:1  FAILS as text — see below
+
+     Vermilion at full strength is a *drawn mark*, not a typeface colour: the
+     seam, the rule, the active trace. Where it must carry words it darkens to
+     `--signal-ink`. That is a material distinction, not a workaround — ink
+     lays down heavier than a printed signal line.
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* ---- surfaces: the sheet and its tonal neighbours ---- */
+  --surface-base: oklch(94.1% 0.020 87); /* mineral paper */
+  --surface-raised: oklch(96.6% 0.013 88); /* a fresher sheet laid over */
+  --surface-inset: oklch(90.6% 0.026 84); /* a recessed or tinted field */
+  /* Rules: ink drawn thin. Held to legible separation, not a text threshold. */
+  --surface-line: oklch(66% 0.014 50);
+
+  /* ---- type: the ink ramp ---- */
+  --text-primary: oklch(18.2% 0.008 48); /* ink, 15.86:1 */
+  --text-secondary: oklch(38% 0.012 48); /*       8.60:1 */
+  /* Tertiary carries real content — eyebrows, captions, metadata — so it is
+     held to the 4.5:1 body threshold rather than the large-text one. */
+  --text-tertiary: oklch(48% 0.014 50); /*        5.55:1 */
+
+  /* ---- signal roles ---- */
+  /* Dormant structure: ink drawn light. Never a hue of its own. */
+  --signal-dormant: oklch(72% 0.016 52);
+  /* The cut signal, at its canonical value. Marks, rules and geometry only. */
+  --signal-active: oklch(65.4% 0.233 32);
+  /* Vermilion that has to carry words. */
+  --signal-ink: oklch(50% 0.200 32); /*           5.12:1 */
+  /* Evidence is violet at its canonical value — it needs no adjustment here. */
+  --evidence: oklch(46% 0.212 281); /*            6.60:1 */
+  /* "Live" is notation, not a badge colour: ink, with the word and the mark
+     carrying the meaning. */
+  --human: oklch(30% 0.010 48);
+  /* Constraint, not failure — a neutral ink step, so a healthy boundary never
+     reads as an alarm (dossier 7.5 warns against alarm styling for Protect). */
+  --boundary: oklch(52% 0.014 55);
+  /* Risk shares the vermilion hue at text weight. */
+  --risk: oklch(50% 0.200 32); /*                 5.12:1 */
+  /* Recovery: violet drawn lighter, so the two witness tones stay separable. */
+  --recovery: oklch(58% 0.150 281);
 
   /* ---- typography ----
      System stacks only. The performance contract forbids a runtime

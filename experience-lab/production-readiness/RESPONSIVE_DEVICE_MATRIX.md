@@ -62,3 +62,23 @@ overflow, element clipping and sub-44px interactive targets.
 
 Below 900px the separation plate stacks with a horizontal seam and the status set
 becomes a single column. Machine evidence: `evidence/wave-e/visual/audit.json`.
+
+## Wave F — capability register, 2026-08-09
+
+| Viewport | Overflow | Clipped | Small targets | Verdict |
+|---|---|---|---|---|
+| 1440×900 | 0px | 0 | 0 | PASS |
+| 1280×800 | 0px | 0 | 0 | PASS |
+| 1024×768 | 0px | 0 | 0 | PASS |
+| 768×1024 | 0px | 0 | 0 | PASS |
+| 430×932 | 0px | 0 | 0 | PASS |
+| 390×844 | 0px | 0 | 0 | PASS |
+| 360×800 | 0px | 0 | 0 | PASS |
+| **320×568** | 0px | 0 | 0 | PASS *(15px overflow found and fixed)* |
+| 200% zoom | 0px | 0 | 0 | PASS |
+| reduced motion (desktop + mobile) | 0px | 0 | 0 | PASS |
+| no JavaScript (desktop + mobile) | 0px | 0 | 0 | PASS |
+
+Two layout defects found by measurement and fixed: the hanging register number
+overflowed a 320px viewport, and `repeat(2, 1fr)` would not shrink below its
+content (`1fr` carries an implicit `min-width: auto`). Both now `minmax(0, 1fr)`.

@@ -60,3 +60,22 @@ do not masquerade as navigation; touch targets usable on small phones.
 | Status set — limitation | full-width band, risk-toned treatment, hollow ring dot | same | PASS |
 | Endpoint proof links | 44px hit area, baseline underline, `↗` affordance | `detail-endpoint-proof-1440x900.png` | PASS |
 | Evidence plates | 4 proof objects, each with type/source/verified/limit | flagship captures | PASS |
+
+## Wave F — capability register, 2026-08-09
+
+| Component | State | Evidence | Verdict |
+|---|---|---|---|
+| Register index | 6 entries, selection via seam + glyph + weight + `aria-current` | `evidence/wave-f/default-register-1440x900.png` | PASS |
+| Inspection field | exactly one specimen visible with script; all six without | `capability.spec.ts`, `no-js.spec.ts` | PASS |
+| Capability specimen | changes / behaviours / proof / maturity / **not claimed** | same | PASS |
+| Maturity chip | word first, colour only reinforcing | contrast 9.43:1 | PASS |
+| Boundary line | present on all six, >30 chars each | asserted | PASS |
+| Glyph set | 6 marks from NODE/TRACE/BOUNDARY/GATE, no icon library | `capability-glyph.ts` | PASS |
+
+## Wave F — model/HTML parity gate, 2026-08-09
+
+| Check | Result | Verdict |
+|---|---|---|
+| `check-capability-parity.mjs` | 6 capabilities, 23 behaviours, 12 proofs match `index.html` | PASS |
+| Drift detection | model edited without regeneration → checker exits non-zero and names the field | PASS |
+| Separation of concerns | generation and validation are distinct scripts; the checker never writes | PASS |

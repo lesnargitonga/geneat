@@ -1,0 +1,46 @@
+{
+  "capturedAt": "2026-08-08T23:54:09.765Z",
+  "note": "after canonical palette reconciliation",
+  "results": {
+    "normal": {
+      "load": {
+        "cls": 0,
+        "lcp": 136,
+        "long": [
+          {
+            "s": 16,
+            "d": 90
+          }
+        ]
+      },
+      "registerEntry": {
+        "cls": 0,
+        "long": []
+      },
+      "selection": {
+        "avg": 29.1,
+        "max": 33.4
+      }
+    },
+    "cpu4x": {
+      "load": {
+        "cls": 0,
+        "lcp": 300,
+        "long": [
+          {
+            "s": 38,
+            "d": 221
+          }
+        ]
+      },
+      "registerEntry": {
+        "cls": 0,
+        "long": []
+      },
+      "selection": {
+        "avg": 28.8,
+        "max": 33.6
+      }
+    }
+  }
+}

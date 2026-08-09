@@ -1,0 +1,49 @@
+{
+  "capturedAt": "2026-08-08T23:31:25.419Z",
+  "results": {
+    "normal": {
+      "load": {
+        "cls": 0,
+        "lcp": 136,
+        "long": [
+          {
+            "s": 15,
+            "d": 92
+          }
+        ]
+      },
+      "registerEntry": {
+        "cls": 0,
+        "long": []
+      },
+      "selection": {
+        "avg": 28.6,
+        "max": 33.7
+      }
+    },
+    "cpu4x": {
+      "load": {
+        "cls": 0,
+        "lcp": 236,
+        "long": [
+          {
+            "s": 43,
+            "d": 173
+          },
+          {
+            "s": 217,
+            "d": 62
+          }
+        ]
+      },
+      "registerEntry": {
+        "cls": 0,
+        "long": []
+      },
+      "selection": {
+        "avg": 31.5,
+        "max": 34.1
+      }
+    }
+  }
+}

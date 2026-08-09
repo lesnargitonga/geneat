@@ -168,12 +168,17 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
 }
 
+/* On the ink ground these read as plates. On paper an enclosed, raised,
+   rounded box is a card — the exact grid the doctrine rejects. Each stage
+   becomes a ruled column entry instead: a registration rule down the left, a
+   hairline closing it off, and no fill. */
 .inspector__stage {
-  padding: var(--space-md);
-  background: var(--surface-raised);
-  border: 1px solid var(--surface-line);
+  padding: 0 var(--space-sm) var(--space-md) var(--space-sm);
+  background: transparent;
+  border: 0;
   border-left: 2px solid var(--signal-dormant);
-  border-radius: var(--radius-sm);
+  border-bottom: 1px solid var(--surface-line);
+  border-radius: 0;
 }
 
 .inspector__title {
@@ -185,9 +190,10 @@
 }
 
 .inspector__index {
+  /* Read as a number, so held to the text threshold. */
   font-family: var(--font-mono);
   font-size: var(--text-micro);
-  color: var(--signal-dormant);
+  color: var(--text-tertiary);
 }
 
 .inspector__stage dl {

@@ -105,7 +105,8 @@
 }
 
 .signal-caption__label {
-  color: var(--signal-active);
+  /* Vermilion carrying a word must be ink weight, not mark weight. */
+  color: var(--signal-ink);
   font-weight: 600;
 }
 
@@ -202,9 +203,14 @@
   transition: fill var(--signal-transition) var(--ease-standard);
 }
 
+/* On paper this is a registration ring, not a glow: an unfilled circle drawn
+   around the head the way a surveyor's mark encloses a point. Filled at 14%
+   it read as a light smudge on the sheet. */
 [data-head-marker] [data-role="halo"] {
-  fill: var(--signal-active);
-  opacity: 0.14;
+  fill: none;
+  stroke: var(--signal-active);
+  stroke-width: 1;
+  opacity: 0.5;
   transition: opacity var(--signal-transition) var(--ease-standard);
 }
 

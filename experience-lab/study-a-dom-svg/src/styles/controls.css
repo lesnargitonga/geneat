@@ -27,7 +27,7 @@
 
 .button--primary {
   background: var(--signal-active);
-  color: oklch(18% 0.01 60);
+  color: oklch(18.2% 0.008 48);
 }
 
 .button--primary:hover {
@@ -57,14 +57,19 @@
 
 /* --------------------------------------------------------- effects control */
 
+/* A field annotation, not a settings panel.
+   The boxed control read as one of the page's primary objects — worst on a
+   phone, where a visitor met a configuration panel before the work. It keeps
+   every option, its keyboard semantics and its 44px targets; what it loses is
+   the enclosure that gave it the weight of navigation. */
 .effects {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: var(--space-2xs);
   margin: 0;
-  padding: var(--space-2xs);
-  border: 1px solid var(--surface-line);
-  border-radius: var(--radius-sm);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
 }
 
 .effects__legend {
@@ -80,9 +85,14 @@
 .effects__option {
   display: inline-flex;
   align-items: center;
-  min-height: 32px;
-  padding: var(--space-2xs) var(--space-sm);
-  border-radius: var(--radius-sm);
+  /* 44px in BOTH dimensions. De-boxing the control removed the padding that
+     was giving short labels ("Auto") their width — 38px wide is under the
+     target minimum even when the height passes. */
+  min-height: 44px;
+  min-width: 44px;
+  justify-content: center;
+  padding: 0 var(--space-xs);
+  border-radius: 0;
   font-size: var(--text-small);
   color: var(--text-tertiary);
   cursor: pointer;
@@ -106,8 +116,10 @@
 
 /* Selection is shown by background, text colour AND an underline bar — not by
    colour alone. */
+/* Selected reads as an underscored annotation rather than a filled chip. */
 .effects__option:has(input:checked) {
-  background: var(--surface-raised);
+  background: transparent;
+  box-shadow: inset 0 -2px 0 0 var(--signal-active);
   color: var(--text-primary);
   box-shadow: inset 0 -2px 0 var(--signal-active);
 }

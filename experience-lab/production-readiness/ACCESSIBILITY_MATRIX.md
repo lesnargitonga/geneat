@@ -62,3 +62,45 @@ prototype; this records what is actually verified.
 Two defects were found by measurement and fixed in the interface rather than in
 the assertions: the limitation label failed AA contrast, and the endpoint links
 were below the 44px touch minimum at every viewport.
+
+## Wave F — capability register, 2026-08-09
+
+| Check | Result | Verdict |
+|---|---|---|
+| Heading order | 37 headings, 0 skipped levels | PASS |
+| Contrast — index name / entry lede | 16.36:1 | PASS |
+| Contrast — maturity chip | 9.43:1 | PASS |
+| Contrast — proof source | 9.36:1 | PASS |
+| Contrast — behaviours | 7.80:1 | PASS |
+| Contrast — boundary label | 6.43:1 | PASS |
+| Contrast — boundary text / index maturity | 4.92:1 | PASS |
+| Selection not colour-only | `aria-current` + seam + glyph + font-weight ≥600 | PASS |
+| Keyboard operation | click, Enter, arrows, Home/End | PASS |
+| Touch targets | all ≥44px | PASS |
+| Hover-only content | none | PASS |
+| Without JavaScript | all 6 specimens, 6 boundaries, 20+ behaviours, 6+ proofs | PASS |
+| Reduced motion | complete state, transitions disabled | PASS |
+
+## Canonical palette reconciliation — 2026-08-09
+
+The palette was re-mapped onto the four canonical colours (paper `#F1EBDD`, ink
+`#15110F`, vermilion `#FF3D18`, violet `#4D36C8`). Teal `--evidence` (hue 205)
+and amber `--signal-active` (hue 84) were removed at token level so hero, Wave E
+and Wave F remain one visual system.
+
+Contrast re-measured page-wide with a canvas pixel read — computed styles leave
+`oklch()` unresolved in Chromium, so parsing them as RGB reports false
+confidence. **All 20 measured pairs ≥ 4.5:1.**
+
+| Pair | Ratio |
+|---|---|
+| hero headline · nav · index name · transform head | 15.79:1 |
+| live label · maturity chip | 13.88:1 |
+| hero lede · behaviours · proof metadata | 8.12:1 |
+| endpoint link · proof source | 7.21:1 |
+| limitation label · NOT CLAIMED | 5.96:1 |
+| eyebrow · caption · index maturity · boundary body · note | 5.13:1 |
+
+Canonical violet measures 2.39:1 on ink and is unusable for text; the token is
+lightened to `oklch(72% 0.16 281)` (7.21:1) with hue and character preserved.
+Canonical vermilion passes at its literal value (5.30:1).

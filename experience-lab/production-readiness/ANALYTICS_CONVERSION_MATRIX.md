@@ -34,3 +34,18 @@ percentile of field data**. Wave D's measurements are laboratory results on one
 machine and are reported as such in every evidence file. They are encouraging —
 lab LCP 72 ms unthrottled, 1156 ms on Slow 4G with 4× CPU, CLS 0 — but they are
 not p75 field values and must never be presented as such.
+
+## Wave F — declared semantics, 2026-08-09
+
+No tracking vendor was installed. The inspector records the current selection on
+the document and exposes an `onInspect` callback, so these events can be wired
+later without changing the interface:
+
+| Event | Trigger | State available now |
+|---|---|---|
+| `capability_inspected` | a capability is selected | `data-capability-inspected` on `<html>` |
+| `proof_opened` | a proof fragment is followed | proof links carry their source |
+| `project_followed` | a project reference is followed | `seeAlso` targets an in-page anchor |
+| `start_project_from_capability` | contact reached from a capability | not yet wired |
+
+Verdict: DECLARED, not implemented — intentional for this wave.

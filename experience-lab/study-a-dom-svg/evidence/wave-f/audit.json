@@ -1,0 +1,96 @@
+{
+  "capturedAt": "2026-08-09T12:22:47.533Z",
+  "findings": [
+    {
+      "viewport": "1440x900",
+      "overflow": 0,
+      "clipped": [],
+      "smallTargets": [],
+      "mode": "default"
+    },
+    {
+      "viewport": "1280x800",
+      "overflow": 0,
+      "clipped": [],
+      "smallTargets": [],
+      "mode": "default"
+    },
+    {
+      "viewport": "1024x768",
+      "overflow": 0,
+      "clipped": [],
+      "smallTargets": [],
+      "mode": "default"
+    },
+    {
+      "viewport": "768x1024",
+      "overflow": 0,
+      "clipped": [],
+      "smallTargets": [],
+      "mode": "default"
+    },
+    {
+      "viewport": "430x932",
+      "overflow": 0,
+      "clipped": [],
+      "smallTargets": [],
+      "mode": "default"
+    },
+    {
+      "viewport": "390x844",
+      "overflow": 0,
+      "clipped": [],
+      "smallTargets": [],
+      "mode": "default"
+    },
+    {
+      "viewport": "360x800",
+      "overflow": 0,
+      "clipped": [],
+      "smallTargets": [],
+      "mode": "default"
+    },
+    {
+      "viewport": "320x568",
+      "overflow": 0,
+      "clipped": [],
+      "smallTargets": [],
+      "mode": "default"
+    },
+    {
+      "viewport": "1440x900",
+      "overflow": 0,
+      "clipped": [],
+      "smallTargets": [],
+      "mode": "reduced-motion"
+    },
+    {
+      "viewport": "390x844",
+      "overflow": 0,
+      "clipped": [],
+      "smallTargets": [],
+      "mode": "reduced-motion"
+    },
+    {
+      "viewport": "1440x900",
+      "overflow": 0,
+      "clipped": [],
+      "smallTargets": [],
+      "mode": "nojs"
+    },
+    {
+      "viewport": "390x844",
+      "overflow": 0,
+      "clipped": [],
+      "smallTargets": [],
+      "mode": "nojs"
+    },
+    {
+      "viewport": "zoom200",
+      "overflow": 0,
+      "clipped": [],
+      "smallTargets": [],
+      "mode": "zoom200"
+    }
+  ]
+}
