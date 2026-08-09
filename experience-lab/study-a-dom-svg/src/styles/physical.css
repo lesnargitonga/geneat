@@ -1,0 +1,347 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Physical intelligence — Wave G
+
+   A bench record on the same sheet as everything else. The diagnostic trace is
+   drawn as a measured path with the stages hung off it; the research entries
+   reuse the register grammar from Wave F.
+
+   No robot imagery, no circuit-board decoration, no sci-fi. Colour comes only
+   from the canonical four via the existing tokens.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.physical-unit {
+  margin-top: var(--space-section);
+  border-top: 1px solid var(--surface-line);
+  padding-top: var(--space-lg);
+}
+.physical-unit__head {
+  max-width: var(--measure);
+  margin-bottom: var(--space-lg);
+}
+
+/* The chapter statement has to outrank its own lede.
+ *
+ * The shared `.section-heading--sub` resolves to `--text-lede`, so heading and
+ * lede rendered at exactly the same size (20.0px at 1440, 17.3px at 390) and
+ * were separated by weight alone — which the long lede simply overpowers. That
+ * shared rule is left alone because Wave F's capability chapter was accepted
+ * with it; this override is scoped to the physical chapter only.
+ *
+ * `--text-h3` is the existing step immediately above the lede: 24px desktop,
+ * 20px mobile. A chapter statement, not a hero — the next token up would be
+ * `--text-h2` at 44px, which is the chapter title's size and would outrank the
+ * thing it sits under.
+ */
+.physical-unit__head .section-heading--sub {
+  font-size: var(--text-h3);
+  line-height: 1.15;
+  margin-bottom: var(--space-sm);
+}
+
+.physical {
+  display: grid;
+  gap: var(--space-xl);
+}
+
+/* ── The diagnostic trace ────────────────────────────────────────────────── */
+.trace {
+  display: grid;
+  grid-template-columns: minmax(11rem, 14rem) 1fr;
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+.trace__index {
+  list-style: none;
+  display: grid;
+  gap: 0;
+  position: sticky;
+  top: calc(var(--space-lg) + 3.5rem);
+  border-top: 1px solid var(--surface-line);
+}
+.trace__index > li {
+  border-bottom: 1px solid var(--surface-line);
+}
+.trace__link {
+  display: grid;
+  grid-template-columns: 2.1rem 1fr;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  padding: 0.55rem 0.3rem 0.55rem 0;
+  text-decoration: none;
+  color: var(--text-secondary);
+  position: relative;
+}
+/* The selection mark is a seam, matching the capability register. */
+.trace__link::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: transparent;
+}
+.trace__link-index {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  color: var(--text-tertiary);
+}
+.trace__link-name {
+  font-size: var(--text-small);
+  color: var(--text-primary);
+}
+.trace__link:hover,
+.trace__link:focus-visible {
+  color: var(--text-primary);
+}
+.trace__link[aria-current="true"]::before {
+  background: var(--signal-active);
+}
+.trace__link[aria-current="true"] .trace__link-name {
+  font-weight: 600;
+}
+.trace__link[aria-current="true"] .trace__link-index {
+  color: var(--signal-ink);
+}
+
+.trace__stages {
+  list-style: none;
+  display: grid;
+  gap: var(--space-lg);
+  min-width: 0;
+}
+
+/* Each stage hangs off a drawn path — the trace itself, not a card. */
+.trace__stage {
+  position: relative;
+  padding-left: var(--space-md);
+  border-left: 1px solid var(--surface-line);
+  scroll-margin-top: 6rem;
+}
+/* The measurement mark where this stage sits on the path. */
+.trace__stage::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: 0.55rem;
+  width: 7px;
+  height: 7px;
+  background: var(--signal-active);
+}
+.trace__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--surface-line);
+  margin-bottom: 0.7rem;
+}
+.trace__index-num,
+.trace__head .trace__index {
+  all: unset;
+}
+.trace__head .trace__index,
+.trace__stage .trace__index {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  letter-spacing: var(--tracking-label);
+  color: var(--signal-ink);
+}
+.trace__name {
+  font-size: var(--text-lede);
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.trace__detail {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 0.4rem var(--space-sm);
+  max-width: var(--measure);
+}
+.trace__detail dt {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  padding-top: 0.1rem;
+}
+.trace__detail dd {
+  margin: 0;
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+}
+/* What the stage produced — the measured result, set as evidence. */
+.trace__output {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: var(--evidence);
+}
+
+/* With script, the trace shows one stage at a time. */
+[data-js="true"] .trace__stages[data-stepping] > .trace__stage[hidden] {
+  display: none;
+}
+
+/* ── The research register ───────────────────────────────────────────────── */
+.phys-records {
+  display: grid;
+  gap: var(--space-lg);
+  border-top: 1px solid var(--surface-line);
+  padding-top: var(--space-lg);
+}
+.phys-record {
+  display: grid;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+.phys-record__head {
+  display: grid;
+  grid-template-columns: 2.4rem 1fr auto;
+  align-items: baseline;
+  gap: 0.7rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--surface-line);
+}
+.phys-record__index {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  letter-spacing: var(--tracking-label);
+  color: var(--signal-ink);
+}
+.phys-record__name {
+  font-size: var(--text-lede);
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+/* Two grades, stamped rather than badged: how far it has been taken, and how
+   strongly the statement is evidenced. They are separate axes. */
+.phys-record__grades {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+.phys-record__maturity {
+  color: var(--text-primary);
+  border-top: 1px solid var(--text-primary);
+  padding-top: 0.2rem;
+}
+.phys-record__maturity[data-maturity="active-research"],
+.phys-record__maturity[data-maturity="research-direction"] {
+  color: var(--signal-ink);
+  border-top-color: var(--signal-active);
+}
+.phys-record__evidence {
+  color: var(--text-tertiary);
+  border-top: 1px solid var(--surface-line);
+  padding-top: 0.2rem;
+}
+.phys-record__evidence[data-evidence="directly-verified"] {
+  color: var(--evidence);
+  border-top-color: var(--evidence);
+}
+.phys-record__demonstrates {
+  font-size: var(--text-lede);
+  color: var(--text-primary);
+  max-width: var(--measure);
+  text-wrap: balance;
+}
+.phys-record__evidence-list {
+  list-style: none;
+  display: grid;
+  gap: 0.4rem;
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  max-width: var(--measure);
+}
+.phys-record__evidence-list > li {
+  padding-left: 0.9rem;
+  position: relative;
+}
+.phys-record__evidence-list > li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 5px;
+  height: 1px;
+  background: var(--surface-line);
+}
+.phys-record__boundary {
+  font-size: var(--text-small);
+  color: var(--text-tertiary);
+  border-top: 1px solid var(--surface-line);
+  padding-top: 0.55rem;
+  max-width: var(--measure);
+}
+.phys-record__boundary-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--signal-ink);
+  margin-right: 0.5rem;
+}
+.phys-record__verified {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: var(--text-tertiary);
+}
+
+/* ── Below 1024: the trace becomes a vertical signal path ────────────────── */
+@media (max-width: 1023px) {
+  .trace {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  .trace__index {
+    position: static;
+    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+    border-top: none;
+  }
+  .trace__index > li {
+    border-bottom: none;
+    border-top: 1px solid var(--surface-line);
+  }
+  .trace__link::before {
+    left: 0;
+    top: -1px;
+    bottom: auto;
+    width: 100%;
+    height: 2px;
+  }
+  .phys-record__head {
+    grid-template-columns: 2rem 1fr;
+  }
+  .phys-record__grades {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .trace__index {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-sm);
+  }
+  .trace__detail {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+  .trace__detail dt {
+    padding-top: 0.5rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .trace__index {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

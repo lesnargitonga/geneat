@@ -79,3 +79,38 @@ do not masquerade as navigation; touch targets usable on small phones.
 | `check-capability-parity.mjs` | 6 capabilities, 23 behaviours, 12 proofs match `index.html` | PASS |
 | Drift detection | model edited without regeneration → checker exits non-zero and names the field | PASS |
 | Separation of concerns | generation and validation are distinct scripts; the checker never writes | PASS |
+
+## Wave G — physical intelligence, 2026-08-09
+
+| Component | State | Evidence | Verdict |
+|---|---|---|---|
+| Diagnostic trace | 6 stages, one shown with script, all shown without | `physical.spec.ts`, `no-js.spec.ts` | PASS |
+| Trace measurement mark | vermilion mark on the drawn path, no card | `evidence/wave-g/final-trace-1440x900.png` | PASS |
+| Physical record | demonstrates / evidence / two grades / NOT CLAIMED | `final-records-1440x900.png` | PASS |
+| Two-axis grading | maturity and evidence strength stamped separately | same | PASS |
+| Model ↔ HTML parity | 6 stages, 4 records, 13 evidence lines | `check-physical-parity.mjs` | PASS |
+
+## Wave G — action sequence regrade
+
+The seven-step action sequence was styled as Wave A/B cards (filled, bordered,
+rounded) and labelled `PROTOTYPE — engineering demonstration` despite having no
+research, evidence or test behind it since `e6a537c`.
+
+| Aspect | Before | After |
+|---|---|---|
+| Claim label | `PROTOTYPE — engineering demonstration` | `ILLUSTRATIVE CONTROL LOOP — not a built system` |
+| Closing note | "Labelled a prototype…" | "Labelled illustrative…" |
+| Preface | none | "nothing below was measured… no camera, package line or diverter exists" |
+| Grammar | 7 filled/rounded cards | ruled list, hanging indices |
+| Step index tone | `--signal-dormant` 2.10:1 | `--text-tertiary` |
+| Boundary panel | dashed callout box | stamped rule block |
+
+The steps themselves are unchanged — the discipline is the point; only the claim
+and the visual weight changed.
+
+**Layout defect caught by screenshot, not by any gate:** the first de-carded
+version used CSS Grid with a `2.4rem` index column. `<strong>Observe.</strong>`
+becomes its own grid item and the sentence after it becomes a separate anonymous
+item, so the prose landed in the index column and wrapped one word per line.
+Every automated check passed — nothing measures whether a line box is a sensible
+width. Fixed with an out-of-flow counter and padding hanging indent.

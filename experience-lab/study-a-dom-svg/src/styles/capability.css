@@ -355,7 +355,10 @@
     left: -2.5rem;
     top: 0;
     font-size: var(--text-lede);
-    color: var(--surface-line);
+    /* Was --surface-line: a hairline *border* tone on a read number, 2.62:1.
+       The hanging-index effect comes from position and scale, not from making
+       the number too faint to read. */
+    color: var(--text-tertiary);
   }
   .cap-entry .cap-glyph {
     grid-row: 1;

@@ -101,7 +101,8 @@
 }
 
 .signal-caption__index {
-  color: var(--signal-dormant);
+  /* Read number: text threshold, not the 3.0 non-text rule tone. */
+  color: var(--text-tertiary);
 }
 
 .signal-caption__label {

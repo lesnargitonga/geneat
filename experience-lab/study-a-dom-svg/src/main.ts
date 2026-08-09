@@ -5,6 +5,7 @@ import "./styles/signal.css";
 import "./styles/stepper.css";
 import "./styles/flagship.css";
 import "./styles/capability.css";
+import "./styles/physical.css";
 import "./styles/scenes.css";
 import "./styles/controls.css";
 import "./styles/accessibility.css";
@@ -24,6 +25,7 @@ import { HeroChoreography, HERO_TOTAL_MS } from "./signal/hero-choreography";
 import { PortfolioFixture } from "./portfolio/portfolio-fixture";
 import { FlagshipSignal } from "./proof/flagship-signal";
 import { CapabilityInspector } from "./capability/capability-inspector";
+import { TraceStepper } from "./physical/trace-stepper";
 import type { SignalState, SignalStateId } from "./signal/signal-types";
 
 /**
@@ -223,6 +225,21 @@ function boot(): void {
       },
     });
     inspector.mount();
+  }
+
+  /**
+   * The diagnostic trace becomes a stepper. Same contract as the capability
+   * register: the markup already holds every stage, so this only narrows the
+   * view to one step of the causal path at a time.
+   */
+  const traceRoot = document.querySelector<HTMLElement>("[data-trace]");
+  if (traceRoot) {
+    new TraceStepper({
+      root: traceRoot,
+      onStep: (id) => {
+        document.documentElement.dataset["traceStepped"] = id;
+      },
+    }).mount();
   }
 
   /**

@@ -14,13 +14,21 @@
 
 export type ChapterId = "idea" | "product" | "system" | "action";
 
-/** The five honesty labels required by dossier 7.9. */
+/**
+ * The honesty labels required by dossier 7.9.
+ *
+ * "ILLUSTRATIVE" was added in Wave G. The five original labels all assert that
+ * something exists at some stage of maturity; none of them could describe a
+ * worked example of a discipline that was never built. Calling that "PROTOTYPE"
+ * overstated it, which is the defect Wave G corrected.
+ */
 export type TruthLabel =
   | "LIVE"
   | "CLIENT SYSTEM"
   | "INTERNAL SYSTEM"
   | "PROTOTYPE"
-  | "ACTIVE RESEARCH";
+  | "ACTIVE RESEARCH"
+  | "ILLUSTRATIVE";
 
 /** Whether a claim is backed by something readable in this repository. */
 export type EvidenceState = "verified" | "pending";
@@ -150,7 +158,7 @@ export const PARITY_CLAIMS = {
   headline: "We make ambitious ideas real.",
   firstProject: "Gen-Eat",
   projectStatus: "LIVE" satisfies TruthLabel,
-  physicalActionStatus: "PROTOTYPE" satisfies TruthLabel,
+  physicalActionStatus: "ILLUSTRATIVE" satisfies TruthLabel,
   verifiedProofPanels: 4,
   pendingProofPanels: 4,
   systemStageCount: 6,

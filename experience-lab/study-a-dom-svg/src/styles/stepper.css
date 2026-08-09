@@ -118,7 +118,8 @@
 .stepper__index {
   font-family: var(--font-mono);
   font-size: var(--text-micro);
-  color: var(--signal-dormant);
+  /* Read number: text threshold, not the 3.0 non-text rule tone. */
+  color: var(--text-tertiary);
 }
 
 /* Current state: background, text colour, border AND an underline bar. Never
@@ -176,7 +177,8 @@
   font-size: var(--text-small);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--signal-active);
+  /* A read title, so ink-weight vermilion rather than the rule tone. */
+  color: var(--signal-ink);
   margin-bottom: var(--space-sm);
 }
 

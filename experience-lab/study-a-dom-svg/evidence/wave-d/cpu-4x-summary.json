@@ -1,29 +1,24 @@
 {
   "method": "Laboratory measurement, headless Chromium, single machine, CDP-emulated conditions. Not a field measurement and not a p75 claim.",
   "scenario": "desktop 1440x900, CPU throttled 4x via CDP",
-  "heroElapsedMs": 2759,
+  "heroElapsedMs": 2762,
   "paint": {
-    "firstPaintMs": 168,
-    "firstContentfulPaintMs": 168,
-    "largestContentfulPaintMs": 168,
-    "domContentLoadedMs": 193,
-    "loadMs": 201,
+    "firstPaintMs": 336,
+    "firstContentfulPaintMs": 336,
+    "largestContentfulPaintMs": 336,
+    "domContentLoadedMs": 276,
+    "loadMs": 283,
     "cumulativeLayoutShift": 0,
     "longTasks": [
       {
-        "start": 36,
-        "end": 147,
-        "dur": 111
-      },
-      {
-        "start": 148,
-        "end": 211,
-        "dur": 63
+        "start": 38,
+        "end": 291,
+        "dur": 253
       }
     ],
-    "longestTaskMs": 111
+    "longestTaskMs": 253
   },
-  "scrollWindowMs": 1215,
+  "scrollWindowMs": 1944,
   "duringFullPageScroll": {
     "longTasks": [],
     "longestTaskMs": 0,
@@ -33,17 +28,12 @@
   "duringBoot": {
     "longTasks": [
       {
-        "start": 36,
-        "end": 147,
-        "dur": 111
-      },
-      {
-        "start": 148,
-        "end": 211,
-        "dur": 63
+        "start": 38,
+        "end": 291,
+        "dur": 253
       }
     ],
-    "longestTaskMs": 111,
+    "longestTaskMs": 253,
     "note": "Initial parse, execute and first render at 4x CPU throttle. Not a scroll task and not governed by the scroll budget. Reported so it is visible rather than hidden."
   },
   "budgetNote": "Programme budget: no long task above 50ms during ordinary scroll. Boot and scroll are attributed separately — see evidence/wave-d/scroll-performance/attribution.md for the Wave D.1 investigation that established the distinction.",

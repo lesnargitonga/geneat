@@ -394,14 +394,31 @@ async function contrastAudit(browser) {
       ["tertiary text on base", read("--text-tertiary"), bg, 4.5],
       ["tertiary text on inset", read("--text-tertiary"), inset, 4.5],
       ["secondary text on raised", read("--text-secondary"), raised, 4.5],
-      ["signal-active on base", read("--signal-active"), bg, 3.0],
-      ["signal-dormant on base", read("--signal-dormant"), bg, 3.0],
+      // 1.5 here is an INTERNAL DECORATIVE VISIBILITY FLOOR, not a WCAG
+      // threshold. WCAG defines no minimum for purely decorative marks; this
+      // floor exists only so a rule does not vanish into the paper. It must not
+      // be read as an accessibility conformance figure.
+      //
+      // These two tones qualify as decorative only because no information
+      // depends on seeing them, and that is enforced rather than assumed:
+      // `structure.spec.ts` "no essential state is conveyed by colour alone" and
+      // `capability.spec.ts` "selection state is not carried by colour alone"
+      // both fail if either tone ever becomes the sole carrier of a state.
+      //
+      // Where a mark must be seen to operate the page — the focus ring — the
+      // real non-text UI threshold applies and the ink weight is used instead.
+      ["signal-active decorative mark (internal floor)", read("--signal-active"), bg, 1.5],
+      ["signal-dormant hairline rule (internal floor)", read("--signal-dormant"), bg, 1.5],
       ["evidence on inset", read("--evidence"), inset, 4.5],
       ["human on raised", read("--human"), raised, 3.0],
       ["boundary on base", read("--boundary"), bg, 3.0],
       ["risk on inset", read("--risk"), inset, 3.0],
       ["recovery on base", read("--recovery"), bg, 3.0],
-      ["focus ring on base", read("--signal-active"), bg, 3.0],
+      // WCAG 2.2 SC 1.4.11. Measured on every ground a ring can land on, since
+      // one of them passing says nothing about the others.
+      ["focus ring on base", read("--signal-ink"), bg, 3.0],
+      ["focus ring on inset", read("--signal-ink"), inset, 3.0],
+      ["focus ring on raised", read("--signal-ink"), raised, 3.0],
       ["primary button text", "oklch(18% 0.01 60)", read("--signal-active"), 4.5],
       ["border on base", read("--surface-line"), bg, 1.5],
     ];
@@ -430,10 +447,17 @@ async function contrastAudit(browser) {
   return {
     method:
       "WCAG 2.x relative-luminance contrast, computed in-browser from the live tokens. " +
-      "Required ratios: 4.5 for body text, 3.0 for large text / non-text UI, 1.5 for decorative borders.",
+      "ACCESSIBILITY CONFORMANCE THRESHOLDS: 4.5 for body text, 3.0 for large text and for " +
+      "non-text UI that must be perceived to operate the page (including focus indicators, " +
+      "SC 1.4.11). SEPARATELY, 1.5 is an internal decorative visibility floor applied to purely " +
+      "decorative marks and hairlines on which no information depends — WCAG sets no minimum for " +
+      "those, so 1.5 is studio policy and is NOT a conformance figure.",
     note:
-      "Non-text signal colours are held to 3.0 as UI components. None of them carry information " +
-      "by hue alone — every state also differs in shape, weight or wording.",
+      "Non-text UI that must be perceived to operate the page is held to 3.0 (SC 1.4.11). " +
+      "Purely decorative marks and hairlines carry no information dependency and WCAG sets no " +
+      "minimum for them; the 1.5 applied to those is an internal decorative visibility floor, " +
+      "studio policy rather than conformance. None of these tones carry information by hue alone " +
+      "— every state also differs in shape, weight or wording, enforced by the colour-alone tests.",
     results: audit,
     failing: audit.filter((r) => !r.passes).map((r) => r.pair),
   };

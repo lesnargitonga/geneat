@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-09T12:50:56.127Z",
+  "checkedAt": "2026-08-09T17:13:06.842Z",
   "studyA": {
     "path": "experience-lab/study-a-dom-svg/index.html",
     "source": "working tree"
@@ -10,12 +10,13 @@
   },
   "summary": {
     "comparedFields": 18,
-    "matched": 4,
-    "intentionalDifferences": 14,
+    "matched": 3,
+    "intentionalDifferences": 15,
     "undeclaredDifferences": 0,
     "verdict": "PASS"
   },
   "declaredDifferences": {
+    "wave-g.illustrative-label": "Study A relabels the physical-action sequence from 'PROTOTYPE — engineering demonstration' to 'ILLUSTRATIVE CONTROL LOOP — not a built system'.  The Wave G audit found no research, evidence or test backing that sequence as a built system; it entered at the Wave A/B baseline (e6a537c) purely as a narrative device for the seven-step discipline. Once Wave G placed genuinely measured work directly above it, 'PROTOTYPE' read as a second real physical system. The sequence is retained — only the claim about it changed.  Study B carries the same original wording and is deliberately not modified; the divergence is the point, not an oversight.",
     "physical-action.steps": {
       "reason": "Study A's seven step labels (Observe/Detect/Verify/Approve/Command/Act/Record) are specified in the Study A brief and follow dossier 13.13 more literally than Study B's committed labels (Observe/Model/Evidence/Boundary/Approve/Act/Prove). Same process, same truth label, different granularity: Study A merges Evidence+Boundary into Verify and adds an explicit Command step. Study B is frozen at 7dc29a2 and may not be edited to match; aligning the two is a follow-up that needs authorisation.",
       "impact": "none on claims — no capability is asserted in one study and withheld in the other"
@@ -182,14 +183,14 @@
     },
     {
       "field": "physicalActionStatus",
-      "match": true,
-      "studyA": "PROTOTYPE — engineering demonstration",
+      "match": false,
+      "studyA": "ILLUSTRATIVE CONTROL LOOP — not a built system",
       "studyB": "PROTOTYPE — engineering demonstration",
-      "intentional": false,
-      "differenceId": null,
+      "intentional": true,
+      "differenceId": "wave-g.illustrative-label",
       "reason": null,
       "impact": null,
-      "status": "MATCH"
+      "status": "INTENTIONAL"
     },
     {
       "field": "actionSteps",

@@ -83,15 +83,29 @@ a:hover {
   text-decoration-color: currentColor;
 }
 
+/* Emphasis carries words, so it takes the ink-weight vermilion (5.12:1), not
+   the marks-and-rules tone (2.98:1). Same hue, same family, legible. */
 em {
   font-style: italic;
-  color: var(--signal-active);
+  color: var(--signal-ink);
 }
 
-/* One focus treatment, everywhere, never removed. */
+/* One focus treatment, everywhere, never removed.
+ *
+ * The ring uses --signal-ink, not --signal-active. The canonical vermilion
+ * measures 2.98:1 on canonical paper, and WCAG 2.2 SC 1.4.11 requires 3:1 for
+ * a focus indicator — so the brand tone misses by a hair. The palette is not
+ * the thing to change: a decorative rule may sit at 2.98:1 because nothing
+ * depends on seeing it, whereas a keyboard visitor who cannot locate the ring
+ * cannot use the page at all. Ink vermilion is the same hue family at 5.12:1.
+ *
+ * The white companion line keeps the ring findable where it lands on a darker
+ * inset or against a vermilion mark, so it never fights its own background.
+ */
 :focus-visible {
-  outline: 2px solid var(--signal-active);
+  outline: 2px solid var(--signal-ink);
   outline-offset: 3px;
+  box-shadow: 0 0 0 1px var(--surface-base);
   border-radius: var(--radius-sm);
 }
 

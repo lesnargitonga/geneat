@@ -25,6 +25,10 @@ const VIEWPORTS = [
   ["430x932", 430, 932],
   ["390x844", 390, 844],
   ["360x800", 360, 800],
+  // 320x568 is the narrowest supported viewport and the one where the rail
+  // wrap and the hanging indices are tightest. It must appear explicitly in the
+  // output rather than being assumed covered by 360.
+  ["320x568", 320, 568],
 ];
 
 async function settle(page) {

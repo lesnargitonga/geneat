@@ -120,7 +120,9 @@ test.describe("no JavaScript", () => {
   test("truth labels and evidence states survive", async ({ page }) => {
     await expect(page.getByRole("heading", { name: /Gen-Eat/ }).first()).toBeVisible();
     await expect(page.locator('[data-status="live"]').first()).toContainText("LIVE");
-    await expect(page.locator('[data-status="prototype"]')).toContainText("PROTOTYPE");
+    await expect(page.locator('[data-status="illustrative"]')).toContainText("ILLUSTRATIVE");
+    // It must not read as a built system beside the evidenced Wave G material.
+    await expect(page.locator('[data-status="illustrative"]')).toContainText("not a built system");
 
     await expect(page.locator('[data-evidence="verified"]')).toHaveCount(4);
     await expect(page.locator('[data-evidence="pending"]')).toHaveCount(4);
@@ -197,5 +199,16 @@ test.describe("no JavaScript", () => {
     // Behaviours and proofs are in the served markup, not injected.
     expect(await page.locator(".cap-block__list > li").count()).toBeGreaterThanOrEqual(20);
     expect(await page.locator(".cap-proof__statement").count()).toBeGreaterThanOrEqual(6);
+  });
+
+  test("the whole physical chapter is readable without JavaScript", async ({ page }) => {
+    // The stepper narrows the trace to one stage; without script every stage
+    // and every record must still be present and complete.
+    await expect(page.locator("[data-trace-stage]")).toHaveCount(6);
+    for (const s of await page.locator("[data-trace-stage]").all()) await expect(s).toBeVisible();
+    await expect(page.locator("[data-physical]")).toHaveCount(4);
+    await expect(page.locator(".phys-record__boundary")).toHaveCount(4);
+    // The measured evidence is in the served markup, not injected.
+    await expect(page.locator('[data-trace-stage="measure"]')).toContainText("logical block 0");
   });
 });

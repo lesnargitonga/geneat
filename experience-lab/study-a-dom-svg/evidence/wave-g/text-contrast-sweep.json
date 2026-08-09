@@ -1,0 +1,136 @@
+{
+  "capturedAt": "2026-08-09T17:13:48.790Z",
+  "method": "Every element carrying visible text — its own DOM text nodes and any ::before / ::after generated text — measured as painted sRGB against its first painted ancestor background. Each measurement records source: DOM_TEXT, BEFORE or AFTER. Pseudo-elements whose content is none, normal, an empty string literal or image-only are skipped as decorative rather than counted as text. CSS counters are measured without being resolved: the question is what colour the glyphs are painted in, not which digits they spell.",
+  "thresholds": "4.5 body text; 3.0 large text (>=24px, or >=18.66px bold) and short aria-hidden or generated decorative marks. These are accessibility conformance thresholds.",
+  "probes": {
+    "dom": {
+      "caught": 6,
+      "total": 6
+    },
+    "pseudo": {
+      "caught": 7,
+      "total": 7
+    }
+  },
+  "totals": {
+    "domTextMeasurements": 5825,
+    "pseudoTextMeasurements": 154,
+    "totalMeasurements": 5979,
+    "lowestRatio": 4.98,
+    "failures": 0
+  },
+  "results": [
+    {
+      "viewport": "w320",
+      "checked": 423,
+      "domText": 412,
+      "pseudoText": 11,
+      "findings": [],
+      "lowest": 4.98
+    },
+    {
+      "viewport": "w360",
+      "checked": 423,
+      "domText": 412,
+      "pseudoText": 11,
+      "findings": [],
+      "lowest": 4.98
+    },
+    {
+      "viewport": "w380",
+      "checked": 423,
+      "domText": 412,
+      "pseudoText": 11,
+      "findings": [],
+      "lowest": 4.98
+    },
+    {
+      "viewport": "w390",
+      "checked": 423,
+      "domText": 412,
+      "pseudoText": 11,
+      "findings": [],
+      "lowest": 4.98
+    },
+    {
+      "viewport": "w430",
+      "checked": 423,
+      "domText": 412,
+      "pseudoText": 11,
+      "findings": [],
+      "lowest": 4.98
+    },
+    {
+      "viewport": "w640",
+      "checked": 424,
+      "domText": 413,
+      "pseudoText": 11,
+      "findings": [],
+      "lowest": 4.98
+    },
+    {
+      "viewport": "w641",
+      "checked": 430,
+      "domText": 419,
+      "pseudoText": 11,
+      "findings": [],
+      "lowest": 4.98
+    },
+    {
+      "viewport": "w768",
+      "checked": 430,
+      "domText": 419,
+      "pseudoText": 11,
+      "findings": [],
+      "lowest": 4.98
+    },
+    {
+      "viewport": "w820",
+      "checked": 430,
+      "domText": 419,
+      "pseudoText": 11,
+      "findings": [],
+      "lowest": 4.98
+    },
+    {
+      "viewport": "w1023",
+      "checked": 430,
+      "domText": 419,
+      "pseudoText": 11,
+      "findings": [],
+      "lowest": 4.98
+    },
+    {
+      "viewport": "w1024",
+      "checked": 430,
+      "domText": 419,
+      "pseudoText": 11,
+      "findings": [],
+      "lowest": 4.98
+    },
+    {
+      "viewport": "w1280",
+      "checked": 430,
+      "domText": 419,
+      "pseudoText": 11,
+      "findings": [],
+      "lowest": 4.98
+    },
+    {
+      "viewport": "w1440",
+      "checked": 430,
+      "domText": 419,
+      "pseudoText": 11,
+      "findings": [],
+      "lowest": 4.98
+    },
+    {
+      "viewport": "w1920",
+      "checked": 430,
+      "domText": 419,
+      "pseudoText": 11,
+      "findings": [],
+      "lowest": 4.98
+    }
+  ]
+}

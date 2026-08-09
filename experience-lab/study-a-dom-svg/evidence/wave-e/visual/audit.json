@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-08-09T12:23:40.457Z",
+  "capturedAt": "2026-08-09T16:56:57.111Z",
   "findings": [
     {
       "viewport": "1440x900",
@@ -45,6 +45,13 @@
     },
     {
       "viewport": "360x800",
+      "overflow": 0,
+      "clipped": [],
+      "smallTargets": [],
+      "motion": "default"
+    },
+    {
+      "viewport": "320x568",
       "overflow": 0,
       "clipped": [],
       "smallTargets": [],

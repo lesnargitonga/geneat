@@ -37,6 +37,19 @@ const STUDY_B_PATH = "experience-lab/study-b-webgl/index.html";
  * Every declared difference needs a reason. "It looked better" is not one.
  */
 const INTENTIONAL_DIFFERENCES = {
+  "wave-g.illustrative-label": [
+    "Study A relabels the physical-action sequence from 'PROTOTYPE — engineering",
+    "demonstration' to 'ILLUSTRATIVE CONTROL LOOP — not a built system'.",
+    "",
+    "The Wave G audit found no research, evidence or test backing that sequence as",
+    "a built system; it entered at the Wave A/B baseline (e6a537c) purely as a",
+    "narrative device for the seven-step discipline. Once Wave G placed genuinely",
+    "measured work directly above it, 'PROTOTYPE' read as a second real physical",
+    "system. The sequence is retained — only the claim about it changed.",
+    "",
+    "Study B carries the same original wording and is deliberately not modified;",
+    "the divergence is the point, not an oversight.",
+  ].join(" "),
   "physical-action.steps": {
     reason:
       "Study A's seven step labels (Observe/Detect/Verify/Approve/Command/Act/Record) are " +
@@ -198,7 +211,14 @@ function extract(html) {
   );
 
   const projectStatus = firstText(html, /data-status="live"[^>]*>([\s\S]*?)<\/p>/i);
-  const physicalStatus = firstText(html, /data-status="prototype"[^>]*>([\s\S]*?)<\/p>/i);
+  // Matches either attribute on purpose. Study A migrated this loop to
+  // `illustrative` in Wave G; Study B deliberately still carries `prototype`,
+  // and the extractor has to read whatever each study actually serves so the
+  // divergence surfaces as a value difference rather than a silent null.
+  const physicalStatus = firstText(
+    html,
+    /data-status="(?:prototype|illustrative)"[^>]*>([\s\S]*?)<\/p>/i,
+  );
 
   const ctas = matchAll(html, /class="button button--(?:primary|secondary)"[^>]*>([\s\S]*?)<\/a>/gi)
     .map(([, label]) => normalise(label))
@@ -269,6 +289,7 @@ const FIELD_TO_DIFFERENCE = {
   proofPendingCount: "wave-e.flagship-restructure",
   ctas: "wave-e.flagship-restructure",
   projectStatus: "wave-e.status-truth",
+  physicalActionStatus: "wave-g.illustrative-label",
   hasSignalStepper: "wave-c.stepper",
   hasStateTextPanel: "wave-c.state-text",
   svgAriaHidden: "svg.aria",

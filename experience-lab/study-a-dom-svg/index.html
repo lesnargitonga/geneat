@@ -1004,8 +1004,219 @@
           a person who decides, and only then a machine that moves.
         </p>
 
-        <p class="project__status project__status--inline" data-status="prototype">
-          <span class="status-dot" aria-hidden="true"></span> PROTOTYPE — engineering demonstration
+        <!-- ============ UNIT 5b — PHYSICAL INTELLIGENCE (WAVE G) ============= -->
+        <div class="physical-unit" aria-labelledby="physical-heading">
+          <header class="physical-unit__head">
+            <p class="eyebrow">Physical intelligence</p>
+            <h3 class="section-heading section-heading--sub" id="physical-heading">
+              The signal does not stop at the screen
+            </h3>
+            <p class="section-lede">
+              The strongest physical evidence here is not a machine that moves. It is a machine that
+              was failing, read carefully enough to say what had broken &mdash; and to say plainly
+              what the evidence could not yet separate.
+            </p>
+          </header>
+
+        <!--
+          Wave G — the physical record.
+
+          Generated from src/physical/physical-model.ts. Every stage and record
+          is complete in this markup, so the chapter reads without script; the
+          stepper below only narrows the trace to one stage at a time.
+        -->
+        <div class="physical" data-physical-chapter>
+          <div class="trace" data-trace>
+            <ol class="trace__index" data-trace-index aria-label="Diagnostic trace">
+              <li><a class="trace__link" href="#trace-symptom" data-trace-link="symptom"><span class="trace__link-index" aria-hidden="true">01</span><span class="trace__link-name">Symptom</span></a></li>
+              <li><a class="trace__link" href="#trace-isolate" data-trace-link="isolate"><span class="trace__link-index" aria-hidden="true">02</span><span class="trace__link-name">Isolate</span></a></li>
+              <li><a class="trace__link" href="#trace-measure" data-trace-link="measure"><span class="trace__link-index" aria-hidden="true">03</span><span class="trace__link-name">Measure</span></a></li>
+              <li><a class="trace__link" href="#trace-classify" data-trace-link="classify"><span class="trace__link-index" aria-hidden="true">04</span><span class="trace__link-name">Classify</span></a></li>
+              <li><a class="trace__link" href="#trace-contain" data-trace-link="contain"><span class="trace__link-index" aria-hidden="true">05</span><span class="trace__link-name">Contain</span></a></li>
+              <li><a class="trace__link" href="#trace-recover" data-trace-link="recover"><span class="trace__link-index" aria-hidden="true">06</span><span class="trace__link-name">Recover</span></a></li>
+            </ol>
+            <ol class="trace__stages" data-trace-stages>
+              <li class="trace__stage" id="trace-symptom" data-trace-stage="symptom">
+                <p class="trace__head">
+                  <span class="trace__index" aria-hidden="true">01</span>
+                  <span class="trace__name">Symptom</span>
+                </p>
+                <dl class="trace__detail">
+                  <dt>Enters</dt><dd>A path that should exist does not.</dd>
+                  <dt>Acts</dt><dd>The editor reported a missing directory; the mount point existed but was empty.</dd>
+                  <dt>Leaves</dt><dd class="trace__output">A fault that could be filesystem, device, or nothing at all.</dd>
+                  <dt>Known by</dt><dd>Observed directly.</dd>
+                </dl>
+              </li>
+              <li class="trace__stage" id="trace-isolate" data-trace-stage="isolate">
+                <p class="trace__head">
+                  <span class="trace__index" aria-hidden="true">02</span>
+                  <span class="trace__name">Isolate</span>
+                </p>
+                <dl class="trace__detail">
+                  <dt>Enters</dt><dd>An empty mount point and a boot that succeeded anyway.</dd>
+                  <dt>Acts</dt><dd>Compared the fstab entry against attached block devices. The UUID was absent from every device, and `nofail` explained why the machine still booted.</dd>
+                  <dt>Leaves</dt><dd class="trace__output">The block device is enumerated, but no readable filesystem signature is identified.</dd>
+                  <dt>Known by</dt><dd>`lsblk`, `blkid`, `/etc/fstab`.</dd>
+                </dl>
+              </li>
+              <li class="trace__stage" id="trace-measure" data-trace-stage="measure">
+                <p class="trace__head">
+                  <span class="trace__index" aria-hidden="true">03</span>
+                  <span class="trace__name">Measure</span>
+                </p>
+                <dl class="trace__detail">
+                  <dt>Enters</dt><dd>A 500 GB device the kernel enumerates but cannot identify.</dd>
+                  <dt>Acts</dt><dd>Read the journal for the mount attempt. A 90-second gap between attempt and failure, then a read error at the first block of the partition.</dd>
+                  <dt>Leaves</dt><dd class="trace__output">kernel: Buffer I/O error on dev sdb1, logical block 0</dd>
+                  <dt>Known by</dt><dd>`journalctl`, kernel ring buffer.</dd>
+                </dl>
+              </li>
+              <li class="trace__stage" id="trace-classify" data-trace-stage="classify">
+                <p class="trace__head">
+                  <span class="trace__index" aria-hidden="true">04</span>
+                  <span class="trace__name">Classify</span>
+                </p>
+                <dl class="trace__detail">
+                  <dt>Enters</dt><dd>A read failure at the start of the partition, where critical filesystem metadata would ordinarily need to be read.</dd>
+                  <dt>Acts</dt><dd>Named what the evidence does and does not separate. This read failure does not distinguish media from the SATA data path, power or controller; enumeration proves the device is seen, not that the media is intact.</dd>
+                  <dt>Leaves</dt><dd class="trace__output">A bounded conclusion, with the causes it cannot yet separate stated.</dd>
+                  <dt>Known by</dt><dd>Recorded in the incident file, including the withdrawal of an earlier overclaim.</dd>
+                </dl>
+              </li>
+              <li class="trace__stage" id="trace-contain" data-trace-stage="contain">
+                <p class="trace__head">
+                  <span class="trace__index" aria-hidden="true">05</span>
+                  <span class="trace__name">Contain</span>
+                </p>
+                <dl class="trace__detail">
+                  <dt>Enters</dt><dd>A device that may be failing and may be recoverable.</dd>
+                  <dt>Acts</dt><dd>Refused every write. No fsck, no ntfsfix, no chkdsk, no partition repair — writing to a device whose first block will not read is how recoverable data becomes unrecoverable.</dd>
+                  <dt>Leaves</dt><dd class="trace__output">The device left exactly as found, and an imaging-first recovery order recorded.</dd>
+                  <dt>Known by</dt><dd>No write operation was issued at any point.</dd>
+                </dl>
+              </li>
+              <li class="trace__stage" id="trace-recover" data-trace-stage="recover">
+                <p class="trace__head">
+                  <span class="trace__index" aria-hidden="true">06</span>
+                  <span class="trace__name">Recover</span>
+                </p>
+                <dl class="trace__detail">
+                  <dt>Enters</dt><dd>Source that may exist in only one place.</dd>
+                  <dt>Acts</dt><dd>Established what survived elsewhere before spending effort on the platter, and restored the reachable copy to healthy storage.</dd>
+                  <dt>Leaves</dt><dd class="trace__output">A working clone, and a stated time window whose contents remain unknown.</dd>
+                  <dt>Known by</dt><dd>Restored, dependencies installed, tests and production build run.</dd>
+                </dl>
+              </li>
+            </ol>
+          </div>
+
+          <div class="phys-records" data-physical-records>
+            <article class="phys-record" id="physical-diagnosis" data-physical="diagnosis">
+              <header class="phys-record__head">
+                <span class="phys-record__index" aria-hidden="true">01</span>
+                <h4 class="phys-record__name">Hardware fault isolation</h4>
+                <p class="phys-record__grades">
+                  <span class="phys-record__maturity" data-maturity="verified-practice">Verified practice</span>
+                  <span class="phys-record__evidence" data-evidence="directly-verified">Directly verified</span>
+                </p>
+              </header>
+              <p class="phys-record__demonstrates">Reading a failing physical system without making it worse.</p>
+              <ul class="phys-record__evidence-list">
+                <li>A storage fault traced to a read failure at the start of a partition, with the kernel output that records it</li>
+                <li>Media, SATA data path, power and controller named as causes the evidence does not separate, rather than condemning the drive</li>
+                <li>Every write refused — the repair tools that would have destroyed recoverability were not run</li>
+                <li>An imaging-first recovery order recorded, and the surviving copy restored and re-qualified</li>
+              </ul>
+              <p class="phys-record__boundary">
+                <span class="phys-record__boundary-label">Not claimed</span>
+                One storage fault, diagnosed to a bounded conclusion. Not a data-recovery service, not board-level electronics repair, and the drive itself was never proven dead.
+              </p>
+              <p class="phys-record__verified">Verified 2026-08-08</p>
+            </article>
+
+            <article class="phys-record" id="physical-embedded" data-physical="embedded">
+              <header class="phys-record__head">
+                <span class="phys-record__index" aria-hidden="true">02</span>
+                <h4 class="phys-record__name">Embedded sensing and control</h4>
+                <p class="phys-record__grades">
+                  <span class="phys-record__maturity" data-maturity="validated-prototype">Validated prototype</span>
+                  <span class="phys-record__evidence" data-evidence="owner-attested">Owner-attested</span>
+                </p>
+              </header>
+              <p class="phys-record__demonstrates">A measurement becoming a decision becoming a physical action.</p>
+              <ul class="phys-record__evidence-list">
+                <li>A two-controller arrangement: one reads the environment, the other drives the outputs</li>
+                <li>Temperature and soil moisture sensing, a local display, and a wireless serial link</li>
+                <li>Fan and pump actuation driven from the sensed state</li>
+                <li>Serial communication brought up and debugged across the two boards</li>
+              </ul>
+              <p class="phys-record__boundary">
+                <span class="phys-record__boundary-label">Not claimed</span>
+                Owner-attested prototype; source artifact not currently accessible, so nothing here is read from a repository or independently reproduced. Not a deployed installation, not precision agriculture, not an IoT fleet.
+              </p>
+            </article>
+
+            <article class="phys-record" id="physical-aerial" data-physical="aerial">
+              <header class="phys-record__head">
+                <span class="phys-record__index" aria-hidden="true">03</span>
+                <h4 class="phys-record__name">Aerial platform research</h4>
+                <p class="phys-record__grades">
+                  <span class="phys-record__maturity" data-maturity="active-research">Active research</span>
+                  <span class="phys-record__evidence" data-evidence="declared-direction">Declared direction</span>
+                </p>
+              </header>
+              <p class="phys-record__demonstrates">Taking an existing flight platform apart to understand where its limits are.</p>
+              <ul class="phys-record__evidence-list">
+                <li>An existing drone board inspected at the hardware level</li>
+                <li>Motors, board and the boundaries of what its firmware permits examined</li>
+                <li>The decision recorded: build up from parts rather than modify a closed platform</li>
+              </ul>
+              <p class="phys-record__boundary">
+                <span class="phys-record__boundary-label">Not claimed</span>
+                Nothing has been flown, built or deployed. No autonomous navigation, no vision-guided flight, no flight-controller development, and no experience claimed with any specific autopilot stack.
+              </p>
+            </article>
+
+            <article class="phys-record" id="physical-sensing" data-physical="sensing">
+              <header class="phys-record__head">
+                <span class="phys-record__index" aria-hidden="true">04</span>
+                <h4 class="phys-record__name">Radar and sensing research</h4>
+                <p class="phys-record__grades">
+                  <span class="phys-record__maturity" data-maturity="research-direction">Research direction</span>
+                  <span class="phys-record__evidence" data-evidence="declared-direction">Declared direction</span>
+                </p>
+              </header>
+              <p class="phys-record__demonstrates">Choosing where the next physical capability should come from.</p>
+              <ul class="phys-record__evidence-list">
+                <li>FMCW radar investigated as a sensing direction</li>
+                <li>Starter hardware identified and evaluated against what it would actually teach</li>
+              </ul>
+              <p class="phys-record__boundary">
+                <span class="phys-record__boundary-label">Not claimed</span>
+                A direction, not a build. No radar has been constructed, no signal processing implemented, and no measurement produced.
+              </p>
+            </article>
+          </div>
+        </div>
+
+        <!--
+          Provenance: this sequence entered at the Wave A/B baseline (e6a537c) as
+          a narrative device for the seven-step discipline. No research, evidence
+          or test backs it as a built system, and the Wave G audit found none.
+          Labelled "PROTOTYPE" it read as a second real physical system sitting
+          directly beneath genuinely evidenced work, so it is now marked for what
+          it is. The sequence itself is retained — the discipline it illustrates
+          is the point.
+        -->
+        <p class="project__status project__status--inline" data-status="illustrative">
+          <span class="status-dot" aria-hidden="true"></span>
+          ILLUSTRATIVE CONTROL LOOP — not a built system
+        </p>
+        <p class="note note--illustrative">
+          Unlike the diagnostic trace above, nothing below was measured. This is a worked example of
+          the seven-step discipline — how a physical action would have to be gated — not a machine
+          the studio has built or deployed. No camera, package line or diverter exists.
         </p>
 
         <ol class="action-sequence">
@@ -1034,7 +1245,7 @@
         </ol>
 
         <p class="note">
-          Labelled a prototype because that is what the evidence supports. No production
+          Labelled illustrative because that is what the evidence supports. No production
           computer-vision system, no deployed robotics, and no recorded operational run backs this
           sequence.
         </p>

@@ -382,7 +382,8 @@
   font-family: var(--font-mono);
   font-size: var(--text-micro);
   letter-spacing: 0.06em;
-  color: var(--signal-dormant);
+  /* "EVIDENCE PENDING" is read, not decorative. Text threshold. */
+  color: var(--text-tertiary);
   white-space: nowrap;
 }
 
