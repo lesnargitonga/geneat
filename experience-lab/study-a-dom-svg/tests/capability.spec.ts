@@ -46,6 +46,50 @@ test.describe("capability register — content", () => {
     }
   });
 
+  /**
+   * Wave F graded Operate and Protect `controlled-client-system` — "operated for
+   * a real client system". Their evidence is entirely the studio's own
+   * infrastructure, and once CarePro was established as the founders' own
+   * product no client relationship stood behind either grade. Wave H superseded
+   * both forward; the historical checkpoint is untouched.
+   *
+   * Asserted as an explicit expected map rather than a permanent ban on the
+   * vocabulary: a genuinely evidenced client capability can be added later by
+   * updating this table deliberately, which is exactly the review moment such a
+   * claim should get.
+   */
+  test("current capability maturities are the evidenced ones", () => {
+    const expected: Record<string, string> = {
+      build: "live-product",
+      operate: "internal-engineering-system",
+      protect: "internal-engineering-system",
+      intelligence: "validated-prototype",
+      prove: "internal-engineering-system",
+      physical: "active-research",
+    };
+    for (const c of CAPABILITIES) {
+      expect(c.maturity, `${c.id} maturity drifted`).toBe(expected[c.id]);
+    }
+    for (const id of ["operate", "protect"] as const) {
+      const c = CAPABILITIES.find((x) => x.id === id)!;
+      expect(c.maturity).toBe("internal-engineering-system");
+      expect(c.maturity, `${id} must not reclaim a client grade`).not.toBe(
+        "controlled-client-system",
+      );
+    }
+    // No current capability may claim an external client without evidence.
+    expect(
+      CAPABILITIES.filter((c) => c.maturity === "controlled-client-system").map((c) => c.id),
+      "a capability claims an external client relationship",
+    ).toEqual([]);
+  });
+
+  test("no capability label reaches the visitor as a client system", async ({ page }) => {
+    await gotoAndReady(page);
+    const text = (await page.locator("#system").textContent()) ?? "";
+    expect(/controlled client system/i.test(text)).toBe(false);
+  });
+
   test("maturity is a word, never colour alone", async ({ page }) => {
     const chips = page.locator(".cap-entry__maturity");
     await expect(chips).toHaveCount(6);

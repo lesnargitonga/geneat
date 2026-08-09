@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-09T17:13:06.842Z",
+  "checkedAt": "2026-08-09T20:00:18.846Z",
   "studyA": {
     "path": "experience-lab/study-a-dom-svg/index.html",
     "source": "working tree"
@@ -10,12 +10,21 @@
   },
   "summary": {
     "comparedFields": 18,
-    "matched": 3,
-    "intentionalDifferences": 15,
+    "matched": 2,
+    "intentionalDifferences": 16,
     "undeclaredDifferences": 0,
     "verdict": "PASS"
   },
   "declaredDifferences": {
+    "wave-h.work-register": [
+      "Study A carries a fifth chapter, the work register, which Study B does not.",
+      "",
+      "Study B is deliberately a wave behind — §8 states no comparative score is",
+      "valid until it reaches an equivalent wave — so this is a structural",
+      "difference in what each study has built, not drifted copy. The four",
+      "chapters both studies share are still compared label for label, so a",
+      "reworded Idea or Product link still fails this gate."
+    ],
     "wave-g.illustrative-label": "Study A relabels the physical-action sequence from 'PROTOTYPE — engineering demonstration' to 'ILLUSTRATIVE CONTROL LOOP — not a built system'.  The Wave G audit found no research, evidence or test backing that sequence as a built system; it entered at the Wave A/B baseline (e6a537c) purely as a narrative device for the seven-step discipline. Once Wave G placed genuinely measured work directly above it, 'PROTOTYPE' read as a second real physical system. The sequence is retained — only the claim about it changed.  Study B carries the same original wording and is deliberately not modified; the divergence is the point, not an oversight.",
     "physical-action.steps": {
       "reason": "Study A's seven step labels (Observe/Detect/Verify/Approve/Command/Act/Record) are specified in the Study A brief and follow dossier 13.13 more literally than Study B's committed labels (Observe/Model/Evidence/Boundary/Approve/Act/Prove). Same process, same truth label, different granularity: Study A merges Evidence+Boundary into Verify and adds an explicit Command step. Study B is frozen at 7dc29a2 and may not be edited to match; aligning the two is a follow-up that needs authorisation.",
@@ -91,12 +100,13 @@
     },
     {
       "field": "chapters",
-      "match": true,
+      "match": false,
       "studyA": [
         "idea:00 Idea",
         "product:01 Product",
         "system:02 System",
-        "action:03 Action"
+        "action:03 Action",
+        "work:04 Work"
       ],
       "studyB": [
         "idea:00 Idea",
@@ -104,11 +114,11 @@
         "system:02 System",
         "action:03 Action"
       ],
-      "intentional": false,
-      "differenceId": null,
+      "intentional": true,
+      "differenceId": "wave-h.work-register",
       "reason": null,
       "impact": null,
-      "status": "MATCH"
+      "status": "INTENTIONAL"
     },
     {
       "field": "projectName",

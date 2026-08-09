@@ -1,4 +1,4 @@
-import type { ChapterId } from "../content";
+import { CHAPTERS, type ChapterId } from "../content";
 
 /**
  * Chapter tracking for the journey rail (dossier 7.13).
@@ -18,8 +18,18 @@ export interface ChapterControllerOptions {
   readonly onChange: (chapter: ChapterId) => void;
 }
 
+/**
+ * Derived from CHAPTERS rather than listed again.
+ *
+ * The hand-written list silently omitted "work" when Wave H added the chapter,
+ * so the rail would have tracked every chapter except the new one — a defect
+ * that reports no error and simply never highlights. Deriving it means adding a
+ * chapter cannot leave this behind.
+ */
+const CHAPTER_IDS = new Set<string>(CHAPTERS.map((c) => c.id));
+
 function isChapterId(value: string | undefined): value is ChapterId {
-  return value === "idea" || value === "product" || value === "system" || value === "action";
+  return value !== undefined && CHAPTER_IDS.has(value);
 }
 
 export class ChapterController {

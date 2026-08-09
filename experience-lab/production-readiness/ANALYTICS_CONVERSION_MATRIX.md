@@ -49,3 +49,38 @@ later without changing the interface:
 | `start_project_from_capability` | contact reached from a capability | not yet wired |
 
 Verdict: DECLARED, not implemented — intentional for this wave.
+
+## Wave H — outbound proof links
+
+Four external links, all fetched and verified before publication, all
+`https`, `target="_blank"`, `rel="noopener noreferrer"`, and all ≥44px targets.
+
+| Link | Status at capture |
+|---|---|
+| `geneat.lesnarai.co.ke` | 200 |
+| `hazina.lesnarai.co.ke` | 200 |
+| `geneat-api…/healthz` | 200 `{"status":"ok"}` |
+| `hazina-api…/healthz` | 200 `{"status":"ok"}` |
+
+`carepro.co.ke` returns 200 and is **deliberately not linked** — publishing a
+healthcare-adjacent system's front door is the client's decision. No private
+repository, admin path, localhost URL, VPS address or dashboard is linked, and
+no case-study route was invented, so there are no dead links.
+
+Admin surfaces re-verified 404 at capture time: `/docs`, `/openapi.json`.
+
+No analytics vendor is installed. The register declares no events.
+
+### Wave H — CarePro link added
+
+`carepro.co.ke` is now published after a public-surface safety audit (ordinary
+homepage only; no login, no admin area, no personal data submitted, no sensitive
+route crawled). HTTPS with a valid certificate, HTTP 200, `noopener noreferrer`,
+external indicator, ≥44px target.
+
+The earlier rationale for withholding it — "publishing the front door is the
+client's decision" — was void once the relationship was established: CarePro is
+the founders' own product. It is linked because the surface was audited and
+found safe, not to satisfy a proof state.
+
+Five external links total; all verified 200 at capture time.

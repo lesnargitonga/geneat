@@ -114,3 +114,74 @@ becomes its own grid item and the sentence after it becomes a separate anonymous
 item, so the prose landed in the index column and wrapped one word per line.
 Every automated check passed — nothing measures whether a line box is a sensible
 width. Fixed with an out-of-flow counter and padding hanging indent.
+
+## Wave H — the work register
+
+Six public records, generated from `src/work/work-model.ts` and validated by
+`check-work-parity.mjs` (read-only, drift-tested on seven fields).
+
+| # | Record | Maturity | Proof state | Verified |
+|---|---|---|---|---|
+| 01 | Gen-Eat | Live product | Public proof | 2026-08-09 |
+| 02 | Hazina Nomads | Live product | Public proof | 2026-08-09 |
+| 03 | CarePro | Live product | Public proof | 2026-08-09 |
+| 04 | Experience Lab | Internal engineering system | Public proof | 2026-08-09 |
+| 05 | Physical intelligence | Active research *(frontier, not its best specimen)* | Sanitized proof | 2026-08-08 |
+| 06 | Control boundary research | Active research | Research record | — |
+
+**Excluded: Sarepta.** Evidence is a private repository name and nothing else;
+the work involves children and donors, so an empty entry carries risk without
+information. Recorded in `research/wave-h-work-register.md`.
+
+Maturity and proof state are separate axes. Both render as words with a rule as
+well as a tone, so neither is carried by colour alone. Unlinked proof renders as
+plain text, never as a disabled-looking control — a test asserts it never
+acquires an `href`.
+
+### Defects introduced and caught in this wave
+
+| Defect | Class | Resolution |
+|---|---|---|
+| `data-proof` collided with the flagship's proof-object selector (4 → 10) | **Fourth instance** of the attribute-collision class (`data-chapter`, `data-capability`, `data-trace-stage`) | renamed to `data-proof-state` |
+| `isChapterId()` hard-coded four ids, so the Work chapter would never highlight | Silent no-op, raises no error | derived from `CHAPTERS` |
+| `capture-visual-matrix.mjs` audited only `.flagship` and friends | Checker not looking at anything added after Wave E | widened to the whole document |
+| Chapter stated its purpose twice, with a void between | Editorial duplication | unit lede reduced to a qualifying note |
+
+### Wave H — final truth corrections
+
+| Correction | Before | After |
+|---|---|---|
+| Physical intelligence maturity | `VALIDATED PROTOTYPE` (one specimen's grade) | `ACTIVE RESEARCH` (the frontier), with the four Wave G levels stated in copy |
+| Name step-down rule | keyed on `active-research` | keyed on `proofState: research-record` — depth, not maturity |
+| Gen-Eat isolation | "a fault in the neighbouring product **cannot reach it**" | "in the measured failure test stopping the neighbouring product service left Gen-Eat answering" |
+| Hazina isolation | "Stopping either service leaves the other answering" | "In the same measured test, stopping either product service left the other answering" |
+| `LIVE PRODUCT` definition | "serving its own users" | "publicly reachable product surface and qualified runtime", explicitly not adoption or commercial outcomes |
+| Database identifiers in served copy | `geneat_prod`, `hazina_prod` | semantic descriptions; claim unchanged |
+
+**CarePro resolved.** Repository evidence alone could not establish the
+relationship and the gap was correctly reported rather than guessed. Owner
+context resolved it: CarePro is the founders' own product, not an external
+client system — stated independently on its own homepage. `CONTROLLED CLIENT
+SYSTEM` rejected; `LIVE PRODUCT` applied under the bounded Wave H definition
+after a public-surface safety audit cleared `carepro.co.ke` for linking.
+
+**Stale Wave F maturity, superseded forward.** `Operate` and `Protect` carried
+`controlled-client-system` ("Operated for a real client system"), while their
+proof sources — Shared VPS runtime, Production host, Gen-Eat / Hazina separation,
+Runtime qualification — are entirely the studio's own infrastructure. With
+CarePro established as the founders' product, no evidenced client relationship
+remained anywhere and both labels were false.
+
+| Capability | Wave F | Wave H (current) |
+|---|---|---|
+| Operate | Controlled client system | **Internal engineering system** |
+| Protect | Controlled client system | **Internal engineering system** |
+
+Boundaries unchanged; neither was inflated toward a security service. Markup
+regenerated through the Wave F mechanism, not hand-patched. Capability parity
+verified to fail on either label drifting back. Historical checkpoints
+`6638d276…` and `fa4de639…` are **not** amended — only the current served
+classification supersedes. Visitor-facing "Controlled client system": **0**.
+
+Two guards now prevent Physical intelligence silently returning to
+`VALIDATED PROTOTYPE`: a unit assertion and a parity drift case.

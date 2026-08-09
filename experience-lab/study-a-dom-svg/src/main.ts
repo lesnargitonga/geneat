@@ -6,6 +6,7 @@ import "./styles/stepper.css";
 import "./styles/flagship.css";
 import "./styles/capability.css";
 import "./styles/physical.css";
+import "./styles/work.css";
 import "./styles/scenes.css";
 import "./styles/controls.css";
 import "./styles/accessibility.css";

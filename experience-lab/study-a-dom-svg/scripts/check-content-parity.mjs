@@ -37,6 +37,15 @@ const STUDY_B_PATH = "experience-lab/study-b-webgl/index.html";
  * Every declared difference needs a reason. "It looked better" is not one.
  */
 const INTENTIONAL_DIFFERENCES = {
+  "wave-h.work-register": [
+    "Study A carries a fifth chapter, the work register, which Study B does not.",
+    "",
+    "Study B is deliberately a wave behind — §8 states no comparative score is",
+    "valid until it reaches an equivalent wave — so this is a structural",
+    "difference in what each study has built, not drifted copy. The four",
+    "chapters both studies share are still compared label for label, so a",
+    "reworded Idea or Product link still fails this gate.",
+  ],
   "wave-g.illustrative-label": [
     "Study A relabels the physical-action sequence from 'PROTOTYPE — engineering",
     "demonstration' to 'ILLUSTRATIVE CONTROL LOOP — not a built system'.",
@@ -290,6 +299,11 @@ const FIELD_TO_DIFFERENCE = {
   ctas: "wave-e.flagship-restructure",
   projectStatus: "wave-e.status-truth",
   physicalActionStatus: "wave-g.illustrative-label",
+  // Study A gained a fifth chapter in Wave H. Study B is a wave behind and
+  // has no work register, so the rail legitimately differs. This is a
+  // structural divergence, not drifted copy — the shared chapters above it
+  // are still compared word for word.
+  chapters: "wave-h.work-register",
   hasSignalStepper: "wave-c.stepper",
   hasStateTextPanel: "wave-c.state-text",
   svgAriaHidden: "svg.aria",

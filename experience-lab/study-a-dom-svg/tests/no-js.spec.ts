@@ -1,5 +1,11 @@
 import { test, expect } from "@playwright/test";
 import { headingLevels } from "./helpers";
+import { CHAPTERS } from "../src/content";
+import {
+  WORK_RECORDS,
+  WORK_MATURITY_LABEL,
+  PROOF_STATE_LABEL,
+} from "../src/work/work-model";
 
 /**
  * The no-JavaScript baseline.
@@ -156,9 +162,11 @@ test.describe("no JavaScript", () => {
 
   test("chapter navigation is real anchors to real sections", async ({ page }) => {
     const links = page.locator("[data-chapter-link]");
-    await expect(links).toHaveCount(4);
+    // Derived from the content model rather than a literal: Wave H added a
+    // fifth chapter, and a hard-coded count silently rots as the site grows.
+    await expect(links).toHaveCount(CHAPTERS.length);
 
-    for (const id of ["idea", "product", "system", "action"]) {
+    for (const id of ["idea", "product", "system", "action", "work"]) {
       await expect(page.locator(`[data-chapter-link="${id}"]`)).toHaveAttribute("href", `#${id}`);
       await expect(page.locator(`section[data-chapter="${id}"]`)).toBeVisible();
     }
@@ -210,5 +218,20 @@ test.describe("no JavaScript", () => {
     await expect(page.locator(".phys-record__boundary")).toHaveCount(4);
     // The measured evidence is in the served markup, not injected.
     await expect(page.locator('[data-trace-stage="measure"]')).toContainText("logical block 0");
+  });
+
+  test("the whole work register is readable without JavaScript", async ({ page }) => {
+    await page.goto("/");
+    // The register is the answer to "what have you actually built" — if it
+    // needs script to be legible, the answer is not in the served page.
+    await expect(page.locator("[data-work]")).toHaveCount(WORK_RECORDS.length);
+    for (const r of WORK_RECORDS) {
+      const entry = page.locator(`[data-work="${r.id}"]`);
+      await expect(entry).toContainText(r.name);
+      await expect(entry).toContainText(r.summary);
+      await expect(entry).toContainText(WORK_MATURITY_LABEL[r.maturity]);
+      await expect(entry).toContainText(PROOF_STATE_LABEL[r.proofState]);
+      await expect(entry).toContainText(r.notClaimed.slice(0, 40));
+    }
   });
 });

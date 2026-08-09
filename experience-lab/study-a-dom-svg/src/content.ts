@@ -12,7 +12,7 @@
  * against Study B's frozen commit.
  */
 
-export type ChapterId = "idea" | "product" | "system" | "action";
+export type ChapterId = "idea" | "product" | "system" | "action" | "work";
 
 /**
  * The honesty labels required by dossier 7.9.
@@ -38,6 +38,7 @@ export const CHAPTERS: readonly { id: ChapterId; index: string; label: string }[
   { id: "product", index: "01", label: "Product" },
   { id: "system", index: "02", label: "System" },
   { id: "action", index: "03", label: "Action" },
+  { id: "work", index: "04", label: "Work" },
 ];
 
 /**
@@ -162,5 +163,5 @@ export const PARITY_CLAIMS = {
   verifiedProofPanels: 4,
   pendingProofPanels: 4,
   systemStageCount: 6,
-  chapterCount: 4,
+  chapterCount: 5,
 } as const;

@@ -2,28 +2,28 @@
   "method": "Laboratory measurement, headless Chromium, single machine, CDP-emulated conditions. Not a field measurement and not a p75 claim.",
   "scenario": "desktop 1440x900, no throttling",
   "scheduledBudgetMs": 2740,
-  "measuredElapsedMs": 2747,
+  "measuredElapsedMs": 2746,
   "budgetWindowMs": {
     "min": 2200,
     "max": 3200
   },
   "withinBudget": true,
-  "ctaMeasurablyPresentAtMs": 104,
+  "ctaMeasurablyPresentAtMs": 119,
   "ctaAvailableBeforeSequenceEnd": true,
   "paint": {
-    "firstPaintMs": 104,
-    "firstContentfulPaintMs": 104,
-    "largestContentfulPaintMs": 104,
-    "domContentLoadedMs": 93,
-    "loadMs": 95,
+    "firstPaintMs": 112,
+    "firstContentfulPaintMs": 112,
+    "largestContentfulPaintMs": 112,
+    "domContentLoadedMs": 109,
+    "loadMs": 111,
     "cumulativeLayoutShift": 0,
     "longTasks": [
       {
         "start": 14,
-        "end": 77,
-        "dur": 63
+        "end": 93,
+        "dur": 79
       }
     ],
-    "longestTaskMs": 63
+    "longestTaskMs": 79
   }
 }

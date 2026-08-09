@@ -1,0 +1,36 @@
+{
+  "capturedAt": "2026-08-09T20:02:54.549Z",
+  "method": "Laboratory measurement, headless Chromium, single machine, CDP-emulated CPU throttling. Not a field measurement and not a p75 claim.",
+  "scenario": "desktop 1440x900, exact final served build",
+  "normal": {
+    "lcpMs": 152,
+    "cls": 0,
+    "longTaskCount": 1,
+    "worstLongTaskMs": 106
+  },
+  "cpu4x": {
+    "lcpMs": 232,
+    "cls": 0,
+    "longTaskCount": 2,
+    "worstLongTaskMs": 162
+  },
+  "workRegisterEntry": {
+    "longTaskCount": 0,
+    "worstMs": 0
+  },
+  "lastRecordEntry": {
+    "longTaskCount": 0,
+    "worstMs": 0
+  },
+  "anchorInteraction": {
+    "samples": [
+      11.8,
+      27.2,
+      30.6,
+      30.9,
+      31.8
+    ],
+    "averageMs": 26.5,
+    "maxMs": 31.8
+  }
+}

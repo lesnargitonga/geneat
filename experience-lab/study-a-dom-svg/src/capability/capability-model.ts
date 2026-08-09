@@ -19,7 +19,19 @@
 export type CapabilityMaturity =
   /** Running, customer-facing, reachable today. */
   | "live-product"
-  /** Operated for a real client system, not publicly browsable. */
+  /**
+   * Operated for a real client system, not publicly browsable.
+   *
+   * Requires evidence of an external client relationship, and is currently
+   * unused. Wave F applied it to Operate and Protect; Wave H established that
+   * no such relationship stood behind either — their evidence is entirely the
+   * studio's own infrastructure, and CarePro, the only remaining candidate, is
+   * the founders' own product. Do not reapply it without evidence of an actual
+   * external client.
+   *
+   * Distinct from the identically-spelled `WorkMaturity` member, which grades a
+   * system rather than a capability. The two taxonomies are not interchangeable.
+   */
   | "controlled-client-system"
   /** Real and in use, but on our own systems. */
   | "internal-engineering-system"
@@ -127,7 +139,7 @@ export const CAPABILITIES: readonly Capability[] = [
         verified: "2026-08-08",
       },
     ],
-    maturity: "controlled-client-system",
+    maturity: "internal-engineering-system",
     boundary:
       "Single-host operations within measured capacity. Resource protections are configured, not load-qualified — no stress testing, no orchestration platform, no autoscaling, no multi-region claim.",
   },
@@ -158,7 +170,7 @@ export const CAPABILITIES: readonly Capability[] = [
         verified: "2026-08-09",
       },
     ],
-    maturity: "controlled-client-system",
+    maturity: "internal-engineering-system",
     boundary:
       "Isolation and configuration hardening that was measured. Not penetration testing, not a compliance certification, not a security audit practice.",
   },

@@ -259,3 +259,37 @@
   gap: var(--space-md);
   min-width: 0;
 }
+
+/* ------------------------------------------------- phone header behaviour */
+
+/**
+ * On phones the full header scrolls away with the page.
+ *
+ * The header is three stacked rows at this width — brand, chapter rail, Effects
+ * — and sticky it held roughly a quarter to a third of a 390x844 viewport
+ * permanently. Every automated check passed, because overflow, clipping and
+ * target size were all fine; the cost was reading area, which none of them
+ * measure. Mid-page on a phone that is the difference between two Work records
+ * on screen and one.
+ *
+ * Nothing is removed or hidden: the complete header is still the first thing in
+ * the document and every control remains reachable at the top. This is the
+ * static spine's tradeoff — more reading viewport, less persistent chrome. The
+ * motion phase can design a proper mobile navigation treatment; inventing one
+ * here would prejudge it.
+ */
+@media (max-width: 640px) {
+  .site-header {
+    position: static;
+  }
+
+  /* These offsets exist only to clear the sticky header. With it scrolling
+     away, they would leave a gap above every anchor target instead. Listed
+     together because they are one concern, not four. */
+  .chapter,
+  .cap-entry,
+  .trace__stage,
+  .work-record {
+    scroll-margin-top: var(--space-md);
+  }
+}

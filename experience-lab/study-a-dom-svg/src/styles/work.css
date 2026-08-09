@@ -1,0 +1,265 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   The work register — Wave H
+
+   An index at the back of an engineering dossier. Archival register rows
+   spanning the measure, folio numbering in the margin, rules between entries.
+
+   No cards, no logo tiles, no product mockup frames, no pricing-grid columns.
+   The project name is typography and nothing else — there is no logo here and
+   there should not be one.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* The chapter contains only this unit, so the chapter head already provides the
+   separation. A full --space-section on top of it opened a void wide enough to
+   read as a missing element. */
+.work-unit {
+  margin-top: var(--space-xl);
+  border-top: 1px solid var(--surface-line);
+  padding-top: var(--space-lg);
+}
+.work-unit__head {
+  max-width: var(--measure);
+  margin-bottom: var(--space-lg);
+}
+/* Not a second lede: the chapter lede states the purpose, and repeating it here
+   said the same thing twice. This qualifies one thing the chapter cannot. */
+.work-unit__note {
+  font-size: var(--text-small);
+  color: var(--text-tertiary);
+  max-width: var(--measure);
+  border-left: 2px solid var(--surface-line);
+  padding-left: var(--space-sm);
+}
+/* Same Wave-G-scoped correction: a chapter statement must outrank its lede,
+   and the shared modifier resolves to the lede's own size. */
+.work-unit__head .section-heading--sub {
+  font-size: var(--text-h3);
+  line-height: 1.15;
+  margin-bottom: var(--space-sm);
+}
+
+.work-register {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--text-primary);
+}
+
+/* One register row. The rule above each entry is the register's spine. */
+.work-record {
+  display: grid;
+  gap: var(--space-sm);
+  padding: var(--space-lg) 0;
+  border-bottom: 1px solid var(--surface-line);
+  min-width: 0;
+  scroll-margin-top: 6rem;
+}
+
+/* ── entry head: folio number, name, category ────────────────────────────── */
+.work-record__head {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0 var(--space-md);
+}
+.work-record__index {
+  font-family: var(--font-mono);
+  font-size: var(--text-lede);
+  letter-spacing: var(--tracking-label);
+  color: var(--signal-ink);
+}
+/* The name is the object on the page. Everything else is annotation. */
+.work-record__name {
+  font-size: var(--text-h2);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+.work-record__category {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  text-align: right;
+}
+
+.work-record__summary {
+  grid-column: 1 / -1;
+  font-size: var(--text-lede);
+  color: var(--text-primary);
+  max-width: var(--measure);
+  margin-left: 3.2rem;
+  text-wrap: balance;
+}
+
+/* ── body: what changed, beside the metadata column ──────────────────────── */
+.work-record__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(11rem, 15rem);
+  gap: var(--space-lg);
+  margin-left: 3.2rem;
+  align-items: start;
+}
+.work-record__changed {
+  max-width: var(--measure);
+  min-width: 0;
+}
+.work-record__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 0.35rem;
+}
+.work-record__changed-text {
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+}
+
+/* Metadata hangs off its own hairline: present, subordinate to the name. */
+.work-record__meta {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.3rem var(--space-sm);
+  border-top: 1px solid var(--surface-line);
+  padding-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+.work-record__meta dt {
+  color: var(--text-tertiary);
+}
+.work-record__meta dd {
+  margin: 0;
+  color: var(--text-primary);
+}
+/* Maturity and proof are marked by a rule as well as a tone, so neither is
+   carried by colour alone. */
+.work-record__maturity {
+  border-bottom: 2px solid var(--text-primary);
+}
+.work-record__maturity[data-maturity="active-research"],
+.work-record__maturity[data-maturity="validated-prototype"] {
+  color: var(--signal-ink);
+  border-bottom-color: var(--signal-active);
+}
+.work-record__proof-state {
+  border-bottom: 1px solid var(--surface-line);
+}
+.work-record__proof-state[data-proof-state="public-proof"] {
+  color: var(--evidence);
+  border-bottom-color: var(--evidence);
+}
+.work-record__verified {
+  color: var(--text-tertiary);
+}
+
+/* ── proof references ────────────────────────────────────────────────────── */
+.work-proof {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-md);
+  margin-left: 3.2rem;
+  max-width: var(--measure);
+}
+.work-proof__item {
+  font-size: var(--text-small);
+}
+/* Unlinked proof is set as plain text. It must not look like a disabled
+   control, because there is nothing to activate — saying so is the point. */
+.work-proof__item--unlinked {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  padding: 0.7rem 0;
+}
+.work-proof__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  /* 44px minimum target height, met through padding plus the line box. */
+  min-height: 44px;
+  padding: 0.7rem 0;
+  color: var(--text-primary);
+  text-decoration: none;
+  border-bottom: 1px solid var(--signal-active);
+}
+.work-proof__link:hover,
+.work-proof__link:focus-visible {
+  color: var(--signal-ink);
+  border-bottom-width: 2px;
+}
+.work-proof__external {
+  font-size: 0.85em;
+  color: var(--signal-ink);
+}
+
+.work-record__boundary {
+  margin-left: 3.2rem;
+  max-width: var(--measure);
+  border-top: 1px solid var(--surface-line);
+  padding-top: 0.55rem;
+  font-size: var(--text-small);
+  color: var(--text-tertiary);
+}
+.work-record__boundary-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--signal-ink);
+  margin-right: 0.5rem;
+}
+
+/* Evidence depth, legible in the composition itself.
+   Keyed on PROOF STATE, not maturity. Keying it on `active-research` was wrong
+   once the physical frontier was correctly regraded: that record carries
+   sanitized proof and a verification date, so it is materially deeper than a
+   record whose own proof reference reads "no system exists to show". Only the
+   latter steps down. */
+.work-record:has(.work-record__proof-state[data-proof-state="research-record"]) .work-record__name {
+  font-size: var(--text-h3);
+}
+
+/* ── below 1024: metadata drops under the prose, register survives ───────── */
+@media (max-width: 1023px) {
+  .work-record__body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-md);
+  }
+}
+
+/* ── below 640: folio number sits above the name, nothing is squeezed ────── */
+@media (max-width: 640px) {
+  .work-record__head {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.2rem;
+  }
+  .work-record__category {
+    text-align: left;
+  }
+  .work-record__index {
+    font-size: var(--text-small);
+  }
+  .work-record__name {
+    font-size: var(--text-h3);
+  }
+  /* The 3.2rem folio gutter is desktop rhythm; at this width it only steals
+     measure from the prose. */
+  .work-record__summary,
+  .work-record__body,
+  .work-proof,
+  .work-record__boundary {
+    margin-left: 0;
+  }
+  .work-record__meta {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+}

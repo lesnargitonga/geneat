@@ -49,7 +49,11 @@ async function audit(page, label) {
     const de = document.documentElement;
     const overflow = de.scrollWidth - de.clientWidth;
     const clipped = [];
-    for (const el of document.querySelectorAll(".flagship *, .status, .proof-object, .route-step")) {
+    // Was scoped to .flagship and friends, which meant every chapter added
+    // after Wave E was invisible to this audit — the work register's links were
+    // never checked at all. Scoped to the whole page instead: a clipping or
+    // target defect does not care which wave introduced the element.
+    for (const el of document.querySelectorAll("main *")) {
       const r = el.getBoundingClientRect();
       if (r.width === 0 && r.height === 0) continue;
       if (r.right > de.clientWidth + 1 || r.left < -1) {
@@ -58,7 +62,7 @@ async function audit(page, label) {
     }
     // touch target check on interactive elements inside the flagship
     const small = [];
-    for (const el of document.querySelectorAll(".flagship a, .flagship button, .route-step")) {
+    for (const el of document.querySelectorAll("main a[href], main button, main [role='button'], .route-step")) {
       const r = el.getBoundingClientRect();
       if (r.height > 0 && r.height < 44) small.push({ sel: el.className || el.tagName, h: Math.round(r.height) });
     }
