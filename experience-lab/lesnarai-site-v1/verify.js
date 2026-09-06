@@ -42,6 +42,8 @@
   }
 
   function probe(fig) {
+    if (fig.pvBusy) return;
+    fig.pvBusy = true;
     var host = fig.getAttribute("data-probe");
     var out = fig.querySelector(".pv");
     var stop = scan(fig, true);
@@ -57,6 +59,8 @@
     function settle(ok) {
       if (settled) return;
       settled = true;
+      fig.pvBusy = false;
+      fig.pvLast = Date.now();
       clearInterval(tick);
       stop();
       var ms = Math.round(performance.now() - t0);
@@ -71,13 +75,39 @@
       .catch(function () { clearTimeout(timer); settle(false); });
   }
 
-  if (!("IntersectionObserver" in window)) { figs.forEach(probe); return; }
+  /* A reading taken when you arrived is an assertion about a moment that has
+     passed - the exact thing this record refuses to do elsewhere. So the check
+     repeats while you are actually looking at it: only for records on screen,
+     only while the tab is in front, and never on top of a request already in
+     flight. A host that comes back up corrects itself without a reload. */
+  var PERIOD = 30000;
+
+  function due(fig) {
+    return !fig.pvBusy && fig.pvOn && !document.hidden &&
+           (!fig.pvLast || Date.now() - fig.pvLast >= PERIOD);
+  }
+
+  function sweep() { figs.forEach(function (f) { if (due(f)) probe(f); }); }
+
+  if (!("IntersectionObserver" in window)) {
+    figs.forEach(function (f) { f.pvOn = true; });
+    sweep();
+    setInterval(sweep, 5000);
+    return;
+  }
+
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) {
-      if (!e.isIntersecting) return;
-      io.unobserve(e.target);
-      probe(e.target);
+      e.target.pvOn = e.isIntersecting;
+      if (e.isIntersecting && due(e.target)) probe(e.target);
     });
   }, { threshold: 0.25 });
   figs.forEach(function (f) { io.observe(f); });
+
+  /* Coming back to the tab is exactly when a stale reading is most misleading. */
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) sweep();
+  });
+
+  setInterval(sweep, 5000);
 })();
