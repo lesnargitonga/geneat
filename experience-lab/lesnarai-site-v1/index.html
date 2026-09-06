@@ -1828,7 +1828,7 @@ body:not(.route-home) .foot__end{margin-top:clamp(18px,2.6vh,24px);padding-top:1
   letter-spacing:-.025em;line-height:1.02}
 .sec--work .reg__head,.sec--skills .kicker{margin-bottom:.15em}
 
-/* ── FIVE RECORDS, FIVE COMPOSITIONS ─────────────────────────────────────────
+/* ── THREE RECORDS, THREE COMPOSITIONS ─────────────────────────────────────────
    One design language, not one layout repeated. Five identical blocks of
    NUMBER / TITLE / SUMMARY / TAGS / LIMIT / SCREENSHOT is what makes a
    portfolio of unusual work read as generated, and the fix is not more
@@ -1837,15 +1837,6 @@ body:not(.route-home) .foot__end{margin-top:clamp(18px,2.6vh,24px);padding-top:1
    .rec--plate    BizMtaani. The strongest surface, so it runs widest and
                   carries the least explanation. Image leads, text sits under
                   it as a caption band.
-   .rec--mirror   Hazina. The same split as Gen-Eat, reversed, so the two
-                  storefronts never read as consecutive near-clones.
-   .rec--focus    CarePro. Product state matters more than scale here, so the
-                  surface is smaller and the text carries more weight.
-   .rec--split    Gen-Eat. The plain two-column reading, kept as the baseline.
-   .rec--surface  Jamii. Live surface first, at full width, text beneath. */
-
-/* ── plate: image leads, text is a band under it ────────────────────────────*/
-.rec--plate{grid-template-columns:minmax(0,1fr)}
 .rec--plate > div{grid-column:1;grid-row:2;padding-bottom:0;
   display:grid;grid-template-columns:minmax(0,26ch) minmax(0,1fr);
   column-gap:clamp(24px,4vw,64px);align-items:start;
@@ -1856,14 +1847,6 @@ body:not(.route-home) .foot__end{margin-top:clamp(18px,2.6vh,24px);padding-top:1
 .rec--plate .rec__sum{margin-top:0;font-size:clamp(16px,1.4vw,19px);max-width:46ch}
 .rec--plate .mr{margin-top:1.2em}
 .rec--plate .stop{margin-left:0;grid-column:2}
-
-/* ── mirror: evidence left, reading right ───────────────────────────────────*/
-.rec--mirror{grid-template-columns:minmax(0,1fr) minmax(0,clamp(300px,31vw,446px))}
-.rec--mirror > div{grid-column:2;grid-row:1}
-/* The mirror is differentiated by reversing the columns, not by bleeding.
-   Bleeding left dragged its caption to -245px and no centring formula could
-   recover it, because the figure's own box starts outside the page. */
-.rec--mirror .rec__proof{grid-column:1;grid-row:1;margin:0}
 
 /* ── focus: the product state, not the scale ────────────────────────────────*/
 .rec--focus{grid-template-columns:minmax(0,clamp(340px,38vw,560px)) minmax(0,1fr);
@@ -1890,9 +1873,6 @@ body:not(.route-home) .foot__end{margin-top:clamp(18px,2.6vh,24px);padding-top:1
 @media(max-width:860px){
   .rec--plate > div,.rec--surface > div{grid-template-columns:minmax(0,1fr);row-gap:12px}
   .rec--plate .stop,.rec--surface .stop{grid-column:1}
-  .rec--mirror{grid-template-columns:minmax(0,1fr)}
-  .rec--mirror > div{grid-column:1;grid-row:1}
-  .rec--mirror .rec__proof{grid-column:1;grid-row:2;margin-left:0}
   .rec--focus{grid-template-columns:minmax(0,1fr)}
 }
 
@@ -2018,6 +1998,32 @@ main{view-transition-name:page-body}
   .site-nav a{padding:0 6px;font-size:13.5px;flex:1;justify-content:center}
   .theme-t{margin-left:auto}
 }
+
+/* ── the three records, spaced as chapters not cards ────────────────────────*/
+.recs{display:grid;gap:clamp(52px,9vh,110px);margin-top:clamp(30px,5vh,60px)}
+.recs__more{margin:clamp(38px,6vh,72px) 0 0}
+.sec--work .recs__more .cta{border-color:rgba(255,255,255,.3);color:#F1F2F3}
+.sec--work .recs__more .cta:hover,.sec--work .recs__more .cta:focus-visible{
+  background:#F1F2F3;color:var(--ink)}
+:root:not([data-theme="dark"]) .sec--work .recs__more .cta{
+  border-color:var(--rule);color:var(--fg)}
+:root:not([data-theme="dark"]) .sec--work .recs__more .cta:hover,
+:root:not([data-theme="dark"]) .sec--work .recs__more .cta:focus-visible{
+  background:var(--fg);color:var(--sheet)}
+/* A record that does not answer is still a record: the capture stays legible
+   and only the caption reports the live state. Desaturating the screenshot
+   conflated "this product exists" with "this host replied in the last 4s". */
+.rec__proof[data-state="fail"] img{filter:none}
+.rec__proof[data-state="fail"] .pv{color:#E08A6A}
+
+/* width:100% without height:auto let the height attribute win, so a capture
+   rendered narrower than its natural width was squashed vertically. */
+.rec__proof img{height:auto}
+/* Full-bleed captures are evidence, not a museum wall: crop to a wide plate
+   from the top, where a product surface is recognisable, instead of running
+   the whole 900px screenshot down the page. */
+.rec--plate .rec__proof img,
+.rec--surface .rec__proof img{max-height:min(58vh,520px);object-fit:cover;object-position:top center}
 </style>
 </head>
 <body class="route-home">
@@ -2039,7 +2045,7 @@ main{view-transition-name:page-body}
     <div class="w">
       <p class="wordmark"><b>Lesnar&nbsp;AI</b><span>Nairobi · engineering studio</span></p>
 
-      <h1 data-set style="min-height:var(--h1h,auto)">We build systems, and publish what they <em>don't claim.</em></h1>
+      <h1 data-set style="min-height:var(--h1h,auto)">We build serious systems, and publish what they <em>don't claim.</em></h1>
 
       <div class="hero__meta">
         <p>A Nairobi engineering studio building software, infrastructure, security and
@@ -2068,10 +2074,67 @@ main{view-transition-name:page-body}
   </div>
 </header>
 
+<section class="sec sec--work" data-af-edge="ink" aria-labelledby="wk-h">
+  <div class="w">
+    <p class="kicker">Selected work</p>
+    <h2 class="h--work" id="wk-h">Work we have actually shipped.</h2>
+    <p class="lede">Three of the five products that are open right now. Each screenshot is the surface
+      as captured, and each record is contacted from your browser as you reach it.</p>
+    <div class="recs">
+      <article class="rec rec--plate">
+        <p class="rec__n">01</p>
+        <div>
+          <h3>BizMtaani</h3>
+          <p class="rec__sum">A neighbourhood marketplace: local shops list what they sell, customers order and pay from a phone, and riders carry the order.</p>
+          <p class="mr"><span>Live product</span><span><a class="lnk" href="work/bizmtaani/">Open the record</a></span></p>
+        </div>
+        <figure class="rec__proof" data-probe="bizmtaani.com">
+          <picture>
+            <source srcset="media/bizmtaani-surface-full.webp" type="image/webp">
+            <img src="media/bizmtaani-surface-full.jpg" alt="The BizMtaani marketplace as captured on 4 September 2026, showing local shops listed for ordering." width="1440" height="900" loading="lazy" decoding="async">
+          </picture>
+          <figcaption>bizmtaani.com &middot; <span class="pv">checking&hellip;</span></figcaption>
+        </figure>
+      </article>
+      <article class="rec rec--focus">
+        <p class="rec__n">02</p>
+        <div>
+          <h3>CarePro</h3>
+          <p class="rec__sum">Book a vetted nurse to care for someone at home, with payment arranged through the platform.</p>
+          <p class="mr"><span>Live product</span><span><a class="lnk" href="work/carepro/">Open the record</a></span></p>
+        </div>
+        <figure class="rec__proof" data-probe="carepro.co.ke">
+          <picture>
+            <source srcset="media/carepro-surface-full.webp" type="image/webp">
+            <img src="media/carepro-surface-full.jpg" alt="The CarePro booking surface as captured on 4 September 2026." width="1440" height="900" loading="lazy" decoding="async">
+          </picture>
+          <figcaption>carepro.co.ke &middot; <span class="pv">checking&hellip;</span></figcaption>
+        </figure>
+      </article>
+      <article class="rec rec--surface">
+        <p class="rec__n">03</p>
+        <div>
+          <h3>Jamii Projects Hub</h3>
+          <p class="rec__sum">See what projects your community is planning, vote on what matters, and keep clear records for a family, chama or welfare group.</p>
+          <p class="mr"><span>Live product</span><span><a class="lnk" href="work/jamii-projects-hub/">Open the record</a></span></p>
+        </div>
+        <figure class="rec__proof" data-probe="jamii.lesnarai.co.ke">
+          <picture>
+            <source srcset="media/jamii-surface-full.webp" type="image/webp">
+            <img src="media/jamii-surface-full.jpg" alt="The Jamii Projects Hub homepage as captured on 4 September 2026, showing a project open for voting." width="1440" height="900" loading="lazy" decoding="async">
+          </picture>
+          <figcaption>jamii.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></figcaption>
+        </figure>
+      </article>
+    </div>
+    <p class="recs__more"><a class="cta" href="work/">All eleven systems in the register</a></p>
+  </div>
+</section>
+
 <section class="sec sec--skills" data-af-edge="sheet" aria-labelledby="sk-h">
   <div class="w">
     <p class="kicker">What we can do</p>
-    <h2 class="h--action" id="sk-h">Work we have actually shipped.</h2>
+    <h2 class="h--action" id="sk-h">Six kinds of work we take on.</h2>
     <p class="lede">Six kinds of work, and for each one the system that proves we have done it
       before. Follow any of them and you land on the record, with its limits stated. Where we
       have not shipped something, it is at the bottom rather than quietly folded in above.</p>
