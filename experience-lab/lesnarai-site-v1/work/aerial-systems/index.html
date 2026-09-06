@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>(function(){try{var t=localStorage.getItem("lai-theme");
+if(t!=="dark"&&t!=="light")t=matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aerial systems · Lesnar AI</title>
+<meta name="description" content="Aerial systems: active research.">
+
+<style>
+:root{
+  --accent:#D4552A;
+  /* ── text (flips with theme) ─────────────────────────────────── */
+  --on-ink:#EDEEEF; --on-ink-2:#B6BABE; --err:#9A2E14;
+  --fg:#0A0B0D; --fg-2:#565C64; --fg-3:#4F555B;
+  /* ── grounds (flip) ──────────────────────────────────────────── */
+  --sheet-2:#EDEEEF; --rule-w:#D5D8DB;
+
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='170' height='170'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='170' height='170' filter='url(%23n)' opacity='0.07'/></svg>");
+  --ink:#0A0B0D;
+  --ink-2:#565C64;
+  --sheet:#EBECEE;        /* Product - cool light */
+  --sheet-cool:#DBDEE1;   /* System - cooler, denser, technical */
+  --sheet-warm:#E8E7E3;   /* Action - a record surface, neutral with a trace of warmth */
+  --rule:#B6BABE;
+  --rule-s:#7E848A;
+  --rule-s-dk:#697079;
+  --rule-dk:#262A2E;
+  --disp:A,"Archivo Fallback","Helvetica Neue",Arial,sans-serif;
+  --mono:M,"Mono Fallback",ui-monospace,monospace;
+}
+/* Metric-matched fallback. The stack already named "Archivo Fallback" but it was
+   never declared, so the swap from the system face reflowed the whole document
+   (CLS 0.216 under throttling). Overrides are derived from Archivo's own metrics:
+   ascent 878/1000, descent 210/1000, lineGap 0, mean advance 0.471em. */
+@font-face{font-family:"Archivo Fallback";src:local("Arial"),local("Liberation Sans"),local("Helvetica");
+  size-adjust:94%;ascent-override:93.4%;descent-override:22.3%;line-gap-override:0%}
+@font-face{font-family:"Mono Fallback";src:local("DejaVu Sans Mono"),local("Liberation Mono"),local("Courier New");
+  size-adjust:97%;ascent-override:80%;descent-override:20%;line-gap-override:0%}
+@font-face{font-family:A;src:url(/fonts/archivo-var.woff2) format('woff2');font-weight:100 900;font-stretch:62% 125%;font-display:swap}
+@font-face{font-family:M;src:url(/fonts/plex-mono.woff2) format('woff2');font-weight:500;font-display:swap}
+
+*{box-sizing:border-box}
+.skip{position:absolute;left:-9999px;top:0;z-index:200;background:var(--ink);color:#fff;
+  padding:12px 18px;text-decoration:none;font:500 12px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.14em;text-transform:uppercase}
+.skip:focus{left:0}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--sheet);color:var(--fg);
+  font:400 16px/1.55 A,"Archivo Fallback",system-ui,sans-serif;
+  font-synthesis-weight:none}
+.w{width:min(1248px,calc(100% - clamp(28px,7vw,96px)));margin-inline:auto}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.site-head :focus-visible,.site-foot :focus-visible{outline-color:#F4F5F6}
+
+/* ── shell ─────────────────────────────────────────────────────────────
+   One header on every route. The register is the studio's spine, so the nav
+   names it first and the mark returns home. */
+.site-head{background:var(--ink);color:#F4F5F6;
+  background-image:var(--grain);background-size:170px 170px;background-repeat:repeat;
+  position:sticky;top:0;z-index:80;border-bottom:1px solid #22262A}
+.site-head .w{display:flex;align-items:center;gap:clamp(16px,3vw,40px);
+  min-height:clamp(56px,7vh,68px);flex-wrap:wrap}
+.site-mark{font-weight:800;font-stretch:120%;letter-spacing:.14em;text-transform:uppercase;
+  font-size:clamp(.82rem,1.2vw,.95rem);text-decoration:none;color:#fff;white-space:nowrap}
+.site-nav{display:flex;gap:clamp(14px,2.2vw,30px);margin-left:auto;flex-wrap:wrap}
+.site-nav a{font:500 10px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.18em;
+  text-transform:uppercase;color:#B6BCC2;text-decoration:none;padding:6px 0;
+  border-bottom:1px solid transparent;transition:color 220ms ease,border-color 220ms ease}
+.site-nav a:hover,.site-nav a:focus-visible{color:#fff;border-bottom-color:#fff}
+.site-nav a[]{color:#fff;border-bottom-color:#fff}
+
+.site-foot{background:var(--ink);color:var(--on-ink-2);margin-top:clamp(60px,10vh,140px);
+  background-image:var(--grain);background-size:170px 170px;padding:clamp(34px,6vh,64px) 0}
+
+.site-foot p{margin:0}
+.site-foot a{color:#D7DBDF}
+
+/* ── page furniture ────────────────────────────────────────────────────── */
+.page{padding:clamp(46px,8vh,96px) 0 0}
+.kicker{margin:0 0 clamp(14px,2vh,22px);font:500 10px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--fg-2)}
+h1{margin:0;font-weight:800;font-stretch:104%;
+  font-size:clamp(2.1rem,5.4vw,4.1rem);line-height:.94;letter-spacing:-.03em;max-width:18ch}
+.lede{margin:clamp(18px,3vh,30px) 0 0;max-width:52ch;font-size:clamp(1rem,1.2vw,1.1rem)}
+.rule{height:1px;background:var(--rule-s);margin:clamp(30px,5vh,56px) 0 0}
+
+/* ── the register index ────────────────────────────────────────────────
+   Every entry carries its maturity in the same breath as its name. A visitor
+   can never read a system's name here without reading what it is not. */
+.reg{list-style:none;margin:clamp(26px,4vh,44px) 0 0;padding:0;
+  border-top:1px solid var(--rule-s)}
+.reg li{border-bottom:1px solid var(--rule-s)}
+.reg a{display:grid;grid-template-columns:3.1rem minmax(0,1fr) minmax(0,20ch) 1.6rem;
+  gap:clamp(12px,2.2vw,34px);align-items:baseline;
+  padding:clamp(18px,3vh,30px) 0;text-decoration:none;
+  transition:background 260ms ease,padding-left 300ms cubic-bezier(.16,1,.3,1)}
+.reg a:hover,.reg a:focus-visible{background:rgba(10,11,13,.045);padding-left:12px}
+.reg .n{font:500 10px/1.6 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.16em;color:var(--fg-2)}
+.reg .nm{font-weight:700;font-stretch:78%;letter-spacing:-.01em;
+  font-size:clamp(1.35rem,3vw,2.3rem);line-height:1.02}
+.reg .mt{font:500 10px/1.6 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--fg-2)}
+.reg .go{justify-self:end;transition:transform 300ms cubic-bezier(.16,1,.3,1)}
+.reg a:hover .go,.reg a:focus-visible .go{transform:translateX(6px)}
+@media (max-width:760px){
+  .reg a{grid-template-columns:2.6rem minmax(0,1fr);row-gap:6px}
+  .reg .mt{grid-column:2}
+  .reg .go{display:none}
+}
+
+/* ── a system page ─────────────────────────────────────────────────────── */
+.sys-head{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);
+  gap:clamp(20px,4vw,72px);align-items:end}
+.mat{display:inline-block;font:500 10px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--fg);
+  border-bottom:2px solid var(--ink);padding-bottom:5px}
+.fact{margin:clamp(28px,5vh,54px) 0 0;display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:clamp(18px,3vw,40px)}
+.fact div{border-top:1px solid var(--rule-s);padding-top:14px}
+.fact b{display:block;font:500 10px/1.6 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--fg-2);margin-bottom:6px}
+.stop{margin:clamp(28px,5vh,54px) 0 0;border-top:2px solid var(--ink);padding-top:14px;max-width:62ch}
+.stop b{display:block;font:500 10px/1.6 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px}
+@media (max-width:760px){ .sys-head{grid-template-columns:minmax(0,1fr)} }
+
+
+/* ── site motion ────────────────────────────────────────────────────────
+   Gated behind data-sv-motion, which only site.js sets. Without JavaScript,
+   and under reduced motion, every rule below is inert and the page renders
+   exactly as authored. */
+[data-sv-motion="on"] .kicker,
+[data-sv-motion="on"] h1,
+[data-sv-motion="on"] .site-foot p{clip-path:inset(-.3em var(--sv-w,0%) -.3em 0)}
+[data-sv-motion="on"] .lede,
+[data-sv-motion="on"] .reg li,
+[data-sv-motion="on"] .fact div,
+[data-sv-motion="on"] .stop,
+[data-sv-motion="on"] .mat,
+[data-sv-motion="on"] .rule{
+  transform:translate3d(0,var(--sv-y,0px),0);}
+@media (prefers-reduced-motion:reduce){
+  [data-sv-motion="on"] .kicker,[data-sv-motion="on"] h1,[data-sv-motion="on"] .site-foot p,
+  [data-sv-motion="on"] .lede,[data-sv-motion="on"] .reg li,[data-sv-motion="on"] .fact div,
+  [data-sv-motion="on"] .stop,[data-sv-motion="on"] .mat,[data-sv-motion="on"] .rule{
+    clip-path:none;transform:none;opacity:1}
+}
+
+/* ══ REGISTER: ART DIRECTION ═══════════════════════════════════════════
+   The register is the studio's spine, so it is set on ink at full bleed and
+   the names run at display scale. Maturity is not a footnote beside the name:
+   it is set in the same row, in mono, so a visitor physically cannot read a
+   system without reading what it is not. */
+body.route-work{background:var(--ink);color:#F1F2F3}
+.route-work .page{padding:clamp(58px,12vh,150px) 0 0}
+.route-work h1{font-stretch:88%;font-size:clamp(2.4rem,7.2vw,6rem);max-width:15ch;
+  letter-spacing:-.035em;color:#fff}
+.route-work .kicker{color:#8E959D}
+.route-work .lede{color:#B6BCC2;max-width:46ch}
+.route-work .rule{background:#2A2F35}
+
+.route-work .reg{border-top:1px solid #5E656D;margin-top:clamp(34px,7vh,74px)}
+.route-work .reg li{border-bottom:1px solid #5E656D;position:relative}
+.route-work .reg a{grid-template-columns:3.4rem minmax(0,1fr) minmax(0,22ch) 2rem;
+  padding:clamp(20px,3.4vh,38px) 0;align-items:center}
+.route-work .reg .n{color:#7C838B}
+.route-work .reg .nm{font-stretch:70%;font-size:clamp(1.6rem,4.4vw,3.4rem);
+  color:#F1F2F3;letter-spacing:-.02em;line-height:.98;
+  transition:transform 420ms cubic-bezier(.16,1,.3,1),color 260ms ease}
+.route-work .reg .mt{color:#8E959D}
+.route-work .reg .go{color:#7C838B}
+
+/* the row lights from its own left edge on approach */
+.route-work .reg li::before{content:"";position:absolute;left:0;top:-1px;height:1px;width:0;
+  background:#F1F2F3;transition:width 520ms cubic-bezier(.16,1,.3,1)}
+.route-work .reg a:hover,.route-work .reg a:focus-visible{background:rgba(255,255,255,.035);padding-left:18px}
+.route-work .reg li:hover::before,.route-work .reg li:focus-within::before{width:100%}
+.route-work .reg a:hover .nm,.route-work .reg a:focus-visible .nm{color:#fff;transform:translateX(4px)}
+.route-work .reg a:hover .mt,.route-work .reg a:focus-visible .mt{color:#D7DBDF}
+.route-work .reg a:hover .go,.route-work .reg a:focus-visible .go{color:#fff}
+.route-work .site-foot{margin-top:clamp(48px,9vh,120px);border-top:1px solid #2A2F35}
+
+/* ══ A SYSTEM PAGE ═════════════════════════════════════════════════════
+   Ink header carrying the name at scale with its maturity locked to it, then
+   the facts on sheet below. The split is the point: the claim and the ground
+   it rests on are visibly different surfaces. */
+.route-system .sys-hero{background:var(--ink);color:#F1F2F3;
+  background-image:var(--grain);background-size:170px 170px;
+  padding:clamp(48px,11vh,130px) 0 clamp(38px,8vh,88px);margin-bottom:clamp(34px,6vh,64px)}
+.route-system .sys-hero .kicker{color:#8E959D}
+.route-system .sys-hero h1{color:#fff;font-stretch:84%;
+  font-size:clamp(2.3rem,7vw,5.6rem);letter-spacing:-.035em;max-width:16ch}
+.route-system .sys-hero .mat{color:#fff;border-bottom-color:#fff}
+.route-system .sys-hero .lede{color:#C2C7CC;max-width:50ch}
+.route-system .fact b{color:var(--fg-2)}
+.route-system .stop{border-top-width:3px}
+
+/* ── the headline sets itself ────────────────────────────────────────────
+   aria-label carries the whole line and every character is aria-hidden, so a
+   screen reader hears one heading, not a stream of letters. */
+h1 .sw{display:inline-block;white-space:nowrap}
+h1 .sc{display:inline-block;will-change:transform,opacity}
+h1[data-set] .sc{opacity:0;transform:translate3d(0,.62em,0) rotate(6deg);
+  animation:sc-set .74s cubic-bezier(.16,1,.3,1) forwards;
+  animation-delay:calc(var(--i) * 24ms)}
+@keyframes sc-set{to{opacity:1;transform:none}}
+
+/* ── route transitions ───────────────────────────────────────────────────
+   Cross-document view transitions: leaving the page wipes out, the arriving
+   page wipes in, and the shell stays put so the header does not blink. */
+
+
+
+
+
+.site-head{view-transition-name:shell-head}
+.site-foot{view-transition-name:shell-foot}
+
+@media (prefers-reduced-motion:reduce){
+  h1[data-set] .sc{opacity:1;transform:none;animation:none}
+  ::view-transition-old(root),
+  
+}
+
+/* Focus rings must follow the ground they land on. The shell's ink ring is
+   correct on sheet and invisible on ink, so every dark surface names a light
+   ring explicitly rather than relying on the cascade order. */
+.skip:focus,.skip:focus-visible{outline:3px solid #F4F5F6;outline-offset:3px}
+.hero :focus-visible,.sec--work :focus-visible,
+.route-work :focus-visible,.sys-hero :focus-visible,
+.site-head :focus-visible,.site-foot :focus-visible{outline-color:#F4F5F6}
+
+/* ══ CLAIM BODY ═══════════════════════════════════════════════════════════
+   The support envelope applied to a published claim. Each clause is one
+   bound; the body is what those bounds leave. It stays open toward operated
+   evidence, because describing a system does not close it. */
+.sec--claim{padding-top:clamp(30px,6vh,60px)}
+
+
+.claim-fig svg{display:block;width:100%;height:auto}
+
+
+.claim-legend li{display:grid;grid-template-columns:1.55rem 1fr;gap:.6rem;
+  align-items:start;font-size:15px;line-height:1.5;color:var(--fg-2)}
+.claim-legend .cn{width:1.35rem;height:1.35rem;border:1px solid currentColor;border-radius:50%;
+  display:grid;place-items:center;font-family:ui-monospace,monospace;font-size:10.5px;
+  color:var(--fg);line-height:1}
+
+
+figure figcaption{display:flex;flex-wrap:wrap;gap:6px 20px;justify-content:space-between;
+  margin-top:14px;font:500 11px/1.6 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--fg-2)}
+figure figcaption .dis{max-width:70ch;text-transform:none;letter-spacing:.06em}
+
+/* ══ DARK ═══════════════════════════════════════════════════════════════
+   The sheet grounds go dark and the text inverts. The ink surfaces (hero,
+   register, code panels) were already dark, so they deepen rather than
+   flip - the page keeps the same light/dark section rhythm either way. */
+:root[data-theme="dark"]{
+  --fg:#E8EAEC; --fg-2:#9AA1A9; --fg-3:#A8AFB6;
+  --sheet:#131619; --sheet-2:#171A1E; --sheet-cool:#0F1215; --sheet-warm:#17191B;
+  --rule:#2F353B; --rule-w:#262B31; --rule-s:#565D65; --rule-s-dk:#6C737B;
+  --ink:#08090B; --err:#FF8A66;
+  color-scheme:dark;
+}
+
+/* ── theme toggle ─────────────────────────────────────────────────────── */
+.site-head .w{display:flex;align-items:center;gap:16px}
+.site-head .site-nav{margin-left:auto}
+.theme-t{display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  background:none;border:1px solid currentColor;color:inherit;
+  font-family:inherit;font-weight:600;font-size:12px;letter-spacing:0;
+  padding:7px 12px;line-height:1;transition:background 140ms ease,color 140ms ease}
+.theme-t:hover,.theme-t:focus-visible{background:currentColor}
+.theme-t:hover .theme-t__l,.theme-t:focus-visible .theme-t__l{color:var(--sheet)}
+.theme-t__i{width:11px;height:11px;border-radius:50%;border:1.5px solid currentColor;
+  background:linear-gradient(90deg,currentColor 0 50%,transparent 50% 100%)}
+.theme-t__l{min-width:2.6em;text-align:left}
+@media(max-width:560px){.theme-t__l{display:none}.theme-t{padding:7px 9px}}
+
+/* ── ARRIVAL ───────────────────────────────────────────────────────────────
+   Text is never hidden, clipped or faded. Two earlier attempts both failed
+   the same reader: fading to zero left blank page, and wiping cut words in
+   half. A fade shallow enough to keep secondary text above 4.5:1 measures
+   0.9 opacity, which is no fade at all - so there is no version of "dim it"
+   that is both visible and legible.
+
+   So the block travels and its print resolves, while every word stays fully
+   readable the whole way. You can read ahead of the scroll, and nothing ever
+   looks truncated. */
+
+/* ── FOOTER ────────────────────────────────────────────────────────────────
+   It used to be three dim lines that said almost nothing. A footer is the
+   last place that can still answer a question, so it now carries the studio,
+   the way to reach it, the register, and the terms of the verification date. */
+.site-foot{background:var(--ink);color:var(--on-ink);
+  padding:clamp(40px,7vh,74px) 0 clamp(26px,4vh,38px);margin-top:0}
+.site-foot .w{display:grid;gap:clamp(24px,4vw,56px);
+  grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr)}
+.site-foot h2{font-weight:700;font-stretch:88%;font-size:1.05rem;letter-spacing:-.01em;
+  margin:0 0 14px;color:var(--on-ink)}
+.foot__id b{display:block;font-weight:800;font-stretch:104%;font-size:1.15rem;
+  letter-spacing:-.015em;color:#fff;margin-bottom:8px}
+.foot__id p{margin:0 0 10px;font-size:14px;line-height:1.6;color:var(--on-ink-2);max-width:34ch}
+.foot__id a{color:#fff;text-underline-offset:3px}
+.site-foot ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.site-foot li a{color:var(--on-ink-2);text-decoration:none;font-size:14px;line-height:1.4;
+  display:inline-block;transition:color 140ms ease}
+.site-foot li a:hover,.site-foot li a:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:3px}
+.foot__end{grid-column:1/-1;margin:clamp(22px,4vh,38px) 0 0;padding-top:18px;
+  border-top:1px solid var(--rule-dk);display:flex;flex-wrap:wrap;gap:8px 26px;
+  font-size:13px;line-height:1.6;color:var(--on-ink-2)}
+.foot__end span{max-width:62ch}
+@media(max-width:820px){.site-foot .w{grid-template-columns:1fr 1fr}
+  .foot__id{grid-column:1/-1}}
+@media(max-width:520px){.site-foot .w{grid-template-columns:1fr}}
+
+.sec--surface{padding-top:clamp(30px,6vh,60px)}
+.surface{margin:0}
+.surface picture{display:block;background:var(--sheet-2)}
+.surface img{display:block;width:100%;height:auto;border:1px solid var(--rule-w)}
+.surface figcaption{margin-top:18px}
+
+/* ── FOOTER, SIZED TO ITS PAGE ─────────────────────────────────────────────
+   Built full to fix a footer that showed almost nothing, then left at that
+   size everywhere: 449px on every page, which is 29% of Contact and 24% of
+   About. The homepage can carry it; a 1,500px page cannot. Elsewhere it keeps
+   the identity, the address and one row of links, and drops the register
+   column that the page above already lists. */
+body:not(.route-home) .site-foot{padding:clamp(30px,4.5vh,48px) 0 clamp(20px,3vh,28px)}
+body:not(.route-home) .site-foot .w{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);
+  align-items:start}
+body:not(.route-home) .site-foot nav[aria-labelledby="foot-reg"]{display:none}
+body:not(.route-home) .foot__id p{max-width:44ch}
+body:not(.route-home) .foot__end{margin-top:clamp(18px,2.6vh,24px);padding-top:14px}
+@media(max-width:820px){
+  body:not(.route-home) .site-foot .w{grid-template-columns:1fr}
+}
+
+/* ── ONE SCALE, ONE BODY SIZE ──────────────────────────────────────────────
+   The page was running 30px and 31px as separate steps, which at reading
+   distance is one size with two names. And it had two body sizes competing,
+   15px used 54 times against 13px used 40, so the eye kept re-adjusting with
+   no settled reading size.
+
+   13px is now metadata only: captions, tags, maturity, the things you scan
+   rather than read. Prose sits at 15px. The scale reads
+   86 / 64 / 42 / 30 / 22 / 17 / 15 / 13 / 11. */
+.sk__c > p,
+.sk__gap p,
+.sk__l li,
+.rec__sum,
+.stop,
+.proof-lede,
+.claim-legend li{font-size:15px;line-height:1.55}
+.sk__by{font-size:14px;line-height:1.5}
+.crow p:not([class]){font-size:13px}
+
+/* ── PROSE IS INK, METADATA IS GREY ────────────────────────────────────────
+   The page ran 95 elements in the muted tone against 39 in full ink, so almost
+   every word was set in the quiet colour and the whole thing read flat and
+   timid regardless of how well the type was sized. Hierarchy was being carried
+   by size alone.
+
+   Prose you are meant to read is now ink. The grey is kept for what it was for:
+   captions, tags, maturity, dates, the things you scan. */
+.lede,
+.sys__lede,
+.rec__sum,
+.proof-lede,
+.sk__c > p,
+.sk__l li,
+.claim-legend li,
+.stop{color:var(--fg)}
+.sec--work .lede,
+.sec--work .rec__sum,
+.sec--work .stop{color:var(--on-ink)}
+:root:not([data-theme="dark"]) .sec--work .lede,
+:root:not([data-theme="dark"]) .sec--work .rec__sum,
+:root:not([data-theme="dark"]) .sec--work .stop{color:var(--fg)}
+/* metadata stays quiet */
+.sk__by,.crow p:not([class]),.crow__m,.crow__n,figcaption{color:var(--fg-2)}
+/* the footer is ink in both themes, so its quiet tone is the ink one */
+.foot__end,.foot__end span{color:var(--on-ink-2)}
+
+/* ══ PROJECT PAGE GRAMMAR ═══════════════════════════════════════════════════
+   Eleven pages, one grammar, evidence-led variants. These pages read as
+   documentation: an uppercase mono fact grid, no editorial frame, no primary
+   action, and a bare back-link as the only exit. The homepage language is
+   applied here so the site reads as one studio.
+
+   A · hero      name, one sentence, state, primary action if there is one
+   B · evidence  varies by project - capture, artefact, or typography
+   C · state     what is and is not claimed
+   D · onward    related systems, then the register
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── A · hero ───────────────────────────────────────────────────────────────*/
+.route-system .sys-hero{padding:clamp(46px,9vh,104px) 0 clamp(34px,6vh,72px)}
+.route-system .sys-hero h1{font-size:clamp(2.4rem,6.4vw,5.4rem);font-stretch:76%;
+  letter-spacing:-.038em;line-height:.92;max-width:18ch}
+.sys-head{display:grid;gap:clamp(18px,2.6vh,30px)}
+.sys-lede{margin:0;max-width:52ch;font-size:clamp(16px,1.4vw,19px);line-height:1.5;
+  color:var(--on-ink-2)}
+
+/* state and action share one row so the hero closes on something actionable */
+.sys-act{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;margin-top:2px}
+.sys-state{padding:5px 11px;border:1px solid rgba(255,255,255,.28);
+  font-size:11.5px;line-height:1.35;color:var(--on-ink-2);white-space:nowrap}
+.sys-open{display:inline-flex;align-items:center;gap:9px;
+  padding:13px 22px;border:1px solid #fff;background:#fff;color:var(--ink);
+  font-weight:600;font-size:14.5px;text-decoration:none;
+  transition:background 160ms ease,color 160ms ease}
+.sys-open:hover,.sys-open:focus-visible{background:transparent;color:#fff}
+.sys-open span{font-size:1.05em;line-height:1}
+
+/* ── B · evidence section heads ─────────────────────────────────────────────*/
+.route-system .ev-h{margin:0 0 .5em;font-size:clamp(1.35rem,2.5vw,2rem);
+  font-weight:700;font-stretch:80%;letter-spacing:-.028em;line-height:1;color:var(--fg)}
+.route-system .ev-lede{margin:0 0 clamp(20px,3vh,32px);max-width:56ch;
+  font-size:15px;line-height:1.55;color:var(--fg-2)}
+
+/* ── C · the fact row, in the homepage's chip language ──────────────────────*/
+.route-system .fact{display:flex;flex-wrap:wrap;gap:10px 12px;
+  border-top:0;padding-top:0;margin-top:clamp(26px,4vh,44px)}
+.route-system .fact > div{display:flex;align-items:baseline;gap:8px;
+  padding:6px 12px;border:1px solid var(--rule);font-size:13px;color:var(--fg)}
+.route-system .fact b{font-family:inherit;font-weight:500;font-size:11.5px;
+  letter-spacing:0;text-transform:none;color:var(--fg-2);display:inline}
+
+/* ── D · onward ─────────────────────────────────────────────────────────────*/
+.onward{margin-top:clamp(44px,7vh,88px);padding-top:clamp(22px,3vh,32px);
+  border-top:2px solid var(--fg)}
+.onward__h{margin:0 0 clamp(14px,2vh,20px);font-size:13px;font-weight:600;
+  letter-spacing:0;color:var(--fg-2)}
+.onward__l{list-style:none;margin:0;padding:0;display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;
+  background:var(--rule);border:1px solid var(--rule)}
+.onward__l li{background:var(--sheet)}
+.onward__l a{display:grid;gap:5px;padding:16px 18px;text-decoration:none;color:inherit;
+  transition:background 180ms ease}
+.onward__l a:hover,.onward__l a:focus-visible{background:var(--sheet-cool)}
+.onward__l b{font-weight:660;font-stretch:88%;font-size:1.05rem;letter-spacing:-.015em;
+  color:var(--fg)}
+.onward__l span{font:500 11.5px/1.4 M,"Mono Fallback",ui-monospace,monospace;color:var(--fg-2)}
+.onward__back{margin:clamp(20px,3vh,30px) 0 0}
+.onward__back a{color:var(--fg);text-decoration:underline;text-underline-offset:4px;
+  text-decoration-color:var(--rule-s);font-size:15px}
+.onward__back a:hover,.onward__back a:focus-visible{text-decoration-color:currentColor}
+
+@media(max-width:620px){
+  .sys-act{gap:10px}
+  .sys-open{width:100%;justify-content:center}
+}
+
+/* visually hidden, still announced - used for the "opens in a new tab" hint */
+.vh{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+/* The state was appearing twice in the hero: an uppercase underlined .mat
+   label at the top and the chip in the action row. The chip is the homepage's
+   language, so the older label goes. */
+.route-system .sys-hero .mat{display:none}
+/* Captions were uppercase mono at 9-10px, which is the costume the homepage
+   dropped. Same size and case as every other caption on the site. */
+.route-system figcaption,.route-system figcaption span{
+  font-family:M,"Mono Fallback",ui-monospace,monospace;
+  font-size:11.5px;letter-spacing:0;text-transform:none;line-height:1.5}
+.route-system figcaption .dis{text-transform:none;letter-spacing:0}
+
+/* the kicker matches the homepage: 12px, sentence case, no tracking costume */
+.route-system .kicker,.route-work .kicker{font-family:inherit;font-weight:600;
+  font-size:12px;line-height:1;letter-spacing:.01em;text-transform:none;
+  color:var(--on-ink-2)}
+.route-work .kicker{color:var(--fg-2)}
+
+/* ══ WHAT IS COMMITTED ══════════════════════════════════════════════════════
+   Six project pages ended with the same black geometric wedge - one drawing,
+   repeated verbatim, reading as a blob at any distance. It was a picture
+   generated from a text file, which is a worse artefact than the text file,
+   and it made six different systems look identical on the wall.
+
+   The clauses were always the real material. They are the commitments the
+   register publishes, so they are set as commitments: numbered, at reading
+   scale, with the open direction stated in words rather than drawn as an
+   unbounded region nobody can read.
+
+   Each page has a different number of them - 5, 3, 3, 2, 2, 1 - so the
+   composition differs by evidence rather than by decoration. */
+.commits{margin:clamp(24px,3.6vh,40px) 0 0;list-style:none;padding:0;
+  display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.commits li{background:var(--sheet);display:grid;
+  grid-template-columns:3.2rem minmax(0,1fr);gap:clamp(14px,2vw,28px);
+  padding:clamp(16px,2.2vh,24px) clamp(14px,2vw,24px);align-items:baseline}
+.commits__n{font:500 12px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.14em;color:var(--fg-2)}
+.commits__t{margin:0;font-size:clamp(1.05rem,1.8vw,1.35rem);font-weight:600;
+  font-stretch:92%;letter-spacing:-.012em;line-height:1.3;color:var(--fg)}
+.commits__open{margin:clamp(18px,2.6vh,26px) 0 0;padding-left:16px;
+  border-left:2px solid var(--rule);max-width:64ch;
+  font-size:15px;line-height:1.6;color:var(--fg-2)}
+.commits__open b{color:var(--fg);font-weight:600}
+
+/* footer page links stack; two of them were sharing a line after the new
+   entry was inserted inline */
+.site-foot nav a{display:block}
+
+/* ══ PAGE CONTINUITY ════════════════════════════════════════════════════════
+   Cross-document view transitions. The shell holds still and the content
+   crossfades, so moving between pages reads as continuity rather than as a
+   slide. Nothing travels far enough to register as an effect - the point is
+   that the wordmark and navigation never blink.
+
+   Unsupported browsers navigate instantly. Reduced motion is instant. */
+@view-transition{navigation:auto}
+.site-head{view-transition-name:shell-head}
+.site-foot{view-transition-name:shell-foot}
+main{view-transition-name:page-body}
+::view-transition-old(page-body){animation:pc-out 140ms cubic-bezier(.4,0,1,1) both}
+::view-transition-new(page-body){animation:pc-in 260ms cubic-bezier(.16,1,.3,1) both}
+@keyframes pc-out{to{opacity:0;transform:translateY(-6px)}}
+@keyframes pc-in{from{opacity:0;transform:translateY(8px)}}
+::view-transition-old(shell-head),::view-transition-new(shell-head),
+::view-transition-old(shell-foot),::view-transition-new(shell-foot){animation:none}
+@media(prefers-reduced-motion:reduce){
+  @view-transition{navigation:none}
+  ::view-transition-old(page-body),::view-transition-new(page-body){animation:none}
+}
+
+/* ── THE HEADLINE SETS ITSELF, ON EVERY PAGE ────────────────────────────────
+   This was bound to .hero h1, a container only the homepage has, so every
+   other page loaded with the axis already at rest. The page's own h1 carries
+   it now, whatever wrapper it sits in. */
+.page h1,.sys-hero h1,.nf h1{--wd:100;font-variation-settings:"wdth" var(--wd);
+  will-change:font-variation-settings}
+@media (prefers-reduced-motion:no-preference){
+  .page h1[data-set],.sys-hero h1[data-set],.nf h1[data-set]{--wd:72;
+    animation:h1-set 1050ms cubic-bezier(.16,1,.3,1) 90ms forwards}
+}
+@keyframes h1-set{from{--wd:72}to{--wd:100}}
+@property --wd{syntax:"<number>";inherits:false;initial-value:100}
+
+/* the axis needs its properties declared wherever a name is set */
+.live-e h3{--rw:96}
+.held-e__name{--cw:88}
+.sv__t h2,.pr__t h2,.reg-band__h h2,.sk__c h3{--rw:82}
+.onward__l b{--cw:88}
+.live-e h3,.sv__t h2,.pr__t h2,.reg-band__h h2,.sk__c h3{
+  font-variation-settings:"wdth" var(--rw)}
+.held-e__name,.onward__l b{font-variation-settings:"wdth" var(--cw)}
+@property --rw{syntax:"<number>";inherits:false;initial-value:96}
+@property --cw{syntax:"<number>";inherits:false;initial-value:88}
+/* [hidden] must beat any display rule that follows it */
+[hidden]{display:none!important}
+
+/* ── NAVIGATION YOU CAN ACTUALLY HIT ────────────────────────────────────────
+   The nav was 10px uppercase mono at 23px tall, with "Home" a 31px-wide tap
+   target - half the 44px minimum, and small enough that it read as fine print
+   rather than navigation. Same family and weight as the rest of the site, at a
+   size a thumb can find. */
+.site-nav{gap:clamp(2px,.6vw,10px)}
+.site-nav a{font-family:inherit;font-weight:600;font-size:14px;line-height:1;
+  letter-spacing:0;text-transform:none;
+  display:inline-flex;align-items:center;min-height:44px;padding:0 12px;
+  border-bottom:2px solid transparent;
+  transition:border-color 160ms ease,color 160ms ease}
+.site-nav a:hover,.site-nav a:focus-visible{border-bottom-color:currentColor}
+.site-nav a[aria-current="page"]{border-bottom-color:currentColor}
+.site-head{padding-block:6px}
+
+/* the wordmark is the route home, so it should look like one */
+.site-mark{display:inline-flex;align-items:center;min-height:44px}
+
+@media(max-width:640px){
+  .site-head .w{flex-wrap:wrap;row-gap:2px}
+  .site-nav{width:100%;justify-content:space-between;order:3;
+    margin-left:0;border-top:1px solid var(--rule-dk);padding-top:2px}
+  .site-nav a{padding:0 6px;font-size:13.5px;flex:1;justify-content:center}
+  .theme-t{margin-left:auto}
+}
+
+/* ── BACK, WHERE YOU LOOK FOR IT ────────────────────────────────────────────
+   The only route back was a text link at the very bottom of the page. This one
+   sits above the title, where a reader who has decided this is not the project
+   they wanted will actually look. */
+.backto{display:inline-flex;align-items:center;gap:9px;min-height:44px;
+  margin:0 0 clamp(10px,1.6vh,18px);padding:0 14px 0 11px;
+  border:1px solid rgba(255,255,255,.30);color:var(--on-ink);
+  font-weight:600;font-size:13.5px;text-decoration:none;
+  transition:background 160ms ease,color 160ms ease,border-color 160ms ease}
+.backto:hover,.backto:focus-visible{background:var(--on-ink);color:var(--ink);
+  border-color:var(--on-ink)}
+.backto span{font-size:1.05em;line-height:1}
+
+/* ── CLOSE THE DEAD BAND ────────────────────────────────────────────────────
+   The project pages opened with ~140px of empty sheet between the ink hero and
+   the first fact, which read as a loading gap rather than as air. */
+.route-system .page{padding-top:clamp(22px,3.4vh,40px)}
+.route-system .fact{margin-top:0}
+.route-system .stop{margin-top:clamp(16px,2.4vh,24px)}
+.route-system .sec--surface,.route-system .ev-h{margin-top:clamp(26px,4vh,48px)}
+</style>
+<link rel="canonical" href="https://lesnarai.co.ke/work/aerial-systems/">
+</head>
+<body class="route-system">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head">
+  <div class="w">
+    <a class="site-mark" href="../../">Lesnar&nbsp;AI</a>
+    <button class="theme-t" type="button" aria-pressed="false" title="Switch between light and dark"><span class="theme-t__i" aria-hidden="true"></span><span class="theme-t__l">Dark</span></button><nav class="site-nav" aria-label="Main"><a href="../../">Home</a><a href="../../work/" aria-current="page">Work</a><a href="../../services/">Services</a><a href="../../about/">About</a><a href="../../book/">Book</a></nav>
+  </div>
+</header>
+<main id="main">
+<div class="sys-hero"><div class="w">
+  <a class="backto" href="../"><span aria-hidden="true">&larr;</span> All work</a><p class="kicker">10 · Register entry</p>
+  <div class="sys-head">
+    <h1>Aerial systems</h1>
+    <p><span class="mat">active research</span></p>
+  </div>
+  <p class="lede">Airframe and flight-control research, carried out in an Unreal simulation on top of an existing open-source flight stack. Nothing has been flown.</p><div class="sys-act"><span class="sys-state">Active research</span></div></div></div><div class="page"><div class="w">
+  <div class="fact">
+    <div><b>Public surface</b>None published</div>
+    <div><b>Maturity</b>active research</div>
+    <div><b>Verified</b>No public surface, so nothing to reach or check</div>
+  </div>
+  <p class="stop">No flight result is claimed. PX4 is upstream software, not studio work.</p>
+</div></div>
+
+<section class="w sec--claim" aria-labelledby="claim-h">
+  <h2 id="claim-h">What is committed</h2>
+  <p class="proof-lede">Nothing here is operated, so nothing operated is shown. What the register does publish is the set of commitments this system is built to hold. They are listed below exactly as stated.</p>
+  <ul class="commits"><li><span class="commits__n">01</span><p class="commits__t">An upstream flight stack present</p></li><li><span class="commits__n">02</span><p class="commits__t">An Unreal simulation project</p></li></ul><p class="commits__open"><b>Not established.</b> No flight result is claimed. PX4 is upstream software, not ours. A commitment is not a measurement: these are what the system is built to do, not evidence that it has done it.</p>
+</section>
+<div class="w onward"><p class="onward__h">Related systems</p><ul class="onward__l"><li><a href="../sensing-and-radar/"><b>Sensing and radar</b><span>Research direction</span></a></li><li><a href="../greenhouse-controller/"><b>Greenhouse controller</b><span>Validated prototype</span></a></li></ul><p class="onward__back"><a href="../">All eleven systems in the register</a></p></div>
+
+<section class="w sec--surface" aria-labelledby="af-h">
+  <h2 id="af-h">The airframe, opened up</h2>
+  <p class="proof-lede">Nothing has been flown, so there is no flight to show. What exists is the
+    hardware on the bench: a stock collapsible airframe taken apart to reach the control side.
+    It is photographed as it is, in its case, rather than described.</p>
+  <figure class="surface">
+    <picture>
+      <source srcset="/media/aerial-airframe.webp" type="image/webp">
+      <img src="/media/aerial-airframe.jpg" alt="A small collapsible drone opened in its carry case: the controller, the folded airframe with its shell removed, exposed motor wiring and the battery." width="1440" height="1080" loading="lazy" decoding="async">
+    </picture>
+    <figcaption>
+      <span>Photographed 4 September 2026 &middot; Nairobi</span>
+      <span class="dis">A stock consumer airframe, disassembled. It evidences that the hardware
+        exists and has been opened; it is not a custom aircraft, and it is not evidence of flight,
+        range, endurance or autonomy. No flight result is claimed.</span>
+    </figcaption>
+  </figure>
+</section>
+</main>
+<footer class="site-foot">
+  <div class="w">
+    <div class="foot__id">
+      <b>Lesnar&nbsp;AI</b>
+      <p>An engineering studio in Nairobi, Kenya, building software, infrastructure,
+         security and physical systems.</p>
+      <p><a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a></p>
+    </div>
+    <nav aria-labelledby="foot-reg">
+      <a href="../../">Home</a>
+      <a href="../../work/">Work</a>
+      <a href="../../services/">Services</a>
+      <a href="../../pricing/">Pricing</a>
+      <a href="../../engagement/">How we work</a>
+      <a href="../../about/">About</a>
+      <a href="../../book/">Book</a>
+      <a href="../../contact/">Contact</a>
+    </nav>
+    
+    <p class="foot__end">
+      <span>Each published surface is contacted from your browser when you reach its record,
+        so what you see is what answered just now. That is reachability only, never an uptime
+        record, and a surface that answers now may not answer later.</span>
+      <span>&copy; 2026 Lesnar AI</span>
+    </p>
+  </div>
+</footer>
+<script src="../../site.js" defer></script>
+<script src="../../theme.js" defer></script>
+<script src="../../axis.js" defer></script>
+</body>
+</html>

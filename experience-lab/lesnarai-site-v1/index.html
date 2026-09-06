@@ -1,0 +1,2249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>(function(){try{var t=localStorage.getItem("lai-theme");
+if(t!=="dark"&&t!=="light")t=matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesnar AI · Nairobi engineering studio</title>
+<meta name="description" content="Nairobi engineering studio building software, infrastructure, security and physical systems - and publishing what each one does not claim.">
+<link rel="canonical" href="https://lesnarai.co.ke/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico" sizes="48x48">
+<meta name="theme-color" content="#0A0B0D">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lesnar AI">
+<meta property="og:title" content="Lesnar AI · Nairobi engineering studio">
+<meta property="og:description" content="Nairobi engineering studio building software, infrastructure, security and physical systems - and publishing what each one does not claim.">
+<meta property="og:url" content="https://lesnarai.co.ke/">
+<meta property="og:image" content="https://lesnarai.co.ke/media/share.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" as="font" type="font/woff2" href="/fonts/archivo-var.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plex-mono.woff2" crossorigin>
+
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   LESNAR AI - ARTIFACT-FIRST · v4 art direction pass
+
+   The concept is unchanged: the actual work is the primary visual material.
+   What changed is the art direction.
+
+   v3's defect was that every chapter shouted in the same voice - one condensed
+   uppercase display treatment applied five times, which reads as repetition
+   rather than hierarchy. v4 replaces Barlow Condensed with ARCHIVO VARIABLE and
+   uses its WIDTH AXIS to give each chapter its own voice inside one family:
+
+     hero    wdth 112 / wght 800   largest, unmistakable
+     product wdth 100 / wght 700   strong, materially integrated
+     system  wdth  80 / wght 600   quiet, technical, low volume
+     action  wdth  90 / wght 650   procedural, uppercase, letterspaced
+     work    wdth 122 / wght 700   expanded caps - archival authority
+
+   COLOUR STILL COMES FROM THE ARTIFACTS. The structural system is ink and cold
+   neutral, but the neutral is no longer one flat grey: each chapter sits on a
+   slightly different temperature so the page reads as a sequence of surfaces
+   rather than as one document.
+
+   Depth comes from crop, scale, overlap and occlusion. No glass, no shadows,
+   no tilt, no device mockups, no motion.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Metric-matched fallback. The stack already named "Archivo Fallback" but it was
+   never declared, so the swap from the system face reflowed the whole document
+   (CLS 0.216 under throttling). Overrides are derived from Archivo's own metrics:
+   ascent 878/1000, descent 210/1000, lineGap 0, mean advance 0.471em. */
+@font-face{font-family:"Archivo Fallback";src:local("Arial"),local("Liberation Sans"),local("Helvetica");
+  size-adjust:94%;ascent-override:93.4%;descent-override:22.3%;line-gap-override:0%}
+@font-face{font-family:"Mono Fallback";src:local("DejaVu Sans Mono"),local("Liberation Mono"),local("Courier New");
+  size-adjust:97%;ascent-override:80%;descent-override:20%;line-gap-override:0%}
+@font-face{font-family:A;src:url(/fonts/archivo-var.woff2) format('woff2');font-weight:100 900;font-stretch:62% 125%;font-display:swap}
+@font-face{font-family:M;src:url(/fonts/plex-mono.woff2) format('woff2');font-weight:500;font-display:swap}
+
+:root{
+  --accent:#D4552A;
+  /* ── text (flips with theme) ─────────────────────────────────── */
+  --veil:rgba(255,255,255,.42); --stage-hi:#D3D2CE; --hover:#EDECE8;
+  --on-ink:#EDEEEF; --on-ink-2:#B6BABE; --err:#9A2E14;
+  --chip:rgba(10,11,13,.075);
+  --fg:#0A0B0D; --fg-2:#565C64; --fg-3:#4F555B;
+  /* ── grounds (flip) ──────────────────────────────────────────── */
+  --sheet-2:#EDEEEF; --rule-w:#D5D8DB;
+
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='170' height='170'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='170' height='170' filter='url(%23n)' opacity='0.07'/></svg>");
+  --ink:#0A0B0D;
+  --ink-2:#565C64;
+  --sheet:#EBECEE;        /* Product - cool light */
+  --sheet-cool:#DBDEE1;   /* System - cooler, denser, technical */
+  --sheet-warm:#E8E7E3;   /* Action - a record surface, neutral with a trace of warmth */
+  --rule:#B6BABE;
+  --rule-s:#7E848A;
+  --rule-s-dk:#697079;
+  --rule-dk:#262A2E;
+  --disp:A,"Archivo Fallback","Helvetica Neue",Arial,sans-serif;
+  --mono:M,"Mono Fallback",ui-monospace,monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--sheet);color:var(--fg);
+  font-family:var(--disp);font-weight:400;font-stretch:100%;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{display:block;max-width:100%}
+.w{max-width:1340px;margin:0 auto;padding:0 clamp(18px,3.4vw,46px)}
+
+/* ── one type system, five voices ─────────────────────────────────────── */
+h1,h2,h3{margin:0;font-family:var(--disp)}
+h1{font-weight:800;font-stretch:104%;font-size:clamp(2.4rem,6vw,5.4rem);
+  line-height:.94;letter-spacing:-.032em;max-width:min(20ch,78%)}
+.h--product{font-weight:700;font-stretch:100%;font-size:clamp(1.85rem,4.5vw,3.6rem);
+  line-height:1;letter-spacing:-.024em;max-width:17ch}
+.h--system{font-weight:600;font-stretch:80%;font-size:clamp(1.25rem,2.5vw,1.95rem);
+  line-height:1.12;letter-spacing:-.004em;max-width:26ch}
+.h--action{font-weight:640;font-stretch:92%;font-size:clamp(1.5rem,3.3vw,2.6rem);
+  line-height:1.06;letter-spacing:-.018em;max-width:24ch}
+.h--work{font-weight:700;font-stretch:96%;font-size:clamp(2rem,5vw,4rem);
+  line-height:1;letter-spacing:-.03em;max-width:20ch}
+
+.an{font-family:inherit;font-weight:500;font-size:12.5px;letter-spacing:0;text-transform:none;line-height:1.5;color:var(--fg-2)}
+.an b{color:var(--fg);font-weight:600}
+.kicker{font-family:inherit;font-weight:600;font-size:12px;line-height:1;letter-spacing:.01em;text-transform:none;
+  color:var(--fg-2);margin:0 0 16px}
+.lede{font-size:16px;line-height:1.52;color:var(--fg-2);max-width:52ch;margin:18px 0 0}
+code{font:500 .88em/1 var(--mono);background:var(--chip);color:var(--fg);padding:2px 4px}
+
+/* NOT CLAIMED - the material stops at the rule. Kept as a hard physical stop,
+   but the geometry is no longer repeated identically everywhere: the left bar
+   is dropped where the layout already provides an edge. */
+.stop{position:relative;margin-top:20px;padding:0;max-width:60ch;
+  font-size:13px;line-height:1.55;color:var(--fg-2)}
+
+.stop b{display:block;font-family:inherit;font-weight:600;font-size:12px;letter-spacing:0;text-transform:none;line-height:1.35;
+  color:var(--fg);margin-bottom:7px}
+.stop--flat{padding-left:0}
+.stop--flat::before{display:none}
+
+/* ── links, CTAs, focus ───────────────────────────────────────────────── */
+.cta{display:inline-flex;align-items:center;gap:12px;text-decoration:none;
+  font-family:inherit;font-weight:600;font-size:15px;line-height:1;letter-spacing:-.005em;text-transform:none;
+  padding:16px 24px;border:1px solid currentColor;color:#F4F5F6;
+  transition:background 140ms ease,color 140ms ease}
+.cta::after{content:"\2193";font-size:14px;line-height:1}
+.cta:hover,.cta:focus-visible{background:var(--on-ink);color:var(--ink)}
+.lnk{color:inherit;text-decoration:none;border-bottom:1px solid currentColor;
+  padding-bottom:1px;transition:opacity 140ms ease}
+.lnk::after{content:"\2197";margin-left:5px;font-size:.9em}
+.lnk:hover{opacity:.66}
+:focus-visible{outline:3px solid #F4F5F6;outline-offset:3px}
+/* Ink outline on LIGHT sections only. `.sec :focus-visible` also matched the
+   ink Work register, giving those three links an ink ring on an ink ground at
+   1.00:1: an invisible focus indicator, WCAG 2.2 SC 1.4.11 and 2.4.11. Named
+   explicitly rather than with :not(), so adding a dark section later cannot
+   silently reintroduce it. */
+
+
+/* ── ACTION COMPOSITION ──────────────────────────────────────────────────
+   The record used a third of the width and left the rest empty, while the
+   section's most honest statement - that this work has never been
+   photographed - sat in a footnote. The absence now holds the space the
+   record does not, declared at the scale the claim deserves. */
+.act{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);
+  gap:clamp(26px,4.4vw,76px);align-items:start;margin:clamp(26px,3.6vh,40px) 0 0}
+.absence{position:sticky;top:clamp(20px,7vh,74px);border:1px dashed var(--rule-s);
+  padding:clamp(20px,2.6vw,32px);background:var(--veil)}
+.absence i{display:block;font-family:inherit;font-weight:500;font-size:12.5px;line-height:1.5;
+  letter-spacing:0;color:var(--fg-2);font-style:normal;margin:0 0 clamp(14px,2vh,20px)}
+.absence b{display:block;font-weight:800;font-stretch:88%;
+  font-size:clamp(1.5rem,2.9vw,2.5rem);line-height:.94;letter-spacing:-.022em;
+  margin:0 0 clamp(12px,1.8vh,18px)}
+.absence span{display:block;max-width:36ch}
+
+/* ── SECTION HEADER BAND ─────────────────────────────────────────────────
+   Kicker, heading, lede stacked down the left was the same skeleton in every
+   section, and it left the whole upper right of Product empty. The lede now
+   sits beside the heading, which fills the band and gives the section a
+   different opening shape from its neighbours. */
+.hd{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);
+  gap:clamp(20px,4vw,72px);align-items:end}
+.hd .lede{margin:0}
+.hd__note{padding:0 0 clamp(4px,.8vh,10px)}
+
+.absence .stop{margin:clamp(20px,3vh,28px) 0 0}
+/* ═══ HERO ══════════════════════════════════════════════════════════════
+   The identity and the proposition come FIRST in the document, so mobile - which flows in source order - never opens on someone else's product. On
+   desktop the artifact stage is lifted out of flow and sits behind. */
+/* ── THE HERO GROUND ───────────────────────────────────────────────────────
+   The bench itself, not a flat black. It is the real room the eleven systems
+   were built in, so it carries more than a colour could - and the register is
+   open on the monitor in it.
+
+   Legibility is not left to luck: the photograph sits under a fixed scrim
+   heavy enough that the headline measures the same against it as it did
+   against solid ink. Measured from rendered pixels, not assumed. */
+.hero{position:relative;background:var(--ink);color:#F4F5F6;overflow:hidden;
+  min-height:clamp(600px,97vh,960px);display:flex;flex-direction:column;justify-content:flex-end}
+/* Flex items shrink by default. The hero is taller than one screen now, so
+   without this the headline is squeezed and overflows off the top edge. */
+.hero>*{flex:0 0 auto}
+.hero__fg{position:relative;z-index:3;padding:clamp(72px,11vh,124px) 0 clamp(16px,2vh,26px)}
+/* The headline is the composition. Everything else in the hero is scale
+   relative to it, and the evidence is the surface it is set on, not a panel
+   parked above it. */
+.hero h1{text-wrap:balance;text-shadow:0 1px 24px rgba(8,9,11,.42)}
+
+.wordmark{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:0 0 clamp(22px,4vh,44px)}
+.wordmark b{font-weight:800;font-stretch:120%;font-size:clamp(1rem,1.5vw,1.22rem);
+  letter-spacing:.14em;text-transform:uppercase;color:#fff}
+.wordmark span{font-family:inherit;font-weight:500;font-size:13px;line-height:1;
+  letter-spacing:0;text-transform:none;color:#949BA2}
+.wordmark::after{content:"";flex:1 1 120px;height:1px;background:#2A2F35;
+  align-self:center;min-width:60px}
+
+.hero h1 em{font-style:normal;color:#F4F5F6}
+.hero__meta{display:flex;gap:clamp(20px,3.4vw,52px);flex-wrap:wrap;align-items:flex-start;
+  margin-top:clamp(18px,2.4vh,28px);padding-top:18px;border-top:1px solid var(--rule-dk)}
+.hero__meta p{margin:0;max-width:31ch;font-size:14.5px;line-height:1.5;color:#B2B8BF}
+.hero__meta .an{max-width:26ch;line-height:1.6;color:#8F969D;
+  font-family:inherit;font-weight:400;font-size:14.5px;letter-spacing:0;text-transform:none}
+.hero__meta .an b{white-space:nowrap}
+.hero__meta .an b{color:#F4F5F6}
+.hero__cta{margin:clamp(18px,2.4vh,26px) 0 0}
+
+/* Place: a small grounded record, not a skyline divider. */
+.place{display:flex;align-items:flex-start;gap:16px;margin-left:auto;
+  border-left:1px solid var(--rule-dk);padding-left:14px}
+/* This is the best photograph on the site and it was being shown at stamp
+   size. It carries the studio, so it gets the room to. */
+.place img{width:clamp(190px,20vw,320px);height:auto;object-fit:cover;align-self:start;
+  filter:grayscale(1) contrast(1.3) brightness(.8)}
+.place .an{color:#7C838B;line-height:1.65}
+.place .an b{color:#F4F5F6}
+
+/* ── the artifact stage ─────────────────────────────────────────────────
+   The control plane is dimmed to hold depth behind the headline, EXCEPT
+   inside the selected region, where a second copy of the same image is
+   clipped in at full strength. The visitor reads real operational material
+   without having to inspect the screenshot separately, and the page keeps
+   its dark ground. */
+.hero__stage{position:absolute;inset:0;z-index:1;pointer-events:none}
+.cp{position:absolute;top:clamp(56px,9vh,104px);left:clamp(210px,24vw,392px);right:-3%;
+  width:auto;max-width:none;height:auto}
+.cp img{width:100%;height:auto;display:block}
+.cp__dim{filter:brightness(.66) saturate(.62) contrast(1.02)}
+.cp__veil{position:absolute;left:-40%;right:-6%;top:-30%;bottom:-40%;
+  background:linear-gradient(180deg,rgba(10,11,13,.30) 0%,rgba(10,11,13,.42) 40%,rgba(10,11,13,.92) 88%,var(--ink) 100%),
+             linear-gradient(100deg,var(--ink) 30%,rgba(10,11,13,.90) 46%,rgba(10,11,13,.44) 68%,rgba(10,11,13,.30) 100%)}
+/* Scrim bound to the headline band. The plane is bright in places, so the
+   type carries its own ground rather than trusting where the glyphs land. */
+
+/* The selected region: the same image, unveiled, at full strength. */
+.cp__lit{position:absolute;inset:0;clip-path:inset(9% 40% 40% 30%);
+  filter:contrast(1.06) saturate(1)}
+.cp__frame{position:absolute;left:30%;right:40%;top:9%;bottom:40%;
+  border:1px solid #99A1AA;box-shadow:0 0 0 1px rgba(10,11,13,.5)}
+.cp__frame::before,.cp__frame::after{content:"";position:absolute;width:9px;height:9px;
+  border:2px solid #F4F5F6}
+.cp__frame::before{left:-1px;top:-1px;border-right:0;border-bottom:0}
+.cp__frame::after{right:-1px;bottom:-1px;border-left:0;border-top:0}
+.cp__label{position:absolute;left:30%;top:9%;transform:translateY(-165%);
+  font:500 11px/1 var(--mono);letter-spacing:.01em;text-transform:none;color:var(--on-ink-2);
+  white-space:nowrap;background:var(--ink);padding:4px 8px;border:1px solid var(--rule-dk)}
+
+/* The conversation overlaps the lower-right of the selected region - the
+   extraction is shown by the overlap itself, not by a decorative connector. */
+.hero__thread{position:absolute;margin:0;right:clamp(14px,3vw,64px);top:clamp(120px,20vh,220px);
+  width:clamp(168px,15vw,214px);border:1px solid #3A4148;z-index:2;
+  box-shadow:0 30px 80px -30px rgba(0,0,0,.9)}
+.hero__thread img{width:100%}
+.hero__thread figcaption{position:absolute;left:-1px;top:calc(100% + 10px);
+  white-space:nowrap;color:var(--on-ink-2)}
+.hero__thread figcaption b{color:#fff}
+
+/* ═══ section scaffolding ═══════════════════════════════════════════════ */
+/* The System panel and the coupling specimen bleed out of the text column.
+   Their negative margins are computed against a grid column rather than the
+   centred wrapper, so they overshoot the viewport; clipping at the section
+   boundary lands them exactly on the edge and removes the page overflow. */
+.sec{padding:clamp(58px,9vh,124px) 0;overflow-x:clip}
+
+.sec--system{background:var(--sheet-cool)}
+.sec--action{background:var(--sheet-warm)}
+.sec--work{background:var(--ink);color:#F1F2F3}
+
+/* ═══ PRODUCT ═══════════════════════════════════════════════════════════
+   Two products, both consequential. They are not the same shape - Gen-Eat is
+   wide and light, Hazina is tall and dark - but neither is a footnote to the
+   other. The coupling route runs BETWEEN them as a joint, bleeding off the
+   right edge, rather than floating below as a screenshot strip. */
+.prod{display:grid;grid-template-columns:1.06fr .94fr;gap:clamp(16px,2.2vw,30px);
+  margin-top:clamp(30px,4.4vh,56px);align-items:start}
+.shot{margin:0;position:relative;border:1px solid var(--rule-s);background:#fff}
+.shot img{width:100%}
+.shot figcaption{padding:11px 13px;border-top:1px solid var(--rule);background:var(--sheet)}
+.shot--tall img{aspect-ratio:auto}
+
+/* The route is the joint between the two products, so it is mounted as a
+   specimen: ruled edges, registration ticks at both ends, and a tab label that
+   sits on the rule. It belongs to the separation evidence rather than floating
+   under it as a screenshot. */
+.joint{position:relative;margin-top:clamp(22px,3vw,38px);
+  display:grid;grid-template-columns:minmax(190px,22%) 1fr;align-items:stretch;
+  gap:clamp(14px,2vw,26px);border-top:2px solid var(--ink);padding-top:18px}
+.joint__note{margin:0;align-self:center}
+.joint__note b{display:block;margin-bottom:5px}
+.joint__spec{position:relative;overflow:hidden;margin:0 calc(50% - 50vw) 0 0;
+  border:1px solid var(--ink);border-right:0;background:#fff;
+  padding:13px 0 13px 0}
+.joint__spec img{width:1080px;max-width:none}
+/* registration ticks: the specimen is cut from a longer document */
+.joint__spec::before,.joint__spec::after{content:"";position:absolute;left:0;width:9px;height:1px;
+  background:var(--ink)}
+.joint__spec::before{top:6px}
+.joint__spec::after{bottom:6px}
+.joint__tab{position:absolute;left:0;top:0;z-index:2;
+  font:600 11px/1 var(--mono);letter-spacing:.01em;text-transform:none;
+  color:var(--on-ink);background:var(--ink);padding:6px 10px}
+
+/* ═══ SYSTEM ════════════════════════════════════════════════════════════
+   Open the machine. The graph is large inside a panel that bleeds off the left
+   edge; the committed source sits beside it as engineering material; each
+   annotation is registered to the node it describes. Typographic volume is
+   deliberately low in this chapter. */
+/* The bleed is measured from the wrapper's own content edge, so the plate lands
+   exactly on the viewport edge instead of overshooting and having its left
+   column clipped. The caption used to disappear into that overshoot. */
+.sys{--bleed:calc((100vw - min(100vw,1340px)) / 2 + clamp(18px,3.4vw,46px));
+  margin-top:clamp(30px,4.4vh,54px);
+  display:grid;grid-template-columns:minmax(0,1.22fr) minmax(0,.86fr);
+  gap:clamp(22px,3vw,44px);align-items:start}
+.sys__machine{position:relative;margin:0 0 0 calc(-1 * var(--bleed));
+  background:var(--ink);color:var(--on-ink);
+  padding:clamp(26px,3.2vw,40px) clamp(20px,2.4vw,32px) 16px
+          calc(var(--bleed) + clamp(16px,1.6vw,26px));
+  display:grid;grid-template-columns:minmax(0,1fr) auto;
+  gap:clamp(20px,2.6vw,38px);align-items:start}
+/* The topology is the principal material on the plate. If the five nodes and the
+   loop cannot be read without the prose, it is too small. */
+.sys__machine svg{width:100%;max-width:clamp(300px,30vw,438px);height:auto;justify-self:center}
+.sys__machine .n text{font:500 15px/1 var(--mono);text-anchor:middle;fill:var(--sheet-2)}
+.sys__machine .n text.on-light{fill:#15141C}
+/* The committed source, shown as provenance rather than asserted. Verbatim. */
+/* The source is set line by line so the three reference marks can sit against
+   the exact edge declarations they describe. Same numbers as the plate. */
+.src{margin:0;align-self:stretch;padding-left:clamp(16px,2vw,28px);
+  border-left:1px solid #2A2F35;
+  display:grid;grid-template-columns:17px auto;gap:0 12px;align-content:start;
+  font:500 clamp(10px,.78vw,11.5px)/1.95 var(--mono);color:#8E959D;letter-spacing:.01em}
+.src code{grid-column:2;background:none;padding:0;white-space:pre;
+  font:inherit;color:inherit}
+.src b{color:var(--on-ink);font-weight:500}
+.src i{color:#BFB6FC;font-style:normal}
+.src .mk{grid-column:1;align-self:center;color:var(--on-ink-2);height:15px;width:15px;font-size:8.5px}
+.src__t{grid-column:1 / -1;margin:0 0 10px;padding-bottom:9px;border-bottom:1px solid #2A2F35;
+  font:600 11px/1.4 var(--mono);letter-spacing:.01em;text-transform:none;color:var(--on-ink-2)}
+.src__g{grid-column:1 / -1;height:11px}
+.sys__cap{grid-column:1 / -1;margin:20px 0 0;padding-top:14px;
+  border-top:1px solid #2A2F35;color:#7C838B;
+  display:flex;gap:10px 22px;flex-wrap:wrap;align-items:baseline}
+.sys__cap b{color:#F1F2F3;font-weight:600}
+/* Reference marks. Engineering registration, not decorative connectors: the
+   number on the plate and the number beside the observation are the same mark. */
+.mk{display:inline-flex;align-items:center;justify-content:center;
+  width:17px;height:17px;border:1px solid currentColor;
+  font:600 9px/1 var(--mono);letter-spacing:0;flex:none}
+.sys__machine .mk text,.sys__machine text.mk{font:600 11px/1 var(--mono)}
+.sys__machine .mark rect{fill:none;stroke:#8E959D;stroke-width:1.2}
+.sys__machine .mark text{font:600 11px/1 var(--mono);fill:var(--sheet-2);text-anchor:middle}
+
+.sys__notes{position:relative;min-height:648px}
+.sys__lede{margin:0 0 clamp(6px,1.5vh,14px);max-width:62ch;font-size:16px;
+  line-height:1.6;color:var(--fg-2)}
+.sys__notes>div{position:absolute;left:0;right:0;top:var(--at);
+  border-top:1px solid var(--rule);padding-top:14px;
+  display:grid;grid-template-columns:17px minmax(0,1fr);gap:0 12px}
+.sys__notes>div::before{content:"";position:absolute;left:0;top:-1px;width:38px;height:3px;background:var(--ink)}
+.sys__notes>div>.mk{margin-top:1px}
+.sys__notes>div>.an,.sys__notes>div>p{grid-column:2}
+.sys__notes p{margin:6px 0 0;font-size:14px;line-height:1.5;color:var(--fg-2);max-width:45ch}
+.sys__notes .stop{position:absolute;top:530px;left:0;right:0;max-width:58ch}
+
+/* ═══ ACTION ════════════════════════════════════════════════════════════
+   The six-stage diagnostic record is the artifact here - it is real evidence,
+   and it now carries the chapter. The pending-photograph marker is a compact
+   line, not a billboard. */
+.pend{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;
+  margin:clamp(26px,3.6vh,40px) 0 0;border:1px dashed var(--rule-s);
+  padding:12px 16px;background:rgba(255,255,255,.4);max-width:78ch}
+.pend b{font:600 10px/1.4 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--fg);white-space:nowrap}
+.pend span{font-size:13px;line-height:1.45;color:#4A5057;flex:1 1 300px}
+
+/* A measure line runs the length of the sequence, ticked at every stage. */
+.seq{position:relative;margin:clamp(30px,4.4vh,54px) 0 0;
+  border-top:2px solid var(--ink);padding-left:clamp(56px,7vw,104px)}
+.seq::before{content:"";position:absolute;left:clamp(22px,3vw,44px);top:0;bottom:30px;
+  width:1px;background:var(--rule)}
+.stage{position:relative;display:grid;grid-template-columns:minmax(150px,20%) minmax(0,1fr);
+  gap:clamp(14px,2.4vw,36px);padding:clamp(18px,2.4vh,28px) 0;
+  border-bottom:1px solid var(--rule-s)}
+.stage::before{content:"";position:absolute;left:calc(-1 * clamp(34px,4vw,60px));
+  top:clamp(26px,3.2vh,38px);width:clamp(34px,4vw,60px);height:1px;background:var(--rule)}
+.stage::after{content:"";position:absolute;left:calc(-1 * clamp(34px,4vw,60px) - 3px);
+  top:calc(clamp(26px,3.2vh,38px) - 3px);width:7px;height:7px;background:var(--ink);border-radius:50%}
+.stage__n{margin:0;font-family:inherit;font-weight:500;font-size:12px;line-height:1;
+  letter-spacing:0;color:var(--fg-2)}
+.stage__name{margin:7px 0 0;font-weight:660;font-stretch:90%;
+  font-size:clamp(1.08rem,1.95vw,1.5rem);line-height:1.05;letter-spacing:-.015em}
+.stage p{margin:0;font-size:14.5px;line-height:1.5;color:var(--fg-2);max-width:46ch}
+/* MEASURE carries the only literal machine output in the chapter, so it is the
+   one stage given real weight. */
+.stage--measure{background:var(--ink);color:var(--on-ink);
+  margin:0 calc(-1 * clamp(12px,2vw,26px));padding-left:clamp(12px,2vw,26px);
+  padding-right:clamp(12px,2vw,26px);border-bottom-color:var(--ink)}
+.stage--measure .stage__n{color:#8A9099}
+.stage--measure .stage__name{color:#fff}
+.stage--measure .out{margin:0;font:500 clamp(.95rem,1.7vw,1.28rem)/1.42 var(--mono);
+  color:#fff;letter-spacing:-.01em;max-width:none}
+.stage--measure .out span{color:#8A9099}
+.stage--measure::after{background:#F1F2F3}
+.seq__end{position:relative;padding-top:16px}
+.seq__end::before{content:"";position:absolute;left:calc(-1 * clamp(34px,4vw,60px) - 3px);top:0;
+  width:clamp(41px,4.6vw,67px);height:4px;background:var(--ink)}
+
+
+/* ═══ CAPABILITY ════════════════════════════════════════════════════════
+   Four domains, deliberately unequal. Two wide territories and two tight ones,
+   staggered so the eye moves diagonally instead of scanning four identical
+   columns. Each carries ONE proof anchor made of real material, and the four
+   anchors are four different kinds of evidence on purpose: reachability, source,
+   a measured test, an evidence ladder. A visitor should see four kinds of
+   engineering before reading any body copy. */
+.caps{margin-top:clamp(30px,4.4vh,54px);display:grid;
+  grid-template-columns:repeat(12,1fr);gap:1px;background:var(--rule)}
+.cap{background:var(--sheet-warm);padding:clamp(22px,2.4vw,34px);
+  display:flex;flex-direction:column}
+.cap:nth-child(1){grid-column:span 7}
+.cap:nth-child(2){grid-column:span 5}
+.cap:nth-child(3){grid-column:span 5}
+.cap:nth-child(4){grid-column:span 7}
+.cap__n{margin:0 0 12px;font:500 10px/1 var(--mono);letter-spacing:.2em;color:var(--fg-2)}
+.cap h3{font-weight:680;font-stretch:86%;font-size:clamp(1.15rem,1.95vw,1.55rem);
+  line-height:1.08;letter-spacing:-.018em;max-width:22ch}
+.cap__do{margin:12px 0 0;font-size:14.5px;line-height:1.5;color:var(--fg-2);max-width:50ch}
+
+/* the anchor: real material, set as material */
+
+
+
+
+
+
+
+
+
+.cap__by{margin:clamp(16px,2vw,22px) 0 0;display:flex;flex-wrap:wrap;gap:6px 18px}
+.cap__by span{font:500 11px/1.5 var(--mono);letter-spacing:.05em;color:var(--fg-2)}
+.cap__by span i{font-style:normal;color:var(--fg-2)}
+.cap__not{margin:auto 0 0;padding-top:14px;font-size:12px;line-height:1.45;color:var(--fg-2)}
+.cap__not b{font-family:inherit;font-weight:600;font-size:12px;line-height:1.35;letter-spacing:0;text-transform:none;
+  color:var(--fg);display:block;margin-bottom:6px}
+
+@media (max-width:900px){
+  /* Each domain gets a recognisable beginning and end: a heavy opening rule,
+     the number, and real space before the next one starts. */
+  .caps{grid-template-columns:1fr;gap:0;background:none}
+  .cap{grid-column:1 / -1 !important;padding:clamp(24px,5vw,32px) 0 clamp(30px,6vw,40px);
+    border-top:3px solid var(--ink)}
+  .cap:first-child{border-top-width:3px}
+  .cap__do,.cap h3{max-width:none}
+  
+}
+/* ═══ REGISTER, built to scale ══════════════════════════════════════════
+   Three depths so the grammar survives going from three records to thirty:
+   flagship records carry a full artifact, compact rows carry a line each, and
+   the index route is stated rather than faked. */
+.reg__head{display:flex;justify-content:space-between;align-items:baseline;
+  gap:20px;flex-wrap:wrap;margin-top:clamp(26px,3.6vh,40px)}
+.reg__count{font-family:inherit;font-weight:500;font-size:12.5px;letter-spacing:0;text-transform:none;line-height:1.6;color:#8F969D}
+.topo{margin:0;background:#101216;border:1px solid #343A41;padding:16px 18px}
+.topo pre{margin:0;font:500 11px/1.85 var(--mono);color:#B6BCC2;white-space:pre;overflow-x:auto}
+.topo pre b{color:#F1F2F3;font-weight:500}
+.topo pre i{color:#7C838B;font-style:normal}
+
+.compact{margin-top:clamp(30px,4.4vh,50px);border-top:2px solid #F1F2F3}
+.compact__t{margin:16px 0 0;color:#7C838B}
+.compact__t b{color:#F1F2F3}
+/* 07–11 are research and prototypes. They earn a line each, not a paragraph:
+   enough to be found and followed, not enough to compete with what is built. */
+.crow{display:grid;grid-template-columns:2.4rem minmax(0,1fr) minmax(0,1.15fr) auto;
+  gap:clamp(10px,1.8vw,26px);align-items:baseline;align-content:start;padding:10px 0;
+  border-bottom:1px solid var(--rule-dk)}
+.crow__name{font-weight:660;font-stretch:88%;font-size:clamp(.95rem,1.25vw,1.08rem);
+  letter-spacing:-.015em;text-transform:none;color:#F1F2F3}
+/* Only the description truncates. The earlier rule matched every <p> in the
+   row - index, name and maturity too - and as grid items they blockified, so
+   the clamp did nothing and the row stretched to ~395px. Scope it, and use
+   plain ellipsis rather than -webkit-box, which grid does not honour. */
+.crow p{margin:0}
+.crow p:not([class]){font-size:12.5px;line-height:1.4;color:#A9AFB6;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.crow__m{font-family:inherit;font-weight:500;font-size:11.5px;letter-spacing:0;text-transform:none;line-height:1.4;
+  color:#B6BCC2;white-space:nowrap;border-bottom:2px solid var(--fg-2);padding-bottom:4px}
+.crow__n{margin:0;font-family:inherit;font-weight:500;font-size:12px;letter-spacing:0;text-transform:none;line-height:1.4;color:#8F969D}
+.index-route{margin:clamp(24px,3.4vh,36px) 0 0;display:inline-flex;align-items:baseline;gap:14px;
+  border:1px dashed #3A4046;padding:13px 18px}
+.index-route b{font:600 10px/1.4 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:#F1F2F3}
+.index-route span{font-size:13px;line-height:1.45;color:#9AA1A8}
+
+@media (max-width:900px){
+  .crow{grid-template-columns:2.6rem minmax(0,1fr);gap:6px 14px}
+  .crow__m{grid-column:2;justify-self:start;margin-top:8px}
+  .crow p{grid-column:2}
+}
+
+/* ═══ WORK ══════════════════════════════════════════════════════════════
+   Preserved: dark field, maturity, proof, verified, NOT CLAIMED, one real
+   artifact per record. Improved: expanded-caps hierarchy, and the artifact
+   scale now steps down the register instead of repeating one size. */
+.rec{display:grid;grid-template-columns:3.2rem minmax(0,clamp(300px,31vw,446px)) minmax(0,1fr);
+  /* Each record carried ~79px of padding. With the skills section now
+     answering "can you build my thing" up front, the register is evidence
+     rather than argument, and evidence can sit closer together. */
+  gap:clamp(14px,2.4vw,36px);padding:clamp(20px,2.8vh,34px) 0;
+  border-top:1px solid var(--rule-dk);align-items:start}
+.rec:first-of-type{border-top:2px solid #F1F2F3}
+.rec__n{margin:0;font-family:inherit;font-weight:500;font-size:12px;letter-spacing:1;text-transform:none;line-height:1;color:#8F969D;padding-top:7px}
+.rec h3{color:#fff}
+.rec__sum{margin:14px 0 0;font-size:15px;line-height:1.5;color:#C2C7CC;max-width:44ch}
+.mr{display:flex;gap:clamp(12px,2vw,26px);flex-wrap:wrap;margin:20px 0 0;
+  font-family:inherit;font-weight:500;font-size:12.5px;letter-spacing:0;text-transform:none;line-height:1.35;color:#C2C7CC}
+.mr span{border-bottom:2px solid #F1F2F3;padding-bottom:5px}
+.rec .stop{color:#9AA1A8;max-width:52ch}
+.rec 
+.rec .stop b{color:#F1F2F3}
+.rec__proof{margin:0}
+.rec__proof img{width:100%;border:1px solid var(--rule-s-dk)}
+.rec__proof figcaption{margin-top:9px;color:#7C838B}
+.rec__proof figcaption b{color:#F1F2F3;font-weight:500}
+
+.foot{padding:46px 0 76px;border-top:1px solid var(--rule-dk);color:#7C838B}
+
+/* ═══ MOBILE - its own art direction ════════════════════════════════════
+   Not the desktop stack. Identity and proposition open the page; the artifact
+   follows immediately and is scaled to be read, not glimpsed. */
+@media (max-width:900px){
+  .hero{min-height:0;display:block}
+  .hero__fg{padding:clamp(26px,5vh,44px) 0 0}
+  .wordmark{margin-bottom:clamp(20px,4vh,34px)}
+  .hero h1{font-size:clamp(2.3rem,10.4vw,4rem);line-height:.98;max-width:none}
+  .hero__meta{flex-direction:column;gap:16px}
+  .hero__meta p,.hero__meta .an{max-width:none}
+  .place{margin-left:0;border-left:0;border-top:1px solid var(--rule-dk);
+    padding:14px 0 0;gap:12px;align-items:flex-start}
+  .place img{width:44px;height:56px;align-self:auto}
+
+  /* The stage returns to flow, directly beneath the proposition. */
+  /* At this width the two artifacts cannot overlap: the panel covered the very
+     message it corresponds to. The control plane is scaled so the conversation
+     column fills the screen, and the panel drops to the lower edge so it laps
+     only the bottom of the strip. */
+  .hero__stage{position:relative;inset:auto;margin-top:clamp(26px,4.5vh,40px);
+    height:clamp(368px,96vw,450px)}
+  /* Mobile is its own art direction. The stage is in flow here, so .cp must
+     take part in it or the stage collapses to zero height and the artifact
+     paints over whatever follows. Claim first, evidence beneath it, at full
+     brightness: nothing is set over the plane at this width, so it needs
+     neither veil nor scrim, and both would only hide the evidence. */
+  .cp{position:relative;top:auto;left:0;right:0;width:auto;height:auto}
+  .cp__dim{filter:none}
+  .cp__veil{display:none}
+  /* The hero carries no artifact, so its scrim is a dark gradient over ink
+     with nothing to protect. */
+  
+  .cp__veil{left:0;right:0;top:0;bottom:-6%;
+    background:linear-gradient(180deg,rgba(10,11,13,0) 42%,var(--ink) 97%)}
+  .cp__lit{clip-path:inset(20% 1.5% 10% 30.5%)}
+  /* The frame's left edge is off-screen at this scale, so the label anchors to
+     the viewport instead of to the frame. */
+  /* The label is positioned inside .cp, which mobile shifts to left:-70% at
+     width:190%. A plain `left` therefore lands 255px off-screen and the label
+     never painted at all. 0.70/1.90 = 36.842% of .cp puts it back on the
+     viewport's left edge, plus the wrapper gutter. */
+  /* The plate no longer shifts .cp off-screen, so the old percentage offset
+     is obsolete and pushed the label past the right edge. Pin it to the
+     plate's own left edge and let it wrap. */
+  .hd{grid-template-columns:minmax(0,1fr);gap:clamp(14px,2.4vh,22px);align-items:start}
+  .act{grid-template-columns:minmax(0,1fr);gap:clamp(22px,4vh,34px)}
+  .absence{position:static}
+  .cp__label{font-size:8px;letter-spacing:.14em;transform:translateY(-125%);
+    left:0;white-space:normal;max-width:min(62vw,250px)}
+  .cp__lit{clip-path:inset(14% 6% 44% 42%)}
+  .cp__frame{top:14%;bottom:44%}
+  .hero__thread{top:auto;bottom:16px;right:10px;width:min(52%,198px)}
+  .hero__thread figcaption{position:static;margin-top:7px;white-space:normal;
+    font-size:8px;letter-spacing:.1em;text-align:right}
+  .hero__cta{padding-bottom:clamp(28px,6vh,48px)}
+
+  .prod{grid-template-columns:1fr;gap:22px}
+  /* The shared field is reoriented for a vertically stacked pair: the halves
+     are top and bottom, and the cut that opens between them is horizontal. */
+  [data-af-motion="on"] .af-field--l{left:0;right:0;top:0;bottom:50%;
+    border-right:2px solid var(--ink);border-bottom:0}
+  [data-af-motion="on"] .af-field--r{left:0;right:0;top:50%;bottom:0;
+    border-left:2px solid var(--ink);border-top:0}
+  .joint{grid-template-columns:1fr;gap:12px;align-items:start;padding-top:14px}
+
+  .sys{grid-template-columns:1fr;gap:26px}
+  .sys__machine{margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);
+    grid-template-columns:1fr;justify-items:start;gap:22px}
+  .sys__machine svg{width:min(76%,244px);justify-self:center}
+  .src{width:100%;font-size:10px}
+  .sys__notes{min-height:0;display:grid;gap:24px}
+  /* relative, not static. `.stop::before` and `.sys__notes>div::before` are
+     absolutely positioned; making their parent static sent their containing
+     block up to `.sys__notes`, which stretched the NOT CLAIMED bar down the
+     whole column and clipped the first character of every line. */
+  .sys__notes>div,.sys__notes .stop,.sys__lede{position:relative;top:auto;left:auto;right:auto}
+
+  .seq{padding-left:clamp(34px,9vw,58px)}
+  .seq::before{left:clamp(12px,3.4vw,22px)}
+  .stage{grid-template-columns:1fr;gap:10px;padding:20px 0}
+  .stage::before{left:calc(-1 * clamp(22px,5.6vw,36px));width:clamp(22px,5.6vw,36px);top:26px}
+  .stage::after{left:calc(-1 * clamp(22px,5.6vw,36px) - 3px);top:23px}
+  .seq__end::before{left:calc(-1 * clamp(22px,5.6vw,36px) - 3px);width:clamp(29px,6.4vw,43px)}
+
+  .rec{grid-template-columns:2.6rem minmax(0,1fr)}
+  .rec__proof{grid-column:1 / -1;margin-top:22px}
+  .rec__proof img{max-width:none}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   V5.1 MOTION LAYER
+
+   Architecture unchanged: scroll position is the clock, the scheduler is event
+   driven, and every rule here is gated behind [data-af-motion="on"] which only
+   motion.js sets. No JavaScript, or reduced motion, renders the accepted V4.2
+   static composition.
+
+   V5.1 corrects three visual states, not the architecture:
+
+   HERO     the customer panel is now a SOLID clipped fragment. It is never
+            translucent, so two readable conversations can never occupy the same
+            pixels at any stopped progress value.
+   PRODUCT  the shared frame is two halves that visibly break apart, and the
+            resolved gap is opened well past the static column gap so the
+            structural event is legible without the heading.
+   ACTION   a physical read-head travels the diagnostic rail. Opacity is no
+            longer the primary cue, and the Measure block stops out-shouting the
+            active stage when it is not the active stage.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── scene 01 · hero, evidence extraction ─────────────────────────────── */
+[data-af-motion="on"] .cp__lit{
+  clip-path:inset(var(--afh-ct,12%) var(--afh-cr,6%) var(--afh-cb,46%) var(--afh-cl,42%))}
+[data-af-motion="on"] .cp__veil{opacity:var(--afh-veil,1)}
+[data-af-motion="on"] .cp__frame,
+[data-af-motion="on"] .cp__label{opacity:var(--afh-frame,1)}
+/* Solid at all times. Revealed by clip, moved by transform. No opacity fade on
+   the artifact itself, which is what produced the double exposure in V5. */
+[data-af-motion="on"] .hero__thread{
+  transform-origin:50% 50%;
+  transform:translate3d(var(--afh-tx,0px),var(--afh-ty,0px),0) scale(var(--afh-ts,1));
+  clip-path:inset(var(--afh-kt,0px) var(--afh-kr,-8px) var(--afh-kb,-46px) var(--afh-kl,-8px));
+  background:var(--ink)}
+[data-af-motion="on"] .hero__thread figcaption{opacity:var(--afh-cap,1)}
+
+/* ── scene 02 · product, runtime separation ───────────────────────────── */
+.af-field{display:none}
+[data-af-motion="on"] .af-scene--prod{position:relative}
+[data-af-motion="on"] .af-field{display:block;position:absolute;top:0;bottom:0;
+  border:2px solid var(--ink);pointer-events:none;z-index:2;opacity:var(--afp-field,0)}
+[data-af-motion="on"] .af-field--l{left:0;right:50%;border-right:0;
+  transform:translate3d(var(--afp-dx1,0px),var(--afp-dy1,0px),0)}
+[data-af-motion="on"] .af-field--r{left:50%;right:0;border-left:0;
+  transform:translate3d(var(--afp-dx2,0px),var(--afp-dy2,0px),0)}
+/* Both axes. Desktop drives x, mobile drives y, and the unused axis stays 0. */
+[data-af-motion="on"] .prod>.shot:nth-of-type(1){
+  transform:translate3d(var(--afp-dx1,0px),var(--afp-dy1,0px),0)}
+[data-af-motion="on"] .prod>.shot:nth-of-type(2){
+  transform:translate3d(var(--afp-dx2,0px),var(--afp-dy2,0px),0)}
+/* the independent boundaries resolve as the shared one breaks */
+[data-af-motion="on"] .prod>.shot{border-color:var(--afp-edge,var(--rule-s));
+  border-width:var(--afp-edgew,1px)}
+[data-af-motion="on"] .joint{transform:translate3d(0,var(--afp-jy,0px),0)}
+[data-af-motion="on"] .joint__tab,[data-af-motion="on"] .joint__note{opacity:var(--afp-jt,1)}
+
+/* ── scene 03 · action, diagnostic progression ────────────────────────── */
+.af-head{display:none}
+[data-af-motion="on"] .af-head{display:block;position:absolute;
+  left:calc(clamp(22px,3vw,44px) - 5px);top:0;width:11px;height:11px;
+  background:var(--ink);z-index:3;
+  transform:translate3d(0,var(--afa-y,0px),0)}
+[data-af-motion="on"] .af-head i{position:absolute;left:11px;top:5px;
+  width:clamp(26px,3.4vw,50px);height:1px;background:var(--ink);display:block}
+[data-af-motion="on"] .af-head::after{content:"";position:absolute;left:4px;top:11px;
+  width:1px;height:var(--afa-tail,0px);background:var(--ink);opacity:.32}
+/* Opacity is now a supporting cue, not the instrument. */
+[data-af-motion="on"] .stage[data-af-stage-state="future"]{opacity:.62}
+[data-af-motion="on"] .stage[data-af-stage-state="past"]{opacity:.8}
+[data-af-motion="on"] .stage[data-af-stage-state="current"]{opacity:1}
+[data-af-motion="on"] .stage[data-af-stage-state="current"] .stage__name{letter-spacing:.05em}
+[data-af-motion="on"] .stage[data-af-stage-state="current"]::before{background:var(--ink);height:2px}
+[data-af-motion="on"] .stage::after{display:none}
+/* Measure stops competing when it is not the active stage: the field lightens
+   and the type inverts, so the evidence stays fully readable but stops reading
+   as the current row. */
+[data-af-motion="on"] .stage--measure{background:var(--stage-hi);color:var(--fg)}
+[data-af-motion="on"] .stage--measure .stage__n{color:var(--fg-3)}
+[data-af-motion="on"] .stage--measure .stage__name{color:var(--fg)}
+[data-af-motion="on"] .stage--measure .out{color:var(--fg)}
+[data-af-motion="on"] .stage--measure .out span{color:var(--fg-3)}
+[data-af-motion="on"] .stage--measure[data-af-stage-state="current"]{background:var(--ink);color:var(--on-ink)}
+[data-af-motion="on"] .stage--measure[data-af-stage-state="current"] .stage__n{color:#8A9099}
+[data-af-motion="on"] .stage--measure[data-af-stage-state="current"] .stage__name{color:#fff}
+[data-af-motion="on"] .stage--measure[data-af-stage-state="current"] .out{color:#fff}
+[data-af-motion="on"] .stage--measure[data-af-stage-state="current"] .out span{color:#8A9099}
+
+@media (prefers-reduced-motion: reduce){
+  [data-af-motion="on"] .cp__lit{clip-path:inset(12% 6% 46% 42%)}
+  [data-af-motion="on"] .cp__veil,[data-af-motion="on"] .cp__frame,
+  [data-af-motion="on"] .cp__label,[data-af-motion="on"] .hero__thread,
+  [data-af-motion="on"] .hero__thread figcaption{opacity:1}
+  [data-af-motion="on"] .hero__thread{transform:none;clip-path:none;background:none}
+  [data-af-motion="on"] .af-field,[data-af-motion="on"] .af-head{display:none}
+  [data-af-motion="on"] .prod>.shot,[data-af-motion="on"] .joint{transform:none}
+  [data-af-motion="on"] .stage{opacity:1}
+  [data-af-motion="on"] .stage--measure{background:var(--ink);color:var(--on-ink)}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   V6 · MATERIAL AND RESPONSE
+
+   The ink surfaces were flat black. Real black ink on a real plate has grain and
+   catches light unevenly, and that is what made the page read as a wireframe
+   rather than an object. Two additions, both cheap and both static: a fine
+   generated grain, and a soft light falloff. No image asset, no external
+   request, no per-frame cost.
+
+   Nothing here changes a claim, an artifact or a boundary.
+   ═══════════════════════════════════════════════════════════════════════════ */
+/* Grain and light are BACKGROUND LAYERS on the surface itself, not elements.
+   The first attempt inserted a .grain span and forced every sibling to
+   position:relative so it would stack above; that override also caught
+   .hero__stage, whose position:absolute is what holds the artifact behind the
+   headline, and dropped it into flow at the bottom of the hero. Painting into
+   the element's own background touches no children and cannot recur. */
+.hero,.sec--work{
+  background-color:var(--ink);
+  background-image:var(--grain),
+    radial-gradient(120% 90% at 16% -4%,rgba(255,255,255,.045) 0%,rgba(255,255,255,.014) 40%,transparent 72%);
+  background-size:170px 170px,auto;
+  background-repeat:repeat,no-repeat}
+.sys__machine,.stage--measure,.topo{
+  background-color:var(--ink);
+  background-image:var(--grain),
+    radial-gradient(100% 80% at 20% 0%,rgba(255,255,255,.05) 0%,transparent 62%);
+  background-size:170px 170px,auto;
+  background-repeat:repeat,no-repeat}
+
+/* ── C. response: states that feel designed ──────────────────────────── */
+.rec{transition:none}
+.rec__proof img{transition:transform 380ms cubic-bezier(.16,1,.3,1),border-color 380ms ease}
+.rec:hover .rec__proof img,.rec:focus-within .rec__proof img{transform:translateY(-6px) scale(1.014);border-color:#6E767F}
+.rec__n{transition:color 300ms ease}
+.rec:hover .rec__n,.rec:focus-within .rec__n{color:#F1F2F3}
+.mr span{transition:border-color 300ms ease,color 300ms ease}
+.rec:hover .mr span,.rec:focus-within .mr span{color:#fff}
+
+.crow{transition:background 300ms ease}
+.crow::after{content:"";position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none;
+  background:linear-gradient(90deg,rgba(255,255,255,.05),transparent 42%);opacity:0;
+  transition:opacity 300ms ease}
+.crow{position:relative}
+.crow:hover::after{opacity:1}
+.crow__name{transition:letter-spacing 320ms cubic-bezier(.16,1,.3,1)}
+.crow:hover .crow__name{letter-spacing:.005em}
+
+.cap{transition:background 340ms ease}
+.cap:hover{background:var(--hover)}
+
+.cap:hover 
+
+.shot img{transition:transform 520ms cubic-bezier(.16,1,.3,1)}
+.shot:hover img{transform:scale(1.018)}
+.shot{overflow:hidden}
+
+.lnk::after{display:inline-block;transition:transform 260ms cubic-bezier(.16,1,.3,1)}
+.lnk:hover::after,.lnk:focus-visible::after{transform:translate(3px,-3px)}
+.cta::after{transition:transform 260ms cubic-bezier(.16,1,.3,1)}
+.cta:hover::after{transform:translateY(3px)}
+
+@media (prefers-reduced-motion: reduce){
+  .rec__proof img,.crow__name,
+  .rec:hover .rec__proof img,.cap:hover 
+}
+
+/* ── scene 04 · the graph builds itself ───────────────────────────────────
+   Scrolling the plate constructs the topology in the order the committed source
+   declares it: start to retrieve, retrieve to agent, tools back to agent, then
+   the two branch edges. The solid spine is drawn with a normalised dash offset.
+   The two dotted branches are REVEALED rather than drawn, because marching
+   dashes would read as flow through a running system, and this section's own
+   copy denies exactly that. Structure assembling itself is honest; traffic is
+   not. Reduced motion and no-JS show the finished graph. */
+[data-af-motion="on"] .graph .e1,
+[data-af-motion="on"] .graph .e2,
+[data-af-motion="on"] .graph .e3{
+  stroke-dasharray:1;stroke-dashoffset:var(--afs-e,1)}
+[data-af-motion="on"] .graph .e1{stroke-dashoffset:var(--afs-e1,1)}
+[data-af-motion="on"] .graph .e2{stroke-dashoffset:var(--afs-e2,1)}
+[data-af-motion="on"] .graph .e3{stroke-dashoffset:var(--afs-e3,1)}
+[data-af-motion="on"] .graph .e4{opacity:var(--afs-e4,1)}
+[data-af-motion="on"] .graph .e5{opacity:var(--afs-e5,1)}
+[data-af-motion="on"] .graph .nd{transform-box:fill-box;transform-origin:50% 50%}
+[data-af-motion="on"] .graph .n1{opacity:var(--afs-n1,1);transform:scale(var(--afs-s1,1))}
+[data-af-motion="on"] .graph .n2{opacity:var(--afs-n2,1);transform:scale(var(--afs-s2,1))}
+[data-af-motion="on"] .graph .n3{opacity:var(--afs-n3,1);transform:scale(var(--afs-s3,1))}
+[data-af-motion="on"] .graph .n4{opacity:var(--afs-n4,1);transform:scale(var(--afs-s4,1))}
+[data-af-motion="on"] .graph .n5{opacity:var(--afs-n5,1);transform:scale(var(--afs-s5,1))}
+@media (prefers-reduced-motion: reduce){
+  [data-af-motion="on"] .graph .e1,[data-af-motion="on"] .graph .e2,
+  [data-af-motion="on"] .graph .e3{stroke-dasharray:none;stroke-dashoffset:0}
+  [data-af-motion="on"] .graph .e4,[data-af-motion="on"] .graph .e5,
+  [data-af-motion="on"] .graph .nd{opacity:1;transform:none}
+}
+
+/* ── page-wide scrubbed reveals ──────────────────────────────────────────
+   Two languages. Type wipes in from the left the way a line is set; blocks
+   rise and resolve. Both are scrubbed, so scrolling back closes them. */
+[data-af-motion="on"] .kicker,
+[data-af-motion="on"] .sec h2,
+[data-af-motion="on"] .compact__t,
+[data-af-motion="on"] .sys__cap{
+  clip-path:none}
+/* Arrive with weight: rise past the resting line, scale up into it, settle.
+   transform-origin sits at the top so a block grows out of the rule above it
+   rather than swelling from its middle. */
+[data-af-motion="on"] .lede,
+[data-af-motion="on"] .sys__lede,
+[data-af-motion="on"] .rec,
+[data-af-motion="on"] .cap,
+[data-af-motion="on"] .crow,
+[data-af-motion="on"] .stop,
+[data-af-motion="on"] .src__g,
+[data-af-motion="on"] .anchor{
+  transform:translate3d(0,var(--afv-y,0px),0) scale(var(--afv-k,1));
+  transform-origin:0 0;will-change:transform}
+
+/* Blocks arrive by wipe, not by fade. Fading text through low opacity meant
+   that for the length of every reveal the page carried text at 2–4:1 against
+   its own ground - briefly, but really, and for every visitor who scrolls at
+   a normal speed. Wiping keeps every glyph at full contrast: a line is either
+   present or not yet, never half-legible. It is also the motion the headings
+   already use, so the page gains consistency rather than a second language. */
+[data-af-motion="on"] .lede,
+[data-af-motion="on"] .sys__lede,
+[data-af-motion="on"] .stop{opacity:1}
+
+/* ── THE PRINT ─────────────────────────────────────────────────────────────
+   A block that has not arrived used to be nothing at all, so scrolling hit
+   stretches of blank page with no indication anything was coming. The fade
+   now sits on the children (--afv-o inherits, so they still read it), which
+   leaves the block itself opaque and able to hold its own impression: the
+   rule it will sit on, and a short tick at its head. The print is the exact
+   inverse of the arrival, so it is fully drawn while the block is absent and
+   completely gone once the block has landed - never both at once.
+
+   With motion off, no JS, or reduced motion, --afv-o is 1, so the print is
+   already at zero and the content is simply present. */
+[data-af-motion="on"] .rec > *,
+[data-af-motion="on"] .cap > *,
+[data-af-motion="on"] .crow > *,
+[data-af-motion="on"] .src__g > *{opacity:1}
+
+
+[data-af-motion="on"] .rec,
+[data-af-motion="on"] .cap,
+[data-af-motion="on"] .crow,
+[data-af-motion="on"] .src__g,
+[data-af-motion="on"] .anchor{position:relative}
+
+
+[data-af-motion="on"] .rec::before,
+[data-af-motion="on"] .cap::before,
+[data-af-motion="on"] .crow::before,
+[data-af-motion="on"] .src__g::before,
+[data-af-motion="on"] .anchor::before{
+  content:"";position:absolute;left:0;top:0;right:0;height:1px;
+  background:linear-gradient(90deg,currentColor 0 26px,var(--rule-s) 26px 100%);
+  opacity:calc((1 - var(--afv-o,1)) * .5);pointer-events:none}
+
+
+/* ── the extraction plate, now inside Product ────────────────────────────
+   The control plane is operator material on a dark ground. Inset as its own
+   plate rather than flattened into the light section, so the page gains a
+   layer instead of another row. */
+.extract{position:relative;margin:clamp(30px,5vh,64px) 0 0;
+  background-color:var(--ink);
+  background-image:var(--grain),
+    radial-gradient(120% 90% at 18% -6%,rgba(255,255,255,.045) 0%,rgba(255,255,255,.014) 40%,transparent 72%);
+  background-size:170px 170px,auto;background-repeat:repeat,no-repeat;
+  height:clamp(340px,42vh,500px);overflow:hidden}
+.extract .hero__stage{position:absolute;inset:0;z-index:1;pointer-events:none}
+.extract .cp{position:absolute;top:clamp(14px,2.6vh,30px);left:-7%;right:-15%;
+  width:auto;height:auto}
+.extract .hero__thread{right:clamp(14px,3vw,52px);top:auto;bottom:clamp(30px,4.4vh,50px);
+  width:clamp(210px,20vw,268px)}
+@media (max-width:900px){
+  /* At 390px the panel sat on top of the exchange it exists to show. Mobile
+     stacks: plane first, panel under it. Every level of the chain has to come
+     out of absolute positioning together - .extract__plate is 0h precisely
+     because its only child is absolute - and each override needs to match
+     .extract .x specificity or it never lands. */
+  .extract{height:auto;min-height:0;overflow:visible}
+  /* The mobile hero stage carries a fixed height (96vw). Left in place it
+     caps the plate at 374px and the panel's caption spills past the dark
+     ground onto the light surround, which is where the 1.18:1 came from. */
+  .extract .hero__stage{position:relative;inset:auto;pointer-events:auto;height:auto}
+  .extract .cp{position:relative;top:auto;left:auto;right:auto;width:auto;height:auto}
+  .extract .hero__thread{position:relative;top:auto;bottom:auto;right:auto;left:auto;
+    width:min(80%,278px);margin:clamp(16px,2.6vh,24px) 0 0;box-shadow:none}
+  .extract .hero__thread figcaption{position:static;margin-top:8px;white-space:normal;
+    text-align:left}
+}
+
+/* ── the hero index: the register, in the narrow end of the width axis ───
+   The headline runs at 112% width; this runs at 62%. One family, two voices.
+   It is real content, not decoration, so it is readable type, not a texture. */
+.hero__fg--index{padding-bottom:clamp(26px,4vh,44px)}
+.hero__index-h{font-family:inherit;font-weight:600;font-size:12px;line-height:1;letter-spacing:.01em;text-transform:none;
+  margin:clamp(18px,2.6vh,30px) 0 10px;color:#8F969D}
+.hero__index{position:relative;border-top:1px solid var(--rule-dk);padding-top:18px}
+/* All ten are readable at rest. The previous single-line track was clipped by
+   its own overflow, so the register read as a broken sentence rather than a
+   list - the breadth is the argument, so it has to survive standing still. */
+.hero__index-track{margin:0;display:flex;flex-wrap:wrap;align-items:flex-end;
+  gap:14px clamp(20px,2.6vw,44px)}
+/* The register IS the hero's evidence. Ten real systems, each carrying the
+   maturity the page publishes for it elsewhere, at a scale that makes the
+   breadth the first thing read rather than a footnote under the fold. */
+a.hx{text-decoration:none}
+  a.hx:hover b{text-decoration:underline;text-underline-offset:3px}
+  .hx{display:flex;flex-direction:column;gap:6px}
+.hx b{font-weight:700;font-stretch:74%;font-size:clamp(1.15rem,2.3vw,1.85rem);
+  line-height:1.02;letter-spacing:-.018em;color:#D7DBDF}
+.hx i{font-style:normal;font-family:inherit;font-weight:500;font-size:12.5px;
+  line-height:1.4;letter-spacing:0;text-transform:none;color:#949BA2;white-space:nowrap}
+
+/* The index travels with the scroll. Scrubbed like everything else: stop and
+   it stops, reverse and it returns. */
+/* the horizontal scrub is gone with the single-line track it moved */
+
+/* Entry. One shot, on load only, CSS-driven so it costs the scheduler
+   nothing. The lines set themselves the way the page sets everything else. */
+@media (prefers-reduced-motion:no-preference){
+  [data-af-motion="on"] .hero h1{
+    animation:af-line 900ms cubic-bezier(.16,1,.3,1) both}
+  [data-af-motion="on"] .wordmark{
+    animation:af-line 700ms cubic-bezier(.16,1,.3,1) both}
+  [data-af-motion="on"] .hero__meta{
+    animation:af-rise 800ms 220ms cubic-bezier(.16,1,.3,1) both}
+  [data-af-motion="on"] .hero__cta{
+    animation:af-rise 800ms 340ms cubic-bezier(.16,1,.3,1) both}
+  [data-af-motion="on"] .hero__fg--index{
+    animation:af-rise 900ms 440ms cubic-bezier(.16,1,.3,1) both}
+}
+@keyframes af-line{from{clip-path:inset(-.25em 100% -.25em 0)}to{clip-path:inset(-.25em 0 -.25em 0)}}
+@keyframes af-rise{from{opacity:0;transform:translate3d(0,22px,0)}to{opacity:1;transform:none}}
+[data-af-motion="on"] .af-scene--extract{height:var(--af-hero-range,250vh)}
+[data-af-motion="on"] .af-scene--extract > .extract{position:sticky;
+  top:clamp(0px,calc((100vh - 500px) / 2),120px);height:min(100vh,500px);min-height:0}
+@media (max-width:900px){
+  [data-af-motion="on"] .af-scene--extract{height:auto}
+  [data-af-motion="on"] .af-scene--extract > .extract{position:relative;height:auto;
+    min-height:clamp(340px,42vh,500px)}
+}
+
+/* Evidence settles into its frame as its block arrives. Only figures that
+   already clip get this: adding overflow to a container that holds a link
+   clips its focus ring, which is a 2.4.11 failure, not a style choice.
+   .rec__proof holds a link, so it is deliberately excluded. */
+[data-af-motion="on"] .shot img,
+[data-af-motion="on"] .joint__spec img{transform:scale(var(--afv-s,1));transform-origin:50% 50%}
+
+/* ── depth ───────────────────────────────────────────────────────────────
+   Three rates instead of one. Grounds drag behind the page, evidence inside a
+   clipped frame leads it, headings hold back a little. Nothing here changes
+   layout: every value is a transform on a layer that already exists. */
+[data-af-motion="on"] 
+[data-af-motion="on"] .shot img,
+[data-af-motion="on"] .joint__spec img{
+  transform:translate3d(0,var(--afd-i,0px),0) scale(var(--afv-s,1.06));transform-origin:50% 50%}
+[data-af-motion="on"] .sec h2{transform:translate3d(0,var(--afd-h,0px),0)}
+[data-af-motion="on"] .shot,[data-af-motion="on"] .joint__spec{overflow:hidden}
+
+/* The hero and the plate lean toward the cursor. Bounded to a few pixels, so
+   it reads as depth rather than as a gimmick following the mouse. */
+@media (pointer:fine) and (prefers-reduced-motion:no-preference){
+  [data-af-motion="on"] .hero .place img{
+    transform:translate3d(calc(var(--afm-x,0px) * -0.5),calc(var(--afm-y,0px) * -0.5),0)}
+  [data-af-motion="on"] .extract .cp{
+    transform:translate3d(calc(var(--afm-x,0px) * -0.6),calc(var(--afm-y,0px) * -0.4),0)}
+}
+
+/* ── section boundaries ──────────────────────────────────────────────────
+   Every boundary was a hard cut between two grounds. Each section now opens
+   carrying the ground it is arriving from, and wipes it away as you cross.
+   No extra element and no change to .sec's clipping: it is a gradient stop on
+   the section's own background, so at rest the value is 0 and the boundary is
+   exactly the accepted static cut. */
+[data-af-motion="on"] [data-af-edge]{background-repeat:no-repeat,repeat,no-repeat}
+[data-af-motion="on"] [data-af-edge="ink"]{
+  background-image:linear-gradient(180deg,var(--ink) 0 var(--afb,0px),rgba(0,0,0,0) var(--afb,0px))}
+[data-af-motion="on"] [data-af-edge="sheet"]{
+  background-image:linear-gradient(180deg,var(--sheet) 0 var(--afb,0px),rgba(0,0,0,0) var(--afb,0px))}
+[data-af-motion="on"] [data-af-edge="cool"]{
+  background-image:linear-gradient(180deg,var(--sheet-cool) 0 var(--afb,0px),rgba(0,0,0,0) var(--afb,0px))}
+[data-af-motion="on"] [data-af-edge="warm"]{
+  background-image:linear-gradient(180deg,var(--sheet-warm) 0 var(--afb,0px),rgba(0,0,0,0) var(--afb,0px)),
+    var(--grain),
+    radial-gradient(120% 90% at 16% -4%,rgba(255,255,255,.045) 0%,rgba(255,255,255,.014) 40%,transparent 72%);
+  background-size:auto,170px 170px,auto}
+
+/* ── scene 05: the record reads back ─────────────────────────────────────
+   Rows resolve in the order the record stores them; each result lands after
+   its subject. Custom properties are set on the row and inherit to its cells,
+   which avoids transforming a table cell - historically the least reliable
+   box in CSS to move. */
+/* ── scene 06: the plate holds, the reading advances ─────────────────────
+   The graph pins while the observations step past it. Only the observation
+   being read is at full strength; the ones already read stay legible but
+   recede, and the ones ahead wait. Nothing is hidden - every note keeps
+   enough contrast to be read at any moment, because a reader who stops
+   between steps must not be left with unreadable text. */
+/* A grid item stretches to fill its row, so a sticky box has no room to
+   travel inside it and never pins. align-self:start gives it content height
+   and the grid area becomes the track it sticks within. */
+[data-af-motion="on"] .sys__machine{position:sticky;top:clamp(16px,9vh,86px);align-self:start}
+[data-af-motion="on"] .sys__notes>div{
+  transition:none;
+  opacity:1}
+[data-af-motion="on"] .sys__notes>div[data-af-read="ahead"]{opacity:.62}
+[data-af-motion="on"] .sys__notes>div[data-af-read="past"]{opacity:.78}
+[data-af-motion="on"] .sys__notes>div[data-af-read="on"]>.mk{
+  background:var(--ink);color:#F4F5F6;border-color:var(--ink)}
+[data-af-motion="on"] .sys__notes>div[data-af-read="on"]::before{
+  width:88px;transition:width 420ms cubic-bezier(.16,1,.3,1)}
+/* the region of the graph this observation points at */
+[data-af-motion="on"] .sys__machine .mark{opacity:.45}
+[data-af-motion="on"] .sys[data-af-note="1"] .mark:nth-of-type(1),
+[data-af-motion="on"] .sys[data-af-note="2"] .mark:nth-of-type(2),
+[data-af-motion="on"] .sys[data-af-note="3"] .mark:nth-of-type(3){opacity:1}
+
+/* ── the camera ──────────────────────────────────────────────────────────
+   A shot moving across a fixed drawing. The graph's own parts never move
+   relative to each other, because this section's boundary says the topology
+   is structure, not runtime - a diagram that appeared to run would be the one
+   lie the page cannot afford. The frame is what travels. */
+[data-af-motion="on"] .sys__machine{overflow:hidden}
+[data-af-motion="on"] .sys__machine svg{
+  transform:translate(var(--afg-x,0),var(--afg-y,0)) scale(var(--afg-s,1));
+  transform-origin:50% 42%;
+  transition:transform 900ms cubic-bezier(.22,1,.28,1)}
+@media (prefers-reduced-motion:reduce){
+  [data-af-motion="on"] .sys__machine svg{transition:none;transform:none}
+}
+
+/* ── scene 07: the register holds its proof ──────────────────────────────
+   Each entry pins its evidence while the claims about it advance. This is the
+   section a visitor uses to decide whether any of this is real, so the proof
+   is the thing that stays on screen and the words move against it - not the
+   reverse. Same pattern as the System plate: the reading column has to be
+   longer than the held visual or sticky has no travel, so the summary side
+   carries the extra height. */
+[data-af-motion="on"] .rec{align-items:start}
+
+/* The register does NOT pin: its travel held no content, so it bought
+   86vh of emptiness per entry to hold a proof already in view. */
+
+
+
+/* ── the chapter rail ────────────────────────────────────────────────────
+   A fixed spine down the edge carrying the five chapters, the one that is
+   being read marked, and a fill showing how far through the document you are.
+   This is the piece that makes the page read as one thing rather than five
+   stacked sections: it is present the whole way down and it always answers
+   "where am I". Injected by the motion controller, so the static page and the
+   no-JavaScript render are untouched. Decorative and aria-hidden: the section
+   headings are the real structure for assistive technology. */
+[data-af-motion="on"] .af-rail{position:fixed;right:clamp(12px,2vw,30px);top:50%;
+  transform:translateY(-50%);z-index:60;display:flex;flex-direction:column;gap:14px;
+  pointer-events:none;mix-blend-mode:difference}
+[data-af-motion="on"] .af-rail i{display:block;width:26px;height:2px;background:#8A9099;
+  transform-origin:100% 50%;transition:transform 480ms cubic-bezier(.16,1,.3,1),background 300ms ease;
+  transform:scaleX(.42)}
+[data-af-motion="on"] .af-rail i[data-on="1"]{background:#F4F5F6;transform:scaleX(1)}
+[data-af-motion="on"] .af-rail i[data-on="past"]{background:#C6CBD1;transform:scaleX(.66)}
+@media (max-width:900px){ [data-af-motion="on"] .af-rail{display:none} }
+@media (prefers-reduced-motion:reduce){
+  [data-af-motion="on"] .af-rail i{transition:none}
+}
+
+/* ── scene 08: capability holds its evidence ─────────────────────────────
+   Same rule as the register: the thing that proves the claim stays on screen
+   while the claim and its boundary move against it. A territory's anchor is
+   its only hard evidence, so it is what pins; the members and the NOT CLAIMED
+   line travel past it. The column carries the extra height, because a sticky
+   box with no travel never pins at all. */
+[data-af-motion="on"] .cap{align-content:start}
+[data-af-motion="on"] .cap 
+
+[data-af-motion="on"] .cap__not{margin-top:clamp(16px,4vh,44px)}
+
+/* Product is deliberately NOT pinned. Its row is only as tall as the
+   specimens, so a sticky specimen pinned for 3% of the section - measured,
+   not guessed - and the only way to get real travel is to pin the whole row,
+   which then occludes the coupling specimen scrolling beneath it. Product
+   already carries the separation scene; it does not need this one. */
+[data-af-motion="on"] .joint{margin-top:clamp(22px,7vh,80px)}
+@media (max-width:900px){
+  [data-af-motion="on"] .cap 
+  [data-af-motion="on"] .cap__not{padding-bottom:0}
+}
+
+/* ── the plate given depth ───────────────────────────────────────────────
+   The topology was a flat drawing behind a camera move. It is now three
+   planes: edges sit back, nodes stand off the surface with a shadow, and the
+   reference marks float above. The planes travel at different rates against
+   the pointer and the scroll, so the diagram has real depth rather than a
+   drop shadow pretending to be one. Nothing here moves the graph's own parts
+   relative to one another - the structure is still exactly the committed
+   source, because that is the section's whole claim. */
+[data-af-motion="on"] .sys__machine svg{perspective:900px}
+[data-af-motion="on"] .sys__machine g[stroke]{
+  transform:translate3d(calc(var(--afm-x,0px) * .30),calc(var(--afm-y,0px) * .22),0);
+  transition:transform 700ms cubic-bezier(.16,1,.3,1);opacity:.92}
+[data-af-motion="on"] .sys__machine .n{
+  transform:translate3d(calc(var(--afm-x,0px) * -.75),calc(var(--afm-y,0px) * -.55),0);
+  transition:transform 620ms cubic-bezier(.16,1,.3,1),filter 420ms ease;
+  filter:drop-shadow(0 10px 18px rgba(0,0,0,.55))}
+[data-af-motion="on"] .sys__machine .mark{
+  transform:translate3d(calc(var(--afm-x,0px) * -1.25),calc(var(--afm-y,0px) * -.9),0);
+  transition:transform 560ms cubic-bezier(.16,1,.3,1),opacity 420ms ease}
+
+/* the node belonging to the observation being read stands furthest forward */
+
+
+/* the committed line that defines the region being read */
+[data-af-motion="on"] .src__g{transition:opacity 420ms ease,transform 520ms cubic-bezier(.16,1,.3,1)}
+[data-af-motion="on"] .sys[data-af-note="1"] .src__g:nth-of-type(1),
+[data-af-motion="on"] .sys[data-af-note="2"] .src__g:nth-of-type(2){
+  transform:translateX(6px)}
+
+@media (prefers-reduced-motion:reduce){
+  [data-af-motion="on"] .sys__machine g[stroke],
+  [data-af-motion="on"] .sys__machine .n,
+  [data-af-motion="on"] .sys__machine .mark{transform:none;transition:none;filter:none;opacity:1}
+}
+/* ── shell ─────────────────────────────────────────────────────────────
+   One header on every route. The register is the studio's spine, so the nav
+   names it first and the mark returns home. */
+.site-head{background:var(--ink);color:#F4F5F6;
+  background-image:var(--grain);background-size:170px 170px;background-repeat:repeat;
+  position:sticky;top:0;z-index:80;border-bottom:1px solid #22262A}
+.site-head .w{display:flex;align-items:center;gap:clamp(16px,3vw,40px);
+  min-height:clamp(56px,7vh,68px);flex-wrap:wrap}
+.site-mark{font-weight:800;font-stretch:120%;letter-spacing:.14em;text-transform:uppercase;
+  font-size:clamp(.82rem,1.2vw,.95rem);text-decoration:none;color:#fff;white-space:nowrap}
+.site-nav{display:flex;gap:clamp(14px,2.2vw,30px);margin-left:auto;flex-wrap:wrap}
+.site-nav a{font:500 10px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.18em;
+  text-transform:uppercase;color:#B6BCC2;text-decoration:none;padding:6px 0;
+  border-bottom:1px solid transparent;transition:color 220ms ease,border-color 220ms ease}
+.site-nav a:hover,.site-nav a:focus-visible{color:#fff;border-bottom-color:#fff}
+.site-nav a[]{color:#fff;border-bottom-color:#fff}
+
+.site-foot{background:var(--ink);color:var(--on-ink-2);margin-top:clamp(60px,10vh,140px);
+  background-image:var(--grain);background-size:170px 170px;padding:clamp(34px,6vh,64px) 0}
+
+.site-foot p{margin:0}
+.site-foot a{color:#D7DBDF}
+
+/* home keeps the sticky chapter rail clear of the header */
+[data-af-motion="on"] .af-rail{top:calc(50% + 22px)}
+.skip{position:absolute;left:-9999px;top:0;z-index:200;background:var(--ink);color:#fff;
+  padding:12px 18px;text-decoration:none;font:500 12px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.14em;text-transform:uppercase}
+.skip:focus{left:0}
+
+
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+
+/* ══ DARK ═══════════════════════════════════════════════════════════════
+   The sheet grounds go dark and the text inverts. The ink surfaces (hero,
+   register, code panels) were already dark, so they deepen rather than
+   flip - the page keeps the same light/dark section rhythm either way. */
+:root[data-theme="dark"]{
+  --fg:#E8EAEC; --fg-2:#9AA1A9; --fg-3:#A8AFB6;
+  --sheet:#131619; --sheet-2:#171A1E; --sheet-cool:#0F1215; --sheet-warm:#17191B;
+  --rule:#2F353B; --rule-w:#262B31; --rule-s:#565D65; --rule-s-dk:#6C737B;
+  --ink:#08090B; --chip:rgba(255,255,255,.07); --veil:rgba(255,255,255,.045); --stage-hi:#262B31; --hover:#1B1F23; --err:#FF8A66;
+  color-scheme:dark;
+}
+
+/* ── theme toggle ─────────────────────────────────────────────────────── */
+.site-head .w{display:flex;align-items:center;gap:16px}
+.site-head .site-nav{margin-left:auto}
+.theme-t{display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  background:none;border:1px solid currentColor;color:inherit;
+  font-family:inherit;font-weight:600;font-size:12px;letter-spacing:0;
+  padding:7px 12px;line-height:1;transition:background 140ms ease,color 140ms ease}
+.theme-t:hover,.theme-t:focus-visible{background:currentColor}
+.theme-t:hover .theme-t__l,.theme-t:focus-visible .theme-t__l{color:var(--sheet)}
+.theme-t__i{width:11px;height:11px;border-radius:50%;border:1.5px solid currentColor;
+  background:linear-gradient(90deg,currentColor 0 50%,transparent 50% 100%)}
+.theme-t__l{min-width:2.6em;text-align:left}
+@media(max-width:560px){.theme-t__l{display:none}.theme-t{padding:7px 9px}}
+
+/* ── ARRIVAL ───────────────────────────────────────────────────────────────
+   Text is never hidden, clipped or faded. Two earlier attempts both failed
+   the same reader: fading to zero left blank page, and wiping cut words in
+   half. A fade shallow enough to keep secondary text above 4.5:1 measures
+   0.9 opacity, which is no fade at all - so there is no version of "dim it"
+   that is both visible and legible.
+
+   So the block travels and its print resolves, while every word stays fully
+   readable the whole way. You can read ahead of the scroll, and nothing ever
+   looks truncated. */
+
+/* ── FOOTER ────────────────────────────────────────────────────────────────
+   It used to be three dim lines that said almost nothing. A footer is the
+   last place that can still answer a question, so it now carries the studio,
+   the way to reach it, the register, and the terms of the verification date. */
+.site-foot{background:var(--ink);color:var(--on-ink);
+  padding:clamp(40px,7vh,74px) 0 clamp(26px,4vh,38px);margin-top:0}
+.site-foot .w{display:grid;gap:clamp(24px,4vw,56px);
+  grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr)}
+.site-foot h2{font-weight:700;font-stretch:88%;font-size:1.05rem;letter-spacing:-.01em;
+  margin:0 0 14px;color:var(--on-ink)}
+.foot__id b{display:block;font-weight:800;font-stretch:104%;font-size:1.15rem;
+  letter-spacing:-.015em;color:#fff;margin-bottom:8px}
+.foot__id p{margin:0 0 10px;font-size:14px;line-height:1.6;color:var(--on-ink-2);max-width:34ch}
+.foot__id a{color:#fff;text-underline-offset:3px}
+.site-foot ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.site-foot li a{color:var(--on-ink-2);text-decoration:none;font-size:14px;line-height:1.4;
+  display:inline-block;transition:color 140ms ease}
+.site-foot li a:hover,.site-foot li a:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:3px}
+.foot__end{grid-column:1/-1;margin:clamp(22px,4vh,38px) 0 0;padding-top:18px;
+  border-top:1px solid var(--rule-dk);display:flex;flex-wrap:wrap;gap:8px 26px;
+  font-size:13px;line-height:1.6;color:var(--on-ink-2)}
+.foot__end span{max-width:62ch}
+@media(max-width:820px){.site-foot .w{grid-template-columns:1fr 1fr}
+  .foot__id{grid-column:1/-1}}
+@media(max-width:520px){.site-foot .w{grid-template-columns:1fr}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media(max-width:640px){}
+
+
+
+/* monospace, so the columns can be set in ch and every row aligns exactly */
+
+
+
+
+/* __start__ and __end__ already read as terminals by name; an underline
+   only landed on every token in the row and looked arbitrary. */
+
+
+
+
+
+
+
+/* ── TRAVERSAL ─────────────────────────────────────────────────────────────
+   A static picture of a graph is the one thing a graph cannot be. What the
+   source actually asserts is movement - an order, a return, and a way out - so the section moves. The agent/tools cycle turns a different number of
+   times on every pass, because the committed source fixes an exit but not a
+   count, and seeing that is the argument. */
+.trace{margin:clamp(24px,4vw,44px) 0 0}
+.trace svg{display:block;width:100%;height:auto;overflow:visible}
+.tr-edge{fill:none;stroke:var(--rule-s);stroke-width:1.4}
+.tr-edge--soft{stroke-dasharray:6 6}
+.tr-node{fill:var(--sheet);stroke:var(--fg-2);stroke-width:1.8;
+  transition:fill 260ms ease,stroke 260ms ease,r 260ms cubic-bezier(.16,1,.3,1)}
+.tr-node.is-lit{fill:var(--fg);stroke:var(--fg)}
+.tr-name{fill:var(--fg);font-family:M,"Mono Fallback",ui-monospace,monospace;
+  font-size:15px;font-weight:600}
+.tr-pulse{fill:var(--accent,#D4552A);stroke:var(--sheet);stroke-width:2}
+.tr-meter{margin:clamp(16px,2.4vh,24px) 0 0;display:flex;flex-wrap:wrap;
+  align-items:baseline;gap:8px 18px;font-size:14.5px;color:var(--fg-2)}
+.tr-meter b{font-family:M,"Mono Fallback",ui-monospace,monospace;font-size:1.5rem;
+  font-weight:700;color:var(--fg);min-width:1.4ch;display:inline-block}
+.trace figcaption{margin-top:clamp(18px,2.6vh,26px);font-size:13px;line-height:1.6;
+  color:var(--fg-2);max-width:74ch}
+@media(prefers-reduced-motion:reduce){.tr-node{transition:none}}
+
+/* ── THE CHECK ─────────────────────────────────────────────────────────────
+   The honest-limits idea used to be eleven disclaimers, one per system, which
+   asked the reader to trust a page that says it doesn't want to be trusted.
+   This does the opposite: it runs the check in front of them and prints what
+   comes back, failures included. Rows with nothing to check stay deliberately
+   empty, because an absence of evidence is the result. */
+
+.ck{margin:clamp(26px,4vw,44px) 0 0;border-top:1px solid var(--rule)}
+.ck__row{display:grid;grid-template-columns:1.1fr 1.2fr auto;gap:6px clamp(16px,2.4vw,40px);
+  align-items:baseline;padding:clamp(14px,2vh,20px) 0;border-bottom:1px solid var(--rule-w)}
+.ck__nm{margin:0;font-weight:660;font-stretch:90%;font-size:clamp(1rem,1.5vw,1.15rem);
+  letter-spacing:-.015em;color:var(--fg)}
+.ck__nm a{color:inherit;text-decoration:none}
+.ck__nm a:hover,.ck__nm a:focus-visible{text-decoration:underline;text-underline-offset:3px}
+.ck__what{margin:0;font-size:14px;line-height:1.5;color:var(--fg-2)}
+.ck__res{display:flex;align-items:center;gap:9px;justify-self:end;white-space:nowrap}
+.ck__dot{width:9px;height:9px;border-radius:50%;background:var(--rule-s);flex:none}
+.ck__dot[data-state="run"]{background:var(--fg-2);animation:ck-p 1s ease-in-out infinite}
+.ck__dot[data-state="ok"]{background:#1E9E5A}
+.ck__dot[data-state="fail"]{background:var(--accent,#D4552A)}
+@keyframes ck-p{50%{opacity:.25}}
+.ck__state{font:500 13px/1.4 M,"Mono Fallback",ui-monospace,monospace;color:var(--fg-2)}
+.ck__none .ck__state{color:var(--fg-3);opacity:.85}
+.ck__tally{margin:clamp(18px,2.6vh,26px) 0 0;font-weight:660;font-stretch:92%;
+  font-size:clamp(1.05rem,1.8vw,1.35rem);letter-spacing:-.015em;color:var(--fg)}
+.ck__small{margin:10px 0 0;font-size:13px;line-height:1.6;color:var(--fg-2);max-width:76ch}
+@media(max-width:720px){
+  .ck__row{grid-template-columns:1fr auto;gap:4px 16px}
+  .ck__what{grid-column:1/-1;order:3}
+}
+
+/* ── RESULT ROWS ───────────────────────────────────────────────────────────
+   These two panels used to be dark boxes with monospace in them, dressed up
+   as terminal output for a session nobody ran. The data was real; the costume
+   was not. They now use the same status-row language as the live check above,
+   so the page has one way of saying "this was tested and here is what came
+   back" instead of a screenshot pastiche. */
+.res{margin:clamp(16px,2.4vw,26px) 0 0;border-top:1px solid var(--rule)}
+.res__r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 16px;
+  align-items:baseline;padding:11px 0;border-bottom:1px solid var(--rule-w)}
+.res__k{margin:0;font-size:14px;line-height:1.45;color:var(--fg)}
+.res__k b{font-weight:660}
+.res__v{margin:0;display:flex;align-items:center;gap:8px;justify-self:end;
+  font-size:13.5px;color:var(--fg-2);white-space:nowrap}
+.res__d{width:8px;height:8px;border-radius:50%;flex:none;background:var(--rule-s)}
+.res__d--ok{background:#1E9E5A}
+.res__d--out{background:var(--accent,#D4552A)}
+.res__cap{margin:12px 0 0;font-size:12.5px;line-height:1.6;color:var(--fg-2);max-width:52ch}
+
+.ck__next{margin:6px 0 0;font-size:13px;line-height:1.6;color:var(--fg-2);max-width:70ch}
+.ck__next #check-next{font:500 13px/1.6 M,"Mono Fallback",ui-monospace,monospace;color:var(--fg)}
+
+/* ── THE PHOTOGRAPH IS A GROUND, NOT A PICTURE ─────────────────────────────
+   The type was surviving this image by brute force: a 60px shadow behind every
+   glyph, which is what you reach for when words are dropped onto a photograph
+   rather than composed with one.
+
+   The bench occupies the right of the frame and the type occupies the left, so
+   the scrim is directional rather than flat. It goes near-solid where the words
+   are and clears where the equipment is, which turns an overlap into a
+   composition and lets the shadow come off the type entirely. */
+.hero__bg{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(96deg,
+      rgba(8,9,11,.78) 0%, rgba(8,9,11,.72) 26%,
+      rgba(8,9,11,.50) 46%, rgba(8,9,11,.25) 66%, rgba(8,9,11,.15) 100%),
+    /* Measured, not guessed. The probe hides the text layer, samples the real
+       pixels under every word at the 95th percentile of luminance, and reports
+       the lowest ratio. At .94 the photograph was crushed to a mean ground of
+       12 - technically safe and visually dead. This is .78 with the muted meta
+       text lifted to #C2C8CE: mean ground 32, nearly three times lighter, and
+       still 0 failures with 4.65:1 at the tightest point. */
+    linear-gradient(180deg,rgba(8,9,11,.13) 0%,rgba(8,9,11,.09) 34%,
+      rgba(8,9,11,.40) 52%,rgba(8,9,11,.64) 66%,rgba(8,9,11,.76) 100%),
+    image-set(url("media/hero-bench.webp") type("image/webp"),
+              url("media/hero-bench.jpg") type("image/jpeg"));
+  filter:saturate(.72) contrast(1.04);
+  background-size:cover,cover,cover;background-position:center,center,center 38%;
+  background-repeat:no-repeat,no-repeat,no-repeat}
+@media(max-width:720px){.hero__bg{background-position:center 30%,center 30%}}
+.hero__fg{position:relative;z-index:3}
+.place-note{max-width:34ch;line-height:1.6;color:#B6BCC2}
+
+
+/* ── LIGHT MODE MEANS LIGHT ────────────────────────────────────────────────
+   The register was an ink plate in both themes, so with the toggle on light
+   the homepage still read 73% dark. The plate is right in dark mode and wrong
+   in light, so it flips. The hero keeps its photograph - white type needs a
+   dark ground and that one is deliberate, not an oversight. */
+:root:not([data-theme="dark"]) .sec--work{
+  background-color:var(--sheet-cool);color:var(--fg);
+  background-image:var(--grain),
+    radial-gradient(120% 90% at 16% -4%,rgba(10,11,13,.035) 0%,transparent 72%)}
+:root:not([data-theme="dark"]) .sec--work h2,
+:root:not([data-theme="dark"]) .sec--work h3,
+:root:not([data-theme="dark"]) .sec--work .crow__name{color:var(--fg)}
+:root:not([data-theme="dark"]) .sec--work p.kicker,
+:root:not([data-theme="dark"]) .sec--work .kicker,
+:root:not([data-theme="dark"]) .sec--work .rec__n,
+:root:not([data-theme="dark"]) .sec--work .rec__sum,
+:root:not([data-theme="dark"]) .sec--work .crow__n,
+:root:not([data-theme="dark"]) .sec--work .crow__m,
+:root:not([data-theme="dark"]) .sec--work .crow p,
+:root:not([data-theme="dark"]) .sec--work .reg__count,
+:root:not([data-theme="dark"]) .sec--work .compact__t,
+:root:not([data-theme="dark"]) .sec--work figcaption{color:var(--fg-2)}
+:root:not([data-theme="dark"]) .sec--work .stop{color:var(--fg-2)}
+:root:not([data-theme="dark"]) .sec--work .mr{color:var(--fg-2)}
+:root:not([data-theme="dark"]) .sec--work .mr span{border-bottom-color:var(--fg)}
+:root:not([data-theme="dark"]) .sec--work .crow{border-bottom-color:var(--rule)}
+:root:not([data-theme="dark"]) .sec--work .reg__head,
+:root:not([data-theme="dark"]) .sec--work .rule{border-color:var(--rule-s)}
+:root:not([data-theme="dark"]) .sec--work .rec__proof img{border-color:var(--rule)}
+:root:not([data-theme="dark"]) .sec--work .lnk,
+:root:not([data-theme="dark"]) .sec--work a{color:var(--fg)}
+:root:not([data-theme="dark"]) .sec--work .index-route{border-color:var(--rule-s);color:var(--fg-2)}
+:root:not([data-theme="dark"]) .sec--work :focus-visible{outline-color:var(--fg)}
+:root:not([data-theme="dark"]) .sec--work .lnk b,
+:root:not([data-theme="dark"]) .sec--work figcaption b,
+:root:not([data-theme="dark"]) .sec--work .an b{color:var(--fg)}
+:root:not([data-theme="dark"]) .sec--work .an,
+:root:not([data-theme="dark"]) .sec--work .fsi,
+:root:not([data-theme="dark"]) .sec--work .fsi span,
+:root:not([data-theme="dark"]) .sec--work .foot,
+:root:not([data-theme="dark"]) .sec--work p.kicker,
+:root:not([data-theme="dark"]) .sec--work span:not(.topo span){color:var(--fg-2)}
+:root:not([data-theme="dark"]) .sec--work .fsi{border-color:var(--rule-s)}
+:root:not([data-theme="dark"]) .sec--work .kicker,
+:root:not([data-theme="dark"]) .sec--work .fsi b,
+:root:not([data-theme="dark"]) .sec--work .compact b,
+:root:not([data-theme="dark"]) .sec--work b:not(.topo b):not(pre b):not(code b){color:var(--fg)}
+:root:not([data-theme="dark"]) .sec--work .topo,
+:root:not([data-theme="dark"]) .sec--work .topo *{color:var(--on-ink-2)}
+:root:not([data-theme="dark"]) .sec--work .topo b{color:var(--on-ink)}
+:root:not([data-theme="dark"]) .sec--work .rec__sum,
+:root:not([data-theme="dark"]) .sec--work .crow p,
+:root:not([data-theme="dark"]) .sec--work .stop{color:var(--fg-2)}
+:root:not([data-theme="dark"]) section.sec.sec--work p.kicker{color:var(--fg-2)!important}
+
+/* ── EVIDENCE FOLLOWS THE CLAIM ────────────────────────────────────────────
+   Each record states something, then shows the thing that backs it. The text
+   arrives first and the proof lifts in behind it, so the order you read is the
+   order the argument is made: assertion, then evidence.
+
+   Only the image moves. Text is never faded or clipped - that was settled
+   earlier and it stays settled - but a screenshot has no contrast floor to
+   respect, so it can carry the motion the type cannot.
+
+   --proof remaps the block's own arrival: nothing until the text is 35% in,
+   fully resolved by 85%. With motion off or reduced, --afv-o is 1, so --proof
+   is 1 and the image is simply present. */
+/* --proof is written by motion.js from the image's own position in the
+   viewport, not from the block's arrival. The block's reveal saturates within
+   about 200px of scroll while the image is still near the bottom edge, so the
+   staging was finishing before you could see it - real, measurable, and
+   invisible at any normal scroll speed. This runs over ~45% of the viewport
+   instead, so the evidence actually arrives in front of the reader. */
+[data-af-motion="on"] .rec__proof{
+  opacity:var(--proof,1);
+  transform:translate3d(0,calc((1 - var(--proof,1)) * 26px),0) scale(calc(.985 + var(--proof,1) * .015));
+  transform-origin:50% 100%;will-change:transform,opacity}
+[data-af-motion="on"] .rec__proof figcaption{
+  opacity:var(--proof,1)}
+@media(prefers-reduced-motion:reduce){
+  [data-af-motion="on"] .rec__proof{opacity:1;transform:none}
+  [data-af-motion="on"] .rec__proof figcaption{opacity:1}
+}
+
+/* ── THE RECORD VERIFIES ITSELF ────────────────────────────────────────────
+   These captions asserted HTTP 200 from a capture taken days earlier - a claim
+   about a moment that had passed, on a site whose whole argument is not doing
+   that. Each record now contacts its own host as you reach it and writes its
+   caption from what comes back.
+
+   The scan runs while the request is in flight and stops when it resolves, so
+   how long you see it *is* the latency. A failure leaves the image desaturated
+   and says so, rather than quietly showing a healthy-looking picture. */
+.rec__proof{position:relative}
+.rec__proof[data-probe]::after{
+  content:"";position:absolute;left:0;right:0;top:0;height:2px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--accent,#D4552A) 30%,var(--accent,#D4552A) 70%,transparent);
+  opacity:var(--scan,0);transform:translate3d(0,calc(var(--scanY,0) * 1%),0);
+  box-shadow:0 0 20px 3px rgba(212,85,42,.4)}
+.rec__proof img{transition:filter 520ms cubic-bezier(.16,1,.3,1)}
+.rec__proof[data-state="fail"] img{filter:grayscale(1) brightness(.5)}
+.pv{font-variant-numeric:tabular-nums}
+.rec__proof[data-state="ok"] .pv{color:#5BD98A}
+.rec__proof[data-state="fail"] .pv{color:var(--accent,#D4552A)}
+@media(prefers-reduced-motion:reduce){.rec__proof[data-probe]::after{display:none}}
+
+/* ── WHAT WE CAN DO ────────────────────────────────────────────────────────
+   The old Proof section listed the same eleven systems the register lists, and
+   since every record now checks itself it duplicated the live check as well.
+   The page needed a section answering the one question a visitor actually
+   arrives with - can you build my thing - so that is what replaced it.
+
+   Every capability names the system that demonstrates it and links to it. A
+   skill with nothing behind it is a claim, and this site does not make those:
+   the ones we have not shipped are listed separately and marked as such. */
+.sec--skills{padding-top:clamp(34px,7vh,72px)}
+.sk{margin:clamp(28px,4.5vw,52px) 0 0;display:grid;gap:clamp(22px,3vw,40px);
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.sk__c{display:grid;gap:12px;align-content:start;padding-top:20px;
+  border-top:2px solid var(--rule)}
+.sk__c h3{margin:0;font-weight:680;font-stretch:88%;
+  font-size:clamp(1.1rem,1.7vw,1.35rem);letter-spacing:-.018em;color:var(--fg)}
+.sk__c > p{margin:0;font-size:15px;line-height:1.55;color:var(--fg-2);max-width:42ch}
+.sk__l{list-style:none;margin:2px 0 0;padding:0;display:grid;gap:7px}
+.sk__l li{font-size:14.5px;line-height:1.45;color:var(--fg-2);
+  display:grid;grid-template-columns:1.1rem 1fr;gap:.5rem;align-items:baseline}
+.sk__l li::before{content:"";width:6px;height:6px;margin-top:.45em;border-radius:50%;
+  background:var(--rule-s)}
+.sk__by{margin:6px 0 0;font-size:13.5px;line-height:1.5;color:var(--fg-2)}
+.sk__by a{color:var(--fg);text-underline-offset:3px}
+.sk__gap{margin:clamp(30px,5vh,58px) 0 0;padding-top:20px;border-top:1px solid var(--rule);
+  display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.sk__gap h3{grid-column:1/-1;margin:0 0 4px;font-weight:660;font-stretch:90%;
+  font-size:clamp(1rem,1.5vw,1.15rem);letter-spacing:-.015em;color:var(--fg)}
+.sk__gap p{margin:0;font-size:14px;line-height:1.5;color:var(--fg-2)}
+
+/* ── SKILLS ARRIVE IN READING ORDER ────────────────────────────────────────
+   Six cards is enough that landing them all at once reads as a slab. They rise
+   in sequence instead, each keyed to its own position, so the column you are
+   looking at is the one resolving. The print rule above each card holds its
+   place beforehand, so nothing jumps and no space sits empty. */
+[data-af-motion="on"] .sk__c,
+[data-af-motion="on"] .sk__gap p{
+  transform:translate3d(0,calc((1 - var(--afv-o,1)) * 20px),0);
+  transform-origin:0 0;will-change:transform}
+[data-af-motion="on"] .sk__c{position:relative}
+[data-af-motion="on"] .sk__c::after{
+  content:"";position:absolute;left:0;top:-2px;height:2px;
+  width:calc(var(--afv-o,1) * 100%);background:var(--fg);
+  transition:none;pointer-events:none}
+@media(prefers-reduced-motion:reduce){
+  [data-af-motion="on"] .sk__c,
+  [data-af-motion="on"] .sk__gap p{transform:none}
+  [data-af-motion="on"] .sk__c::after{width:100%}
+}
+
+/* ── FOOTER, SIZED TO ITS PAGE ─────────────────────────────────────────────
+   Built full to fix a footer that showed almost nothing, then left at that
+   size everywhere: 449px on every page, which is 29% of Contact and 24% of
+   About. The homepage can carry it; a 1,500px page cannot. Elsewhere it keeps
+   the identity, the address and one row of links, and drops the register
+   column that the page above already lists. */
+body:not(.route-home) .site-foot{padding:clamp(30px,4.5vh,48px) 0 clamp(20px,3vh,28px)}
+body:not(.route-home) .site-foot .w{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);
+  align-items:start}
+body:not(.route-home) .site-foot nav[aria-labelledby="foot-reg"]{display:none}
+body:not(.route-home) .foot__id p{max-width:44ch}
+body:not(.route-home) .foot__end{margin-top:clamp(18px,2.6vh,24px);padding-top:14px}
+@media(max-width:820px){
+  body:not(.route-home) .site-foot .w{grid-template-columns:1fr}
+}
+
+/* ── ONE SCALE, ONE BODY SIZE ──────────────────────────────────────────────
+   The page was running 30px and 31px as separate steps, which at reading
+   distance is one size with two names. And it had two body sizes competing,
+   15px used 54 times against 13px used 40, so the eye kept re-adjusting with
+   no settled reading size.
+
+   13px is now metadata only: captions, tags, maturity, the things you scan
+   rather than read. Prose sits at 15px. The scale reads
+   86 / 64 / 42 / 30 / 22 / 17 / 15 / 13 / 11. */
+.sk__c > p,
+.sk__gap p,
+.sk__l li,
+.rec__sum,
+.stop,
+.proof-lede,
+.claim-legend li{font-size:15px;line-height:1.55}
+.sk__by{font-size:14px;line-height:1.5}
+.crow p:not([class]){font-size:13px}
+
+/* ── PROSE IS INK, METADATA IS GREY ────────────────────────────────────────
+   The page ran 95 elements in the muted tone against 39 in full ink, so almost
+   every word was set in the quiet colour and the whole thing read flat and
+   timid regardless of how well the type was sized. Hierarchy was being carried
+   by size alone.
+
+   Prose you are meant to read is now ink. The grey is kept for what it was for:
+   captions, tags, maturity, dates, the things you scan. */
+.lede,
+.sys__lede,
+.rec__sum,
+.proof-lede,
+.sk__c > p,
+.sk__l li,
+.claim-legend li,
+.stop{color:var(--fg)}
+.sec--work .lede,
+.sec--work .rec__sum,
+.sec--work .stop{color:var(--on-ink)}
+:root:not([data-theme="dark"]) .sec--work .lede,
+:root:not([data-theme="dark"]) .sec--work .rec__sum,
+:root:not([data-theme="dark"]) .sec--work .stop{color:var(--fg)}
+/* metadata stays quiet */
+.sk__by,.crow p:not([class]),.crow__m,.crow__n,figcaption{color:var(--fg-2)}
+/* the footer is ink in both themes, so its quiet tone is the ink one */
+.foot__end,.foot__end span{color:var(--on-ink-2)}
+
+/* ── THE WHOLE REGISTER IS REACHABLE ───────────────────────────────────────
+   Rows 06 to 11 were plain text. Six of the eleven systems had a page nobody
+   could get to from the register that lists them, which is the one place a
+   reader would look. The row is the link now, with the arrow the full records
+   already use. */
+.crow{padding:0}
+.crow__a{display:grid;grid-template-columns:2.4rem minmax(0,1fr) minmax(0,1.15fr) auto;
+  gap:clamp(10px,1.8vw,26px);align-items:baseline;padding:10px 0;
+  text-decoration:none;color:inherit;transition:padding-left 320ms cubic-bezier(.16,1,.3,1)}
+.crow__go{color:var(--fg-2);transition:color 200ms ease,transform 320ms cubic-bezier(.16,1,.3,1)}
+.crow__a:hover,.crow__a:focus-visible{padding-left:12px}
+.crow__a:hover .crow__name,.crow__a:focus-visible .crow__name{text-decoration:underline;text-underline-offset:4px}
+.crow__a:hover .crow__go,.crow__a:focus-visible .crow__go{color:var(--fg);transform:translateX(4px)}
+
+/* ── THE HEADLINE SETS ITSELF ──────────────────────────────────────────────
+   Archivo carries a width axis from 62 to 125. The site already uses it as an
+   identity - human language compressed, machine language expanded - but only
+   ever as a fixed value. Here it moves.
+
+   The line arrives narrow and opens to its set width, so the type appears to
+   be set rather than to fade in. It is the one motion on this page that could
+   not be done with any other typeface, which is the argument for it over
+   another slide or dissolve.
+
+   The block reserves its final height before the animation starts, so the page
+   below never moves: the width axis reflows the line internally, not the
+   document. Verified at 0 CLS. */
+.hero h1{--wd:104;font-variation-settings:"wdth" var(--wd);
+  will-change:font-variation-settings}
+@media (prefers-reduced-motion:no-preference){
+  .hero h1[data-set]{--wd:71;animation:h1-set 1150ms cubic-bezier(.16,1,.3,1) 120ms forwards}
+}
+@keyframes h1-set{from{--wd:71}to{--wd:104}}
+@property --wd{syntax:"<number>";inherits:false;initial-value:104}
+
+/* ── THE REGISTER SETS ITSELF TOO ──────────────────────────────────────────
+   The headline opens on the width axis, so the eleven names do the same,
+   staggered. One motion idea used twice makes it the page's language rather
+   than a trick played once on the headline.
+
+   They start wider than they end - 118 closing to 88 - so the strip tightens
+   into place while the headline above it opens. The two move against each
+   other, which is the same relationship the type system already states:
+   human language compressed, machine language expanded. */
+.hx b{--wb:88;font-variation-settings:"wdth" var(--wb);display:inline-block}
+@media (prefers-reduced-motion:no-preference){
+  .hero__index-track[data-set] .hx b{--wb:118;
+    animation:hx-set 900ms cubic-bezier(.16,1,.3,1) forwards;
+    animation-delay:calc(320ms + var(--i,0) * 42ms)}
+}
+@keyframes hx-set{from{--wb:118}to{--wb:88}}
+@property --wb{syntax:"<number>";inherits:false;initial-value:88}
+
+/* ── THE AXIS RUNS THE LENGTH OF THE PAGE ──────────────────────────────────
+   The headline opens and the hero strip tightens; below the fold every system
+   name does the same as its record arrives. The motion stops being a trick
+   played once above the fold and becomes how this page introduces a name.
+
+   Driven by the block's own arrival value rather than a timer, so a name sets
+   itself exactly as you reach it. Records open (88 to 96) and compact rows
+   tighten (100 to 88), keeping the same opposition the hero establishes. */
+.rec h3,.crow__name{will-change:font-variation-settings}
+.rec h3{--rw:96;min-width:0;font-variation-settings:"wdth" var(--rw)}
+.crow__name{--cw:88;min-width:0;font-variation-settings:"wdth" var(--cw)}
+/* --rw and --cw are written by motion.js from each name's own position in the
+   viewport. Tying them to the block's arrival value made them snap: that value
+   saturates inside about 225px of scroll, so the whole travel happened below
+   the reading line and you saw the end state only. Position gives a window
+   wide enough to watch. */
+@property --rw{syntax:"<number>";inherits:false;initial-value:96}
+@property --cw{syntax:"<number>";inherits:false;initial-value:88}
+
+/* ── THE RULE CARRIES THE EVIDENCE ─────────────────────────────────────────
+   Six identical cards under six identical rules said all six capabilities were
+   equally proven, which is not true: full-stack product build is backed by
+   five shipped systems, embedded by two. The section was flattening its own
+   register.
+
+   The rule is now drawn in two parts. The solid span is proportional to how
+   many systems back that capability; the remainder is a hairline. The count
+   sits at the end of it, so the visual weight and the number agree and neither
+   can drift from the links below without the other being wrong too.
+
+   Five is the maximum any capability reaches, so that sets full width. */
+.sk__c{position:relative;border-top:0;padding-top:26px}
+.sk__c::before{content:"";position:absolute;left:0;top:0;height:1px;width:100%;
+  background:var(--rule)}
+.sk__c::after{content:"";position:absolute;left:0;top:0;height:3px;
+  width:calc(var(--n,1) / 5 * 100%);background:var(--fg);
+  transform-origin:0 50%;transform:scaleX(var(--ev,1))}
+.sk__ev{position:absolute;top:9px;left:calc(var(--n,1) / 5 * 100%);
+  transform:translateX(-100%);padding-left:10px;
+  font:500 11px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.02em;
+  color:var(--fg-2);white-space:nowrap}
+@media (prefers-reduced-motion:no-preference){
+  [data-af-motion="on"] .sk__c{--ev:0}
+  [data-af-motion="on"] .sk__c.is-in{--ev:1;
+    transition:--ev 760ms cubic-bezier(.16,1,.3,1);
+    transition-delay:calc(var(--i,0) * 70ms)}
+}
+@property --ev{syntax:"<number>";inherits:false;initial-value:1}
+
+/* the hero's muted text is lifted so the photograph can stay light */
+.hero__meta .an,.hero__meta p,.hero__index-h,.hx i,.place-note{color:#C2C8CE}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SELECTED WORK · RECORDS AND ROWS
+   Consolidated from ten exploratory passes. Every declaration below is the one
+   that was actually winning in the browser at the end of that exploration,
+   folded into its canonical selector. No !important is used except where a
+   theme override genuinely has to beat an earlier theme rule.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── the record ──────────────────────────────────────────────────────────────
+   Two columns that overlay in one grid cell: the text block and the numeral
+   share cell 1 so the numeral stays stamped behind the name whatever the block
+   height, and the evidence takes cell 2 and bleeds to the viewport edge. */
+.rec{position:relative;display:grid;align-items:stretch;
+  grid-template-columns:minmax(0,clamp(300px,31vw,446px)) minmax(0,1fr);
+  column-gap:clamp(20px,3vw,44px);row-gap:clamp(18px,2.4vw,35px);
+  padding:clamp(20px,2.8vh,34px) 0;border-top:1px solid var(--rule-dk)}
+.rec:first-of-type{border-top:2px solid #F1F2F3}
+
+.rec > div{grid-column:1;grid-row:1;display:flex;flex-direction:column;
+  justify-content:flex-end;padding-bottom:.4rem;position:relative;z-index:1}
+
+/* The register number is orientation, not ornament. It ran as a 12rem ghost
+   behind the name for several passes and needed three more just to stay
+   attached to it; removed, the composition read better and nothing was lost.
+   It returns at the size the compact rows already use, carried by the heading
+   itself so it cannot drift from the name however the block is aligned. */
+.rec__n{display:none}
+.rec h3::before{content:attr(data-num);display:block;margin-bottom:.5em;
+  font:500 12px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.14em;color:var(--fg-2)}
+.sec--work .rec h3::before{color:var(--on-ink-2)}
+:root:not([data-theme="dark"]) .sec--work .rec h3::before{color:var(--fg-2)}
+
+.rec h3{position:relative;z-index:1;margin:0 0 .35em;
+  font-size:clamp(2.1rem,4.6vw,3.9rem);line-height:.94;letter-spacing:-.035em;
+  --rw:96;font-variation-settings:"wdth" var(--rw)}
+
+.rec__sum{margin:14px 0 0;font-size:clamp(15px,1.25vw,17px);line-height:1.5}
+
+.rec .mr{display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:1.1em}
+.rec .mr span{padding:4px 9px;border:1px solid var(--rule);
+  font-size:11.5px;letter-spacing:.01em;color:var(--fg-2)}
+.sec--work .rec .mr span{color:var(--on-ink-2)}
+:root:not([data-theme="dark"]) .sec--work .rec .mr span{color:var(--fg-2)}
+.sec--work .rec .mr span{border-color:rgba(255,255,255,.24)}
+:root:not([data-theme="dark"]) .sec--work .rec .mr span{border-color:var(--rule)}
+
+.rec .stop{position:relative;margin:.9em 0 15px -16px;padding-left:14px;
+  border-left:2px solid var(--rule);font-size:15px;line-height:1.55}
+.sec--work .rec .stop{border-left-color:rgba(255,255,255,.22)}
+:root:not([data-theme="dark"]) .sec--work .rec .stop{border-left-color:var(--rule)}
+
+.rec__proof{grid-column:2;grid-row:1;position:relative;
+  margin-right:calc(50% - 50vw)}
+.rec__proof img{display:block;width:100%;border:0}
+
+@media(max-width:860px){
+  .rec{grid-template-columns:minmax(0,1fr)}
+  .rec > div{justify-content:flex-start;padding-bottom:0}
+  .rec__n{align-self:start;transform:translateY(-.18em)}
+  .rec h3{margin-top:.24em}
+  .rec__proof{grid-column:1;grid-row:2}
+}
+
+/* ── the compact rows ────────────────────────────────────────────────────────
+   .crow is a wrapper, not a grid. It kept the grid it had before its contents
+   were wrapped in a link, which put the whole <a> inside one 38px cell with
+   its own columns overflowing - the reason descriptions measured 216px while
+   500px of the row sat empty. The link is the grid. */
+.crow{display:block;padding:0;border-bottom:1px solid var(--rule-dk)}
+.crow__a{display:grid;width:100%;align-items:baseline;
+  grid-template-columns:2.6rem minmax(21ch,23ch) minmax(24ch,1fr) max-content 1.6rem;
+  gap:clamp(12px,1.6vw,28px);padding:15px 0;
+  text-decoration:none;color:inherit;
+  transition:padding-left 320ms cubic-bezier(.16,1,.3,1)}
+.crow__name{white-space:nowrap;font-weight:660;font-stretch:88%;
+  font-size:clamp(1.05rem,1.65vw,1.4rem);letter-spacing:-.02em;
+  --cw:88;font-variation-settings:"wdth" var(--cw)}
+.crow__a > p:not([class]){margin:0;font-size:13.5px;line-height:1.45;
+  color:var(--fg-2);display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical;overflow:hidden}
+.sec--work .crow__a > p:not([class]){color:var(--on-ink-2)}
+:root:not([data-theme="dark"]) .sec--work .crow__a > p:not([class]){color:var(--fg-2)}
+.crow__m{white-space:nowrap;text-align:right;padding-left:8px;
+  font-size:11.5px;font-weight:500;letter-spacing:0;text-transform:none}
+.crow__go{justify-self:end;color:var(--fg-2);
+  transition:color 200ms ease,transform 320ms cubic-bezier(.16,1,.3,1)}
+.crow__a:hover,.crow__a:focus-visible{padding-left:12px}
+.crow__a:hover .crow__name,.crow__a:focus-visible .crow__name{
+  text-decoration:underline;text-underline-offset:4px}
+.crow__a:hover .crow__go,.crow__a:focus-visible .crow__go{
+  color:var(--fg);transform:translateX(4px)}
+
+@media(max-width:1240px){
+  .crow__a{grid-template-columns:2.4rem minmax(0,1fr) max-content 1.4rem}
+  .crow__a > p:not([class]){display:none}
+}
+@media(max-width:640px){
+  .crow__a{grid-template-columns:2rem minmax(0,1fr) 1.2rem;row-gap:4px}
+  .crow__name{white-space:normal}
+  .crow__m{grid-column:2;text-align:left;padding-left:0}
+}
+
+/* ── headings, hero and skills at their settled scale ───────────────────────*/
+.hero h1{font-size:clamp(3.4rem,10.4vw,9.5rem);line-height:.86;
+  letter-spacing:-.045em;max-width:none;margin-right:-4vw;
+  text-wrap:balance;text-shadow:0 1px 24px rgba(8,9,11,.42)}
+@media(min-width:1040px) and (max-width:1320px){
+  .hero h1{font-size:clamp(3.4rem,8.4vw,7rem);letter-spacing:-.04em}
+}
+.hx b{font-size:clamp(1.15rem,2.15vw,1.85rem);letter-spacing:-.025em}
+.h--work,.h--action{font-size:clamp(2.6rem,6.6vw,5.6rem);font-stretch:76%;
+  letter-spacing:-.038em;line-height:.92}
+.sk{grid-template-columns:repeat(auto-fit,minmax(330px,1fr));
+  gap:clamp(28px,3.4vw,56px)}
+.sk__c h3{font-size:clamp(1.35rem,2.2vw,1.9rem);font-stretch:82%;
+  letter-spacing:-.025em;line-height:1.02}
+.sec--work .reg__head,.sec--skills .kicker{margin-bottom:.15em}
+
+/* ── FIVE RECORDS, FIVE COMPOSITIONS ─────────────────────────────────────────
+   One design language, not one layout repeated. Five identical blocks of
+   NUMBER / TITLE / SUMMARY / TAGS / LIMIT / SCREENSHOT is what makes a
+   portfolio of unusual work read as generated, and the fix is not more
+   decoration on each block - it is letting the evidence decide the shape.
+
+   .rec--plate    BizMtaani. The strongest surface, so it runs widest and
+                  carries the least explanation. Image leads, text sits under
+                  it as a caption band.
+   .rec--mirror   Hazina. The same split as Gen-Eat, reversed, so the two
+                  storefronts never read as consecutive near-clones.
+   .rec--focus    CarePro. Product state matters more than scale here, so the
+                  surface is smaller and the text carries more weight.
+   .rec--split    Gen-Eat. The plain two-column reading, kept as the baseline.
+   .rec--surface  Jamii. Live surface first, at full width, text beneath. */
+
+/* ── plate: image leads, text is a band under it ────────────────────────────*/
+.rec--plate{grid-template-columns:minmax(0,1fr)}
+.rec--plate > div{grid-column:1;grid-row:2;padding-bottom:0;
+  display:grid;grid-template-columns:minmax(0,26ch) minmax(0,1fr);
+  column-gap:clamp(24px,4vw,64px);align-items:start;
+  padding-top:clamp(18px,2.4vh,28px)}
+.rec--plate .rec__proof{grid-column:1;grid-row:1;
+  margin:0 calc(50% - 50vw) clamp(6px,1.4vh,16px) calc(50% - 50vw)}
+.rec--plate h3{font-size:clamp(2.6rem,6vw,5rem);margin-bottom:0}
+.rec--plate .rec__sum{margin-top:0;font-size:clamp(16px,1.4vw,19px);max-width:46ch}
+.rec--plate .mr{margin-top:1.2em}
+.rec--plate .stop{margin-left:0;grid-column:2}
+
+/* ── mirror: evidence left, reading right ───────────────────────────────────*/
+.rec--mirror{grid-template-columns:minmax(0,1fr) minmax(0,clamp(300px,31vw,446px))}
+.rec--mirror > div{grid-column:2;grid-row:1}
+/* The mirror is differentiated by reversing the columns, not by bleeding.
+   Bleeding left dragged its caption to -245px and no centring formula could
+   recover it, because the figure's own box starts outside the page. */
+.rec--mirror .rec__proof{grid-column:1;grid-row:1;margin:0}
+
+/* ── focus: the product state, not the scale ────────────────────────────────*/
+.rec--focus{grid-template-columns:minmax(0,clamp(340px,38vw,560px)) minmax(0,1fr);
+  align-items:center}
+.rec--focus .rec__proof{margin-right:0;border:1px solid var(--rule)}
+.rec--focus > div{justify-content:center}
+.rec--focus h3{font-size:clamp(1.9rem,3.6vw,3.1rem)}
+.rec--focus .rec__sum{max-width:40ch}
+.sec--work .rec--focus .rec__proof{border-color:rgba(255,255,255,.16)}
+:root:not([data-theme="dark"]) .sec--work .rec--focus .rec__proof{border-color:var(--rule)}
+
+/* ── surface: the live product first, full width ────────────────────────────*/
+.rec--surface{grid-template-columns:minmax(0,1fr)}
+.rec--surface .rec__proof{grid-column:1;grid-row:1;
+  margin:0 calc(50% - 50vw) clamp(10px,1.8vh,22px) calc(50% - 50vw)}
+.rec--surface > div{grid-column:1;grid-row:2;padding-bottom:0;
+  display:grid;grid-template-columns:minmax(0,30ch) minmax(0,1fr);
+  column-gap:clamp(24px,4vw,64px);align-items:start}
+.rec--surface h3{margin-bottom:0}
+.rec--surface .rec__sum{margin-top:0;max-width:48ch}
+.rec--surface .mr{margin-top:1.2em}
+.rec--surface .stop{margin-left:0;grid-column:2}
+
+@media(max-width:860px){
+  .rec--plate > div,.rec--surface > div{grid-template-columns:minmax(0,1fr);row-gap:12px}
+  .rec--plate .stop,.rec--surface .stop{grid-column:1}
+  .rec--mirror{grid-template-columns:minmax(0,1fr)}
+  .rec--mirror > div{grid-column:1;grid-row:1}
+  .rec--mirror .rec__proof{grid-column:1;grid-row:2;margin-left:0}
+  .rec--focus{grid-template-columns:minmax(0,1fr)}
+}
+
+/* Full-bleed evidence must not drag its caption off the page with it: the
+   image runs edge to edge, the caption returns to the reading column. And the
+   name needs a column it actually fits in - at 5rem it was overflowing 26ch
+   and landing on top of the summary. */
+/* calc(50vw - 50%) resolved against the caption's own width, not the
+   container, so it stayed at the viewport edge. The caption reuses the site's
+   content-width formula instead, which is the only thing that reliably puts it
+   back in the reading column under a full-bleed image. */
+.rec--plate .rec__proof figcaption,
+.rec--surface .rec__proof figcaption{
+  max-width:1340px;margin-left:auto;margin-right:auto;
+  padding-left:clamp(18px,3.4vw,46px);padding-right:clamp(18px,3.4vw,46px);
+  box-sizing:border-box}
+/* A single unbreakable name overflows a narrow column silently - the box
+   measures 135px while "BizMtaani" renders 220px wide and lands on the
+   summary. The column is sized to the name, not guessed.
+
+   Scoped to desktop: max-content cannot shrink, so left unscoped it forced the
+   whole record 100px past a 390px viewport. Below the stacking breakpoint the
+   two-column band collapses and the constraint is meaningless. */
+.rec--plate h3{font-size:clamp(2.2rem,4.2vw,3.4rem);line-height:.96}
+@media(min-width:861px){
+  .rec--plate > div{grid-template-columns:minmax(max-content,20ch) minmax(0,1fr)}
+  .rec--surface > div{grid-template-columns:minmax(max-content,24ch) minmax(0,1fr)}
+}
+
+/* ── E · THE CLOSE ───────────────────────────────────────────────────────────
+   The homepage ran hero, capabilities, work, and then simply stopped at a
+   footer. A visitor who read the whole register had no answer to "who am I
+   dealing with and how do I start", which is the last thing a portfolio owes
+   them. The portrait belongs to About, so this uses the bench mid-build: the
+   person at work rather than a second face. */
+.sec--close{position:relative;background:var(--ink);color:var(--on-ink);
+  padding:0 0 clamp(46px,7vh,88px);overflow:hidden}
+.close__img{position:relative;height:clamp(280px,42vh,460px)}
+.close__img img{width:100%;height:100%;object-fit:cover;object-position:center 34%;
+  filter:saturate(.78) contrast(1.03)}
+.close__img::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(8,9,11,.30) 0%,rgba(8,9,11,.55) 55%,var(--ink) 100%)}
+.close__body{position:relative;margin-top:clamp(-90px,-9vh,-52px);z-index:2}
+.sec--close .kicker{color:var(--on-ink-2)}
+.h--close{margin:.2em 0 0;font-size:clamp(2rem,4.6vw,3.9rem);font-stretch:80%;
+  letter-spacing:-.03em;line-height:1.02;color:#fff}
+.close__lede{margin:clamp(16px,2.4vh,26px) 0 0;max-width:56ch;
+  font-size:clamp(15px,1.3vw,18px);line-height:1.55;color:var(--on-ink-2)}
+.close__act{margin:clamp(22px,3.2vh,34px) 0 0;display:flex;flex-wrap:wrap;gap:12px}
+.sec--close .cta{border-color:rgba(255,255,255,.34);color:#fff}
+.sec--close .cta--solid{background:#fff;color:var(--ink);border-color:#fff}
+.sec--close .cta:hover,.sec--close .cta:focus-visible{background:#fff;color:var(--ink)}
+.close__note{margin:18px 0 0;font-size:14px;color:var(--on-ink-2)}
+.close__note a{color:#fff}
+
+/* ── LINK DISCIPLINE ─────────────────────────────────────────────────────────
+   Fourteen links were rendering in the browser's default blue: the eleven
+   register entries in the hero and three in the skills "not shipped" list.
+   They had been unstyled since a stylesheet corruption swallowed the .hx block
+   and nothing put it back. Anything that navigates is styled as a link; the
+   hero strip inherits the hero's own ink treatment. */
+a.hx{color:inherit;text-decoration:none;
+  display:flex;flex-direction:column;gap:5px}
+a.hx b{color:var(--on-ink)}
+a.hx i{color:var(--on-ink-2);font-style:normal}
+a.hx:hover b,a.hx:focus-visible b{text-decoration:underline;text-underline-offset:4px}
+a.hx:hover i,a.hx:focus-visible i{color:var(--on-ink)}
+
+.sk__gap a{color:var(--fg);text-decoration:underline;text-underline-offset:3px;
+  text-decoration-thickness:1px;text-decoration-color:var(--rule-s)}
+.sk__gap a:hover,.sk__gap a:focus-visible{text-decoration-color:currentColor}
+
+/* footer page links stack; two of them were sharing a line after the new
+   entry was inserted inline */
+.site-foot nav a{display:block}
+
+/* ══ PAGE CONTINUITY ════════════════════════════════════════════════════════
+   Cross-document view transitions. The shell holds still and the content
+   crossfades, so moving between pages reads as continuity rather than as a
+   slide. Nothing travels far enough to register as an effect - the point is
+   that the wordmark and navigation never blink.
+
+   Unsupported browsers navigate instantly. Reduced motion is instant. */
+@view-transition{navigation:auto}
+.site-head{view-transition-name:shell-head}
+.site-foot{view-transition-name:shell-foot}
+main{view-transition-name:page-body}
+::view-transition-old(page-body){animation:pc-out 140ms cubic-bezier(.4,0,1,1) both}
+::view-transition-new(page-body){animation:pc-in 260ms cubic-bezier(.16,1,.3,1) both}
+@keyframes pc-out{to{opacity:0;transform:translateY(-6px)}}
+@keyframes pc-in{from{opacity:0;transform:translateY(8px)}}
+::view-transition-old(shell-head),::view-transition-new(shell-head),
+::view-transition-old(shell-foot),::view-transition-new(shell-foot){animation:none}
+@media(prefers-reduced-motion:reduce){
+  @view-transition{navigation:none}
+  ::view-transition-old(page-body),::view-transition-new(page-body){animation:none}
+}
+/* [hidden] must beat any display rule that follows it */
+[hidden]{display:none!important}
+
+/* ── NAVIGATION YOU CAN ACTUALLY HIT ────────────────────────────────────────
+   The nav was 10px uppercase mono at 23px tall, with "Home" a 31px-wide tap
+   target - half the 44px minimum, and small enough that it read as fine print
+   rather than navigation. Same family and weight as the rest of the site, at a
+   size a thumb can find. */
+.site-nav{gap:clamp(2px,.6vw,10px)}
+.site-nav a{font-family:inherit;font-weight:600;font-size:14px;line-height:1;
+  letter-spacing:0;text-transform:none;
+  display:inline-flex;align-items:center;min-height:44px;padding:0 12px;
+  border-bottom:2px solid transparent;
+  transition:border-color 160ms ease,color 160ms ease}
+.site-nav a:hover,.site-nav a:focus-visible{border-bottom-color:currentColor}
+.site-nav a[aria-current="page"]{border-bottom-color:currentColor}
+.site-head{padding-block:6px}
+
+/* the wordmark is the route home, so it should look like one */
+.site-mark{display:inline-flex;align-items:center;min-height:44px}
+
+@media(max-width:640px){
+  .site-head .w{flex-wrap:wrap;row-gap:2px}
+  .site-nav{width:100%;justify-content:space-between;order:3;
+    margin-left:0;border-top:1px solid var(--rule-dk);padding-top:2px}
+  .site-nav a{padding:0 6px;font-size:13.5px;flex:1;justify-content:center}
+  .theme-t{margin-left:auto}
+}
+</style>
+</head>
+<body class="route-home">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head">
+  <div class="w">
+    <a class="site-mark" href="./">Lesnar&nbsp;AI</a>
+    <button class="theme-t" type="button" aria-pressed="false" title="Switch between light and dark"><span class="theme-t__i" aria-hidden="true"></span><span class="theme-t__l">Dark</span></button><nav class="site-nav" aria-label="Main"><a href="" aria-current="page">Home</a><a href="work/">Work</a><a href="services/">Services</a><a href="about/">About</a><a href="book/">Book</a></nav>
+  </div>
+</header>
+<main id="main">
+
+<!-- ═══ HERO ═══════════════════════════════════════════════════════════ -->
+<header class="hero">
+
+  <div class="hero__bg" aria-hidden="true"></div>
+  <div class="hero__veil" aria-hidden="true"></div>
+  <div class="hero__fg">
+    <div class="w">
+      <p class="wordmark"><b>Lesnar&nbsp;AI</b><span>Nairobi · engineering studio</span></p>
+
+      <h1 data-set style="min-height:var(--h1h,auto)">We build systems, and publish what they <em>don't claim.</em></h1>
+
+      <div class="hero__meta">
+        <p>A Nairobi engineering studio building software, infrastructure, security and
+          physical systems. Eleven are published in the register - five are live,
+          the rest carry the maturity they have actually reached.</p>
+        <p class="an"><b>In the register</b> · Eleven systems<br>Eleven systems, each with its own maturity</p>
+        <p class="an"><b>Verified</b> Live, in your browser<br>Each surface answers for itself</p>
+        <p class="an place-note"><b>Nairobi</b> &middot; 1&deg;17&prime;S &middot; 36&deg;49&prime;E<br>
+          Where the work is done - the bench behind this page.</p>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="hero__fg" style="padding-top:0">
+    <div class="w"><p class="hero__cta"><a class="cta" href="work/">Read the register <span aria-hidden="true">&rarr;</span></a></p></div>
+  </div>
+
+  <div class="hero__fg hero__fg--index" style="padding-top:0">
+    <div class="w">
+      <p class="hero__index-h">The register · eleven systems</p>
+      <div class="hero__index">
+        <p class="hero__index-track" data-set><a class="hx" href="work/bizmtaani/"><b>BizMtaani</b><i>live product</i></a><a class="hx" href="work/hazina-nomads/"><b>Hazina Nomads</b><i>live product</i></a><a class="hx" href="work/carepro/"><b>CarePro</b><i>live product</i></a><a class="hx" href="work/gen-eat/"><b>Gen-Eat</b><i>live product</i></a><a class="hx" href="work/jamii-projects-hub/"><b>Jamii Projects Hub</b><i>live product</i></a><a class="hx" href="work/sentinelcore/"><b>SentinelCore</b><i>internal engineering system</i></a><a class="hx" href="work/cypher/"><b>Cypher</b><i>governance runtime, unqualified</i></a><a class="hx" href="work/greenhouse-controller/"><b>Greenhouse controller</b><i>validated prototype</i></a><a class="hx" href="work/gold-trader/"><b>Gold Trader</b><i>research, paper only</i></a><a class="hx" href="work/aerial-systems/"><b>Aerial systems</b><i>active research</i></a><a class="hx" href="work/sensing-and-radar/"><b>Sensing and radar</b><i>research direction</i></a></p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="sec sec--skills" data-af-edge="sheet" aria-labelledby="sk-h">
+  <div class="w">
+    <p class="kicker">What we can do</p>
+    <h2 class="h--action" id="sk-h">Work we have actually shipped.</h2>
+    <p class="lede">Six kinds of work, and for each one the system that proves we have done it
+      before. Follow any of them and you land on the record, with its limits stated. Where we
+      have not shipped something, it is at the bottom rather than quietly folded in above.</p>
+
+    <div class="sk">
+      <div class="sk__c" data-n="5" style="--n:5"><span class="sk__ev" aria-hidden="true">5 systems</span>
+        <h3>Full-stack product build</h3>
+        <p>The whole thing, not a layer of it: interface, backend, database, deployment and the
+          operator screens the staff actually live in.</p>
+        <ul class="sk__l">
+          <li>Storefronts and marketplaces with many sellers, one checkout</li>
+          <li>Multi-tenant catalogues, members, roles and permissions</li>
+          <li>Admin and operator surfaces, not just the customer side</li>
+          <li>Deployed on its own service, database and domain</li>
+        </ul>
+        <p class="sk__by">Shipped in <a href="work/bizmtaani/">BizMtaani</a>,
+          <a href="work/gen-eat/">Gen-Eat</a>, <a href="work/hazina-nomads/">Hazina Nomads</a>,
+          <a href="work/carepro/">CarePro</a> and <a href="work/jamii-projects-hub/">Jamii</a>.</p>
+      </div>
+
+      <div class="sk__c" data-n="4" style="--n:4"><span class="sk__ev" aria-hidden="true">4 systems</span>
+        <h3>Payments and messaging</h3>
+        <p>Taking money in Kenya the way people actually pay, and letting them order in the app
+          they already have open.</p>
+        <ul class="sk__l">
+          <li>M-Pesa STK push, initiated from a chat message</li>
+          <li>Card payment alongside M-Pesa</li>
+          <li>Ordering entirely over WhatsApp - no app to install</li>
+          <li>Reconciling a provider event against the internal record</li>
+        </ul>
+        <p class="sk__by">Shipped in <a href="work/gen-eat/">Gen-Eat</a>,
+          <a href="work/bizmtaani/">BizMtaani</a>, <a href="work/carepro/">CarePro</a>;
+          the reconciliation is opened up in <a href="work/jamii-projects-hub/">Jamii</a>.</p>
+      </div>
+
+      <div class="sk__c" data-n="2" style="--n:2"><span class="sk__ev" aria-hidden="true">2 systems</span>
+        <h3>AI you can inspect</h3>
+        <p>Retrieval and tool-calling held as structure committed to a repository, with the
+          decision boundary written down instead of buried in a prompt.</p>
+        <ul class="sk__l">
+          <li>Retrieval over your own documents and catalogue</li>
+          <li>Tool-calling where each step is a node, not a paragraph</li>
+          <li>A person approving an action before it runs</li>
+          <li>Each customer's data walled off from every other</li>
+        </ul>
+        <p class="sk__by">Built in <a href="work/cypher/">Cypher</a>, with the graph committed in
+          <a href="work/hazina-nomads/">Hazina Nomads</a>. No accuracy or latency figure is claimed.</p>
+      </div>
+
+      <div class="sk__c" data-n="2" style="--n:2"><span class="sk__ev" aria-hidden="true">2 systems</span>
+        <h3>Security and hardening</h3>
+        <p>Checking a Linux server the way an attacker would look at it, and closing what is
+          found - built as the studio's own tooling.</p>
+        <ul class="sk__l">
+          <li>Async port scanning and service banner collection</li>
+          <li>Log watching with a sliding-window detector</li>
+          <li>Host configuration hardening and firewall state</li>
+          <li>Idempotency that fails closed when its store is unreachable</li>
+        </ul>
+        <p class="sk__by">Built in <a href="work/sentinelcore/">SentinelCore</a> and
+          <a href="work/cypher/">Cypher</a>. No deployment, certification or detection-efficacy
+          figure is claimed.</p>
+      </div>
+
+      <div class="sk__c" data-n="2" style="--n:2"><span class="sk__ev" aria-hidden="true">2 systems</span>
+        <h3>Infrastructure and reliability</h3>
+        <p>Getting it live and keeping one failure from becoming all of them.</p>
+        <ul class="sk__l">
+          <li>Separate runtimes, cross-database denial, isolated cache namespaces</li>
+          <li>Failure isolation, measured rather than assumed</li>
+          <li>Separating two products that once shared one backend</li>
+          <li>Reachability and health checks you can re-run</li>
+        </ul>
+        <p class="sk__by">Done for <a href="work/gen-eat/">Gen-Eat</a> and
+          <a href="work/hazina-nomads/">Hazina Nomads</a>. Stopping either left the other
+          answering; one test, not general fault immunity.</p>
+      </div>
+
+      <div class="sk__c" data-n="2" style="--n:2"><span class="sk__ev" aria-hidden="true">2 systems</span>
+        <h3>Embedded and physical</h3>
+        <p>Work that leaves the screen: control that keeps running on a small board with no
+          network to fall back on.</p>
+        <ul class="sk__l">
+          <li>Temperature, humidity and irrigation control</li>
+          <li>Autonomous operation without a connection</li>
+          <li>Sensor reading and actuator state on embedded hardware</li>
+          <li>Airframe and flight-control research, in simulation</li>
+        </ul>
+        <p class="sk__by">Built in the
+          <a href="work/greenhouse-controller/">greenhouse controller</a>, owner-attested rather
+          than measured by us; <a href="work/aerial-systems/">aerial</a> has never flown.</p>
+      </div>
+    </div>
+
+    <p style="margin:clamp(26px,4vh,44px) 0 0;font-size:15px;color:var(--fg-2)">Looking for one of these for your own system? <a href="services/" style="color:var(--fg);text-decoration:underline;text-underline-offset:4px">See what we build</a>.</p><div class="sk__gap">
+      <h3>What we have not shipped</h3>
+      <p><a href="work/gold-trader/">Automated trading</a> is researched on paper only - no live
+        orders, no performance figure.</p>
+      <p><a href="work/aerial-systems/">Aerial work</a> exists as a bench airframe and a
+        simulation. Nothing has been flown.</p>
+      <p><a href="work/sensing-and-radar/">Sensing and radar</a> is a stated direction with
+        nothing built behind it yet.</p>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+<!-- ═══ SYSTEM ═════════════════════════════════════════════════════════ -->
+
+
+<!-- ═══ ACTION ═════════════════════════════════════════════════════════ -->
+
+
+<!-- ═══ CAPABILITY ═════════════════════════════════════════════════════ -->
+
+
+<!-- ═══ WORK ═══════════════════════════════════════════════════════════ -->
+
+
+<script src="motion.js" defer></script>
+</main>
+<section class="sec sec--close" data-af-edge="ink" aria-labelledby="close-h">
+  <div class="close__img">
+    <picture>
+      <source srcset="media/studio-close.webp" type="image/webp">
+      <img src="media/studio-close.jpg" alt="The studio bench in Nairobi, mid-build: three screens, a laptop and the work in progress." width="1800" height="1011" loading="lazy" decoding="async">
+    </picture>
+  </div>
+  <div class="w close__body">
+    <p class="kicker">The studio</p>
+    <h2 id="close-h" class="h--close">One engineer, in Nairobi,<br>who publishes the limits.</h2>
+    <p class="close__lede">Eleven systems in the register, five you can open right now. Everything
+      above was built here, and every claim on this page is one you can check yourself.</p>
+    <div class="close__act">
+      <a class="cta cta--solid" href="book/">Start a project</a>
+      <a class="cta" href="engagement/">How we work</a>
+    </div>
+    <p class="close__note">Or write directly to
+      <a class="lnk" href="mailto:hello@lesnarai.co.ke"><b>hello@lesnarai.co.ke</b></a>.</p>
+  </div>
+</section>
+<footer class="site-foot">
+  <div class="w">
+    <div class="foot__id">
+      <b>Lesnar&nbsp;AI</b>
+      <p>An engineering studio in Nairobi, Kenya, building software, infrastructure,
+         security and physical systems.</p>
+      <p><a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a></p>
+    </div>
+    <nav aria-labelledby="foot-reg">
+      <a href="">Home</a>
+      <a href="work/">Work</a>
+      <a href="services/">Services</a>
+      <a href="pricing/">Pricing</a>
+      <a href="engagement/">How we work</a>
+      <a href="about/">About</a>
+      <a href="book/">Book</a>
+      <a href="contact/">Contact</a>
+    </nav>
+    
+    <p class="foot__end">
+      <span>Each published surface is contacted from your browser when you reach its record,
+        so what you see is what answered just now. That is reachability only, never an uptime
+        record, and a surface that answers now may not answer later.</span>
+      <span>&copy; 2026 Lesnar AI</span>
+    </p>
+  </div>
+</footer>
+<script src="theme.js" defer></script>
+<script src="verify.js" defer></script>
+</body>
+</html>

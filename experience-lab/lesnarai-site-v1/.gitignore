@@ -1,0 +1,3 @@
+# Local review/audit artifacts — screenshots and Lighthouse reports, not site content
+review/
+*.DS_Store

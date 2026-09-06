@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>(function(){try{var t=localStorage.getItem("lai-theme");
+if(t!=="dark"&&t!=="light")t=matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How we work · Lesnar AI</title>
+<meta name="description" content="How a project with Lesnar AI runs: the stages, what you get at each one, and how work is scoped and priced. Nairobi engineering studio.">
+
+<style>
+:root{
+  --accent:#D4552A;
+  /* ── text (flips with theme) ─────────────────────────────────── */
+  --on-ink:#EDEEEF; --on-ink-2:#B6BABE; --err:#9A2E14;
+  --fg:#0A0B0D; --fg-2:#565C64; --fg-3:#4F555B;
+  /* ── grounds (flip) ──────────────────────────────────────────── */
+  --sheet-2:#EDEEEF; --rule-w:#D5D8DB;
+
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='170' height='170'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='170' height='170' filter='url(%23n)' opacity='0.07'/></svg>");
+  --ink:#0A0B0D;
+  --ink-2:#565C64;
+  --sheet:#EBECEE;        /* Product - cool light */
+  --sheet-cool:#DBDEE1;   /* System - cooler, denser, technical */
+  --sheet-warm:#E8E7E3;   /* Action - a record surface, neutral with a trace of warmth */
+  --rule:#B6BABE;
+  --rule-s:#7E848A;
+  --rule-s-dk:#697079;
+  --rule-dk:#262A2E;
+  --disp:A,"Archivo Fallback","Helvetica Neue",Arial,sans-serif;
+  --mono:M,"Mono Fallback",ui-monospace,monospace;
+}
+/* Metric-matched fallback. The stack already named "Archivo Fallback" but it was
+   never declared, so the swap from the system face reflowed the whole document
+   (CLS 0.216 under throttling). Overrides are derived from Archivo's own metrics:
+   ascent 878/1000, descent 210/1000, lineGap 0, mean advance 0.471em. */
+@font-face{font-family:"Archivo Fallback";src:local("Arial"),local("Liberation Sans"),local("Helvetica");
+  size-adjust:94%;ascent-override:93.4%;descent-override:22.3%;line-gap-override:0%}
+@font-face{font-family:"Mono Fallback";src:local("DejaVu Sans Mono"),local("Liberation Mono"),local("Courier New");
+  size-adjust:97%;ascent-override:80%;descent-override:20%;line-gap-override:0%}
+@font-face{font-family:A;src:url(/fonts/archivo-var.woff2) format('woff2');font-weight:100 900;font-stretch:62% 125%;font-display:swap}
+@font-face{font-family:M;src:url(/fonts/plex-mono.woff2) format('woff2');font-weight:500;font-display:swap}
+
+*{box-sizing:border-box}
+.skip{position:absolute;left:-9999px;top:0;z-index:200;background:var(--ink);color:#fff;
+  padding:12px 18px;text-decoration:none;font:500 12px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.14em;text-transform:uppercase}
+.skip:focus{left:0}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--sheet);color:var(--fg);
+  font:400 16px/1.55 A,"Archivo Fallback",system-ui,sans-serif;
+  font-synthesis-weight:none}
+.w{width:min(1248px,calc(100% - clamp(28px,7vw,96px)));margin-inline:auto}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.site-head :focus-visible,.site-foot :focus-visible{outline-color:#F4F5F6}
+
+/* ── shell ─────────────────────────────────────────────────────────────
+   One header on every route. The register is the studio's spine, so the nav
+   names it first and the mark returns home. */
+.site-head{background:var(--ink);color:#F4F5F6;
+  background-image:var(--grain);background-size:170px 170px;background-repeat:repeat;
+  position:sticky;top:0;z-index:80;border-bottom:1px solid #22262A}
+.site-head .w{display:flex;align-items:center;gap:clamp(16px,3vw,40px);
+  min-height:clamp(56px,7vh,68px);flex-wrap:wrap}
+.site-mark{font-weight:800;font-stretch:120%;letter-spacing:.14em;text-transform:uppercase;
+  font-size:clamp(.82rem,1.2vw,.95rem);text-decoration:none;color:#fff;white-space:nowrap}
+.site-nav{display:flex;gap:clamp(14px,2.2vw,30px);margin-left:auto;flex-wrap:wrap}
+.site-nav a{font:500 10px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.18em;
+  text-transform:uppercase;color:#B6BCC2;text-decoration:none;padding:6px 0;
+  border-bottom:1px solid transparent;transition:color 220ms ease,border-color 220ms ease}
+.site-nav a:hover,.site-nav a:focus-visible{color:#fff;border-bottom-color:#fff}
+.site-nav a[]{color:#fff;border-bottom-color:#fff}
+
+.site-foot{background:var(--ink);color:var(--on-ink-2);margin-top:clamp(60px,10vh,140px);
+  background-image:var(--grain);background-size:170px 170px;padding:clamp(34px,6vh,64px) 0}
+
+.site-foot p{margin:0}
+.site-foot a{color:#D7DBDF}
+
+/* ── page furniture ────────────────────────────────────────────────────── */
+.page{padding:clamp(46px,8vh,96px) 0 0}
+.kicker{margin:0 0 clamp(14px,2vh,22px);font:500 10px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--fg-2)}
+h1{margin:0;font-weight:800;font-stretch:104%;
+  font-size:clamp(2.1rem,5.4vw,4.1rem);line-height:.94;letter-spacing:-.03em;max-width:18ch}
+.lede{margin:clamp(18px,3vh,30px) 0 0;max-width:52ch;font-size:clamp(1rem,1.2vw,1.1rem)}
+.rule{height:1px;background:var(--rule-s);margin:clamp(30px,5vh,56px) 0 0}
+
+/* ── the register index ────────────────────────────────────────────────
+   Every entry carries its maturity in the same breath as its name. A visitor
+   can never read a system's name here without reading what it is not. */
+.reg{list-style:none;margin:clamp(26px,4vh,44px) 0 0;padding:0;
+  border-top:1px solid var(--rule-s)}
+.reg li{border-bottom:1px solid var(--rule-s)}
+.reg a{display:grid;grid-template-columns:3.1rem minmax(0,1fr) minmax(0,20ch) 1.6rem;
+  gap:clamp(12px,2.2vw,34px);align-items:baseline;
+  padding:clamp(18px,3vh,30px) 0;text-decoration:none;
+  transition:background 260ms ease,padding-left 300ms cubic-bezier(.16,1,.3,1)}
+.reg a:hover,.reg a:focus-visible{background:rgba(10,11,13,.045);padding-left:12px}
+.reg .n{font:500 10px/1.6 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.16em;color:var(--fg-2)}
+.reg .nm{font-weight:700;font-stretch:78%;letter-spacing:-.01em;
+  font-size:clamp(1.35rem,3vw,2.3rem);line-height:1.02}
+.reg .mt{font:500 10px/1.6 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--fg-2)}
+.reg .go{justify-self:end;transition:transform 300ms cubic-bezier(.16,1,.3,1)}
+.reg a:hover .go,.reg a:focus-visible .go{transform:translateX(6px)}
+@media (max-width:760px){
+  .reg a{grid-template-columns:2.6rem minmax(0,1fr);row-gap:6px}
+  .reg .mt{grid-column:2}
+  .reg .go{display:none}
+}
+
+/* ── a system page ─────────────────────────────────────────────────────── */
+.sys-head{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);
+  gap:clamp(20px,4vw,72px);align-items:end}
+.mat{display:inline-block;font:500 10px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--fg);
+  border-bottom:2px solid var(--ink);padding-bottom:5px}
+.fact{margin:clamp(28px,5vh,54px) 0 0;display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:clamp(18px,3vw,40px)}
+.fact div{border-top:1px solid var(--rule-s);padding-top:14px}
+.fact b{display:block;font:500 10px/1.6 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--fg-2);margin-bottom:6px}
+.stop{margin:clamp(28px,5vh,54px) 0 0;border-top:2px solid var(--ink);padding-top:14px;max-width:62ch}
+.stop b{display:block;font:500 10px/1.6 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px}
+@media (max-width:760px){ .sys-head{grid-template-columns:minmax(0,1fr)} }
+
+
+/* ── site motion ────────────────────────────────────────────────────────
+   Gated behind data-sv-motion, which only site.js sets. Without JavaScript,
+   and under reduced motion, every rule below is inert and the page renders
+   exactly as authored. */
+[data-sv-motion="on"] .kicker,
+[data-sv-motion="on"] h1,
+[data-sv-motion="on"] .site-foot p{clip-path:inset(-.3em var(--sv-w,0%) -.3em 0)}
+[data-sv-motion="on"] .lede,
+[data-sv-motion="on"] .reg li,
+[data-sv-motion="on"] .fact div,
+[data-sv-motion="on"] .stop,
+[data-sv-motion="on"] .mat,
+[data-sv-motion="on"] .rule{
+  transform:translate3d(0,var(--sv-y,0px),0);}
+@media (prefers-reduced-motion:reduce){
+  [data-sv-motion="on"] .kicker,[data-sv-motion="on"] h1,[data-sv-motion="on"] .site-foot p,
+  [data-sv-motion="on"] .lede,[data-sv-motion="on"] .reg li,[data-sv-motion="on"] .fact div,
+  [data-sv-motion="on"] .stop,[data-sv-motion="on"] .mat,[data-sv-motion="on"] .rule{
+    clip-path:none;transform:none;opacity:1}
+}
+
+/* ── the headline sets itself ────────────────────────────────────────────
+   aria-label carries the whole line and every character is aria-hidden, so a
+   screen reader hears one heading, not a stream of letters. */
+h1 .sw{display:inline-block;white-space:nowrap}
+h1 .sc{display:inline-block;will-change:transform,opacity}
+h1[data-set] .sc{opacity:0;transform:translate3d(0,.62em,0) rotate(6deg);
+  animation:sc-set .74s cubic-bezier(.16,1,.3,1) forwards;
+  animation-delay:calc(var(--i) * 24ms)}
+@keyframes sc-set{to{opacity:1;transform:none}}
+
+/* ── route transitions ───────────────────────────────────────────────────
+   Cross-document view transitions: leaving the page wipes out, the arriving
+   page wipes in, and the shell stays put so the header does not blink. */
+
+
+
+
+
+.site-head{view-transition-name:shell-head}
+.site-foot{view-transition-name:shell-foot}
+
+@media (prefers-reduced-motion:reduce){
+  h1[data-set] .sc{opacity:1;transform:none;animation:none}
+  ::view-transition-old(root),
+  
+}
+
+/* Focus rings must follow the ground they land on. The shell's ink ring is
+   correct on sheet and invisible on ink, so every dark surface names a light
+   ring explicitly rather than relying on the cascade order. */
+.skip:focus,.skip:focus-visible{outline:3px solid #F4F5F6;outline-offset:3px}
+.hero :focus-visible,.sec--work :focus-visible,
+.route-work :focus-visible,.sys-hero :focus-visible,
+.site-head :focus-visible,.site-foot :focus-visible{outline-color:#F4F5F6}
+
+/* ── contact form ──────────────────────────────────────────────────────
+   No fake success anywhere. When a POST endpoint is configured the form
+   reports what the server actually returned; with none configured it hands
+   the composed message to the visitor's mail client and says exactly that,
+   because the message has not been sent by us at that point. */
+.cform{margin-top:clamp(30px,4vw,44px);max-width:620px}
+.cform-intro{margin:0 0 26px;color:var(--fg-2);font-size:15px;line-height:1.6}
+.cform-intro a{color:var(--fg);text-underline-offset:3px}
+.f{margin-bottom:22px}
+.f label{display:block;font-family:inherit;font-weight:600;font-size:13px;line-height:1.3;letter-spacing:0;text-transform:none;color:var(--fg);margin-bottom:7px}
+.f input,.f textarea{width:100%;background:transparent;color:var(--fg);
+  border:1px solid var(--rule);border-radius:0;padding:13px 14px;
+  font:400 16px/1.5 A,"Archivo Fallback",system-ui,sans-serif}
+.f textarea{resize:vertical;min-height:132px}
+.f input:focus-visible,.f textarea:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.f input[aria-invalid="true"],.f textarea[aria-invalid="true"]{border-color:var(--err)}
+.hint{margin:8px 0 0;font-size:13.5px;line-height:1.5;color:var(--fg-2)}
+.err{margin:8px 0 0;font:500 12.5px/1.45 M,"Mono Fallback",ui-monospace,monospace;color:var(--err)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.submit{appearance:none;border:1px solid var(--ink);background:var(--ink);color:#F4F5F6;
+  font-family:inherit;font-weight:600;font-size:14.5px;line-height:1;
+  padding:16px 30px;cursor:pointer}
+.submit:hover{background:#000}
+.submit[disabled]{opacity:.55;cursor:progress}
+.state{margin:18px 0 0;min-height:1.5em;font:500 13px/1.55 M,"Mono Fallback",ui-monospace,monospace}
+.state[data-k="err"]{color:var(--err)}
+.state[data-k="ok"]{color:#1F5B42}
+@media(prefers-reduced-motion:no-preference){.submit{transition:background .18s ease}}
+
+/* ══ DARK ═══════════════════════════════════════════════════════════════
+   The sheet grounds go dark and the text inverts. The ink surfaces (hero,
+   register, code panels) were already dark, so they deepen rather than
+   flip - the page keeps the same light/dark section rhythm either way. */
+:root[data-theme="dark"]{
+  --fg:#E8EAEC; --fg-2:#9AA1A9; --fg-3:#A8AFB6;
+  --sheet:#131619; --sheet-2:#171A1E; --sheet-cool:#0F1215; --sheet-warm:#17191B;
+  --rule:#2F353B; --rule-w:#262B31; --rule-s:#565D65; --rule-s-dk:#6C737B;
+  --ink:#08090B; --err:#FF8A66;
+  color-scheme:dark;
+}
+
+/* ── theme toggle ─────────────────────────────────────────────────────── */
+.site-head .w{display:flex;align-items:center;gap:16px}
+.site-head .site-nav{margin-left:auto}
+.theme-t{display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  background:none;border:1px solid currentColor;color:inherit;
+  font-family:inherit;font-weight:600;font-size:12px;letter-spacing:0;
+  padding:7px 12px;line-height:1;transition:background 140ms ease,color 140ms ease}
+.theme-t:hover,.theme-t:focus-visible{background:currentColor}
+.theme-t:hover .theme-t__l,.theme-t:focus-visible .theme-t__l{color:var(--sheet)}
+.theme-t__i{width:11px;height:11px;border-radius:50%;border:1.5px solid currentColor;
+  background:linear-gradient(90deg,currentColor 0 50%,transparent 50% 100%)}
+.theme-t__l{min-width:2.6em;text-align:left}
+@media(max-width:560px){.theme-t__l{display:none}.theme-t{padding:7px 9px}}
+
+/* ── ARRIVAL ───────────────────────────────────────────────────────────────
+   Text is never hidden, clipped or faded. Two earlier attempts both failed
+   the same reader: fading to zero left blank page, and wiping cut words in
+   half. A fade shallow enough to keep secondary text above 4.5:1 measures
+   0.9 opacity, which is no fade at all - so there is no version of "dim it"
+   that is both visible and legible.
+
+   So the block travels and its print resolves, while every word stays fully
+   readable the whole way. You can read ahead of the scroll, and nothing ever
+   looks truncated. */
+
+/* ── FOOTER ────────────────────────────────────────────────────────────────
+   It used to be three dim lines that said almost nothing. A footer is the
+   last place that can still answer a question, so it now carries the studio,
+   the way to reach it, the register, and the terms of the verification date. */
+.site-foot{background:var(--ink);color:var(--on-ink);
+  padding:clamp(40px,7vh,74px) 0 clamp(26px,4vh,38px);margin-top:0}
+.site-foot .w{display:grid;gap:clamp(24px,4vw,56px);
+  grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr)}
+.site-foot h2{font-weight:700;font-stretch:88%;font-size:1.05rem;letter-spacing:-.01em;
+  margin:0 0 14px;color:var(--on-ink)}
+.foot__id b{display:block;font-weight:800;font-stretch:104%;font-size:1.15rem;
+  letter-spacing:-.015em;color:#fff;margin-bottom:8px}
+.foot__id p{margin:0 0 10px;font-size:14px;line-height:1.6;color:var(--on-ink-2);max-width:34ch}
+.foot__id a{color:#fff;text-underline-offset:3px}
+.site-foot ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.site-foot li a{color:var(--on-ink-2);text-decoration:none;font-size:14px;line-height:1.4;
+  display:inline-block;transition:color 140ms ease}
+.site-foot li a:hover,.site-foot li a:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:3px}
+.foot__end{grid-column:1/-1;margin:clamp(22px,4vh,38px) 0 0;padding-top:18px;
+  border-top:1px solid var(--rule-dk);display:flex;flex-wrap:wrap;gap:8px 26px;
+  font-size:13px;line-height:1.6;color:var(--on-ink-2)}
+.foot__end span{max-width:62ch}
+@media(max-width:820px){.site-foot .w{grid-template-columns:1fr 1fr}
+  .foot__id{grid-column:1/-1}}
+@media(max-width:520px){.site-foot .w{grid-template-columns:1fr}}
+
+/* ── FOOTER, SIZED TO ITS PAGE ─────────────────────────────────────────────
+   Built full to fix a footer that showed almost nothing, then left at that
+   size everywhere: 449px on every page, which is 29% of Contact and 24% of
+   About. The homepage can carry it; a 1,500px page cannot. Elsewhere it keeps
+   the identity, the address and one row of links, and drops the register
+   column that the page above already lists. */
+body:not(.route-home) .site-foot{padding:clamp(30px,4.5vh,48px) 0 clamp(20px,3vh,28px)}
+body:not(.route-home) .site-foot .w{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);
+  align-items:start}
+body:not(.route-home) .site-foot nav[aria-labelledby="foot-reg"]{display:none}
+body:not(.route-home) .foot__id p{max-width:44ch}
+body:not(.route-home) .foot__end{margin-top:clamp(18px,2.6vh,24px);padding-top:14px}
+@media(max-width:820px){
+  body:not(.route-home) .site-foot .w{grid-template-columns:1fr}
+}
+
+/* ── ONE SCALE, ONE BODY SIZE ──────────────────────────────────────────────
+   The page was running 30px and 31px as separate steps, which at reading
+   distance is one size with two names. And it had two body sizes competing,
+   15px used 54 times against 13px used 40, so the eye kept re-adjusting with
+   no settled reading size.
+
+   13px is now metadata only: captions, tags, maturity, the things you scan
+   rather than read. Prose sits at 15px. The scale reads
+   86 / 64 / 42 / 30 / 22 / 17 / 15 / 13 / 11. */
+.sk__c > p,
+.sk__gap p,
+.sk__l li,
+.rec__sum,
+.stop,
+.proof-lede,
+.claim-legend li{font-size:15px;line-height:1.55}
+.sk__by{font-size:14px;line-height:1.5}
+.crow p:not([class]){font-size:13px}
+
+/* ── PROSE IS INK, METADATA IS GREY ────────────────────────────────────────
+   The page ran 95 elements in the muted tone against 39 in full ink, so almost
+   every word was set in the quiet colour and the whole thing read flat and
+   timid regardless of how well the type was sized. Hierarchy was being carried
+   by size alone.
+
+   Prose you are meant to read is now ink. The grey is kept for what it was for:
+   captions, tags, maturity, dates, the things you scan. */
+.lede,
+.sys__lede,
+.rec__sum,
+.proof-lede,
+.sk__c > p,
+.sk__l li,
+.claim-legend li,
+.stop{color:var(--fg)}
+.sec--work .lede,
+.sec--work .rec__sum,
+.sec--work .stop{color:var(--on-ink)}
+:root:not([data-theme="dark"]) .sec--work .lede,
+:root:not([data-theme="dark"]) .sec--work .rec__sum,
+:root:not([data-theme="dark"]) .sec--work .stop{color:var(--fg)}
+/* metadata stays quiet */
+.sk__by,.crow p:not([class]),.crow__m,.crow__n,figcaption{color:var(--fg-2)}
+/* the footer is ink in both themes, so its quiet tone is the ink one */
+.foot__end,.foot__end span{color:var(--on-ink-2)}
+
+/* ── WHAT MAKES A USEFUL FIRST MESSAGE ─────────────────────────────────────
+   The page asked "what needs to exist?" and then left the visitor to guess
+   what a good answer looks like. These prompts are derived from the register's
+   own discipline - the same questions every entry has to answer about itself -
+   rather than from an invented intake process. */
+.ct{margin:clamp(30px,5vh,54px) 0 0;padding-top:clamp(20px,3vh,28px);
+  border-top:1px solid var(--rule)}
+.ct h2{margin:0 0 4px;font-weight:660;font-stretch:90%;
+  font-size:clamp(1rem,1.5vw,1.15rem);letter-spacing:-.015em;color:var(--fg)}
+.ct__l{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:14px;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.ct__l li{display:grid;gap:3px}
+.ct__l b{font-weight:640;font-size:15px;color:var(--fg)}
+.ct__l span{font-size:14px;line-height:1.5;color:var(--fg-2)}
+.ct__n{margin:clamp(22px,3vh,30px) 0 0;font-size:14px;line-height:1.55;
+  color:var(--fg-2);max-width:64ch}
+
+/* ══ CONTACT ════════════════════════════════════════════════════════════════
+   A visitor arriving here has already decided to consider working with us, so
+   the page opens on the question rather than on studio metadata. Two columns:
+   the form, and the things a person actually wants beside it - what to say,
+   where else to write, and what happens when they press send.
+
+   No invented SLA. No fake success. The mail-client fallback stays until
+   CONTACT_ENDPOINT exists, and the page says so plainly. */
+.ct-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+  gap:clamp(32px,5vw,86px);align-items:start;margin-top:clamp(30px,5vh,58px)}
+.ct-aside{display:grid;gap:clamp(24px,3.4vh,36px);align-content:start}
+.ct-block{display:grid;gap:8px;padding-top:16px;border-top:1px solid var(--rule)}
+.ct-block h2{margin:0;font-size:1.05rem;font-weight:660;font-stretch:88%;
+  letter-spacing:-.015em;color:var(--fg)}
+.ct-block p{margin:0;font-size:14.5px;line-height:1.55;color:var(--fg-2)}
+.ct-block a{color:var(--fg);text-decoration:underline;text-underline-offset:4px;
+  text-decoration-color:var(--rule-s)}
+.ct-block a:hover,.ct-block a:focus-visible{text-decoration-color:currentColor}
+.ct-direct{font:500 15px/1.5 M,"Mono Fallback",ui-monospace,monospace}
+
+.ct-prompts{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.ct-prompts li{display:grid;grid-template-columns:1rem 1fr;gap:.55rem;
+  font-size:14.5px;line-height:1.5;color:var(--fg-2)}
+.ct-prompts li::before{content:"";width:5px;height:5px;margin-top:.55em;
+  border-radius:50%;background:var(--rule-s)}
+
+@media(max-width:860px){
+  .ct-grid{grid-template-columns:minmax(0,1fr);gap:clamp(30px,5vh,48px)}
+}
+
+
+/* [hidden] must win over any display rule that follows it */
+[hidden]{display:none!important}
+/* the kicker matches the homepage on every page: 12px, sentence case */
+.kicker{font-family:inherit;font-weight:600;font-size:12px;line-height:1;
+  letter-spacing:.01em;text-transform:none}
+
+/* ══ ENGAGEMENT ═════════════════════════════════════════════════════════════
+   How a project runs. Written from how the work in the register was actually
+   built and operated - not from a template of agency stages.
+
+   No rate card. Publishing invented numbers would be the one thing this site
+   is built not to do, and no real figures have been supplied. Scope decides
+   price, and the page says so instead of guessing. */
+.eg-stages{list-style:none;margin:clamp(30px,5vh,58px) 0 0;padding:0;
+  display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.eg-stages li{background:var(--sheet);display:grid;
+  grid-template-columns:3.4rem minmax(0,22ch) minmax(0,1fr);
+  gap:clamp(16px,2.6vw,40px);padding:clamp(20px,2.8vh,30px) clamp(16px,2.2vw,28px);
+  align-items:start}
+.eg-n{font:500 12px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.14em;
+  color:var(--fg-2);padding-top:5px}
+.eg-stages h3{margin:0;font-size:clamp(1.15rem,1.9vw,1.5rem);font-weight:660;
+  font-stretch:88%;letter-spacing:-.018em;line-height:1.1;color:var(--fg)}
+.eg-stages p{margin:0;font-size:14.5px;line-height:1.55;color:var(--fg-2);max-width:56ch}
+.eg-out{margin:.6em 0 0;font:500 11.5px/1.5 M,"Mono Fallback",ui-monospace,monospace;
+  color:var(--fg-2)}
+.eg-out b{color:var(--fg);font-weight:500}
+
+.eg-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:clamp(28px,4vw,64px);margin-top:clamp(44px,7vh,88px);
+  padding-top:clamp(22px,3vh,32px);border-top:2px solid var(--fg)}
+.eg-two h2{margin:0 0 .55em;font-size:clamp(1.4rem,2.4vw,2rem);font-weight:700;
+  font-stretch:80%;letter-spacing:-.028em;line-height:1;color:var(--fg)}
+.eg-two p{margin:0 0 .8em;font-size:15px;line-height:1.55;color:var(--fg-2);max-width:50ch}
+.eg-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.eg-list li{display:grid;grid-template-columns:1rem 1fr;gap:.55rem;
+  font-size:14.5px;line-height:1.5;color:var(--fg-2)}
+.eg-list li::before{content:"";width:5px;height:5px;margin-top:.55em;border-radius:50%;
+  background:var(--rule-s)}
+.eg-cta{margin-top:clamp(38px,6vh,76px);padding-top:clamp(22px,3vh,32px);
+  border-top:1px solid var(--rule);display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px}
+.eg-cta p{margin:0;font-size:15px;color:var(--fg-2)}
+@media(max-width:760px){
+  .eg-stages li{grid-template-columns:2.6rem minmax(0,1fr);row-gap:8px}
+  .eg-stages p,.eg-out{grid-column:2}
+}
+
+/* the CTA is part of the shared language, not a homepage-only component */
+.cta{display:inline-flex;align-items:center;gap:10px;padding:14px 26px;
+  border:1px solid var(--fg);color:var(--fg);text-decoration:none;
+  font-weight:600;font-size:14.5px;line-height:1;
+  transition:background 160ms ease,color 160ms ease}
+.cta:hover,.cta:focus-visible{background:var(--fg);color:var(--sheet)}
+.cta--solid{background:var(--fg);color:var(--sheet)}
+.cta--solid:hover,.cta--solid:focus-visible{background:transparent;color:var(--fg)}
+
+/* footer page links stack; two of them were sharing a line after the new
+   entry was inserted inline */
+.site-foot nav a{display:block}
+
+/* ══ PAGE CONTINUITY ════════════════════════════════════════════════════════
+   Cross-document view transitions. The shell holds still and the content
+   crossfades, so moving between pages reads as continuity rather than as a
+   slide. Nothing travels far enough to register as an effect - the point is
+   that the wordmark and navigation never blink.
+
+   Unsupported browsers navigate instantly. Reduced motion is instant. */
+@view-transition{navigation:auto}
+.site-head{view-transition-name:shell-head}
+.site-foot{view-transition-name:shell-foot}
+main{view-transition-name:page-body}
+::view-transition-old(page-body){animation:pc-out 140ms cubic-bezier(.4,0,1,1) both}
+::view-transition-new(page-body){animation:pc-in 260ms cubic-bezier(.16,1,.3,1) both}
+@keyframes pc-out{to{opacity:0;transform:translateY(-6px)}}
+@keyframes pc-in{from{opacity:0;transform:translateY(8px)}}
+::view-transition-old(shell-head),::view-transition-new(shell-head),
+::view-transition-old(shell-foot),::view-transition-new(shell-foot){animation:none}
+@media(prefers-reduced-motion:reduce){
+  @view-transition{navigation:none}
+  ::view-transition-old(page-body),::view-transition-new(page-body){animation:none}
+}
+
+/* ── THE HEADLINE SETS ITSELF, ON EVERY PAGE ────────────────────────────────
+   This was bound to .hero h1, a container only the homepage has, so every
+   other page loaded with the axis already at rest. The page's own h1 carries
+   it now, whatever wrapper it sits in. */
+.page h1,.sys-hero h1,.nf h1{--wd:100;font-variation-settings:"wdth" var(--wd);
+  will-change:font-variation-settings}
+@media (prefers-reduced-motion:no-preference){
+  .page h1[data-set],.sys-hero h1[data-set],.nf h1[data-set]{--wd:72;
+    animation:h1-set 1050ms cubic-bezier(.16,1,.3,1) 90ms forwards}
+}
+@keyframes h1-set{from{--wd:72}to{--wd:100}}
+@property --wd{syntax:"<number>";inherits:false;initial-value:100}
+
+/* the axis needs its properties declared wherever a name is set */
+.live-e h3{--rw:96}
+.held-e__name{--cw:88}
+.sv__t h2,.pr__t h2,.reg-band__h h2,.sk__c h3{--rw:82}
+.onward__l b{--cw:88}
+.live-e h3,.sv__t h2,.pr__t h2,.reg-band__h h2,.sk__c h3{
+  font-variation-settings:"wdth" var(--rw)}
+.held-e__name,.onward__l b{font-variation-settings:"wdth" var(--cw)}
+@property --rw{syntax:"<number>";inherits:false;initial-value:96}
+@property --cw{syntax:"<number>";inherits:false;initial-value:88}
+
+/* ── NAVIGATION YOU CAN ACTUALLY HIT ────────────────────────────────────────
+   The nav was 10px uppercase mono at 23px tall, with "Home" a 31px-wide tap
+   target - half the 44px minimum, and small enough that it read as fine print
+   rather than navigation. Same family and weight as the rest of the site, at a
+   size a thumb can find. */
+.site-nav{gap:clamp(2px,.6vw,10px)}
+.site-nav a{font-family:inherit;font-weight:600;font-size:14px;line-height:1;
+  letter-spacing:0;text-transform:none;
+  display:inline-flex;align-items:center;min-height:44px;padding:0 12px;
+  border-bottom:2px solid transparent;
+  transition:border-color 160ms ease,color 160ms ease}
+.site-nav a:hover,.site-nav a:focus-visible{border-bottom-color:currentColor}
+.site-nav a[aria-current="page"]{border-bottom-color:currentColor}
+.site-head{padding-block:6px}
+
+/* the wordmark is the route home, so it should look like one */
+.site-mark{display:inline-flex;align-items:center;min-height:44px}
+
+@media(max-width:640px){
+  .site-head .w{flex-wrap:wrap;row-gap:2px}
+  .site-nav{width:100%;justify-content:space-between;order:3;
+    margin-left:0;border-top:1px solid var(--rule-dk);padding-top:2px}
+  .site-nav a{padding:0 6px;font-size:13.5px;flex:1;justify-content:center}
+  .theme-t{margin-left:auto}
+}
+</style>
+<link rel="canonical" href="https://lesnarai.co.ke/engagement/">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head">
+  <div class="w">
+    <a class="site-mark" href="../">Lesnar&nbsp;AI</a>
+    <button class="theme-t" type="button" aria-pressed="false" title="Switch between light and dark"><span class="theme-t__i" aria-hidden="true"></span><span class="theme-t__l">Dark</span></button><nav class="site-nav" aria-label="Main"><a href="../">Home</a><a href="../work/" aria-current="page">Work</a><a href="../services/">Services</a><a href="../about/">About</a><a href="../book/">Book</a></nav>
+  </div>
+</header>
+<main id="main">
+<div class="page"><div class="w">
+  <p class="kicker">How we work</p>
+  <h1>A project, from<br>first message to running.</h1>
+  <p class="lede">Five stages. Each one ends with something you can hold rather than a status
+    update, and nothing moves to the next until the last has actually landed.</p>
+
+  <ol class="eg-stages"><li><span class="eg-n">01</span><div><h3>A first conversation</h3></div><div><p>You describe the problem rather than the build. We say what can be measured, what cannot, and what we would refuse to claim.</p><p class="eg-out"><b>You get:</b> A free first conversation, no commitment</p></div></li><li><span class="eg-n">02</span><div><h3>Scope and shape</h3></div><div><p>We work out what has to exist, what it must never get wrong, and what would count as working. That decides the architecture more than a feature list does.</p><p class="eg-out"><b>You get:</b> A written scope and a price</p></div></li><li><span class="eg-n">03</span><div><h3>Build</h3></div><div><p>Interface, backend, database and deployment. You see it running on its own service and domain, not as a repository handed over at the end.</p><p class="eg-out"><b>You get:</b> Working software, deployed</p></div></li><li><span class="eg-n">04</span><div><h3>Prove it</h3></div><div><p>Reachability, health and failure isolation are tested rather than asserted, and the results are written down including what they do not prove.</p><p class="eg-out"><b>You get:</b> Evidence you can re-run</p></div></li><li><span class="eg-n">05</span><div><h3>Run it, or hand it over</h3></div><div><p>We keep operating it, or hand it across with the infrastructure documented. Either way it stays yours.</p><p class="eg-out"><b>You get:</b> Your choice, stated up front</p></div></li></ol>
+
+  <div class="eg-two">
+    <div>
+      <h2>What it costs</h2>
+      <p>Priced per project, after stage two. A marketplace with payments and a merchant back
+        office is not the same job as an embedded controller, and a rate card that pretends
+        otherwise would be the first thing on this site you could not check.</p>
+      <p>You get a written scope and a fixed price before any build starts. If the scope changes,
+        the price is re-agreed before the work happens, not after.</p>
+    </div>
+    <div>
+      <h2>What we take on</h2>
+      <ul class="eg-list">
+        <li>Products people buy from - marketplaces, storefronts, ordering, payments</li>
+        <li>Software that runs an organisation - members, approvals, records, scheduling</li>
+        <li>AI held as inspectable structure rather than instructions in a prompt</li>
+        <li>Infrastructure, hardening and reliability work on Linux servers</li>
+        <li>Embedded control for equipment that has to keep running without a network</li>
+      </ul>
+      <p style="margin-top:1em">Eleven systems in <a href="../work/" style="color:var(--fg)">the register</a>
+        show what has actually been built.</p>
+    </div>
+  </div>
+
+  <div class="eg-cta">
+    <a class="cta cta--solid" href="../contact/">Start a conversation</a>
+    <p>Or write to <a href="mailto:hello@lesnarai.co.ke" style="color:var(--fg)">hello@lesnarai.co.ke</a>.</p>
+  </div>
+</div></div>
+</main>
+<footer class="site-foot">
+  <div class="w">
+    <div class="foot__id">
+      <b>Lesnar&nbsp;AI</b>
+      <p>An engineering studio in Nairobi, Kenya, building software, infrastructure,
+         security and physical systems.</p>
+      <p><a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a></p>
+    </div>
+    <nav aria-labelledby="foot-reg">
+      <a href="../">Home</a>
+      <a href="../work/">Work</a>
+      <a href="../services/">Services</a>
+      <a href="../pricing/">Pricing</a>
+      <a href="../engagement/">How we work</a>
+      <a href="../about/">About</a>
+      <a href="../book/">Book</a>
+      <a href="../contact/">Contact</a>
+    </nav>
+    
+    <p class="foot__end">
+      <span>Each published surface is contacted from your browser when you reach its record,
+        so what you see is what answered just now. That is reachability only, never an uptime
+        record, and a surface that answers now may not answer later.</span>
+      <span>&copy; 2026 Lesnar AI</span>
+    </p>
+  </div>
+</footer>
+<script src="../site.js" defer></script><script src="../theme.js" defer></script>
+<script src="../axis.js" defer></script>
+</body>
+</html>
