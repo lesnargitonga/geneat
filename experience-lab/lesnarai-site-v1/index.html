@@ -188,7 +188,9 @@ code{font:500 .88em/1 var(--mono);background:var(--chip);color:var(--fg);padding
 /* Flex items shrink by default. The hero is taller than one screen now, so
    without this the headline is squeezed and overflows off the top edge. */
 .hero>*{flex:0 0 auto}
-.hero__fg{position:relative;z-index:3;padding:clamp(72px,11vh,124px) 0 clamp(16px,2vh,26px)}
+/* Trimmed so the primary action clears the fold on a 768px laptop. The
+   headline size is untouched; only the breathing room above it moves. */
+.hero__fg{position:relative;z-index:3;padding:clamp(60px,9vh,112px) 0 clamp(16px,2vh,26px)}
 /* The headline is the composition. Everything else in the hero is scale
    relative to it, and the evidence is the surface it is set on, not a panel
    parked above it. */
@@ -1510,8 +1512,11 @@ a.hx{text-decoration:none}
 .sk__c > p{margin:0;font-size:15px;line-height:1.55;color:var(--fg-2);max-width:42ch}
 .sk__by{margin:6px 0 0;font-size:13.5px;line-height:1.5;color:var(--fg-2)}
 .sk__by a{color:var(--fg);text-underline-offset:3px}
+/* This was a card holding an h3 and a p, so it was a grid. It is one
+   sentence now, and a grid container turned the link and the rest of the
+   sentence into two items torn apart across the full column width. */
 .sk__gap{margin:clamp(30px,5vh,58px) 0 0;padding-top:20px;border-top:1px solid var(--rule);
-  display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  display:block;max-width:62ch;font-size:15px;line-height:1.55;color:var(--fg-2)}
 .sk__gap h3{grid-column:1/-1;margin:0 0 4px;font-weight:660;font-stretch:90%;
   font-size:clamp(1rem,1.5vw,1.15rem);letter-spacing:-.015em;color:var(--fg)}
 .sk__gap p{margin:0;font-size:14px;line-height:1.5;color:var(--fg-2)}
@@ -2017,6 +2022,29 @@ main{view-transition-name:page-body}
    the whole 900px screenshot down the page. */
 .rec--plate .rec__proof img,
 .rec--surface .rec__proof img{max-height:min(58vh,520px);object-fit:cover;object-position:top center}
+
+/* ── EVIDENCE AT A SIZE IT CAN BE READ ──────────────────────────────────────
+   The captures were being reduced until their UI text was 3-6px: colour and
+   texture, not evidence. Desktop keeps the broad plates where the interface
+   survives the reduction; where it did not, the record now shows the part of
+   the real capture that proves its own point, cropped, never reconstructed.
+   Aspect ratios are declared per breakpoint so an art-directed source cannot
+   reserve the wrong box and shift the page. */
+.rec--focus .rec__proof img{aspect-ratio:525/562;max-height:none;object-fit:contain;
+  max-width:525px}
+/* The caption is four short lines against a tall evidence panel. Centring it
+   left it floating in the middle of an 780px column, which reads as unfinished;
+   flush with the top of the evidence it reads as a deliberate pairing and the
+   space below becomes margin rather than a gap. */
+.rec--focus > div{justify-content:flex-start}
+/* the figure shrink-wraps the evidence, so no letterbox band shows beside it */
+.rec--focus .rec__proof{width:-moz-fit-content;width:fit-content}
+.pv-crop{color:inherit;opacity:.72}
+@media(max-width:640px){
+  .rec--plate .rec__proof img{aspect-ratio:575/335}
+  .rec--focus .rec__proof img{aspect-ratio:505/540}
+  .rec--surface .rec__proof img{aspect-ratio:580/427}
+}
 </style>
 </head>
 <body class="route-home">
@@ -2039,12 +2067,12 @@ main{view-transition-name:page-body}
       <p class="wordmark"><b>Lesnar&nbsp;AI</b><span>Nairobi · engineering studio</span></p>
 
       <h1 data-set style="min-height:var(--h1h,auto)">We build serious systems, and publish what they <em>don't claim.</em></h1>
+        <p class="hero__cta"><a class="cta" href="work/">Read the register</a></p>
 
       <div class="hero__meta">
         <p>A Nairobi engineering studio building software, infrastructure, security and
-          physical systems. Eleven are published in the register - five are live,
-          the rest carry the maturity they have actually reached.</p>
-        <p class="an"><b>In the register</b> · Eleven systems<br>Eleven systems, each with its own maturity</p>
+          physical systems. Five are live products; the rest carry the maturity they
+          have reached.</p>
         <p class="an"><b>Verified</b> Live, in your browser<br>Each surface answers for itself</p>
         <p class="an place-note"><b>Nairobi</b> &middot; 1&deg;17&prime;S &middot; 36&deg;49&prime;E<br>
           Where the work is done - the bench behind this page.</p>
@@ -2052,19 +2080,6 @@ main{view-transition-name:page-body}
     </div>
   </div>
 
-
-  <div class="hero__fg" style="padding-top:0">
-    <div class="w"><p class="hero__cta"><a class="cta" href="work/">Read the register</a></p></div>
-  </div>
-
-  <div class="hero__fg hero__fg--index" style="padding-top:0">
-    <div class="w">
-      <p class="hero__index-h">The register · eleven systems</p>
-      <div class="hero__index">
-        <p class="hero__index-track" data-set><a class="hx" href="work/bizmtaani/"><b>BizMtaani</b><i>live product</i></a><a class="hx" href="work/hazina-nomads/"><b>Hazina Nomads</b><i>live product</i></a><a class="hx" href="work/carepro/"><b>CarePro</b><i>live product</i></a><a class="hx" href="work/gen-eat/"><b>Gen-Eat</b><i>live product</i></a><a class="hx" href="work/jamii-projects-hub/"><b>Jamii Projects Hub</b><i>live product</i></a><a class="hx" href="work/sentinelcore/"><b>SentinelCore</b><i>internal engineering system</i></a><a class="hx" href="work/cypher/"><b>Cypher</b><i>governance runtime, unqualified</i></a><a class="hx" href="work/greenhouse-controller/"><b>Greenhouse controller</b><i>validated prototype</i></a><a class="hx" href="work/gold-trader/"><b>Gold Trader</b><i>research, paper only</i></a><a class="hx" href="work/aerial-systems/"><b>Aerial systems</b><i>active research</i></a><a class="hx" href="work/sensing-and-radar/"><b>Sensing and radar</b><i>research direction</i></a></p>
-      </div>
-    </div>
-  </div>
 </header>
 
 <section class="sec sec--work" data-af-edge="ink" aria-labelledby="wk-h">
@@ -2083,10 +2098,11 @@ main{view-transition-name:page-body}
         </div>
         <figure class="rec__proof" data-probe="bizmtaani.com">
           <picture>
+            <source media="(max-width:640px)" srcset="media/bizmtaani-hero-m.jpg">
             <source srcset="media/bizmtaani-surface-full.webp" type="image/webp">
             <img src="media/bizmtaani-surface-full.jpg" alt="The BizMtaani marketplace as captured on 4 September 2026, showing local shops listed for ordering." width="1440" height="900" loading="lazy" decoding="async">
           </picture>
-          <figcaption>bizmtaani.com &middot; <span class="pv">checking&hellip;</span></figcaption>
+          <figcaption>bizmtaani.com &middot; <span class="pv">checking&hellip;</span><span class="pv-crop"> &middot; cropped on small screens</span></figcaption>
         </figure>
       </article>
       <article class="rec rec--focus">
@@ -2098,10 +2114,10 @@ main{view-transition-name:page-body}
         </div>
         <figure class="rec__proof" data-probe="carepro.co.ke">
           <picture>
-            <source srcset="media/carepro-surface-full.webp" type="image/webp">
-            <img src="media/carepro-surface-full.jpg" alt="The CarePro booking surface as captured on 4 September 2026." width="1440" height="900" loading="lazy" decoding="async">
+            <source media="(max-width:640px)" srcset="media/carepro-panel-m.jpg">
+            <img src="media/carepro-panel.jpg" alt="CarePro's published verification panel, captured 4 September 2026: credentials, registry check, interview and clinical sign-off, with 19 nurses joined and 0 approved for assignments." width="525" height="562" loading="lazy" decoding="async">
           </picture>
-          <figcaption>carepro.co.ke &middot; <span class="pv">checking&hellip;</span></figcaption>
+          <figcaption>carepro.co.ke &middot; <span class="pv">checking&hellip;</span> &middot; captured surface, cropped</figcaption>
         </figure>
       </article>
       <article class="rec rec--surface">
@@ -2113,10 +2129,11 @@ main{view-transition-name:page-body}
         </div>
         <figure class="rec__proof" data-probe="jamii.lesnarai.co.ke">
           <picture>
+            <source media="(max-width:640px)" srcset="media/jamii-card-m.jpg">
             <source srcset="media/jamii-surface-full.webp" type="image/webp">
             <img src="media/jamii-surface-full.jpg" alt="The Jamii Projects Hub homepage as captured on 4 September 2026, showing a project open for voting." width="1440" height="900" loading="lazy" decoding="async">
           </picture>
-          <figcaption>jamii.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></figcaption>
+          <figcaption>jamii.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span><span class="pv-crop"> &middot; cropped on small screens</span></figcaption>
         </figure>
       </article>
     </div>
@@ -2135,7 +2152,7 @@ main{view-transition-name:page-body}
       <div class="sk__c" data-n="5" style="--n:5"><span class="sk__ev" aria-hidden="true">5 systems</span>
         <h3>Full-stack product build</h3>
         <p>The whole thing, not a layer of it: interface, backend, database, deployment and the
-          operator screens the staff actually live in.</p>
+          operator screens the staff live in.</p>
         <p class="sk__by">Shipped in <a href="work/bizmtaani/">BizMtaani</a>,
           <a href="work/gen-eat/">Gen-Eat</a>, <a href="work/hazina-nomads/">Hazina Nomads</a>,
           <a href="work/carepro/">CarePro</a> and <a href="work/jamii-projects-hub/">Jamii</a>.</p>
@@ -2185,7 +2202,7 @@ main{view-transition-name:page-body}
       </div>
     </div>
 
-    <p style="margin:clamp(26px,4vh,44px) 0 0;font-size:15px;color:var(--fg-2)">Looking for one of these for your own system? <a href="services/" style="color:var(--fg);text-decoration:underline;text-underline-offset:4px">See what we build</a>.</p><p class="sk__gap"><a href="work/">Six systems are built, held or researched</a> rather than shipped. They are listed as such, with what each one has actually reached.</p>
+    <p style="margin:clamp(26px,4vh,44px) 0 0;font-size:15px;color:var(--fg-2)">Looking for one of these for your own system? <a href="services/" style="color:var(--fg);text-decoration:underline;text-underline-offset:4px">See what we build</a>.</p><p class="sk__gap"><a href="work/">Six systems are built, held or researched</a> rather than shipped. They are listed as such, with what each one has reached.</p>
   </div>
 </section>
 
