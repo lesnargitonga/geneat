@@ -175,11 +175,14 @@
      Two reveal languages, not one, so this does not read as a fade-up
      template. Type wipes horizontally, the way a line is set. Blocks rise and
      resolve their rule. */
-  var WIPE_SEL = ".kicker, .sec h2, .compact__t";
+  var WIPE_SEL = ".kicker, .sec h2";
   /* .cap, .anchor and .src__g belonged to sections that no longer exist.
      The skills cards are new and were never wired, so they arrived with no
      motion at all. */
-  var RISE_SEL = ".lede, .sys__lede, .rec, .crow, .stop, .sk__c, .sk__gap p";
+  /* Was seven selectors, four of which matched nothing on this page and two of
+     which - .lede and .sk__c - were a 34px rise on ordinary body copy. The
+     records are the one thing here whose arrival means something. */
+  var RISE_SEL = ".rec";
 
   function collectReveals() {
     var list = [];
@@ -1073,16 +1076,13 @@
      while reading it. These are 24 and 18 units, and both open from narrow so
      the settled state is also the widest - which keeps the reserved height
      correct without padding the block. */
-  /* Re-pointed. .rec h3 and .crow__name were the homepage register, which no
-     longer exists - these selectors matched nothing on any page, so the axis
-     silently stopped running everywhere below the hero. These are the elements
-     that actually carry names now. */
+  /* Re-pointed back. This list was aimed at /work/ and project-page selectors
+     after the homepage records were removed - none of which exist on this page,
+     so the axis ran nowhere below the hero. The records are restored and the
+     stylesheet still wires .rec h3 to --rw, so the signature runs on the
+     largest type on the page, which is where it reads. */
   var groups = [
-    { els: [].slice.call(document.querySelectorAll(".live-e h3")), prop: "--rw", from: 63, to: 96 },
-    { els: [].slice.call(document.querySelectorAll(".held-e__name")), prop: "--cw", from: 63, to: 88 },
-    { els: [].slice.call(document.querySelectorAll(".sv__t h2")), prop: "--rw", from: 66, to: 82 },
-    { els: [].slice.call(document.querySelectorAll(".pr__t h2")), prop: "--rw", from: 66, to: 82 },
-    { els: [].slice.call(document.querySelectorAll(".reg-band__h h2")), prop: "--rw", from: 66, to: 80 }
+    { els: [].slice.call(document.querySelectorAll(".rec h3")), prop: "--rw", from: 66, to: 96 }
   ].filter(function (g) { return g.els.length; });
   if (!groups.length) return;
 

@@ -21,8 +21,16 @@
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
   var root = document.documentElement;
 
-  var WIPE = ".kicker, h1, .site-foot p";
-  var RISE = ".lede, .reg li, .fact div, .stop, .mat, .rule";
+  /* Motion earns its place by meaning something. The width-axis wipe is the
+     identity, so it stays on the section marker and the headline. Rise is kept
+     for evidence - the fact rows and maturity marks - where arrival tells you
+     something has been asserted. Everything else was a 34px rise and an opacity
+     ramp on ordinary body copy: 92 elements of it, including 60 footer
+     paragraphs, which is the motion that made the footer clip and which reads
+     as generic no matter how good the easing underneath is. .reg li and .rule
+     matched nothing at all and are gone. */
+  var WIPE = ".kicker, h1";
+  var RISE = ".fact div, .mat";
 
   var items = [];
   var scheduled = false;
