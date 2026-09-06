@@ -120,9 +120,19 @@
        damping tail arriving after the block had gone, which is the late-motion
        fault this whole system exists to avoid. */
     var a = vh * 0.98, b = vh * 0.46;
+    /* A block at the very end of the document - the footer above all - can
+       never rise to the completion line, because the page runs out of scroll
+       first. Left alone it stays permanently mid-reveal, which clipped the
+       footer text. Completion has to be measured against the highest position
+       the block can actually reach, not one it can never attain. */
+    var doc = document.documentElement;
+    var remaining = doc.scrollHeight - (window.pageYOffset + vh);
+    if (remaining < 0) remaining = 0;
+    var end = top - remaining > b ? top - remaining : b;
     if (top >= a) return 0;
-    if (top <= b) return 1;
-    return clamp((a - top) / (a - b), 0, 1);
+    if (top <= end) return 1;
+    if (a - end <= 0) return 1;
+    return clamp((a - top) / (a - end), 0, 1);
   }
 
   function frame() {
