@@ -1384,27 +1384,6 @@ a.hx{text-decoration:none}
   background-repeat:no-repeat,no-repeat,no-repeat}
 @media(max-width:720px){.hero__bg{background-position:center 30%,center 30%}}
 .hero__fg{position:relative;z-index:3}
-/* ── live footage layered over the still ────────────────────────────────────
-   The clip is positioned onto the still's own box rather than the figure's,
-   because a figure can also contain a caption and the video must not cover
-   it. Geometry is written by live.js and kept in step with a ResizeObserver,
-   so this holds at every breakpoint without a second set of aspect rules. */
-[data-clip]{position:relative}
-[data-clip] .clip{position:absolute;opacity:0;pointer-events:none;
-  object-fit:cover;object-position:top center;
-  transition:opacity 560ms cubic-bezier(.16,1,.3,1)}
-[data-clip][data-clip-on] .clip{opacity:1}
-.cap-clip{display:none}
-[data-clip-on] .cap-still{display:none}
-[data-clip-on] .cap-clip{display:inline}
-.clip-play{position:absolute;left:10px;bottom:10px;z-index:2;
-  display:inline-flex;align-items:center;gap:7px;padding:8px 13px;
-  border:1px solid rgba(244,245,246,.55);background:#08090B;
-  color:#F4F5F6;font:600 12px/1 inherit;letter-spacing:.01em;
-  cursor:pointer;-webkit-appearance:none;appearance:none;
-  transition:background 200ms ease,border-color 200ms ease}
-.clip-play:hover{background:#14161A;border-color:#F4F5F6}
-.clip-play:focus-visible{outline:3px solid #F4F5F6;outline-offset:2px}
 .place-note{max-width:34ch;line-height:1.6;color:#B6BCC2}
 
 
@@ -2475,8 +2454,8 @@ main{view-transition-name:page-body}
   <div class="w">
     <p class="kicker">Selected work</p>
     <h2 class="h--work" id="wk-h">Work we have actually shipped.</h2>
-    <p class="lede">Three of the five products with public surfaces. Each one plays a recorded session of
-      the live product, and each record is contacted from your browser as you reach it.</p>
+    <p class="lede">Three of the five products with public surfaces. Each screenshot is the surface as
+      captured; each record is contacted from your browser as you reach it.</p>
     <div class="recs">
       <article class="rec rec--focus">
         <p class="rec__n">02</p>
@@ -2485,12 +2464,12 @@ main{view-transition-name:page-body}
           <p class="rec__sum">Book a vetted nurse to care for someone at home, with payment arranged through the platform.</p>
           <p class="mr"><span>Live product</span><span><a class="lnk" href="work/carepro/">Open the record</a></span></p>
         </div>
-        <figure class="rec__proof" data-system="carepro" data-clip="carepro" data-clip-webm="media/live/carepro.webm" data-clip-mp4="media/live/carepro.mp4" data-clip-webm-m="media/live/carepro-m.webm" data-clip-mp4-m="media/live/carepro-m.mp4">
+        <figure class="rec__proof" data-system="carepro">
           <picture>
             <source media="(max-width:640px)" srcset="media/carepro-panel-m.jpg">
             <img src="media/carepro-panel.jpg" alt="CarePro's published verification panel, captured 4 September 2026: credentials, registry check, interview and clinical sign-off, with 19 nurses joined and 0 approved for assignments." width="525" height="562" loading="lazy" decoding="async">
           </picture>
-          <figcaption>carepro.co.ke &middot; <span class="pv">checking&hellip;</span> &middot; <span class="cap-still">captured surface, cropped</span><span class="cap-clip">recorded session, read-only</span></figcaption>
+          <figcaption>carepro.co.ke &middot; <span class="pv">checking&hellip;</span> &middot; captured surface, cropped</figcaption>
         </figure>
       </article>
       <article class="rec rec--surface">
@@ -2500,13 +2479,13 @@ main{view-transition-name:page-body}
           <p class="rec__sum">See what projects your community is planning, vote on what matters, and keep clear records for a family, chama or welfare group.</p>
           <p class="mr"><span>Live product</span><span><a class="lnk" href="work/jamii-projects-hub/">Open the record</a></span></p>
         </div>
-        <figure class="rec__proof" data-system="jamii" data-clip="jamii" data-clip-webm="media/live/jamii.webm" data-clip-mp4="media/live/jamii.mp4" data-clip-webm-m="media/live/jamii-m.webm" data-clip-mp4-m="media/live/jamii-m.mp4">
+        <figure class="rec__proof" data-system="jamii">
           <picture>
             <source media="(max-width:640px)" srcset="media/jamii-card-m.jpg">
             <source srcset="media/jamii-surface-full.webp" type="image/webp">
             <img src="media/jamii-surface-full.jpg" alt="The Jamii Projects Hub homepage as captured on 4 September 2026, showing a project open for voting." width="1440" height="900" loading="lazy" decoding="async">
           </picture>
-          <figcaption>jamii.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span> &middot; <span class="cap-still">captured surface</span><span class="cap-clip">recorded session, read-only</span></figcaption>
+          <figcaption>jamii.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span><span class="pv-crop"> &middot; cropped on small screens</span></figcaption>
         </figure>
       </article>
     </div>
@@ -2651,6 +2630,6 @@ main{view-transition-name:page-body}
   </div>
 </footer>
 <script src="theme.js" defer></script>
-<script src="verify.js" defer></script><script src="live.js" defer></script>
+<script src="verify.js" defer></script>
 </body>
 </html>

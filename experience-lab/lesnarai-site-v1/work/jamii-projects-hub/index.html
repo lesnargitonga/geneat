@@ -347,26 +347,6 @@ figcaption .dis{max-width:70ch;text-transform:none;letter-spacing:.06em}
 /* ── OBSERVED SURFACE ─────────────────────────────────────────────────────
    A capture of the live product, taken at a stated moment. */
 .sec--surface{padding-top:clamp(30px,6vh,60px)}
-/* ── live footage layered over the captured surface ─────────────────────────
-   The still stays in the markup and stays the thing you see with motion off.
-   live.js lays the clip onto the still's own layout box, so the caption below
-   it is never covered and no space is reserved twice. */
-[data-clip]{position:relative}
-[data-clip] .clip{position:absolute;opacity:0;pointer-events:none;
-  object-fit:cover;object-position:top center;
-  transition:opacity 560ms cubic-bezier(.16,1,.3,1)}
-[data-clip][data-clip-on] .clip{opacity:1}
-.cap-clip{display:none}
-[data-clip-on] .cap-still{display:none}
-[data-clip-on] .cap-clip{display:inline}
-.clip-play{position:absolute;left:10px;bottom:10px;z-index:2;
-  display:inline-flex;align-items:center;gap:7px;padding:8px 13px;
-  border:1px solid rgba(244,245,246,.55);background:#08090B;
-  color:#F4F5F6;font:600 12px/1 inherit;letter-spacing:.01em;
-  cursor:pointer;-webkit-appearance:none;appearance:none;
-  transition:background 200ms ease,border-color 200ms ease}
-.clip-play:hover{background:#14161A;border-color:#F4F5F6}
-.clip-play:focus-visible{outline:3px solid #F4F5F6;outline-offset:2px}
 .surface{margin:0}
 .surface picture{display:block;background:var(--sheet-2)}
 .surface img{display:block;width:100%;height:auto;border:1px solid var(--rule-w)}
@@ -753,16 +733,16 @@ main{view-transition-name:page-body}
 </section><div class="w"><p class="bridge">Need something with similar complexity? <a href="../../book/">Discuss a project</a></p></div><div class="w onward"><p class="onward__h">Related systems</p><ul class="onward__l"><li><a href="../carepro/"><b>CarePro</b><span>Live product</span></a></li><li><a href="../bizmtaani/"><b>BizMtaani</b><span>Live product</span></a></li></ul><p class="onward__back"><a href="../">All eleven systems in the register</a></p></div>
 
 <section class="w sec--surface" aria-labelledby="surf-h">
-  <h2 id="surf-h">The product, running</h2>
+  <h2 id="surf-h">The surface, as it stood on 4 September 2026</h2>
   <p class="proof-lede">Jamii is open to its pilot community, so the honest artifact is the
-    platform itself. Below is a recorded session of the live product: read-only, unedited, and captured by browsing it exactly as anyone else can. With motion off it holds on the surface as captured.</p>
-  <figure class="surface" data-clip="jamii" data-clip-webm="/media/live/jamii.webm" data-clip-mp4="/media/live/jamii.mp4" data-clip-webm-m="/media/live/jamii-m.webm" data-clip-mp4-m="/media/live/jamii-m.mp4">
+    platform itself. The page below is what the server returned, unedited.</p>
+  <figure class="surface">
     <picture>
-      <source srcset="/media/jamii-surface-full.webp" type="image/webp">
-      <img src="/media/jamii-surface-full.jpg" alt="The Jamii Projects Hub homepage as captured on 4 September 2026, showing a featured community project open for voting." width="1440" height="900" loading="lazy" decoding="async">
+      <source type="image/webp" sizes="(max-width:640px) 94vw, 1248px" srcset="/media/jamii-surface-full-760.webp 760w, /media/jamii-surface-full.webp 1440w">
+      <img src="/media/jamii-surface-full.jpg" sizes="(max-width:640px) 94vw, 1248px" srcset="/media/jamii-surface-full-760.jpg 760w, /media/jamii-surface-full.jpg 1440w" alt="The Jamii Projects Hub homepage as captured on 4 September 2026, showing a featured community project open for voting." width="1440" height="900" loading="lazy" decoding="async">
     </picture>
     <figcaption>
-      <span>jamii.lesnarai.co.ke &middot; <span class="cap-still">captured 2026-09-04</span><span class="cap-clip">recorded session, read-only</span></span>
+      <span>jamii.lesnarai.co.ke &middot; captured 2026-09-04 &middot; 1440 &times; 900</span>
       <span class="dis">Observed surface. It evidences that the platform answered and what it
         listed at that moment - not how many groups use it, nor how much has moved through it.</span>
     </figcaption>
@@ -793,7 +773,7 @@ main{view-transition-name:page-body}
     </p>
   </div>
 </footer>
-<script src="../../site.js" defer></script><script src="../../live.js" defer></script>
+<script src="../../site.js" defer></script>
 
 <script>
 /* Plays the frozen A→B: geometry and information order come from incision.json,

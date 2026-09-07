@@ -64,6 +64,28 @@ def attrs(tag):
     return {k.lower(): v for k, v in ATTR_RE.findall(tag)}
 
 
+def candidates(srcset):
+    """Every file a srcset offers, with the width it claims.
+
+    A srcset is a comma-separated list, not a path. Reading the whole
+    attribute as one filename reports every responsive image on the site as
+    missing, which is exactly what the older asset check does.
+    """
+    out = []
+    for part in srcset.split(","):
+        bits = part.strip().split()
+        if not bits:
+            continue
+        w = None
+        if len(bits) > 1 and bits[1].endswith("w"):
+            try:
+                w = int(bits[1][:-1])
+            except ValueError:
+                w = None
+        out.append((bits[0], w))
+    return out
+
+
 def resolve(ref, page):
     """Map an href as written on a page to a file on disk."""
     ref = ref.split("?")[0].strip()
@@ -145,6 +167,16 @@ def audit():
                 draw = rendered.get(stem)
                 basis = "measured" if draw else "declared box, unmeasured"
                 draw = draw or dw
+
+                # Oversupply is about what the browser will actually fetch. If
+                # the element offers narrower candidates, the widest file is
+                # not what a phone downloads, and judging the fallback alone
+                # condemns a correctly responsive image.
+                offered = [w for _, w in candidates(a.get("srcset", "")) if w]
+                if offered:
+                    fits = [w for w in offered if w >= draw]
+                    iw = min(fits) if fits else max(offered)
+
                 if iw > draw * OVERSUPPLY:
                     kb = os.path.getsize(path) // 1024
                     findings.append((rel, src, "OVERSIZE",

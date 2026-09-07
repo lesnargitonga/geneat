@@ -247,26 +247,6 @@ h1[data-set] .sc{opacity:0;transform:translate3d(0,.62em,0) rotate(6deg);
    A capture of the live product, taken at a stated moment under stated
    conditions. Reachability is the only thing it evidences. */
 .sec--surface{padding-top:clamp(30px,6vh,60px)}
-/* ── live footage layered over the captured surface ─────────────────────────
-   The still stays in the markup and stays the thing you see with motion off.
-   live.js lays the clip onto the still's own layout box, so the caption below
-   it is never covered and no space is reserved twice. */
-[data-clip]{position:relative}
-[data-clip] .clip{position:absolute;opacity:0;pointer-events:none;
-  object-fit:cover;object-position:top center;
-  transition:opacity 560ms cubic-bezier(.16,1,.3,1)}
-[data-clip][data-clip-on] .clip{opacity:1}
-.cap-clip{display:none}
-[data-clip-on] .cap-still{display:none}
-[data-clip-on] .cap-clip{display:inline}
-.clip-play{position:absolute;left:10px;bottom:10px;z-index:2;
-  display:inline-flex;align-items:center;gap:7px;padding:8px 13px;
-  border:1px solid rgba(244,245,246,.55);background:#08090B;
-  color:#F4F5F6;font:600 12px/1 inherit;letter-spacing:.01em;
-  cursor:pointer;-webkit-appearance:none;appearance:none;
-  transition:background 200ms ease,border-color 200ms ease}
-.clip-play:hover{background:#14161A;border-color:#F4F5F6}
-.clip-play:focus-visible{outline:3px solid #F4F5F6;outline-offset:2px}
 .surface{margin:0}
 .surface picture{display:block;background:var(--sheet-2)}
 .surface img{display:block;width:100%;height:auto;border:1px solid var(--rule-w)}
@@ -704,15 +684,15 @@ main{view-transition-name:page-body}
 </div></div>
 
 <section class="w sec--surface" aria-labelledby="surf-h">
-  <h2 id="surf-h">The product, running</h2>
-  <p class="proof-lede">BizMtaani publishes a reachable marketplace. Below is a recorded session of the live product: read-only, unedited, and captured by browsing it exactly as anyone else can. With motion off it holds on the surface as captured.</p>
-  <figure class="surface" data-clip="bizmtaani" data-clip-webm="/media/live/bizmtaani.webm" data-clip-mp4="/media/live/bizmtaani.mp4" data-clip-webm-m="/media/live/bizmtaani-m.webm" data-clip-mp4-m="/media/live/bizmtaani-m.mp4">
+  <h2 id="surf-h">The surface, as it stood on 4 September 2026</h2>
+  <p class="proof-lede">BizMtaani publishes a reachable marketplace. The page below is what the server returned, unedited.</p>
+  <figure class="surface">
     <picture>
-      <source srcset="/media/bizmtaani-surface-full.webp" type="image/webp">
-      <img src="/media/bizmtaani-surface-full.jpg" alt="The BizMtaani marketplace homepage as captured on 4 September 2026: search by business and town, and the five steps an order moves through." width="1440" height="900" loading="lazy" decoding="async">
+      <source type="image/webp" sizes="(max-width:640px) 94vw, 1248px" srcset="/media/bizmtaani-surface-full-760.webp 760w, /media/bizmtaani-surface-full.webp 1440w">
+      <img src="/media/bizmtaani-surface-full.jpg" sizes="(max-width:640px) 94vw, 1248px" srcset="/media/bizmtaani-surface-full-760.jpg 760w, /media/bizmtaani-surface-full.jpg 1440w" alt="The BizMtaani marketplace homepage as captured on 4 September 2026: search by business and town, and the five steps an order moves through." width="1440" height="900" loading="lazy" decoding="async">
     </picture>
     <figcaption>
-      <span>bizmtaani.com &middot; <span class="cap-still">captured 2026-09-04</span><span class="cap-clip">recorded session, read-only</span></span>
+      <span>bizmtaani.com · captured 2026-09-04 · 1440 × 900</span>
       <span class="dis">Observed surface. It evidences that the page loaded and what it said at
         that moment - nothing about traffic, revenue, uptime or scale. It evidences that the marketplace answered and what it listed at that moment.</span>
     </figcaption>
@@ -759,7 +739,7 @@ main{view-transition-name:page-body}
     </p>
   </div>
 </footer>
-<script src="../../site.js" defer></script><script src="../../live.js" defer></script>
+<script src="../../site.js" defer></script>
 <script src="../../theme.js" defer></script>
 <script src="../../axis.js" defer></script>
 <script src="../../flow.js" defer></script>
