@@ -2045,6 +2045,188 @@ main{view-transition-name:page-body}
   .rec--focus .rec__proof img{aspect-ratio:505/540}
   .rec--surface .rec__proof img{aspect-ratio:580/427}
 }
+
+/* ══ ACT 01 · THE LIVING SYSTEM ═══════════════════════════════════════════
+   Two concepts share this container and diverge completely below.
+   The layer sits behind the proposition and never competes with it: it lives
+   in the right half of the frame, it is dim, and it stops. */
+#sysfield{position:absolute;inset:0;z-index:2;pointer-events:none;
+  opacity:0;transition:opacity 900ms cubic-bezier(.16,1,.3,1)}
+#sysfield[data-run],#sysfield[data-settled]{opacity:1}
+#sysfield svg{width:100%;height:100%;display:block;
+  transform:translate3d(calc(var(--px,0)*-10px),calc(var(--py,0)*-7px),0)}
+.sf-edge{fill:none;stroke:#F4F5F6;stroke-width:.18;opacity:.30;
+  vector-effect:non-scaling-stroke}
+.sf-dot{fill:none;stroke:#F4F5F6;stroke-width:.28;opacity:.85;
+  vector-effect:non-scaling-stroke}
+.sf-label{fill:#F4F5F6;font:600 2.6px/1 A,"Sans Fallback",sans-serif;
+  letter-spacing:.01em;opacity:.72}
+.sf-state{fill:#9AA2AA;font:500 2px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.03em;opacity:0;transition:opacity 500ms ease}
+.sf-node[data-state] .sf-state{opacity:.7}
+.sf-node[data-state="ok"] .sf-dot{fill:#F4F5F6;opacity:1}
+.sf-node[data-state="none"] .sf-dot{stroke-dasharray:.5 .4;opacity:.5}
+/* depth: nearer things move more under the pointer */
+.sf-node[data-z="1"],.sf-edge[data-z="1"]{transform:translate3d(calc(var(--px,0)*-7px),calc(var(--py,0)*-5px),0)}
+.sf-node[data-z="2"],.sf-edge[data-z="2"]{transform:translate3d(calc(var(--px,0)*-4px),calc(var(--py,0)*-3px),0);opacity:.82}
+.sf-node[data-z="3"],.sf-edge[data-z="3"]{transform:translate3d(calc(var(--px,0)*-2px),calc(var(--py,0)*-1px),0);opacity:.6}
+.sf-node,.sf-edge{transition:transform 120ms linear}
+
+/* ── CONCEPT A · ASSEMBLY ─────────────────────────────────────────────────
+   Fragments and routes construct themselves, hold, and stop. The gesture is
+   drafting: strokes are drawn, not faded in. */
+#sysfield[data-concept="a"] .sf-edge{stroke-dasharray:var(--len,60);stroke-dashoffset:var(--len,60)}
+#sysfield[data-concept="a"][data-run] .sf-edge{
+  animation:sf-draw 1100ms cubic-bezier(.16,1,.3,1) forwards;
+  animation-delay:calc(240ms + var(--i,0)*90ms)}
+#sysfield[data-concept="a"] .sf-node{opacity:0;transform-box:fill-box;transform-origin:center}
+#sysfield[data-concept="a"][data-run] .sf-node{
+  animation:sf-place 620ms cubic-bezier(.16,1,.3,1) forwards;
+  animation-delay:calc(700ms + var(--i)*170ms)}
+@keyframes sf-draw{to{stroke-dashoffset:0}}
+@keyframes sf-place{from{opacity:0;transform:translateY(3px) scale(.94)}
+                    to{opacity:1;transform:none}}
+
+/* ── CONCEPT B · SIGNAL FIELD ─────────────────────────────────────────────
+   The topology is already there. What changes is traffic: a pulse travels a
+   route, and nodes annotate themselves as their own probe returns. Quiet,
+   continuous, and it never finishes because operation does not finish. */
+#sysfield[data-concept="b"] .sf-edge{stroke-dasharray:2 98;stroke-dashoffset:100;opacity:.22}
+#sysfield[data-concept="b"][data-run] .sf-edge{
+  animation:sf-pulse 4200ms linear infinite;
+  animation-delay:calc(var(--i,0)*820ms)}
+#sysfield[data-concept="b"] .sf-node{opacity:0}
+#sysfield[data-concept="b"][data-run] .sf-node{
+  animation:sf-arrive 700ms cubic-bezier(.16,1,.3,1) forwards;
+  animation-delay:calc(300ms + var(--i)*200ms)}
+@keyframes sf-pulse{to{stroke-dashoffset:0}}
+@keyframes sf-arrive{from{opacity:0;transform:translateX(4px)}to{opacity:1;transform:none}}
+
+/* reduced motion: composed, complete, still */
+@media(prefers-reduced-motion:reduce){
+  #sysfield{opacity:1}
+  #sysfield .sf-node{opacity:1!important;animation:none!important;transform:none!important}
+  #sysfield .sf-edge{stroke-dashoffset:0!important;stroke-dasharray:none!important;
+    animation:none!important;opacity:.26}
+  #sysfield svg{transform:none}
+}
+/* the field belongs to wide frames; on a phone it would crowd the proposition */
+/* on a phone the field would crowd the proposition, so it recedes to a
+   quiet trace rather than competing for the frame */
+@media(max-width:820px){
+  #sysfield{opacity:.38!important}
+  .sf-label{font-size:3.6px}.sf-state{font-size:2.8px}
+}
+
+/* ── CONCEPT A · ASSEMBLY — interface fragments, not a network ──────────── */
+.sf-frag{fill:none;stroke:#F4F5F6;stroke-width:.22;opacity:.34;
+  vector-effect:non-scaling-stroke}
+#sysfield[data-concept="a"] .sf-frag{opacity:0;transform-box:fill-box;
+  transform-origin:left center}
+#sysfield[data-concept="a"][data-run] .sf-frag{
+  animation:sf-build 520ms cubic-bezier(.16,1,.3,1) forwards;
+  animation-delay:calc(200ms + var(--i,0)*130ms)}
+@keyframes sf-build{from{opacity:0;transform:scaleX(.2)}
+                    to{opacity:.34;transform:scaleX(1)}}
+#sysfield[data-concept="a"] .sf-frag[data-d="2"],
+#sysfield[data-concept="a"] .sf-frag[data-d="3"]{opacity:.5}
+@media(prefers-reduced-motion:reduce){
+  #sysfield .sf-frag{opacity:.34!important;animation:none!important;transform:none!important}
+}
+
+/* ══ ACT 02 · BIZMTAANI — THE ORDER THAT MOVES ════════════════════════════
+   Desktop: a tall section with a pinned frame. Page travels down, order
+   travels sideways. Transform only - no layout written during scroll.
+   Mobile: the same five states become a native snap rail a thumb can push. */
+.bz{position:relative;height:340vh;background:var(--ink);color:#F1F2F3}
+:root:not([data-theme="dark"]) .bz{background:var(--sheet-cool);color:var(--fg)}
+.bz__pin{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;
+  justify-content:center;gap:clamp(18px,3vh,34px);overflow:hidden;
+  padding:clamp(64px,9vh,92px) 0 clamp(24px,4vh,44px)}
+.bz__head h2{margin:.1em 0 0;font-size:clamp(2rem,4.4vw,3.6rem);font-weight:760;
+  font-stretch:88%;letter-spacing:-.03em;line-height:.98}
+.bz__meta{display:flex;flex-wrap:wrap;gap:8px 20px;margin:.9em 0 0;
+  font:500 13.5px/1 M,"Mono Fallback",ui-monospace,monospace;color:var(--fg-2)}
+.bz .bz__meta{color:#9AA2AA}
+:root:not([data-theme="dark"]) .bz .bz__meta{color:var(--fg-2)}
+.bz__rail{display:flex;gap:clamp(18px,2.4vw,40px);align-items:center;
+  padding:0 clamp(18px,3.4vw,46px);will-change:transform}
+.bz__state{flex:0 0 auto;width:min(74vw,1100px);margin:0}
+.bz__state img{width:100%;height:auto;display:block;
+  border:1px solid rgba(255,255,255,.14);background:#0F1113}
+:root:not([data-theme="dark"]) .bz__state img{border-color:var(--rule)}
+.bz__state figcaption{margin-top:11px;font-size:13.5px;line-height:1.5;color:#9AA2AA}
+.bz__state figcaption b{color:#F1F2F3;font-weight:600;margin-right:.5em}
+:root:not([data-theme="dark"]) .bz__state figcaption{color:var(--fg-2)}
+:root:not([data-theme="dark"]) .bz__state figcaption b{color:var(--fg)}
+.bz__ui{display:flex;align-items:center;gap:clamp(12px,2vw,26px);flex-wrap:wrap}
+.bz__bar{flex:1 1 180px;height:2px;background:rgba(255,255,255,.16);position:relative}
+:root:not([data-theme="dark"]) .bz__bar{background:var(--rule)}
+.bz__bar i{position:absolute;inset:0 auto 0 0;width:0;background:#F1F2F3;
+  transition:width 90ms linear}
+:root:not([data-theme="dark"]) .bz__bar i{background:var(--fg)}
+.bz__steps{display:flex;gap:4px}
+.bz__step{padding:4px 8px;
+  font:500 11.5px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.1em;
+  text-transform:uppercase;color:#8B939B}
+.bz__step.is-on{color:#F1F2F3}
+:root:not([data-theme="dark"]) .bz__step.is-on{color:var(--fg)}
+.bz__replay{border:1px solid rgba(255,255,255,.3);background:none;color:#F1F2F3;
+  padding:9px 16px;font:600 13px/1 A,"Sans Fallback",sans-serif;cursor:pointer;
+  transition:background 160ms ease,color 160ms ease}
+.bz__replay:hover,.bz__replay:focus-visible{background:#F1F2F3;color:var(--ink)}
+:root:not([data-theme="dark"]) .bz__replay{border-color:var(--rule);color:var(--fg)}
+:root:not([data-theme="dark"]) .bz__replay:hover{background:var(--fg);color:var(--sheet)}
+.bz__live{margin:0;flex-basis:100%;font-size:12.5px;color:#8B939B}
+
+/* mobile: a thumb pushes the story */
+@media(max-width:820px){
+  .bz{height:auto}
+  .bz__pin{position:static;height:auto;padding:clamp(40px,7vh,68px) 0}
+  .bz__rail{overflow-x:auto;scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;transform:none!important;
+    scrollbar-width:none;padding-bottom:6px}
+  .bz__rail::-webkit-scrollbar{display:none}
+  .bz__state{width:82vw;scroll-snap-align:center}
+}
+/* reduced motion: the first state stands, the rail is still reachable by hand */
+@media(prefers-reduced-motion:reduce){
+  .bz{height:auto}
+  .bz__pin{position:static;height:auto}
+  .bz__rail{overflow-x:auto;transform:none!important;scroll-snap-type:x proximity}
+  .bz__state{width:min(82vw,900px);scroll-snap-align:center}
+}
+
+/* ══ 60-SECOND MODE ═══════════════════════════════════════════════════════
+   Chrome for a guided run of the real page. It is a bar, a line of text and
+   an exit - deliberately not a player. Nothing here locks scrolling. */
+/* .cta was written for anchors; a button brings its own UA background,
+   which put light text on buttonface and failed contrast outright */
+.cta--tour{cursor:pointer;font:inherit;background:transparent;-webkit-appearance:none;appearance:none}
+.tour{position:fixed;left:0;right:0;bottom:0;z-index:60;
+  display:flex;align-items:center;gap:clamp(12px,2vw,24px);
+  padding:14px clamp(16px,3vw,36px);
+  background:rgba(10,11,13,.82);backdrop-filter:blur(10px);
+  border-top:1px solid rgba(255,255,255,.14);color:#F1F2F3}
+.tour__bar{position:absolute;top:0;left:0;right:0;height:2px;
+  background:rgba(255,255,255,.14)}
+.tour__bar i{display:block;height:100%;width:0;background:#F1F2F3;
+  transition:width 120ms linear}
+.tour__cap{margin:0;flex:1;font-size:14.5px;line-height:1.4}
+.tour__exit{border:1px solid rgba(255,255,255,.34);background:none;color:#F1F2F3;
+  padding:8px 14px;font:600 13px/1 A,"Sans Fallback",sans-serif;cursor:pointer;
+  white-space:nowrap}
+.tour__exit:hover,.tour__exit:focus-visible{background:#F1F2F3;color:var(--ink)}
+/* while the tour runs, the sticky header steps aside so the page reads clean */
+[data-tour] .site-head{opacity:.25;transition:opacity 300ms ease}
+[data-tour] .site-head:hover,[data-tour] .site-head:focus-within{opacity:1}
+@media(max-width:640px){.tour__cap{font-size:13px}.tour{padding:12px 16px}}
+@media(prefers-reduced-motion:reduce){.tour__bar i{transition:none}}
+
+/* the step marks and the live region need a value per theme: one grey cannot
+   clear 4.5:1 against both ink and sheet */
+:root:not([data-theme="dark"]) .bz__step{color:var(--fg-2)}
+:root:not([data-theme="dark"]) .bz__live{color:var(--fg-2)}
 </style>
 </head>
 <body class="route-home">
@@ -2061,13 +2243,13 @@ main{view-transition-name:page-body}
 <header class="hero">
 
   <div class="hero__bg" aria-hidden="true"></div>
-  <div class="hero__veil" aria-hidden="true"></div>
+  <div class="hero__veil" aria-hidden="true"></div><div id="sysfield" aria-hidden="true"></div>
   <div class="hero__fg">
     <div class="w">
       <p class="wordmark"><b>Lesnar&nbsp;AI</b><span>Nairobi · engineering studio</span></p>
 
       <h1 data-set style="min-height:var(--h1h,auto)">We build serious systems, and publish what they <em>don't claim.</em></h1>
-        <p class="hero__cta"><a class="cta" href="work/">Read the register</a></p>
+        <p class="hero__cta"><a class="cta" href="work/">Read the register</a><button class="cta cta--tour" id="tour-start" type="button" aria-pressed="false">See what we build</button></p>
 
       <div class="hero__meta">
         <p>A Nairobi engineering studio building software, infrastructure, security and
@@ -2082,6 +2264,60 @@ main{view-transition-name:page-body}
 
 </header>
 
+<section class="bz" id="bizflow" aria-labelledby="bz-h">
+  <div class="bz__pin">
+    <div class="w bz__head">
+      <p class="kicker">01 &middot; Live product</p>
+      <h2 id="bz-h">One order, end to end.</h2>
+      <p class="bz__meta"><span>bizmtaani.com</span><span class="pv">checking&hellip;</span>
+        <a class="lnk" href="work/bizmtaani/">Open the record</a></p>
+    </div>
+    <div class="bz__rail">
+        <figure class="bz__state" data-label="Find">
+          <picture>
+            <source media="(max-width:640px)" srcset="media/biz/01-discovery-m.webp">
+            <img src="media/biz/01-discovery-d.webp" alt="BizMtaani, captured 6 September 2026: Search by name and town" fetchpriority="high" decoding="async" width="1100" height="688">
+          </picture>
+          <figcaption><b>Find</b> Search by name and town</figcaption>
+        </figure>
+        <figure class="bz__state" data-label="Choose">
+          <picture>
+            <source media="(max-width:640px)" srcset="media/biz/02-venues-m.webp">
+            <img src="media/biz/02-venues-d.webp" alt="BizMtaani, captured 6 September 2026: Businesses open around you" loading="lazy" decoding="async" width="1100" height="688">
+          </picture>
+          <figcaption><b>Choose</b> Businesses open around you</figcaption>
+        </figure>
+        <figure class="bz__state" data-label="Open">
+          <picture>
+            <source media="(max-width:640px)" srcset="media/biz/03-merchant-m.webp">
+            <img src="media/biz/03-merchant-d.webp" alt="BizMtaani, captured 6 September 2026: The Villager, Embu &middot; open for orders" loading="lazy" decoding="async" width="1100" height="688">
+          </picture>
+          <figcaption><b>Open</b> The Villager, Embu &middot; open for orders</figcaption>
+        </figure>
+        <figure class="bz__state" data-label="Order">
+          <picture>
+            <source media="(max-width:640px)" srcset="media/biz/04-basket-m.webp">
+            <img src="media/biz/04-basket-d.webp" alt="BizMtaani, captured 6 September 2026: 1 &times; Fresh Milk &middot; Ksh 60, collect at the counter" loading="lazy" decoding="async" width="1100" height="688">
+          </picture>
+          <figcaption><b>Order</b> 1 &times; Fresh Milk &middot; Ksh 60, collect at the counter</figcaption>
+        </figure>
+        <figure class="bz__state" data-label="Track">
+          <picture>
+            <source media="(max-width:640px)" srcset="media/biz/05-track-m.webp">
+            <img src="media/biz/05-track-d.webp" alt="BizMtaani, captured 6 September 2026: The order state, on the same surface" loading="lazy" decoding="async" width="1100" height="688">
+          </picture>
+          <figcaption><b>Track</b> The order state, on the same surface</figcaption>
+        </figure>
+    </div>
+    <div class="w bz__ui">
+      <div class="bz__bar" aria-hidden="true"><i></i></div>
+      <div class="bz__steps" aria-hidden="true"><span class="bz__step">Find</span><span class="bz__step">Choose</span><span class="bz__step">Open</span><span class="bz__step">Order</span><span class="bz__step">Track</span></div>
+      <button class="bz__replay" type="button">Replay</button>
+      <p class="bz__live" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
 <section class="sec sec--work" data-af-edge="ink" aria-labelledby="wk-h">
   <div class="w">
     <p class="kicker">Selected work</p>
@@ -2089,22 +2325,6 @@ main{view-transition-name:page-body}
     <p class="lede">Three of the five products with public surfaces. Each screenshot is the surface as
       captured; each record is contacted from your browser as you reach it.</p>
     <div class="recs">
-      <article class="rec rec--plate">
-        <p class="rec__n">01</p>
-        <div>
-          <h3>BizMtaani</h3>
-          <p class="rec__sum">A neighbourhood marketplace: local shops list what they sell, customers order and pay from a phone, and riders carry the order.</p>
-          <p class="mr"><span>Live product</span><span><a class="lnk" href="work/bizmtaani/">Open the record</a></span></p>
-        </div>
-        <figure class="rec__proof" data-probe="bizmtaani.com">
-          <picture>
-            <source media="(max-width:640px)" srcset="media/bizmtaani-hero-m.jpg">
-            <source srcset="media/bizmtaani-surface-full.webp" type="image/webp">
-            <img src="media/bizmtaani-surface-full.jpg" alt="The BizMtaani marketplace as captured on 4 September 2026, showing local shops listed for ordering." width="1440" height="900" loading="lazy" decoding="async">
-          </picture>
-          <figcaption>bizmtaani.com &middot; <span class="pv">checking&hellip;</span><span class="pv-crop"> &middot; cropped on small screens</span></figcaption>
-        </figure>
-      </article>
       <article class="rec rec--focus">
         <p class="rec__n">02</p>
         <div>
@@ -2226,7 +2446,11 @@ main{view-transition-name:page-body}
 
 
 <script src="motion.js" defer></script>
+<script src="v3-hero.js" defer></script>
+<script src="v3-biz.js" defer></script>
+<script src="v3-tour.js" defer></script>
 </main>
+<div class="tour" id="tour-ui" hidden><div class="tour__bar" aria-hidden="true"><i></i></div><p class="tour__cap" role="status" aria-live="polite"></p><button class="tour__exit" type="button">Exit<span aria-hidden="true"> &times;</span></button></div>
 <section class="sec sec--close" data-af-edge="ink" aria-labelledby="close-h">
   <div class="close__img">
     <picture>
