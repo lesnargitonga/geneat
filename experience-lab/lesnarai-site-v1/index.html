@@ -2304,6 +2304,50 @@ main{view-transition-name:page-body}
   [data-scene] .bz__state img,[data-scene="close"] .close__img img{transform:none!important}
   [data-tour] .tour__cap{animation:none}
 }
+
+/* ── CLS ROOT CAUSE ───────────────────────────────────────────────────────
+   .hero is a flex column with justify-content:flex-end. While the foreground
+   is still growing to its final height - fonts resolving, the meta row settling
+   - it is anchored to the BOTTOM, so every pixel it gains slides it upward.
+   Measured on the deployed preview: DIV.hero__fg 185 -> 76, one shift of
+   0.0702, which was essentially the whole desktop figure.
+
+   At >=821px the foreground already exceeds the container's min-height, so
+   flex-start is pixel-identical at rest and simply removes the transient.
+   Below that the content is shorter than the container and the bottom
+   anchoring is doing real compositional work, so it stays - and mobile
+   already measures 0.0000. */
+@media(min-width:821px){.hero{justify-content:flex-start}}
+
+/* ── MOBILE HERO: THE ARRIVAL IS NOT SUBTLE, THE REST IS ──────────────────
+   Was a 0.38 trace behind the headline. Now the field establishes at full
+   strength over the first ~2.6s and then settles back, so a visitor perceives
+   the connection without hunting for it, and the proposition still wins. */
+@media(max-width:820px){
+  #sysfield{opacity:1!important}
+  .sf-label{font-size:4.4px;opacity:.92;font-weight:680}
+  .sf-edge{stroke-width:.5;opacity:.55}
+  #sysfield[data-concept="b"] .sf-dot{stroke-width:.55}
+  /* establish bright, then recede - movement and contrast, not raw opacity */
+  #sysfield[data-run] .sf-nodes,#sysfield[data-run] .sf-edges{
+    animation:sf-settle 1400ms cubic-bezier(.16,1,.3,1) 2600ms forwards}
+  #sysfield[data-concept="b"][data-run] .sf-node{
+    animation:sf-land 620ms cubic-bezier(.16,1,.3,1) forwards;
+    animation-delay:calc(420ms + var(--i)*340ms)}
+  #sysfield[data-concept="b"][data-run] .sf-edge{
+    animation:sf-draw-m 900ms cubic-bezier(.16,1,.3,1) forwards;
+    animation-delay:calc(300ms + var(--i,0)*340ms)}
+  .sf-checked{right:auto;left:clamp(18px,5vw,26px);bottom:auto;top:calc(100% - 34px)}
+}
+@keyframes sf-settle{to{opacity:.6}}
+@keyframes sf-land{from{opacity:0;transform:translateY(6px) scale(.86)}to{opacity:1;transform:none}}
+@keyframes sf-draw-m{from{stroke-dasharray:var(--len,40);stroke-dashoffset:var(--len,40)}
+                     to{stroke-dasharray:var(--len,40);stroke-dashoffset:0}}
+@media(prefers-reduced-motion:reduce){
+  #sysfield .sf-nodes,#sysfield .sf-edges{animation:none!important;opacity:.6!important}
+  #sysfield .sf-node,#sysfield .sf-edge{animation:none!important;transform:none!important;
+    stroke-dashoffset:0!important}
+}
 </style>
 </head>
 <body class="route-home">

@@ -26,7 +26,24 @@
   /* The five systems that actually have a public surface. Coordinates are
      composed, not random: they read as a topology, and they stay clear of the
      headline's optical column. */
-  var NODES = [
+  /* ── MOBILE IS ART-DIRECTED, NOT SCALED ────────────────────────────────
+     At 390 the desktop field was a 0.38-opacity trace behind the headline:
+     technically present, practically invisible. On a phone the topology moves
+     out from under the proposition into the band below the call to action,
+     carries three systems instead of five so each one is large enough to read,
+     and establishes itself with a visible connection sequence before settling.
+     The resting state may be quiet. The arrival may not. */
+
+  var narrow = matchMedia("(max-width: 820px)").matches;
+
+  var MOBILE_NODES = [
+    { id: "bizmtaani", label: "BizMtaani", host: "bizmtaani.com",        x: 60, y: 120, z: 1 },
+    { id: "carepro",   label: "CarePro",   host: "carepro.co.ke",        x: 72, y: 132, z: 2 },
+    { id: "jamii",     label: "Jamii",     host: "jamii.lesnarai.co.ke", x: 60, y: 144, z: 1 }
+  ];
+  var MOBILE_EDGES = [[0,1],[1,2]];
+  var NODES;
+  NODES = [
     { id: "bizmtaani",  label: "BizMtaani",   host: "bizmtaani.com",           x: 122, y: 14, z: 1 },
     { id: "hazina",     label: "Hazina",      host: "hazina.lesnarai.co.ke",   x: 140, y: 31, z: 3 },
     { id: "carepro",    label: "CarePro",     host: "carepro.co.ke",           x: 128, y: 50, z: 2 },
@@ -34,6 +51,7 @@
     { id: "jamii",      label: "Jamii",       host: "jamii.lesnarai.co.ke",    x: 125, y: 86, z: 1 }
   ];
   var EDGES = [[0,2],[2,4],[0,1],[1,3],[2,3]];
+  if (narrow) { NODES = MOBILE_NODES; EDGES = MOBILE_EDGES; }
 
   /* ── CONCEPT A geometry: not a network at all ───────────────────────────
      Abstracted interface fragments - a bar, a field, rows, a panel - compose
@@ -50,9 +68,10 @@
     {x:131,y:76,w:19,h:5.5,d:6},    {x:112,y:86,w:38,h:4.2,d:7}
   ];
 
+
   var NS = "http://www.w3.org/2000/svg";
   var svg = document.createElementNS(NS, "svg");
-  svg.setAttribute("viewBox", "0 0 160 100");
+  svg.setAttribute("viewBox", narrow ? "0 0 100 210" : "0 0 160 100");
   svg.setAttribute("preserveAspectRatio", "xMidYMid slice");
   svg.setAttribute("aria-hidden", "true");
   svg.setAttribute("focusable", "false");
@@ -94,11 +113,12 @@
       g.setAttribute("data-id", n.id);
       g.setAttribute("style", "--i:" + i);
       var r = document.createElementNS(NS, "rect");
-      r.setAttribute("x", n.x - 0.7); r.setAttribute("y", n.y - 0.7);
-      r.setAttribute("width", 1.4); r.setAttribute("height", 1.4);
+      var d = narrow ? 2.6 : 1.4;
+      r.setAttribute("x", n.x - d / 2); r.setAttribute("y", n.y - d / 2);
+      r.setAttribute("width", d); r.setAttribute("height", d);
       r.setAttribute("class", "sf-dot");
       var t = document.createElementNS(NS, "text");
-      t.setAttribute("x", n.x + 2.4); t.setAttribute("y", n.y + 0.6);
+      t.setAttribute("x", n.x + (narrow ? 5 : 2.4)); t.setAttribute("y", n.y + (narrow ? 1.2 : 0.6));
       t.setAttribute("class", "sf-label"); t.textContent = n.label;
       g.appendChild(r); g.appendChild(t);
       gNode.appendChild(g);
