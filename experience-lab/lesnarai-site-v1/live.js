@@ -12,7 +12,11 @@
 
    Rules, in order of who they serve:
 
-   - Reduced motion gets the still and nothing else. No fetch, no decode.
+   - Reduced motion does not autoplay, but it does not hide the footage
+     either. It gets a play control and a single pass with no loop. The
+     preference is about motion that starts on its own, not about putting
+     the evidence out of reach - and a phone in battery saver reports the
+     same preference, which had made the entire page inert.
    - Nothing downloads until the figure is nearly on screen.
    - A phone gets the clip recorded on a phone. Scaling 1000px-wide desktop
      footage into a 390px card produces text nobody can read, which is not
@@ -27,7 +31,7 @@
 
   var reduce = window.matchMedia &&
                window.matchMedia("(prefers-reduced-motion: reduce)");
-  if (reduce && reduce.matches) return;
+  var quiet = function () { return !!(reduce && reduce.matches); };
 
   var narrow = window.matchMedia &&
                window.matchMedia("(max-width: 640px)").matches;
@@ -58,7 +62,7 @@
 
     var v = document.createElement("video");
     v.className = "clip";
-    v.muted = true; v.loop = true; v.playsInline = true;
+    v.muted = true; v.loop = !quiet(); v.playsInline = true;
     v.setAttribute("muted", "");
     v.setAttribute("playsinline", "");
     v.setAttribute("aria-hidden", "true");
@@ -97,15 +101,46 @@
     return v;
   }
 
-  function play(fig) {
+  /* A control, not an autoplay. Shown when motion is reduced, and also when
+     autoplay is refused outright - a data saver or a battery policy we do not
+     control. Either way the viewer can still choose to watch the product. */
+  function control(fig) {
+    if (fig.__btn) return;
+    /* The register cards are wrapped in an <a>. A button inside a link is
+       invalid, and a tap on it would navigate rather than play. Those figures
+       keep the still; the record page behind the link carries the same
+       footage with a control that works. */
+    if (fig.closest && fig.closest("a,button")) return;
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "clip-play";
+    b.innerHTML = '<span aria-hidden="true">\u25B6</span> Play';
+    b.setAttribute("aria-label", "Play the recorded session of this product");
+    b.addEventListener("click", function (e) {
+      e.preventDefault(); e.stopPropagation();
+      start(fig, true);
+    });
+    fig.appendChild(b);
+    fig.__btn = b;
+  }
+
+  function start(fig, byHand) {
     var v = build(fig);
     if (!v) return;
     if (!v.dataset.loaded) { v.dataset.loaded = "1"; v.preload = "auto"; v.load(); }
     var r = v.play();
-    /* Autoplay can still be refused - a data saver, a battery mode, a policy
-       we do not control. The still underneath is already correct, so a
-       refusal needs no handling beyond not throwing. */
-    if (r && r.catch) r.catch(function () {});
+    if (r && r.then) {
+      r.then(function () {
+        if (fig.__btn) { fig.__btn.remove(); fig.__btn = null; }
+      }).catch(function () {
+        if (!byHand) control(fig);        /* offer it instead of failing quietly */
+      });
+    }
+  }
+
+  function play(fig) {
+    if (quiet()) { build(fig); control(fig); return; }
+    start(fig, false);
   }
 
   var warm = new IntersectionObserver(function (es) {
@@ -128,12 +163,10 @@
 
   if (reduce && reduce.addEventListener) {
     reduce.addEventListener("change", function (e) {
-      if (!e.matches) return;
-      warm.disconnect(); watch.disconnect();
       figs.forEach(function (f) {
         if (!f.__v) return;
-        f.__v.pause();
-        f.removeAttribute("data-clip-on");
+        f.__v.loop = !e.matches;
+        if (e.matches && !f.__v.paused) { f.__v.pause(); control(f); }
       });
     });
   }
