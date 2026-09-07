@@ -7,6 +7,14 @@ document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- The face has to be there for first composition. Without this the
+     fallback lays the page out, the real face swaps in at ~35ms and the
+     text re-wraps: measured 0.1130 CLS on /contact/ at 390, entirely from
+     one hint paragraph changing line count. The metric overrides above
+     narrow that gap but cannot close it, because they match mean advance
+     rather than the wrap of any particular line. -->
+<link rel="preload" as="font" type="font/woff2" href="/fonts/archivo-var.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/plex-mono.woff2" crossorigin>
 <title>How we work · Lesnar AI</title>
 <meta name="description" content="How a project with Lesnar AI runs: the stages, what you get at each one, and how work is scoped and priced. Nairobi engineering studio.">
 

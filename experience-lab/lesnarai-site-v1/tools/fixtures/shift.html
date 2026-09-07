@@ -1,0 +1,31 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fixture: known shift</title>
+<style>
+  /* A deliberate, analytically computable layout shift.
+     At 600ms a 200px block is inserted above everything else, so every
+     following block moves down by exactly 200px.
+
+     Expected CLS at viewport 390x844:
+       moved elements A (0->200..300->500) and B (300->500..700->900) cover the
+       whole viewport once unioned, so impact fraction = 1.0
+       distance fraction = 200 / max(390,844) = 0.2370
+       CLS = 1.0 * 0.2370 = 0.2370
+     The gate is correct on this page only if it reports ~0.237. */
+  body{margin:0;font:16px/1.5 system-ui,sans-serif}
+  .a{height:300px;background:#dfe6ee}
+  .b{height:400px;background:#eef2f6}
+  .c{height:900px;background:#e6ecf2}
+  .pushed{height:200px;background:#f6d5d5}
+</style></head><body>
+<div id="host"></div>
+<div class="a">block A</div><div class="b">block B</div><div class="c">block C</div>
+<script>
+  setTimeout(function () {
+    var d = document.createElement("div");
+    d.className = "pushed";
+    d.textContent = "inserted at 600ms";
+    document.getElementById("host").appendChild(d);
+  }, 600);
+</script>
+</body></html>

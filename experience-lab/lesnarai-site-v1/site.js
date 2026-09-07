@@ -41,6 +41,10 @@
   var TAU = 0.085;
   var EPS = 0.0009;
 
+  /* where the headline axis finishes: .page h1 / .sys-hero h1 / .nf h1 all
+     rest at wdth 100, and the keyframe runs 72 -> 100 */
+  var SETTLED = "100";
+
   function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
 
 
@@ -49,23 +53,106 @@
      headline is simply the headline. Each character carries its own delay and
      rides in on a clip, so the line assembles the way type is set rather than
      fading in as a block. */
+  /* ── committing the wrap before the axis opens ───────────────────────────
+     The headline opens from wdth 72 to 100 over 1050ms. Thirty units of glyph
+     width is enough to carry a word onto another line, and every time one
+     moves, everything below the headline moves with it. That is not a small
+     effect: /engagement/ at 390 measured 1.1402 CLS, essentially all of it
+     from this one animation, and /about/ at 1440 measured 0.4028.
+
+     Freezing the axis would remove the site's signature, so the wrap is
+     decided first instead. Measure where the lines actually break at the
+     settled width, carry those breaks into the rebuilt headline as real <br>,
+     and the axis then changes how wide each line is - never which words are
+     on it. The glyphs still animate; the page no longer moves.
+
+     Measured at the SETTLED width because that is the widest the line ever
+     gets: every intermediate value of the animation is narrower and therefore
+     still fits inside a break committed here. */
+  /* The headline is capped at 18ch. A ch is the advance of the zero glyph in
+     the current font, so with "wdth" animating 72 -> 100 the cap animates with
+     it: measured 468px wide at 72 and 630px at 100 on /about/ at 1024. The
+     text is then wrapping against a box that is itself moving, and the line
+     count is not even monotonic - 4 lines at wdth 90, 5 at 92, 4 at 95, 5 at
+     98, 4 at 100 - which is how /about/ scored 1.6191 at 1024x768 with the
+     line breaks already committed.
+
+     Resolve the authored cap once, at the settled axis value, and pin it in
+     pixels. The design intent (18ch at rest) is preserved exactly; what goes
+     away is the cap moving while the glyphs open. */
+  function pinWidth(h) {
+    var prev = h.style.getPropertyValue("--wd");
+    h.style.setProperty("--wd", SETTLED);
+    var mw = getComputedStyle(h).maxWidth;
+    if (prev) h.style.setProperty("--wd", prev);
+    else h.style.removeProperty("--wd");
+    if (mw && mw !== "none" && mw.indexOf("px") === mw.length - 2)
+      h.style.maxWidth = mw;
+  }
+
+  function lineStarts(h) {
+    var prev = h.style.getPropertyValue("--wd");
+    h.style.setProperty("--wd", SETTLED);
+
+    var walker = document.createTreeWalker(h, NodeFilter.SHOW_TEXT);
+    var range = document.createRange();
+    var node, g = 0, at = {}, lastTop = null;
+    while ((node = walker.nextNode())) {
+      var t = node.textContent;
+      for (var i = 0; i < t.length; i++, g++) {
+        /* a space straddles the break, so only real glyphs decide the line */
+        if (!/\S/.test(t.charAt(i))) continue;
+        range.setStart(node, i); range.setEnd(node, i + 1);
+        var r = range.getBoundingClientRect();
+        if (!r.height) continue;
+        var top = Math.round(r.top);
+        if (lastTop === null) lastTop = top;
+        else if (Math.abs(top - lastTop) > 4) { at[g] = 1; lastTop = top; }
+      }
+    }
+
+    if (prev) h.style.setProperty("--wd", prev);
+    else h.style.removeProperty("--wd");
+    return at;
+  }
+
   function splitHeadline() {
     var h = document.querySelector("h1");
     if (!h || h.dataset.split === "1" || reduce.matches) return;
+
+    /* The hero headline has its own committed-line implementation in
+       v3-h1.js, already measured at 0.0104 on the homepage. Leave it alone. */
+    var hero = h.closest && h.closest(".hero");
+    if (!hero) pinWidth(h);           /* before measuring: the wrap depends on it */
+    var breakAt = hero ? {} : lineStarts(h);
+    if (h.__orig === undefined) h.__orig = h.innerHTML;
 
     /* Walk the child nodes rather than reading textContent. textContent drops
        every element, so an authored line break in "build<br>for you" vanished
        and the two words were split as the single token "buildfor" - rendered
        joined, and announced joined in the aria-label. Line breaks are carried
        through as real <br> elements and count as a space in the label. */
-    var ci = 0, label = "";
+    var ci = 0, label = "", gi = 0;
     var frag = document.createDocumentFragment();
 
     function emitText(text) {
       var words = text.split(/(\s+)/);
       for (var w = 0; w < words.length; w++) {
         if (words[w] === "") continue;
-        if (/^\s+$/.test(words[w])) { frag.appendChild(document.createTextNode(" ")); continue; }
+        if (/^\s+$/.test(words[w])) {
+          frag.appendChild(document.createTextNode(" "));
+          gi += words[w].length;
+          continue;
+        }
+        if (breakAt[gi]) {
+          /* the break replaces the space it fell on, and never doubles a
+             line break the markup already authored */
+          var tail = frag.lastChild;
+          if (tail && tail.nodeType === 3 && !/\S/.test(tail.textContent))
+            frag.removeChild(tail);
+          if (!(frag.lastChild && frag.lastChild.nodeName === "BR"))
+            frag.appendChild(document.createElement("br"));
+        }
         var word = document.createElement("span");
         word.className = "sw";
         for (var c = 0; c < words[w].length; c++) {
@@ -77,6 +164,7 @@
           word.appendChild(ch);
         }
         frag.appendChild(word);
+        gi += words[w].length;
       }
     }
 
@@ -92,10 +180,22 @@
     }
     walk(h);
 
+    /* Emptying the element first collapsed the headline to zero height for a
+       frame, which scored a larger shift than the animation it was meant to
+       fix. Pin the measured box, swap in one operation, and only release the
+       pin if the rebuilt headline occupies exactly what the original did. */
+    var box = Math.ceil(h.getBoundingClientRect().height);
     h.dataset.split = "1";
     h.setAttribute("aria-label", label.replace(/\s+/g, " ").trim());
-    h.textContent = "";
-    h.appendChild(frag);
+    /* The hero keeps the original path exactly: v3-h1.js pins and rebuilds it
+       straight afterwards, and a second pin from here would fight that one. */
+    if (hero) { h.textContent = ""; h.appendChild(frag); }
+    else {
+      h.style.minHeight = box + "px";
+      if (h.replaceChildren) h.replaceChildren(frag);
+      else { h.textContent = ""; h.appendChild(frag); }
+      if (Math.ceil(h.getBoundingClientRect().height) === box) h.style.minHeight = "";
+    }
     requestAnimationFrame(function () { h.setAttribute("data-set", "on"); });
   }
 
@@ -211,15 +311,43 @@
     requestAnimationFrame(frame);
   }
 
-  function enable() {
-    if (reduce.matches) return;
+  /* A committed wrap belongs to one width. Re-measure when the width actually
+     changes - not when a mobile URL bar collapses, which fires resize on
+     height alone and would otherwise rebuild the headline mid-scroll. */
+  var lastW = window.innerWidth, rt;
+  function recommit() {
+    var h = document.querySelector("h1");
+    if (!h || h.__orig === undefined || (h.closest && h.closest(".hero"))) return;
+    h.style.minHeight = "";
+    h.style.maxWidth = "";            /* the cap is viewport-dependent too */
+    h.innerHTML = h.__orig;
+    delete h.dataset.split;
+    /* data-set is deliberately left in place: re-setting an attribute to the
+       value it already holds does not restart the CSS animation, so the
+       headline does not replay itself every time the window is dragged. */
     splitHeadline();
     collect();
+  }
+
+  function enable() {
+    if (reduce.matches) return;
     root.setAttribute("data-sv-motion", "on");
     window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", function () { collect(); schedule(); }, { passive: true });
+    window.addEventListener("resize", function () {
+      collect(); schedule();
+      if (window.innerWidth === lastW) return;
+      lastW = window.innerWidth;
+      clearTimeout(rt);
+      rt = setTimeout(recommit, 200);
+    }, { passive: true });
     window.addEventListener("focusin", function () { frame(); }, { passive: true });
-    frame();
+
+    /* The wrap has to be measured in Archivo, not in the fallback: committing
+       the fallback's line breaks would re-wrap the moment the real face
+       arrives, which is the shift this exists to prevent. */
+    function start() { splitHeadline(); collect(); frame(); }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(start);
+    else start();
   }
 
   function disable() {

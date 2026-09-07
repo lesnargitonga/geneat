@@ -1,0 +1,112 @@
+{
+  "_comment": [
+    "Receiving spec for commissioned photography. See tools/SHOT-LIST.md.",
+    "maxRender is the widest CSS width each file is actually drawn at, measured",
+    "in a browser at 1920/1440/1280/768/390 - not guessed from the width",
+    "attribute, which is a ratio placeholder and is smaller than the real",
+    "render on several slots."
+  ],
+  "maxRender": {
+    "studio-portrait": 420,
+    "aerial-airframe": 1248,
+    "studio-close": 1920,
+    "hero-bench": 1920,
+    "bizmtaani": 659,
+    "hazina": 659,
+    "carepro": 659,
+    "jamii-live": 659,
+    "geneat-public-surface": 659
+  },
+  "slots": [
+    {
+      "id": "about-portrait",
+      "shot": "P1",
+      "page": "about/index.html  (.ab-portrait)",
+      "note": "4:5 editorial portrait. The current file is 1200x1295 behind a declared 1240x1428 box, which is why About shifts on decode. Moving to a true 4:5 makes the portrait ~72px taller.",
+      "variants": [
+        {
+          "name": "studio-portrait",
+          "w": 840,
+          "h": 1050,
+          "anchor": [
+            0.5,
+            0.35
+          ]
+        }
+      ],
+      "markup": "    <source srcset=\"../media/studio-portrait.webp\" type=\"image/webp\">\n    <img src=\"../media/studio-portrait.jpg\" alt=\"At the bench in Nairobi, working at the screens where the register is kept.\" width=\"840\" height=\"1050\" loading=\"lazy\" decoding=\"async\">"
+    },
+    {
+      "id": "aerial-hardware",
+      "shot": "P2",
+      "page": "work/aerial-systems/index.html  (.surface)",
+      "note": "4:3. Renders 1248 wide on desktop, 362 on mobile, so the mobile crop is a separate narrower file rather than the same frame scaled down.",
+      "variants": [
+        {
+          "name": "aerial-airframe",
+          "w": 1600,
+          "h": 1200,
+          "anchor": [
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "name": "aerial-airframe-m",
+          "w": 760,
+          "h": 570,
+          "anchor": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "markup": "      <source media=\"(max-width:640px)\" srcset=\"/media/aerial-airframe-m.webp\" type=\"image/webp\">\n      <source media=\"(max-width:640px)\" srcset=\"/media/aerial-airframe-m.jpg\">\n      <source srcset=\"/media/aerial-airframe.webp\" type=\"image/webp\">\n      <img src=\"/media/aerial-airframe.jpg\" alt=\"The collapsible airframe out of its case on a clear bench, shell removed, exposed motor wiring and battery visible.\" width=\"1600\" height=\"1200\" loading=\"lazy\" decoding=\"async\">"
+    },
+    {
+      "id": "hero-plate",
+      "shot": "P4",
+      "page": "index.html  (.hero__bg, CSS background)",
+      "note": "Sits under a 78%-to-15% ink gradient at saturate(.72). Keep the subject in the middle vertical third; the hero letterboxes to roughly 5:1 and crops the rest away. A dark original survives the gradient better than a bright one.",
+      "variants": [
+        {
+          "name": "hero-bench",
+          "w": 2000,
+          "h": 1150,
+          "anchor": [
+            0.5,
+            0.45
+          ]
+        }
+      ],
+      "markup": "  (CSS background - no markup change; replace the file in place)"
+    },
+    {
+      "id": "bench-detail",
+      "shot": "P3",
+      "page": "UNPLACED - no slot exists yet on services/engagement/pricing",
+      "note": "Hands and one screen, no face. 3:2. The destination markup does not exist yet; deriving this only produces the files.",
+      "variants": [
+        {
+          "name": "bench-detail",
+          "w": 1600,
+          "h": 1067,
+          "anchor": [
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "name": "bench-detail-m",
+          "w": 780,
+          "h": 520,
+          "anchor": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "markup": "  (no destination yet)"
+    }
+  ]
+}
