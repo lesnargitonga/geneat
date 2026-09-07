@@ -423,8 +423,19 @@ body:not(.route-home) .foot__end{margin-top:clamp(18px,2.6vh,24px);padding-top:1
 
 /* ── live entries: capture, name, purpose, host ─────────────────────────────*/
 .live-list{list-style:none;margin:0;padding:0}
+/* ── live footage layered over the still ────────────────────────────────────
+   The clip is positioned onto the still's own box rather than the figure's,
+   because a figure can also contain a caption and the video must not cover
+   it. Geometry is written by live.js and kept in step with a ResizeObserver,
+   so this holds at every breakpoint without a second set of aspect rules. */
+[data-clip]{position:relative}
+[data-clip] .clip{position:absolute;opacity:0;pointer-events:none;
+  object-fit:cover;object-position:top center;
+  transition:opacity 560ms cubic-bezier(.16,1,.3,1)}
+[data-clip][data-clip-on] .clip{opacity:1}
+@media(prefers-reduced-motion:reduce){[data-clip] .clip{display:none}}
 .live-list li{border-bottom:1px solid var(--rule)}
-.live-e{display:grid;grid-template-columns:2.6rem minmax(0,240px) minmax(0,1fr) max-content;
+.live-e{display:grid;grid-template-columns:2.6rem minmax(0,clamp(260px,30vw,440px)) minmax(0,1fr) max-content;
   gap:clamp(16px,2.4vw,34px);align-items:center;padding:clamp(16px,2.2vh,26px) 0;
   text-decoration:none;color:inherit;
   transition:padding-left 320ms cubic-bezier(.16,1,.3,1)}
@@ -432,10 +443,20 @@ body:not(.route-home) .foot__end{margin-top:clamp(18px,2.6vh,24px);padding-top:1
 .live-e__n{font:500 12px/1 M,"Mono Fallback",ui-monospace,monospace;
   letter-spacing:.14em;color:var(--fg-2);align-self:start;padding-top:6px}
 .live-e__shot{margin:0;overflow:hidden;background:var(--sheet-cool);
-  border:1px solid var(--rule);aspect-ratio:16/10}
-.live-e__shot img{width:100%;height:100%;object-fit:cover;object-position:top center;
+  border:1px solid var(--rule);aspect-ratio:16/10;position:relative;
+  box-shadow:0 1px 2px rgba(10,11,13,.05);
+  transition:box-shadow 420ms cubic-bezier(.16,1,.3,1),
+             transform 420ms cubic-bezier(.16,1,.3,1),
+             border-color 300ms ease}
+.live-e:hover .live-e__shot,.live-e:focus-visible .live-e__shot{
+  box-shadow:0 18px 40px -18px rgba(10,11,13,.42),0 2px 6px rgba(10,11,13,.08);
+  border-color:var(--fg);transform:translateY(-3px)}
+.live-e:active .live-e__shot{transform:translateY(-1px);
+  box-shadow:0 6px 16px -10px rgba(10,11,13,.4)}
+.live-e__shot img,.live-e__shot video{width:100%;height:100%;object-fit:cover;object-position:top center;
   transition:transform 620ms cubic-bezier(.16,1,.3,1)}
-.live-e:hover .live-e__shot img,.live-e:focus-visible .live-e__shot img{transform:scale(1.03)}
+.live-e:hover .live-e__shot img,.live-e:focus-visible .live-e__shot img,
+.live-e:hover .live-e__shot video,.live-e:focus-visible .live-e__shot video{transform:scale(1.03)}
 .live-e__b h3{margin:0;font-size:clamp(1.5rem,2.9vw,2.4rem);font-weight:700;
   font-stretch:76%;letter-spacing:-.03em;line-height:.98;color:var(--fg)}
 .live-e:hover h3,.live-e:focus-visible h3{text-decoration:underline;text-underline-offset:5px}
@@ -583,7 +604,8 @@ main{view-transition-name:page-body}
   background:linear-gradient(90deg,transparent,var(--accent) 30%,var(--accent) 70%,transparent);
   transform:translate3d(0,calc(var(--scanY,0) * 1%),0);
   box-shadow:0 0 16px 2px rgba(212,85,42,.42)}
-.live-e[data-state="fail"] .live-e__shot img{filter:grayscale(1) brightness(.55)}
+.live-e[data-state="fail"] .live-e__shot img,
+.live-e[data-state="fail"] .live-e__shot video{filter:grayscale(1) brightness(.55)}
 .live-e .pv{font-variant-numeric:tabular-nums}
 .live-e[data-state="ok"] .pv{color:#276740}
 .live-e[data-state="fail"] .pv{color:var(--accent)}
@@ -652,7 +674,7 @@ main{view-transition-name:page-body}
         reach it, so the state shown is reachability now, never an uptime record.</p>
     <span class="reg-band__n">01&ndash;05</span>
   </div>
-  <ul class="live-list"><li><a class="live-e" href="bizmtaani/" data-probe="bizmtaani.com"><span class="live-e__n">01</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source srcset="../media/bizmtaani.webp" type="image/webp"><img src="../media/bizmtaani.jpg" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>BizMtaani</h3><span class="a-sep">. </span><p>A neighbourhood marketplace: local shops list what they sell, customers order and pay from a phone, and riders carry the order.</p><span class="live-e__host">bizmtaani.com &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="hazina-nomads/" data-probe="hazina.lesnarai.co.ke"><span class="live-e__n">02</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source srcset="../media/hazina.webp" type="image/webp"><img src="../media/hazina.jpg" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Hazina Nomads</h3><span class="a-sep">. </span><p>Kenyan gifts and heritage pieces, sourced privately for travellers, diaspora families and corporate clients.</p><span class="live-e__host">hazina.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="carepro/" data-probe="carepro.co.ke"><span class="live-e__n">03</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source srcset="../media/carepro.webp" type="image/webp"><img src="../media/carepro.jpg" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>CarePro</h3><span class="a-sep">. </span><p>Book a vetted nurse to care for someone at home, with payment arranged through the platform.</p><span class="live-e__host">carepro.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="gen-eat/" data-probe="geneat.lesnarai.co.ke"><span class="live-e__n">04</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source srcset="../media/geneat-public-surface.webp" type="image/webp"><img src="../media/geneat-public-surface.jpg" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Gen-Eat</h3><span class="a-sep">. </span><p>Order from your campus cafe over WhatsApp and collect it when it is ready, instead of queueing between lectures.</p><span class="live-e__host">geneat.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="jamii-projects-hub/" data-probe="jamii.lesnarai.co.ke"><span class="live-e__n">05</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source srcset="../media/jamii-live.webp" type="image/webp"><img src="../media/jamii-live.jpg" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Jamii Projects Hub</h3><span class="a-sep">. </span><p>See what projects your community is planning, vote on what matters, and keep clear records for a family, chama or welfare group.</p><span class="live-e__host">jamii.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li></ul>
+  <ul class="live-list"><li><a class="live-e" href="bizmtaani/" data-probe="bizmtaani.com"><span class="live-e__n">01</span><span class="a-sep">. </span><figure class="live-e__shot" data-clip="bizmtaani" data-clip-webm="../media/live/bizmtaani.webm" data-clip-mp4="../media/live/bizmtaani.mp4" data-clip-webm-m="../media/live/bizmtaani-m.webm" data-clip-mp4-m="../media/live/bizmtaani-m.mp4"><picture><source srcset="../media/bizmtaani.webp" type="image/webp"><img src="../media/bizmtaani.jpg" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>BizMtaani</h3><span class="a-sep">. </span><p>A neighbourhood marketplace: local shops list what they sell, customers order and pay from a phone, and riders carry the order.</p><span class="live-e__host">bizmtaani.com &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="hazina-nomads/" data-probe="hazina.lesnarai.co.ke"><span class="live-e__n">02</span><span class="a-sep">. </span><figure class="live-e__shot" data-clip="hazina" data-clip-webm="../media/live/hazina.webm" data-clip-mp4="../media/live/hazina.mp4" data-clip-webm-m="../media/live/hazina-m.webm" data-clip-mp4-m="../media/live/hazina-m.mp4"><picture><source srcset="../media/hazina.webp" type="image/webp"><img src="../media/hazina.jpg" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Hazina Nomads</h3><span class="a-sep">. </span><p>Kenyan gifts and heritage pieces, sourced privately for travellers, diaspora families and corporate clients.</p><span class="live-e__host">hazina.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="carepro/" data-probe="carepro.co.ke"><span class="live-e__n">03</span><span class="a-sep">. </span><figure class="live-e__shot" data-clip="carepro" data-clip-webm="../media/live/carepro.webm" data-clip-mp4="../media/live/carepro.mp4" data-clip-webm-m="../media/live/carepro-m.webm" data-clip-mp4-m="../media/live/carepro-m.mp4"><picture><source srcset="../media/carepro.webp" type="image/webp"><img src="../media/carepro.jpg" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>CarePro</h3><span class="a-sep">. </span><p>Book a vetted nurse to care for someone at home, with payment arranged through the platform.</p><span class="live-e__host">carepro.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="gen-eat/" data-probe="geneat.lesnarai.co.ke"><span class="live-e__n">04</span><span class="a-sep">. </span><figure class="live-e__shot" data-clip="geneat" data-clip-webm="../media/live/geneat.webm" data-clip-mp4="../media/live/geneat.mp4" data-clip-webm-m="../media/live/geneat-m.webm" data-clip-mp4-m="../media/live/geneat-m.mp4"><picture><source srcset="../media/geneat-public-surface.webp" type="image/webp"><img src="../media/geneat-public-surface.jpg" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Gen-Eat</h3><span class="a-sep">. </span><p>Order from your campus cafe over WhatsApp and collect it when it is ready, instead of queueing between lectures.</p><span class="live-e__host">geneat.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="jamii-projects-hub/" data-probe="jamii.lesnarai.co.ke"><span class="live-e__n">05</span><span class="a-sep">. </span><figure class="live-e__shot" data-clip="jamii" data-clip-webm="../media/live/jamii.webm" data-clip-mp4="../media/live/jamii.mp4" data-clip-webm-m="../media/live/jamii-m.webm" data-clip-mp4-m="../media/live/jamii-m.mp4"><picture><source srcset="../media/jamii-live.webp" type="image/webp"><img src="../media/jamii-live.jpg" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Jamii Projects Hub</h3><span class="a-sep">. </span><p>See what projects your community is planning, vote on what matters, and keep clear records for a family, chama or welfare group.</p><span class="live-e__host">jamii.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li></ul>
 </div>
 
 <div class="reg-band">
@@ -691,7 +713,7 @@ main{view-transition-name:page-body}
 </footer>
 <script src="../site.js" defer></script>
 <script src="../theme.js" defer></script>
-<script src="../axis.js" defer></script>
+<script src="../axis.js" defer></script><script src="../live.js" defer></script>
 <script src="../verify.js" defer></script>
 </body>
 </html>
