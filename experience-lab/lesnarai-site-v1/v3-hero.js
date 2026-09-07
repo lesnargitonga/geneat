@@ -100,12 +100,9 @@
       var t = document.createElementNS(NS, "text");
       t.setAttribute("x", n.x + 2.4); t.setAttribute("y", n.y + 0.6);
       t.setAttribute("class", "sf-label"); t.textContent = n.label;
-      var st = document.createElementNS(NS, "text");
-      st.setAttribute("x", n.x + 2.4); st.setAttribute("y", n.y + 3.0);
-      st.setAttribute("class", "sf-state"); st.textContent = "";
-      g.appendChild(r); g.appendChild(t); g.appendChild(st);
+      g.appendChild(r); g.appendChild(t);
       gNode.appendChild(g);
-      return { g: g, state: st, node: n };
+      return { g: g, node: n };
     });
   }
 
@@ -117,25 +114,54 @@
   requestAnimationFrame(function () { host.setAttribute("data-run", "1"); });
   setTimeout(function () { host.setAttribute("data-settled", "1"); }, 3600);
 
-  /* ── the quiet truth layer: each node reports its own reachability ────
-     This is the same opaque no-cors probe the register uses. It can prove a
-     surface answered; it can never report a status code, so the node says a
-     duration or nothing at all. */
-  function probe(entry) {
-    var t0 = performance.now(), done = false;
-    var timer = setTimeout(function () { settle(false); }, 4000);
-    function settle(ok) {
-      if (done) return; done = true; clearTimeout(timer);
-      var ms = Math.round(performance.now() - t0);
-      entry.g.setAttribute("data-state", ok ? "ok" : "none");
-      entry.state.textContent = ok ? ms + " ms" : "no answer";
+  /* ── the quiet truth layer, now one same-origin request ───────────────
+     Was: five opaque no-cors probes fired from every visitor's browser to
+     five third-party origins. Now: one request to our own /api/status, which
+     checks downstream server-side and caches for 60s. The node carries a mark,
+     not a number - the message is "these systems are connected and answering",
+     not a latency table. The number is still available, on the node's title,
+     for anyone who wants it. */
+  function applyStatus(data) {
+    if (!data || !data.systems) return;
+    var by = {};
+    data.systems.forEach(function (x) { by[x.id] = x; });
+    nodeEls.forEach(function (e) {
+      var st = by[e.node.id];
+      if (!st) return;
+      e.g.setAttribute("data-state", st.answered ? "ok" : "none");
+      var t = e.g.querySelector("title") || document.createElementNS(NS, "title");
+      t.textContent = st.answered
+        ? e.node.label + " answered in " + st.ms + " ms when last checked"
+        : e.node.label + " did not answer when last checked";
+      e.g.appendChild(t);
+    });
+    /* Records on this page share the one cached result rather than each firing
+       its own cross-origin probe. /work/ still probes per record from the
+       browser, because that page's copy says it does. */
+    [].forEach.call(document.querySelectorAll("[data-system]"), function (el) {
+      var st = by[el.getAttribute("data-system")];
+      if (!st) return;
+      el.setAttribute("data-state", st.answered ? "ok" : "fail");
+      var pv = el.querySelector(".pv");
+      if (pv) pv.textContent = st.answered ? "answered in " + st.ms + " ms" : "no answer";
+    });
+
+    var line = document.getElementById("sf-checked");
+    if (line) {
+      var ok = data.systems.filter(function (x) { return x.answered; }).length;
+      line.textContent = ok + " of " + data.systems.length + " answering \u00b7 checked moments ago";
+      line.hidden = false;
     }
-    fetch("https://" + entry.node.host + "/?_v=" + Date.now(),
-          { mode: "no-cors", cache: "no-store" })
-      .then(function () { clearTimeout(timer); settle(true); })
-      .catch(function () { clearTimeout(timer); settle(false); });
   }
-  if (concept === "b") setTimeout(function () { nodeEls.forEach(function (e, i) { setTimeout(function () { probe(e); }, i * 260); }); }, 1200);
+
+  if (concept === "b") {
+    fetch("/api/status", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(applyStatus)
+      /* No endpoint (local static preview) means no claim: the field simply
+         carries no state marks rather than asserting five failures. */
+      .catch(function () {});
+  }
 
   /* ── pointer depth, desktop only. Touch gets nothing here: a finger has no
         hover position, and faking one is how these things start feeling
