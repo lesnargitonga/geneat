@@ -2337,7 +2337,17 @@ main{view-transition-name:page-body}
   #sysfield[data-concept="b"][data-run] .sf-edge{
     animation:sf-draw-m 900ms cubic-bezier(.16,1,.3,1) forwards;
     animation-delay:calc(300ms + var(--i,0)*340ms)}
-  .sf-checked{right:auto;left:clamp(18px,5vw,26px);bottom:auto;top:calc(100% - 34px)}
+  /* The reachability line is absolutely positioned, so it reserves no space
+     of its own. Anchored 34px off the hero's bottom edge it sat exactly on the
+     last lines of .hero__meta once the status resolved - a 49x7px collision
+     with "Nairobi" at 390 and 430. It never showed locally because the static
+     server 404s /api/status, so the line stays hidden; it only appears on a
+     real deployment. The hero's foot is fully occupied by the meta block on a
+     phone, so the label needs a band of its own: 24px is the middle of the
+     range that is clean at 360, 390 and 430 (below 18px it reaches the place
+     note, above 30px the meta text reaches the system-field labels). */
+  .hero__fg{padding-bottom:24px}
+  .sf-checked{right:auto;left:clamp(18px,5vw,26px);bottom:8px;top:auto}
 }
 @keyframes sf-settle{to{opacity:.6}}
 @keyframes sf-land{from{opacity:0;transform:translateY(6px) scale(.86)}to{opacity:1;transform:none}}
