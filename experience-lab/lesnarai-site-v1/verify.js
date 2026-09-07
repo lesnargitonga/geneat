@@ -53,6 +53,7 @@
        busy rather than frozen */
     var tick = setInterval(function () {
       if (settled || !out) return;
+      out.removeAttribute("data-done");
       out.textContent = "checking… " + ((performance.now() - t0) / 1000).toFixed(1) + "s";
     }, 100);
 
@@ -65,7 +66,12 @@
       stop();
       var ms = Math.round(performance.now() - t0);
       fig.setAttribute("data-state", ok ? "ok" : "fail");
-      if (out) out.textContent = ok ? "answered in " + ms + " ms" : "no answer";
+      if (out) {
+        out.textContent = ok ? "answered in " + ms + " ms" : "no answer";
+        /* the readout breathes only while a system is actually being
+           contacted; once it has answered it holds still */
+        out.setAttribute("data-done", ok ? "ok" : "fail");
+      }
     }
 
     var timer = setTimeout(function () { settle(false); }, TIMEOUT);

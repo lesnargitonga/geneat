@@ -180,7 +180,10 @@
       if (!st) return;
       el.setAttribute("data-state", st.answered ? "ok" : "fail");
       var pv = el.querySelector(".pv");
-      if (pv) pv.textContent = st.answered ? "answered in " + st.ms + " ms" : "no answer";
+      if (pv) {
+        pv.textContent = st.answered ? "answered in " + st.ms + " ms" : "no answer";
+        pv.setAttribute("data-done", st.answered ? "ok" : "fail");
+      }
     });
 
     var line = document.getElementById("sf-checked");
