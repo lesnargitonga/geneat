@@ -128,7 +128,22 @@
 
   /* Reduced motion: the system is shown already established. Nothing moves,
      nothing is missing, and the reachability layer is simply not run. */
-  if (reduced) { host.setAttribute("data-settled", "1"); return; }
+  if (reduced) {
+    host.setAttribute("data-settled", "1");
+    /* Status is information, not motion. A reduced-motion visitor still gets
+       the systems AND their state; they simply do not get the arrival. */
+    function loadStatus() {
+    fetch("/api/status", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(applyStatus)
+      /* No endpoint (local static preview) means no claim: the field simply
+         carries no state marks rather than asserting five failures. */
+      .catch(function () {});
+  }
+
+  if (concept === "b") loadStatus();
+    return;
+  }
 
   /* ── establishment: ~3.5s, staged, then it stops ────────────────────── */
   requestAnimationFrame(function () { host.setAttribute("data-run", "1"); });
@@ -174,14 +189,7 @@
     }
   }
 
-  if (concept === "b") {
-    fetch("/api/status", { cache: "no-store" })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(applyStatus)
-      /* No endpoint (local static preview) means no claim: the field simply
-         carries no state marks rather than asserting five failures. */
-      .catch(function () {});
-  }
+  if (concept === "b") loadStatus();
 
   /* ── pointer depth, desktop only. Touch gets nothing here: a finger has no
         hover position, and faking one is how these things start feeling
