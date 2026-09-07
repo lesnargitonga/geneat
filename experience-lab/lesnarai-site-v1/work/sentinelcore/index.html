@@ -527,10 +527,10 @@ body:not(.route-home) .foot__end{margin-top:clamp(18px,2.6vh,24px);padding-top:1
 .site-head{view-transition-name:shell-head}
 .site-foot{view-transition-name:shell-foot}
 main{view-transition-name:page-body}
-::view-transition-old(page-body){animation:pc-out 140ms cubic-bezier(.4,0,1,1) both}
-::view-transition-new(page-body){animation:pc-in 260ms cubic-bezier(.16,1,.3,1) both}
-@keyframes pc-out{to{opacity:0;transform:translateY(-6px)}}
-@keyframes pc-in{from{opacity:0;transform:translateY(8px)}}
+::view-transition-old(page-body){animation:pc-out 200ms cubic-bezier(.4,0,1,1) both}
+::view-transition-new(page-body){animation:pc-in 460ms cubic-bezier(.16,1,.3,1) 50ms both}
+@keyframes pc-out{to{opacity:0;transform:translateY(-16px) scale(.986)}}
+@keyframes pc-in{from{opacity:0;transform:translateY(28px) scale(.994)}}
 ::view-transition-old(shell-head),::view-transition-new(shell-head),
 ::view-transition-old(shell-foot),::view-transition-new(shell-foot){animation:none}
 @media(prefers-reduced-motion:reduce){
