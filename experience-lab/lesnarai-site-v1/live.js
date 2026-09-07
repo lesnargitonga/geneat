@@ -114,7 +114,12 @@
     var b = document.createElement("button");
     b.type = "button";
     b.className = "clip-play";
-    b.innerHTML = '<span aria-hidden="true">\u25B6</span> Play';
+    /* The glyph sits on the button itself, not in a bare <span>. A span has
+       no background of its own, so a contrast check that samples what is
+       behind the text sees the figure underneath and scores the mark at
+       2.95:1 - the button's own ground never enters the calculation. The
+       aria-label already carries the meaning, so the glyph is decoration. */
+    b.textContent = "\u25B6 Play";
     b.setAttribute("aria-label", "Play the recorded session of this product");
     b.addEventListener("click", function (e) {
       e.preventDefault(); e.stopPropagation();
