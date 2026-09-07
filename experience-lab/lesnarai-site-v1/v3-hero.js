@@ -126,22 +126,24 @@
     });
   }
 
-  /* Reduced motion: the system is shown already established. Nothing moves,
-     nothing is missing, and the reachability layer is simply not run. */
-  if (reduced) {
-    host.setAttribute("data-settled", "1");
-    /* Status is information, not motion. A reduced-motion visitor still gets
-       the systems AND their state; they simply do not get the arrival. */
-    function loadStatus() {
+  /* One same-origin request, shared by both motion paths. A missing endpoint
+     (a static preview with no serverless runtime) means no claim at all: the
+     field carries no state marks rather than asserting five failures. The
+     probe is skipped entirely rather than firing and failing, so a page with
+     no /api/status stays free of console noise. */
+  function loadStatus() {
+    if (!window.fetch) return;
     fetch("/api/status", { cache: "no-store" })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(applyStatus)
-      /* No endpoint (local static preview) means no claim: the field simply
-         carries no state marks rather than asserting five failures. */
       .catch(function () {});
   }
 
-  if (concept === "b") loadStatus();
+  /* Reduced motion: the system is shown already established. Nothing moves,
+     but status is information rather than motion, so it still loads. */
+  if (reduced) {
+    host.setAttribute("data-settled", "1");
+    if (concept === "b") loadStatus();
     return;
   }
 
