@@ -2806,6 +2806,74 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 .close5__mail{margin:16px 0 0;font-size:14.5px;color:#C3C9CF}
 .close5__mail a{color:#fff}
 @media(max-width:820px){.close5{grid-template-columns:1fr}}
+
+/* ── FINISH PASS ────────────────────────────────────────────────────────── */
+
+/* B1 · At 360 the eyebrow broke as "NAIROBI ENGINEERING / STUDIO" - a phrase
+   split mid-thought. It is now two named parts with a rule between them, so
+   the narrow case is a composed two-line lockup rather than a wrap, and the
+   type never gets smaller to make it fit. */
+.eyebrow4--split{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.eyebrow4--split i{display:block;width:22px;height:1px;background:currentColor;
+  opacity:.5;flex:0 0 auto}
+@media(max-width:430px){
+  .eyebrow4--split{flex-direction:column;align-items:flex-start;gap:6px}
+  .eyebrow4--split i{width:34px}
+}
+
+/* B2 · chapter 4 had six equal tiles, which is the flattest thing on the page.
+   The documentary frame now anchors the chapter at real scale and the
+   capabilities sit beside it as two named groups - what we build, and what we
+   do to keep it running - so the three parts read as one argument. DEPTH is
+   unchanged and still the only interaction here. */
+.ch4__grid{display:grid;gap:clamp(26px,4vw,60px);align-items:start;
+  grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);
+  margin-top:clamp(26px,4vh,42px)}
+.ch4__cols{display:grid;gap:clamp(20px,3vh,30px)}
+.capg__h{margin:0 0 10px;font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--fg-2);
+  padding-bottom:9px;border-bottom:1px solid var(--fg)}
+.capg__l{list-style:none;margin:0;padding:0}
+.cap__c{border:0;border-bottom:1px solid var(--rule);background:transparent;
+  padding:13px 0;
+  transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateZ(0);
+  transition:transform 320ms var(--press,cubic-bezier(.2,.8,.3,1)),
+             padding-left 260ms var(--press,cubic-bezier(.2,.8,.3,1)),
+             border-color 220ms ease}
+.cap__c:last-child{border-bottom:0}
+.cap__c:hover{border-color:var(--fg);box-shadow:none;padding-left:8px}
+.cap__c b{display:block;font-size:15.5px;font-weight:600;letter-spacing:-.012em}
+.cap__c span{display:block;margin-top:4px;font-size:14px;line-height:1.5;color:var(--fg-2)}
+.bench{margin:0}
+.bench img{display:block;width:100%;height:auto;border:1px solid var(--rule)}
+.bench figcaption{margin-top:9px;font:400 11.5px/1.5 M,"Mono Fallback",ui-monospace,monospace;
+  color:var(--fg-2)}
+@media(max-width:820px){.ch4__grid{grid-template-columns:1fr}}
+
+/* B3 · The CarePro capture carries its own cream ground, which sat awkwardly
+   straight onto the grey chapter. The screenshot is untouched - it is mounted
+   instead, on a white card with the caption inside the mount, so the cream
+   reads as the artifact's own surface rather than a colour clash. */
+.care__ev{background:var(--sheet,#fff);border:1px solid var(--rule);
+  padding:clamp(13px,1.6vw,20px)}
+.care__ev img{border:1px solid var(--rule-soft,rgba(128,128,128,.22))}
+.care__ev figcaption{margin-top:12px;padding-top:11px;
+  border-top:1px solid var(--rule-soft,rgba(128,128,128,.22))}
+
+/* B4 · vertical rhythm, art-directed rather than one token repeated.
+   The opening breathes, the register is dense and closes hard into the
+   products, the products carry their own scale, chapter 4 opens wide again
+   because it changes subject, and chapter 5 gets a long pause before it and
+   very little after. */
+.ch1{padding:clamp(52px,9vh,116px) 0 clamp(30px,4.5vh,56px)}
+.ch2{padding:clamp(44px,6.5vh,84px) 0 clamp(34px,5vh,64px)}
+.ch3{padding:clamp(34px,5vh,64px) 0 0}
+.pr{margin-top:clamp(30px,4.5vh,58px)}
+.pr--biz{padding:clamp(38px,6vh,74px) 0}
+.pr--care{padding:clamp(52px,8.5vh,104px) 0}
+.pr--jam{padding:clamp(44px,7vh,88px) 0}
+.ch4{padding:clamp(62px,10.5vh,132px) 0 clamp(48px,7vh,86px)}
+.ch5{padding:clamp(74px,12vh,150px) 0 clamp(52px,8vh,96px)}
 </style>
 </head>
 <body class="route-home">
@@ -2822,7 +2890,7 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 <header class="ch1" aria-labelledby="ch1-h">
   <div class="w4 ch1__grid">
     <div class="ch1__say">
-      <p class="eyebrow4">Lesnar AI &middot; Nairobi engineering studio</p>
+      <p class="eyebrow4 eyebrow4--split"><span>Lesnar&nbsp;AI</span><i aria-hidden="true"></i><span>Nairobi engineering studio</span></p>
       <h1 id="ch1-h">We build production systems, then we <em>run</em> them.</h1>
       <p class="ch1__lede">Marketplaces, home healthcare, community records, campus
         ordering and private sourcing &mdash; built here, deployed, and operated.
@@ -2870,7 +2938,7 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
   <div class="w4">
     <p class="eyebrow4">02 &middot; The register</p>
     <h2 id="ch2-h">Eleven systems. Five you can open.</h2>
-    <p class="lede4">Three are flagship products with public surfaces and real users.
+    <p class="lede4">Three are flagship products with public surfaces you can open.
       Two more are live. The rest carry the maturity they have actually reached, and
       say so.</p>
 
@@ -2879,20 +2947,23 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
         <li class="fcard" style="--i:0"><a href="work/bizmtaani/">
           <span class="fcard__k">Flagship</span>
           <b>BizMtaani</b>
-          <span class="fcard__p">A neighbourhood marketplace. Shops list what they
-            sell, customers order and pay from a phone, riders carry it.</span>
+          <span class="fcard__p">A neighbourhood marketplace. Shops near you list
+            what they sell, you order and pay from your phone, and a rider
+            brings it to your door.</span>
           <span class="fcard__go">Open the record <span aria-hidden="true">&rarr;</span></span></a></li>
         <li class="fcard" style="--i:1"><a href="work/carepro/">
           <span class="fcard__k">Flagship</span>
           <b>CarePro</b>
-          <span class="fcard__p">Vetted nurses placed with families for care at home,
-            with payment held until the care is delivered.</span>
+          <span class="fcard__p">Home nursing for families in Nairobi. The product
+            publishes its verification steps and states that payment is held
+            until care is delivered.</span>
           <span class="fcard__go">Open the record <span aria-hidden="true">&rarr;</span></span></a></li>
         <li class="fcard" style="--i:2"><a href="work/jamii-projects-hub/">
           <span class="fcard__k">Flagship</span>
           <b>Jamii Projects Hub</b>
           <span class="fcard__p">Community projects proposed, voted on and recorded,
-            with contributions and balances a group can actually audit.</span>
+            with balances a group can read. Running as a
+            pilot in Mbeere North.</span>
           <span class="fcard__go">Open the record <span aria-hidden="true">&rarr;</span></span></a></li>
       </ol>
 
@@ -2936,35 +3007,35 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
     <div class="w4 pr__head">
       <p class="pr__k">Live product &middot; bizmtaani.com</p>
       <h3 id="pr-biz">BizMtaani</h3>
-      <p class="pr__d">One order, end to end. Five states, in the order a customer
-        actually moves through them.</p>
+      <p class="pr__d">Five screens from the live marketplace, in the order a
+        customer meets them. Captured surfaces, not a staged order.</p>
     </div>
     <div class="biz" data-adv="biz">
       <div class="biz__stick">
-      <p class="biz__now" aria-hidden="true"><b>BizMtaani</b> &middot; one order, end to end</p>
+      <p class="biz__now" aria-hidden="true"><b>BizMtaani</b> &middot; five screens from the live marketplace</p>
       <ol class="biz__rail">
         <li class="biz__s" style="--i:0"><figure>
           <img src="media/biz/01-discovery-d.webp" alt="BizMtaani discovery: businesses open now near you" width="1100" height="687" loading="lazy" decoding="async">
           <figcaption><b>01 Find</b> Businesses open near you</figcaption></figure></li>
         <li class="biz__s" style="--i:1"><figure>
           <img src="media/biz/02-venues-d.webp" alt="BizMtaani venue list by category" width="1100" height="687" loading="lazy" decoding="async">
-          <figcaption><b>02 Choose</b> A shop, and what it sells</figcaption></figure></li>
+          <figcaption><b>02 Choose</b> A merchant page, open for orders</figcaption></figure></li>
         <li class="biz__s" style="--i:2"><figure>
           <img src="media/biz/03-merchant-d.webp" alt="A BizMtaani merchant page with items and prices" width="1100" height="687" loading="lazy" decoding="async">
           <figcaption><b>03 Order</b> Items and prices, from the merchant</figcaption></figure></li>
         <li class="biz__s" style="--i:3"><figure>
           <img src="media/biz/04-basket-d.webp" alt="A BizMtaani basket ready for checkout" width="1100" height="687" loading="lazy" decoding="async">
-          <figcaption><b>04 Pay</b> From a phone</figcaption></figure></li>
+          <figcaption><b>04 Basket</b> An item added, collect at the counter</figcaption></figure></li>
         <li class="biz__s" style="--i:4"><figure>
           <img src="media/biz/05-track-d.webp" alt="A BizMtaani order being tracked to delivery" width="1100" height="687" loading="lazy" decoding="async">
-          <figcaption><b>05 Track</b> Until a rider delivers it</figcaption></figure></li>
+          <figcaption><b>05 Orders</b> Tracking is tied to a link, not an account</figcaption></figure></li>
       </ol>
       <ol class="biz__rail biz__rail--m" aria-hidden="true">
         <li class="biz__s"><figure><img src="media/biz/m-01-discover.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>01 Find</b> Businesses open near you</figcaption></figure></li>
         <li class="biz__s"><figure><img src="media/biz/m-02-merchant-list.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>02 Choose</b> A shop, and what it sells</figcaption></figure></li>
         <li class="biz__s"><figure><img src="media/biz/m-03-choice.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>03 Order</b> Items and prices</figcaption></figure></li>
-        <li class="biz__s"><figure><img src="media/biz/m-04-basket.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>04 Pay</b> From a phone</figcaption></figure></li>
-        <li class="biz__s"><figure><img src="media/biz/m-05-track.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>05 Track</b> Until it arrives</figcaption></figure></li>
+        <li class="biz__s"><figure><img src="media/biz/m-04-basket.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>04 Basket</b> Collect at the counter</figcaption></figure></li>
+        <li class="biz__s"><figure><img src="media/biz/m-05-track.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>05 Orders</b> Found by link, not an account</figcaption></figure></li>
       </ol>
       <p class="biz__prog" aria-hidden="true"><i></i></p>
       </div>
@@ -2977,8 +3048,9 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
       <div class="care__say">
         <p class="pr__k">Live product &middot; carepro.co.ke</p>
         <h3 id="pr-care">CarePro</h3>
-        <p class="pr__d">Nobody reaches a family until four checks have passed. This
-          is the sequence CarePro publishes, in order.</p>
+        <p class="pr__d">CarePro publishes four verification steps. This is that
+          sequence as the product states it &mdash; described by the product,
+          not measured by us.</p>
         <ol class="care__l" data-adv="care">
           <li style="--i:0"><span class="care__n">01</span><b>Credentials</b>
             <span>National ID, nursing council licence and certificate of good
@@ -3009,8 +3081,8 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
       <div class="jam__say">
         <p class="pr__k">Live product &middot; jamii.lesnarai.co.ke</p>
         <h3 id="pr-jam">Jamii Projects Hub</h3>
-        <p class="pr__d">A group decides something, and the decision leaves a record
-          it can audit later. Each step adds a line that cannot quietly disappear.</p>
+        <p class="pr__d">The four steps Jamii publishes, from a proposal to a report
+          the whole group can read. Running as a pilot in Mbeere North.</p>
       </div>
       <div class="jam__led" data-adv="jam">
         <ol class="jam__l">
@@ -3040,16 +3112,9 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
     <p class="lede4">We do not hand over a repository and leave. Products run as
       separate services, deployed and kept running, with the operator screens the
       staff actually work in.</p>
+  </div>
 
-    <ul class="cap" data-depth>
-      <li class="cap__c"><b>Full-stack product build</b><span>Interface, backend, database and the operator screens behind them.</span></li>
-      <li class="cap__c"><b>Payments and messaging</b><span>M-Pesa and card flows, WhatsApp and SMS, with the reconciliation that has to follow.</span></li>
-      <li class="cap__c"><b>AI you can inspect</b><span>Models and agents whose decisions can be read back, not black boxes.</span></li>
-      <li class="cap__c"><b>Security and hardening</b><span>Isolation between products, credential handling, and tooling that watches the host.</span></li>
-      <li class="cap__c"><b>Infrastructure and reliability</b><span>Separate runtimes, cross-database denial, isolated cache namespaces.</span></li>
-      <li class="cap__c"><b>Embedded and physical</b><span>Controllers, sensing and the systems that touch the real world.</span></li>
-    </ul>
-
+  <div class="w4 ch4__grid">
     <figure class="bench">
       <picture>
         <source srcset="media/studio-close.webp" type="image/webp">
@@ -3057,6 +3122,25 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
       </picture>
       <figcaption>Nairobi &middot; the bench the eleven systems were built on</figcaption>
     </figure>
+
+    <div class="ch4__cols" data-depth>
+      <div class="capg">
+        <p class="capg__h">What we build</p>
+        <ul class="capg__l">
+          <li class="cap__c"><b>Whole products</b><span>Customer surface, backend, database, deployment, and the operator screens behind them.</span></li>
+          <li class="cap__c"><b>Payments and messaging</b><span>M-Pesa STK push and card payment, ordering over WhatsApp, and reconciling a provider event against the internal record.</span></li>
+          <li class="cap__c"><b>AI you can inspect</b><span>Retrieval and tool-calling held as structure in the repository, with the decision boundary written down rather than buried in a prompt.</span></li>
+        </ul>
+      </div>
+      <div class="capg">
+        <p class="capg__h">How we keep it running</p>
+        <ul class="capg__l">
+          <li class="cap__c"><b>Infrastructure</b><span>Separate runtimes with cross-database denial and isolated cache namespaces.</span></li>
+          <li class="cap__c"><b>Security and hardening</b><span>Port scanning, service banner collection, log watching with a sliding-window detector, and host firewall state.</span></li>
+          <li class="cap__c"><b>Embedded and physical</b><span>Control that keeps running on a small board with no network to fall back on. Greenhouse control is owner-attested, not measured here.</span></li>
+        </ul>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -3073,7 +3157,7 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
       <ol class="close5__steps">
         <li><b>You write</b><span>A paragraph about the problem is enough.</span></li>
         <li><b>We reply</b><span>Usually within two working days.</span></li>
-        <li><b>We talk</b><span>Thirty minutes, no charge, no obligation.</span></li>
+        <li><b>We talk</b><span>No charge, no obligation.</span></li>
       </ol>
       <p class="close5__act">
         <a class="btn btn--go" href="book/">Start a project <span aria-hidden="true">&rarr;</span></a>
