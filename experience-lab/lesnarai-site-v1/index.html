@@ -2442,6 +2442,17 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
   .lnk:active,.site-nav a:active,.site-foot a:active{opacity:.6}
 }
 
+/* ── ONE PRIMARY ACTION ─────────────────────────────────────────────────────
+   The hero offered two outline buttons of identical weight, so nothing above
+   the fold said which action the page wanted. .cta--solid already existed but
+   was scoped to .sec--close, which is why adding the class to the hero button
+   changed nothing. The register is the primary path; the tour stays available
+   as the secondary. Destinations and wording are unchanged - only which one
+   looks like the answer. */
+.hero__cta .cta--solid{background:#fff;color:var(--ink);border-color:#fff}
+.hero__cta .cta--solid:hover,.hero__cta .cta--solid:focus-visible{
+  background:transparent;color:#fff;border-color:#fff}
+
 /* ── SCROLL AWARENESS ───────────────────────────────────────────────────────
    The header sits still through the whole document and gives no sign that
    anything is happening. It now lifts off the page once you leave the top,
@@ -2483,7 +2494,7 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
       <p class="wordmark"><b>Lesnar&nbsp;AI</b><span>Nairobi · engineering studio</span></p>
 
       <h1 data-set style="min-height:var(--h1h,auto)">We build serious systems, and publish what they <em>don't claim.</em></h1>
-        <p class="hero__cta"><a class="cta" href="work/">Read the register</a><button class="cta cta--tour" id="tour-start" type="button" aria-pressed="false">See what we build</button></p>
+        <p class="hero__cta"><a class="cta cta--solid" href="work/">Read the register</a><button class="cta cta--tour" id="tour-start" type="button" aria-pressed="false">See what we build</button></p>
 
       <div class="hero__meta">
         <p>A Nairobi engineering studio building software, infrastructure, security and
