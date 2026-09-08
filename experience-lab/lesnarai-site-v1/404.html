@@ -546,6 +546,15 @@ main{view-transition-name:page-body}
   .theme-t{margin-left:auto}
 }
 
+/* The drawn underline assumes an inline anchor. The footer's nav links are
+   block-level for their tap target, so background-size:100% painted a rule
+   across the whole column instead of under the words. Those links get their
+   underline from the text itself; the prose links keep the draw. */
+.site-foot nav a{background-image:none;text-decoration:none;
+  border-bottom:1px solid transparent;width:fit-content;
+  transition:border-color 200ms ease,color 200ms ease}
+.site-foot nav a:hover,.site-foot nav a:focus-visible{border-bottom-color:currentColor}
+
 /* ── TOUCH RESPONSE ─────────────────────────────────────────────────────────
    This site had 38 :hover rules and not one :active rule. On a phone hover
    does not exist, so every one of those 38 rules was dead code on the device

@@ -596,6 +596,15 @@ main{view-transition-name:page-body}
   .theme-t{margin-left:auto}
 }
 
+/* The drawn underline assumes an inline anchor. The footer's nav links are
+   block-level for their tap target, so background-size:100% painted a rule
+   across the whole column instead of under the words. Those links get their
+   underline from the text itself; the prose links keep the draw. */
+.site-foot nav a{background-image:none;text-decoration:none;
+  border-bottom:1px solid transparent;width:fit-content;
+  transition:border-color 200ms ease,color 200ms ease}
+.site-foot nav a:hover,.site-foot nav a:focus-visible{border-bottom-color:currentColor}
+
 /* ── TOUCH RESPONSE ─────────────────────────────────────────────────────────
    This site had 38 :hover rules and not one :active rule. On a phone hover
    does not exist, so every one of those 38 rules was dead code on the device
@@ -697,6 +706,63 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 @media(prefers-reduced-motion:reduce){
   .site-head{transition:none}
 }
+
+/* ── JOURNEY SHELL · shared with the frozen homepage ─────────────────────
+   The same action language everywhere: one solid primary, one quiet
+   secondary, one outlined tertiary. Before this, the register had no
+   commercial action at all and every record's "Discuss a project" was an
+   unstyled anchor, so leaving the homepage meant leaving its vocabulary. */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;
+  font:600 15px/1 A,"Archivo Fallback",system-ui,sans-serif;letter-spacing:-.005em;
+  text-decoration:none;border:1px solid transparent;cursor:pointer;
+  -webkit-appearance:none;appearance:none;background:transparent;
+  transition:transform 170ms var(--press,cubic-bezier(.2,.8,.3,1)),
+             background-color 200ms ease,color 200ms ease,border-color 200ms ease}
+.btn:active{transform:scale(.972)}
+.btn span{display:inline-block;transition:transform 260ms var(--press,cubic-bezier(.2,.8,.3,1))}
+.btn:hover span,.btn:focus-visible span{transform:translateX(4px)}
+/* Doubled class, deliberately. These buttons sit inside containers that
+   already style their anchors - .bridge a and .onward__back a among them -
+   and a single .btn--go loses to any of them on specificity. It lost to
+   .bridge a, which painted ink text on the ink fill: a 1:1 button nobody
+   could read. */
+.btn.btn--go{background:var(--fg);color:var(--sheet,#fff);border-color:var(--fg)}
+.btn.btn--go:hover,.btn.btn--go:focus-visible{background:transparent;color:var(--fg)}
+.btn.btn--line{background:transparent;color:var(--fg);border-color:var(--fg);
+  padding:12px 18px;font-size:14px}
+.btn.btn--line:hover,.btn.btn--line:focus-visible{background:var(--fg);color:var(--sheet,#fff)}
+.btn--quiet{background:transparent;color:var(--fg);border-color:var(--rule)}
+.btn--quiet:hover,.btn--quiet:focus-visible{border-color:var(--fg)}
+/* on an ink ground the action inverts */
+[data-af-edge="ink"] .btn.btn--go,.sys-hero .btn.btn--go{background:#fff;color:var(--ink);border-color:#fff}
+[data-af-edge="ink"] .btn.btn--go:hover,.sys-hero .btn.btn--go:hover{background:transparent;color:#fff}
+
+/* the two-part eyebrow lockup the homepage uses */
+.eyebrow4--split{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.eyebrow4--split i{display:block;width:22px;height:1px;background:currentColor;
+  opacity:.5;flex:0 0 auto}
+@media(max-width:430px){
+  .eyebrow4--split{flex-direction:column;align-items:flex-start;gap:6px}
+  .eyebrow4--split i{width:34px}
+}
+
+/* "How soon will you reply?" was the one question this page did not answer.
+   The wording is the one already audited on contact, engagement and pricing -
+   reused, not restated, so no new promise enters the site here. */
+.bk-steps{list-style:none;margin:0 0 14px;padding:0;
+  display:grid;grid-template-columns:max-content minmax(0,1fr)}
+.bk-steps li{display:grid;grid-template-columns:subgrid;grid-column:1/-1;gap:3px 16px;
+  padding:11px 0;border-bottom:1px solid var(--rule);align-items:baseline}
+.bk-steps li:last-child{border-bottom:0}
+.bk-steps b{font:600 11px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--fg);white-space:nowrap}
+.bk-steps span{font-size:14px;line-height:1.5;color:var(--fg-2)}
+@supports not (grid-template-columns:subgrid){
+  .bk-steps{display:block}
+  .bk-steps li{grid-template-columns:13ch minmax(0,1fr)}
+}
+.bk-free{margin:0;padding-top:12px;border-top:1px solid var(--fg);
+  font-size:14.5px;line-height:1.5;color:var(--fg)}
 </style>
 <link rel="canonical" href="https://www.lesnarai.co.ke/book/">
 <meta property="og:type" content="website">
@@ -779,7 +845,7 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
       </div>
 
       <div class="bk-go">
-        <button type="submit" id="b-go">Request a time</button>
+        <button class="btn btn--go" type="submit" id="b-go">Request a time</button>
         <p class="bk-status" id="b-status" role="status" aria-live="polite"></p>
       </div>
     </form>
@@ -787,9 +853,15 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
     <aside class="bk-aside">
       <div class="bk-b">
         <h2>What happens next</h2>
-        <p>We read it and reply with a time that works, usually with a question or two first.
-          There is no scheduling system behind this page, so nothing is booked until a person
-          has agreed it with you.</p>
+        <ol class="bk-steps">
+          <li><b>You send it</b><span>A paragraph about the problem is enough. The
+            problem, not the specification.</span></li>
+          <li><b>We reply</b><span>Within two working days, usually with a question
+            or two first.</span></li>
+          <li><b>We agree a time</b><span>There is no scheduling system behind this
+            page, so nothing is booked until a person has agreed it with you.</span></li>
+        </ol>
+        <p class="bk-free">The first conversation is free and carries no commitment.</p>
       </div>
       <div class="bk-b">
         <h2>What the first conversation covers</h2>

@@ -616,6 +616,14 @@ main{view-transition-name:page-body}
   .theme-t{margin-left:auto}
 }
 
+/* The drawn underline assumes an inline anchor. The footer's nav links are
+   block-level for their tap target, so background-size:100% painted a rule
+   across the whole column instead of under the words. */
+.site-foot nav a{background-image:none;text-decoration:none;
+  border-bottom:1px solid transparent;width:fit-content;
+  transition:border-color 200ms ease,color 200ms ease}
+.site-foot nav a:hover,.site-foot nav a:focus-visible{border-bottom-color:currentColor}
+
 /* ── TOUCH RESPONSE ─────────────────────────────────────────────────────────
    This site had 38 :hover rules and not one :active rule. On a phone hover
    does not exist, so every one of those 38 rules was dead code on the device
@@ -717,6 +725,50 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 @media(prefers-reduced-motion:reduce){
   .site-head{transition:none}
 }
+
+/* ── JOURNEY SHELL · shared with the frozen homepage ───────────────────── */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;
+  font:600 15px/1 A,"Archivo Fallback",system-ui,sans-serif;letter-spacing:-.005em;
+  text-decoration:none;border:1px solid transparent;cursor:pointer;
+  -webkit-appearance:none;appearance:none;background:transparent;
+  transition:transform 170ms var(--press,cubic-bezier(.2,.8,.3,1)),
+             background-color 200ms ease,color 200ms ease,border-color 200ms ease}
+.btn:active{transform:scale(.972)}
+.btn span{display:inline-block;transition:transform 260ms var(--press,cubic-bezier(.2,.8,.3,1))}
+.btn:hover span,.btn:focus-visible span{transform:translateX(4px)}
+/* Doubled class, deliberately. These buttons sit inside containers that
+   already style their anchors - .bridge a and .onward__back a among them -
+   and a single .btn--go loses to any of them on specificity. It lost to
+   .bridge a, which painted ink text on the ink fill: a 1:1 button nobody
+   could read. */
+.btn.btn--go{background:var(--fg);color:var(--sheet,#fff);border-color:var(--fg)}
+.btn.btn--go:hover,.btn.btn--go:focus-visible{background:transparent;color:var(--fg)}
+.btn.btn--line{background:transparent;color:var(--fg);border-color:var(--fg);
+  padding:12px 18px;font-size:14px}
+.btn.btn--line:hover,.btn.btn--line:focus-visible{background:var(--fg);color:var(--sheet,#fff)}
+
+/* The register had no commercial action at all: a visitor who reached it
+   could inspect eleven systems and then had nowhere to go but the nav. */
+.reg-close{margin:clamp(40px,6vh,76px) 0 0;padding-top:clamp(22px,3vh,32px);
+  border-top:2px solid var(--fg);display:flex;flex-wrap:wrap;gap:16px 26px;
+  align-items:center;justify-content:space-between}
+.reg-close p{margin:0;font-size:15px;line-height:1.55;color:var(--fg-2);max-width:46ch}
+.reg-close b{color:var(--fg);font-weight:600}
+
+/* The band header is a wrapping flex row of heading, description and range.
+   .reg-band__h h2 is on the width axis, so as the axis opened the heading
+   changed width, the row re-wrapped, and the header grew or shrank by a line
+   - 0.0405 of shift at 768 caused by the animation itself. Below the width
+   where the three no longer sit comfortably on one line, the wrap is made
+   unconditional, so the axis can change the glyphs and never the layout. */
+@media(max-width:1080px){
+  .reg-band__h{flex-direction:column;align-items:flex-start;gap:8px}
+  .reg-band__n{margin-left:0}
+}
+/* same reasoning for the closing row */
+@media(max-width:820px){
+  .reg-close{flex-direction:column;align-items:flex-start}
+}
 </style>
 <link rel="canonical" href="https://www.lesnarai.co.ke/work/">
 <meta property="og:type" content="website">
@@ -749,12 +801,22 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
     the rest are held at the stage they have actually reached.</p>
   <div class="reg-band">
   <div class="reg-band__h">
-    <h2>Open right now</h2>
-    <p>Five systems publishing a public surface. Each is contacted from your browser as you
-        reach it, so the state shown is reachability now, never an uptime record.</p>
-    <span class="reg-band__n">01&ndash;05</span>
+    <h2>Flagship products</h2>
+    <p>The three with a public surface, a record you can inspect, and the deepest
+        evidence behind them. Each is contacted from your browser as you reach it, so the
+        state shown is reachability now, never an uptime record.</p>
+    <span class="reg-band__n">01&ndash;03</span>
   </div>
-  <ul class="live-list"><li><a class="live-e" href="bizmtaani/" data-probe="bizmtaani.com"><span class="live-e__n">01</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/bizmtaani-760.webp 760w, ../media/bizmtaani.webp 1440w"><img src="../media/bizmtaani.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/bizmtaani-760.jpg 760w, ../media/bizmtaani.jpg 1440w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>BizMtaani</h3><span class="a-sep">. </span><p>A neighbourhood marketplace: local shops list what they sell, customers order and pay from a phone, and riders carry the order.</p><span class="live-e__host">bizmtaani.com &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="hazina-nomads/" data-probe="hazina.lesnarai.co.ke"><span class="live-e__n">02</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/hazina-760.webp 760w, ../media/hazina.webp 1600w"><img src="../media/hazina.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/hazina-760.jpg 760w, ../media/hazina.jpg 1728w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Hazina Nomads</h3><span class="a-sep">. </span><p>Kenyan gifts and heritage pieces, sourced privately for travellers, diaspora families and corporate clients.</p><span class="live-e__host">hazina.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="carepro/" data-probe="carepro.co.ke"><span class="live-e__n">03</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/carepro-760.webp 760w, ../media/carepro.webp 1280w"><img src="../media/carepro.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/carepro-760.jpg 760w, ../media/carepro.jpg 1280w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>CarePro</h3><span class="a-sep">. </span><p>Book a vetted nurse to care for someone at home, with payment arranged through the platform.</p><span class="live-e__host">carepro.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="gen-eat/" data-probe="geneat.lesnarai.co.ke"><span class="live-e__n">04</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/geneat-public-surface-760.webp 760w, ../media/geneat-public-surface.webp 852w"><img src="../media/geneat-public-surface.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/geneat-public-surface-760.jpg 760w, ../media/geneat-public-surface.jpg 852w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Gen-Eat</h3><span class="a-sep">. </span><p>Order from your campus cafe over WhatsApp and collect it when it is ready, instead of queueing between lectures.</p><span class="live-e__host">geneat.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="jamii-projects-hub/" data-probe="jamii.lesnarai.co.ke"><span class="live-e__n">05</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/jamii-live-760.webp 760w, ../media/jamii-live.webp 1440w"><img src="../media/jamii-live.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/jamii-live-760.jpg 760w, ../media/jamii-live.jpg 1440w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Jamii Projects Hub</h3><span class="a-sep">. </span><p>See what projects your community is planning, vote on what matters, and keep clear records for a family, chama or welfare group.</p><span class="live-e__host">jamii.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li></ul>
+  <ul class="live-list"><li><a class="live-e" href="bizmtaani/" data-probe="bizmtaani.com"><span class="live-e__n">01</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/bizmtaani-760.webp 760w, ../media/bizmtaani.webp 1440w"><img src="../media/bizmtaani.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/bizmtaani-760.jpg 760w, ../media/bizmtaani.jpg 1440w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>BizMtaani</h3><span class="a-sep">. </span><p>A neighbourhood marketplace: local shops list what they sell, customers order and pay from a phone, and riders carry the order.</p><span class="live-e__host">bizmtaani.com &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="carepro/" data-probe="carepro.co.ke"><span class="live-e__n">02</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/carepro-760.webp 760w, ../media/carepro.webp 1280w"><img src="../media/carepro.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/carepro-760.jpg 760w, ../media/carepro.jpg 1280w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>CarePro</h3><span class="a-sep">. </span><p>Book a vetted nurse to care for someone at home, with payment arranged through the platform.</p><span class="live-e__host">carepro.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="jamii-projects-hub/" data-probe="jamii.lesnarai.co.ke"><span class="live-e__n">03</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/jamii-live-760.webp 760w, ../media/jamii-live.webp 1440w"><img src="../media/jamii-live.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/jamii-live-760.jpg 760w, ../media/jamii-live.jpg 1440w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Jamii Projects Hub</h3><span class="a-sep">. </span><p>See what projects your community is planning, vote on what matters, and keep clear records for a family, chama or welfare group.</p><span class="live-e__host">jamii.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li></ul>
+</div>
+
+<div class="reg-band">
+  <div class="reg-band__h">
+    <h2>Also live</h2>
+    <p>Two more systems publishing a public surface, contacted the same way.</p>
+    <span class="reg-band__n">04&ndash;05</span>
+  </div>
+<ul class="live-list"><li><a class="live-e" href="gen-eat/" data-probe="geneat.lesnarai.co.ke"><span class="live-e__n">04</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/geneat-public-surface-760.webp 760w, ../media/geneat-public-surface.webp 852w"><img src="../media/geneat-public-surface.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/geneat-public-surface-760.jpg 760w, ../media/geneat-public-surface.jpg 852w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Gen-Eat</h3><span class="a-sep">. </span><p>Order from your campus cafe over WhatsApp and collect it when it is ready, instead of queueing between lectures.</p><span class="live-e__host">geneat.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="hazina-nomads/" data-probe="hazina.lesnarai.co.ke"><span class="live-e__n">05</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/hazina-760.webp 760w, ../media/hazina.webp 1600w"><img src="../media/hazina.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/hazina-760.jpg 760w, ../media/hazina.jpg 1728w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Hazina Nomads</h3><span class="a-sep">. </span><p>Kenyan gifts and heritage pieces, sourced privately for travellers, diaspora families and corporate clients.</p><span class="live-e__host">hazina.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li></ul>
 </div>
 
 <div class="reg-band">
@@ -764,6 +826,12 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
     <span class="reg-band__n">06&ndash;11</span>
   </div>
   <ul class="held-list"><li><a class="held-e" href="sentinelcore/"><span class="held-e__n">06</span><span class="a-sep">. </span><span class="held-e__name">SentinelCore</span><span class="a-sep">. </span><p>The studio's own tool for checking a Linux server is safe: it scans for open doors, watches the logs for trouble and tightens the settings that matter.</p><span class="held-e__s">Internal engineering system</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li><a class="held-e" href="cypher/"><span class="held-e__n">07</span><span class="a-sep">. </span><span class="held-e__name">Cypher</span><span class="a-sep">. </span><p>Rules about what an AI system is allowed to do, and a person who has to approve it before anything happens.</p><span class="held-e__s">Unqualified prototype</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li><a class="held-e" href="greenhouse-controller/"><span class="held-e__n">08</span><span class="a-sep">. </span><span class="held-e__name">Greenhouse controller</span><span class="a-sep">. </span><p>Owner-reported embedded control for a greenhouse: temperature, moisture and watering, unattended.</p><span class="held-e__s">Validated prototype</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li><a class="held-e" href="gold-trader/"><span class="held-e__n">09</span><span class="a-sep">. </span><span class="held-e__name">Gold Trader</span><span class="a-sep">. </span><p>Research into automated gold trading, tested only on paper - it places no real orders with anyone's money.</p><span class="held-e__s">Research, paper only</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li><a class="held-e" href="aerial-systems/"><span class="held-e__n">10</span><span class="a-sep">. </span><span class="held-e__name">Aerial systems</span><span class="a-sep">. </span><p>Research into aircraft and flight control, flown in simulation rather than in the air.</p><span class="held-e__s">Active research</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li><a class="held-e" href="sensing-and-radar/"><span class="held-e__n">11</span><span class="a-sep">. </span><span class="held-e__name">Sensing and radar</span><span class="a-sep">. </span><p>A stated direction we intend to work in - sensing and radar. Nothing is built yet.</p><span class="held-e__s">Research direction</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li></ul>
+</div>
+<div class="reg-close">
+  <p><b>Eleven systems, and what each one actually proves.</b> If you have work that
+     has to hold up in the real world, start with a conversation. The first one is
+     free, and we reply within two working days.</p>
+  <a class="btn btn--go" href="../book/">Start a project <span aria-hidden="true">&rarr;</span></a>
 </div>
 </div></div>
 </main>

@@ -645,6 +645,15 @@ main{view-transition-name:page-body}
   .flow__track{grid-auto-flow:row;grid-auto-columns:auto}
 }
 
+/* The drawn underline assumes an inline anchor. The footer's nav links are
+   block-level for their tap target, so background-size:100% painted a rule
+   across the whole column instead of under the words. Those links get their
+   underline from the text itself; the prose links keep the draw. */
+.site-foot nav a{background-image:none;text-decoration:none;
+  border-bottom:1px solid transparent;width:fit-content;
+  transition:border-color 200ms ease,color 200ms ease}
+.site-foot nav a:hover,.site-foot nav a:focus-visible{border-bottom-color:currentColor}
+
 /* ── TOUCH RESPONSE ─────────────────────────────────────────────────────────
    This site had 38 :hover rules and not one :active rule. On a phone hover
    does not exist, so every one of those 38 rules was dead code on the device
@@ -746,6 +755,45 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 @media(prefers-reduced-motion:reduce){
   .site-head{transition:none}
 }
+
+/* ── JOURNEY SHELL · shared with the frozen homepage ─────────────────────
+   The same action language everywhere: one solid primary, one quiet
+   secondary, one outlined tertiary. Before this, the register had no
+   commercial action at all and every record's "Discuss a project" was an
+   unstyled anchor, so leaving the homepage meant leaving its vocabulary. */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;
+  font:600 15px/1 A,"Archivo Fallback",system-ui,sans-serif;letter-spacing:-.005em;
+  text-decoration:none;border:1px solid transparent;cursor:pointer;
+  -webkit-appearance:none;appearance:none;background:transparent;
+  transition:transform 170ms var(--press,cubic-bezier(.2,.8,.3,1)),
+             background-color 200ms ease,color 200ms ease,border-color 200ms ease}
+.btn:active{transform:scale(.972)}
+.btn span{display:inline-block;transition:transform 260ms var(--press,cubic-bezier(.2,.8,.3,1))}
+.btn:hover span,.btn:focus-visible span{transform:translateX(4px)}
+/* Doubled class, deliberately. These buttons sit inside containers that
+   already style their anchors - .bridge a and .onward__back a among them -
+   and a single .btn--go loses to any of them on specificity. It lost to
+   .bridge a, which painted ink text on the ink fill: a 1:1 button nobody
+   could read. */
+.btn.btn--go{background:var(--fg);color:var(--sheet,#fff);border-color:var(--fg)}
+.btn.btn--go:hover,.btn.btn--go:focus-visible{background:transparent;color:var(--fg)}
+.btn.btn--line{background:transparent;color:var(--fg);border-color:var(--fg);
+  padding:12px 18px;font-size:14px}
+.btn.btn--line:hover,.btn.btn--line:focus-visible{background:var(--fg);color:var(--sheet,#fff)}
+.btn--quiet{background:transparent;color:var(--fg);border-color:var(--rule)}
+.btn--quiet:hover,.btn--quiet:focus-visible{border-color:var(--fg)}
+/* on an ink ground the action inverts */
+[data-af-edge="ink"] .btn.btn--go,.sys-hero .btn.btn--go{background:#fff;color:var(--ink);border-color:#fff}
+[data-af-edge="ink"] .btn.btn--go:hover,.sys-hero .btn.btn--go:hover{background:transparent;color:#fff}
+
+/* the two-part eyebrow lockup the homepage uses */
+.eyebrow4--split{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.eyebrow4--split i{display:block;width:22px;height:1px;background:currentColor;
+  opacity:.5;flex:0 0 auto}
+@media(max-width:430px){
+  .eyebrow4--split{flex-direction:column;align-items:flex-start;gap:6px}
+  .eyebrow4--split i{width:34px}
+}
 </style>
 <link rel="canonical" href="https://www.lesnarai.co.ke/work/carepro/">
 <meta property="og:type" content="website">
@@ -812,7 +860,7 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
     <button type="button" id="flow-next">Next stage</button>
     <span class="flow__hint">Stage <b id="flow-at">1</b> of 4 &middot; arrow keys work too</span>
   </div>
-</section><div class="w"><p class="bridge">Need something with similar complexity? <a href="../../book/">Discuss a project</a></p></div><div class="w onward"><p class="onward__h">Related systems</p><ul class="onward__l"><li><a href="../jamii-projects-hub/"><b>Jamii Projects Hub</b><span>Live product</span></a></li><li><a href="../bizmtaani/"><b>BizMtaani</b><span>Live product</span></a></li></ul><p class="onward__back"><a href="../">All eleven systems in the register</a></p></div>
+</section><div class="w"><p class="bridge">Need something with similar complexity? <a class="btn btn--go" href="../../book/">Discuss a project</a></p></div><div class="w onward"><p class="onward__h">Related systems</p><ul class="onward__l"><li><a href="../jamii-projects-hub/"><b>Jamii Projects Hub</b><span>Live product</span></a></li><li><a href="../bizmtaani/"><b>BizMtaani</b><span>Live product</span></a></li></ul><p class="onward__back"><a class="btn btn--line" href="../">All eleven systems in the register</a></p></div>
 </main>
 <footer class="site-foot">
   <div class="w">
