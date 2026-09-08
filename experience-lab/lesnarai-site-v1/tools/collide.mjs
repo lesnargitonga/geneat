@@ -68,8 +68,9 @@ function discover(dir = ROOT, out = []) {
 
 function scan([oxMin, oyMin]) {
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-  const lines = []; let n;
+  const lines = []; let n, nodeId = 0;
   while ((n = walker.nextNode())) {
+    nodeId++;
     const t = n.textContent;
     if (!/\S/.test(t)) continue;
     const pe = n.parentElement;
@@ -93,7 +94,7 @@ function scan([oxMin, oyMin]) {
     const r = document.createRange(); r.selectNodeContents(n);
     for (const q of r.getClientRects()) {
       if (q.width < 3 || q.height < 3) continue;
-      lines.push({ x: q.left, y: q.top, r: q.right, b: q.bottom, el: pe,
+      lines.push({ nodeId, x: q.left, y: q.top, r: q.right, b: q.bottom, el: pe,
                    t: t.trim().slice(0, 30), tag: pe.tagName,
                    cls: (pe.className || pe.tagName).toString().slice(0, 24) });
     }
@@ -105,6 +106,10 @@ function scan([oxMin, oyMin]) {
       const ox = Math.min(a.r, c.r) - Math.max(a.x, c.x);
       const oy = Math.min(a.b, c.b) - Math.max(a.y, c.y);
       if (ox <= oxMin || oy <= oyMin) continue;
+      /* One text node can report several rects - a clipped run with
+         text-overflow:ellipsis returns both the visible and the overflowing
+         box. A node cannot collide with itself. */
+      if (a.nodeId === c.nodeId) continue;
       /* Two lines of one heading or paragraph are that block's own leading,
          however tight - the site sets headlines at line-height .94 and the
          boxes legitimately overlap while the glyphs do not. Only text from

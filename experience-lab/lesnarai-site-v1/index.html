@@ -3,7 +3,9 @@
 <head>
 <script>(function(){try{var t=localStorage.getItem("lai-theme");
 if(t!=="dark"&&t!=="light")t=matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
-document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+document.documentElement.setAttribute("data-theme",t);}catch(e){}
+/* Motion resting-states are only safe to apply when script can lift them. */
+try{document.documentElement.setAttribute("data-js","1");}catch(e){}})();</script>
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -2471,6 +2473,339 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 @media(prefers-reduced-motion:reduce){
   .site-head{transition:none}
 }
+
+/* The drawn underline assumes an inline anchor. The footer's nav links are
+   block-level for their tap target, so background-size:100% painted a rule
+   across the whole column instead of under the words. Those links get their
+   underline from the text itself; the prose links keep the draw. */
+.site-foot nav a{background-image:none;text-decoration:none;
+  border-bottom:1px solid transparent;width:fit-content;
+  transition:border-color 200ms ease,color 200ms ease}
+.site-foot nav a:hover,.site-foot nav a:focus-visible{border-bottom-color:currentColor}
+
+/* ══ V4 HOMEPAGE ═══════════════════════════════════════════════════════════
+   Five chapters, one canvas. Everything below is scoped to .v4 so the shell,
+   the theme system and the other nineteen pages are untouched.
+
+   Type: the headline sits at 3.4rem, weight 600 - not 150px at 800. The width
+   axis survives on the chapter eyebrow only, where a single unwrapped line
+   cannot re-wrap and therefore cannot move the page. That was the actual
+   source of both the 1.6 CLS and the "moving words" impression.        */
+.v4{--gutter:clamp(20px,4.6vw,64px);--maxw:1240px;
+    --sig:#1B6B52;--held:#8A6A12;--down:#A8401C}
+.v4 .w4{max-width:var(--maxw);margin:0 auto;padding-inline:var(--gutter)}
+.v4 .eyebrow4{font:500 11.5px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--fg-2);
+  font-variation-settings:"wdth" 100;margin:0}
+/* Chapters 1, 3-biz, 3-jam and 5 keep an ink ground in both themes, so their
+   text cannot come from tokens that flip with the theme. */
+.ch1 .eyebrow4,.ch5 .eyebrow4,.pr--biz .pr__k,.pr--jam .pr__k{color:#9AA3AB}
+.v4 h2{font-size:clamp(1.75rem,3.4vw,2.6rem);font-weight:600;line-height:1.04;
+  letter-spacing:-.022em;margin:.5rem 0 0;text-wrap:balance}
+.v4 .lede4{font-size:clamp(1rem,1.35vw,1.12rem);line-height:1.6;color:var(--fg-2);
+  max-width:56ch;margin:.85rem 0 0}
+
+/* ── chapter 1 ───────────────────────────────────────────────────────────
+   Order is fixed by the brief: what we build, why it matters, proof, action.
+   The proof column is the fourth thing, never the proposition. */
+.ch1{position:relative;background:var(--ink);color:#F4F5F6;overflow:hidden;
+  padding:clamp(48px,8vh,104px) 0 clamp(40px,6vh,72px)}
+.ch1__grid{display:grid;gap:clamp(32px,5vw,72px);align-items:center;
+  grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)}
+.ch1 h1{font-size:clamp(2.15rem,5.1vw,3.55rem);font-weight:600;line-height:1.03;
+  letter-spacing:-.03em;margin:.7rem 0 0;max-width:17ch;
+  font-variation-settings:"wdth" 100;text-wrap:balance}
+.ch1 h1 em{font-style:normal;color:#fff}
+.ch1__lede{font-size:clamp(1rem,1.3vw,1.14rem);line-height:1.6;color:#C3C9CF;
+  max-width:46ch;margin:1.1rem 0 0}
+.ch1__act{display:flex;flex-wrap:wrap;gap:12px;margin:1.9rem 0 0}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;
+  font:600 15px/1 A,"Archivo Fallback",system-ui,sans-serif;letter-spacing:-.005em;
+  text-decoration:none;border:1px solid transparent;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+  transition:transform 170ms var(--press,cubic-bezier(.2,.8,.3,1)),
+             background-color 200ms ease,color 200ms ease,border-color 200ms ease}
+.btn--go{background:#fff;color:var(--ink);border-color:#fff}
+.btn--go:hover,.btn--go:focus-visible{background:transparent;color:#fff}
+.btn--quiet{background:transparent;color:#F4F5F6;border-color:rgba(244,245,246,.42)}
+.btn--quiet:hover,.btn--quiet:focus-visible{border-color:#fff}
+.btn:active{transform:scale(.972)}
+.btn span{display:inline-block;transition:transform 260ms var(--press,cubic-bezier(.2,.8,.3,1))}
+.btn:hover span,.btn:focus-visible span{transform:translateX(4px)}
+
+/* ── the live field: proof, and legible ─────────────────────────────────── */
+.field{border:1px solid rgba(244,245,246,.2);background:rgba(255,255,255,.028);
+  padding:clamp(16px,2vw,24px)}
+/* The caption grows from "checking…" to "5 of 5 answering · 07:53" when the
+   result lands. On a narrow field that wrapped the header onto a second line
+   and moved everything below it - 0.0143 of shift caused by the status
+   response itself, which the brief forbids outright. The two never share a
+   line on narrow screens, and the caption never wraps, so the header's height
+   is settled before the request is made. */
+.field__h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding-bottom:12px;border-bottom:1px solid rgba(244,245,246,.16)}
+.field__c{white-space:nowrap}
+@media(max-width:560px){
+  .field__h{flex-direction:column;align-items:flex-start;gap:5px}
+  .field__c{text-align:left}
+}
+.field__h b{font:600 13px/1 A,"Archivo Fallback",system-ui,sans-serif;
+  letter-spacing:.02em;color:#F4F5F6}
+.field__c{font:500 11px/1.4 M,"Mono Fallback",ui-monospace,monospace;color:#9AA3AB;
+  text-align:right}
+.field ol{list-style:none;margin:0;padding:0}
+.sysrow{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:12px;
+  align-items:center;padding:11px 0;border-bottom:1px solid rgba(244,245,246,.09)}
+.sysrow:last-child{border-bottom:0}
+.sysrow__d{width:9px;height:9px;border-radius:50%;border:1.5px solid #6E7780;
+  justify-self:center;transition:background-color 320ms ease,border-color 320ms ease,
+                                 box-shadow 320ms ease}
+.sysrow__n{min-width:0}
+.sysrow__n b{display:block;font:600 14.5px/1.2 A,"Archivo Fallback",system-ui,sans-serif;
+  color:#F4F5F6;letter-spacing:-.008em}
+.sysrow__n span{display:block;font:400 11.5px/1.4 M,"Mono Fallback",ui-monospace,monospace;
+  color:#8C959D;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* the reading is reserved at its widest so a result can never move the row */
+.sysrow__v{font:500 12.5px/1 M,"Mono Fallback",ui-monospace,monospace;color:#8C959D;
+  font-variant-numeric:tabular-nums;text-align:right;min-width:9ch;
+  transition:color 320ms ease}
+/* the reading still cannot move, but it gives the hostname back the width it
+   needs so "jamii.lesnarai.co.ke" is not shown as "jamii.lesnarai...." */
+@media(max-width:430px){
+  .sysrow{gap:9px}
+  .sysrow__n span{font-size:10.5px;letter-spacing:-.01em}
+  .sysrow__v{min-width:8ch;font-size:11.5px}
+}
+.sysrow[data-state="up"] .sysrow__d{background:var(--sig);border-color:var(--sig);
+  box-shadow:0 0 0 3px rgba(27,107,82,.22)}
+.sysrow[data-state="up"] .sysrow__v{color:#8FD3B8}
+.sysrow[data-state="down"] .sysrow__d{border-color:var(--down);background:transparent}
+.sysrow[data-state="down"] .sysrow__v{color:#E0987A}
+.field__note{margin:14px 0 0;font:400 11.5px/1.55 M,"Mono Fallback",ui-monospace,monospace;
+  color:#8C959D;max-width:44ch}
+
+@media(max-width:980px){
+  .ch1__grid{grid-template-columns:1fr;gap:clamp(28px,5vh,44px)}
+  .ch1 h1{max-width:20ch}
+}
+@media(max-width:520px){
+  .ch1__act{flex-direction:column;align-items:stretch}
+  .btn{justify-content:center}
+}
+
+/* ── chapter 2 · ASSEMBLE ────────────────────────────────────────────────
+   Parts forming a system: a spine draws, markers snap onto it, then the
+   labels clip open. Not a fade-up - the structure is what arrives. */
+.ch2{background:var(--sheet-cool,#EBECEE);color:var(--fg);
+  padding:clamp(56px,9vh,110px) 0}
+.reg{margin-top:clamp(28px,4vh,44px)}
+.reg__flag{list-style:none;margin:0;padding:0;display:grid;gap:14px;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.fcard a{display:flex;flex-direction:column;gap:8px;height:100%;
+  padding:20px 20px 18px;border:1px solid var(--rule);background:var(--sheet,#fff);
+  text-decoration:none;color:inherit;
+  transition:transform 260ms var(--press,cubic-bezier(.2,.8,.3,1)),
+             box-shadow 300ms var(--press,cubic-bezier(.2,.8,.3,1)),
+             border-color 220ms ease}
+.fcard a:hover,.fcard a:focus-visible{border-color:var(--fg);
+  box-shadow:0 16px 34px -20px rgba(10,11,13,.4);transform:translateY(-2px)}
+.fcard a:active{transform:translateY(0) scale(.995)}
+.fcard__k{font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--fg-2)}
+.fcard b{font-size:clamp(1.2rem,1.9vw,1.5rem);font-weight:600;letter-spacing:-.02em;
+  line-height:1.1}
+.fcard__p{font-size:14.5px;line-height:1.5;color:var(--fg-2);flex:1}
+.fcard__go{font:600 13px/1 A,"Archivo Fallback",system-ui,sans-serif;color:var(--fg)}
+.fcard__go span{display:inline-block;transition:transform 260ms var(--press,cubic-bezier(.2,.8,.3,1))}
+.fcard a:hover .fcard__go span{transform:translateX(4px)}
+
+.reg__rest{display:grid;gap:clamp(20px,3vw,44px);margin-top:clamp(22px,3vh,34px);
+  grid-template-columns:minmax(240px,.82fr) minmax(260px,1.18fr)}
+@media(max-width:720px){.reg__rest{grid-template-columns:1fr}}
+.reg__lbl{margin:0 0 10px;font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--fg-2);
+  padding-bottom:8px;border-bottom:1px solid var(--rule)}
+.reg__l{list-style:none;margin:0;padding:0}
+.reg__l a{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;
+  padding:9px 0;text-decoration:none;color:inherit;
+  border-bottom:1px solid var(--rule-soft,rgba(128,128,128,.2))}
+.reg__l b{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.reg__l span{font-size:13px;color:var(--fg-2)}
+/* The row is the target, so the row has to answer - underlining only the
+   name left the rest of a 400px-wide hit area with no feedback at all. */
+.reg__l a{transition:background-color 200ms ease,padding-left 220ms var(--press,cubic-bezier(.2,.8,.3,1))}
+.reg__l a:hover,.reg__l a:focus-visible{background:color-mix(in srgb,var(--fg) 6%,transparent)}
+.reg__l a:hover b,.reg__l a:focus-visible b{text-decoration:underline;text-underline-offset:4px}
+.reg__l--held b{font-weight:500;color:var(--fg-2)}
+.reg__all{margin:22px 0 0}
+.btn--line{background:transparent;color:var(--fg);border-color:var(--fg);padding:12px 18px;font-size:14px}
+.btn--line:hover,.btn--line:focus-visible{background:var(--fg);color:var(--sheet,#fff)}
+
+/* ASSEMBLE: markers snap on, labels clip open, in structural order */
+@media(prefers-reduced-motion:no-preference){
+  :root[data-js] .reg[data-assemble] .fcard,
+  :root[data-js] .reg[data-assemble] .reg__l li{clip-path:inset(0 0 100% 0);opacity:.001}
+  .reg[data-assemble][data-in] .fcard,
+  .reg[data-assemble][data-in] .reg__l li{
+    animation:asm 620ms cubic-bezier(.16,1,.3,1) forwards;
+    animation-delay:calc(var(--i,0) * 55ms)}
+  @keyframes asm{to{clip-path:inset(0 0 0 0);opacity:1}}
+}
+
+/* ── chapter 3 ───────────────────────────────────────────────────────────
+   Three products, three compositions. They alternate ground so that moving
+   between them feels like moving between different things. */
+.ch3{padding:clamp(56px,9vh,110px) 0 0;background:var(--sheet,#fff);color:var(--fg)}
+.pr{margin-top:clamp(40px,6vh,80px)}
+.pr__k{margin:0;font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.16em;text-transform:uppercase;opacity:.72}
+.pr h3{margin:.45rem 0 0;font-size:clamp(1.6rem,3vw,2.3rem);font-weight:600;
+  letter-spacing:-.024em;line-height:1.05}
+.pr__d{margin:.7rem 0 0;font-size:clamp(.98rem,1.25vw,1.08rem);line-height:1.58;
+  max-width:52ch;opacity:.78}
+
+/* BizMtaani — ADVANCE, lateral. Scroll drives the rail sideways. */
+.pr--biz{background:var(--ink);color:#F4F5F6;padding:clamp(44px,7vh,84px) 0}
+.pr--biz .pr__head{margin-bottom:clamp(24px,3.5vh,40px)}
+.biz{position:relative}
+.biz__rail{list-style:none;margin:0;padding:0;display:flex;gap:clamp(14px,2vw,28px)}
+.biz__s figure{margin:0}
+.biz__s img{display:block;width:100%;height:auto;border:1px solid rgba(244,245,246,.16)}
+.biz__s figcaption{margin-top:10px;font:400 13px/1.45 A,"Archivo Fallback",system-ui,sans-serif;
+  color:#B6BCC2}
+.biz__s figcaption b{display:block;font:600 11px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.14em;color:#F4F5F6;margin-bottom:5px}
+.biz__prog{margin:22px auto 0;max-width:var(--maxw);padding-inline:var(--gutter);height:2px}
+.biz__prog i{display:block;height:2px;background:rgba(244,245,246,.9);
+  transform:scaleX(var(--bp,0));transform-origin:0 50%;transition:transform 120ms linear}
+.biz__rail--m{display:none}
+.biz__now{display:none;margin:0 auto;max-width:var(--maxw);width:100%;
+  padding-inline:var(--gutter);
+  font:500 11px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.16em;
+  text-transform:uppercase;color:#8C959D}
+.biz__now b{color:#F4F5F6;font-weight:600}
+
+@media(min-width:821px){
+  .biz{height:340vh}
+  /* The sticky pane is a whole viewport with the rail centred in it. Pinned at
+     top:0 with no height, the states sat under the site header with roughly
+     400px of dead ground beneath them, and the product's name scrolled away
+     before the sequence began - so the reader watched five screens move with
+     nothing telling them whose screens they were. */
+  .biz__stick{position:sticky;top:0;height:100vh;display:flex;overflow:hidden;
+    flex-direction:column;justify-content:center;gap:clamp(14px,2.6vh,26px)}
+  .biz__now{display:block}
+  .biz__rail{width:max-content;padding-inline:var(--gutter);
+    transform:translate3d(calc(var(--bx,0) * -1px),0,0);will-change:transform}
+  .biz__s{width:min(56vw,820px);flex:0 0 auto}
+}
+@media(prefers-reduced-motion:reduce){
+  /* no scroll-driven travel, so the tall container would be dead space.
+     The rail becomes an ordinary horizontal scroller instead. */
+  .biz{height:auto}
+  .biz__rail{width:auto;overflow-x:auto;transform:none;padding-bottom:8px}
+  .biz__s{width:min(52vw,560px)}
+}
+@media(max-width:820px){
+  .biz__rail{display:none}
+  .biz__rail--m{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;padding-inline:var(--gutter);
+    gap:14px;scrollbar-width:none}
+  .biz__rail--m::-webkit-scrollbar{display:none}
+  .biz__rail--m .biz__s{flex:0 0 auto;width:min(70vw,300px);scroll-snap-align:center}
+  .biz__prog{display:none}
+}
+
+/* CarePro — ADVANCE, stamping. Each check lands as you reach it. */
+.pr--care{background:var(--sheet-cool,#EBECEE);color:var(--fg);
+  padding:clamp(48px,8vh,96px) 0}
+.care{display:grid;gap:clamp(28px,4vw,64px);align-items:start;
+  grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr)}
+.care__l{list-style:none;margin:1.6rem 0 0;padding:0;position:relative}
+.care__l::before{content:"";position:absolute;left:13px;top:8px;bottom:8px;width:1px;
+  background:var(--rule)}
+.care__l li{position:relative;padding:0 0 20px 44px}
+.care__n{position:absolute;left:0;top:0;width:27px;height:27px;border-radius:50%;
+  display:grid;place-items:center;background:var(--sheet,#fff);
+  border:1px solid var(--rule);
+  font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;color:var(--fg-2);
+  transition:background-color 340ms ease,border-color 340ms ease,color 340ms ease}
+.care__l b{display:block;font-size:16px;font-weight:600;letter-spacing:-.012em}
+.care__l span:not(.care__n){display:block;margin-top:3px;font-size:14px;line-height:1.5;
+  color:var(--fg-2)}
+.care__l li[data-on] .care__n{background:var(--sig,#1B6B52);border-color:var(--sig,#1B6B52);
+  color:#fff}
+.care__ev img{display:block;width:100%;height:auto;border:1px solid var(--rule);
+  background:var(--sheet,#fff)}
+.care__ev figcaption{margin-top:9px;font:400 11.5px/1.5 M,"Mono Fallback",ui-monospace,monospace;
+  color:var(--fg-2)}
+
+/* Jamii — ADVANCE, accumulating. Each step adds a line to the record. */
+.pr--jam{background:var(--ink);color:#F4F5F6;padding:clamp(48px,8vh,96px) 0}
+.jam__led{display:grid;gap:clamp(26px,4vw,56px);align-items:start;margin-top:1.6rem;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.jam__l{list-style:none;margin:0;padding:0;border-top:1px solid rgba(244,245,246,.18)}
+.jam__l{display:grid;grid-template-columns:max-content minmax(0,1fr)}
+.jam__l li{display:grid;grid-template-columns:subgrid;grid-column:1/-1;gap:4px 18px;
+  padding:14px 0;border-bottom:1px solid rgba(244,245,246,.12);align-items:baseline}
+@supports not (grid-template-columns:subgrid){
+  .jam__l{display:block}
+  .jam__l li{grid-template-columns:11ch minmax(0,1fr)}
+}
+.jam__l b{font:600 11px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.13em;
+  text-transform:uppercase;color:#8FD3B8;white-space:nowrap}
+.jam__l span{font-size:14.5px;line-height:1.5;color:#C3C9CF}
+.jam__ev img{display:block;width:100%;height:auto;border:1px solid rgba(244,245,246,.16)}
+.jam__ev figcaption{margin-top:9px;font:400 11.5px/1.5 M,"Mono Fallback",ui-monospace,monospace;
+  color:#8C959D}
+@media(prefers-reduced-motion:no-preference){
+  :root[data-js] .jam__l li{clip-path:inset(0 100% 0 0)}
+  .jam__l[data-in] li{animation:led 520ms cubic-bezier(.16,1,.3,1) forwards;
+    animation-delay:calc(var(--i,0) * 130ms)}
+  @keyframes led{to{clip-path:inset(0 0 0 0)}}
+}
+@media(max-width:820px){
+  .care,.jam__led{grid-template-columns:1fr}
+}
+
+/* ── chapter 4 · DEPTH ───────────────────────────────────────────────── */
+.ch4{background:var(--sheet,#fff);color:var(--fg);padding:clamp(56px,9vh,110px) 0}
+.cap{list-style:none;margin:clamp(26px,4vh,40px) 0 0;padding:0;display:grid;
+  gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.cap__c{border:1px solid var(--rule);padding:18px 18px 16px;background:var(--sheet,#fff);
+  transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateZ(0);
+  transition:transform 320ms var(--press,cubic-bezier(.2,.8,.3,1)),
+             box-shadow 320ms var(--press,cubic-bezier(.2,.8,.3,1)),
+             border-color 220ms ease}
+.cap__c:hover{border-color:var(--fg);box-shadow:0 18px 36px -22px rgba(10,11,13,.45)}
+.cap__c b{display:block;font-size:15.5px;font-weight:600;letter-spacing:-.012em}
+.cap__c span{display:block;margin-top:5px;font-size:14px;line-height:1.5;color:var(--fg-2)}
+.bench{margin:clamp(32px,5vh,56px) 0 0}
+.bench img{display:block;width:100%;height:auto;border:1px solid var(--rule)}
+.bench figcaption{margin-top:9px;font:400 11.5px/1.5 M,"Mono Fallback",ui-monospace,monospace;
+  color:var(--fg-2)}
+
+/* ── chapter 5 · still ───────────────────────────────────────────────── */
+.ch5{background:var(--ink);color:#F4F5F6;padding:clamp(56px,9vh,110px) 0}
+.ch5 h2{color:#fff}
+.ch5 .lede4{color:#C3C9CF}
+.close5{display:grid;gap:clamp(30px,5vw,72px);align-items:start;
+  grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)}
+.close5__steps{list-style:none;margin:0 0 26px;padding:0;
+  border-top:1px solid rgba(244,245,246,.18)}
+.close5__steps{display:grid;grid-template-columns:max-content minmax(0,1fr)}
+.close5__steps li{display:grid;grid-template-columns:subgrid;grid-column:1/-1;gap:4px 18px;
+  padding:13px 0;border-bottom:1px solid rgba(244,245,246,.12);align-items:baseline}
+@supports not (grid-template-columns:subgrid){
+  .close5__steps{display:block}
+  .close5__steps li{grid-template-columns:10ch minmax(0,1fr)}
+}
+.close5__steps b{font:600 11px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.13em;text-transform:uppercase;color:#F4F5F6;white-space:nowrap}
+.close5__steps span{font-size:14.5px;line-height:1.5;color:#C3C9CF}
+.close5__mail{margin:16px 0 0;font-size:14.5px;color:#C3C9CF}
+.close5__mail a{color:#fff}
+@media(max-width:820px){.close5{grid-template-columns:1fr}}
 </style>
 </head>
 <body class="route-home">
@@ -2481,243 +2816,276 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
     <button class="theme-t" type="button" aria-pressed="false" title="Switch between light and dark"><span class="theme-t__i" aria-hidden="true"></span><span class="theme-t__l">Dark</span></button><nav class="site-nav" aria-label="Main"><a href="" aria-current="page">Home</a><a href="work/">Work</a><a href="services/">Services</a><a href="about/">About</a><a href="book/">Book</a></nav>
   </div>
 </header>
-<main id="main">
+<main id="main" class="v4">
 
-<!-- ═══ HERO ═══════════════════════════════════════════════════════════ -->
-<header class="hero">
+<!-- ═══ 01 · WHAT WE BUILD ═══════════════════════════════════════════════ -->
+<header class="ch1" aria-labelledby="ch1-h">
+  <div class="w4 ch1__grid">
+    <div class="ch1__say">
+      <p class="eyebrow4">Lesnar AI &middot; Nairobi engineering studio</p>
+      <h1 id="ch1-h">We build production systems, then we <em>run</em> them.</h1>
+      <p class="ch1__lede">Marketplaces, home healthcare, community records, campus
+        ordering and private sourcing &mdash; built here, deployed, and operated.
+        Eleven systems are in the register. Five are live products you can open
+        right now.</p>
+      <p class="ch1__act">
+        <a class="btn btn--go" href="book/">Start a project <span aria-hidden="true">&rarr;</span></a>
+        <a class="btn btn--quiet" href="work/">Open the register <span aria-hidden="true">&rarr;</span></a>
+      </p>
+    </div>
 
-  <div class="hero__bg" aria-hidden="true"></div>
-  <div class="hero__veil" aria-hidden="true"></div><div id="sysfield" aria-hidden="true"></div>
-<p class="sf-checked" id="sf-checked" hidden></p>
-  <div class="hero__fg">
-    <div class="w">
-      <p class="wordmark"><b>Lesnar&nbsp;AI</b><span>Nairobi · engineering studio</span></p>
-
-      <h1 data-set style="min-height:var(--h1h,auto)">We build serious systems, and publish what they <em>don't claim.</em></h1>
-        <p class="hero__cta"><a class="cta cta--solid" href="work/">Read the register</a><button class="cta cta--tour" id="tour-start" type="button" aria-pressed="false">See what we build</button></p>
-
-      <div class="hero__meta">
-        <p>A Nairobi engineering studio building software, infrastructure, security and
-          physical systems. Five are live products; the rest carry the maturity they
-          have reached.</p>
-        <p class="an"><b>Verified</b> Live, in your browser<br>Each surface answers for itself</p>
-        <p class="an place-note"><b>Nairobi</b> &middot; 1&deg;17&prime;S &middot; 36&deg;49&prime;E<br>
-          Where the work is done - the bench behind this page.</p>
-      </div>
+    <div class="ch1__proof">
+      <figure class="field" id="sysfield4">
+        <figcaption class="field__h">
+          <b>Live systems</b>
+          <span class="field__c" id="field-c">not yet checked</span>
+        </figcaption>
+        <ol>
+          <li class="sysrow" data-sys="bizmtaani"><i class="sysrow__d" aria-hidden="true"></i>
+            <span class="sysrow__n"><b>BizMtaani</b><span>bizmtaani.com</span></span>
+            <span class="sysrow__v">&mdash;</span></li>
+          <li class="sysrow" data-sys="carepro"><i class="sysrow__d" aria-hidden="true"></i>
+            <span class="sysrow__n"><b>CarePro</b><span>carepro.co.ke</span></span>
+            <span class="sysrow__v">&mdash;</span></li>
+          <li class="sysrow" data-sys="jamii"><i class="sysrow__d" aria-hidden="true"></i>
+            <span class="sysrow__n"><b>Jamii Projects Hub</b><span>jamii.lesnarai.co.ke</span></span>
+            <span class="sysrow__v">&mdash;</span></li>
+          <li class="sysrow" data-sys="geneat"><i class="sysrow__d" aria-hidden="true"></i>
+            <span class="sysrow__n"><b>Gen-Eat</b><span>geneat.lesnarai.co.ke</span></span>
+            <span class="sysrow__v">&mdash;</span></li>
+          <li class="sysrow" data-sys="hazina"><i class="sysrow__d" aria-hidden="true"></i>
+            <span class="sysrow__n"><b>Hazina Nomads</b><span>hazina.lesnarai.co.ke</span></span>
+            <span class="sysrow__v">&mdash;</span></li>
+        </ol>
+        <p class="field__note">Checked from our server, not your browser, and cached
+          for up to a minute. Reachability at the moment shown &mdash; not an uptime
+          record.</p>
+      </figure>
     </div>
   </div>
-
 </header>
 
-<section class="bz" id="bizflow" aria-labelledby="bz-h">
-  <div class="bz__pin">
-    <div class="w bz__head">
-      <p class="kicker">01 &middot; Live product</p>
-      <h2 id="bz-h">One order, end to end.</h2>
-      <p class="bz__meta" data-system="bizmtaani"><span>bizmtaani.com</span><span class="pv">checking&hellip;</span>
-        <a class="lnk" href="work/bizmtaani/">Open the record</a></p>
+<!-- ═══ 02 · PROOF / REGISTER ════════════════════════════════════════════ -->
+<section class="ch2" aria-labelledby="ch2-h">
+  <div class="w4">
+    <p class="eyebrow4">02 &middot; The register</p>
+    <h2 id="ch2-h">Eleven systems. Five you can open.</h2>
+    <p class="lede4">Three are flagship products with public surfaces and real users.
+      Two more are live. The rest carry the maturity they have actually reached, and
+      say so.</p>
+
+    <div class="reg" data-assemble>
+      <ol class="reg__flag">
+        <li class="fcard" style="--i:0"><a href="work/bizmtaani/">
+          <span class="fcard__k">Flagship</span>
+          <b>BizMtaani</b>
+          <span class="fcard__p">A neighbourhood marketplace. Shops list what they
+            sell, customers order and pay from a phone, riders carry it.</span>
+          <span class="fcard__go">Open the record <span aria-hidden="true">&rarr;</span></span></a></li>
+        <li class="fcard" style="--i:1"><a href="work/carepro/">
+          <span class="fcard__k">Flagship</span>
+          <b>CarePro</b>
+          <span class="fcard__p">Vetted nurses placed with families for care at home,
+            with payment held until the care is delivered.</span>
+          <span class="fcard__go">Open the record <span aria-hidden="true">&rarr;</span></span></a></li>
+        <li class="fcard" style="--i:2"><a href="work/jamii-projects-hub/">
+          <span class="fcard__k">Flagship</span>
+          <b>Jamii Projects Hub</b>
+          <span class="fcard__p">Community projects proposed, voted on and recorded,
+            with contributions and balances a group can actually audit.</span>
+          <span class="fcard__go">Open the record <span aria-hidden="true">&rarr;</span></span></a></li>
+      </ol>
+
+      <div class="reg__rest">
+        <div class="reg__grp">
+          <p class="reg__lbl">Also live</p>
+          <ul class="reg__l">
+            <li style="--i:3"><a href="work/gen-eat/"><b>Gen-Eat</b><span>Campus food ordering over WhatsApp</span></a></li>
+            <li style="--i:4"><a href="work/hazina-nomads/"><b>Hazina Nomads</b><span>Private sourcing and Kenyan heritage gifts</span></a></li>
+          </ul>
+          <p class="reg__all"><a class="btn btn--line" href="work/">All eleven, with what each proves <span aria-hidden="true">&rarr;</span></a></p>
+        </div>
+        <div class="reg__grp">
+          <p class="reg__lbl">Held &middot; research &amp; unqualified</p>
+          <ul class="reg__l reg__l--held">
+            <li style="--i:5"><a href="work/sentinelcore/"><b>SentinelCore</b><span>Host security tooling</span></a></li>
+            <li style="--i:6"><a href="work/cypher/"><b>Cypher</b><span>Encryption work</span></a></li>
+            <li style="--i:7"><a href="work/gold-trader/"><b>Gold Trader</b><span>Trading system</span></a></li>
+            <li style="--i:8"><a href="work/greenhouse-controller/"><b>Greenhouse controller</b><span>Embedded control</span></a></li>
+            <li style="--i:9"><a href="work/sensing-and-radar/"><b>Sensing &amp; radar</b><span>Signal research</span></a></li>
+            <li style="--i:10"><a href="work/aerial-systems/"><b>Aerial systems</b><span>Active research, nothing flown</span></a></li>
+          </ul>
+        </div>
+      </div>
     </div>
-    <div class="bz__rail">
-        <figure class="bz__state" data-label="Find">
-          <picture>
-            <source media="(max-width:640px)" srcset="media/biz/m-01-discover.webp" width="780" height="1688">
-            <img src="media/biz/01-discovery-d.webp" alt="BizMtaani, captured 6 September 2026: Search by name and town" fetchpriority="high" decoding="async" width="1100" height="688">
-          </picture>
-          <figcaption><b>Find</b> Search by name and town</figcaption>
-        </figure>
-        <figure class="bz__state" data-label="Choose">
-          <picture>
-            <source media="(max-width:640px)" srcset="media/biz/m-02-merchant-list.webp" width="780" height="1688">
-            <img src="media/biz/02-venues-d.webp" alt="BizMtaani, captured 6 September 2026: Businesses open around you" loading="lazy" decoding="async" width="1100" height="688">
-          </picture>
-          <figcaption><b>Choose</b> Businesses open around you</figcaption>
-        </figure>
-        <figure class="bz__state" data-label="Open">
-          <picture>
-            <source media="(max-width:640px)" srcset="media/biz/m-03-choice.webp" width="780" height="1688">
-            <img src="media/biz/03-merchant-d.webp" alt="BizMtaani, captured 6 September 2026: The Villager, Embu &middot; open for orders" loading="lazy" decoding="async" width="1100" height="688">
-          </picture>
-          <figcaption><b>Open</b> The Villager, Embu &middot; open for orders</figcaption>
-        </figure>
-        <figure class="bz__state" data-label="Order">
-          <picture>
-            <source media="(max-width:640px)" srcset="media/biz/m-04-basket.webp" width="780" height="1688">
-            <img src="media/biz/04-basket-d.webp" alt="BizMtaani, captured 6 September 2026: 1 &times; Fresh Milk &middot; Ksh 60, collect at the counter" loading="lazy" decoding="async" width="1100" height="688">
-          </picture>
-          <figcaption><b>Order</b> 1 &times; Fresh Milk &middot; Ksh 60, collect at the counter</figcaption>
-        </figure>
-        <figure class="bz__state" data-label="Track">
-          <picture>
-            <source media="(max-width:640px)" srcset="media/biz/m-05-track.webp" width="780" height="1688">
-            <img src="media/biz/05-track-d.webp" alt="BizMtaani, captured 6 September 2026: The order state, on the same surface" loading="lazy" decoding="async" width="1100" height="688">
-          </picture>
-          <figcaption><b>Track</b> The order state, on the same surface</figcaption>
-        </figure>
-    </div>
-    <div class="w bz__ui">
-      <div class="bz__bar" aria-hidden="true"><i></i></div>
-      <div class="bz__steps" aria-hidden="true"><span class="bz__step">Find</span><span class="bz__step">Choose</span><span class="bz__step">Open</span><span class="bz__step">Order</span><span class="bz__step">Track</span></div>
-      <button class="bz__replay" type="button">Replay</button>
-      <p class="bz__live" role="status" aria-live="polite"></p>
-    </div>
+
   </div>
 </section>
 
-<section class="sec sec--work" data-af-edge="ink" aria-labelledby="wk-h">
-  <div class="w">
-    <p class="kicker">Selected work</p>
-    <h2 class="h--work" id="wk-h">Work we have actually shipped.</h2>
-    <p class="lede">Three of the five products with public surfaces. Each screenshot is the surface as
-      captured; each record is contacted from your browser as you reach it.</p>
-    <div class="recs">
-      <article class="rec rec--focus">
-        <p class="rec__n">02</p>
-        <div>
-          <h3>CarePro</h3>
-          <p class="rec__sum">Book a vetted nurse to care for someone at home, with payment arranged through the platform.</p>
-          <p class="mr"><span>Live product</span><span><a class="lnk" href="work/carepro/">Open the record</a></span></p>
-        </div>
-        <figure class="rec__proof" data-system="carepro">
-          <picture>
-            <source media="(max-width:640px)" srcset="media/carepro-panel-m.jpg">
-            <img src="media/carepro-panel.jpg" alt="CarePro's published verification panel, captured 4 September 2026: credentials, registry check, interview and clinical sign-off, with 19 nurses joined and 0 approved for assignments." width="525" height="562" loading="lazy" decoding="async">
-          </picture>
-          <figcaption>carepro.co.ke &middot; <span class="pv">checking&hellip;</span> &middot; captured surface, cropped</figcaption>
-        </figure>
-      </article>
-      <article class="rec rec--surface">
-        <p class="rec__n">03</p>
-        <div>
-          <h3>Jamii Projects Hub</h3>
-          <p class="rec__sum">See what projects your community is planning, vote on what matters, and keep clear records for a family, chama or welfare group.</p>
-          <p class="mr"><span>Live product</span><span><a class="lnk" href="work/jamii-projects-hub/">Open the record</a></span></p>
-        </div>
-        <figure class="rec__proof" data-system="jamii">
+<!-- ═══ 03 · THREE FLAGSHIP PRODUCTS ═════════════════════════════════════ -->
+<section class="ch3" aria-labelledby="ch3-h">
+  <div class="w4">
+    <p class="eyebrow4">03 &middot; How they work</p>
+    <h2 id="ch3-h">Three products, three different jobs.</h2>
+    <p class="lede4">Each one is shown the way it actually behaves &mdash; an order
+      moving, a nurse being qualified, a community keeping a record.</p>
+  </div>
+
+  <!-- BizMtaani · commerce and movement · ADVANCE, lateral -->
+  <article class="pr pr--biz" aria-labelledby="pr-biz">
+    <div class="w4 pr__head">
+      <p class="pr__k">Live product &middot; bizmtaani.com</p>
+      <h3 id="pr-biz">BizMtaani</h3>
+      <p class="pr__d">One order, end to end. Five states, in the order a customer
+        actually moves through them.</p>
+    </div>
+    <div class="biz" data-adv="biz">
+      <div class="biz__stick">
+      <p class="biz__now" aria-hidden="true"><b>BizMtaani</b> &middot; one order, end to end</p>
+      <ol class="biz__rail">
+        <li class="biz__s" style="--i:0"><figure>
+          <img src="media/biz/01-discovery-d.webp" alt="BizMtaani discovery: businesses open now near you" width="1100" height="687" loading="lazy" decoding="async">
+          <figcaption><b>01 Find</b> Businesses open near you</figcaption></figure></li>
+        <li class="biz__s" style="--i:1"><figure>
+          <img src="media/biz/02-venues-d.webp" alt="BizMtaani venue list by category" width="1100" height="687" loading="lazy" decoding="async">
+          <figcaption><b>02 Choose</b> A shop, and what it sells</figcaption></figure></li>
+        <li class="biz__s" style="--i:2"><figure>
+          <img src="media/biz/03-merchant-d.webp" alt="A BizMtaani merchant page with items and prices" width="1100" height="687" loading="lazy" decoding="async">
+          <figcaption><b>03 Order</b> Items and prices, from the merchant</figcaption></figure></li>
+        <li class="biz__s" style="--i:3"><figure>
+          <img src="media/biz/04-basket-d.webp" alt="A BizMtaani basket ready for checkout" width="1100" height="687" loading="lazy" decoding="async">
+          <figcaption><b>04 Pay</b> From a phone</figcaption></figure></li>
+        <li class="biz__s" style="--i:4"><figure>
+          <img src="media/biz/05-track-d.webp" alt="A BizMtaani order being tracked to delivery" width="1100" height="687" loading="lazy" decoding="async">
+          <figcaption><b>05 Track</b> Until a rider delivers it</figcaption></figure></li>
+      </ol>
+      <ol class="biz__rail biz__rail--m" aria-hidden="true">
+        <li class="biz__s"><figure><img src="media/biz/m-01-discover.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>01 Find</b> Businesses open near you</figcaption></figure></li>
+        <li class="biz__s"><figure><img src="media/biz/m-02-merchant-list.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>02 Choose</b> A shop, and what it sells</figcaption></figure></li>
+        <li class="biz__s"><figure><img src="media/biz/m-03-choice.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>03 Order</b> Items and prices</figcaption></figure></li>
+        <li class="biz__s"><figure><img src="media/biz/m-04-basket.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>04 Pay</b> From a phone</figcaption></figure></li>
+        <li class="biz__s"><figure><img src="media/biz/m-05-track.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>05 Track</b> Until it arrives</figcaption></figure></li>
+      </ol>
+      <p class="biz__prog" aria-hidden="true"><i></i></p>
+      </div>
+    </div>
+  </article>
+
+  <!-- CarePro · qualification and trust · ADVANCE, stamping -->
+  <article class="pr pr--care" aria-labelledby="pr-care">
+    <div class="w4 care">
+      <div class="care__say">
+        <p class="pr__k">Live product &middot; carepro.co.ke</p>
+        <h3 id="pr-care">CarePro</h3>
+        <p class="pr__d">Nobody reaches a family until four checks have passed. This
+          is the sequence CarePro publishes, in order.</p>
+        <ol class="care__l" data-adv="care">
+          <li style="--i:0"><span class="care__n">01</span><b>Credentials</b>
+            <span>National ID, nursing council licence and certificate of good
+              conduct. Uploaded certificates are reviewed by hand.</span></li>
+          <li style="--i:1"><span class="care__n">02</span><b>Registry check</b>
+            <span>Licence verified against the Nursing Council of Kenya register,
+              with expiry tracked continuously.</span></li>
+          <li style="--i:2"><span class="care__n">03</span><b>Interview</b>
+            <span>A structured interview, scored on a clinical rubric.</span></li>
+          <li style="--i:3"><span class="care__n">04</span><b>Clinical sign-off</b>
+            <span>A registered nurse reviews the whole file and approves, or
+              doesn&rsquo;t.</span></li>
+        </ol>
+      </div>
+      <figure class="care__ev">
+        <picture>
+          <source media="(max-width:640px)" srcset="media/carepro-panel-m.jpg">
+          <img src="media/carepro-panel.jpg" alt="CarePro's published verification panel: credentials, registry check, interview and clinical sign-off." width="525" height="562" loading="lazy" decoding="async">
+        </picture>
+        <figcaption>The panel as CarePro publishes it &middot; captured surface</figcaption>
+      </figure>
+    </div>
+  </article>
+
+  <!-- Jamii · participation and accountability · ADVANCE, accumulating -->
+  <article class="pr pr--jam" aria-labelledby="pr-jam">
+    <div class="w4 jam">
+      <div class="jam__say">
+        <p class="pr__k">Live product &middot; jamii.lesnarai.co.ke</p>
+        <h3 id="pr-jam">Jamii Projects Hub</h3>
+        <p class="pr__d">A group decides something, and the decision leaves a record
+          it can audit later. Each step adds a line that cannot quietly disappear.</p>
+      </div>
+      <div class="jam__led" data-adv="jam">
+        <ol class="jam__l">
+          <li style="--i:0"><b>Submit</b><span>A community project, or a request for a family group, chama or committee</span></li>
+          <li style="--i:1"><b>Review</b><span>A reviewer checks it. Approved groups organise members, roles and a contribution plan</span></li>
+          <li style="--i:2"><b>Vote &amp; record</b><span>The community votes on priorities; contributions, meetings and expenses are recorded as they go</span></li>
+          <li style="--i:3"><b>Report</b><span>Balances, progress updates and accountability summaries the whole group can read</span></li>
+        </ol>
+        <figure class="jam__ev">
           <picture>
             <source media="(max-width:640px)" srcset="media/jamii-card-m.jpg">
             <source srcset="media/jamii-surface-full.webp" type="image/webp">
-            <img src="media/jamii-surface-full.jpg" alt="The Jamii Projects Hub homepage as captured on 4 September 2026, showing a project open for voting." width="1440" height="900" loading="lazy" decoding="async">
+            <img src="media/jamii-surface-full.jpg" alt="The Jamii Projects Hub homepage, showing a community project open for voting." width="1440" height="900" loading="lazy" decoding="async">
           </picture>
-          <figcaption>jamii.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span><span class="pv-crop"> &middot; cropped on small screens</span></figcaption>
+          <figcaption>jamii.lesnarai.co.ke &middot; captured surface</figcaption>
         </figure>
-      </article>
+      </div>
     </div>
-    <p class="recs__more"><a class="cta" href="work/">All eleven systems in the register</a></p>
+  </article>
+</section>
+
+<!-- ═══ 04 · HOW WE WORK ═════════════════════════════════════════════════ -->
+<section class="ch4" aria-labelledby="ch4-h">
+  <div class="w4">
+    <p class="eyebrow4">04 &middot; How the work is done</p>
+    <h2 id="ch4-h">Built here, then operated here.</h2>
+    <p class="lede4">We do not hand over a repository and leave. Products run as
+      separate services, deployed and kept running, with the operator screens the
+      staff actually work in.</p>
+
+    <ul class="cap" data-depth>
+      <li class="cap__c"><b>Full-stack product build</b><span>Interface, backend, database and the operator screens behind them.</span></li>
+      <li class="cap__c"><b>Payments and messaging</b><span>M-Pesa and card flows, WhatsApp and SMS, with the reconciliation that has to follow.</span></li>
+      <li class="cap__c"><b>AI you can inspect</b><span>Models and agents whose decisions can be read back, not black boxes.</span></li>
+      <li class="cap__c"><b>Security and hardening</b><span>Isolation between products, credential handling, and tooling that watches the host.</span></li>
+      <li class="cap__c"><b>Infrastructure and reliability</b><span>Separate runtimes, cross-database denial, isolated cache namespaces.</span></li>
+      <li class="cap__c"><b>Embedded and physical</b><span>Controllers, sensing and the systems that touch the real world.</span></li>
+    </ul>
+
+    <figure class="bench">
+      <picture>
+        <source srcset="media/studio-close.webp" type="image/webp">
+        <img src="media/studio-close.jpg" alt="The studio bench in Nairobi, mid-build: working at the screens where the register is kept." width="1800" height="1010" loading="lazy" decoding="async">
+      </picture>
+      <figcaption>Nairobi &middot; the bench the eleven systems were built on</figcaption>
+    </figure>
   </div>
 </section>
 
-<section class="sec sec--skills" data-af-edge="sheet" aria-labelledby="sk-h">
-  <div class="w">
-    <p class="kicker">What we can do</p>
-    <h2 class="h--action" id="sk-h">Six kinds of work we take on.</h2>
-    <p class="lede">Six kinds of work, and for each one the system that proves we have
-      done it before. Follow any of them and you land on the record, with its limits stated.</p>
-
-    <div class="sk">
-      <div class="sk__c" data-n="5" style="--n:5"><span class="sk__ev" aria-hidden="true">5 systems</span>
-        <h3>Full-stack product build</h3>
-        <p>The whole thing, not a layer of it: interface, backend, database, deployment and the
-          operator screens the staff live in.</p>
-        <p class="sk__by">Shipped in <a href="work/bizmtaani/">BizMtaani</a>,
-          <a href="work/gen-eat/">Gen-Eat</a>, <a href="work/hazina-nomads/">Hazina Nomads</a>,
-          <a href="work/carepro/">CarePro</a> and <a href="work/jamii-projects-hub/">Jamii</a>.</p>
-      </div>
-
-      <div class="sk__c" data-n="4" style="--n:4"><span class="sk__ev" aria-hidden="true">4 systems</span>
-        <h3>Payments and messaging</h3>
-        <p>Taking money in Kenya the way people actually pay, and letting them order in the app
-          they already have open.</p>
-        <p class="sk__by">Shipped in <a href="work/gen-eat/">Gen-Eat</a>,
-          <a href="work/bizmtaani/">BizMtaani</a>, <a href="work/carepro/">CarePro</a>;
-          the reconciliation is opened up in <a href="work/jamii-projects-hub/">Jamii</a>.</p>
-      </div>
-
-      <div class="sk__c" data-n="2" style="--n:2"><span class="sk__ev" aria-hidden="true">2 systems</span>
-        <h3>AI you can inspect</h3>
-        <p>Retrieval and tool-calling held as structure committed to a repository, with the
-          decision boundary written down instead of buried in a prompt.</p>
-        <p class="sk__by">Built in <a href="work/cypher/">Cypher</a>, with the graph committed in
-          <a href="work/hazina-nomads/">Hazina Nomads</a>. No accuracy or latency figure is claimed.</p>
-      </div>
-
-      <div class="sk__c" data-n="2" style="--n:2"><span class="sk__ev" aria-hidden="true">2 systems</span>
-        <h3>Security and hardening</h3>
-        <p>Checking a Linux server the way an attacker would look at it, and closing what is
-          found - built as the studio's own tooling.</p>
-        <p class="sk__by">Built in <a href="work/sentinelcore/">SentinelCore</a> and
-          <a href="work/cypher/">Cypher</a>. No deployment, certification or detection-efficacy
-          figure is claimed.</p>
-      </div>
-
-      <div class="sk__c" data-n="2" style="--n:2"><span class="sk__ev" aria-hidden="true">2 systems</span>
-        <h3>Infrastructure and reliability</h3>
-        <p>Getting it live and keeping one failure from becoming all of them.</p>
-        <p class="sk__by">Done for <a href="work/gen-eat/">Gen-Eat</a> and
-          <a href="work/hazina-nomads/">Hazina Nomads</a>. Stopping either left the other
-          answering; one test, not general fault immunity.</p>
-      </div>
-
-      <div class="sk__c" data-n="2" style="--n:2"><span class="sk__ev" aria-hidden="true">2 systems</span>
-        <h3>Embedded and physical</h3>
-        <p>Work that leaves the screen: control that keeps running on a small board with no
-          network to fall back on.</p>
-        <p class="sk__by">Built in the
-          <a href="work/greenhouse-controller/">greenhouse controller</a>, owner-attested rather
-          than measured by us; <a href="work/aerial-systems/">aerial</a> has never flown.</p>
-      </div>
+<!-- ═══ 05 · START A PROJECT ═════════════════════════════════════════════ -->
+<section class="ch5" aria-labelledby="ch5-h">
+  <div class="w4 close5">
+    <div>
+      <p class="eyebrow4">05 &middot; Start</p>
+      <h2 id="ch5-h">Bring us the problem, not the specification.</h2>
+      <p class="lede4">If you have work that has to hold up in the real world, start
+        with a conversation. The first one is free.</p>
     </div>
-
-    <p style="margin:clamp(26px,4vh,44px) 0 0;font-size:15px;color:var(--fg-2)">Looking for one of these for your own system? <a href="services/" style="color:var(--fg);text-decoration:underline;text-underline-offset:4px">See what we build</a>.</p><p class="sk__gap"><a href="work/">Six systems are built, held or researched</a> rather than shipped. They are listed as such, with what each one has reached.</p>
+    <div class="close5__do">
+      <ol class="close5__steps">
+        <li><b>You write</b><span>A paragraph about the problem is enough.</span></li>
+        <li><b>We reply</b><span>Usually within two working days.</span></li>
+        <li><b>We talk</b><span>Thirty minutes, no charge, no obligation.</span></li>
+      </ol>
+      <p class="close5__act">
+        <a class="btn btn--go" href="book/">Start a project <span aria-hidden="true">&rarr;</span></a>
+      </p>
+      <p class="close5__mail">Or write directly to
+        <a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a></p>
+    </div>
   </div>
 </section>
 
-
-
-
-
-
-
-
-<!-- ═══ SYSTEM ═════════════════════════════════════════════════════════ -->
-
-
-<!-- ═══ ACTION ═════════════════════════════════════════════════════════ -->
-
-
-<!-- ═══ CAPABILITY ═════════════════════════════════════════════════════ -->
-
-
-<!-- ═══ WORK ═══════════════════════════════════════════════════════════ -->
-
-
-<script src="motion.js" defer></script>
-<script src="v3-h1.js" defer></script>
-<script src="v3-hero.js" defer></script>
-<script src="v3-biz.js" defer></script>
-<script src="v3-tour.js" defer></script>
 </main>
-<div class="tour" id="tour-ui" hidden><div class="tour__bar" aria-hidden="true"><i></i></div><p class="tour__cap" role="status" aria-live="polite"></p><button class="tour__exit" type="button">Exit<span aria-hidden="true"> &times;</span></button></div>
-<section class="sec sec--close" data-af-edge="ink" aria-labelledby="close-h">
-  <div class="close__img">
-    <picture>
-      <source srcset="media/studio-close.webp" type="image/webp">
-      <img src="media/studio-close.jpg" alt="The studio bench in Nairobi, mid-build: three screens, a laptop and the work in progress." width="1800" height="1011" loading="lazy" decoding="async">
-    </picture>
-  </div>
-  <div class="w close__body">
-    <p class="kicker">The studio</p>
-    <h2 id="close-h" class="h--close">Bring us the problem,<br>not the specification.</h2>
-    <p class="close__lede">Eleven systems in the register, five with public surfaces you can open.
-      If you have work that has to hold up in the real world, start with a conversation. The first
-      one is free.</p>
-    <div class="close__act">
-      <a class="cta cta--solid" href="book/">Start a project</a>
-      <a class="cta" href="engagement/">How we work</a>
-    </div>
-    <p class="close__note">Or write directly to
-      <a class="lnk" href="mailto:hello@lesnarai.co.ke"><b>hello@lesnarai.co.ke</b></a>.</p>
-  </div>
-</section>
+
 <footer class="site-foot">
   <div class="w">
     <div class="foot__id">
@@ -2743,6 +3111,6 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
   </div>
 </footer>
 <script src="theme.js" defer></script><script src="ui.js" defer></script>
-<script src="verify.js" defer></script>
+<script src="v4-field.js" defer></script><script src="v4-motion.js" defer></script>
 </body>
 </html>

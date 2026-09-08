@@ -29,10 +29,14 @@ const WATCH = ["transform", "opacity", "backgroundColor", "color", "borderColor"
 
 /* selector -> which states that element is expected to answer */
 const CASES = [
-  { page: "/",       sel: ".cta",            states: ["hover", "active"] },
+  { page: "/",       sel: ".btn--go",        states: ["hover", "active"] },
+  { page: "/",       sel: ".btn--quiet",     states: ["hover", "active"] },
+  { page: "/",       sel: ".fcard a",        states: ["hover", "active"] },
+  { page: "/",       sel: ".reg__l a",       states: ["hover"] },
+  { page: "/",       sel: ".btn--line",      states: ["hover", "active"] },
+  { page: "/",       sel: ".cap__c",         states: ["hover"] },
   { page: "/",       sel: ".site-nav a",     states: ["hover", "focus-visible"] },
-  { page: "/",       sel: ".site-foot a",    states: ["hover"] },
-  { page: "/",       sel: ".lnk",            states: ["hover"] },
+  { page: "/",       sel: ".site-foot nav a",states: ["hover"] },
   { page: "/work/",  sel: ".live-e",         states: ["hover", "active"] },
   { page: "/work/",  sel: ".held-e",         states: ["hover", "active"] },
   { page: "/work/",  sel: ".theme-t",        states: ["hover", "active"] },
