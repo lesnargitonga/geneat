@@ -22,20 +22,36 @@
     ["b-msg", "message", function (v) { return v.trim().length > 9; },
      "A sentence or two about what you are trying to build."]
   ];
+  FIELDS.forEach(function (f) { slot(f[0]); });   /* reserve every message slot before first paint */
+
+  /* The message slot exists from first paint and never leaves. Creating the
+     paragraph on failure and removing it on success added and removed 25.5px
+     under a field - 13px at line-height 1.5 plus a 6px margin - which is
+     exactly the shift measured on this page at 390 and 430. The slot is
+     reserved instead, so validation changes what it says and never how much
+     room it takes. */
+  function slot(id) {
+    var el = document.getElementById(id);
+    if (!el) return null;
+    var box = el.closest("div");
+    var p = box.querySelector(".bk-err");
+    if (!p) {
+      p = document.createElement("p");
+      p.className = "bk-hint bk-err";
+      p.id = id + "-err";
+      p.setAttribute("role", "status");
+      box.appendChild(p);
+    }
+    return p;
+  }
 
   function err(id, msg) {
     var el = document.getElementById(id);
-    var box = el.closest("div");
-    var old = box.querySelector(".bk-err");
-    if (old) old.remove();
+    var p = slot(id);
+    if (!el || !p) return;
+    p.textContent = msg || "";
     if (msg) {
       el.setAttribute("aria-invalid", "true");
-      var p = document.createElement("p");
-      p.className = "bk-hint bk-err";
-      p.style.color = "var(--accent)";
-      p.id = id + "-err";
-      p.textContent = msg;
-      box.appendChild(p);
       el.setAttribute("aria-describedby", p.id);
     } else {
       el.removeAttribute("aria-invalid");
@@ -79,19 +95,13 @@
       topic: label.trim() || topic,
       name: document.getElementById("b-name").value.trim(),
       email: document.getElementById("b-mail").value.trim(),
-      org: document.getElementById("b-org").value.trim(),
-      when: document.getElementById("b-when").value.trim(),
-      how: document.getElementById("b-how").value,
       message: document.getElementById("b-msg").value.trim()
     };
 
     var body = [
       "About: " + d.topic, "",
       "Name: " + d.name,
-      "Email: " + d.email,
-      d.org ? "Company: " + d.org : null,
-      d.when ? "Preferred time: " + d.when : null,
-      "Preferred format: " + d.how, "",
+      "Email: " + d.email, "",
       d.message
     ].filter(Boolean).join("\n");
 

@@ -793,6 +793,74 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
   .eyebrow4--split{flex-direction:column;align-items:flex-start;gap:6px}
   .eyebrow4--split i{width:34px}
 }
+
+/* ── RECORD SIGNATURE ────────────────────────────────────────────────────
+   Same shell on every record; a different diagram in it. The three heroes
+   were structurally identical, so the first screen told you nothing about
+   which system you had opened until you read the name. Each signature is
+   drawn from what the product actually is, and every line in them is
+   already evidenced further down the same page.
+
+   Deliberately static. A record page is calmer than the homepage, and this
+   block sits above the fold, where it should be complete at rest. */
+.sig{margin:clamp(20px,3vh,30px) 0 0;padding:clamp(14px,2vw,20px);
+  border:1px solid var(--rule)}
+.sys-hero .sig__k,.sys-hero .sig__n,.sys-hero .route span,.sys-hero .ledger span,
+.sys-hero .gates i{color:#9AA3AB}
+.sys-hero .sig,.sys-hero .gates li,.sys-hero .ledger li,.sys-hero .sig__n{
+  border-color:rgba(244,245,246,.22)}
+.sys-hero .ledger{border-left-color:rgba(244,245,246,.55)}
+.sig__k{margin:0 0 14px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;
+  font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--fg-2)}
+.sig__n{margin:14px 0 0;padding-top:11px;border-top:1px solid var(--rule);
+  font:400 11.5px/1.55 M,"Mono Fallback",ui-monospace,monospace;color:var(--fg-2)}
+.sig ol{list-style:none;margin:0;padding:0}
+.sig b{font-weight:600;letter-spacing:-.01em}
+/* currentColor, not --fg. The hero keeps an ink ground in both themes, so a
+   token that flips with the theme put a dark pill on a dark ground - the
+   Mbeere North qualification was there and unreadable. */
+.pill{font:500 10px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.12em;
+  padding:5px 9px;border:1px solid currentColor;color:inherit;opacity:.9}
+
+/* BizMtaani — movement between actors, left to right */
+.route{display:flex;flex-wrap:wrap;align-items:stretch;gap:0}
+.route li{flex:1 1 130px;min-width:0;padding:2px 16px 2px 0;position:relative}
+.route li+li{padding-left:26px}
+.route li+li::before{content:"";position:absolute;left:6px;top:50%;width:12px;height:1px;
+  background:var(--fg-2)}
+.route li+li::after{content:"";position:absolute;left:15px;top:calc(50% - 3px);
+  width:5px;height:5px;border-top:1px solid var(--fg-2);border-right:1px solid var(--fg-2);
+  transform:rotate(45deg)}
+.route b{display:block;font-size:15.5px}
+.route span{display:block;margin-top:2px;font-size:13px;color:var(--fg-2)}
+
+/* CarePro — four gates that must each be passed */
+.gates{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(118px,1fr))}
+/* No fill. The record hero is an ink ground, so a white card here put the
+   inherited light label on a white box and the four names disappeared
+   entirely - four numbered empty boxes. The border alone carries the gate. */
+.gates li{padding:10px 12px;border:1px solid var(--rule)}
+.gates i{display:block;font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.14em;color:var(--fg-2);font-style:normal;margin-bottom:5px}
+.gates b{display:block;font-size:13.5px;line-height:1.25}
+
+/* Jamii — a record accumulating downward */
+.ledger{border-left:2px solid var(--fg);padding-left:0}
+.ledger li{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:3px 16px;
+  padding:9px 0 9px 14px;align-items:baseline;
+  border-bottom:1px solid var(--rule)}
+.ledger li:last-child{border-bottom:0}
+.ledger b{font:600 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.13em;
+  text-transform:uppercase;white-space:nowrap}
+.ledger span{font-size:13.5px;line-height:1.45;color:var(--fg-2)}
+@media(max-width:520px){
+  .route li{flex:1 1 100%;padding:8px 0}
+  .route li+li{padding-left:26px}
+  .route li+li::before{left:6px;top:14px}
+  .route li+li::after{left:15px;top:11px}
+  .ledger li{grid-template-columns:1fr;gap:2px}
+}
 </style>
 <link rel="canonical" href="https://www.lesnarai.co.ke/work/bizmtaani/">
 <meta property="og:type" content="website">
@@ -824,7 +892,16 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
     <h1>BizMtaani</h1>
     <p><span class="mat">live product</span></p>
   </div>
-  <p class="lede">A neighbourhood marketplace. Shops near you list what they sell, you order and pay from your phone, and a rider brings it to your door.</p><div class="sys-act"><span class="sys-state">Live product</span><a class="sys-open" href="https://bizmtaani.com" target="_blank" rel="noopener noreferrer">Open the live product <span aria-hidden="true">&#8599;</span><span class="vh"> (opens in a new tab)</span></a></div></div></div><div class="page"><div class="w">
+  <p class="lede">A neighbourhood marketplace. Shops near you list what they sell, you order and pay from your phone, and a rider brings it to your door.</p><div class="sys-act"><span class="sys-state">Live product</span><a class="sys-open" href="https://bizmtaani.com" target="_blank" rel="noopener noreferrer">Open the live product <span aria-hidden="true">&#8599;</span><span class="vh"> (opens in a new tab)</span></a></div>
+  <div class="sig sig--route">
+    <p class="sig__k">Roles the marketplace names</p>
+    <ol class="route">
+      <li><b>Customer</b><span>orders and pays</span></li>
+      <li><b>Merchant</b><span>lists and sells</span></li>
+      <li><b>Rider</b><span>delivers</span></li>
+    </ol>
+    <p class="sig__n">The three roles carried in the site&rsquo;s own navigation. Not a record of any transaction.</p>
+  </div></div></div><div class="page"><div class="w">
   <div class="fact">
     <div><b>Public surface</b><a href="https://bizmtaani.com" rel="noopener noreferrer" target="_blank">bizmtaani.com</a></div>
     <div><b>Maturity</b>live product</div>

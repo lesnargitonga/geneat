@@ -763,6 +763,14 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 }
 .bk-free{margin:0;padding-top:12px;border-top:1px solid var(--fg);
   font-size:14.5px;line-height:1.5;color:var(--fg)}
+
+/* The validation slot is always present, so the field's geometry is settled
+   before anyone types. Empty it shows nothing; filled it shows the message in
+   the same space. The stack gap shrinks to match, so reserving the line does
+   not loosen the form. */
+.bk-f{gap:7px}
+.bk-err{min-height:19.5px;margin:6px 0 0;color:var(--err,#9A2E14)}
+.bk-err:empty{margin-top:6px}
 </style>
 <link rel="canonical" href="https://www.lesnarai.co.ke/book/">
 <meta property="og:type" content="website">
@@ -791,7 +799,7 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 <div class="page"><div class="w">
   <p class="kicker">Book &middot; Open for selected work</p>
   <h1>Request a<br>conversation.</h1>
-  <p class="lede">Tell us roughly what it is and when suits you. The first conversation is free and carries no commitment. Deeper technical work - an audit, architecture or a written specification - is scoped and priced separately.</p>
+  <p class="lede">Tell us roughly what you need built. The first conversation is free and carries no commitment. Deeper technical work - an audit, architecture or a written specification - is scoped and priced separately.</p>
 
   <div class="bk">
     <form class="bk-form" id="bkform" novalidate>
@@ -813,29 +821,10 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
             <div><label for="b-mail">Email</label>
               <input type="email" id="b-mail" name="email" autocomplete="email"></div>
           </div>
-          <div><label for="b-org">Company <span style="font-weight:400;color:var(--fg-2)">- optional</span></label>
-            <input type="text" id="b-org" name="org" autocomplete="organization"></div>
           <div><label for="b-msg">What are you trying to build?</label>
             <textarea id="b-msg" name="message"></textarea>
             <p class="bk-hint">The problem, not the spec. What it must never get wrong is the
               most useful thing you can tell us.</p></div>
-        </div>
-      </div>
-
-      <div class="bk-step">
-        <p class="bk-step__h"><span class="bk-step__n">03</span>
-          <span class="bk-step__t">When and how</span></p>
-        <div class="bk-f">
-          <div class="bk-two">
-            <div><label for="b-when">Preferred day and time</label>
-              <input type="text" id="b-when" name="when" placeholder="e.g. Tuesday or Wednesday morning"></div>
-            <div><label for="b-how">Preferred way to talk</label>
-              <select id="b-how" name="how">
-                <option>Video call</option><option>Phone call</option><option>Email first</option>
-              </select></div>
-          </div>
-          <p class="bk-hint">Nairobi time (EAT). We will reply with a time rather than book one
-            automatically - nothing is scheduled until you have confirmed it.</p>
         </div>
       </div>
 
