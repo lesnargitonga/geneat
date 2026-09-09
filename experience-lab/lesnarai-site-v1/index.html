@@ -5,7 +5,9 @@
 if(t!=="dark"&&t!=="light")t=matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
 document.documentElement.setAttribute("data-theme",t);}catch(e){}
 /* Motion resting-states are only safe to apply when script can lift them. */
-try{document.documentElement.setAttribute("data-js","1");}catch(e){}})();</script>
+try{document.documentElement.setAttribute("data-js","1");
+if(!matchMedia("(prefers-reduced-motion:reduce)").matches)
+  document.documentElement.setAttribute("data-est","1");}catch(e){}})();</script>
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -2465,7 +2467,79 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 :root[data-scrolled] .site-head{
   box-shadow:0 10px 30px -18px rgba(8,9,11,.55),0 1px 0 rgba(128,128,128,.22)}
 
-.site-head{position:relative}
+/* ── PERSISTENT NAVIGATION ────────────────────────────────────────────────
+   This rule used to read `position:relative`. It was added so the progress
+   line below could anchor to the header - and because it sits later in the
+   sheet than the original `position:sticky`, at equal specificity, it silently
+   un-stuck the header on all twenty pages. Measured on the homepage: by 25% of
+   the way down, the header was 1,720px above the viewport and there were zero
+   navigation links reachable for the rest of the document.
+
+   `sticky` is itself a positioned value, so the progress line anchors to it
+   exactly as well. The header stays. */
+.site-head{position:sticky;top:0;z-index:80;--nav-bg:var(--ink)}
+
+/* the height the header actually occupies, measured once and republished on
+   resize, so a pinned scene can start below it instead of under it */
+:root{--head-h:57px}
+/* an anchor - the skip link above all - must land below the header rather
+   than underneath it, and the target has to be able to take focus or the
+   next Tab starts from the top of the page again */
+#main,[id]{scroll-margin-top:calc(var(--head-h,57px) + 8px)}
+#main:focus{outline:none}
+#main:focus-visible{outline:2px solid currentColor;outline-offset:-4px}
+
+/* ── the header on a phone ───────────────────────────────────────────────
+   BOTH layouts are in the markup. Which one renders is settled before first
+   paint by the capability marker the head script sets, so the height on the
+   first frame is the height the header keeps - script never builds, moves or
+   resizes any of this afterwards. An earlier version constructed the bar in
+   JavaScript and the page jumped 28-37px at ~66ms when it did.
+
+   With no script the full navigation stays inline, exactly as it always has,
+   and the control that would open the panel is not shown at all. */
+.nav-q,.nav-t{display:none}
+@media(max-width:719px){
+  :root[data-js] .site-head .w{gap:8px;flex-wrap:nowrap}
+  :root[data-js] .nav-q{display:inline-flex;align-items:center;justify-content:center;
+    text-decoration:none;color:inherit;white-space:nowrap;
+    font:600 13px/1 A,"Archivo Fallback",system-ui,sans-serif;letter-spacing:-.005em;
+    min-height:44px;padding:0 10px}
+  :root[data-js] .nav-q--work{margin-left:auto}
+  :root[data-js] .nav-q--go{border:1px solid currentColor;padding:0 12px}
+  :root[data-js] .nav-t{display:inline-flex;align-items:center;justify-content:center;
+    min-width:44px;min-height:44px;padding:0 8px;cursor:pointer;gap:7px;
+    background:none;border:1px solid currentColor;color:inherit;
+    font:600 12px/1 A,"Archivo Fallback",system-ui,sans-serif}
+  .nav-t__b{display:block;width:15px;height:9px;position:relative;flex:0 0 auto}
+  .nav-t__b::before,.nav-t__b::after{content:"";position:absolute;left:0;right:0;
+    height:1.5px;background:currentColor;transition:transform 220ms cubic-bezier(.2,.8,.3,1)}
+  .nav-t__b::before{top:0}
+  .nav-t__b::after{bottom:0}
+  .site-head[data-nav="open"] .nav-t__b::before{transform:translateY(3.75px) rotate(45deg)}
+  .site-head[data-nav="open"] .nav-t__b::after{transform:translateY(-3.75px) rotate(-45deg)}
+  :root[data-js] .site-head .theme-t{min-width:44px;min-height:44px;padding:0 10px;margin-left:0}
+  :root[data-js] .site-head .theme-t__l{display:none}
+
+  :root[data-js] .site-head .site-nav{
+    position:absolute;left:0;right:0;top:100%;margin:0;
+    background:var(--nav-panel,var(--nav-bg));border-bottom:1px solid currentColor;
+    padding:6px clamp(18px,3.4vw,46px) 14px;
+    display:grid;grid-template-columns:minmax(0,1fr);gap:0;
+    max-height:min(70vh,420px);overflow:auto;
+    box-shadow:0 22px 36px -20px rgba(0,0,0,.45)}
+  :root[data-js] .site-head:not([data-nav="open"]) .site-nav{display:none}
+  :root[data-js] .site-head .site-nav a{
+    display:flex;align-items:center;justify-content:flex-start;
+    min-height:48px;padding:0;font-size:15px;flex:none;width:auto;
+    border-bottom:1px solid rgba(128,128,128,.28)}
+  :root[data-js] .site-head .site-nav a::after{display:none}
+  :root[data-js] .site-head .site-nav a[aria-current="page"]{font-weight:700}
+  :root[data-js] .site-head .site-nav a[aria-current="page"]::before{
+    content:"";width:6px;height:6px;border-radius:50%;background:currentColor;
+    margin-right:9px;flex:0 0 auto}
+}
+@media(max-width:339px){:root[data-js] .nav-q--work{display:none}}
 .site-head::after{content:"";position:absolute;left:0;bottom:0;height:2px;
   width:100%;transform-origin:0 50%;transform:scaleX(var(--sp,0));
   background:currentColor;opacity:.55;pointer-events:none}
@@ -2483,106 +2557,266 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
   transition:border-color 200ms ease,color 200ms ease}
 .site-foot nav a:hover,.site-foot nav a:focus-visible{border-bottom-color:currentColor}
 
-/* ══ V4 HOMEPAGE ═══════════════════════════════════════════════════════════
-   Five chapters, one canvas. Everything below is scoped to .v4 so the shell,
-   the theme system and the other nineteen pages are untouched.
+/* ══ V4 HOMEPAGE · HUMAN EXPERIENCE RESET ══════════════════════════════════
+   One engine, one variable.
 
-   Type: the headline sits at 3.4rem, weight 600 - not 150px at 800. The width
-   axis survives on the chapter eyebrow only, where a single unwrapped line
-   cannot re-wrap and therefore cannot move the page. That was the actual
-   source of both the 1.6 CLS and the "moving words" impression.        */
-.v4{--gutter:clamp(20px,4.6vw,64px);--maxw:1240px;
-    --sig:#1B6B52;--held:#8A6A12;--down:#A8401C}
+   Every narrative scene is a function of scroll position and nothing else.
+   `--p` runs 0 → 1 as the scene is traversed; every element inside derives its
+   own 0 → 1 from a band of that progress, in CSS, with clamp(). Scrolling down
+   raises p, scrolling up lowers it, stopping freezes it, and the same scroll
+   position always produces the same picture. There is no latch, no observer
+   deciding a completed state, and no animation that can be missed by arriving
+   late - arriving late simply means p is already high.
+
+   The hero is the one exception, and deliberately so. Its DATA is resolved once
+   and stays true; its GEOMETRY is reversible. `--he` sweeps 0 → 1 once on load
+   as a timed establishment; `--hq` runs 0 → 1 as you scroll away and back. A
+   status that has resolved never returns to "checking" for theatre.       */
+
+@property --p  {syntax:"<number>";inherits:true;initial-value:1}
+@property --he {syntax:"<number>";inherits:true;initial-value:1}
+@property --hq {syntax:"<number>";inherits:true;initial-value:0}
+@property --n  {syntax:"<number>";inherits:true;initial-value:1}
+@property --o  {syntax:"<number>";inherits:true;initial-value:0}
+
+/* p and he both rest at 1 and hq at 0, so the page with no JavaScript, or with
+   motion reduced, is the finished page rather than an empty one. */
+.st{--n:clamp(0, calc((var(--p)  - var(--a,0)) / var(--b,1)), 1);
+    --o:clamp(0, calc((var(--p)  - var(--c,9)) / var(--d,1)), 1)}
+.se{--n:clamp(0, calc((var(--he) - var(--a,0)) / var(--b,1)), 1)}
+
+/* The theme tokens are registered as colours so the SWITCH can interpolate the
+   token itself, once, on the root - rather than arming a colour transition on
+   every element in the tree. Measured, the per-element version fades text
+   asymptotically: Chrome re-bases an inherited `color` transition against its
+   parent's own in-flight value each frame, so a headline was still 27% short
+   of its final colour at 600ms while the ground behind it had finished at 400.
+   One interpolation at the root cannot drift out of step with itself. */
+@property --v-page{syntax:"<color>";inherits:true;initial-value:#F1F3F0}
+@property --v-surf{syntax:"<color>";inherits:true;initial-value:#F7F9F6}
+@property --v-raise{syntax:"<color>";inherits:true;initial-value:#FFFFFF}
+@property --v-strong{syntax:"<color>";inherits:true;initial-value:#E4E9E4}
+@property --v-deep{syntax:"<color>";inherits:true;initial-value:#D7DED8}
+@property --v-fg{syntax:"<color>";inherits:true;initial-value:#101613}
+@property --v-fg-2{syntax:"<color>";inherits:true;initial-value:#4C574F}
+@property --v-fg-3{syntax:"<color>";inherits:true;initial-value:#6B766D}
+@property --v-rule{syntax:"<color>";inherits:true;initial-value:#CCD4CD}
+@property --v-rule-2{syntax:"<color>";inherits:true;initial-value:#96A398}
+@property --v-accent{syntax:"<color>";inherits:true;initial-value:#1B6B52}
+@property --v-dia{syntax:"<color>";inherits:true;initial-value:#FFFFFF}
+@property --v-dia-ink{syntax:"<color>";inherits:true;initial-value:#22302A}
+@property --v-dia-soft{syntax:"<color>";inherits:true;initial-value:#C2CCC4}
+
+/* ── SEMANTIC THEME TOKENS ───────────────────────────────────────────────
+   The old page had four chapters hard-coded to #0A0B0D, which is why light
+   mode measured 67% dark. Ground is now a role, not a literal, and every role
+   has a value in both themes. Names are v4-only, so the other nineteen pages
+   cannot be reached by anything below. */
+:root{
+  --v-page:#F1F3F0;      /* paper - neutral with a faint green bias, not cool grey */
+  --v-surf:#F7F9F6;      /* a card on paper */
+  --v-raise:#FFFFFF;     /* mount: what a captured screen sits on */
+  --v-strong:#E4E9E4;    /* a strong section: denser paper, still paper */
+  --v-deep:#D7DED8;      /* the deepest light ground on the page */
+  --v-fg:#101613;
+  --v-fg-2:#4C574F;
+  --v-fg-3:#5C665E;
+  --v-rule:#CCD4CD;
+  --v-rule-2:#96A398;
+  --v-accent:#1B6B52;
+  --v-down:#9C3A18;
+  --v-dia:#FFFFFF;       /* diagram ground */
+  --v-dia-ink:#22302A;   /* diagram stroke */
+  --v-dia-soft:#C2CCC4;
+  --v-shadow:12,22,18;
+  --v-ease:cubic-bezier(.2,.8,.3,1);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --v-page:#0D1211; --v-surf:#141A18; --v-raise:#1A211D; --v-strong:#080B0A;
+  --v-deep:#050807;
+  --v-fg:#E7ECE8; --v-fg-2:#98A49B; --v-fg-3:#8B968D;
+  --v-rule:#28312C; --v-rule-2:#4B564E;
+  --v-accent:#63C39F; --v-down:#E28459;
+  --v-dia:#111716; --v-dia-ink:#C6D0C8; --v-dia-soft:#303A34;
+  --v-shadow:0,0,0;
+}}
+:root[data-theme="dark"]{
+  --v-page:#0D1211; --v-surf:#141A18; --v-raise:#1A211D; --v-strong:#080B0A;
+  --v-deep:#050807;
+  --v-fg:#E7ECE8; --v-fg-2:#98A49B; --v-fg-3:#8B968D;
+  --v-rule:#28312C; --v-rule-2:#4B564E;
+  --v-accent:#63C39F; --v-down:#E28459;
+  --v-dia:#111716; --v-dia-ink:#C6D0C8; --v-dia-soft:#303A34;
+  --v-shadow:0,0,0;
+}
+body.route-home{background:var(--v-page);color:var(--v-fg)}
+body.route-home .site-head{background:var(--v-page);color:var(--v-fg);
+  --nav-bg:var(--v-page);--nav-panel:var(--v-raise)}
+/* Pinning every header link to the ink colour also pinned it on hover, which
+   silently removed the nav's only colour response. The links rest muted and
+   resolve on hover, focus and the current page. */
+body.route-home .site-head a{color:var(--v-fg-2)}
+body.route-home .site-head a:hover,
+body.route-home .site-head a:focus-visible,
+body.route-home .site-head a[aria-current="page"],
+body.route-home .site-mark{color:var(--v-fg)}
+/* the link for the page you are already on has nowhere to go on colour, so it
+   answers on its rule instead - otherwise one link in the nav is dead to the
+   pointer */
+body.route-home .site-head a:hover,
+body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
+
+/* ── theme transition ─────────────────────────────────────────────────────
+   A theme switch that repaints instantly reads as a fault. Only grounds, type,
+   rules and strokes move, and only for the 380ms the class is present, so
+   nothing that is mid-transform is interrupted. */
+:root[data-theme-x]{transition:
+  --v-page 380ms ease, --v-surf 380ms ease, --v-raise 380ms ease,
+  --v-strong 380ms ease, --v-deep 380ms ease,
+  --v-fg 380ms ease, --v-fg-2 380ms ease, --v-fg-3 380ms ease,
+  --v-rule 380ms ease, --v-rule-2 380ms ease, --v-accent 380ms ease,
+  --v-dia 380ms ease, --v-dia-ink 380ms ease, --v-dia-soft 380ms ease}
+:root[data-theme-x] body.route-home .site-foot,
+:root[data-theme-x] body.route-home .site-foot *{
+  transition:background-color 380ms ease, color 380ms ease,
+             border-color 380ms ease}
+@media(prefers-reduced-motion:reduce){
+  :root[data-theme-x],
+  :root[data-theme-x] body.route-home .site-foot,
+  :root[data-theme-x] body.route-home .site-foot *{transition:none}
+}
+
+.v4{--gutter:clamp(18px,3.4vw,46px);--maxw:1340px;
+    --sig:var(--v-accent);--press:cubic-bezier(.2,.8,.3,1);
+    background:var(--v-page);color:var(--v-fg)}
 .v4 .w4{max-width:var(--maxw);margin:0 auto;padding-inline:var(--gutter)}
 .v4 .eyebrow4{font:500 11.5px/1 M,"Mono Fallback",ui-monospace,monospace;
-  letter-spacing:.18em;text-transform:uppercase;color:var(--fg-2);
+  letter-spacing:.18em;text-transform:uppercase;color:var(--v-fg-2);
   font-variation-settings:"wdth" 100;margin:0}
-/* Chapters 1, 3-biz, 3-jam and 5 keep an ink ground in both themes, so their
-   text cannot come from tokens that flip with the theme. */
-.ch1 .eyebrow4,.ch5 .eyebrow4,.pr--biz .pr__k,.pr--jam .pr__k{color:#9AA3AB}
 .v4 h2{font-size:clamp(1.75rem,3.4vw,2.6rem);font-weight:600;line-height:1.04;
-  letter-spacing:-.022em;margin:.5rem 0 0;text-wrap:balance}
-.v4 .lede4{font-size:clamp(1rem,1.35vw,1.12rem);line-height:1.6;color:var(--fg-2);
+  letter-spacing:-.022em;margin:.5rem 0 0;text-wrap:balance;color:var(--v-fg)}
+.v4 .lede4{font-size:clamp(1rem,1.35vw,1.12rem);line-height:1.6;color:var(--v-fg-2);
   max-width:56ch;margin:.85rem 0 0}
 
-/* ── chapter 1 ───────────────────────────────────────────────────────────
-   Order is fixed by the brief: what we build, why it matters, proof, action.
-   The proof column is the fourth thing, never the proposition. */
-.ch1{position:relative;background:var(--ink);color:#F4F5F6;overflow:hidden;
-  padding:clamp(48px,8vh,104px) 0 clamp(40px,6vh,72px)}
-.ch1__grid{display:grid;gap:clamp(32px,5vw,72px);align-items:center;
-  grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)}
-.ch1 h1{font-size:clamp(2.15rem,5.1vw,3.55rem);font-weight:600;line-height:1.03;
-  letter-spacing:-.03em;margin:.7rem 0 0;max-width:17ch;
-  font-variation-settings:"wdth" 100;text-wrap:balance}
-.ch1 h1 em{font-style:normal;color:#fff}
-.ch1__lede{font-size:clamp(1rem,1.3vw,1.14rem);line-height:1.6;color:#C3C9CF;
-  max-width:46ch;margin:1.1rem 0 0}
-.ch1__act{display:flex;flex-wrap:wrap;gap:12px;margin:1.9rem 0 0}
-.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;
+/* ── buttons: kept. They already invert on hover and compress on press. ── */
+/* a primary control has to be comfortable to hit on a phone: this one measured
+   249x40 on every record page */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;min-height:44px;
   font:600 15px/1 A,"Archivo Fallback",system-ui,sans-serif;letter-spacing:-.005em;
   text-decoration:none;border:1px solid transparent;cursor:pointer;
   -webkit-appearance:none;appearance:none;
-  transition:transform 170ms var(--press,cubic-bezier(.2,.8,.3,1)),
-             background-color 200ms ease,color 200ms ease,border-color 200ms ease}
-.btn--go{background:#fff;color:var(--ink);border-color:#fff}
-.btn--go:hover,.btn--go:focus-visible{background:transparent;color:#fff}
-.btn--quiet{background:transparent;color:#F4F5F6;border-color:rgba(244,245,246,.42)}
-.btn--quiet:hover,.btn--quiet:focus-visible{border-color:#fff}
+  transition:transform 170ms var(--press),background-color 200ms ease,
+             color 200ms ease,border-color 200ms ease}
+.btn--go{background:var(--v-fg);color:var(--v-page);border-color:var(--v-fg)}
+.btn--go:hover,.btn--go:focus-visible{background:transparent;color:var(--v-fg)}
+.btn--quiet{background:transparent;color:var(--v-fg);border-color:var(--v-rule-2)}
+.btn--quiet:hover,.btn--quiet:focus-visible{border-color:var(--v-fg)}
+.btn--line{background:transparent;color:var(--v-fg);border-color:var(--v-fg);
+  padding:12px 18px;font-size:14px;min-height:44px}
+.btn--line:hover,.btn--line:focus-visible{background:var(--v-fg);color:var(--v-page)}
 .btn:active{transform:scale(.972)}
-.btn span{display:inline-block;transition:transform 260ms var(--press,cubic-bezier(.2,.8,.3,1))}
+.btn span{display:inline-block;transition:transform 260ms var(--press)}
 .btn:hover span,.btn:focus-visible span{transform:translateX(4px)}
 
-/* ── the live field: proof, and legible ─────────────────────────────────── */
-.field{border:1px solid rgba(244,245,246,.2);background:rgba(255,255,255,.028);
-  padding:clamp(16px,2vw,24px)}
-/* The caption grows from "checking…" to "5 of 5 answering · 07:53" when the
-   result lands. On a narrow field that wrapped the header onto a second line
-   and moved everything below it - 0.0143 of shift caused by the status
-   response itself, which the brief forbids outright. The two never share a
-   line on narrow screens, and the caption never wraps, so the header's height
-   is settled before the request is made. */
-.field__h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
-  padding-bottom:12px;border-bottom:1px solid rgba(244,245,246,.16)}
-.field__c{white-space:nowrap}
-@media(max-width:560px){
-  .field__h{flex-direction:column;align-items:flex-start;gap:5px}
-  .field__c{text-align:left}
-}
-.field__h b{font:600 13px/1 A,"Archivo Fallback",system-ui,sans-serif;
-  letter-spacing:.02em;color:#F4F5F6}
-.field__c{font:500 11px/1.4 M,"Mono Fallback",ui-monospace,monospace;color:#9AA3AB;
-  text-align:right}
-.field ol{list-style:none;margin:0;padding:0}
-.sysrow{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:12px;
-  align-items:center;padding:11px 0;border-bottom:1px solid rgba(244,245,246,.09)}
-.sysrow:last-child{border-bottom:0}
-.sysrow__d{width:9px;height:9px;border-radius:50%;border:1.5px solid #6E7780;
-  justify-self:center;transition:background-color 320ms ease,border-color 320ms ease,
-                                 box-shadow 320ms ease}
-.sysrow__n{min-width:0}
-.sysrow__n b{display:block;font:600 14.5px/1.2 A,"Archivo Fallback",system-ui,sans-serif;
-  color:#F4F5F6;letter-spacing:-.008em}
-.sysrow__n span{display:block;font:400 11.5px/1.4 M,"Mono Fallback",ui-monospace,monospace;
-  color:#8C959D;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* the reading is reserved at its widest so a result can never move the row */
-.sysrow__v{font:500 12.5px/1 M,"Mono Fallback",ui-monospace,monospace;color:#8C959D;
-  font-variant-numeric:tabular-nums;text-align:right;min-width:9ch;
-  transition:color 320ms ease}
-/* the reading still cannot move, but it gives the hostname back the width it
-   needs so "jamii.lesnarai.co.ke" is not shown as "jamii.lesnarai...." */
+/* ═══ 1 · WHO LESNAR AI IS ══════════════════════════════════════════════
+   Readable before anything moves. The field is proof, and it is the fourth
+   thing on the page, never the proposition. */
+.ch1{position:relative;background:var(--v-strong);color:var(--v-fg);
+  padding:clamp(48px,8vh,104px) 0 clamp(40px,7vh,84px);
+  border-bottom:1px solid var(--v-rule);
+  /* it is the first screen, and it should look like it - but only where there
+     is the height to spend. Below 700px tall the content sets the height. */
+  display:flex;align-items:center}
+@media(min-height:700px){.ch1{min-height:calc(100svh - 76px)}}
+.ch1__grid{display:grid;gap:clamp(32px,5vw,72px);align-items:center;width:100%;
+  grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr)}
+.ch1 h1{font-size:clamp(2.15rem,5.1vw,3.55rem);font-weight:600;line-height:1.03;
+  letter-spacing:-.03em;margin:.7rem 0 0;max-width:17ch;color:var(--v-fg);
+  font-variation-settings:"wdth" 100;text-wrap:balance}
+.ch1 h1 em{font-style:normal;color:var(--v-accent)}
+.ch1__lede{font-size:clamp(1rem,1.3vw,1.14rem);line-height:1.6;color:var(--v-fg-2);
+  max-width:46ch;margin:1.1rem 0 0}
+.ch1__act{display:flex;flex-wrap:wrap;gap:12px;margin:1.9rem 0 0}
+.eyebrow4--split{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.eyebrow4--split i{display:block;width:22px;height:1px;background:currentColor;
+  opacity:.5;flex:0 0 auto}
 @media(max-width:430px){
-  .sysrow{gap:9px}
-  .sysrow__n span{font-size:10.5px;letter-spacing:-.01em}
-  .sysrow__v{min-width:8ch;font-size:11.5px}
+  .eyebrow4--split{flex-direction:column;align-items:flex-start;gap:6px}
+  .eyebrow4--split i{width:34px}
 }
-.sysrow[data-state="up"] .sysrow__d{background:var(--sig);border-color:var(--sig);
-  box-shadow:0 0 0 3px rgba(27,107,82,.22)}
-.sysrow[data-state="up"] .sysrow__v{color:#8FD3B8}
-.sysrow[data-state="down"] .sysrow__d{border-color:var(--down);background:transparent}
-.sysrow[data-state="down"] .sysrow__v{color:#E0987A}
-.field__note{margin:14px 0 0;font:400 11.5px/1.55 M,"Mono Fallback",ui-monospace,monospace;
-  color:#8C959D;max-width:44ch}
+
+/* ── the live field ──────────────────────────────────────────────────────
+   RESOLVE. `--he` sweeps once on load: the frame draws, the spine grows, the
+   connectors reach, the systems resolve one at a time, the readings settle,
+   and it rests. `--hq` then owns the geometry: connectors retract, systems
+   separate, hostnames simplify away. The state dot and the reading are driven
+   by neither - they are data, and data does not perform. */
+.fld{margin:0;background:var(--v-dia);border:1px solid var(--v-rule);
+  padding:clamp(16px,2vw,24px);position:relative;
+  --fr:clamp(0,calc(var(--he)/.16),1);
+  transform:translateY(calc(var(--hq) * -22px + (1 - var(--fr)) * 10px));
+  box-shadow:0 calc(18px - var(--hq)*10px) calc(40px - var(--hq)*18px) -28px rgba(var(--v-shadow),.5);
+  opacity:calc(.15 + var(--fr) * .85)}
+.fld__h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding-bottom:12px;border-bottom:1px solid var(--v-rule)}
+.fld__h b{font:600 13px/1 A,"Archivo Fallback",system-ui,sans-serif;
+  letter-spacing:.02em;color:var(--v-fg)}
+.fld__c{font:500 11px/1.4 M,"Mono Fallback",ui-monospace,monospace;
+  color:var(--v-fg-2);text-align:right;white-space:nowrap;
+  opacity:calc(var(--n) * (1 - var(--hq) * .85))}
+@media(max-width:560px){
+  .fld__h{flex-direction:column;align-items:flex-start;gap:5px}
+  .fld__c{text-align:left}
+}
+.fld__d{position:relative;padding-left:26px;margin-top:2px}
+/* the spine grows from the header downward, then shortens as you leave */
+.fld__spine{position:absolute;left:9px;top:14px;bottom:14px;width:1px;
+  background:var(--v-dia-soft);transform-origin:50% 0;
+  transform:scaleY(calc(clamp(0,calc((var(--he) - .10)/.18),1) * (1 - var(--hq) * .78)))}
+.fld__l{list-style:none;margin:0;padding:0}
+.fld__r{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:12px;
+  align-items:center;padding:11px 0;border-bottom:1px solid var(--v-rule);
+  position:relative;
+  transform:translateY(calc(var(--hq) * var(--sep,0) * 9px));
+  opacity:calc(var(--n) * (1 - var(--hq) * .30))}
+.fld__r:last-child{border-bottom:0}
+/* the connector reaching from the spine to the system */
+.fld__c2{position:absolute;left:-17px;top:50%;width:17px;height:1px;
+  background:var(--v-dia-soft);transform-origin:0 50%;
+  transform:scaleX(calc(clamp(0,calc((var(--he) - var(--ca)) / .16),1) * (1 - var(--hq))))}
+.fld__dot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--v-dia-ink);
+  justify-self:center;
+  transition:background-color 320ms ease,border-color 320ms ease,box-shadow 320ms ease}
+.fld__id{min-width:0}
+.fld__id b{display:block;font:600 14.5px/1.2 A,"Archivo Fallback",system-ui,sans-serif;
+  color:var(--v-fg);letter-spacing:-.008em}
+.fld__id span{display:block;font:400 11.5px/1.4 M,"Mono Fallback",ui-monospace,monospace;
+  color:var(--v-fg-3);margin-top:2px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;opacity:calc(1 - var(--hq))}
+/* the reading column is reserved at its widest, so no result can move a row */
+.fld__v{font:500 12.5px/1 M,"Mono Fallback",ui-monospace,monospace;color:var(--v-fg-3);
+  font-variant-numeric:tabular-nums;text-align:right;min-width:9ch;
+  opacity:clamp(0,calc((var(--he) - var(--va)) / .16),1);
+  transition:color 320ms ease}
+@media(max-width:430px){
+  .fld__r{gap:9px}
+  .fld__id span{font-size:10.5px;letter-spacing:-.01em}
+  .fld__v{min-width:8ch;font-size:11.5px}
+}
+.fld__r[data-state="up"] .fld__dot{background:var(--v-accent);border-color:var(--v-accent);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--v-accent) 20%,transparent)}
+.fld__r[data-state="up"] .fld__v{color:var(--v-accent)}
+.fld__r[data-state="down"] .fld__dot{border-color:var(--v-down);background:transparent}
+.fld__r[data-state="down"] .fld__v{color:var(--v-down)}
+.fld__note{margin:14px 0 0;font:400 11.5px/1.55 M,"Mono Fallback",ui-monospace,monospace;
+  color:var(--v-fg-3);max-width:44ch;
+  opacity:calc(clamp(0,calc((var(--he) - .70)/.18),1) * (1 - var(--hq)))}
+
+/* the establishment sweep. One animation on one element; every band above
+   reads from it. Stamped by the head script only when motion is allowed, so
+   reduced motion and no-JS both start at the finished state. */
+:root[data-est] .ch1{animation:establish 1950ms linear forwards}
+@keyframes establish{from{--he:0}to{--he:1}}
 
 @media(max-width:980px){
   .ch1__grid{grid-template-columns:1fr;gap:clamp(28px,5vh,44px)}
@@ -2593,287 +2827,428 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
   .btn{justify-content:center}
 }
 
-/* ── chapter 2 · ASSEMBLE ────────────────────────────────────────────────
-   Parts forming a system: a spine draws, markers snap onto it, then the
-   labels clip open. Not a fade-up - the structure is what arrives. */
-.ch2{background:var(--sheet-cool,#EBECEE);color:var(--fg);
-  padding:clamp(56px,9vh,110px) 0}
-.reg{margin-top:clamp(28px,4vh,44px)}
-.reg__flag{list-style:none;margin:0;padding:0;display:grid;gap:14px;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
-.fcard a{display:flex;flex-direction:column;gap:8px;height:100%;
-  padding:20px 20px 18px;border:1px solid var(--rule);background:var(--sheet,#fff);
-  text-decoration:none;color:inherit;
-  transition:transform 260ms var(--press,cubic-bezier(.2,.8,.3,1)),
-             box-shadow 300ms var(--press,cubic-bezier(.2,.8,.3,1)),
-             border-color 220ms ease}
-.fcard a:hover,.fcard a:focus-visible{border-color:var(--fg);
-  box-shadow:0 16px 34px -20px rgba(10,11,13,.4);transform:translateY(-2px)}
-.fcard a:active{transform:translateY(0) scale(.995)}
-.fcard__k{font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--fg-2)}
-.fcard b{font-size:clamp(1.2rem,1.9vw,1.5rem);font-weight:600;letter-spacing:-.02em;
-  line-height:1.1}
-.fcard__p{font-size:14.5px;line-height:1.5;color:var(--fg-2);flex:1}
-.fcard__go{font:600 13px/1 A,"Archivo Fallback",system-ui,sans-serif;color:var(--fg)}
-.fcard__go span{display:inline-block;transition:transform 260ms var(--press,cubic-bezier(.2,.8,.3,1))}
-.fcard a:hover .fcard__go span{transform:translateX(4px)}
+/* ═══ 2 · WHAT KIND OF SYSTEMS · ASSEMBLE ═══════════════════════════════
+   The register used to be eleven links under two headings, plus three cards
+   that repeated the three product sections below it. It is now one map: a
+   trunk, three branches, and eleven systems whose fill says whether they are
+   live and whose connector says how they attach. Scroll down builds it from
+   the core outward. Scroll up takes it apart in the same order. */
+.ch2{background:var(--v-page);color:var(--v-fg);height:230vh;position:relative}
+.map__stick{position:sticky;top:var(--head-h,57px);
+  height:calc(100svh - var(--head-h,57px));display:flex;align-items:center;
+  overflow:hidden}
+.map__in{width:100%}
+.map{position:relative;margin-top:clamp(24px,3.6vh,40px);padding-left:clamp(16px,2.4vw,30px)}
+.map__trunk{position:absolute;left:0;top:6px;bottom:6px;width:1px;
+  background:var(--v-dia-soft);transform-origin:50% 0;
+  transform:scaleY(clamp(0,calc(var(--p)/.24),1))}
+.map__core{position:relative;margin:0 0 clamp(14px,2vh,22px) 0;
+  display:inline-flex;align-items:baseline;gap:10px;
+  padding:8px 14px;color:var(--v-page);background:var(--v-fg);
+  /* The ground used to mix from --v-rule to --v-fg while the label stayed
+     --v-page: at rest that was near-white on light grey, 1:1. The words are
+     the one thing here that never animates. What arrives is the accent stub
+     and the position. */
+  transform:translateX(calc((1 - clamp(0,calc(var(--p)/.16),1)) * -12px));
+  box-shadow:-4px 0 0 0 color-mix(in srgb,var(--v-accent)
+             calc(clamp(0,calc(var(--p)/.16),1) * 100%),transparent)}
+.map__core b{font:600 14px/1 A,"Archivo Fallback",system-ui,sans-serif;letter-spacing:-.01em}
+.map__core span{font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.14em;text-transform:uppercase;opacity:.72}
+.map__br{position:relative;padding:clamp(10px,1.5vh,16px) 0 clamp(10px,1.5vh,16px) 0}
+.map__brh{margin:0 0 10px;display:flex;align-items:center;gap:10px;
+  font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--v-fg-2)}
+.map__brh i{display:block;width:clamp(14px,2vw,26px);height:1px;
+  background:var(--v-dia-soft);transform-origin:0 50%;transform:scaleX(var(--n));
+  flex:0 0 auto;margin-left:calc(-1 * clamp(16px,2.4vw,30px))}
+.map__n{list-style:none;margin:0;padding:0;display:grid;gap:8px;
+  grid-template-columns:repeat(3,minmax(0,1fr))}
+.map__n li{transform:translateX(calc((1 - var(--n)) * -16px))}
+.nd{display:grid;grid-template-columns:11px minmax(0,1fr);gap:10px;align-items:baseline;
+  padding:9px 12px 9px 10px;text-decoration:none;color:inherit;
+  /* the arrival is the surface, the rule and the accent stub - not the words */
+  background:color-mix(in srgb,var(--v-dia) calc(var(--n) * 100%),transparent);
+  border:1px solid color-mix(in srgb,var(--v-rule) calc(var(--n) * 100%),transparent);
+  box-shadow:-3px 0 0 0 color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),transparent);
+  transition:transform 240ms var(--press),border-color 200ms ease,
+             background-color 200ms ease,box-shadow 260ms var(--press)}
+.nd:hover,.nd:focus-visible{transform:translateX(5px);border-color:var(--v-fg);
+  background:var(--v-raise);box-shadow:-4px 0 0 0 var(--v-accent)}
+.nd:active{transform:translateX(5px) scale(.988);
+  background:color-mix(in srgb,var(--v-accent) 10%,var(--v-raise))}
+.nd__d{width:9px;height:9px;border-radius:50%;align-self:center;
+  border:1.5px solid color-mix(in srgb,var(--v-dia-ink) calc(var(--n) * 100%),var(--v-rule));
+  transform:scale(calc(.5 + var(--n) * .5))}
+.nd--live .nd__d{
+  background:color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),transparent);
+  border-color:color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),var(--v-rule))}
+.nd__t{min-width:0}
+.nd__t b{display:block;font:600 14px/1.25 A,"Archivo Fallback",system-ui,sans-serif;
+  letter-spacing:-.01em}
+.nd__t span{display:block;margin-top:2px;font-size:12px;line-height:1.4;
+  color:var(--v-fg-2)}
+.nd--flag{border-color:var(--v-rule-2);background:var(--v-raise)}
+.nd--flag .nd__t b::after{content:"Flagship";display:inline-block;margin-left:8px;
+  font:500 9px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--v-accent);vertical-align:2px}
+.nd--held{background:transparent;border-style:dashed}
+.nd--held .nd__t b{font-weight:500;color:var(--v-fg-2)}
+.map__n li:focus-within{opacity:1;transform:none}
+/* a navigation link, so it is available from the moment the scene is */
+.map__all{margin:clamp(14px,2.2vh,22px) 0 0}
 
-.reg__rest{display:grid;gap:clamp(20px,3vw,44px);margin-top:clamp(22px,3vh,34px);
-  grid-template-columns:minmax(240px,.82fr) minmax(260px,1.18fr)}
-@media(max-width:720px){.reg__rest{grid-template-columns:1fr}}
-.reg__lbl{margin:0 0 10px;font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--fg-2);
-  padding-bottom:8px;border-bottom:1px solid var(--rule)}
-.reg__l{list-style:none;margin:0;padding:0}
-.reg__l a{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;
-  padding:9px 0;text-decoration:none;color:inherit;
-  border-bottom:1px solid var(--rule-soft,rgba(128,128,128,.2))}
-.reg__l b{font-size:15px;font-weight:600;letter-spacing:-.01em}
-.reg__l span{font-size:13px;color:var(--fg-2)}
-/* The row is the target, so the row has to answer - underlining only the
-   name left the rest of a 400px-wide hit area with no feedback at all. */
-.reg__l a{transition:background-color 200ms ease,padding-left 220ms var(--press,cubic-bezier(.2,.8,.3,1))}
-.reg__l a:hover,.reg__l a:focus-visible{background:color-mix(in srgb,var(--fg) 6%,transparent)}
-.reg__l a:hover b,.reg__l a:focus-visible b{text-decoration:underline;text-underline-offset:4px}
-.reg__l--held b{font-weight:500;color:var(--fg-2)}
-.reg__all{margin:22px 0 0}
-.btn--line{background:transparent;color:var(--fg);border-color:var(--fg);padding:12px 18px;font-size:14px}
-.btn--line:hover,.btn--line:focus-visible{background:var(--fg);color:var(--sheet,#fff)}
-
-/* ASSEMBLE: markers snap on, labels clip open, in structural order */
-@media(prefers-reduced-motion:no-preference){
-  :root[data-js] .reg[data-assemble] .fcard,
-  :root[data-js] .reg[data-assemble] .reg__l li{clip-path:inset(0 0 100% 0);opacity:.001}
-  .reg[data-assemble][data-in] .fcard,
-  .reg[data-assemble][data-in] .reg__l li{
-    animation:asm 620ms cubic-bezier(.16,1,.3,1) forwards;
-    animation-delay:calc(var(--i,0) * 55ms)}
-  @keyframes asm{to{clip-path:inset(0 0 0 0);opacity:1}}
+@media(max-width:820px){
+  .ch2{height:250vh}
+  .map__n{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .nd{min-height:46px;align-items:center;padding:6px 10px 6px 8px}
+  .map__br{padding:clamp(6px,1vh,10px) 0}
+  .map__brh{margin-bottom:7px}
+  .nd{padding:8px 10px 8px 8px;gap:8px}
+  .nd__t span{font-size:11px}
+  .map{padding-left:14px}
+  .map__brh i{margin-left:-14px;width:11px}
+}
+@media(max-width:520px){
+  .map__n{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .nd{min-height:48px}
+  .nd__t b{font-size:12.5px}
+  .nd--flag .nd__t b::after{display:none}
+  .nd__t span{display:none}
+  .map__brh{font-size:9.5px;letter-spacing:.12em}
 }
 
-/* ── chapter 3 ───────────────────────────────────────────────────────────
-   Three products, three compositions. They alternate ground so that moving
-   between them feels like moving between different things. */
-.ch3{padding:clamp(56px,9vh,110px) 0 0;background:var(--sheet,#fff);color:var(--fg)}
-.pr{margin-top:clamp(40px,6vh,80px)}
+/* ═══ 3 · THREE PROOFS ══════════════════════════════════════════════════ */
 .pr__k{margin:0;font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
-  letter-spacing:.16em;text-transform:uppercase;opacity:.72}
+  letter-spacing:.16em;text-transform:uppercase;color:var(--v-fg-2)}
 .pr h3{margin:.45rem 0 0;font-size:clamp(1.6rem,3vw,2.3rem);font-weight:600;
-  letter-spacing:-.024em;line-height:1.05}
+  letter-spacing:-.024em;line-height:1.05;color:var(--v-fg)}
 .pr__d{margin:.7rem 0 0;font-size:clamp(.98rem,1.25vw,1.08rem);line-height:1.58;
-  max-width:52ch;opacity:.78}
+  max-width:52ch;color:var(--v-fg-2)}
 
-/* BizMtaani — ADVANCE, lateral. Scroll drives the rail sideways. */
-.pr--biz{background:var(--ink);color:#F4F5F6;padding:clamp(44px,7vh,84px) 0}
-.pr--biz .pr__head{margin-bottom:clamp(24px,3.5vh,40px)}
-.biz{position:relative}
-.biz__rail{list-style:none;margin:0;padding:0;display:flex;gap:clamp(14px,2vw,28px)}
-.biz__s figure{margin:0}
-.biz__s img{display:block;width:100%;height:auto;border:1px solid rgba(244,245,246,.16)}
-.biz__s figcaption{margin-top:10px;font:400 13px/1.45 A,"Archivo Fallback",system-ui,sans-serif;
-  color:#B6BCC2}
-.biz__s figcaption b{display:block;font:600 11px/1 M,"Mono Fallback",ui-monospace,monospace;
-  letter-spacing:.14em;color:#F4F5F6;margin-bottom:5px}
-.biz__prog{margin:22px auto 0;max-width:var(--maxw);padding-inline:var(--gutter);height:2px}
-.biz__prog i{display:block;height:2px;background:rgba(244,245,246,.9);
-  transform:scaleX(var(--bp,0));transform-origin:0 50%;transition:transform 120ms linear}
-.biz__rail--m{display:none}
-.biz__now{display:none;margin:0 auto;max-width:var(--maxw);width:100%;
-  padding-inline:var(--gutter);
-  font:500 11px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.16em;
-  text-transform:uppercase;color:#8C959D}
-.biz__now b{color:#F4F5F6;font-weight:600}
+/* ── BizMtaani · ADVANCE ─────────────────────────────────────────────────
+   Two captured surfaces, not five. Discovery holds the stage, then hands it
+   to the merchant page while the relationship beneath it is named. Nothing
+   here depicts a transaction, because we did not make one. */
+.pr--biz{background:var(--v-deep);color:var(--v-fg);height:170vh;position:relative;
+  border-block:1px solid var(--v-rule)}
+.bizs{position:sticky;top:var(--head-h,57px);
+  height:calc(100svh - var(--head-h,57px));display:flex;align-items:center;
+  overflow:hidden}
+.bizs__in{width:100%;display:grid;gap:clamp(18px,3vh,34px);
+  grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr);align-items:center}
+.bstage{position:relative;aspect-ratio:1100/687;width:100%}
+.bframe{position:absolute;inset:0;margin:0;transform-origin:50% 50%}
+.bframe img{width:100%;height:auto;border:1px solid var(--v-rule);
+  background:var(--v-raise);box-shadow:0 28px 60px -40px rgba(var(--v-shadow),.55)}
+.bframe figcaption{margin-top:10px;
+  font:400 12.5px/1.45 A,"Archivo Fallback",system-ui,sans-serif;color:var(--v-fg-2)}
+.bframe figcaption b{display:block;
+  font:600 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.14em;color:var(--v-fg);margin-bottom:5px}
+/* A: holds, then withdraws left and back.  B: advances from the right. */
+.bframe--a{z-index:1;
+  transform:translateX(calc(var(--n) * -13%)) scale(calc(1 - var(--n) * .13));
+  opacity:calc(1 - var(--n) * .62);
+  filter:saturate(calc(1 - var(--n) * .5))}
+.bframe--b{z-index:2;
+  transform:translateX(calc((1 - var(--n)) * 27%)) scale(calc(.86 + var(--n) * .14));
+  opacity:calc(.04 + var(--n) * .96)}
+.bframe--b figcaption{opacity:calc(clamp(0,calc((var(--p) - .56)/.20),1))}
+.bframe--a figcaption{opacity:calc(1 - var(--n))}
+.brel{list-style:none;margin:0;padding:0;display:grid;gap:0;
+  border-top:1px solid var(--v-rule)}
+.brel li{padding:13px 0 13px 26px;border-bottom:1px solid var(--v-rule);position:relative}
+.brel li::before{content:"";position:absolute;left:0;top:19px;width:11px;height:11px;
+  border-radius:50%;border:1.5px solid var(--v-rule-2);
+  background:color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),transparent);
+  border-color:color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),var(--v-rule-2))}
+.brel li::after{content:"";position:absolute;left:5px;top:30px;bottom:-13px;width:1px;
+  background:var(--v-dia-soft);transform-origin:50% 0;transform:scaleY(var(--n))}
+.brel li:last-child::after{display:none}
+.brel b{display:block;font:600 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.15em;text-transform:uppercase;color:var(--v-fg)}
+.brel span{display:block;margin-top:5px;font-size:14px;line-height:1.5;color:var(--v-fg-2);
+  transform:translateY(calc((1 - var(--n)) * 4px))}
+.bizs__say .pr__d{font-size:clamp(.92rem,1.1vw,1rem);margin-top:.6rem}
+.bnote{margin:clamp(12px,2vh,18px) 0 0;
+  font:400 11px/1.5 M,"Mono Fallback",ui-monospace,monospace;color:var(--v-fg-2);
+  max-width:46ch}
+.bizs__prog{margin:clamp(12px,2vh,18px) 0 0;height:2px;background:var(--v-rule)}
+.bizs__prog i{display:block;height:2px;background:var(--v-accent);
+  transform:scaleX(var(--p));transform-origin:0 50%}
 
-@media(min-width:821px){
-  .biz{height:340vh}
-  /* The sticky pane is a whole viewport with the rail centred in it. Pinned at
-     top:0 with no height, the states sat under the site header with roughly
-     400px of dead ground beneath them, and the product's name scrolled away
-     before the sequence began - so the reader watched five screens move with
-     nothing telling them whose screens they were. */
-  .biz__stick{position:sticky;top:0;height:100vh;display:flex;overflow:hidden;
-    flex-direction:column;justify-content:center;gap:clamp(14px,2.6vh,26px)}
-  .biz__now{display:block}
-  .biz__rail{width:max-content;padding-inline:var(--gutter);
-    transform:translate3d(calc(var(--bx,0) * -1px),0,0);will-change:transform}
-  .biz__s{width:min(56vw,820px);flex:0 0 auto}
+@media(max-width:900px){
+  .pr--biz{height:185svh}
+  .bizs{height:calc(100svh - var(--head-h,57px));align-items:center}
+  .bizs__in{grid-template-columns:1fr;gap:clamp(12px,2.2vh,22px);align-content:center}
+  .bizs__say h3{font-size:clamp(1.45rem,6vw,2rem)}
+  .bizs__say .pr__d{display:none}
+  .bstage{aspect-ratio:auto;height:min(50svh,430px)}
+  /* the two tall captures sit side by side and swap depth, so the same
+     ADVANCE reads at 390 as it does at 1440 */
+  .bframe{inset:0 auto 0 0;width:58%;height:100%}
+  .bframe img{width:auto;height:100%;object-fit:cover;object-position:50% 0}
+  .bframe figcaption{display:none}
+  .bframe--a{transform:translateX(calc(var(--n) * -4%)) scale(calc(1 - var(--n) * .1))}
+  .bframe--b{left:auto;right:0;
+    transform:translateX(calc((1 - var(--n)) * 16%)) scale(calc(.9 + var(--n) * .1))}
+  .brel{border-top:0}
+  .brel li{padding:9px 0 9px 22px}
+  .brel li::before{top:13px;width:9px;height:9px}
+  .brel li::after{left:4px;top:23px;bottom:-9px}
+  .brel span{font-size:12.5px;margin-top:3px}
+  .bnote{display:none}
 }
-@media(prefers-reduced-motion:reduce){
-  /* no scroll-driven travel, so the tall container would be dead space.
-     The rail becomes an ordinary horizontal scroller instead. */
-  .biz{height:auto}
-  .biz__rail{width:auto;overflow-x:auto;transform:none;padding-bottom:8px}
-  .biz__s{width:min(52vw,560px)}
-}
-@media(max-width:820px){
-  .biz__rail{display:none}
-  .biz__rail--m{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;
-    -webkit-overflow-scrolling:touch;padding-inline:var(--gutter);
-    gap:14px;scrollbar-width:none}
-  .biz__rail--m::-webkit-scrollbar{display:none}
-  .biz__rail--m .biz__s{flex:0 0 auto;width:min(70vw,300px);scroll-snap-align:center}
-  .biz__prog{display:none}
+@media(max-width:520px){
+  .bstage{height:min(44svh,360px)}
+  .bframe{width:62%}
 }
 
-/* CarePro — ADVANCE, stamping. Each check lands as you reach it. */
-.pr--care{background:var(--sheet-cool,#EBECEE);color:var(--fg);
-  padding:clamp(48px,8vh,96px) 0}
+/* ── CarePro · ADVANCE through four gates ────────────────────────────────
+   The file travels down the column while the gates close behind it. The scene
+   is not pinned: its own height plus a viewport is the scroll distance, which
+   costs the page nothing and still gives each gate most of a screen. */
+.pr--care{background:var(--v-page);color:var(--v-fg);
+  padding:clamp(56px,9vh,110px) 0}
 .care{display:grid;gap:clamp(28px,4vw,64px);align-items:start;
-  grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr)}
-.care__l{list-style:none;margin:1.6rem 0 0;padding:0;position:relative}
-.care__l::before{content:"";position:absolute;left:13px;top:8px;bottom:8px;width:1px;
-  background:var(--rule)}
-.care__l li{position:relative;padding:0 0 20px 44px}
-.care__n{position:absolute;left:0;top:0;width:27px;height:27px;border-radius:50%;
-  display:grid;place-items:center;background:var(--sheet,#fff);
-  border:1px solid var(--rule);
-  font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;color:var(--fg-2);
-  transition:background-color 340ms ease,border-color 340ms ease,color 340ms ease}
-.care__l b{display:block;font-size:16px;font-weight:600;letter-spacing:-.012em}
-.care__l span:not(.care__n){display:block;margin-top:3px;font-size:14px;line-height:1.5;
-  color:var(--fg-2)}
-.care__l li[data-on] .care__n{background:var(--sig,#1B6B52);border-color:var(--sig,#1B6B52);
-  color:#fff}
-.care__ev img{display:block;width:100%;height:auto;border:1px solid var(--rule);
-  background:var(--sheet,#fff)}
-.care__ev figcaption{margin-top:9px;font:400 11.5px/1.5 M,"Mono Fallback",ui-monospace,monospace;
-  color:var(--fg-2)}
+  grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)}
+.gates{position:relative;margin:1.7rem 0 0;padding-left:74px}
+.gates__rail{position:absolute;left:10px;top:10px;bottom:10px;width:1px;
+  background:var(--v-rule)}
+.gates__fill{position:absolute;left:10px;top:10px;bottom:10px;width:1px;
+  background:var(--v-accent);transform-origin:50% 0;transform:scaleY(var(--p))}
+/* the travelling file. An absolutely positioned, layout-contained flex track:
+   two spacers share the height in the ratio p : 1-p, so the chip sits exactly
+   p of the way down with no measurement and no effect on page layout. */
+.gates__track{position:absolute;left:0;top:10px;bottom:10px;width:21px;
+  display:flex;flex-direction:column;pointer-events:none;contain:strict}
+.gates__track i{display:block;flex-basis:0;min-height:0}
+.gates__track i:first-child{flex-grow:var(--p)}
+.gates__track i:last-child{flex-grow:calc(1 - var(--p))}
+.gates__file{flex:0 0 auto;width:21px;height:21px;border-radius:50%;
+  background:var(--v-raise);border:1.5px solid var(--v-fg);
+  display:grid;place-items:center}
+.gates__file::before{content:"";width:9px;height:11px;
+  background:var(--v-fg);
+  clip-path:polygon(0 0,72% 0,100% 26%,100% 100%,0 100%)}
+.gates__l{list-style:none;margin:0;padding:0}
+.gates__l li{position:relative;padding:0 0 20px}
+/* a short arm from the rail to each gate, drawn as the gate is reached, so the
+   two lanes read as one mechanism rather than a line beside a list */
+.gates__l li::before{content:"";position:absolute;left:-63px;top:12px;
+  width:18px;height:1px;background:var(--v-rule);
+  transform-origin:0 50%;transform:scaleX(var(--n))}
+.gates__l li:last-child{padding-bottom:0}
+.gates__n{position:absolute;left:-44px;top:-1px;width:27px;height:27px;border-radius:50%;
+  display:grid;place-items:center;background:var(--v-page);
+  border:1px solid var(--v-rule);
+  font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;color:var(--v-fg-2);
+  background:color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),var(--v-page));
+  border-color:color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),var(--v-rule));
+  color:color-mix(in srgb,var(--v-raise) calc(var(--n) * 100%),var(--v-fg-2))}
+.gates__l b{display:block;font-size:16px;font-weight:600;letter-spacing:-.012em;
+  color:var(--v-fg)}
+.gates__l li > span{display:block;margin-top:3px;font-size:14px;line-height:1.5;
+  color:var(--v-fg-2);
+  transform:translateY(calc((1 - var(--n)) * 5px))}
+.gates__st{margin:1.3rem 0 0;display:flex;align-items:center;gap:10px;
+  font:500 11px/1.5 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--v-fg-2);min-height:1.5em}
+.gates__st i{display:block;width:8px;height:8px;border-radius:50%;
+  background:color-mix(in srgb,var(--v-accent) calc(clamp(0,calc((var(--p) - .92)/.06),1) * 100%),var(--v-rule-2))}
+/* three wordings, one slot. All three are absolute inside a slot reserved at
+   its widest, so the wording can change without moving anything. */
+.gates__st span{position:relative;display:block;min-width:23ch;min-height:1.4em}
+.gates__st span b{position:absolute;left:0;top:0;white-space:nowrap;font-weight:500;
+  color:var(--v-fg-2);opacity:calc(var(--n) - var(--o))}
+.care__ev{background:var(--v-raise);border:1px solid var(--v-rule);
+  padding:clamp(13px,1.6vw,20px);margin:1.7rem 0 0}
+.care__ev img{width:100%;height:auto;border:1px solid var(--v-rule)}
+.care__ev figcaption{margin-top:12px;padding-top:11px;
+  border-top:1px solid var(--v-rule);
+  font:400 11.5px/1.5 M,"Mono Fallback",ui-monospace,monospace;color:var(--v-fg-2)}
 
-/* Jamii — ADVANCE, accumulating. Each step adds a line to the record. */
-.pr--jam{background:var(--ink);color:#F4F5F6;padding:clamp(48px,8vh,96px) 0}
-.jam__led{display:grid;gap:clamp(26px,4vw,56px);align-items:start;margin-top:1.6rem;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
-.jam__l{list-style:none;margin:0;padding:0;border-top:1px solid rgba(244,245,246,.18)}
-.jam__l{display:grid;grid-template-columns:max-content minmax(0,1fr)}
-.jam__l li{display:grid;grid-template-columns:subgrid;grid-column:1/-1;gap:4px 18px;
-  padding:14px 0;border-bottom:1px solid rgba(244,245,246,.12);align-items:baseline}
-@supports not (grid-template-columns:subgrid){
-  .jam__l{display:block}
-  .jam__l li{grid-template-columns:11ch minmax(0,1fr)}
-}
-.jam__l b{font:600 11px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.13em;
-  text-transform:uppercase;color:#8FD3B8;white-space:nowrap}
-.jam__l span{font-size:14.5px;line-height:1.5;color:#C3C9CF}
-.jam__ev img{display:block;width:100%;height:auto;border:1px solid rgba(244,245,246,.16)}
-.jam__ev figcaption{margin-top:9px;font:400 11.5px/1.5 M,"Mono Fallback",ui-monospace,monospace;
-  color:#8C959D}
-@media(prefers-reduced-motion:no-preference){
-  :root[data-js] .jam__l li{clip-path:inset(0 100% 0 0)}
-  .jam__l[data-in] li{animation:led 520ms cubic-bezier(.16,1,.3,1) forwards;
-    animation-delay:calc(var(--i,0) * 130ms)}
-  @keyframes led{to{clip-path:inset(0 0 0 0)}}
-}
-@media(max-width:820px){
-  .care,.jam__led{grid-template-columns:1fr}
+/* ── Jamii · ADVANCE, accumulating ───────────────────────────────────────
+   What the record holds, stage by stage. Every field is reserved before any
+   of it is written, so the panel never grows and nothing on the page moves.
+   These are the fields Jamii keeps - not anybody's actual contributions. */
+.pr--jam{background:var(--v-strong);color:var(--v-fg);
+  padding:clamp(52px,8.5vh,104px) 0;border-block:1px solid var(--v-rule)}
+.jam{display:grid;gap:clamp(28px,4vw,60px);align-items:start;
+  grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr)}
+.rec{margin:1.7rem 0 0;background:var(--v-dia);border:1px solid var(--v-rule)}
+.rec__h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:12px 16px;border-bottom:1px solid var(--v-rule)}
+.rec__h b{font:600 11px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--v-fg)}
+.rec__ct{font:500 11px/1 M,"Mono Fallback",ui-monospace,monospace;
+  color:var(--v-fg-2);position:relative;white-space:nowrap;
+  min-width:11ch;min-height:1em}
+.rec__ct span{position:absolute;right:0;top:0;opacity:calc(var(--n) - var(--o))}
+.rec__b{padding:0 16px}
+.rec__s{padding:13px 0;border-bottom:1px solid var(--v-rule);position:relative;
+  padding-left:16px}
+.rec__s:last-child{border-bottom:0}
+.rec__s::before{content:"";position:absolute;left:0;top:15px;bottom:15px;width:2px;
+  background:var(--v-accent);transform-origin:50% 0;transform:scaleY(var(--n))}
+.rec__s > b{display:block;font:600 10px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.15em;text-transform:uppercase;color:var(--v-fg-2)}
+.rec__f{margin:7px 0 0;display:flex;flex-wrap:wrap;gap:5px}
+/* A field the record has not reached yet is an empty slot, not invisible
+   text: it is outlined, and it fills in as the stage is recorded. */
+.rec__f span{font:400 11.5px/1 M,"Mono Fallback",ui-monospace,monospace;
+  padding:5px 8px;color:var(--v-fg-2);
+  border:1px solid color-mix(in srgb,var(--v-rule) calc(35% + var(--n) * 65%),transparent);
+  background:color-mix(in srgb,var(--v-surf) calc(var(--n) * 100%),transparent);
+  transform:translateY(calc((1 - var(--n)) * 4px))}
+.rec__note{margin:12px 16px 14px;
+  font:400 11px/1.5 M,"Mono Fallback",ui-monospace,monospace;color:var(--v-fg-3)}
+.jam__ev{margin:1.7rem 0 0;background:var(--v-raise);border:1px solid var(--v-rule);
+  padding:clamp(13px,1.6vw,20px)}
+.jam__ev img{width:100%;height:auto;border:1px solid var(--v-rule)}
+.jam__ev figcaption{margin-top:12px;padding-top:11px;border-top:1px solid var(--v-rule);
+  font:400 11.5px/1.5 M,"Mono Fallback",ui-monospace,monospace;color:var(--v-fg-2)}
+@media(max-width:880px){
+  .care,.jam{grid-template-columns:1fr}
+  .gates{padding-left:66px}
+  .gates__n{left:-40px}
+  .gates__l li::before{left:-56px;width:15px}
 }
 
-/* ── chapter 4 · DEPTH ───────────────────────────────────────────────── */
-.ch4{background:var(--sheet,#fff);color:var(--fg);padding:clamp(56px,9vh,110px) 0}
-.cap{list-style:none;margin:clamp(26px,4vh,40px) 0 0;padding:0;display:grid;
-  gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-.cap__c{border:1px solid var(--rule);padding:18px 18px 16px;background:var(--sheet,#fff);
-  transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateZ(0);
-  transition:transform 320ms var(--press,cubic-bezier(.2,.8,.3,1)),
-             box-shadow 320ms var(--press,cubic-bezier(.2,.8,.3,1)),
-             border-color 220ms ease}
-.cap__c:hover{border-color:var(--fg);box-shadow:0 18px 36px -22px rgba(10,11,13,.45)}
-.cap__c b{display:block;font-size:15.5px;font-weight:600;letter-spacing:-.012em}
-.cap__c span{display:block;margin-top:5px;font-size:14px;line-height:1.5;color:var(--fg-2)}
-.bench{margin:clamp(32px,5vh,56px) 0 0}
-.bench img{display:block;width:100%;height:auto;border:1px solid var(--rule)}
-.bench figcaption{margin-top:9px;font:400 11.5px/1.5 M,"Mono Fallback",ui-monospace,monospace;
-  color:var(--fg-2)}
+/* ═══ 4 · HOW THE WORK IS DONE · DEPTH ═════════════════════════════════
+   Deliberately the one chapter with no entrance motion. It rests, and the
+   only movement is a response to a pointer, a press or a focus ring. The
+   previous version tilted 1.25 degrees, which nobody could see; a card now
+   lifts onto its own layer, carries a highlight under the pointer, and pushes
+   its neighbours back. */
+.ch4{background:var(--v-page);color:var(--v-fg);
+  padding:clamp(62px,10.5vh,132px) 0 clamp(48px,7vh,86px)}
+.ch4__grid{display:grid;gap:clamp(26px,4vw,60px);align-items:start;
+  grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);
+  margin-top:clamp(26px,4vh,42px)}
+.ch4__cols{display:grid;gap:clamp(20px,3vh,30px);perspective:900px}
+.capg__h{margin:0 0 10px;font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--v-fg-2);
+  padding-bottom:9px;border-bottom:1px solid var(--v-fg)}
+.capg__l{list-style:none;margin:0;padding:0;transform-style:preserve-3d}
+.cap__c{position:relative;border:1px solid transparent;
+  border-bottom-color:var(--v-rule);background:transparent;padding:13px 12px;
+  margin-inline:-12px;
+  transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateZ(var(--tz,0px));
+  transition:transform 300ms var(--press),opacity 240ms ease,
+             background-color 240ms ease,border-color 240ms ease,
+             box-shadow 300ms var(--press)}
+.cap__c::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
+  transition:opacity 260ms ease;
+  background:radial-gradient(210px circle at var(--mx,50%) var(--my,50%),
+             color-mix(in srgb,var(--v-accent) 16%,transparent),transparent 70%)}
+.capg__l:hover .cap__c,.capg__l:focus-within .cap__c{opacity:.55}
+.cap__c:hover,.cap__c:focus-within{opacity:1;--tz:26px;
+  background:var(--v-raise);border-color:var(--v-rule);
+  box-shadow:0 26px 46px -26px rgba(var(--v-shadow),.42)}
+.cap__c:hover::after,.cap__c:focus-within::after{opacity:1}
+.cap__c:active{--tz:6px;transform:scale(.985);
+  box-shadow:inset 0 1px 6px rgba(var(--v-shadow),.16)}
+.cap__c b{display:block;font-size:15.5px;font-weight:600;letter-spacing:-.012em;
+  color:var(--v-fg);position:relative}
+.cap__c span{display:block;margin-top:4px;font-size:14px;line-height:1.5;
+  color:var(--v-fg-2);position:relative}
+/* keyboard gets the lift without a pointer, and a rule the pointer never draws */
+.cap__c:focus-within{outline:2px solid var(--v-accent);outline-offset:2px}
+@media(hover:none){
+  .capg__l:hover .cap__c{opacity:1}
+  .cap__c:active{--tz:0px;transform:scale(.978);
+    background:var(--v-surf);border-color:var(--v-rule)}
+}
+.bench{margin:0}
+.bench img{width:100%;height:auto;border:1px solid var(--v-rule)}
+.bench figcaption{margin-top:9px;
+  font:400 11.5px/1.5 M,"Mono Fallback",ui-monospace,monospace;color:var(--v-fg-2)}
+@media(max-width:820px){.ch4__grid{grid-template-columns:1fr}}
 
-/* ── chapter 5 · still ───────────────────────────────────────────────── */
-.ch5{background:var(--ink);color:#F4F5F6;padding:clamp(56px,9vh,110px) 0}
-.ch5 h2{color:#fff}
-.ch5 .lede4{color:#C3C9CF}
+/* ═══ 5 · START A PROJECT · still ═══════════════════════════════════════ */
+.ch5{background:var(--v-strong);color:var(--v-fg);
+  padding:clamp(74px,12vh,150px) 0 clamp(52px,8vh,96px);
+  border-top:1px solid var(--v-rule)}
 .close5{display:grid;gap:clamp(30px,5vw,72px);align-items:start;
   grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)}
 .close5__steps{list-style:none;margin:0 0 26px;padding:0;
-  border-top:1px solid rgba(244,245,246,.18)}
-.close5__steps{display:grid;grid-template-columns:max-content minmax(0,1fr)}
-.close5__steps li{display:grid;grid-template-columns:subgrid;grid-column:1/-1;gap:4px 18px;
-  padding:13px 0;border-bottom:1px solid rgba(244,245,246,.12);align-items:baseline}
+  border-top:1px solid var(--v-rule);
+  display:grid;grid-template-columns:max-content minmax(0,1fr)}
+.close5__steps li{display:grid;grid-template-columns:subgrid;grid-column:1/-1;
+  gap:4px 18px;padding:13px 0;border-bottom:1px solid var(--v-rule);
+  align-items:baseline}
 @supports not (grid-template-columns:subgrid){
   .close5__steps{display:block}
   .close5__steps li{grid-template-columns:10ch minmax(0,1fr)}
 }
 .close5__steps b{font:600 11px/1 M,"Mono Fallback",ui-monospace,monospace;
-  letter-spacing:.13em;text-transform:uppercase;color:#F4F5F6;white-space:nowrap}
-.close5__steps span{font-size:14.5px;line-height:1.5;color:#C3C9CF}
-.close5__mail{margin:16px 0 0;font-size:14.5px;color:#C3C9CF}
-.close5__mail a{color:#fff}
+  letter-spacing:.13em;text-transform:uppercase;color:var(--v-fg);white-space:nowrap}
+.close5__steps span{font-size:14.5px;line-height:1.5;color:var(--v-fg-2)}
+.close5__mail{margin:16px 0 0;font-size:14.5px;color:var(--v-fg-2)}
+.close5__mail a{color:var(--v-fg)}
 @media(max-width:820px){.close5{grid-template-columns:1fr}}
 
-/* ── FINISH PASS ────────────────────────────────────────────────────────── */
-
-/* B1 · At 360 the eyebrow broke as "NAIROBI ENGINEERING / STUDIO" - a phrase
-   split mid-thought. It is now two named parts with a rule between them, so
-   the narrow case is a composed two-line lockup rather than a wrap, and the
-   type never gets smaller to make it fit. */
-.eyebrow4--split{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.eyebrow4--split i{display:block;width:22px;height:1px;background:currentColor;
-  opacity:.5;flex:0 0 auto}
-@media(max-width:430px){
-  .eyebrow4--split{flex-direction:column;align-items:flex-start;gap:6px}
-  .eyebrow4--split i{width:34px}
+/* ── SHORT VIEWPORTS ─────────────────────────────────────────────────────
+   A phone on its side has less height than the pinned stages need: at 844x390
+   the map wanted 650px inside a 390px stage and `overflow:hidden` cut 260px
+   off it - the heading, three systems and the register link, all unreachable.
+   Below 620px tall nothing is pinned. The engine sees a scene with no pin
+   travel and measures it the way it measures the unpinned ones, so the
+   choreography still runs; it is simply calmer and in normal flow. */
+@media(max-height:620px){
+  .ch2,.pr--biz{height:auto}
+  .map__stick,.bizs{position:static;height:auto;
+    padding-block:clamp(28px,7vh,60px)}
+  .map__stick{overflow:visible}
+  .bizs{overflow:hidden}
+  .ch1{min-height:0;display:block}
+  .bstage{aspect-ratio:1100/687;height:auto}
+}
+/* wide and short. The width-only breakpoint gave this the portrait stack, so
+   at 844x390 the proposition filled the screen and the proof and both actions
+   were two screens below it. */
+@media(max-height:620px) and (min-width:700px){
+  .ch1{padding:clamp(18px,5vh,36px) 0}
+  .ch1__grid{grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr);
+    gap:clamp(20px,3vw,40px);align-items:center}
+  .ch1 h1{font-size:clamp(1.45rem,3.1vw,2rem);margin-top:.45rem}
+  .ch1__lede{font-size:.95rem;line-height:1.5;margin-top:.7rem}
+  .ch1__act{margin-top:1.1rem}
+  .fld{padding:12px}
+  .fld__r{padding:7px 0}
+  .fld__note{display:none}
+  .bizs__in{grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr)}
+  .bizs__say .pr__d{display:block}
+  .bframe figcaption{display:block}
+  .bframe{inset:0;width:auto;height:auto}
+  .bframe img{width:100%;height:auto;object-fit:fill}
+  .bframe--b{left:0;right:auto}
+  .care,.jam{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)}
 }
 
-/* B2 · chapter 4 had six equal tiles, which is the flattest thing on the page.
-   The documentary frame now anchors the chapter at real scale and the
-   capabilities sit beside it as two named groups - what we build, and what we
-   do to keep it running - so the three parts read as one argument. DEPTH is
-   unchanged and still the only interaction here. */
-.ch4__grid{display:grid;gap:clamp(26px,4vw,60px);align-items:start;
-  grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);
-  margin-top:clamp(26px,4vh,42px)}
-.ch4__cols{display:grid;gap:clamp(20px,3vh,30px)}
-.capg__h{margin:0 0 10px;font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--fg-2);
-  padding-bottom:9px;border-bottom:1px solid var(--fg)}
-.capg__l{list-style:none;margin:0;padding:0}
-.cap__c{border:0;border-bottom:1px solid var(--rule);background:transparent;
-  padding:13px 0;
-  transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateZ(0);
-  transition:transform 320ms var(--press,cubic-bezier(.2,.8,.3,1)),
-             padding-left 260ms var(--press,cubic-bezier(.2,.8,.3,1)),
-             border-color 220ms ease}
-.cap__c:last-child{border-bottom:0}
-.cap__c:hover{border-color:var(--fg);box-shadow:none;padding-left:8px}
-.cap__c b{display:block;font-size:15.5px;font-weight:600;letter-spacing:-.012em}
-.cap__c span{display:block;margin-top:4px;font-size:14px;line-height:1.5;color:var(--fg-2)}
-.bench{margin:0}
-.bench img{display:block;width:100%;height:auto;border:1px solid var(--rule)}
-.bench figcaption{margin-top:9px;font:400 11.5px/1.5 M,"Mono Fallback",ui-monospace,monospace;
-  color:var(--fg-2)}
-@media(max-width:820px){.ch4__grid{grid-template-columns:1fr}}
+/* Reduced motion: p rests at 1, he rests at 1, hq rests at 0, so every scene
+   is already resolved. The tall pinned containers would then be dead scroll,
+   so they collapse to their content. */
+@media(prefers-reduced-motion:reduce){
+  .ch2,.pr--biz{height:auto}
+  .map__stick,.bizs{position:static;height:auto;
+    padding-block:clamp(48px,8vh,96px)}
+  .bstage{aspect-ratio:auto;height:auto;display:grid;gap:clamp(14px,2vw,26px);
+    grid-template-columns:1fr 1fr}
+  .bframe{position:relative;inset:auto;width:auto;height:auto;
+    transform:none;opacity:1;filter:none}
+  .bframe img{width:100%;height:auto;object-fit:fill}
+  .bframe figcaption{display:block;opacity:1}
+  .bizs__prog{display:none}
+  .cap__c{transition:none}
+}
 
-/* B3 · The CarePro capture carries its own cream ground, which sat awkwardly
-   straight onto the grey chapter. The screenshot is untouched - it is mounted
-   instead, on a white card with the caption inside the mount, so the cream
-   reads as the artifact's own surface rather than a colour clash. */
-.care__ev{background:var(--sheet,#fff);border:1px solid var(--rule);
-  padding:clamp(13px,1.6vw,20px)}
-.care__ev img{border:1px solid var(--rule-soft,rgba(128,128,128,.22))}
-.care__ev figcaption{margin-top:12px;padding-top:11px;
-  border-top:1px solid var(--rule-soft,rgba(128,128,128,.22))}
-
-/* B4 · vertical rhythm, art-directed rather than one token repeated.
-   The opening breathes, the register is dense and closes hard into the
-   products, the products carry their own scale, chapter 4 opens wide again
-   because it changes subject, and chapter 5 gets a long pause before it and
-   very little after. */
-.ch1{padding:clamp(52px,9vh,116px) 0 clamp(30px,4.5vh,56px)}
-.ch2{padding:clamp(44px,6.5vh,84px) 0 clamp(34px,5vh,64px)}
-.ch3{padding:clamp(34px,5vh,64px) 0 0}
-.pr{margin-top:clamp(30px,4.5vh,58px)}
-.pr--biz{padding:clamp(38px,6vh,74px) 0}
-.pr--care{padding:clamp(52px,8.5vh,104px) 0}
-.pr--jam{padding:clamp(44px,7vh,88px) 0}
-.ch4{padding:clamp(62px,10.5vh,132px) 0 clamp(48px,7vh,86px)}
-.ch5{padding:clamp(74px,12vh,150px) 0 clamp(52px,8vh,96px)}
+/* The scroll line the audit called TOO SUBTLE: 2px of the header's own colour
+   at 55% opacity. On this page it is the accent, at full strength, and thick
+   enough to read as a reading position rather than a hairline artefact. */
+body.route-home .site-head::after{height:3px;background:var(--v-accent);opacity:1}
 </style>
 </head>
 <body class="route-home">
@@ -2881,13 +3256,18 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 <header class="site-head">
   <div class="w">
     <a class="site-mark" href="./">Lesnar&nbsp;AI</a>
-    <button class="theme-t" type="button" aria-pressed="false" title="Switch between light and dark"><span class="theme-t__i" aria-hidden="true"></span><span class="theme-t__l">Dark</span></button><nav class="site-nav" aria-label="Main"><a href="" aria-current="page">Home</a><a href="work/">Work</a><a href="services/">Services</a><a href="about/">About</a><a href="book/">Book</a></nav>
+    <a class="nav-q nav-q--work" href="work/">Work</a>
+    <a class="nav-q nav-q--go" href="book/">Start</a>
+    <button class="nav-t" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open navigation"><span class="nav-t__b" aria-hidden="true"></span><span class="nav-t__l">Menu</span></button>
+    <button class="theme-t" type="button" aria-pressed="false" title="Switch between light and dark"><span class="theme-t__i" aria-hidden="true"></span><span class="theme-t__l">Dark</span></button><nav class="site-nav" id="site-nav" aria-label="Main"><a href="" aria-current="page">Home</a><a href="work/">Work</a><a href="services/">Services</a><a href="about/">About</a><a href="book/">Book</a></nav>
   </div>
 </header>
-<main id="main" class="v4">
+<main id="main" tabindex="-1" class="v4">
 
-<!-- ═══ 01 · WHAT WE BUILD ═══════════════════════════════════════════════ -->
-<header class="ch1" aria-labelledby="ch1-h">
+<!-- ═══ 1 · WHO LESNAR AI IS ═════════════════════════════════════════════
+     Readable before anything moves. `--hq` is the retract: it owns geometry
+     only. Nothing below reads it to decide whether a system answered. -->
+<header class="ch1" data-scene="lead" data-var="--hq" data-rest="0" aria-labelledby="ch1-h">
   <div class="w4 ch1__grid">
     <div class="ch1__say">
       <p class="eyebrow4 eyebrow4--split"><span>Lesnar&nbsp;AI</span><i aria-hidden="true"></i><span>Nairobi engineering studio</span></p>
@@ -2903,29 +3283,42 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
     </div>
 
     <div class="ch1__proof">
-      <figure class="field" id="sysfield4">
-        <figcaption class="field__h">
+      <figure class="fld" id="sysfield4">
+        <figcaption class="fld__h">
           <b>Live systems</b>
-          <span class="field__c" id="field-c">not yet checked</span>
+          <span class="fld__c se" id="field-c" style="--a:.72;--b:.18">not yet checked</span>
         </figcaption>
-        <ol>
-          <li class="sysrow" data-sys="bizmtaani"><i class="sysrow__d" aria-hidden="true"></i>
-            <span class="sysrow__n"><b>BizMtaani</b><span>bizmtaani.com</span></span>
-            <span class="sysrow__v">&mdash;</span></li>
-          <li class="sysrow" data-sys="carepro"><i class="sysrow__d" aria-hidden="true"></i>
-            <span class="sysrow__n"><b>CarePro</b><span>carepro.co.ke</span></span>
-            <span class="sysrow__v">&mdash;</span></li>
-          <li class="sysrow" data-sys="jamii"><i class="sysrow__d" aria-hidden="true"></i>
-            <span class="sysrow__n"><b>Jamii Projects Hub</b><span>jamii.lesnarai.co.ke</span></span>
-            <span class="sysrow__v">&mdash;</span></li>
-          <li class="sysrow" data-sys="geneat"><i class="sysrow__d" aria-hidden="true"></i>
-            <span class="sysrow__n"><b>Gen-Eat</b><span>geneat.lesnarai.co.ke</span></span>
-            <span class="sysrow__v">&mdash;</span></li>
-          <li class="sysrow" data-sys="hazina"><i class="sysrow__d" aria-hidden="true"></i>
-            <span class="sysrow__n"><b>Hazina Nomads</b><span>hazina.lesnarai.co.ke</span></span>
-            <span class="sysrow__v">&mdash;</span></li>
-        </ol>
-        <p class="field__note">Checked from our server, not your browser, and cached
+        <div class="fld__d">
+          <i class="fld__spine" aria-hidden="true"></i>
+          <ol class="fld__l">
+            <li class="fld__r se" data-sys="bizmtaani" style="--i:0;--sep:-2;--a:.30;--b:.19;--ca:.20;--va:.46">
+              <i class="fld__c2" aria-hidden="true"></i>
+              <i class="fld__dot" aria-hidden="true"></i>
+              <span class="fld__id"><b>BizMtaani</b><span>bizmtaani.com</span></span>
+              <span class="fld__v">&mdash;</span></li>
+            <li class="fld__r se" data-sys="carepro" style="--i:1;--sep:-1;--a:.385;--b:.19;--ca:.255;--va:.545">
+              <i class="fld__c2" aria-hidden="true"></i>
+              <i class="fld__dot" aria-hidden="true"></i>
+              <span class="fld__id"><b>CarePro</b><span>carepro.co.ke</span></span>
+              <span class="fld__v">&mdash;</span></li>
+            <li class="fld__r se" data-sys="jamii" style="--i:2;--sep:0;--a:.47;--b:.19;--ca:.31;--va:.63">
+              <i class="fld__c2" aria-hidden="true"></i>
+              <i class="fld__dot" aria-hidden="true"></i>
+              <span class="fld__id"><b>Jamii Projects Hub</b><span>jamii.lesnarai.co.ke</span></span>
+              <span class="fld__v">&mdash;</span></li>
+            <li class="fld__r se" data-sys="geneat" style="--i:3;--sep:1;--a:.555;--b:.19;--ca:.365;--va:.715">
+              <i class="fld__c2" aria-hidden="true"></i>
+              <i class="fld__dot" aria-hidden="true"></i>
+              <span class="fld__id"><b>Gen-Eat</b><span>geneat.lesnarai.co.ke</span></span>
+              <span class="fld__v">&mdash;</span></li>
+            <li class="fld__r se" data-sys="hazina" style="--i:4;--sep:2;--a:.64;--b:.19;--ca:.42;--va:.80">
+              <i class="fld__c2" aria-hidden="true"></i>
+              <i class="fld__dot" aria-hidden="true"></i>
+              <span class="fld__id"><b>Hazina Nomads</b><span>hazina.lesnarai.co.ke</span></span>
+              <span class="fld__v">&mdash;</span></li>
+          </ol>
+        </div>
+        <p class="fld__note">Checked from our server, not your browser, and cached
           for up to a minute. Reachability at the moment shown &mdash; not an uptime
           record.</p>
       </figure>
@@ -2933,181 +3326,225 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
   </div>
 </header>
 
-<!-- ═══ 02 · PROOF / REGISTER ════════════════════════════════════════════ -->
-<section class="ch2" aria-labelledby="ch2-h">
-  <div class="w4">
-    <p class="eyebrow4">02 &middot; The register</p>
-    <h2 id="ch2-h">Eleven systems. Five you can open.</h2>
-    <p class="lede4">Three are flagship products with public surfaces you can open.
-      Two more are live. The rest carry the maturity they have actually reached, and
-      say so.</p>
+<!-- ═══ 2 · WHAT KIND OF SYSTEMS · ASSEMBLE ══════════════════════════════
+     One map replaces the old register: eleven systems, three branches, and a
+     fill that says what is live. Built from the core outward as you descend,
+     taken apart in the same order as you come back. -->
+<section class="ch2" data-scene="pin" aria-labelledby="ch2-h">
+  <div class="map__stick" data-stick>
+    <div class="w4 map__in">
+      <p class="eyebrow4">The company</p>
+      <h2 id="ch2-h">Eleven systems. Three kinds of work.</h2>
+      <p class="lede4">Two branches are live products with public surfaces. The
+        third is research and unqualified work, and it says so rather than
+        borrowing the credibility of the first two.</p>
 
-    <div class="reg" data-assemble>
-      <ol class="reg__flag">
-        <li class="fcard" style="--i:0"><a href="work/bizmtaani/">
-          <span class="fcard__k">Flagship</span>
-          <b>BizMtaani</b>
-          <span class="fcard__p">A neighbourhood marketplace. Shops near you list
-            what they sell, you order and pay from your phone, and a rider
-            brings it to your door.</span>
-          <span class="fcard__go">Open the record <span aria-hidden="true">&rarr;</span></span></a></li>
-        <li class="fcard" style="--i:1"><a href="work/carepro/">
-          <span class="fcard__k">Flagship</span>
-          <b>CarePro</b>
-          <span class="fcard__p">Home nursing for families in Nairobi. The product
-            publishes its verification steps and states that payment is held
-            until care is delivered.</span>
-          <span class="fcard__go">Open the record <span aria-hidden="true">&rarr;</span></span></a></li>
-        <li class="fcard" style="--i:2"><a href="work/jamii-projects-hub/">
-          <span class="fcard__k">Flagship</span>
-          <b>Jamii Projects Hub</b>
-          <span class="fcard__p">Community projects proposed, voted on and recorded,
-            with balances a group can read. Running as a
-            pilot in Mbeere North.</span>
-          <span class="fcard__go">Open the record <span aria-hidden="true">&rarr;</span></span></a></li>
-      </ol>
+      <div class="map">
+        <i class="map__trunk" aria-hidden="true"></i>
+        <p class="map__core"><b>Lesnar&nbsp;AI</b><span>Nairobi</span></p>
 
-      <div class="reg__rest">
-        <div class="reg__grp">
-          <p class="reg__lbl">Also live</p>
-          <ul class="reg__l">
-            <li style="--i:3"><a href="work/gen-eat/"><b>Gen-Eat</b><span>Campus food ordering over WhatsApp</span></a></li>
-            <li style="--i:4"><a href="work/hazina-nomads/"><b>Hazina Nomads</b><span>Private sourcing and Kenyan heritage gifts</span></a></li>
-          </ul>
-          <p class="reg__all"><a class="btn btn--line" href="work/">All eleven, with what each proves <span aria-hidden="true">&rarr;</span></a></p>
-        </div>
-        <div class="reg__grp">
-          <p class="reg__lbl">Held &middot; research &amp; unqualified</p>
-          <ul class="reg__l reg__l--held">
-            <li style="--i:5"><a href="work/sentinelcore/"><b>SentinelCore</b><span>Host security tooling</span></a></li>
-            <li style="--i:6"><a href="work/cypher/"><b>Cypher</b><span>Encryption work</span></a></li>
-            <li style="--i:7"><a href="work/gold-trader/"><b>Gold Trader</b><span>Trading system</span></a></li>
-            <li style="--i:8"><a href="work/greenhouse-controller/"><b>Greenhouse controller</b><span>Embedded control</span></a></li>
-            <li style="--i:9"><a href="work/sensing-and-radar/"><b>Sensing &amp; radar</b><span>Signal research</span></a></li>
-            <li style="--i:10"><a href="work/aerial-systems/"><b>Aerial systems</b><span>Active research, nothing flown</span></a></li>
+        <div class="map__br">
+          <p class="map__brh st" style="--a:.26;--b:.10"><i aria-hidden="true"></i>Commerce and marketplaces</p>
+          <ul class="map__n">
+            <li class="st" style="--a:.30;--b:.11"><a class="nd nd--live nd--flag" href="work/bizmtaani/">
+              <i class="nd__d" aria-hidden="true"></i>
+              <span class="nd__t"><b>BizMtaani</b><span>Neighbourhood marketplace, ordering and delivery</span></span></a></li>
+            <li class="st" style="--a:.35;--b:.11"><a class="nd nd--live" href="work/gen-eat/">
+              <i class="nd__d" aria-hidden="true"></i>
+              <span class="nd__t"><b>Gen-Eat</b><span>Campus food ordering over WhatsApp</span></span></a></li>
+            <li class="st" style="--a:.40;--b:.11"><a class="nd nd--live" href="work/hazina-nomads/">
+              <i class="nd__d" aria-hidden="true"></i>
+              <span class="nd__t"><b>Hazina Nomads</b><span>Private sourcing and Kenyan heritage gifts</span></span></a></li>
           </ul>
         </div>
+
+        <div class="map__br">
+          <p class="map__brh st" style="--a:.46;--b:.10"><i aria-hidden="true"></i>Care and community records</p>
+          <ul class="map__n">
+            <li class="st" style="--a:.50;--b:.11"><a class="nd nd--live nd--flag" href="work/carepro/">
+              <i class="nd__d" aria-hidden="true"></i>
+              <span class="nd__t"><b>CarePro</b><span>Home nursing, with published verification</span></span></a></li>
+            <li class="st" style="--a:.55;--b:.11"><a class="nd nd--live nd--flag" href="work/jamii-projects-hub/">
+              <i class="nd__d" aria-hidden="true"></i>
+              <span class="nd__t"><b>Jamii Projects Hub</b><span>Community projects, votes and balances</span></span></a></li>
+          </ul>
+        </div>
+
+        <div class="map__br">
+          <p class="map__brh st" style="--a:.64;--b:.10"><i aria-hidden="true"></i>Held &middot; research and unqualified</p>
+          <ul class="map__n">
+            <li class="st" style="--a:.68;--b:.11"><a class="nd nd--held" href="work/sentinelcore/">
+              <i class="nd__d" aria-hidden="true"></i>
+              <span class="nd__t"><b>SentinelCore</b><span>Host security tooling</span></span></a></li>
+            <li class="st" style="--a:.715;--b:.11"><a class="nd nd--held" href="work/cypher/">
+              <i class="nd__d" aria-hidden="true"></i>
+              <span class="nd__t"><b>Cypher</b><span>Encryption work</span></span></a></li>
+            <li class="st" style="--a:.75;--b:.11"><a class="nd nd--held" href="work/gold-trader/">
+              <i class="nd__d" aria-hidden="true"></i>
+              <span class="nd__t"><b>Gold Trader</b><span>Trading system</span></span></a></li>
+            <li class="st" style="--a:.785;--b:.11"><a class="nd nd--held" href="work/greenhouse-controller/">
+              <i class="nd__d" aria-hidden="true"></i>
+              <span class="nd__t"><b>Greenhouse controller</b><span>Embedded control</span></span></a></li>
+            <li class="st" style="--a:.82;--b:.11"><a class="nd nd--held" href="work/sensing-and-radar/">
+              <i class="nd__d" aria-hidden="true"></i>
+              <span class="nd__t"><b>Sensing &amp; radar</b><span>Signal research</span></span></a></li>
+            <li class="st" style="--a:.855;--b:.11"><a class="nd nd--held" href="work/aerial-systems/">
+              <i class="nd__d" aria-hidden="true"></i>
+              <span class="nd__t"><b>Aerial systems</b><span>Active research, nothing flown</span></span></a></li>
+          </ul>
+        </div>
+
+        <p class="map__all"><a class="btn btn--line" href="work/">All eleven, with what each proves <span aria-hidden="true">&rarr;</span></a></p>
       </div>
     </div>
-
   </div>
 </section>
 
-<!-- ═══ 03 · THREE FLAGSHIP PRODUCTS ═════════════════════════════════════ -->
-<section class="ch3" aria-labelledby="ch3-h">
-  <div class="w4">
-    <p class="eyebrow4">03 &middot; How they work</p>
-    <h2 id="ch3-h">Three products, three different jobs.</h2>
-    <p class="lede4">Each one is shown the way it actually behaves &mdash; an order
-      moving, a nurse being qualified, a community keeping a record.</p>
-  </div>
+<!-- ═══ 3 · PROOF ONE · BIZMTAANI · ADVANCE ══════════════════════════════
+     Two captured surfaces. Discovery holds the stage and hands it to the
+     merchant page; the relationship is named beside it. No transaction is
+     depicted, because none was made. -->
+<article class="pr pr--biz" data-scene="pin" aria-labelledby="pr-biz">
+  <div class="bizs" data-stick>
+    <div class="w4 bizs__in">
+      <div class="bizs__say">
+        <p class="pr__k">Live product &middot; bizmtaani.com</p>
+        <h3 id="pr-biz">BizMtaani</h3>
+        <p class="pr__d">Two captured surfaces from the live marketplace: finding a
+          business near you, and the shop&rsquo;s own page.</p>
+        <ol class="brel">
+          <li class="st" style="--a:.05;--b:.14"><b>Find</b><span>Businesses open near you, by name or by what they sell</span></li>
+          <li class="st" style="--a:.28;--b:.18"><b>Choose</b><span>The shop&rsquo;s own page &mdash; its items, and its prices</span></li>
+          <li class="st" style="--a:.56;--b:.20"><b>Order</b><span>Placed with that shop, collected at the counter or brought by a rider</span></li>
+        </ol>
+        <p class="bnote">The two frames are captures. The three steps are what the
+          product does &mdash; not a transaction staged for this page.</p>
+        <p class="bizs__prog" aria-hidden="true"><i></i></p>
+      </div>
 
-  <!-- BizMtaani · commerce and movement · ADVANCE, lateral -->
-  <article class="pr pr--biz" aria-labelledby="pr-biz">
-    <div class="w4 pr__head">
-      <p class="pr__k">Live product &middot; bizmtaani.com</p>
-      <h3 id="pr-biz">BizMtaani</h3>
-      <p class="pr__d">Five screens from the live marketplace, in the order a
-        customer meets them. Captured surfaces, not a staged order.</p>
-    </div>
-    <div class="biz" data-adv="biz">
-      <div class="biz__stick">
-      <p class="biz__now" aria-hidden="true"><b>BizMtaani</b> &middot; five screens from the live marketplace</p>
-      <ol class="biz__rail">
-        <li class="biz__s" style="--i:0"><figure>
-          <img src="media/biz/01-discovery-d.webp" alt="BizMtaani discovery: businesses open now near you" width="1100" height="687" loading="lazy" decoding="async">
-          <figcaption><b>01 Find</b> Businesses open near you</figcaption></figure></li>
-        <li class="biz__s" style="--i:1"><figure>
-          <img src="media/biz/02-venues-d.webp" alt="BizMtaani venue list by category" width="1100" height="687" loading="lazy" decoding="async">
-          <figcaption><b>02 Choose</b> A merchant page, open for orders</figcaption></figure></li>
-        <li class="biz__s" style="--i:2"><figure>
-          <img src="media/biz/03-merchant-d.webp" alt="A BizMtaani merchant page with items and prices" width="1100" height="687" loading="lazy" decoding="async">
-          <figcaption><b>03 Order</b> Items and prices, from the merchant</figcaption></figure></li>
-        <li class="biz__s" style="--i:3"><figure>
-          <img src="media/biz/04-basket-d.webp" alt="A BizMtaani basket ready for checkout" width="1100" height="687" loading="lazy" decoding="async">
-          <figcaption><b>04 Basket</b> An item added, collect at the counter</figcaption></figure></li>
-        <li class="biz__s" style="--i:4"><figure>
-          <img src="media/biz/05-track-d.webp" alt="A BizMtaani order being tracked to delivery" width="1100" height="687" loading="lazy" decoding="async">
-          <figcaption><b>05 Orders</b> Tracking is tied to a link, not an account</figcaption></figure></li>
-      </ol>
-      <ol class="biz__rail biz__rail--m" aria-hidden="true">
-        <li class="biz__s"><figure><img src="media/biz/m-01-discover.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>01 Find</b> Businesses open near you</figcaption></figure></li>
-        <li class="biz__s"><figure><img src="media/biz/m-02-merchant-list.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>02 Choose</b> A shop, and what it sells</figcaption></figure></li>
-        <li class="biz__s"><figure><img src="media/biz/m-03-choice.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>03 Order</b> Items and prices</figcaption></figure></li>
-        <li class="biz__s"><figure><img src="media/biz/m-04-basket.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>04 Basket</b> Collect at the counter</figcaption></figure></li>
-        <li class="biz__s"><figure><img src="media/biz/m-05-track.webp" alt="" width="780" height="1688" loading="lazy" decoding="async"><figcaption><b>05 Orders</b> Found by link, not an account</figcaption></figure></li>
-      </ol>
-      <p class="biz__prog" aria-hidden="true"><i></i></p>
+      <div class="bstage st" data-oneof="frame" style="--a:.12;--b:.68">
+        <figure class="bframe bframe--a">
+          <picture>
+            <source media="(max-width:900px)" srcset="media/biz/m-01-discover.webp" width="780" height="1688">
+            <img src="media/biz/01-discovery-d.webp" alt="BizMtaani discovery: a search for a business, and the shops open near you." width="1100" height="687" loading="lazy" decoding="async">
+          </picture>
+          <figcaption><b>Find</b> Businesses open near you</figcaption>
+        </figure>
+        <figure class="bframe bframe--b">
+          <picture>
+            <source media="(max-width:900px)" srcset="media/biz/m-04-basket.webp" width="780" height="1688">
+            <img src="media/biz/03-merchant-d.webp" alt="A BizMtaani merchant page: the shop, its items and its prices." width="1100" height="687" loading="lazy" decoding="async">
+          </picture>
+          <figcaption><b>Choose</b> The shop&rsquo;s page, its items and its prices</figcaption>
+        </figure>
       </div>
     </div>
-  </article>
+  </div>
+</article>
 
-  <!-- CarePro · qualification and trust · ADVANCE, stamping -->
-  <article class="pr pr--care" aria-labelledby="pr-care">
-    <div class="w4 care">
-      <div class="care__say">
-        <p class="pr__k">Live product &middot; carepro.co.ke</p>
-        <h3 id="pr-care">CarePro</h3>
-        <p class="pr__d">CarePro publishes four verification steps. This is that
-          sequence as the product states it &mdash; described by the product,
-          not measured by us.</p>
-        <ol class="care__l" data-adv="care">
-          <li style="--i:0"><span class="care__n">01</span><b>Credentials</b>
+<!-- ═══ 4 · PROOF TWO · CAREPRO · ADVANCE THROUGH GATES ══════════════════
+     The file travels down the column and the gates close behind it. The
+     wording stays the product's: these are steps CarePro publishes. -->
+<article class="pr pr--care" data-scene="through" data-band=".08,.70" aria-labelledby="pr-care">
+  <div class="w4 care">
+    <div class="care__say">
+      <p class="pr__k">Live product &middot; carepro.co.ke</p>
+      <h3 id="pr-care">CarePro</h3>
+      <p class="pr__d">CarePro publishes four verification steps. This is that
+        sequence as the product states it &mdash; described by the product,
+        not measured by us.</p>
+
+      <div class="gates">
+        <i class="gates__rail" aria-hidden="true"></i>
+        <i class="gates__fill" aria-hidden="true"></i>
+        <div class="gates__track" aria-hidden="true">
+          <i></i><span class="gates__file"></span><i></i>
+        </div>
+        <ol class="gates__l">
+          <li class="st" style="--a:.06;--b:.26"><span class="gates__n">01</span><b>Credentials</b>
             <span>National ID, nursing council licence and certificate of good
               conduct. Uploaded certificates are reviewed by hand.</span></li>
-          <li style="--i:1"><span class="care__n">02</span><b>Registry check</b>
+          <li class="st" style="--a:.28;--b:.26"><span class="gates__n">02</span><b>Registry check</b>
             <span>Licence verified against the Nursing Council of Kenya register,
               with expiry tracked continuously.</span></li>
-          <li style="--i:2"><span class="care__n">03</span><b>Interview</b>
+          <li class="st" style="--a:.50;--b:.26"><span class="gates__n">03</span><b>Interview</b>
             <span>A structured interview, scored on a clinical rubric.</span></li>
-          <li style="--i:3"><span class="care__n">04</span><b>Clinical sign-off</b>
+          <li class="st" style="--a:.72;--b:.26"><span class="gates__n">04</span><b>Clinical sign-off</b>
             <span>A registered nurse reviews the whole file and approves, or
               doesn&rsquo;t.</span></li>
         </ol>
       </div>
-      <figure class="care__ev">
-        <picture>
-          <source media="(max-width:640px)" srcset="media/carepro-panel-m.jpg">
-          <img src="media/carepro-panel.jpg" alt="CarePro's published verification panel: credentials, registry check, interview and clinical sign-off." width="525" height="562" loading="lazy" decoding="async">
-        </picture>
-        <figcaption>The panel as CarePro publishes it &middot; captured surface</figcaption>
-      </figure>
+      <p class="gates__st" aria-live="off"><i aria-hidden="true"></i><span data-oneof="status">
+        <b class="st" style="--a:0;--b:.001;--c:.12;--d:.08">File not yet verified</b>
+        <b class="st" style="--a:.14;--b:.08;--c:.90;--d:.06">In verification</b>
+        <b class="st" style="--a:.92;--b:.06">Verified &middot; four steps</b>
+      </span></p>
     </div>
-  </article>
 
-  <!-- Jamii · participation and accountability · ADVANCE, accumulating -->
-  <article class="pr pr--jam" aria-labelledby="pr-jam">
-    <div class="w4 jam">
-      <div class="jam__say">
-        <p class="pr__k">Live product &middot; jamii.lesnarai.co.ke</p>
-        <h3 id="pr-jam">Jamii Projects Hub</h3>
-        <p class="pr__d">The four steps Jamii publishes, from a proposal to a report
-          the whole group can read. Running as a pilot in Mbeere North.</p>
-      </div>
-      <div class="jam__led" data-adv="jam">
-        <ol class="jam__l">
-          <li style="--i:0"><b>Submit</b><span>A community project, or a request for a family group, chama or committee</span></li>
-          <li style="--i:1"><b>Review</b><span>A reviewer checks it. Approved groups organise members, roles and a contribution plan</span></li>
-          <li style="--i:2"><b>Vote &amp; record</b><span>The community votes on priorities; contributions, meetings and expenses are recorded as they go</span></li>
-          <li style="--i:3"><b>Report</b><span>Balances, progress updates and accountability summaries the whole group can read</span></li>
-        </ol>
-        <figure class="jam__ev">
-          <picture>
-            <source media="(max-width:640px)" srcset="media/jamii-card-m.jpg">
-            <source srcset="media/jamii-surface-full.webp" type="image/webp">
-            <img src="media/jamii-surface-full.jpg" alt="The Jamii Projects Hub homepage, showing a community project open for voting." width="1440" height="900" loading="lazy" decoding="async">
-          </picture>
-          <figcaption>jamii.lesnarai.co.ke &middot; captured surface</figcaption>
-        </figure>
+    <figure class="care__ev">
+      <!-- One native capture of the live panel, used at both breakpoints. The
+           product's own layout no longer renders at the proportion the earlier
+           pair was cut to, and the whole panel is worth more than the old
+           geometry: nothing is cropped, upscaled or enhanced. -->
+      <img src="media/carepro-panel.jpg" alt="CarePro's published verification panel: credentials, registry check, interview and clinical sign-off." width="1250" height="1417" loading="lazy" decoding="async">
+      <figcaption>The panel as CarePro publishes it &middot; captured surface</figcaption>
+    </figure>
+  </div>
+</article>
+
+<!-- ═══ 5 · PROOF THREE · JAMII · ADVANCE, ACCUMULATING ══════════════════
+     What the record holds, stage by stage. Every field is reserved before any
+     of it is written, so nothing on the page moves. These are the fields the
+     product keeps - not any group's actual contributions. -->
+<article class="pr pr--jam" data-scene="through" data-band=".10,.70" aria-labelledby="pr-jam">
+  <div class="w4 jam">
+    <div class="jam__say">
+      <p class="pr__k">Live product &middot; jamii.lesnarai.co.ke</p>
+      <h3 id="pr-jam">Jamii Projects Hub</h3>
+      <p class="pr__d">A community project is proposed, reviewed, voted on and
+        recorded. The record grows one stage at a time until the whole group can
+        read it. Running as a pilot in Mbeere North.</p>
+
+      <div class="rec">
+        <p class="rec__h"><b>What the record holds</b><span class="rec__ct" data-oneof="count">
+          <span class="st" style="--a:0;--b:.001;--c:.21;--d:.05">0 of 4 recorded</span>
+          <span class="st" style="--a:.23;--b:.05;--c:.44;--d:.05">1 of 4 recorded</span>
+          <span class="st" style="--a:.46;--b:.05;--c:.65;--d:.05">2 of 4 recorded</span>
+          <span class="st" style="--a:.67;--b:.05;--c:.87;--d:.05">3 of 4 recorded</span>
+          <span class="st" style="--a:.89;--b:.05">4 of 4 recorded</span>
+        </span></p>
+        <div class="rec__b">
+          <div class="rec__s st" style="--a:.04;--b:.28"><b>Proposal</b>
+            <p class="rec__f"><span>title</span><span>purpose</span><span>requested scope</span><span>who proposed it</span></p></div>
+          <div class="rec__s st" style="--a:.26;--b:.28"><b>Review</b>
+            <p class="rec__f"><span>reviewer decision</span><span>group roles</span><span>contribution plan</span></p></div>
+          <div class="rec__s st" style="--a:.48;--b:.28"><b>Vote &amp; record</b>
+            <p class="rec__f"><span>vote tally</span><span>contributions logged</span><span>meeting minutes</span><span>expenses</span></p></div>
+          <div class="rec__s st" style="--a:.70;--b:.28"><b>Report</b>
+            <p class="rec__f"><span>balance</span><span>progress update</span><span>accountability summary</span></p></div>
+        </div>
+        <p class="rec__note">These are the fields the record carries at each stage.
+          They are not any group&rsquo;s actual contributions.</p>
       </div>
     </div>
-  </article>
-</section>
 
-<!-- ═══ 04 · HOW WE WORK ═════════════════════════════════════════════════ -->
+    <figure class="jam__ev">
+      <picture>
+        <source media="(max-width:640px)" srcset="media/jamii-card-m.jpg" width="1200" height="880">
+        <source srcset="media/jamii-surface-full.webp" type="image/webp">
+        <img src="media/jamii-surface-full.jpg" alt="The Jamii Projects Hub homepage, showing a community project open for voting." width="1440" height="900" loading="lazy" decoding="async">
+      </picture>
+      <figcaption>jamii.lesnarai.co.ke &middot; captured surface</figcaption>
+    </figure>
+  </div>
+</article>
+
+<!-- ═══ 6 · HOW THE WORK IS DONE · DEPTH ═════════════════════════════════
+     No entrance motion at all. The only movement here answers a pointer, a
+     press or a focus ring. -->
 <section class="ch4" aria-labelledby="ch4-h">
   <div class="w4">
-    <p class="eyebrow4">04 &middot; How the work is done</p>
+    <p class="eyebrow4">How the work is done</p>
     <h2 id="ch4-h">Built here, then operated here.</h2>
     <p class="lede4">We do not hand over a repository and leave. Products run as
       separate services, deployed and kept running, with the operator screens the
@@ -3127,28 +3564,28 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
       <div class="capg">
         <p class="capg__h">What we build</p>
         <ul class="capg__l">
-          <li class="cap__c"><b>Whole products</b><span>Customer surface, backend, database, deployment, and the operator screens behind them.</span></li>
-          <li class="cap__c"><b>Payments and messaging</b><span>M-Pesa STK push and card payment, ordering over WhatsApp, and reconciling a provider event against the internal record.</span></li>
-          <li class="cap__c"><b>AI you can inspect</b><span>Retrieval and tool-calling held as structure in the repository, with the decision boundary written down rather than buried in a prompt.</span></li>
+          <li class="cap__c" tabindex="0"><b>Whole products</b><span>Customer surface, backend, database, deployment, and the operator screens behind them.</span></li>
+          <li class="cap__c" tabindex="0"><b>Payments and messaging</b><span>M-Pesa STK push and card payment, ordering over WhatsApp, and reconciling a provider event against the internal record.</span></li>
+          <li class="cap__c" tabindex="0"><b>AI you can inspect</b><span>Retrieval and tool-calling held as structure in the repository, with the decision boundary written down rather than buried in a prompt.</span></li>
         </ul>
       </div>
       <div class="capg">
         <p class="capg__h">How we keep it running</p>
         <ul class="capg__l">
-          <li class="cap__c"><b>Infrastructure</b><span>Separate runtimes with cross-database denial and isolated cache namespaces.</span></li>
-          <li class="cap__c"><b>Security and hardening</b><span>Port scanning, service banner collection, log watching with a sliding-window detector, and host firewall state.</span></li>
-          <li class="cap__c"><b>Embedded and physical</b><span>Control that keeps running on a small board with no network to fall back on. Greenhouse control is owner-attested, not measured here.</span></li>
+          <li class="cap__c" tabindex="0"><b>Infrastructure</b><span>Separate runtimes with cross-database denial and isolated cache namespaces.</span></li>
+          <li class="cap__c" tabindex="0"><b>Security and hardening</b><span>Port scanning, service banner collection, log watching with a sliding-window detector, and host firewall state.</span></li>
+          <li class="cap__c" tabindex="0"><b>Embedded and physical</b><span>Control that keeps running on a small board with no network to fall back on. Greenhouse control is owner-attested, not measured here.</span></li>
         </ul>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ 05 · START A PROJECT ═════════════════════════════════════════════ -->
+<!-- ═══ 7 · START A PROJECT · still ══════════════════════════════════════ -->
 <section class="ch5" aria-labelledby="ch5-h">
   <div class="w4 close5">
     <div>
-      <p class="eyebrow4">05 &middot; Start</p>
+      <p class="eyebrow4">Start</p>
       <h2 id="ch5-h">Bring us the problem, not the specification.</h2>
       <p class="lede4">If you have work that has to hold up in the real world, start
         with a conversation. The first one is free.</p>

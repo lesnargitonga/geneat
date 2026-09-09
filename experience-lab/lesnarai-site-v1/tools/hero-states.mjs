@@ -60,12 +60,12 @@ async function run(label, { route, reduced = false, js = true, w = 390, h = 844 
   const r = await page.evaluate(() => {
     const f = document.getElementById("sysfield4");
     if (!f) return { err: "no field" };
-    const rows = [...f.querySelectorAll(".sysrow")];
+    const rows = [...f.querySelectorAll(".fld__r")];
     const doc = document.documentElement;
     return {
       rows: rows.length,
       states: rows.map(x => x.getAttribute("data-state") || "resting"),
-      values: rows.map(x => x.querySelector(".sysrow__v").textContent.trim()),
+      values: rows.map(x => x.querySelector(".fld__v").textContent.trim()),
       caption: (document.getElementById("field-c") || {}).textContent || "",
       overflow: doc.scrollWidth > doc.clientWidth + 1,
       cls: typeof window.__cls === "number" ? +window.__cls.toFixed(4) : null,

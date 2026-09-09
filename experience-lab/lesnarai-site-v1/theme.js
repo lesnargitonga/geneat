@@ -1,13 +1,27 @@
 /* ── THEME TOGGLE ──────────────────────────────────────────────────────────
    The theme is already painted by the inline head script, so this only wires
-   the control and remembers the choice. Untouched preference follows the OS;
-   an explicit choice wins until the visitor changes it again. */
+   the control, remembers the choice, and gives the switch itself a duration.
+
+   A theme change that repaints in one frame reads as a fault rather than a
+   choice. `data-theme-x` is stamped on the root for the length of the change,
+   and the stylesheet uses that to transition grounds, type, rules and strokes
+   together. It is armed BEFORE the theme attribute changes, because a
+   transition has to exist before the value it transitions moves. Pages that
+   define no rule for it are simply unaffected. */
 (function () {
   "use strict";
   var root = document.documentElement;
   var btn = document.querySelector(".theme-t");
   if (!btn) return;
   var label = btn.querySelector(".theme-t__l");
+  var reduced = window.matchMedia &&
+                window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* The class has to outlive the transition it arms, or removing it cuts the
+     switch off mid-way and everything jumps to its final colour. The tokens
+     settle together at ~370ms; 520 leaves room for a slow frame without
+     leaving the page armed for noticeably longer than the change itself. */
+  var CROSS = 520;
+  var timer = null;
 
   /* The browser chrome was painted from a static theme-color, so on mobile it
      stayed dark after switching to light. Read the surface actually painted
@@ -26,15 +40,31 @@
     btn.setAttribute("aria-pressed", dark ? "true" : "false");
     btn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
     if (label) label.textContent = dark ? "Light" : "Dark";
-    chrome();
   }
-  paint();
+  paint(); chrome();
+
+  function set(next) {
+    if (reduced) {
+      root.setAttribute("data-theme", next);
+      paint(); chrome();
+      return;
+    }
+    root.setAttribute("data-theme-x", "1");
+    root.setAttribute("data-theme", next);
+    paint();
+    /* the ground is mid-transition until it settles, so the chrome colour is
+       read at the end rather than sampled halfway through */
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      root.removeAttribute("data-theme-x");
+      chrome();
+    }, CROSS);
+  }
 
   btn.addEventListener("click", function () {
     var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
-    root.setAttribute("data-theme", next);
     try { localStorage.setItem("lai-theme", next); } catch (e) { /* private mode: session only */ }
-    paint();
+    set(next);
   });
 
   /* follow the OS only while the visitor has expressed no preference */
@@ -42,8 +72,7 @@
   var onSys = function (e) {
     var stored; try { stored = localStorage.getItem("lai-theme"); } catch (err) { stored = null; }
     if (stored === "dark" || stored === "light") return;
-    root.setAttribute("data-theme", e.matches ? "dark" : "light");
-    paint();
+    set(e.matches ? "dark" : "light");
   };
   if (mq.addEventListener) mq.addEventListener("change", onSys);
   else if (mq.addListener) mq.addListener(onSys);

@@ -31,8 +31,9 @@ const WATCH = ["transform", "opacity", "backgroundColor", "color", "borderColor"
 const CASES = [
   { page: "/",       sel: ".btn--go",        states: ["hover", "active"] },
   { page: "/",       sel: ".btn--quiet",     states: ["hover", "active"] },
-  { page: "/",       sel: ".fcard a",        states: ["hover", "active"] },
-  { page: "/",       sel: ".reg__l a",       states: ["hover"] },
+  /* the homepage's flagship cards and register rows are now map nodes */
+  { page: "/",       sel: ".nd",             states: ["hover", "active"] },
+  { page: "/",       sel: ".nd--held",       states: ["hover"] },
   { page: "/",       sel: ".btn--line",      states: ["hover", "active"] },
   { page: "/",       sel: ".cap__c",         states: ["hover"] },
   { page: "/",       sel: ".site-nav a",     states: ["hover", "focus-visible"] },

@@ -1,4 +1,14 @@
-/* RESOLVE — the live field ───────────────────────────────────────────────────
+/* THE LIVE FIELD · DATA ──────────────────────────────────────────────────────
+   This file owns one thing: what is true. It does not own the animation.
+
+   DATA STATE and VISUAL CONSTRUCTION STATE are deliberately separate. The
+   establishment sequence, and the retract-and-rebuild as you scroll away from
+   the hero and come back, are pure CSS driven by --he and --hq. Neither of
+   them can reach anything below, so a reachability result that has resolved
+   stays resolved. Scrolling back to the top rebuilds the topology using the
+   values already known - it does not re-check, and it never puts a system
+   back to "checking" for the sake of a second performance.
+
    The markup ships complete: five systems, their hosts, and a caption that is
    already true before any request is made. Nothing here creates or removes a
    row, and the reading column is reserved at its widest in CSS, so no result
@@ -12,7 +22,7 @@
      slow / no response  caption says the check is unavailable, rows stay at em-dash
      some systems down   those rows read "no answer", the rest resolve
      every system down   five honest "no answer" rows, which is information
-     reduced motion      the same result, applied at once, with no sequence   */
+     reduced motion      the same result, and the field is already established */
 (function () {
   "use strict";
   var field = document.getElementById("sysfield4");
@@ -20,18 +30,15 @@
 
   var cap = document.getElementById("field-c");
   var rows = {};
-  [].forEach.call(field.querySelectorAll(".sysrow"), function (r) {
+  [].forEach.call(field.querySelectorAll(".fld__r"), function (r) {
     rows[r.getAttribute("data-sys")] = r;
   });
-
-  var reduced = window.matchMedia &&
-                window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function say(t) { if (cap) cap.textContent = t; }
 
   function land(row, sys) {
     if (!row) return;
-    var v = row.querySelector(".sysrow__v");
+    var v = row.querySelector(".fld__v");
     if (sys.answered) {
       row.setAttribute("data-state", "up");
       if (v) v.textContent = sys.ms + " ms";
@@ -41,24 +48,15 @@
     }
   }
 
+  /* Results are applied the moment they arrive, all at once. The sequence a
+     visitor sees belongs to the establishment sweep in CSS, which is why
+     there is no stagger here: a timer in this file would be the page
+     pretending the network answered slower than it did. */
   function apply(data) {
     var list = (data && data.systems) || [];
     if (!list.length) { say("check unavailable"); return; }
 
-    /* Fastest first, so the sequence is the real order of arrival rather than
-       a decorative stagger. */
-    var ordered = list.slice().sort(function (a, b) {
-      if (a.answered !== b.answered) return a.answered ? -1 : 1;
-      return (a.ms || 0) - (b.ms || 0);
-    });
-
-    if (reduced) {
-      ordered.forEach(function (sys) { land(rows[sys.id], sys); });
-    } else {
-      ordered.forEach(function (sys, i) {
-        setTimeout(function () { land(rows[sys.id], sys); }, 90 + i * 160);
-      });
-    }
+    list.forEach(function (sys) { land(rows[sys.id], sys); });
 
     var up = list.filter(function (s) { return s.answered; }).length;
     var when = "";
@@ -67,8 +65,7 @@
              { hour: "2-digit", minute: "2-digit" });
     } catch (e) { when = ""; }
     var tail = up + " of " + list.length + " answering";
-    setTimeout(function () { say(when ? tail + " · " + when : tail); },
-               reduced ? 0 : 90 + ordered.length * 160);
+    say(when ? tail + " · " + when : tail);
   }
 
   /* A check that never comes back must not leave the caption claiming a check
