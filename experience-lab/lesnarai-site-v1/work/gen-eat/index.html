@@ -755,6 +755,28 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 @media(prefers-reduced-motion:reduce){
   .site-head{transition:none}
 }
+
+/* ── JOURNEY SHELL · the action language decided at 51c7722 ─────────────
+   Doubled class deliberately: these buttons sit inside containers that
+   already style their anchors, and a single .btn--go loses to any of them
+   on specificity - which on the record pages painted ink text on an ink
+   fill and produced a 1:1 button nobody could read. */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;
+  font:600 15px/1 A,"Archivo Fallback",system-ui,sans-serif;letter-spacing:-.005em;
+  text-decoration:none;border:1px solid transparent;cursor:pointer;
+  -webkit-appearance:none;appearance:none;background:transparent;
+  transition:transform 170ms var(--press,cubic-bezier(.2,.8,.3,1)),
+             background-color 200ms ease,color 200ms ease,border-color 200ms ease}
+.btn:active{transform:scale(.972)}
+.btn span{display:inline-block;transition:transform 260ms var(--press,cubic-bezier(.2,.8,.3,1))}
+.btn:hover span,.btn:focus-visible span{transform:translateX(4px)}
+.btn.btn--go{background:var(--fg);color:var(--sheet,#fff);border-color:var(--fg)}
+.btn.btn--go:hover,.btn.btn--go:focus-visible{background:transparent;color:var(--fg)}
+.btn.btn--line{background:transparent;color:var(--fg);border-color:var(--fg);
+  padding:12px 18px;font-size:14px}
+.btn.btn--line:hover,.btn.btn--line:focus-visible{background:var(--fg);color:var(--sheet,#fff)}
+[data-af-edge="ink"] .btn.btn--go,.sys-hero .btn.btn--go{background:#fff;color:var(--ink);border-color:#fff}
+[data-af-edge="ink"] .btn.btn--go:hover,.sys-hero .btn.btn--go:hover{background:transparent;color:#fff}
 </style>
 <link rel="canonical" href="https://www.lesnarai.co.ke/work/gen-eat/">
 <meta property="og:type" content="website">
@@ -821,7 +843,7 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
     <button type="button" id="flow-next">Next stage</button>
     <span class="flow__hint">Stage <b id="flow-at">1</b> of 5 &middot; arrow keys work too</span>
   </div>
-</section><div class="w"><p class="bridge">Need something with similar complexity? <a href="../../book/">Discuss a project</a></p></div><div class="w onward"><p class="onward__h">Related systems</p><ul class="onward__l"><li><a href="../bizmtaani/"><b>BizMtaani</b><span>Live product</span></a></li><li><a href="../hazina-nomads/"><b>Hazina Nomads</b><span>Live product</span></a></li></ul><p class="onward__back"><a href="../">All eleven systems in the register</a></p></div>
+</section><div class="w"><p class="bridge">Need something with similar complexity? <a href="../../book/">Discuss a project</a></p></div><div class="w onward"><p class="onward__h">Related systems</p><ul class="onward__l"><li><a href="../bizmtaani/"><b>BizMtaani</b><span>Live product</span></a></li><li><a href="../hazina-nomads/"><b>Hazina Nomads</b><span>Live product</span></a></li></ul><p class="onward__back"><a class="btn btn--line" href="../">All eleven systems in the register</a></p></div>
 </main>
 <footer class="site-foot">
   <div class="w">

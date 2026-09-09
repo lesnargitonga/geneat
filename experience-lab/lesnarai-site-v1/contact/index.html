@@ -588,6 +588,47 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 @media(prefers-reduced-motion:reduce){
   .site-head{transition:none}
 }
+
+/* ── JOURNEY SHELL · the action language decided at 51c7722 ─────────────
+   Doubled class deliberately: these buttons sit inside containers that
+   already style their anchors, and a single .btn--go loses to any of them
+   on specificity - which on the record pages painted ink text on an ink
+   fill and produced a 1:1 button nobody could read. */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;
+  font:600 15px/1 A,"Archivo Fallback",system-ui,sans-serif;letter-spacing:-.005em;
+  text-decoration:none;border:1px solid transparent;cursor:pointer;
+  -webkit-appearance:none;appearance:none;background:transparent;
+  transition:transform 170ms var(--press,cubic-bezier(.2,.8,.3,1)),
+             background-color 200ms ease,color 200ms ease,border-color 200ms ease}
+.btn:active{transform:scale(.972)}
+.btn span{display:inline-block;transition:transform 260ms var(--press,cubic-bezier(.2,.8,.3,1))}
+.btn:hover span,.btn:focus-visible span{transform:translateX(4px)}
+.btn.btn--go{background:var(--fg);color:var(--sheet,#fff);border-color:var(--fg)}
+.btn.btn--go:hover,.btn.btn--go:focus-visible{background:transparent;color:var(--fg)}
+.btn.btn--line{background:transparent;color:var(--fg);border-color:var(--fg);
+  padding:12px 18px;font-size:14px}
+.btn.btn--line:hover,.btn.btn--line:focus-visible{background:var(--fg);color:var(--sheet,#fff)}
+[data-af-edge="ink"] .btn.btn--go,.sys-hero .btn.btn--go{background:#fff;color:var(--ink);border-color:#fff}
+[data-af-edge="ink"] .btn.btn--go:hover,.sys-hero .btn.btn--go:hover{background:transparent;color:#fff}
+
+/* Contact is the general door; Book is the project door. The route out is
+   stated where the difference is decided, before anyone starts typing into
+   what used to be a second intake form. */
+.ct-route{margin:14px 0 0;padding:12px 0 0;border-top:1px solid var(--rule);
+  font-size:15px;line-height:1.55;color:var(--fg-2);max-width:56ch}
+.ct-route b{color:var(--fg);font-weight:600}
+
+/* Same fault as Book carried: the validation messages are in the markup but
+   hidden, so revealing one added 26px under a field - 12.5px at line-height
+   1.45 plus an 8px margin - and pushed everything below it. The slot is kept
+   in the layout and only its visibility changes, with the field gap reduced
+   to match so reserving the line does not loosen the form. */
+.cform .err{min-height:18.2px}
+/* !important is required, not preferred: a global [hidden]{display:none
+   !important} sits earlier in this stylesheet and beats any specificity a
+   normal declaration can reach. Scoped to this form's own messages. */
+.cform .err[hidden]{display:block!important;visibility:hidden}
+.cform .f{margin-bottom:6px}
 </style>
 <link rel="canonical" href="https://www.lesnarai.co.ke/contact/">
 <meta property="og:type" content="website">
@@ -615,8 +656,13 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 <main id="main">
 <div class="page"><div class="w">
   <p class="kicker">Contact</p>
-  <h1>Have something<br>worth building?</h1>
-  <p class="lede">Bring the problem rather than the spec. We will tell you what is buildable, what it will take, and where the hard parts are.</p>
+  <h1>Write to us<br>directly.</h1>
+  <p class="lede">For anything that is not a project brief &mdash; a question about
+    something in the register, a correction, or a general enquiry. It reaches the
+    same inbox and gets the same reply time.</p>
+  <p class="ct-route"><b>Starting a project?</b> <a class="lnk" href="../book/">Book a
+    conversation</a> instead &mdash; it asks the few things needed to reply properly,
+    and the first conversation is free.</p>
   <div class="fact" hidden>
     <div><b>Studio</b>Nairobi, Kenya</div>
     <div><b>Register</b><a href="../work/">The eleven systems</a></div>
@@ -646,7 +692,7 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
           <div class="hp" aria-hidden="true"><label for="f-co">Company</label>
             <input id="f-co" name="company" type="text" tabindex="-1" autocomplete="off"></div>
 
-          <button class="submit" type="submit" id="f-go">Send it</button>
+          <button class="btn btn--go" type="submit" id="f-go">Send it</button>
           <p class="state" id="f-state" role="status" aria-live="polite"></p>
         </form></div>
 <aside class="ct-aside">

@@ -334,7 +334,7 @@ body:not(.route-home) .foot__end{margin-top:clamp(18px,2.6vh,24px);padding-top:1
 .ab-lead{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,clamp(280px,32vw,420px));
   gap:clamp(28px,4.5vw,72px);align-items:start;
   margin-top:clamp(30px,5vh,58px)}
-.ab-portrait{margin:0;align-self:start}
+.ab-portrait{margin:0;align-self:start;grid-column:1/-1}
 .ab-portrait img{display:block;width:100%;height:auto;border:1px solid var(--rule);
   filter:saturate(.82) contrast(1.02)}
 .ab-portrait figcaption{margin-top:10px;font:500 11.5px/1.5 M,"Mono Fallback",ui-monospace,monospace;
@@ -557,6 +557,40 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 @media(prefers-reduced-motion:reduce){
   .site-head{transition:none}
 }
+
+/* ── JOURNEY SHELL · the action language decided at 51c7722 ─────────────
+   Doubled class deliberately: these buttons sit inside containers that
+   already style their anchors, and a single .btn--go loses to any of them
+   on specificity - which on the record pages painted ink text on an ink
+   fill and produced a 1:1 button nobody could read. */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;
+  font:600 15px/1 A,"Archivo Fallback",system-ui,sans-serif;letter-spacing:-.005em;
+  text-decoration:none;border:1px solid transparent;cursor:pointer;
+  -webkit-appearance:none;appearance:none;background:transparent;
+  transition:transform 170ms var(--press,cubic-bezier(.2,.8,.3,1)),
+             background-color 200ms ease,color 200ms ease,border-color 200ms ease}
+.btn:active{transform:scale(.972)}
+.btn span{display:inline-block;transition:transform 260ms var(--press,cubic-bezier(.2,.8,.3,1))}
+.btn:hover span,.btn:focus-visible span{transform:translateX(4px)}
+.btn.btn--go{background:var(--fg);color:var(--sheet,#fff);border-color:var(--fg)}
+.btn.btn--go:hover,.btn.btn--go:focus-visible{background:transparent;color:var(--fg)}
+.btn.btn--line{background:transparent;color:var(--fg);border-color:var(--fg);
+  padding:12px 18px;font-size:14px}
+.btn.btn--line:hover,.btn.btn--line:focus-visible{background:var(--fg);color:var(--sheet,#fff)}
+[data-af-edge="ink"] .btn.btn--go,.sys-hero .btn.btn--go{background:#fff;color:var(--ink);border-color:#fff}
+[data-af-edge="ink"] .btn.btn--go:hover,.sys-hero .btn.btn--go:hover{background:transparent;color:#fff}
+.ab-end__act{margin:18px 0 14px}
+
+/* The one approved documentary frame, at a considered size rather than full
+   bleed. At 1248px wide the room dominated the work: the curtain at the left
+   edge, the lamp, and the wall screen filled most of it. Cropped to the
+   working half and held to a column, the subject and the screens carry the
+   frame - which is what it is evidence of. */
+.ab-portrait{max-width:880px}
+.ab-portrait img{aspect-ratio:16/8;object-fit:cover;object-position:64% 46%}
+@media(max-width:720px){
+  .ab-portrait img{aspect-ratio:4/3;object-position:66% 46%}
+}
 </style>
 <link rel="canonical" href="https://www.lesnarai.co.ke/about/">
 <meta property="og:type" content="website">
@@ -592,10 +626,10 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
       you can open.</p>
   </div><div class="w ab-lead"><div class="ab-lead__t"></div><figure class="ab-portrait">
   <picture>
-    <source type="image/webp" sizes="420px" srcset="../media/studio-portrait-840.webp 840w, ../media/studio-portrait.webp 1200w">
-    <img src="../media/studio-portrait.jpg" sizes="420px" srcset="../media/studio-portrait-840.jpg 840w, ../media/studio-portrait.jpg 1200w" alt="At the bench in Nairobi, with the register open on the monitors behind." width="1200" height="1295" loading="lazy" decoding="async">
+    <source srcset="../media/studio-close.webp" type="image/webp">
+    <img src="../media/studio-close.jpg" alt="The studio bench in Nairobi, mid-build: working at the screens where the register is kept." width="1800" height="1010" loading="lazy" decoding="async">
   </picture>
-  <figcaption>Nairobi, 4 September 2026. The studio, and the bench the eleven systems in the register were built on.</figcaption>
+  <figcaption>Nairobi &middot; the bench the eleven systems in the register were built on.</figcaption>
 </figure></div><div class="w"><div class="fact">
     <div><b>Location</b>Nairobi · 1°17′S · 36°49′E</div>
     <div><b>Practice</b>Full-stack product build · payments and messaging · AI you can
@@ -621,8 +655,9 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 
 <div class="ab-end">
   <p>Nairobi, Kenya &middot; working across software, AI and connected systems.</p>
-  <p><a href="../contact/">Start a project</a> or write to
-     <a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a>.</p>
+  <p class="ab-end__act"><a class="btn btn--go" href="../book/">Start a project <span aria-hidden="true">&rarr;</span></a></p>
+  <p>Or write to <a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a>,
+     or use <a href="../contact/">the contact form</a> for anything that is not a project.</p>
 </div>
 
 </div></div>

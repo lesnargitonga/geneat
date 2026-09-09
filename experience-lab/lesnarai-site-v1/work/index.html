@@ -696,7 +696,10 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
    forever. */
 .pv{transition:color 240ms ease}
 .pv:not([data-done]){animation:pv-breathe 1500ms ease-in-out infinite}
-@keyframes pv-breathe{0%,100%{opacity:.45}50%{opacity:1}}
+/* The floor was .45, which dropped the readout to 2.04:1 while it breathed -
+   a legibility failure introduced by the breathing itself. .72 keeps the
+   pulse readable at its lowest point. */
+@keyframes pv-breathe{0%,100%{opacity:.72}50%{opacity:1}}
 
 @media(prefers-reduced-motion:reduce){
   .lnk,.mr a,.site-foot a,.onward__l a{background-size:100% 1px}

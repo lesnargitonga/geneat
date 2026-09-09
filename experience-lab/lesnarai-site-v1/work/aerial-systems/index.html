@@ -723,6 +723,28 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 @media(prefers-reduced-motion:reduce){
   .site-head{transition:none}
 }
+
+/* ── JOURNEY SHELL · the action language decided at 51c7722 ─────────────
+   Doubled class deliberately: these buttons sit inside containers that
+   already style their anchors, and a single .btn--go loses to any of them
+   on specificity - which on the record pages painted ink text on an ink
+   fill and produced a 1:1 button nobody could read. */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;
+  font:600 15px/1 A,"Archivo Fallback",system-ui,sans-serif;letter-spacing:-.005em;
+  text-decoration:none;border:1px solid transparent;cursor:pointer;
+  -webkit-appearance:none;appearance:none;background:transparent;
+  transition:transform 170ms var(--press,cubic-bezier(.2,.8,.3,1)),
+             background-color 200ms ease,color 200ms ease,border-color 200ms ease}
+.btn:active{transform:scale(.972)}
+.btn span{display:inline-block;transition:transform 260ms var(--press,cubic-bezier(.2,.8,.3,1))}
+.btn:hover span,.btn:focus-visible span{transform:translateX(4px)}
+.btn.btn--go{background:var(--fg);color:var(--sheet,#fff);border-color:var(--fg)}
+.btn.btn--go:hover,.btn.btn--go:focus-visible{background:transparent;color:var(--fg)}
+.btn.btn--line{background:transparent;color:var(--fg);border-color:var(--fg);
+  padding:12px 18px;font-size:14px}
+.btn.btn--line:hover,.btn.btn--line:focus-visible{background:var(--fg);color:var(--sheet,#fff)}
+[data-af-edge="ink"] .btn.btn--go,.sys-hero .btn.btn--go{background:#fff;color:var(--ink);border-color:#fff}
+[data-af-edge="ink"] .btn.btn--go:hover,.sys-hero .btn.btn--go:hover{background:transparent;color:#fff}
 </style>
 <link rel="canonical" href="https://www.lesnarai.co.ke/work/aerial-systems/">
 <meta property="og:type" content="website">
@@ -768,26 +790,20 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
   <p class="proof-lede">Nothing here is operated, so nothing operated is shown. What the register does publish is the set of commitments this system is built to hold. They are listed below exactly as stated.</p>
   <ul class="commits"><li><span class="commits__n">01</span><p class="commits__t">An upstream flight stack present</p></li><li><span class="commits__n">02</span><p class="commits__t">An Unreal simulation project</p></li></ul><p class="commits__open"><b>Not established.</b> No flight result is claimed. PX4 is upstream software, not ours. A commitment is not a measurement: these are what the system is built to do, not evidence that it has done it.</p>
 </section>
-<div class="w onward"><p class="onward__h">Related systems</p><ul class="onward__l"><li><a href="../sensing-and-radar/"><b>Sensing and radar</b><span>Research direction</span></a></li><li><a href="../greenhouse-controller/"><b>Greenhouse controller</b><span>Validated prototype</span></a></li></ul><p class="onward__back"><a href="../">All eleven systems in the register</a></p></div>
-
 <section class="w sec--surface" aria-labelledby="af-h">
-  <h2 id="af-h">The airframe, opened up</h2>
-  <p class="proof-lede">Nothing has been flown, so there is no flight to show. What exists is the
-    hardware on the bench: a stock collapsible airframe taken apart to reach the control side.
-    It is photographed as it is, in its case, rather than described.</p>
-  <figure class="surface">
-    <picture>
-      <source srcset="/media/aerial-airframe.webp" type="image/webp">
-      <img src="/media/aerial-airframe.jpg" alt="A small collapsible drone opened in its carry case: the controller, the folded airframe with its shell removed, exposed motor wiring and the battery." width="1440" height="1080" loading="lazy" decoding="async">
-    </picture>
-    <figcaption>
-      <span>Photographed 4 September 2026 &middot; Nairobi</span>
-      <span class="dis">A stock consumer airframe, disassembled. It evidences that the hardware
-        exists and has been opened; it is not a custom aircraft, and it is not evidence of flight,
-        range, endurance or autonomy. No flight result is claimed.</span>
-    </figcaption>
-  </figure>
+  <h2 id="af-h">There is nothing to show yet</h2>
+  <p class="proof-lede">Nothing has been flown. Control and flight behaviour have been
+    worked on in simulation only, and no flight, range, endurance or autonomy result
+    exists to publish.</p>
+  <p class="stop">The photograph that previously sat here showed a stock consumer
+    airframe in its carry case. It evidenced that hardware had been opened; it
+    evidenced nothing about this system, so it has been removed rather than
+    presented as progress. When there is a real result, it will appear here.</p>
 </section>
+
+<div class="w onward"><p class="onward__h">Related systems</p><ul class="onward__l"><li><a href="../sensing-and-radar/"><b>Sensing and radar</b><span>Research direction</span></a></li><li><a href="../greenhouse-controller/"><b>Greenhouse controller</b><span>Validated prototype</span></a></li></ul><p class="onward__back"><a class="btn btn--line" href="../">All eleven systems in the register</a></p></div>
+
+
 </main>
 <footer class="site-foot">
   <div class="w">

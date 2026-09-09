@@ -779,6 +779,28 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 @media(prefers-reduced-motion:reduce){
   .site-head{transition:none}
 }
+
+/* ── JOURNEY SHELL · the action language decided at 51c7722 ─────────────
+   Doubled class deliberately: these buttons sit inside containers that
+   already style their anchors, and a single .btn--go loses to any of them
+   on specificity - which on the record pages painted ink text on an ink
+   fill and produced a 1:1 button nobody could read. */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;
+  font:600 15px/1 A,"Archivo Fallback",system-ui,sans-serif;letter-spacing:-.005em;
+  text-decoration:none;border:1px solid transparent;cursor:pointer;
+  -webkit-appearance:none;appearance:none;background:transparent;
+  transition:transform 170ms var(--press,cubic-bezier(.2,.8,.3,1)),
+             background-color 200ms ease,color 200ms ease,border-color 200ms ease}
+.btn:active{transform:scale(.972)}
+.btn span{display:inline-block;transition:transform 260ms var(--press,cubic-bezier(.2,.8,.3,1))}
+.btn:hover span,.btn:focus-visible span{transform:translateX(4px)}
+.btn.btn--go{background:var(--fg);color:var(--sheet,#fff);border-color:var(--fg)}
+.btn.btn--go:hover,.btn.btn--go:focus-visible{background:transparent;color:var(--fg)}
+.btn.btn--line{background:transparent;color:var(--fg);border-color:var(--fg);
+  padding:12px 18px;font-size:14px}
+.btn.btn--line:hover,.btn.btn--line:focus-visible{background:var(--fg);color:var(--sheet,#fff)}
+[data-af-edge="ink"] .btn.btn--go,.sys-hero .btn.btn--go{background:#fff;color:var(--ink);border-color:#fff}
+[data-af-edge="ink"] .btn.btn--go:hover,.sys-hero .btn.btn--go:hover{background:transparent;color:#fff}
 </style>
 <link rel="canonical" href="https://www.lesnarai.co.ke/work/sentinelcore/">
 <meta property="og:type" content="website">
@@ -824,7 +846,7 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
   <p class="proof-lede">Nothing here is operated, so nothing operated is shown. What the register does publish is the set of commitments this system is built to hold. They are listed below exactly as stated.</p>
   <ul class="commits"><li><span class="commits__n">01</span><p class="commits__t">Async port scanning</p></li><li><span class="commits__n">02</span><p class="commits__t">An inotify log watcher with a sliding-window detector</p></li><li><span class="commits__n">03</span><p class="commits__t">Host configuration hardening</p></li><li><span class="commits__n">04</span><p class="commits__t">A firewall state mutator, and a remediation stage</p></li><li><span class="commits__n">05</span><p class="commits__t">Telemetry streaming, coordinated by one orchestrator</p></li></ul><p class="commits__open"><b>Not established.</b> No deployment, no customer, no certification and no detection efficacy figure. A commitment is not a measurement: these are what the system is built to do, not evidence that it has done it.</p>
 </section>
-<div class="w onward"><p class="onward__h">Related systems</p><ul class="onward__l"><li><a href="../cypher/"><b>Cypher</b><span>Unqualified prototype</span></a></li><li><a href="../gold-trader/"><b>Gold Trader</b><span>Research, paper only</span></a></li></ul><p class="onward__back"><a href="../">All eleven systems in the register</a></p></div>
+<div class="w onward"><p class="onward__h">Related systems</p><ul class="onward__l"><li><a href="../cypher/"><b>Cypher</b><span>Unqualified prototype</span></a></li><li><a href="../gold-trader/"><b>Gold Trader</b><span>Research, paper only</span></a></li></ul><p class="onward__back"><a class="btn btn--line" href="../">All eleven systems in the register</a></p></div>
 
 <section class="w flow" id="flow" aria-labelledby="flow-h">
   <h2 class="flow__h" id="flow-h">What the command actually does</h2>
