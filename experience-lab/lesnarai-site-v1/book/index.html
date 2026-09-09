@@ -849,6 +849,119 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
 .bk-f{gap:7px}
 .bk-err{min-height:19.5px;margin:6px 0 0;color:var(--err,#9A2E14)}
 .bk-err:empty{margin-top:6px}
+
+/* ── TRUE LIGHT MODE ─────────────────────────────────────────────────────
+   The shell and the record hero were painted with a fixed ink that never
+   flipped with the theme. Nineteen pages rendered a #0A0B0D header in light
+   mode with up to 52% of the page dark, so navigating off the homepage felt
+   like the theme had changed underneath you.
+
+   The strong surfaces become paper and the type on them becomes ink, using
+   the same palette the homepage established. Every rule here is scoped to the
+   light theme, so dark mode is untouched and stays genuinely dark. */
+:root:not([data-theme="dark"]){
+  --ink:#E4E9E4;          /* a strong ground, in light mode, is still paper */
+  --ink-2:#4C574F;
+  --on-ink:#101613;       /* and the type on it is ink */
+  --on-ink-2:#4C574F;
+  --rule-dk:#CBD4CC;
+}
+:root:not([data-theme="dark"]) .skip{background:#101613;color:#F1F3F0}
+/* one paper for the header on every page: the homepage's own ground, so
+   moving from home to Work does not step the bar a shade darker */
+:root:not([data-theme="dark"]) .site-head{color:#101613;background:#F1F3F0;
+  background-image:none;border-bottom-color:#CBD4CC}
+:root:not([data-theme="dark"]) .site-head a,
+:root:not([data-theme="dark"]) .site-head button,
+:root:not([data-theme="dark"]) .site-mark{color:#101613}
+:root:not([data-theme="dark"]) .site-head :focus-visible,
+:root:not([data-theme="dark"]) .site-foot :focus-visible{outline-color:#101613}
+/* the footer keeps its job as a deliberate close - it is simply the deepest
+   paper on the page instead of the only black band on a light site */
+:root:not([data-theme="dark"]) .site-foot{background:#D7DED8;color:#4C574F;
+  background-image:none;border-top-color:#CBD4CC}
+:root:not([data-theme="dark"]) .site-foot a,
+:root:not([data-theme="dark"]) .site-foot b,
+:root:not([data-theme="dark"]) .site-foot h2,
+:root:not([data-theme="dark"]) .site-foot li a:hover,
+:root:not([data-theme="dark"]) .site-foot li a:focus-visible{color:#101613}
+:root:not([data-theme="dark"]) .site-foot p,
+:root:not([data-theme="dark"]) .site-foot span{color:#4C574F}
+
+/* the record hero */
+:root:not([data-theme="dark"]) .route-system .sys-hero{color:#101613;background-image:none}
+:root:not([data-theme="dark"]) .route-system .sys-hero h1,
+:root:not([data-theme="dark"]) .route-system .sys-hero .mat{color:#101613;
+  border-bottom-color:#96A398}
+:root:not([data-theme="dark"]) .route-system .sys-hero .lede{color:#4C574F}
+:root:not([data-theme="dark"]) .route-system .sys-hero .kicker{color:#5C665E}
+/* ── the hero's own instruments ──────────────────────────────────────────
+   One rule in the base sheet paints five selectors #9AA3AB and another gives
+   four of them a white 22% border. Both were written for an ink ground; on
+   paper they measured 2.08:1 and 1.13:1 across the three records that carry a
+   signature block. Every selector from those two rules is answered here, in
+   the same light family already used for the kicker, the state chip and the
+   rule that marks what a system does not claim. */
+:root:not([data-theme="dark"]) .sys-hero .sig__k,
+:root:not([data-theme="dark"]) .sys-hero .gates i{color:#5C665E}
+/* the pill carries its own .9 opacity, which took the label colour down to
+   3.99:1. The secondary ink clears 4.5 at that same opacity, so the pill keeps
+   the treatment it was designed with. */
+:root:not([data-theme="dark"]) .sys-hero .sig__k .pill{color:#4C574F}
+:root:not([data-theme="dark"]) .sys-hero .sig__n,
+:root:not([data-theme="dark"]) .sys-hero .route span,
+:root:not([data-theme="dark"]) .sys-hero .ledger span{color:#4C574F}
+:root:not([data-theme="dark"]) .sys-hero .sig,
+:root:not([data-theme="dark"]) .sys-hero .gates li,
+:root:not([data-theme="dark"]) .sys-hero .ledger li,
+:root:not([data-theme="dark"]) .sys-hero .sig__n{border-color:#96A398}
+:root:not([data-theme="dark"]) .sys-hero .ledger{border-left-color:#96A398}
+:root:not([data-theme="dark"]) .sys-hero .btn.btn--go,
+:root:not([data-theme="dark"]) [data-af-edge="ink"] .btn.btn--go{
+  background:#101613;color:#F1F3F0;border-color:#101613}
+:root:not([data-theme="dark"]) .sys-hero .btn.btn--go:hover,
+:root:not([data-theme="dark"]) .sys-hero .btn.btn--go:focus-visible,
+:root:not([data-theme="dark"]) [data-af-edge="ink"] .btn.btn--go:hover{
+  background:transparent;color:#101613}
+
+/* the register */
+:root:not([data-theme="dark"]) body.route-work{color:#101613}
+:root:not([data-theme="dark"]) .route-work .kicker,
+:root:not([data-theme="dark"]) .route-work .reg .n,
+:root:not([data-theme="dark"]) .route-work .reg .go{color:#5C665E}
+:root:not([data-theme="dark"]) .route-work .lede,
+:root:not([data-theme="dark"]) .route-work .reg .mt{color:#4C574F}
+:root:not([data-theme="dark"]) .route-work .rule{background:#CBD4CC}
+:root:not([data-theme="dark"]) .route-work .reg{border-top-color:#96A398}
+:root:not([data-theme="dark"]) .route-work .reg li{border-bottom-color:#CBD4CC}
+:root:not([data-theme="dark"]) .route-work .reg a:hover,
+:root:not([data-theme="dark"]) .route-work .reg a:focus-visible{background:rgba(16,22,19,.05)}
+:root:not([data-theme="dark"]) .route-work .reg a:hover .nm,
+:root:not([data-theme="dark"]) .route-work .reg a:hover .go,
+:root:not([data-theme="dark"]) .route-work .reg a:focus-visible .nm,
+:root:not([data-theme="dark"]) .route-work .reg a:focus-visible .go{color:#101613}
+:root:not([data-theme="dark"]) .route-work .reg a:hover .mt{color:#4C574F}
+:root:not([data-theme="dark"]) .route-work .site-foot{border-top-color:#CBD4CC}
+:root:not([data-theme="dark"]) .backto{color:#101613;border-color:#96A398}
+:root:not([data-theme="dark"]) .backto:hover,
+:root:not([data-theme="dark"]) .backto:focus-visible{background:#101613;color:#F1F3F0}
+
+/* Elements that were drawn to sit on ink and now sit on paper. Each of these
+   was measured as unreadable against its new ground - the primary hero button
+   was white type on a white button, and the rule that marks what a system does
+   NOT claim had become invisible, which is not a rule this project may lose. */
+:root:not([data-theme="dark"]) .sys-open{
+  background:#101613;color:#F1F3F0;border-color:#101613}
+:root:not([data-theme="dark"]) .sys-open:hover,
+:root:not([data-theme="dark"]) .sys-open:focus-visible{
+  background:transparent;color:#101613;border-color:#101613}
+:root:not([data-theme="dark"]) .sys-state{border-color:#96A398;color:#4C574F}
+:root:not([data-theme="dark"]) .stop{border-top-color:#101613}
+:root:not([data-theme="dark"]) .sys-hero li{border-color:#96A398}
+:root:not([data-theme="dark"]) .foot__end{border-top-color:#96A398}
+:root:not([data-theme="dark"]) .sig{border-color:#96A398}
+:root:not([data-theme="dark"]) .site-foot nav a:hover,
+:root:not([data-theme="dark"]) .site-foot nav a:focus-visible{border-bottom-color:#101613}
 </style>
 <link rel="canonical" href="https://www.lesnarai.co.ke/book/">
 <meta property="og:type" content="website">
