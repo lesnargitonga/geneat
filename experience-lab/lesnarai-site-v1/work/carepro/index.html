@@ -11,7 +11,34 @@ document.documentElement.setAttribute("data-js","1");
 /* the one-shot arrival sweep, stamped before first paint and only when
    motion is welcome, so reduced motion starts finished */
 if(!matchMedia("(prefers-reduced-motion:reduce)").matches)
-  document.documentElement.setAttribute("data-est","1");}catch(e){}})();</script>
+  document.documentElement.setAttribute("data-est","1");}catch(e){}
+/* THE ARRIVAL YIELDS TO THE READER.
+   A one-shot arrival runs on a clock; scrolling runs on a thumb. Measured, a
+   reader who started moving 100ms after load was still dragging this page's
+   headline arrival up the screen until it had settled 129% of a viewport
+   ABOVE it - the load animation and the scroll fighting over one transform.
+   On the first real input the arrival is pinned at whatever value it has
+   reached and resolved to 1 over 240ms. Armed here rather than in the
+   deferred script, which can execute later than the first scroll. */
+try{if(document.documentElement.hasAttribute("data-est")){
+  var fin=function(el,p){
+    var v=parseFloat(getComputedStyle(el).getPropertyValue(p));
+    if(isNaN(v)||v>=0.999)return;
+    el.style.animation="none";el.style.setProperty(p,String(v));
+    void el.offsetWidth;
+    el.style.transition=p+" 240ms cubic-bezier(.22,1,.36,1)";
+    el.style.setProperty(p,"1");};
+  var go=function(){
+    removeEventListener("scroll",go);removeEventListener("wheel",go);
+    removeEventListener("touchmove",go);removeEventListener("keydown",go);
+    document.documentElement.setAttribute("data-yield","1");
+    var a=document.querySelectorAll("[data-arrive]"),i=0;
+    for(;i<a.length;i++)fin(a[i],"--n2");};
+  addEventListener("scroll",go,{passive:true});
+  addEventListener("wheel",go,{passive:true});
+  addEventListener("touchmove",go,{passive:true});
+  addEventListener("keydown",go,{passive:true});
+}}catch(e){}})();</script>
 
 <meta charset="utf-8">
 <!-- Chrome for Android and Samsung Internet force-darken any page that does
@@ -509,6 +536,15 @@ main{view-transition-name:page-body}
 @keyframes pc-in{from{opacity:0;transform:translateY(28px) scale(.994)}}
 ::view-transition-old(shell-head),::view-transition-new(shell-head),
 ::view-transition-old(shell-foot),::view-transition-new(shell-foot){animation:none}
+/* ── WHEN THE READER TAKES OVER ──────────────────────────────────────────
+   The layered arrival stops being layered the moment the reader starts
+   scrolling: staggering is what makes an arrival worth watching, and delay
+   is all it is once they have decided not to watch it. */
+:root[data-yield] .sys-hero .kicker,:root[data-yield] .sys-hero h1,
+:root[data-yield] .sys-hero .sys-lede,:root[data-yield] .sys-hero .lede,
+:root[data-yield] .sys-act{--a:0;--b:.45}
+:root[data-yield] .sys-hero .gates li{--n:clamp(0, calc(var(--n2) / .55), 1)}
+
 @media(prefers-reduced-motion:reduce){
   @view-transition{navigation:none}
   ::view-transition-old(page-body),::view-transition-new(page-body){animation:none}
@@ -1237,9 +1273,8 @@ html{background:var(--sheet)}
    things it evidences, and one it does not. Those were a single run-on
    sentence in the caption; they are now three observations that take weight
    in turn, which is the same claim, read at the pace it is made. */
-.ost{--n:clamp(0, calc((var(--p) - var(--a,0)) / var(--b,1)), 1)}
 .sec--surface{perspective:1500px;perspective-origin:50% 30%}
-.surface{--n:clamp(0, calc(var(--p) / .34), 1);
+.surface{--n:clamp(0, calc(var(--p) / .80), 1);
   transform:translate3d(0, calc((1 - var(--n)) * 62px), calc((1 - var(--n)) * -230px))
             scale(calc(.93 + var(--n) * .07));
   transform-origin:50% 34%;
@@ -1330,7 +1365,7 @@ html{background:var(--sheet)}
   <p class="stop">Reachability only. Its role and state-machine model are described, not measured.</p>
 </div></div>
 
-<section class="w sec--surface" data-scene="through" data-band=".06,.86" aria-labelledby="surf-h">
+<section class="w sec--surface" data-scene="focal" data-focus=".surface" aria-labelledby="surf-h">
   <h2 id="surf-h">The surface, as it stood on 6 September 2026</h2>
   <p class="proof-lede">CarePro publishes a reachable homepage. It is shown here unedited, including the parts that are unflattering, because cropping them would make the capture a claim rather than an observation.</p>
   <figure class="surface">
@@ -1342,14 +1377,14 @@ html{background:var(--sheet)}
       <span>carepro.co.ke · captured 2026-09-06 · 1440 × 900</span>
       <span class="dis">Observed surface, shown unedited.</span>
       <ol class="obs">
-        <li class="ost" style="--a:.40;--b:.15"><b>It evidences</b><span>That the page loaded, and what it said at that moment.</span></li>
-        <li class="ost" style="--a:.56;--b:.15"><b>The counter reads</b><span>19 nurses joined and 0 approved for assignments — the live values on the day of capture, not placeholders.</span></li>
-        <li class="ost" style="--a:.72;--b:.17"><b>It is not evidence of</b><span>Traffic, revenue, uptime or scale. A capture cannot show any of those.</span></li>
+        <li data-fp><b>It evidences</b><span>That the page loaded, and what it said at that moment.</span></li>
+        <li data-fp><b>The counter reads</b><span>19 nurses joined and 0 approved for assignments — the live values on the day of capture, not placeholders.</span></li>
+        <li data-fp><b>It is not evidence of</b><span>Traffic, revenue, uptime or scale. A capture cannot show any of those.</span></li>
       </ol>
     </figcaption>
   </figure>
 </section>
-<section class="w flow" data-scene="through" data-band=".06,.84" id="flow" aria-labelledby="flow-h" style="--flow-cols:4">
+<section class="w flow" data-scene="focal" data-focus=".flow__track" id="flow" aria-labelledby="flow-h" style="--flow-cols:4">
   <h2 class="flow__h" id="flow-h">What “verified” actually means</h2>
   <p class="flow__lede">CarePro publishes its verification process as four named steps. This is what each one claims, and what it does not.</p>
   <div class="flow__track" role="tablist" aria-label="What “verified” actually means"><button class="flow__step" role="tab" style="--i:0" id="fs0" aria-controls="fp0" aria-selected="true" tabindex="0"><span class="flow__n">01</span><span class="flow__who">Credentials</span><span class="flow__what">National ID and nursing licence</span></button><button class="flow__step" role="tab" style="--i:1" id="fs1" aria-controls="fp1" aria-selected="false" tabindex="-1"><span class="flow__n">02</span><span class="flow__who">Registry check</span><span class="flow__what">Verified against the Nursing Council</span></button><button class="flow__step" role="tab" style="--i:2" id="fs2" aria-controls="fp2" aria-selected="false" tabindex="-1"><span class="flow__n">03</span><span class="flow__who">Interview</span><span class="flow__what">Scored on a clinical rubric</span></button><button class="flow__step" role="tab" style="--i:3" id="fs3" aria-controls="fp3" aria-selected="false" tabindex="-1"><span class="flow__n">04</span><span class="flow__who">Clinical sign-off</span><span class="flow__what">A registered nurse approves, or does not</span></button></div>

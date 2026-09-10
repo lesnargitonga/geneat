@@ -7,7 +7,39 @@ document.documentElement.setAttribute("data-theme",t);}catch(e){}
 /* Motion resting-states are only safe to apply when script can lift them. */
 try{document.documentElement.setAttribute("data-js","1");
 if(!matchMedia("(prefers-reduced-motion:reduce)").matches)
-  document.documentElement.setAttribute("data-est","1");}catch(e){}})();</script>
+  document.documentElement.setAttribute("data-est","1");}catch(e){}
+/* THE ARRIVAL YIELDS TO THE READER.
+   A one-shot arrival runs on a clock; scrolling runs on a thumb. Measured,
+   a reader who started moving 100ms after load was still dragging the
+   headline's arrival up the page until it had settled 103% of a viewport
+   ABOVE the screen - the load animation and the scroll fighting over the
+   same transform, which is exactly the thing that reads as sludge.
+
+   On the first real input the arrival stops running to its own schedule: it
+   is pinned at whatever value it has reached and resolved to 1 over 240ms.
+   Nothing is skipped and nothing snaps; the page simply stops asking the
+   reader to wait for it. Armed here, in the head, because a deferred script
+   can execute later than the first scroll on a slow phone. */
+try{if(document.documentElement.hasAttribute("data-est")){
+  var fin=function(el,p){
+    var v=parseFloat(getComputedStyle(el).getPropertyValue(p));
+    if(isNaN(v)||v>=0.999)return;
+    el.style.animation="none";el.style.setProperty(p,String(v));
+    void el.offsetWidth;
+    el.style.transition=p+" 240ms cubic-bezier(.22,1,.36,1)";
+    el.style.setProperty(p,"1");};
+  var go=function(){
+    removeEventListener("scroll",go);removeEventListener("wheel",go);
+    removeEventListener("touchmove",go);removeEventListener("keydown",go);
+    document.documentElement.setAttribute("data-yield","1");
+    var c=document.querySelector(".ch1");if(c)fin(c,"--he");
+    var a=document.querySelectorAll("[data-arrive]"),i=0;
+    for(;i<a.length;i++)fin(a[i],"--n2");};
+  addEventListener("scroll",go,{passive:true});
+  addEventListener("wheel",go,{passive:true});
+  addEventListener("touchmove",go,{passive:true});
+  addEventListener("keydown",go,{passive:true});
+}}catch(e){}})();</script>
 
 <meta charset="utf-8">
 <!-- Chrome for Android and Samsung Internet force-darken any page that does
@@ -2736,6 +2768,7 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   display:flex;align-items:center}
 @media(min-height:700px){.ch1{min-height:calc(100svh - 76px)}}
 .ch1__grid{display:grid;gap:clamp(32px,5vw,72px);align-items:center;width:100%;
+  perspective:1700px;perspective-origin:58% 42%;
   grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr)}
 .ch1 h1{font-size:clamp(2.15rem,5.1vw,3.55rem);font-weight:600;line-height:1.03;
   letter-spacing:-.03em;margin:.7rem 0 0;max-width:17ch;color:var(--v-fg);
@@ -2762,11 +2795,15 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   padding:clamp(16px,2vw,24px);position:relative;
   --fr:clamp(0,calc(var(--he)/.16),1);
   --fe:clamp(0, calc((var(--he) - .06) / .26), 1);
-  transform:translate3d(0, calc(var(--hq) * -30px + (1 - var(--fe)) * 40px),
-                        calc(var(--hq) * -190px + (1 - var(--fe)) * -240px))
-            scale(calc(.92 + var(--fe) * .08 - var(--hq) * .05));
+  /* LOAD ONLY. The scroll withdraw lives one layer out, on .ch1__proof. When
+     both clocks wrote this one matrix, an arrival still running while the
+     reader scrolled was computing a single transform from two independent
+     timelines - the load easing and the scroll position fighting for the same
+     matrix. Now each layer answers to exactly one clock and they compose. */
+  transform:translate3d(0, calc((1 - var(--fe)) * 40px), calc((1 - var(--fe)) * -240px))
+            scale(calc(.92 + var(--fe) * .08));
   transform-origin:60% 50%;
-  box-shadow:0 calc(26px - var(--hq)*14px) calc(56px - var(--hq)*26px) -30px rgba(var(--v-shadow),.5);
+  box-shadow:0 calc(var(--fe) * 26px) calc(var(--fe) * 56px) -30px rgba(var(--v-shadow),.5);
   opacity:calc(.15 + var(--fr) * .85)}
 .fld__h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
   padding-bottom:12px;border-bottom:1px solid var(--v-rule)}
@@ -2783,18 +2820,23 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 /* the spine grows from the header downward, then shortens as you leave */
 .fld__spine{position:absolute;left:9px;top:14px;bottom:14px;width:1px;
   background:var(--v-dia-soft);transform-origin:50% 0;
-  transform:scaleY(calc(clamp(0,calc((var(--he) - .10)/.18),1) * (1 - var(--hq) * .78)))}
+  /* two properties, two clocks: `scale` is the load growth, `transform` the
+     scroll retract. They compose without either owning the other's timeline. */
+  scale:1 clamp(0,calc((var(--he) - .10)/.18),1);
+  transform:scaleY(calc(1 - var(--hq) * .78))}
 .fld__l{list-style:none;margin:0;padding:0}
 .fld__r{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:12px;
   align-items:center;padding:11px 0;border-bottom:1px solid var(--v-rule);
   position:relative;
-  transform:translate3d(calc((1 - var(--n)) * -22px), calc(var(--hq) * var(--sep,0) * 11px), 0);
+  translate:0 calc(var(--hq) * var(--sep,0) * 11px);
+  transform:translate3d(calc((1 - var(--n)) * -22px), 0, 0);
   opacity:calc(var(--n) * (1 - var(--hq) * .30))}
 .fld__r:last-child{border-bottom:0}
 /* the connector reaching from the spine to the system */
 .fld__c2{position:absolute;left:-17px;top:50%;width:17px;height:1px;
   background:var(--v-dia-soft);transform-origin:0 50%;
-  transform:scaleX(calc(clamp(0,calc((var(--he) - var(--ca)) / .16),1) * (1 - var(--hq))))}
+  scale:clamp(0,calc((var(--he) - var(--ca)) / .16),1) 1;
+  transform:scaleX(calc(1 - var(--hq)))}
 .fld__dot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--v-dia-ink);
   justify-self:center;
   transition:background-color 320ms ease,border-color 320ms ease,box-shadow 320ms ease}
@@ -2842,7 +2884,12 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 
 /* the field is a plate that comes forward out of the page and goes back into
    it when you leave, with one accent line sweeping it as it settles */
-.ch1__proof{perspective:1500px;perspective-origin:60% 45%}
+/* SCROLL ONLY. WITHDRAW and RETURN, and nothing from the load clock. It keeps
+   its own perspective so the panel inside still arrives out of depth. */
+.ch1__proof{perspective:1500px;perspective-origin:60% 45%;
+  transform:translate3d(0, calc(var(--hq) * -30px), calc(var(--hq) * -190px))
+            scale(calc(1 - var(--hq) * .05));
+  transform-origin:60% 50%}
 .fld::after{content:"";position:absolute;left:0;right:0;height:2px;
   background:linear-gradient(90deg,transparent,var(--v-accent),transparent);
   top:calc(clamp(0,calc((var(--he) - .18)/.5),1) * 100%);
@@ -2870,11 +2917,26 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
    full width of its row, a connector drops to every system, and the systems
    travel and settle onto it. */
 .ch2{background:var(--v-page);color:var(--v-fg);height:170vh;position:relative}
+/* Top-aligned, not centred. Centred, the heading block was paid for twice:
+   once as its own height and again as an equal margin above it, which pushed
+   the diagram's last branch to 81vh and the way out to 91vh - along the
+   bottom bezel, where the final beats of the assembly are least readable. */
 .map__stick{position:sticky;top:var(--head-h,57px);
-  height:calc(100svh - var(--head-h,57px));display:flex;align-items:center;
-  overflow:hidden}
+  height:calc(100svh - var(--head-h,57px));display:flex;align-items:flex-start;
+  padding-top:clamp(16px,3.2vh,34px);overflow:hidden}
 .map__in{width:100%}
-.map{position:relative;margin-top:clamp(24px,3.6vh,40px);padding-left:clamp(16px,2.4vw,30px)}
+/* THE WAY OUT IS PART OF THE ESTABLISHED COMPOSITION, NOT A FOOTNOTE.
+   Left at the foot of the diagram it locked at 79-91vh, along the bottom
+   bezel. It now shares the head row with the core: the company on the left,
+   the way to all eleven on the right, arriving last but arriving at 34vh -
+   and the 60px it used to occupy at the bottom go back to the held branch. */
+.map{position:relative;margin-top:clamp(14px,2.2vh,24px);padding-left:clamp(16px,2.4vw,30px);
+  display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;
+  /* A transform-based "compaction" was tried here and removed: translating a
+     completed group upward does not close the gap it leaves, because the
+     group's box stays where it was - so on a phone the branches simply
+     overlapped each other's headings. The height has to come out of the
+     composition, not out of a transform. */}
 .map__trunk{position:absolute;left:0;top:6px;bottom:6px;width:1px;
   background:var(--v-dia-soft);transform-origin:50% 0;
   transform:scaleY(clamp(0,calc(var(--p)/.24),1))}
@@ -2893,8 +2955,8 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 .map__core b{font:600 14px/1 A,"Archivo Fallback",system-ui,sans-serif;letter-spacing:-.01em}
 .map__core span{font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
   letter-spacing:.14em;text-transform:uppercase;opacity:.72}
-.map__br{position:relative;padding:clamp(10px,1.5vh,16px) 0 clamp(10px,1.5vh,16px) 0}
-.map__brh{margin:0 0 16px;display:flex;align-items:center;gap:10px;
+.map__br{position:relative;padding:clamp(5px,0.75vh,8px) 0}
+.map__brh{margin:0 0 9px;display:flex;align-items:center;gap:10px;
   font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.16em;
   text-transform:uppercase;color:var(--v-fg-2)}
 /* the stub used to be 26px. It now runs the width of the branch, so what you
@@ -2904,7 +2966,7 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 .map__brh i{display:block;height:1px;background:var(--v-dia-soft);
   transform-origin:0 50%;transform:scaleX(var(--n));
   flex:1 1 auto;order:2}
-.map__n{list-style:none;margin:0;padding:0;display:grid;gap:8px;
+.map__n{list-style:none;margin:0;padding:0;display:grid;gap:6px;
   grid-template-columns:repeat(3,minmax(0,1fr))}
 .map__n{perspective:1200px;perspective-origin:0 50%}
 /* systems arrive out of depth and take their place, rather than sliding 34px */
@@ -2916,7 +2978,7 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 .map__n li::before{content:"";position:absolute;left:15px;top:-16px;width:1px;height:16px;
   background:var(--v-dia-soft);transform-origin:50% 0;transform:scaleY(var(--n))}
 .sysnode{display:grid;grid-template-columns:11px minmax(0,1fr);gap:10px;align-items:baseline;
-  padding:9px 12px 9px 10px;text-decoration:none;color:inherit;
+  padding:7px 12px 7px 10px;text-decoration:none;color:inherit;
   /* the arrival is the surface, the rule and the accent stub - not the words */
   background:color-mix(in srgb,var(--v-dia) calc(var(--n) * 100%),transparent);
   border:1px solid color-mix(in srgb,var(--v-rule) calc(var(--n) * 100%),transparent);
@@ -2952,18 +3014,39 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 .sysnode--held .sysnode__t b{font-weight:500;color:var(--v-fg-2)}
 .map__n li:focus-within{opacity:1;transform:none}
 /* a navigation link, so it is available from the moment the scene is */
-.map__all{margin:clamp(14px,2.2vh,22px) 0 0}
+.map__core{grid-column:1;grid-row:1}
+.map__all{grid-column:2;grid-row:1;margin:0;justify-self:end;align-self:center;
+  max-width:min(58%,368px);padding-left:12px}
+.map__br{grid-column:1/-1}
 
 @media(max-width:820px){
   .ch2{height:180svh}
-  .map__n{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-  .sysnode{min-height:46px;align-items:center;padding:6px 10px 6px 8px}
-  .map__br{padding:clamp(6px,1vh,10px) 0}
-  .map__brh{margin-bottom:7px}
+  .map__n{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+  .sysnode{min-height:32px;align-items:center;padding:3px 10px 3px 8px}
+  .map__br{padding:clamp(3px,0.5vh,5px) 0}
+  .map__brh{margin-bottom:3px}
+  /* the head row is the height of the core, not of a wrapped button */
+  .map__all{max-width:186px;padding-left:8px}
+  .map__all .btn{font-size:11.5px;line-height:1.2;padding:4px 9px;text-align:left}
+  .sysnode{min-height:36px}
   .sysnode{padding:8px 10px 8px 8px;gap:8px}
   .sysnode__t span{font-size:11px}
-  .map{padding-left:14px}
+  .map{padding-left:14px;margin-top:clamp(14px,2vh,22px)}
   .map__brh i{margin-left:-14px;width:11px}
+  /* the heading block above a pinned stage is dead weight on a phone: every
+     pixel it takes pushes the last branch of the diagram toward the bottom
+     edge, where the final beats of the assembly were landing at 78-94vh */
+  /* and the stage stops centring what it holds: centred, every pixel saved
+     above the diagram was handed straight back as a bigger top margin */
+  .map__stick{padding-top:clamp(4px,0.7vh,8px)}
+  /* Every pixel the heading block takes above a pinned diagram is a pixel the
+     diagram's last branch spends nearer the bottom bezel. Nothing is removed
+     - the same words, set tighter. */
+  .ch2 .lede4{font-size:13px;line-height:1.42;margin-top:.4rem}
+  .ch2 h2{margin-bottom:0;font-size:clamp(1.28rem,5.4vw,1.6rem);line-height:1.14}
+  .ch2 .map__in .eyebrow4{margin-bottom:.35rem}
+  .map{margin-top:clamp(9px,1.4vh,14px)}
+  .map__all{margin-top:clamp(12px,1.8vh,20px)}
 }
 @media(max-width:520px){
   .map__n{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -3041,10 +3124,24 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 @media(max-width:900px){
   .pr--biz{height:166svh}
   .bizs{height:calc(100svh - var(--head-h,57px));align-items:center}
-  .bizs__in{grid-template-columns:1fr;gap:clamp(12px,2.2vh,22px);align-content:center}
-  .bizs__say h3{font-size:clamp(1.45rem,6vw,2rem)}
+  .bizs__in{grid-template-columns:1fr;gap:clamp(10px,1.8vh,18px);align-content:center}
+  /* THE STAGE TAKES THE CENTRE OF THE PHONE.
+     Stacked, the narration sat above the frames and pushed them to a centre
+     of 60vh - the bottom edge of the focal zone - so the hand-off performed
+     low while the eye was still high. display:contents promotes the copy to
+     grid items so the stage can be ordered into the middle: title above it,
+     the three steps beneath it, the product surface where the eye is. */
+  .bizs__say{display:contents}
+  .bizs__say .pr__k{order:1}
+  .bizs__say h3{order:2;font-size:clamp(1.45rem,6vw,2rem)}
+  .bstage{order:3}
+  .bizs__say .brel{order:4}
+  .bizs__say .bnote,.bizs__prog{order:5}
   .bizs__say .pr__d{display:none}
-  .bstage{aspect-ratio:auto;height:min(50svh,430px)}
+  /* the stage is the point of the scene, so on a phone it takes the height
+     the narration used to take above it - which also brings its centre back
+     toward the middle of the screen rather than the top third */
+  .bstage{aspect-ratio:auto;height:min(60svh,510px)}
   /* the two tall captures sit side by side and swap depth, so the same
      ADVANCE reads at 390 as it does at 1440 */
   .bframe{inset:0 auto 0 0;width:58%;height:100%}
@@ -3061,7 +3158,10 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   .bnote{display:none}
 }
 @media(max-width:520px){
-  .bstage{height:min(44svh,360px)}
+  /* narrower phone, so the frames are taller rather than shorter: with the
+     narration below the stage there is height to give it, and the hand-off
+     needs to be readable at 390 before it needs to be readable at 1440 */
+  .bstage{height:min(56svh,470px)}
   .bframe{width:62%}
 }
 
@@ -3547,6 +3647,17 @@ html{background:var(--v-page)}
 .m-in{transform:scale(calc(.86 + var(--n) * .14));
   clip-path:inset(calc((1 - var(--n)) * 30%) calc((1 - var(--n)) * 8%) calc((1 - var(--n)) * 26%) calc((1 - var(--n)) * 44%))}
 
+/* ── WHEN THE READER TAKES OVER ──────────────────────────────────────────
+   Resolving --he quickly is not enough on its own: the layers are staggered
+   across it, so the last row of the live panel still landed in the final
+   40ms - by which time a reader moving at reading speed had scrolled the
+   panel off the top. Under data-yield the layers stop being staggered and
+   resolve together. The sequence is what makes the arrival worth watching;
+   once the reader has decided not to watch it, the sequence is just delay. */
+:root[data-yield] .ch1 .eyebrow4,:root[data-yield] .ch1 h1,
+:root[data-yield] .ch1__lede,:root[data-yield] .ch1__act{--a:0;--b:.45}
+:root[data-yield] .fld__r,:root[data-yield] .fld__c{--a:0;--b:.45;--ca:0;--va:0}
+
 /* ── THE TWO RECORD SCENES, AT A SIZE A PERSON CAN SEE ───────────────────
    Both of these were already choreographed and both measured as static: the
    whole of CarePro's motion was a 1px rail, a 21px chip and a 27px disc, and
@@ -3573,8 +3684,7 @@ html{background:var(--v-page)}
   background:var(--v-raise);
   box-shadow:inset 2px 0 0 0 var(--v-accent);
   opacity:calc(var(--n) * .92)}
-.care__ev{--n:clamp(0, calc(var(--p) / .34), 1);
-  transform:translate3d(0, calc((1 - var(--n)) * 58px), calc((1 - var(--n)) * -190px))
+.care__ev{transform:translate3d(0, calc((1 - var(--n)) * 58px), calc((1 - var(--n)) * -190px))
             scale(calc(.94 + var(--n) * .06));
   transform-origin:50% 38%;
   box-shadow:0 calc(var(--n) * 26px) calc(var(--n) * 52px) -34px rgba(var(--v-shadow),.5)}
@@ -3598,8 +3708,7 @@ html{background:var(--v-page)}
 .jrec__s::before{width:3px}
 .jrec__s::after{content:"";position:absolute;z-index:-1;inset:0 -16px;
   background:var(--v-surf);opacity:calc(var(--n) * .8)}
-.jam__ev{--n:clamp(0, calc(var(--p) / .30), 1);
-  transform:translate3d(0, calc((1 - var(--n)) * 58px), calc((1 - var(--n)) * -190px))
+.jam__ev{transform:translate3d(0, calc((1 - var(--n)) * 58px), calc((1 - var(--n)) * -190px))
             scale(calc(.94 + var(--n) * .06));
   transform-origin:50% 38%;
   box-shadow:0 calc(var(--n) * 26px) calc(var(--n) * 52px) -34px rgba(var(--v-shadow),.5)}
@@ -3607,8 +3716,11 @@ html{background:var(--v-page)}
 /* the map's last beat: the three flagships take their emphasis and the way
    out of the chapter locks, so the assembly finishes at the end of the pin
    rather than three quarters of the way through it */
+/* It arrives from the right edge of its own row, not from below: sitting in
+   the head row now, a downward entrance put it straight through the first
+   branch heading for the whole first third of the assembly. */
 .map__all{--n:clamp(0, calc((var(--p) - .88) / .11), 1);
-  transform:translate3d(0, calc((1 - var(--n)) * 26px), 0)}
+  transform:translate3d(calc((1 - var(--n)) * 18px), 0, 0)}
 
 @media(prefers-reduced-motion:reduce){
   .m-est,.m-est--near,.m-lock,.m-withdraw,.m-out,.m-in{
@@ -3711,6 +3823,7 @@ html{background:var(--v-page)}
       <div class="map">
         <i class="map__trunk" aria-hidden="true"></i>
         <p class="map__core"><b>Lesnar&nbsp;AI</b><span>Nairobi</span></p>
+        <p class="map__all"><a class="btn btn--line" href="work/">All eleven, with what each proves <span aria-hidden="true">&rarr;</span></a></p>
 
         <div class="map__br">
           <p class="map__brh st" style="--a:.12;--b:.09"><i aria-hidden="true"></i>Commerce and marketplaces</p>
@@ -3763,7 +3876,6 @@ html{background:var(--v-page)}
           </ul>
         </div>
 
-        <p class="map__all"><a class="btn btn--line" href="work/">All eleven, with what each proves <span aria-hidden="true">&rarr;</span></a></p>
       </div>
     </div>
   </div>
@@ -3814,7 +3926,7 @@ html{background:var(--v-page)}
 <!-- ═══ 4 · PROOF TWO · CAREPRO · ADVANCE THROUGH GATES ══════════════════
      The file travels down the column and the gates close behind it. The
      wording stays the product's: these are steps CarePro publishes. -->
-<article class="pr pr--care" data-scene="through" data-band=".07,.74" aria-labelledby="pr-care">
+<article class="pr pr--care" data-scene="focal" data-focus=".gates" aria-labelledby="pr-care">
   <div class="w4 care">
     <div class="care__say">
       <p class="pr__k">Live product &middot; carepro.co.ke</p>
@@ -3850,7 +3962,7 @@ html{background:var(--v-page)}
       </span></p>
     </div>
 
-    <figure class="care__ev">
+    <figure class="care__ev" data-fp>
       <!-- One native capture of the live panel, used at both breakpoints. The
            product's own layout no longer renders at the proportion the earlier
            pair was cut to, and the whole panel is worth more than the old
@@ -3865,7 +3977,7 @@ html{background:var(--v-page)}
      What the record holds, stage by stage. Every field is reserved before any
      of it is written, so nothing on the page moves. These are the fields the
      product keeps - not any group's actual contributions. -->
-<article class="pr pr--jam" data-scene="through" data-band=".08,.76" aria-labelledby="pr-jam">
+<article class="pr pr--jam" data-scene="focal" data-focus=".jrec" aria-labelledby="pr-jam">
   <div class="w4 jam">
     <div class="jam__say">
       <p class="pr__k">Live product &middot; jamii.lesnarai.co.ke</p>
@@ -3897,7 +4009,7 @@ html{background:var(--v-page)}
       </div>
     </div>
 
-    <figure class="jam__ev">
+    <figure class="jam__ev" data-fp>
       <picture>
         <source media="(max-width:640px)" srcset="media/jamii-card-m.jpg" width="1200" height="880">
         <source srcset="media/jamii-surface-full.webp" type="image/webp">

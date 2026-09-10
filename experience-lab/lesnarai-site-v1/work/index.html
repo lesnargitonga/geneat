@@ -11,7 +11,34 @@ document.documentElement.setAttribute("data-js","1");
 /* the one-shot arrival sweep, stamped before first paint and only when
    motion is welcome, so reduced motion starts finished */
 if(!matchMedia("(prefers-reduced-motion:reduce)").matches)
-  document.documentElement.setAttribute("data-est","1");}catch(e){}})();</script>
+  document.documentElement.setAttribute("data-est","1");}catch(e){}
+/* THE ARRIVAL YIELDS TO THE READER.
+   A one-shot arrival runs on a clock; scrolling runs on a thumb. Measured, a
+   reader who started moving 100ms after load was still dragging this page's
+   headline arrival up the screen until it had settled 129% of a viewport
+   ABOVE it - the load animation and the scroll fighting over one transform.
+   On the first real input the arrival is pinned at whatever value it has
+   reached and resolved to 1 over 240ms. Armed here rather than in the
+   deferred script, which can execute later than the first scroll. */
+try{if(document.documentElement.hasAttribute("data-est")){
+  var fin=function(el,p){
+    var v=parseFloat(getComputedStyle(el).getPropertyValue(p));
+    if(isNaN(v)||v>=0.999)return;
+    el.style.animation="none";el.style.setProperty(p,String(v));
+    void el.offsetWidth;
+    el.style.transition=p+" 240ms cubic-bezier(.22,1,.36,1)";
+    el.style.setProperty(p,"1");};
+  var go=function(){
+    removeEventListener("scroll",go);removeEventListener("wheel",go);
+    removeEventListener("touchmove",go);removeEventListener("keydown",go);
+    document.documentElement.setAttribute("data-yield","1");
+    var a=document.querySelectorAll("[data-arrive]"),i=0;
+    for(;i<a.length;i++)fin(a[i],"--n2");};
+  addEventListener("scroll",go,{passive:true});
+  addEventListener("wheel",go,{passive:true});
+  addEventListener("touchmove",go,{passive:true});
+  addEventListener("keydown",go,{passive:true});
+}}catch(e){}})();</script>
 
 <meta charset="utf-8">
 <!-- Chrome for Android and Samsung Internet force-darken any page that does
@@ -540,6 +567,13 @@ main{view-transition-name:page-body}
 @keyframes pc-in{from{opacity:0;transform:translateY(28px) scale(.994)}}
 ::view-transition-old(shell-head),::view-transition-new(shell-head),
 ::view-transition-old(shell-foot),::view-transition-new(shell-foot){animation:none}
+/* ── WHEN THE READER TAKES OVER ──────────────────────────────────────────
+   The layered arrival stops being layered the moment the reader starts
+   scrolling: staggering is what makes an arrival worth watching, and delay
+   is all it is once they have decided not to watch it. */
+:root[data-yield] .route-work .kicker,:root[data-yield] .route-work h1,
+:root[data-yield] .route-work .lede{--a:0;--b:.45}
+
 @media(prefers-reduced-motion:reduce){
   @view-transition{navigation:none}
   ::view-transition-old(page-body),::view-transition-new(page-body){animation:none}
@@ -1139,15 +1173,14 @@ html{background:var(--sheet)}
 .reg-band__h::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:2px;
   background:currentColor;opacity:.34;
   transform:scaleX(clamp(0, calc(var(--p) / .14), 1));transform-origin:0 50%}
-/* The stagger is derived from how many rows the band actually has, so the last
-   row of a two-row band and the last row of a six-row band both land at the
-   same point in the band's own scroll - about 0.96. The fixed 0.09 step this
-   replaces put every band's last row down by a third of the way through, and
-   left the remaining two thirds to be scrolled past a finished list. */
+/* No declared stagger. Each row carries data-fp, so the engine gives it a
+   progress derived from where that row is in the viewport: it arrives as it
+   reaches the focal zone and is finished before it climbs out of it. Rows
+   land in order because they reach the zone in order, and a two-row band and
+   a six-row band need no different arithmetic. The band arithmetic this
+   replaces finished the last row of the flagship band at 18vh on a desktop
+   and 9vh on a phone - after the reader had scrolled it past. */
 .live-list li,.held-list li{
-  --i:0; --a0:.08; --w:.30;
-  --step:calc((.96 - var(--a0) - var(--w)) / max(1, (var(--rows,3) - 1)));
-  --n:clamp(0, calc((var(--p) - (var(--a0) + var(--i) * var(--step))) / var(--w)), 1);
   transform:translate3d(calc((1 - var(--n)) * -64px), calc((1 - var(--n)) * 14px),
                         calc((1 - var(--n)) * -230px))
             scale(calc(.92 + var(--n) * .08));
@@ -1198,7 +1231,7 @@ html{background:var(--sheet)}
   <h1>Eleven systems, each with its own maturity.</h1>
   <p class="lede">Every entry states what it is and what it is not. Five are live products;
     the rest are held at the stage they have actually reached.</p>
-  <div class="reg-band" data-scene="through" data-band=".05,.88">
+  <div class="reg-band" data-scene="focal" data-focus=".live-list,.held-list">
   <div class="reg-band__h">
     <h2>Flagship products</h2>
     <p>The three with a public surface and the deepest evidence behind them. Each is
@@ -1206,25 +1239,25 @@ html{background:var(--sheet)}
         never an uptime record.</p>
     <span class="reg-band__n">01&ndash;03</span>
   </div>
-  <ul class="live-list" style="--rows:3"><li style="--i:0"><a class="live-e" href="bizmtaani/" data-probe="bizmtaani.com"><span class="live-e__n">01</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/bizmtaani-760.webp 760w, ../media/bizmtaani.webp 1440w"><img src="../media/bizmtaani.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/bizmtaani-760.jpg 760w, ../media/bizmtaani.jpg 1440w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>BizMtaani</h3><span class="a-sep">. </span><p>A neighbourhood marketplace: local shops list what they sell, customers order and pay from a phone, and riders carry the order.</p><span class="live-e__host">bizmtaani.com &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li style="--i:1"><a class="live-e" href="carepro/" data-probe="carepro.co.ke"><span class="live-e__n">02</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/carepro-760.webp 760w, ../media/carepro.webp 1280w"><img src="../media/carepro.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/carepro-760.jpg 760w, ../media/carepro.jpg 1280w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>CarePro</h3><span class="a-sep">. </span><p>Book a vetted nurse to care for someone at home, with payment arranged through the platform.</p><span class="live-e__host">carepro.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li style="--i:2"><a class="live-e" href="jamii-projects-hub/" data-probe="jamii.lesnarai.co.ke"><span class="live-e__n">03</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/jamii-live-760.webp 760w, ../media/jamii-live.webp 1440w"><img src="../media/jamii-live.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/jamii-live-760.jpg 760w, ../media/jamii-live.jpg 1440w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Jamii Projects Hub</h3><span class="a-sep">. </span><p>See what projects your community is planning, vote on what matters, and keep clear records for a family, chama or welfare group.</p><span class="live-e__host">jamii.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li></ul>
+  <ul class="live-list"><li data-fp><a class="live-e" href="bizmtaani/" data-probe="bizmtaani.com"><span class="live-e__n">01</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/bizmtaani-760.webp 760w, ../media/bizmtaani.webp 1440w"><img src="../media/bizmtaani.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/bizmtaani-760.jpg 760w, ../media/bizmtaani.jpg 1440w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>BizMtaani</h3><span class="a-sep">. </span><p>A neighbourhood marketplace: local shops list what they sell, customers order and pay from a phone, and riders carry the order.</p><span class="live-e__host">bizmtaani.com &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li data-fp><a class="live-e" href="carepro/" data-probe="carepro.co.ke"><span class="live-e__n">02</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/carepro-760.webp 760w, ../media/carepro.webp 1280w"><img src="../media/carepro.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/carepro-760.jpg 760w, ../media/carepro.jpg 1280w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>CarePro</h3><span class="a-sep">. </span><p>Book a vetted nurse to care for someone at home, with payment arranged through the platform.</p><span class="live-e__host">carepro.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li data-fp><a class="live-e" href="jamii-projects-hub/" data-probe="jamii.lesnarai.co.ke"><span class="live-e__n">03</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/jamii-live-760.webp 760w, ../media/jamii-live.webp 1440w"><img src="../media/jamii-live.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/jamii-live-760.jpg 760w, ../media/jamii-live.jpg 1440w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Jamii Projects Hub</h3><span class="a-sep">. </span><p>See what projects your community is planning, vote on what matters, and keep clear records for a family, chama or welfare group.</p><span class="live-e__host">jamii.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li></ul>
 </div>
 
-<div class="reg-band" data-scene="through" data-band=".05,.88">
+<div class="reg-band" data-scene="focal" data-focus=".live-list,.held-list">
   <div class="reg-band__h">
     <h2>Also live</h2>
     <p>Two more systems publishing a public surface, contacted the same way.</p>
     <span class="reg-band__n">04&ndash;05</span>
   </div>
-<ul class="live-list" style="--rows:2"><li style="--i:0"><a class="live-e" href="gen-eat/" data-probe="geneat.lesnarai.co.ke"><span class="live-e__n">04</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/geneat-public-surface-760.webp 760w, ../media/geneat-public-surface.webp 852w"><img src="../media/geneat-public-surface.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/geneat-public-surface-760.jpg 760w, ../media/geneat-public-surface.jpg 852w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Gen-Eat</h3><span class="a-sep">. </span><p>Order from your campus cafe over WhatsApp and collect it when it is ready, instead of queueing between lectures.</p><span class="live-e__host">geneat.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li style="--i:1"><a class="live-e" href="hazina-nomads/" data-probe="hazina.lesnarai.co.ke"><span class="live-e__n">05</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/hazina-760.webp 760w, ../media/hazina.webp 1600w"><img src="../media/hazina.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/hazina-760.jpg 760w, ../media/hazina.jpg 1728w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Hazina Nomads</h3><span class="a-sep">. </span><p>Kenyan gifts and heritage pieces, sourced privately for travellers, diaspora families and corporate clients.</p><span class="live-e__host">hazina.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li></ul>
+<ul class="live-list"><li data-fp><a class="live-e" href="gen-eat/" data-probe="geneat.lesnarai.co.ke"><span class="live-e__n">04</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/geneat-public-surface-760.webp 760w, ../media/geneat-public-surface.webp 852w"><img src="../media/geneat-public-surface.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/geneat-public-surface-760.jpg 760w, ../media/geneat-public-surface.jpg 852w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Gen-Eat</h3><span class="a-sep">. </span><p>Order from your campus cafe over WhatsApp and collect it when it is ready, instead of queueing between lectures.</p><span class="live-e__host">geneat.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li data-fp><a class="live-e" href="hazina-nomads/" data-probe="hazina.lesnarai.co.ke"><span class="live-e__n">05</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/hazina-760.webp 760w, ../media/hazina.webp 1600w"><img src="../media/hazina.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/hazina-760.jpg 760w, ../media/hazina.jpg 1728w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Hazina Nomads</h3><span class="a-sep">. </span><p>Kenyan gifts and heritage pieces, sourced privately for travellers, diaspora families and corporate clients.</p><span class="live-e__host">hazina.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li></ul>
 </div>
 
-<div class="reg-band" data-scene="through" data-band=".05,.88">
+<div class="reg-band" data-scene="focal" data-focus=".live-list,.held-list">
   <div class="reg-band__h">
     <h2>Built, held or researched</h2>
     <p>Six systems with no public surface. They are shown as what they are rather than dressed in an interface that does not exist.</p>
     <span class="reg-band__n">06&ndash;11</span>
   </div>
-  <ul class="held-list" style="--rows:6"><li style="--i:0"><a class="held-e" href="sentinelcore/"><span class="held-e__n">06</span><span class="a-sep">. </span><span class="held-e__name">SentinelCore</span><span class="a-sep">. </span><p>The studio's own tool for checking a Linux server is safe: it scans for open doors, watches the logs for trouble and tightens the settings that matter.</p><span class="held-e__s">Internal engineering system</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li style="--i:1"><a class="held-e" href="cypher/"><span class="held-e__n">07</span><span class="a-sep">. </span><span class="held-e__name">Cypher</span><span class="a-sep">. </span><p>Rules about what an AI system is allowed to do, and a person who has to approve it before anything happens.</p><span class="held-e__s">Unqualified prototype</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li style="--i:2"><a class="held-e" href="greenhouse-controller/"><span class="held-e__n">08</span><span class="a-sep">. </span><span class="held-e__name">Greenhouse controller</span><span class="a-sep">. </span><p>Owner-reported embedded control for a greenhouse: temperature, moisture and watering, unattended.</p><span class="held-e__s">Validated prototype</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li style="--i:3"><a class="held-e" href="gold-trader/"><span class="held-e__n">09</span><span class="a-sep">. </span><span class="held-e__name">Gold Trader</span><span class="a-sep">. </span><p>Research into automated gold trading, tested only on paper - it places no real orders with anyone's money.</p><span class="held-e__s">Research, paper only</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li style="--i:4"><a class="held-e" href="aerial-systems/"><span class="held-e__n">10</span><span class="a-sep">. </span><span class="held-e__name">Aerial systems</span><span class="a-sep">. </span><p>Research into aircraft and flight control, flown in simulation rather than in the air.</p><span class="held-e__s">Active research</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li style="--i:5"><a class="held-e" href="sensing-and-radar/"><span class="held-e__n">11</span><span class="a-sep">. </span><span class="held-e__name">Sensing and radar</span><span class="a-sep">. </span><p>A stated direction we intend to work in - sensing and radar. Nothing is built yet.</p><span class="held-e__s">Research direction</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li></ul>
+  <ul class="held-list"><li data-fp><a class="held-e" href="sentinelcore/"><span class="held-e__n">06</span><span class="a-sep">. </span><span class="held-e__name">SentinelCore</span><span class="a-sep">. </span><p>The studio's own tool for checking a Linux server is safe: it scans for open doors, watches the logs for trouble and tightens the settings that matter.</p><span class="held-e__s">Internal engineering system</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li data-fp><a class="held-e" href="cypher/"><span class="held-e__n">07</span><span class="a-sep">. </span><span class="held-e__name">Cypher</span><span class="a-sep">. </span><p>Rules about what an AI system is allowed to do, and a person who has to approve it before anything happens.</p><span class="held-e__s">Unqualified prototype</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li data-fp><a class="held-e" href="greenhouse-controller/"><span class="held-e__n">08</span><span class="a-sep">. </span><span class="held-e__name">Greenhouse controller</span><span class="a-sep">. </span><p>Owner-reported embedded control for a greenhouse: temperature, moisture and watering, unattended.</p><span class="held-e__s">Validated prototype</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li data-fp><a class="held-e" href="gold-trader/"><span class="held-e__n">09</span><span class="a-sep">. </span><span class="held-e__name">Gold Trader</span><span class="a-sep">. </span><p>Research into automated gold trading, tested only on paper - it places no real orders with anyone's money.</p><span class="held-e__s">Research, paper only</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li data-fp><a class="held-e" href="aerial-systems/"><span class="held-e__n">10</span><span class="a-sep">. </span><span class="held-e__name">Aerial systems</span><span class="a-sep">. </span><p>Research into aircraft and flight control, flown in simulation rather than in the air.</p><span class="held-e__s">Active research</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li data-fp><a class="held-e" href="sensing-and-radar/"><span class="held-e__n">11</span><span class="a-sep">. </span><span class="held-e__name">Sensing and radar</span><span class="a-sep">. </span><p>A stated direction we intend to work in - sensing and radar. Nothing is built yet.</p><span class="held-e__s">Research direction</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li></ul>
 </div>
 <div class="reg-close">
   <p><b>Eleven systems, and what each one actually proves.</b> If you have work that
