@@ -2463,7 +2463,10 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-fg)}
 .map__core span{font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
   letter-spacing:.14em;text-transform:uppercase;opacity:.72}
 .map__br{position:relative;padding:clamp(5px,0.75vh,15px) 0}
-.map__brh{margin:0 0 9px;display:flex;align-items:center;gap:10px;
+/* the three kinds of work are three groups, so they are separated like three
+   groups rather than stacked flush against each other */
+.map__br + .map__br{margin-top:clamp(4px, calc(4px + (100vw - 1600px) * 0.022), 30px)}
+.map__brh{margin:0 0 clamp(9px, calc(9px + (100vw - 1600px) * 0.012), 22px);display:flex;align-items:center;gap:10px;
   font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.16em;
   text-transform:uppercase;color:var(--v-fg-2)}
 /* the stub used to be 26px. It now runs the width of the branch, so what you
@@ -2473,7 +2476,17 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-fg)}
 .map__brh i{display:block;height:1px;background:var(--v-dia-soft);
   transform-origin:0 50%;transform:scaleX(var(--n));
   flex:1 1 auto;order:2}
-.map__n{list-style:none;margin:0;padding:0;display:grid;gap:6px;
+/* The gutter used to be a flat 6px at every size, so as the boxes grew the
+   space between them did not - on a 2560 screen eleven 426px tiles sat 6px
+   apart and the three groups touched outright.
+
+   The horizontal gutter scales with width. The VERTICAL gaps only open past
+   1600px, where there is slack in the stage to spend: below that the negative
+   term keeps the clamp on its floor, so a laptop and a phone keep the exact
+   spacing they were tuned with and the last branch stays inside its zone. */
+.map__n{list-style:none;margin:0;padding:0;display:grid;
+  gap:clamp(6px, calc(6px + (100vw - 1600px) * 0.012), 18px)
+      clamp(6px, 0.78vw, 26px);
   grid-template-columns:repeat(3,minmax(0,1fr))}
 .map__n{perspective:1200px;perspective-origin:0 50%}
 /* THE SYSTEM ATTACHES TO ITS BRANCH.
@@ -2614,15 +2627,25 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-fg)}
 .brel{list-style:none;margin:0;padding:0;display:grid;gap:0;
   border-top:1px solid var(--v-rule)}
 .brel li{padding:13px 0 13px 26px;border-bottom:1px solid var(--v-rule);position:relative}
+/* THIS STEP IS THE ONE THE FRAMES ARE SHOWING.
+   The blanket green-to-neutral pass left this marker interpolating its fill
+   toward --v-dia, which is within a hair of the page, and its border from
+   --v-rule-2 to --v-rule-2 - the same colour. So the marker had no visible
+   state at all: FIND, CHOOSE and ORDER read as three hollow circles for the
+   whole scene, and the only thing tying the words to the captures was
+   invisible. Ink, and unmistakable. */
 .brel li::before{content:"";position:absolute;left:0;top:19px;width:11px;height:11px;
   border-radius:50%;border:1.5px solid var(--v-rule-2);
-  background:color-mix(in srgb,var(--v-dia) calc(var(--n) * 100%),transparent);
-  border-color:color-mix(in srgb,var(--v-rule-2) calc(var(--n) * 100%),var(--v-rule-2))}
+  background:color-mix(in srgb,var(--v-fg) calc(var(--n) * 100%),transparent);
+  border-color:color-mix(in srgb,var(--v-fg) calc(var(--n) * 100%),var(--v-rule-2));
+  box-shadow:0 0 0 calc(var(--n) * 3px) color-mix(in srgb,var(--v-fg) 10%,transparent)}
+/* and the step itself takes weight while it is the one being shown */
+.brel b{color:color-mix(in srgb,var(--v-fg) calc(40% + var(--n) * 60%),var(--v-fg-3))}
 .brel li::after{content:"";position:absolute;left:5px;top:30px;bottom:-13px;width:1px;
   background:var(--v-dia-soft);transform-origin:50% 0;transform:scaleY(var(--n))}
 .brel li:last-child::after{display:none}
 .brel b{display:block;font:600 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
-  letter-spacing:.15em;text-transform:uppercase;color:var(--v-fg)}
+  letter-spacing:.15em;text-transform:uppercase}
 .brel span{display:block;margin-top:5px;font-size:14px;line-height:1.5;color:var(--v-fg-2);
   transform:translateY(calc((1 - var(--n)) * 4px))}
 .bizs__say .pr__d{font-size:clamp(.92rem,1.1vw,1rem);margin-top:.6rem}
@@ -2655,6 +2678,10 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-fg)}
   .bframe{inset:0 auto 0 0;width:58%;height:100%}
   .bframe img{width:auto;height:100%;object-fit:cover;object-position:50% 0}
   .bframe figcaption{display:none}
+  /* the frame is cropped horizontally on a phone (object-fit:cover), so the
+     vertical position still maps exactly but the horizontal does not - the
+     mark becomes a full-width band at the right height rather than a box in
+     the wrong place */
   .bframe--a{transform:translateX(calc(var(--n) * -4%)) scale(calc(1 - var(--n) * .1))}
   .bframe--b{left:auto;right:0;
     transform:translateX(calc((1 - var(--n)) * 16%)) scale(calc(.9 + var(--n) * .1))}
@@ -2738,6 +2765,63 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-fg)}
 .care__ev figcaption{margin-top:12px;padding-top:11px;
   border-top:1px solid var(--v-rule);
   font:400 11.5px/1.5 M,"Mono Fallback",ui-monospace,monospace;color:var(--v-fg-2)}
+
+/* ── THE EXPLANATION POINTS AT THE EVIDENCE ──────────────────────────────
+   Every product scene was a column of words beside a screenshot, each moving
+   independently, with nothing joining them - so a reader had to take on faith
+   that the words described the picture. The step that is currently being
+   explained now MARKS THE PART OF THE CAPTURE THAT SHOWS IT: same number, same
+   moment, an outline on the region itself.
+
+   The regions are real. They were read off the captures, and a step only gets
+   one where the capture genuinely shows that step. Where it does not, the step
+   says "not in this capture" rather than pointing at something vague - which
+   is itself worth knowing, because it says what a public surface does and does
+   not reveal. --t and --h are the region's top and height as percentages of
+   the captured image. */
+.ev-shot{position:relative;display:block}
+.ev-mark{position:absolute;left:calc(var(--l,4) * 1%);right:calc(var(--r,4) * 1%);
+  top:calc(var(--t,0) * 1%);height:calc(var(--h,10) * 1%);
+  border:1.5px solid var(--v-fg);border-radius:2px;pointer-events:none;
+  opacity:calc(var(--n) - var(--o,0) * .62);
+  transform:scale(calc(.99 + var(--n) * .01));transform-origin:50% 50%}
+.ev-mark b{position:absolute;left:-1.5px;top:0;transform:translateY(-100%);
+  font:600 9.5px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.12em;
+  background:var(--v-fg);color:var(--v-page);padding:3px 5px}
+/* a step whose claim this capture does not show says so */
+.noev{display:inline-block;margin-left:8px;vertical-align:1px;
+  font:500 9px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--v-fg-3);
+  border:1px solid var(--v-rule-2);border-radius:2px;padding:3px 5px}
+.bframe--a .ev-mark{opacity:calc(var(--n) - var(--o))}
+/* Regions, read off each capture. Below its own srcset breakpoint a frame
+   serves a DIFFERENT capture, so the region is re-read for that one - the
+   percentages are of the image actually on screen, not of the desktop crop. */
+.evm-find  {--t:39.5;--h:13.0;--l:22;--r:22}
+.evm-choose{--t:55.5;--h:40.0;--l:24;--r:46}
+.evm-order {--t:62.6;--h:35.0;--l:52;--r:24}
+.evm-prop  {--t:44.2;--h:13.0;--l:53;--r:4}
+.evm-vote  {--t:31.7;--h:10.5;--l:53;--r:4}
+@media(max-width:900px){                 /* m-01-discover / m-04-basket, 780x1688 */
+  .evm-find  {--t:36.6;--h:12.4;--l:5;--r:5}
+  .evm-choose{--t:46.6;--h:42.0;--l:5;--r:5}
+  .evm-order {--t:92.0;--h:7.6;--l:15;--r:2}
+}
+@media(max-width:640px){                 /* jamii-card-m, 1200x880: the card alone */
+  .evm-prop{--t:52.3;--h:28.4;--l:4;--r:4}
+  .evm-vote{--t:22.4;--h:25.1;--l:5;--r:4}
+}
+/* REGRESSION FIX (no-JS / reduced motion).
+   The marks are a narration device: they point at the region the CURRENT
+   step names, so they only mean anything while a step is current. With no
+   script, and under reduced motion, v4-motion.js settles every scene to its
+   finished state - and a mark whose step has already handed over rests
+   part-faded, which the no-JS gate correctly read as masked content ("38%
+   opacity, text PROPOSAL"). Without progress there is no current step, so
+   there is nothing for a mark to point at: the capture stands on its own and
+   the steps beside it are readable text either way. */
+:root:not([data-est]) .ev-mark{display:none}
+@media(prefers-reduced-motion:reduce){.ev-mark{transform:none}}
 
 /* ── Jamii · ADVANCE, accumulating ───────────────────────────────────────
    What the record holds, stage by stage. Every field is reserved before any
@@ -3295,6 +3379,8 @@ html{background:var(--v-page)}
             <source media="(max-width:900px)" srcset="media/biz/m-01-discover.webp" width="780" height="1688">
             <img src="media/biz/01-discovery-d.webp" alt="BizMtaani discovery: a search for a business, and the shops open near you." width="1100" height="687" loading="lazy" decoding="async">
           </picture>
+          <!-- the search, and the shop it found -->
+          <i class="ev-mark evm-find st" style="--a:.03;--b:.20;--c:.26;--d:.16"><b>FIND</b></i>
           <figcaption><b>Find</b> Businesses open near you</figcaption>
         </figure>
         <figure class="bframe bframe--b">
@@ -3302,6 +3388,10 @@ html{background:var(--v-page)}
             <source media="(max-width:900px)" srcset="media/biz/m-04-basket.webp" width="780" height="1688">
             <img src="media/biz/03-merchant-d.webp" alt="A BizMtaani merchant page: the shop, its items and its prices." width="1100" height="687" loading="lazy" decoding="async">
           </picture>
+          <!-- the menu with its prices, and the order panel - which reads
+               "Nothing added yet", because nothing was ordered for this page -->
+          <i class="ev-mark evm-choose st" style="--a:.34;--b:.24;--c:.64;--d:.16"><b>CHOOSE</b></i>
+          <i class="ev-mark evm-order st" style="--a:.68;--b:.26"><b>ORDER</b></i>
           <figcaption><b>Choose</b> The shop&rsquo;s page, its items and its prices</figcaption>
         </figure>
       </div>
@@ -3356,7 +3446,13 @@ html{background:var(--v-page)}
            product's own layout no longer renders at the proportion the earlier
            pair was cut to, and the whole panel is worth more than the old
            geometry: nothing is cropped, upscaled or enhanced. -->
-      <img src="media/carepro-panel.jpg" alt="CarePro's published verification panel: credentials, registry check, interview and clinical sign-off." width="1250" height="1417" loading="lazy" decoding="async">
+      <span class="ev-shot"><img src="media/carepro-panel.jpg" alt="CarePro's published verification panel: credentials, registry check, interview and clinical sign-off." width="1250" height="1417" loading="lazy" decoding="async">
+        <!-- read off the capture: the four bands CarePro publishes -->
+        <i class="ev-mark st" style="--a:.06;--b:.26;--c:.36;--d:.14;--t:11.7;--h:16.7"><b>01</b></i>
+        <i class="ev-mark st" style="--a:.28;--b:.26;--c:.58;--d:.14;--t:32.1;--h:12.3"><b>02</b></i>
+        <i class="ev-mark st" style="--a:.50;--b:.26;--c:.80;--d:.14;--t:48.4;--h:12.3"><b>03</b></i>
+        <i class="ev-mark st" style="--a:.72;--b:.26;--t:64.5;--h:12.6"><b>04</b></i>
+      </span>
       <figcaption>The panel as CarePro publishes it &middot; captured surface</figcaption>
     </figure>
   </div>
@@ -3386,11 +3482,11 @@ html{background:var(--v-page)}
         <div class="jrec__b">
           <div class="jrec__s st" style="--a:.04;--b:.28"><b>Proposal</b>
             <p class="jrec__f"><span>title</span><span>purpose</span><span>requested scope</span><span>who proposed it</span></p></div>
-          <div class="jrec__s st" style="--a:.26;--b:.28"><b>Review</b>
+          <div class="jrec__s st" style="--a:.26;--b:.28"><b>Review<span class="noev">not in this capture</span></b>
             <p class="jrec__f"><span>reviewer decision</span><span>group roles</span><span>contribution plan</span></p></div>
           <div class="jrec__s st" style="--a:.48;--b:.28"><b>Vote &amp; record</b>
             <p class="jrec__f"><span>vote tally</span><span>contributions logged</span><span>meeting minutes</span><span>expenses</span></p></div>
-          <div class="jrec__s st" style="--a:.70;--b:.28"><b>Report</b>
+          <div class="jrec__s st" style="--a:.70;--b:.28"><b>Report<span class="noev">not in this capture</span></b>
             <p class="jrec__f"><span>balance</span><span>progress update</span><span>accountability summary</span></p></div>
         </div>
         <p class="jrec__note">These are the fields the record carries at each stage.
@@ -3399,11 +3495,17 @@ html{background:var(--v-page)}
     </div>
 
     <figure class="jam__ev" data-fp>
-      <picture>
+      <span class="ev-shot"><picture>
         <source media="(max-width:640px)" srcset="media/jamii-card-m.jpg" width="1200" height="880">
         <source srcset="media/jamii-surface-full.webp" type="image/webp">
         <img src="media/jamii-surface-full.jpg" alt="The Jamii Projects Hub homepage, showing a community project open for voting." width="1440" height="900" loading="lazy" decoding="async">
       </picture>
+      <!-- read off the capture: the proposal's fields, and the vote tally.
+           Review and Report are stages the record holds that this public
+           capture does not display, and the two rows say so. -->
+      <i class="ev-mark evm-prop st" style="--a:.04;--b:.28;--c:.34;--d:.14"><b>PROPOSAL</b></i>
+      <i class="ev-mark evm-vote st" style="--a:.48;--b:.28"><b>VOTE</b></i>
+      </span>
       <figcaption>jamii.lesnarai.co.ke &middot; captured surface</figcaption>
     </figure>
   </div>

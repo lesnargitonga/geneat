@@ -188,26 +188,19 @@ h1{margin:0;font-weight:800;font-stretch:104%;
   letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px}
 @media (max-width:760px){ .sys-head{grid-template-columns:minmax(0,1fr)} }
 
-/* ── site motion ────────────────────────────────────────────────────────
-   Gated behind data-sv-motion, which only site.js sets. Without JavaScript,
-   and under reduced motion, every rule below is inert and the page renders
-   exactly as authored. */
-[data-sv-motion="on"] .kicker,
-[data-sv-motion="on"] h1,
-[data-sv-motion="on"] .site-foot p{clip-path:inset(-.3em var(--sv-w,0%) -.3em 0)}
-[data-sv-motion="on"] .lede,
-[data-sv-motion="on"] .reg li,
-[data-sv-motion="on"] .fact div,
-[data-sv-motion="on"] .stop,
-[data-sv-motion="on"] .mat,
-[data-sv-motion="on"] .rule{
-  transform:translate3d(0,var(--sv-y,0px),0);}
-@media (prefers-reduced-motion:reduce){
-  [data-sv-motion="on"] .kicker,[data-sv-motion="on"] h1,[data-sv-motion="on"] .site-foot p,
-  [data-sv-motion="on"] .lede,[data-sv-motion="on"] .reg li,[data-sv-motion="on"] .fact div,
-  [data-sv-motion="on"] .stop,[data-sv-motion="on"] .mat,[data-sv-motion="on"] .rule{
-    clip-path:none;transform:none;opacity:1}
-}
+/* ── site motion: NOT ON THIS PAGE ───────────────────────────────────────
+   This is the site's original reveal stratum - site.js wipes .kicker and h1
+   in horizontally over --sv-w, and rises .fact div and .mat 34px over
+   --sv-y as they enter. It was still running here, underneath the newer
+   arrival, so the headline had TWO entrances stacked on it and every block
+   slid up as it was scrolled to. That is the scroll-reveal vocabulary the
+   homepage was rebuilt without, and it carries no information: a block
+   rising 34px tells the reader only that they scrolled, which they know.
+
+   The rules are removed rather than overridden, so nothing dead is left
+   behind. site.js is shared with sixteen pages that still use it and is
+   deliberately untouched; it will still set --sv-w/--sv-y here and nothing
+   will read them. The elements simply render as authored. */
 
 /* ══ REGISTER: ART DIRECTION ═══════════════════════════════════════════
    The register is the studio's spine, so it is set on ink at full bleed and
@@ -267,6 +260,13 @@ h1[data-set] .sc{opacity:0;transform:translate3d(0,.62em,0) rotate(6deg);
   animation:sc-set .74s cubic-bezier(.16,1,.3,1) forwards;
   animation-delay:calc(var(--i) * 24ms)}
 @keyframes sc-set{to{opacity:1;transform:none}}
+/* NOT ON THIS PAGE. 24ms per character over a 43-character line is a headline
+   that is not finished being delivered until 1.7s, and a letter arriving is
+   not information. The split still happens - the markup and the aria-label
+   are untouched, so this is a look, not a structure change - but the
+   characters are simply there. The homepage does not do this either. The
+   other pages still do; bringing them in line is not this round's call. */
+h1[data-set] .sc{opacity:1;transform:none;animation:none;will-change:auto}
 
 /* ── route transitions ───────────────────────────────────────────────────
    Cross-document view transitions: leaving the page wipes out, the arriving
@@ -277,8 +277,7 @@ h1[data-set] .sc{opacity:0;transform:translate3d(0,.62em,0) rotate(6deg);
 
 @media (prefers-reduced-motion:reduce){
   h1[data-set] .sc{opacity:1;transform:none;animation:none}
-  ::view-transition-old(root),
-  
+  ::view-transition-old(root),::view-transition-new(root){animation:none}
 }
 
 /* Focus rings must follow the ground they land on. The shell's ink ring is
@@ -568,8 +567,6 @@ main{view-transition-name:page-body}
    The layered arrival stops being layered the moment the reader starts
    scrolling: staggering is what makes an arrival worth watching, and delay
    is all it is once they have decided not to watch it. */
-:root[data-yield] .route-work .kicker,:root[data-yield] .route-work h1,
-:root[data-yield] .route-work .lede{--a:0;--b:.45}
 
 @media(prefers-reduced-motion:reduce){
   @view-transition{navigation:none}
@@ -595,14 +592,15 @@ main{view-transition-name:page-body}
    This was bound to .hero h1, a container only the homepage has, so every
    other page loaded with the axis already at rest. The page's own h1 carries
    it now, whatever wrapper it sits in. */
-.page h1,.sys-hero h1,.nf h1{--wd:100;font-variation-settings:"wdth" var(--wd);
-  will-change:font-variation-settings}
-@media (prefers-reduced-motion:no-preference){
-  .page h1[data-set],.sys-hero h1[data-set],.nf h1[data-set]{--wd:72;
-    animation:h1-set 1050ms cubic-bezier(.16,1,.3,1) 90ms forwards}
-}
-@keyframes h1-set{from{--wd:72}to{--wd:100}}
-@property --wd{syntax:"<number>";inherits:false;initial-value:100}
+/* THE WIDTH AXIS DOES NOT SWEEP HERE.
+   It used to run 72 -> 100 over 1050ms, which is a very visible 1.1s of the
+   headline stretching sideways. Counting the two removed above, this
+   headline had THREE separate entrances stacked on it - a rise, a wipe and a
+   stretch - none of which said anything about eleven systems. The homepage
+   headline holds wdth 100 and does not sweep; this one now matches it. The
+   axis itself is kept: the face is set at its full width, which is the value
+   the sweep was travelling to anyway. */
+.page h1,.sys-hero h1,.nf h1{font-variation-settings:"wdth" 100}
 
 /* the axis needs its properties declared wherever a name is set */
 .live-e h3{--rw:96}
@@ -1120,6 +1118,31 @@ html{background:var(--sheet)}
 .regscan[data-all="ok"] .regscan__d{background:var(--sig,#1B6B52)}
 .regscan[data-all="mixed"] .regscan__d{background:var(--accent)}
 
+/* THE MEASURE THE TOP OF THE PAGE OPENED WITH, RESOLVED WHERE IT LANDS.
+   The readout above states what is about to happen, and can only ever read
+   0/5 while it is on screen: by the time the fifth system answers, the reader
+   is 1500px past it. So the register reports its own result here, at the end,
+   after they have caused every check by reaching it. Same string as the
+   readout, so the two ends of the page cannot disagree. Nothing is claimed
+   until all five are in - a reader who skips the live bands sees an empty
+   line, which is the truth - and the height is reserved, so it does not
+   shift the close when it arrives. */
+.reg-res{min-height:1.5em;margin:0 0 1.15rem;
+  font:500 11.5px/1.35 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--fg-2)}
+.reg-res > span{display:inline-flex;align-items:center;gap:9px;opacity:0;
+  transform:translateY(3px);
+  transition:opacity 420ms ease,transform 420ms cubic-bezier(.16,1,.3,1)}
+.reg-res[data-all] > span{opacity:1;transform:none}
+.reg-res b{font-weight:500}
+.reg-res__d{width:7px;height:7px;border-radius:50%;flex:none;
+  background:color-mix(in srgb,var(--fg) 22%,transparent)}
+.reg-res[data-all="ok"] .reg-res__d{background:var(--sig,#1B6B52)}
+.reg-res[data-all="mixed"] .reg-res__d{background:var(--accent)}
+@media(prefers-reduced-motion:reduce){
+  .reg-res > span{transition:none;transform:none}
+}
+
 /* a row settles when ITS OWN response lands */
 .live-e__n{transition:color 320ms ease}
 .live-e[data-state] .live-e__n{color:var(--fg)}
@@ -1136,37 +1159,35 @@ html{background:var(--sheet)}
    ESTABLISH for the page head, CONNECT for each band's rule, ACCUMULATE for
    the rows landing on it. Text stays readable the whole way: what moves is
    position, depth, the rule and the status. */
-.route-work .page > .w{perspective:1500px;perspective-origin:0 30%;position:relative}
-/* THE FIRST FRAME IS AN EMPTY RULED PAGE.
-   A register is a ruled sheet that gets written on, so the rule is drawn
-   before any of the writing arrives. It is the one frame that tells you which
-   page you are on before you have read a word, which is what the arrival was
-   missing: three short lines rising 46px is true, and on a 1440px desktop it
-   is over before it registers as having happened. */
-.route-work .page > .w::before{content:"";position:absolute;left:0;right:0;top:-14px;
-  height:2px;background:currentColor;opacity:.28;
-  transform:scaleX(clamp(0, calc(var(--n2) / .22), 1));transform-origin:0 50%}
-.route-work .kicker,.route-work h1,.route-work .lede{
-  --n:clamp(0, calc((var(--n2) - var(--a,0)) / var(--b,1)), 1);
-  transform:translate3d(0, calc((1 - var(--n)) * 62px), calc((1 - var(--n)) * -230px));
-  clip-path:inset(0 0 calc((1 - var(--n)) * 105%) 0)}
-.route-work .kicker{--a:.18;--b:.16}
-.route-work h1     {--a:.28;--b:.34}
-.route-work .lede  {--a:.54;--b:.24}
+.route-work .page > .w{position:relative}
+/* THE HERO DOES NOT ARRIVE ANY MORE.
+   It used to: an empty rule drew across, then three lines rose 62px out of a
+   230px Z-push behind a clip-path wipe, staggered across an 1800ms sweep.
+   Filmed, that is a blank ruled sheet for half a second and a headline that
+   does not finish until 1.3s. Nothing is learned from the wait - a headline
+   is arriving, which the reader already knew. It was the loudest thing on
+   the page and it said the least.
+
+   The hero is now readable in the first frame, and the page's one real event
+   owns the opening instead of queueing behind it. Five of the eleven systems
+   are live, and each is contacted from this browser. So the arrival is the
+   MEASURE of that: the track draws its own empty length, and the count and
+   the sentence follow it. The reader learns the size of what is about to be
+   counted, and that none of it has been counted yet, before a single row is
+   reached. Everything after this point on the page is caused by a response. */
+.regscan__r{transform:scaleX(clamp(0, calc(var(--n2) / .34), 1));transform-origin:0 50%}
+.regscan__c,.regscan__t{opacity:clamp(0, calc((var(--n2) - .26) / .3), 1)}
 
 .reg-band{position:relative}
 .reg-band__h{position:relative}
-/* the rule reaches across the band before its systems land on it */
+/* The one thing on this page that still answers the scroll, and the only
+   entrance kept: the band's rule reaches across before its systems land on
+   it. It extends a 2px rule under a heading that is already legible - it
+   delays no reading and reveals no content, and a register IS a ruled sheet.
+   Everything else that moves here is caused by a real HTTP response. */
 .reg-band__h::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:2px;
   background:currentColor;opacity:.34;
   transform:scaleX(clamp(0, calc(var(--p) / .14), 1));transform-origin:0 50%}
-/* No declared stagger. Each row carries data-fp, so the engine gives it a
-   progress derived from where that row is in the viewport: it arrives as it
-   reaches the focal zone and is finished before it climbs out of it. Rows
-   land in order because they reach the zone in order, and a two-row band and
-   a six-row band need no different arithmetic. The band arithmetic this
-   replaces finished the last row of the flagship band at 18vh on a desktop
-   and 9vh on a phone - after the reader had scrolled it past. */
 /* THE ROWS DO NOT ARRIVE ANY MORE.
    Eleven rows sliding in from the left told a reader nothing they did not
    already know from the fact that a list is a list. The register's real event
@@ -1211,7 +1232,7 @@ html{background:var(--sheet)}
   </div>
 </header>
 <main id="main" tabindex="-1">
-<div class="page" data-arrive style="--m-dur:1800ms"><div class="w">
+<div class="page" data-arrive style="--m-dur:900ms"><div class="w">
   <p class="kicker">The register</p>
   <h1>Eleven systems, each with its own maturity.</h1>
   <p class="lede">Every entry states what it is and what it is not. Five are live products;
@@ -1257,6 +1278,7 @@ html{background:var(--sheet)}
   <ul class="held-list"><li><a class="held-e" href="sentinelcore/"><span class="held-e__n">06</span><span class="a-sep">. </span><span class="held-e__name">SentinelCore</span><span class="a-sep">. </span><p>The studio's own tool for checking a Linux server is safe: it scans for open doors, watches the logs for trouble and tightens the settings that matter.</p><span class="held-e__s">Internal engineering system</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li><a class="held-e" href="cypher/"><span class="held-e__n">07</span><span class="a-sep">. </span><span class="held-e__name">Cypher</span><span class="a-sep">. </span><p>Rules about what an AI system is allowed to do, and a person who has to approve it before anything happens.</p><span class="held-e__s">Unqualified prototype</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li><a class="held-e" href="greenhouse-controller/"><span class="held-e__n">08</span><span class="a-sep">. </span><span class="held-e__name">Greenhouse controller</span><span class="a-sep">. </span><p>Owner-reported embedded control for a greenhouse: temperature, moisture and watering, unattended.</p><span class="held-e__s">Validated prototype</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li><a class="held-e" href="gold-trader/"><span class="held-e__n">09</span><span class="a-sep">. </span><span class="held-e__name">Gold Trader</span><span class="a-sep">. </span><p>Research into automated gold trading, tested only on paper - it places no real orders with anyone's money.</p><span class="held-e__s">Research, paper only</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li><a class="held-e" href="aerial-systems/"><span class="held-e__n">10</span><span class="a-sep">. </span><span class="held-e__name">Aerial systems</span><span class="a-sep">. </span><p>Research into aircraft and flight control, flown in simulation rather than in the air.</p><span class="held-e__s">Active research</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li><a class="held-e" href="sensing-and-radar/"><span class="held-e__n">11</span><span class="a-sep">. </span><span class="held-e__name">Sensing and radar</span><span class="a-sep">. </span><p>A stated direction we intend to work in - sensing and radar. Nothing is built yet.</p><span class="held-e__s">Research direction</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li></ul>
 </div>
 <div class="reg-close">
+  <p class="reg-res" data-regres aria-hidden="true"><span><i class="reg-res__d"></i><b></b></span></p>
   <p><b>Eleven systems, and what each one actually proves.</b> If you have work that
      has to hold up in the real world, start with a conversation. The first one is
      free, and we reply within two working days.</p>
@@ -1301,6 +1323,8 @@ html{background:var(--sheet)}
   if(!rows.length){box.remove();return;}
   var n=box.querySelector(".regscan__c b"), tot=box.querySelector(".regscan__c span"),
       t=box.querySelector(".regscan__t > span");
+  var res=document.querySelector("[data-regres]"),
+      resT=res&&res.querySelector("b");
   tot.textContent=rows.length;
   function read(){
     var ok=0,bad=0;
@@ -1319,6 +1343,8 @@ html{background:var(--sheet)}
       box.setAttribute("data-all",bad?"mixed":"ok");
       t.textContent = "All "+all+" checked \u00b7 "+tail;
       if(say) say.textContent=t.textContent+".";
+      if(res){ res.setAttribute("data-all",bad?"mixed":"ok");
+               resT.textContent=t.textContent; }
     }
   }
   var mo=new MutationObserver(read);
