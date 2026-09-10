@@ -10,6 +10,12 @@ if(!matchMedia("(prefers-reduced-motion:reduce)").matches)
   document.documentElement.setAttribute("data-est","1");}catch(e){}})();</script>
 
 <meta charset="utf-8">
+<!-- Chrome for Android and Samsung Internet force-darken any page that does
+     not declare a colour scheme. Light mode could therefore never survive on
+     a phone whose OS is dark: the site set light and the browser re-darkened
+     it. Declaring both schemes hands the decision back to the page, which is
+     what someone choosing "light" is asking for. -->
+<meta name="color-scheme" content="light dark">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lesnar AI · Nairobi engineering studio</title>
 <meta name="description" content="Nairobi engineering studio building software, infrastructure, security and physical systems - and publishing what each one does not claim.">
@@ -70,6 +76,7 @@ if(!matchMedia("(prefers-reduced-motion:reduce)").matches)
 @font-face{font-family:M;src:url(/fonts/plex-mono.woff2) format('woff2');font-weight:500;font-display:swap}
 
 :root{
+  color-scheme:light;
   --accent:#D4552A;
   /* ── text (flips with theme) ─────────────────────────────────── */
   --veil:rgba(255,255,255,.42); --stage-hi:#D3D2CE; --hover:#EDECE8;
@@ -2878,7 +2885,7 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   transform-origin:0 50%}
 .map__n li::before{content:"";position:absolute;left:15px;top:-16px;width:1px;height:16px;
   background:var(--v-dia-soft);transform-origin:50% 0;transform:scaleY(var(--n))}
-.nd{display:grid;grid-template-columns:11px minmax(0,1fr);gap:10px;align-items:baseline;
+.sysnode{display:grid;grid-template-columns:11px minmax(0,1fr);gap:10px;align-items:baseline;
   padding:9px 12px 9px 10px;text-decoration:none;color:inherit;
   /* the arrival is the surface, the rule and the accent stub - not the words */
   background:color-mix(in srgb,var(--v-dia) calc(var(--n) * 100%),transparent);
@@ -2886,27 +2893,27 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   box-shadow:-3px 0 0 0 color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),transparent);
   transition:transform 240ms var(--press),border-color 200ms ease,
              background-color 200ms ease,box-shadow 260ms var(--press)}
-.nd:hover,.nd:focus-visible{transform:translateX(5px);border-color:var(--v-fg);
+.sysnode:hover,.sysnode:focus-visible{transform:translateX(5px);border-color:var(--v-fg);
   background:var(--v-raise);box-shadow:-4px 0 0 0 var(--v-accent)}
-.nd:active{transform:translateX(5px) scale(.988);
+.sysnode:active{transform:translateX(5px) scale(.988);
   background:color-mix(in srgb,var(--v-accent) 10%,var(--v-raise))}
-.nd__d{width:9px;height:9px;border-radius:50%;align-self:center;
+.sysnode__d{width:9px;height:9px;border-radius:50%;align-self:center;
   border:1.5px solid color-mix(in srgb,var(--v-dia-ink) calc(var(--n) * 100%),var(--v-rule));
   transform:scale(calc(.28 + var(--n) * .72))}
-.nd--live .nd__d{
+.sysnode--live .sysnode__d{
   background:color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),transparent);
   border-color:color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),var(--v-rule))}
-.nd__t{min-width:0}
-.nd__t b{display:block;font:600 14px/1.25 A,"Archivo Fallback",system-ui,sans-serif;
+.sysnode__t{min-width:0}
+.sysnode__t b{display:block;font:600 14px/1.25 A,"Archivo Fallback",system-ui,sans-serif;
   letter-spacing:-.01em}
-.nd__t span{display:block;margin-top:2px;font-size:12px;line-height:1.4;
+.sysnode__t span{display:block;margin-top:2px;font-size:12px;line-height:1.4;
   color:var(--v-fg-2)}
-.nd--flag{border-color:var(--v-rule-2);background:var(--v-raise)}
-.nd--flag .nd__t b::after{content:"Flagship";display:inline-block;margin-left:8px;
+.sysnode--flag{border-color:var(--v-rule-2);background:var(--v-raise)}
+.sysnode--flag .sysnode__t b::after{content:"Flagship";display:inline-block;margin-left:8px;
   font:500 9px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.14em;
   text-transform:uppercase;color:var(--v-accent);vertical-align:2px}
-.nd--held{background:transparent;border-style:dashed}
-.nd--held .nd__t b{font-weight:500;color:var(--v-fg-2)}
+.sysnode--held{background:transparent;border-style:dashed}
+.sysnode--held .sysnode__t b{font-weight:500;color:var(--v-fg-2)}
 .map__n li:focus-within{opacity:1;transform:none}
 /* a navigation link, so it is available from the moment the scene is */
 .map__all{margin:clamp(14px,2.2vh,22px) 0 0}
@@ -2914,20 +2921,20 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 @media(max-width:820px){
   .ch2{height:192svh}
   .map__n{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-  .nd{min-height:46px;align-items:center;padding:6px 10px 6px 8px}
+  .sysnode{min-height:46px;align-items:center;padding:6px 10px 6px 8px}
   .map__br{padding:clamp(6px,1vh,10px) 0}
   .map__brh{margin-bottom:7px}
-  .nd{padding:8px 10px 8px 8px;gap:8px}
-  .nd__t span{font-size:11px}
+  .sysnode{padding:8px 10px 8px 8px;gap:8px}
+  .sysnode__t span{font-size:11px}
   .map{padding-left:14px}
   .map__brh i{margin-left:-14px;width:11px}
 }
 @media(max-width:520px){
   .map__n{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .nd{min-height:48px}
-  .nd__t b{font-size:12.5px}
-  .nd--flag .nd__t b::after{display:none}
-  .nd__t span{display:none}
+  .sysnode{min-height:48px}
+  .sysnode__t b{font-size:12.5px}
+  .sysnode--flag .sysnode__t b::after{display:none}
+  .sysnode__t span{display:none}
   .map__brh{font-size:9.5px;letter-spacing:.12em}
 }
 
@@ -3090,32 +3097,32 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   padding:clamp(52px,8.5vh,104px) 0;border-block:1px solid var(--v-rule)}
 .jam{display:grid;gap:clamp(28px,4vw,60px);align-items:start;
   grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr)}
-.rec{margin:1.7rem 0 0;background:var(--v-dia);border:1px solid var(--v-rule)}
-.rec__h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+.jrec{margin:1.7rem 0 0;background:var(--v-dia);border:1px solid var(--v-rule)}
+.jrec__h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
   padding:12px 16px;border-bottom:1px solid var(--v-rule)}
-.rec__h b{font:600 11px/1 M,"Mono Fallback",ui-monospace,monospace;
+.jrec__h b{font:600 11px/1 M,"Mono Fallback",ui-monospace,monospace;
   letter-spacing:.16em;text-transform:uppercase;color:var(--v-fg)}
-.rec__ct{font:500 11px/1 M,"Mono Fallback",ui-monospace,monospace;
+.jrec__ct{font:500 11px/1 M,"Mono Fallback",ui-monospace,monospace;
   color:var(--v-fg-2);position:relative;white-space:nowrap;
   min-width:11ch;min-height:1em}
-.rec__ct span{position:absolute;right:0;top:0;opacity:calc(var(--n) - var(--o))}
-.rec__b{padding:0 16px}
-.rec__s{padding:13px 0;border-bottom:1px solid var(--v-rule);position:relative;
+.jrec__ct span{position:absolute;right:0;top:0;opacity:calc(var(--n) - var(--o))}
+.jrec__b{padding:0 16px}
+.jrec__s{padding:13px 0;border-bottom:1px solid var(--v-rule);position:relative;
   padding-left:16px}
-.rec__s:last-child{border-bottom:0}
-.rec__s::before{content:"";position:absolute;left:0;top:15px;bottom:15px;width:2px;
+.jrec__s:last-child{border-bottom:0}
+.jrec__s::before{content:"";position:absolute;left:0;top:15px;bottom:15px;width:2px;
   background:var(--v-accent);transform-origin:50% 0;transform:scaleY(var(--n))}
-.rec__s > b{display:block;font:600 10px/1 M,"Mono Fallback",ui-monospace,monospace;
+.jrec__s > b{display:block;font:600 10px/1 M,"Mono Fallback",ui-monospace,monospace;
   letter-spacing:.15em;text-transform:uppercase;color:var(--v-fg-2)}
-.rec__f{margin:7px 0 0;display:flex;flex-wrap:wrap;gap:5px}
+.jrec__f{margin:7px 0 0;display:flex;flex-wrap:wrap;gap:5px}
 /* A field the record has not reached yet is an empty slot, not invisible
    text: it is outlined, and it fills in as the stage is recorded. */
-.rec__f span{font:400 11.5px/1 M,"Mono Fallback",ui-monospace,monospace;
+.jrec__f span{font:400 11.5px/1 M,"Mono Fallback",ui-monospace,monospace;
   padding:5px 8px;color:var(--v-fg-2);
   border:1px solid color-mix(in srgb,var(--v-rule) calc(35% + var(--n) * 65%),transparent);
   background:color-mix(in srgb,var(--v-surf) calc(var(--n) * 100%),transparent);
   transform:translateY(calc((1 - var(--n)) * 4px))}
-.rec__note{margin:12px 16px 14px;
+.jrec__note{margin:12px 16px 14px;
   font:400 11px/1.5 M,"Mono Fallback",ui-monospace,monospace;color:var(--v-fg-3)}
 .jam__ev{margin:1.7rem 0 0;background:var(--v-raise);border:1px solid var(--v-rule);
   padding:clamp(13px,1.6vw,20px)}
@@ -3472,51 +3479,51 @@ body.route-home .site-head::after{height:3px;background:var(--v-accent);opacity:
         <div class="map__br">
           <p class="map__brh st" style="--a:.26;--b:.10"><i aria-hidden="true"></i>Commerce and marketplaces</p>
           <ul class="map__n">
-            <li class="st" style="--a:.30;--b:.11"><a class="nd nd--live nd--flag" href="work/bizmtaani/">
-              <i class="nd__d" aria-hidden="true"></i>
-              <span class="nd__t"><b>BizMtaani</b><span>Neighbourhood marketplace, ordering and delivery</span></span></a></li>
-            <li class="st" style="--a:.35;--b:.11"><a class="nd nd--live" href="work/gen-eat/">
-              <i class="nd__d" aria-hidden="true"></i>
-              <span class="nd__t"><b>Gen-Eat</b><span>Campus food ordering over WhatsApp</span></span></a></li>
-            <li class="st" style="--a:.40;--b:.11"><a class="nd nd--live" href="work/hazina-nomads/">
-              <i class="nd__d" aria-hidden="true"></i>
-              <span class="nd__t"><b>Hazina Nomads</b><span>Private sourcing and Kenyan heritage gifts</span></span></a></li>
+            <li class="st" style="--a:.30;--b:.11"><a class="sysnode sysnode--live sysnode--flag" href="work/bizmtaani/">
+              <i class="sysnode__d" aria-hidden="true"></i>
+              <span class="sysnode__t"><b>BizMtaani</b><span>Neighbourhood marketplace, ordering and delivery</span></span></a></li>
+            <li class="st" style="--a:.35;--b:.11"><a class="sysnode sysnode--live" href="work/gen-eat/">
+              <i class="sysnode__d" aria-hidden="true"></i>
+              <span class="sysnode__t"><b>Gen-Eat</b><span>Campus food ordering over WhatsApp</span></span></a></li>
+            <li class="st" style="--a:.40;--b:.11"><a class="sysnode sysnode--live" href="work/hazina-nomads/">
+              <i class="sysnode__d" aria-hidden="true"></i>
+              <span class="sysnode__t"><b>Hazina Nomads</b><span>Private sourcing and Kenyan heritage gifts</span></span></a></li>
           </ul>
         </div>
 
         <div class="map__br">
           <p class="map__brh st" style="--a:.46;--b:.10"><i aria-hidden="true"></i>Care and community records</p>
           <ul class="map__n">
-            <li class="st" style="--a:.50;--b:.11"><a class="nd nd--live nd--flag" href="work/carepro/">
-              <i class="nd__d" aria-hidden="true"></i>
-              <span class="nd__t"><b>CarePro</b><span>Home nursing, with published verification</span></span></a></li>
-            <li class="st" style="--a:.55;--b:.11"><a class="nd nd--live nd--flag" href="work/jamii-projects-hub/">
-              <i class="nd__d" aria-hidden="true"></i>
-              <span class="nd__t"><b>Jamii Projects Hub</b><span>Community projects, votes and balances</span></span></a></li>
+            <li class="st" style="--a:.50;--b:.11"><a class="sysnode sysnode--live sysnode--flag" href="work/carepro/">
+              <i class="sysnode__d" aria-hidden="true"></i>
+              <span class="sysnode__t"><b>CarePro</b><span>Home nursing, with published verification</span></span></a></li>
+            <li class="st" style="--a:.55;--b:.11"><a class="sysnode sysnode--live sysnode--flag" href="work/jamii-projects-hub/">
+              <i class="sysnode__d" aria-hidden="true"></i>
+              <span class="sysnode__t"><b>Jamii Projects Hub</b><span>Community projects, votes and balances</span></span></a></li>
           </ul>
         </div>
 
         <div class="map__br">
           <p class="map__brh st" style="--a:.64;--b:.10"><i aria-hidden="true"></i>Held &middot; research and unqualified</p>
           <ul class="map__n">
-            <li class="st" style="--a:.68;--b:.11"><a class="nd nd--held" href="work/sentinelcore/">
-              <i class="nd__d" aria-hidden="true"></i>
-              <span class="nd__t"><b>SentinelCore</b><span>Host security tooling</span></span></a></li>
-            <li class="st" style="--a:.715;--b:.11"><a class="nd nd--held" href="work/cypher/">
-              <i class="nd__d" aria-hidden="true"></i>
-              <span class="nd__t"><b>Cypher</b><span>Encryption work</span></span></a></li>
-            <li class="st" style="--a:.75;--b:.11"><a class="nd nd--held" href="work/gold-trader/">
-              <i class="nd__d" aria-hidden="true"></i>
-              <span class="nd__t"><b>Gold Trader</b><span>Trading system</span></span></a></li>
-            <li class="st" style="--a:.785;--b:.11"><a class="nd nd--held" href="work/greenhouse-controller/">
-              <i class="nd__d" aria-hidden="true"></i>
-              <span class="nd__t"><b>Greenhouse controller</b><span>Embedded control</span></span></a></li>
-            <li class="st" style="--a:.82;--b:.11"><a class="nd nd--held" href="work/sensing-and-radar/">
-              <i class="nd__d" aria-hidden="true"></i>
-              <span class="nd__t"><b>Sensing &amp; radar</b><span>Signal research</span></span></a></li>
-            <li class="st" style="--a:.855;--b:.11"><a class="nd nd--held" href="work/aerial-systems/">
-              <i class="nd__d" aria-hidden="true"></i>
-              <span class="nd__t"><b>Aerial systems</b><span>Active research, nothing flown</span></span></a></li>
+            <li class="st" style="--a:.68;--b:.11"><a class="sysnode sysnode--held" href="work/sentinelcore/">
+              <i class="sysnode__d" aria-hidden="true"></i>
+              <span class="sysnode__t"><b>SentinelCore</b><span>Host security tooling</span></span></a></li>
+            <li class="st" style="--a:.715;--b:.11"><a class="sysnode sysnode--held" href="work/cypher/">
+              <i class="sysnode__d" aria-hidden="true"></i>
+              <span class="sysnode__t"><b>Cypher</b><span>Encryption work</span></span></a></li>
+            <li class="st" style="--a:.75;--b:.11"><a class="sysnode sysnode--held" href="work/gold-trader/">
+              <i class="sysnode__d" aria-hidden="true"></i>
+              <span class="sysnode__t"><b>Gold Trader</b><span>Trading system</span></span></a></li>
+            <li class="st" style="--a:.785;--b:.11"><a class="sysnode sysnode--held" href="work/greenhouse-controller/">
+              <i class="sysnode__d" aria-hidden="true"></i>
+              <span class="sysnode__t"><b>Greenhouse controller</b><span>Embedded control</span></span></a></li>
+            <li class="st" style="--a:.82;--b:.11"><a class="sysnode sysnode--held" href="work/sensing-and-radar/">
+              <i class="sysnode__d" aria-hidden="true"></i>
+              <span class="sysnode__t"><b>Sensing &amp; radar</b><span>Signal research</span></span></a></li>
+            <li class="st" style="--a:.855;--b:.11"><a class="sysnode sysnode--held" href="work/aerial-systems/">
+              <i class="sysnode__d" aria-hidden="true"></i>
+              <span class="sysnode__t"><b>Aerial systems</b><span>Active research, nothing flown</span></span></a></li>
           </ul>
         </div>
 
@@ -3631,25 +3638,25 @@ body.route-home .site-head::after{height:3px;background:var(--v-accent);opacity:
         recorded. The record grows one stage at a time until the whole group can
         read it. Running as a pilot in Mbeere North.</p>
 
-      <div class="rec">
-        <p class="rec__h"><b>What the record holds</b><span class="rec__ct" data-oneof="count">
+      <div class="jrec">
+        <p class="jrec__h"><b>What the record holds</b><span class="jrec__ct" data-oneof="count">
           <span class="st" style="--a:0;--b:.001;--c:.21;--d:.05">0 of 4 recorded</span>
           <span class="st" style="--a:.23;--b:.05;--c:.44;--d:.05">1 of 4 recorded</span>
           <span class="st" style="--a:.46;--b:.05;--c:.65;--d:.05">2 of 4 recorded</span>
           <span class="st" style="--a:.67;--b:.05;--c:.87;--d:.05">3 of 4 recorded</span>
           <span class="st" style="--a:.89;--b:.05">4 of 4 recorded</span>
         </span></p>
-        <div class="rec__b">
-          <div class="rec__s st" style="--a:.04;--b:.28"><b>Proposal</b>
-            <p class="rec__f"><span>title</span><span>purpose</span><span>requested scope</span><span>who proposed it</span></p></div>
-          <div class="rec__s st" style="--a:.26;--b:.28"><b>Review</b>
-            <p class="rec__f"><span>reviewer decision</span><span>group roles</span><span>contribution plan</span></p></div>
-          <div class="rec__s st" style="--a:.48;--b:.28"><b>Vote &amp; record</b>
-            <p class="rec__f"><span>vote tally</span><span>contributions logged</span><span>meeting minutes</span><span>expenses</span></p></div>
-          <div class="rec__s st" style="--a:.70;--b:.28"><b>Report</b>
-            <p class="rec__f"><span>balance</span><span>progress update</span><span>accountability summary</span></p></div>
+        <div class="jrec__b">
+          <div class="jrec__s st" style="--a:.04;--b:.28"><b>Proposal</b>
+            <p class="jrec__f"><span>title</span><span>purpose</span><span>requested scope</span><span>who proposed it</span></p></div>
+          <div class="jrec__s st" style="--a:.26;--b:.28"><b>Review</b>
+            <p class="jrec__f"><span>reviewer decision</span><span>group roles</span><span>contribution plan</span></p></div>
+          <div class="jrec__s st" style="--a:.48;--b:.28"><b>Vote &amp; record</b>
+            <p class="jrec__f"><span>vote tally</span><span>contributions logged</span><span>meeting minutes</span><span>expenses</span></p></div>
+          <div class="jrec__s st" style="--a:.70;--b:.28"><b>Report</b>
+            <p class="jrec__f"><span>balance</span><span>progress update</span><span>accountability summary</span></p></div>
         </div>
-        <p class="rec__note">These are the fields the record carries at each stage.
+        <p class="jrec__note">These are the fields the record carries at each stage.
           They are not any group&rsquo;s actual contributions.</p>
       </div>
     </div>
