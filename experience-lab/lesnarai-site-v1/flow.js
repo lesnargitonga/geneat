@@ -20,10 +20,34 @@
   var next  = document.getElementById("flow-next");
   if (!tabs.length) return;
 
+  var track  = root.querySelector('[role="tablist"]');
+  var detail = root.querySelector(".flow__detail");
+  var cur    = null;
+  /* One element that travels from the step you left to the step you chose.
+     The buttons still invert, but the thing that MOVES is the authority: you
+     see where it went, and it went there because you sent it. */
+  if (track) {
+    cur = document.createElement("i");
+    cur.className = "flow__cur";
+    cur.setAttribute("aria-hidden", "true");
+    track.style.setProperty("--n", tabs.length);
+    track.appendChild(cur);
+  }
+
   var i = 0;
 
   function show(n, focus) {
+    var from = i;
     i = Math.max(0, Math.min(tabs.length - 1, n));
+    if (track) track.style.setProperty("--sel", i);
+    /* the detail hands off in the direction you travelled, so moving back
+       does not look identical to moving on */
+    if (detail && i !== from) {
+      root.setAttribute("data-dir", i > from ? "fwd" : "back");
+      detail.classList.remove("is-in");
+      void detail.offsetWidth;
+      detail.classList.add("is-in");
+    }
     tabs.forEach(function (t, k) {
       var on = k === i;
       t.setAttribute("aria-selected", on ? "true" : "false");

@@ -102,7 +102,10 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--sheet);color:var(--fg);
   font:400 16px/1.55 A,"Archivo Fallback",system-ui,sans-serif;
   font-synthesis-weight:none}
-.w{width:min(1248px,calc(100% - clamp(28px,7vw,96px)));margin-inline:auto}
+/* see the note on the homepage: nothing below 1440 changes, above it the
+   measure and the type keep growing instead of stopping at a laptop's size */
+.w{width:min(clamp(1248px, calc(52vw + 500px), 1840px),
+             calc(100% - clamp(28px,7vw,96px)));margin-inline:auto}
 a{color:inherit}
 :focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 .site-head :focus-visible,.site-foot :focus-visible{outline-color:#F4F5F6}
@@ -135,7 +138,7 @@ a{color:inherit}
 .kicker{margin:0 0 clamp(14px,2vh,22px);font:500 10px/1 M,"Mono Fallback",ui-monospace,monospace;
   letter-spacing:.2em;text-transform:uppercase;color:var(--fg-2)}
 h1{margin:0;font-weight:800;font-stretch:104%;
-  font-size:clamp(2.1rem,5.4vw,4.1rem);line-height:.94;letter-spacing:-.03em;max-width:18ch}
+  font-size:max(clamp(2.1rem,5.4vw,4.1rem), calc(2.3rem + 2.5vw));line-height:.94;letter-spacing:-.03em;max-width:18ch}
 .lede{margin:clamp(18px,3vh,30px) 0 0;max-width:52ch;font-size:clamp(1rem,1.2vw,1.1rem)}
 .rule{height:1px;background:var(--rule-s);margin:clamp(30px,5vh,56px) 0 0}
 
@@ -185,7 +188,6 @@ h1{margin:0;font-weight:800;font-stretch:104%;
   letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px}
 @media (max-width:760px){ .sys-head{grid-template-columns:minmax(0,1fr)} }
 
-
 /* ── site motion ────────────────────────────────────────────────────────
    Gated behind data-sv-motion, which only site.js sets. Without JavaScript,
    and under reduced motion, every rule below is inert and the page renders
@@ -214,7 +216,7 @@ h1{margin:0;font-weight:800;font-stretch:104%;
    system without reading what it is not. */
 body.route-work{background:var(--ink);color:#F1F2F3}
 .route-work .page{padding:clamp(58px,12vh,150px) 0 0}
-.route-work h1{font-stretch:88%;font-size:clamp(2.4rem,7.2vw,6rem);max-width:15ch;
+.route-work h1{font-stretch:88%;font-size:max(clamp(2.4rem,7.2vw,6rem), calc(3.2rem + 4.4vw));max-width:15ch;
   letter-spacing:-.035em;color:#fff}
 .route-work .kicker{color:#8E959D}
 .route-work .lede{color:#B6BCC2;max-width:46ch}
@@ -269,10 +271,6 @@ h1[data-set] .sc{opacity:0;transform:translate3d(0,.62em,0) rotate(6deg);
 /* ── route transitions ───────────────────────────────────────────────────
    Cross-document view transitions: leaving the page wipes out, the arriving
    page wipes in, and the shell stays put so the header does not blink. */
-
-
-
-
 
 .site-head{view-transition-name:shell-head}
 .site-foot{view-transition-name:shell-foot}
@@ -415,7 +413,6 @@ body:not(.route-home) .foot__end{margin-top:clamp(18px,2.6vh,24px);padding-top:1
 .stop,
 .proof-lede,
 .claim-legend li{font-size:15px;line-height:1.55}
-.sk__by{font-size:14px;line-height:1.5}
 .crow p:not([class]){font-size:13px}
 
 /* ── PROSE IS INK, METADATA IS GREY ────────────────────────────────────────
@@ -593,8 +590,6 @@ main{view-transition-name:page-body}
 .held-e__name{--cw:88;font-variation-settings:"wdth" var(--cw)}
 .sv__t h2,.pr__t h2{--rw:82;font-variation-settings:"wdth" var(--rw)}
 .reg-band__h h2{--rw:80;font-variation-settings:"wdth" var(--rw)}
-
-
 
 /* ── THE HEADLINE SETS ITSELF, ON EVERY PAGE ────────────────────────────────
    This was bound to .hero h1, a container only the homepage has, so every
@@ -1027,14 +1022,17 @@ html{background:var(--sheet)}
    these ideas, driven by one number: --n, either a scroll band or a one-shot
    arrival sweep. Nothing is invented per scene.
 
-     ESTABLISH   arrives out of depth as a mask opens
-     CONNECT     a line draws between two things
-     RESOLVE     a value settles into its final reading
-     HAND-OFF    one element yields the frame to another
-     ACCUMULATE  items land on a structure that visibly grows
-     LOCK        the final position is taken, with a short settle
-     WITHDRAW    recedes into depth as the mask closes
-     RETURN      any of the above, run backwards by scroll
+   There was a set of eight named verbs here, written as reusable classes and
+   documented as the site's vocabulary. Nothing ever used them - every scene
+   carried its own bespoke rules that merely shared some constants - so the
+   classes were 180 lines of dead CSS and the doctrine describing them was a
+   description of something that did not exist. Both are removed.
+
+   What remains is the rule that actually governs: MOTION MUST BE DERIVED FROM
+   THE CONTENT IT MOVES. If you cannot say what a movement tells the reader,
+   it does not ship. Half of what used to be here could not survive that
+   question - a list sliding in, a picture coming forward, four buttons
+   rising - and has been deleted rather than restyled.
 
    TWO KINDS OF MOTION, AND THEY ARE NOT INTERCHANGEABLE
 
@@ -1083,14 +1081,6 @@ html{background:var(--sheet)}
    scores changed pixel area over a 240px window, against each element's own
    scene root - so ordinary scrolling and a held pin both score zero.        */
 :root{
-  --m-far:104px;        /* how far a major element travels in */
-  --m-near:46px;        /* a secondary one */
-  --m-lift:180px;       /* depth, in z */
-  --m-from:.88;         /* the scale a major element arrives from */
-  --m-stag:70ms;
-  --m-in:cubic-bezier(.16,1,.3,1);      /* arrivals - fast out, long settle */
-  --m-hand:cubic-bezier(.65,0,.25,1);   /* hand-offs - committed both ends */
-  --m-lock:cubic-bezier(.22,1.2,.36,1); /* the settle, with a little overshoot */
 }
 @property --n2{syntax:"<number>";inherits:true;initial-value:1}
 
@@ -1098,51 +1088,48 @@ html{background:var(--sheet)}
    welcome, so reduced motion and no-JS both start finished. */
 @keyframes m-arrive{from{--n2:0}to{--n2:1}}
 :root[data-est] [data-arrive]{animation:m-arrive var(--m-dur,1500ms) linear forwards}
-.m-a{--n:clamp(0, calc((var(--n2) - var(--a,0)) / var(--b,1)), 1)}
-
-/* ── ESTABLISH ──────────────────────────────────────────────────────────── */
-.m-est{
-  transform:translate3d(0, calc((1 - var(--n)) * var(--m-far)), calc((1 - var(--n)) * var(--m-lift) * -1))
-            scale(calc(var(--m-from) + var(--n) * (1 - var(--m-from))));
-  transform-origin:0 50%;
-  clip-path:inset(0 0 calc((1 - var(--n)) * 104%) 0)}
-.m-est--near{
-  transform:translate3d(0, calc((1 - var(--n)) * var(--m-near)), 0);
-  clip-path:inset(0 0 calc((1 - var(--n)) * 104%) 0)}
-/* a stage that things establish inside needs the perspective */
-.m-stage{perspective:1400px;perspective-origin:50% 40%}
-
-/* ── CONNECT ────────────────────────────────────────────────────────────── */
-.m-connect-x{transform:scaleX(var(--n));transform-origin:0 50%}
-.m-connect-y{transform:scaleY(var(--n));transform-origin:50% 0}
-
-/* ── LOCK ───────────────────────────────────────────────────────────────── */
-/* the last 12% of the band is the settle, so the element arrives and then
-   takes its position rather than easing asymptotically into it */
-.m-lock{--l:clamp(0, calc((var(--n) - .78) / .22), 1);
-  transform:translate3d(0, calc((1 - var(--n)) * var(--m-near)), 0)
-            scale(calc(.97 + var(--l) * .03))}
-
-/* ── WITHDRAW ───────────────────────────────────────────────────────────── */
-.m-withdraw{
-  transform:translate3d(0, calc(var(--q,0) * -46px), calc(var(--q,0) * -140px))
-            scale(calc(1 - var(--q,0) * .06));
-  opacity:calc(1 - var(--q,0) * .35)}
-
-/* ── HAND-OFF ───────────────────────────────────────────────────────────── */
-/* the outgoing frame is pushed into and cropped away; the incoming one opens
-   from the region the eye was already looking at, so the two read as one move */
-.m-out{transform:scale(calc(1 + var(--n) * .16));
-  clip-path:inset(calc(var(--n) * 34%) calc(var(--n) * 40%) calc(var(--n) * 30%) calc(var(--n) * 6%));
-  opacity:calc(1 - var(--n) * .35);filter:saturate(calc(1 - var(--n) * .55))}
-.m-in{transform:scale(calc(.86 + var(--n) * .14));
-  clip-path:inset(calc((1 - var(--n)) * 30%) calc((1 - var(--n)) * 8%) calc((1 - var(--n)) * 26%) calc((1 - var(--n)) * 44%))}
 
 @media(prefers-reduced-motion:reduce){
-  .m-est,.m-est--near,.m-lock,.m-withdraw,.m-out,.m-in{
-    transform:none;clip-path:none;opacity:1;filter:none}
-  .m-connect-x,.m-connect-y{transform:none}
   :root[data-est] [data-arrive]{animation:none}
+}
+
+/* ── THE REGISTER CHECKS ITSELF ──────────────────────────────────────────
+   The one thing that genuinely happens here is that five live systems are
+   contacted from the reader's browser and each either answers or does not.
+   It is now the page's only substantial movement, and every step of it is
+   caused by a real response. No stagger is invented: if four hosts answer in
+   60ms the four rows settle together, because that is what happened. */
+.regscan{display:grid;grid-template-columns:auto minmax(0,1fr);
+  gap:7px 12px;align-items:center;margin:1.1rem 0 0;
+  font:500 11.5px/1.35 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--fg-2)}
+.regscan__t{grid-column:1/-1;min-height:2.7em;display:flex;align-items:center;gap:8px}
+.regscan__r{display:block;justify-self:start;width:clamp(90px,18vw,220px);height:2px;
+  background:color-mix(in srgb,var(--fg) 14%,transparent);position:relative}
+.regscan__r > i{position:absolute;inset:0;transform-origin:0 50%;
+  transform:scaleX(var(--done,0));background:var(--fg);
+  transition:transform 420ms cubic-bezier(.16,1,.3,1)}
+.regscan__c{font-variant-numeric:tabular-nums;letter-spacing:.06em;color:var(--fg);
+  min-width:12ch;white-space:nowrap}
+.regscan__c b{font-weight:600}
+/* the rule reports checks completed, which is progress, so it stays ink. The
+   dot is the only thing reporting a status, and only once every check is in. */
+.regscan__d{width:7px;height:7px;border-radius:50%;flex:none;
+  background:color-mix(in srgb,var(--fg) 22%,transparent);
+  transition:background-color 300ms ease}
+.regscan[data-all="ok"] .regscan__d{background:var(--sig,#1B6B52)}
+.regscan[data-all="mixed"] .regscan__d{background:var(--accent)}
+
+/* a row settles when ITS OWN response lands */
+.live-e__n{transition:color 320ms ease}
+.live-e[data-state] .live-e__n{color:var(--fg)}
+.live-e .pv{display:inline-block;min-width:17ch}
+.live-e[data-state] .pv{animation:pv-land 260ms cubic-bezier(.16,1,.3,1) both}
+@keyframes pv-land{from{clip-path:inset(0 0 100% 0);transform:translateY(4px)}
+                   to{clip-path:inset(0 0 -2px 0);transform:none}}
+@media(prefers-reduced-motion:reduce){
+  .live-e[data-state] .pv{animation:none}
+  .regscan__r > i{transition:none}
 }
 
 /* ── THE REGISTER ARRIVES ────────────────────────────────────────────────
@@ -1167,7 +1154,7 @@ html{background:var(--sheet)}
 .route-work h1     {--a:.28;--b:.34}
 .route-work .lede  {--a:.54;--b:.24}
 
-.reg-band{position:relative;perspective:1200px;perspective-origin:0 50%}
+.reg-band{position:relative}
 .reg-band__h{position:relative}
 /* the rule reaches across the band before its systems land on it */
 .reg-band__h::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:2px;
@@ -1180,22 +1167,20 @@ html{background:var(--sheet)}
    a six-row band need no different arithmetic. The band arithmetic this
    replaces finished the last row of the flagship band at 18vh on a desktop
    and 9vh on a phone - after the reader had scrolled it past. */
-.live-list li,.held-list li{
-  transform:translate3d(calc((1 - var(--n)) * -64px), calc((1 - var(--n)) * 14px),
-                        calc((1 - var(--n)) * -230px))
-            scale(calc(.92 + var(--n) * .08));
-  transform-origin:0 50%}
-/* a live product lands with its status showing; held work stays quieter */
-.live-list li .live-e{
-  box-shadow:-3px 0 0 0 color-mix(in srgb,var(--sig,#1B6B52) calc(var(--n) * 100%),transparent)}
-/* held work arrives with less confidence than a live product, on purpose -
-   but still far enough to be seen */
-.held-list li{
-  transform:translate3d(calc((1 - var(--n)) * -34px),0,calc((1 - var(--n)) * -110px))
-            scale(calc(.965 + var(--n) * .035))}
+/* THE ROWS DO NOT ARRIVE ANY MORE.
+   Eleven rows sliding in from the left told a reader nothing they did not
+   already know from the fact that a list is a list. The register's real event
+   is the CHECK LANDING: each entry is contacted from the reader's browser and
+   "not yet checked" becomes "answered in 942 ms" or "no answer". */
+.live-list li,.held-list li{position:relative}
+/* a live product carries its status as a flat edge - green because it is
+   answering, not because it is animating */
+.live-list li .live-e{box-shadow:-3px 0 0 0 transparent;
+  transition:box-shadow 420ms cubic-bezier(.16,1,.3,1)}
+.live-list li .live-e[data-state="ok"]{box-shadow:-3px 0 0 0 var(--sig,#1B6B52)}
+.live-list li .live-e[data-state="fail"]{box-shadow:-3px 0 0 0 var(--accent)}
 @media(prefers-reduced-motion:reduce){
   .route-work .kicker,.route-work h1,.route-work .lede,
-  .live-list li,.held-list li{transform:none;clip-path:none}
   .reg-band__h::after,.route-work .page > .w::before{transform:none}
 }
 </style>
@@ -1231,6 +1216,18 @@ html{background:var(--sheet)}
   <h1>Eleven systems, each with its own maturity.</h1>
   <p class="lede">Every entry states what it is and what it is not. Five are live products;
     the rest are held at the stage they have actually reached.</p>
+  <!-- Not a decorative progress bar. Every increment is one real HTTP response
+       arriving from one of the five live systems. A system is contacted when
+       the reader reaches it, not on load, so the wording says that. The count
+       is CHECKS COMPLETED - a host that timed out has been checked and did not
+       answer, and calling that "answered" is the claim this page exists to
+       avoid. With no script it says nothing has been contacted. -->
+  <p class="regscan" data-regscan aria-hidden="true">
+    <span class="regscan__c"><b>0</b>&#8202;/&#8202;<span>5</span> checked</span>
+    <i class="regscan__r"><i></i></i>
+    <span class="regscan__t"><i class="regscan__d" aria-hidden="true"></i><span>Each live system is contacted as you reach it</span></span>
+  </p>
+  <p class="vh" role="status" data-regsay></p>
   <div class="reg-band" data-scene="focal" data-focus=".live-list,.held-list">
   <div class="reg-band__h">
     <h2>Flagship products</h2>
@@ -1239,7 +1236,7 @@ html{background:var(--sheet)}
         never an uptime record.</p>
     <span class="reg-band__n">01&ndash;03</span>
   </div>
-  <ul class="live-list"><li data-fp><a class="live-e" href="bizmtaani/" data-probe="bizmtaani.com"><span class="live-e__n">01</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/bizmtaani-760.webp 760w, ../media/bizmtaani.webp 1440w"><img src="../media/bizmtaani.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/bizmtaani-760.jpg 760w, ../media/bizmtaani.jpg 1440w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>BizMtaani</h3><span class="a-sep">. </span><p>A neighbourhood marketplace: local shops list what they sell, customers order and pay from a phone, and riders carry the order.</p><span class="live-e__host">bizmtaani.com &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li data-fp><a class="live-e" href="carepro/" data-probe="carepro.co.ke"><span class="live-e__n">02</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/carepro-760.webp 760w, ../media/carepro.webp 1280w"><img src="../media/carepro.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/carepro-760.jpg 760w, ../media/carepro.jpg 1280w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>CarePro</h3><span class="a-sep">. </span><p>Book a vetted nurse to care for someone at home, with payment arranged through the platform.</p><span class="live-e__host">carepro.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li data-fp><a class="live-e" href="jamii-projects-hub/" data-probe="jamii.lesnarai.co.ke"><span class="live-e__n">03</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/jamii-live-760.webp 760w, ../media/jamii-live.webp 1440w"><img src="../media/jamii-live.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/jamii-live-760.jpg 760w, ../media/jamii-live.jpg 1440w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Jamii Projects Hub</h3><span class="a-sep">. </span><p>See what projects your community is planning, vote on what matters, and keep clear records for a family, chama or welfare group.</p><span class="live-e__host">jamii.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li></ul>
+  <ul class="live-list"><li><a class="live-e" href="bizmtaani/" data-probe="bizmtaani.com"><span class="live-e__n">01</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/bizmtaani-760.webp 760w, ../media/bizmtaani.webp 1440w"><img src="../media/bizmtaani.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/bizmtaani-760.jpg 760w, ../media/bizmtaani.jpg 1440w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>BizMtaani</h3><span class="a-sep">. </span><p>A neighbourhood marketplace: local shops list what they sell, customers order and pay from a phone, and riders carry the order.</p><span class="live-e__host">bizmtaani.com &middot; <span class="pv">not yet checked</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="carepro/" data-probe="carepro.co.ke"><span class="live-e__n">02</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/carepro-760.webp 760w, ../media/carepro.webp 1280w"><img src="../media/carepro.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/carepro-760.jpg 760w, ../media/carepro.jpg 1280w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>CarePro</h3><span class="a-sep">. </span><p>Book a vetted nurse to care for someone at home, with payment arranged through the platform.</p><span class="live-e__host">carepro.co.ke &middot; <span class="pv">not yet checked</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="jamii-projects-hub/" data-probe="jamii.lesnarai.co.ke"><span class="live-e__n">03</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/jamii-live-760.webp 760w, ../media/jamii-live.webp 1440w"><img src="../media/jamii-live.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/jamii-live-760.jpg 760w, ../media/jamii-live.jpg 1440w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Jamii Projects Hub</h3><span class="a-sep">. </span><p>See what projects your community is planning, vote on what matters, and keep clear records for a family, chama or welfare group.</p><span class="live-e__host">jamii.lesnarai.co.ke &middot; <span class="pv">not yet checked</span></span></span><span class="live-e__s">Live product</span></a></li></ul>
 </div>
 
 <div class="reg-band" data-scene="focal" data-focus=".live-list,.held-list">
@@ -1248,7 +1245,7 @@ html{background:var(--sheet)}
     <p>Two more systems publishing a public surface, contacted the same way.</p>
     <span class="reg-band__n">04&ndash;05</span>
   </div>
-<ul class="live-list"><li data-fp><a class="live-e" href="gen-eat/" data-probe="geneat.lesnarai.co.ke"><span class="live-e__n">04</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/geneat-public-surface-760.webp 760w, ../media/geneat-public-surface.webp 852w"><img src="../media/geneat-public-surface.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/geneat-public-surface-760.jpg 760w, ../media/geneat-public-surface.jpg 852w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Gen-Eat</h3><span class="a-sep">. </span><p>Order from your campus cafe over WhatsApp and collect it when it is ready, instead of queueing between lectures.</p><span class="live-e__host">geneat.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li><li data-fp><a class="live-e" href="hazina-nomads/" data-probe="hazina.lesnarai.co.ke"><span class="live-e__n">05</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/hazina-760.webp 760w, ../media/hazina.webp 1600w"><img src="../media/hazina.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/hazina-760.jpg 760w, ../media/hazina.jpg 1728w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Hazina Nomads</h3><span class="a-sep">. </span><p>Kenyan gifts and heritage pieces, sourced privately for travellers, diaspora families and corporate clients.</p><span class="live-e__host">hazina.lesnarai.co.ke &middot; <span class="pv">checking&hellip;</span></span></span><span class="live-e__s">Live product</span></a></li></ul>
+<ul class="live-list"><li><a class="live-e" href="gen-eat/" data-probe="geneat.lesnarai.co.ke"><span class="live-e__n">04</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/geneat-public-surface-760.webp 760w, ../media/geneat-public-surface.webp 852w"><img src="../media/geneat-public-surface.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/geneat-public-surface-760.jpg 760w, ../media/geneat-public-surface.jpg 852w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Gen-Eat</h3><span class="a-sep">. </span><p>Order from your campus cafe over WhatsApp and collect it when it is ready, instead of queueing between lectures.</p><span class="live-e__host">geneat.lesnarai.co.ke &middot; <span class="pv">not yet checked</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="hazina-nomads/" data-probe="hazina.lesnarai.co.ke"><span class="live-e__n">05</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/hazina-760.webp 760w, ../media/hazina.webp 1600w"><img src="../media/hazina.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/hazina-760.jpg 760w, ../media/hazina.jpg 1728w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Hazina Nomads</h3><span class="a-sep">. </span><p>Kenyan gifts and heritage pieces, sourced privately for travellers, diaspora families and corporate clients.</p><span class="live-e__host">hazina.lesnarai.co.ke &middot; <span class="pv">not yet checked</span></span></span><span class="live-e__s">Live product</span></a></li></ul>
 </div>
 
 <div class="reg-band" data-scene="focal" data-focus=".live-list,.held-list">
@@ -1257,7 +1254,7 @@ html{background:var(--sheet)}
     <p>Six systems with no public surface. They are shown as what they are rather than dressed in an interface that does not exist.</p>
     <span class="reg-band__n">06&ndash;11</span>
   </div>
-  <ul class="held-list"><li data-fp><a class="held-e" href="sentinelcore/"><span class="held-e__n">06</span><span class="a-sep">. </span><span class="held-e__name">SentinelCore</span><span class="a-sep">. </span><p>The studio's own tool for checking a Linux server is safe: it scans for open doors, watches the logs for trouble and tightens the settings that matter.</p><span class="held-e__s">Internal engineering system</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li data-fp><a class="held-e" href="cypher/"><span class="held-e__n">07</span><span class="a-sep">. </span><span class="held-e__name">Cypher</span><span class="a-sep">. </span><p>Rules about what an AI system is allowed to do, and a person who has to approve it before anything happens.</p><span class="held-e__s">Unqualified prototype</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li data-fp><a class="held-e" href="greenhouse-controller/"><span class="held-e__n">08</span><span class="a-sep">. </span><span class="held-e__name">Greenhouse controller</span><span class="a-sep">. </span><p>Owner-reported embedded control for a greenhouse: temperature, moisture and watering, unattended.</p><span class="held-e__s">Validated prototype</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li data-fp><a class="held-e" href="gold-trader/"><span class="held-e__n">09</span><span class="a-sep">. </span><span class="held-e__name">Gold Trader</span><span class="a-sep">. </span><p>Research into automated gold trading, tested only on paper - it places no real orders with anyone's money.</p><span class="held-e__s">Research, paper only</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li data-fp><a class="held-e" href="aerial-systems/"><span class="held-e__n">10</span><span class="a-sep">. </span><span class="held-e__name">Aerial systems</span><span class="a-sep">. </span><p>Research into aircraft and flight control, flown in simulation rather than in the air.</p><span class="held-e__s">Active research</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li data-fp><a class="held-e" href="sensing-and-radar/"><span class="held-e__n">11</span><span class="a-sep">. </span><span class="held-e__name">Sensing and radar</span><span class="a-sep">. </span><p>A stated direction we intend to work in - sensing and radar. Nothing is built yet.</p><span class="held-e__s">Research direction</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li></ul>
+  <ul class="held-list"><li><a class="held-e" href="sentinelcore/"><span class="held-e__n">06</span><span class="a-sep">. </span><span class="held-e__name">SentinelCore</span><span class="a-sep">. </span><p>The studio's own tool for checking a Linux server is safe: it scans for open doors, watches the logs for trouble and tightens the settings that matter.</p><span class="held-e__s">Internal engineering system</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li><a class="held-e" href="cypher/"><span class="held-e__n">07</span><span class="a-sep">. </span><span class="held-e__name">Cypher</span><span class="a-sep">. </span><p>Rules about what an AI system is allowed to do, and a person who has to approve it before anything happens.</p><span class="held-e__s">Unqualified prototype</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li><a class="held-e" href="greenhouse-controller/"><span class="held-e__n">08</span><span class="a-sep">. </span><span class="held-e__name">Greenhouse controller</span><span class="a-sep">. </span><p>Owner-reported embedded control for a greenhouse: temperature, moisture and watering, unattended.</p><span class="held-e__s">Validated prototype</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li><a class="held-e" href="gold-trader/"><span class="held-e__n">09</span><span class="a-sep">. </span><span class="held-e__name">Gold Trader</span><span class="a-sep">. </span><p>Research into automated gold trading, tested only on paper - it places no real orders with anyone's money.</p><span class="held-e__s">Research, paper only</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li><a class="held-e" href="aerial-systems/"><span class="held-e__n">10</span><span class="a-sep">. </span><span class="held-e__name">Aerial systems</span><span class="a-sep">. </span><p>Research into aircraft and flight control, flown in simulation rather than in the air.</p><span class="held-e__s">Active research</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li><li><a class="held-e" href="sensing-and-radar/"><span class="held-e__n">11</span><span class="a-sep">. </span><span class="held-e__name">Sensing and radar</span><span class="a-sep">. </span><p>A stated direction we intend to work in - sensing and radar. Nothing is built yet.</p><span class="held-e__s">Research direction</span><span class="held-e__go" aria-hidden="true">&rarr;</span></a></li></ul>
 </div>
 <div class="reg-close">
   <p><b>Eleven systems, and what each one actually proves.</b> If you have work that
@@ -1295,5 +1292,39 @@ html{background:var(--sheet)}
 <script src="../theme.js" defer></script><script src="../ui.js" defer></script><script src="../v4-motion.js" defer></script>
 <script src="../axis.js" defer></script>
 <script src="../verify.js" defer></script>
+<script>/* The register's tally. It observes the state verify.js writes when a real
+   response lands or times out - it never initiates, delays or invents one. */
+(function(){
+  var box=document.querySelector("[data-regscan]"); if(!box) return;
+  var say=document.querySelector("[data-regsay]");
+  var rows=[].slice.call(document.querySelectorAll(".live-list [data-probe]"));
+  if(!rows.length){box.remove();return;}
+  var n=box.querySelector(".regscan__c b"), tot=box.querySelector(".regscan__c span"),
+      t=box.querySelector(".regscan__t > span");
+  tot.textContent=rows.length;
+  function read(){
+    var ok=0,bad=0;
+    rows.forEach(function(r){var v=r.getAttribute("data-state");
+      if(v==="ok")ok++; else if(v==="fail")bad++;});
+    var done=ok+bad, all=rows.length;
+    n.textContent=done;
+    box.style.setProperty("--done",(done/all).toFixed(3));
+    var tail = bad ? (ok+" answered \u00b7 "+bad+" no answer")
+                   : (ok ? (ok===all ? "all answered" : ok+" answered") : "");
+    if(done<all){
+      box.removeAttribute("data-all");
+      t.textContent = done ? (done+" checked \u00b7 "+tail)
+                           : "Each live system is contacted as you reach it";
+    } else {
+      box.setAttribute("data-all",bad?"mixed":"ok");
+      t.textContent = "All "+all+" checked \u00b7 "+tail;
+      if(say) say.textContent=t.textContent+".";
+    }
+  }
+  var mo=new MutationObserver(read);
+  rows.forEach(function(r){mo.observe(r,{attributes:true,attributeFilter:["data-state"]});});
+  read();
+})();</script>
+
 </body>
 </html>

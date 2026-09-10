@@ -22,7 +22,7 @@ function READ(sels) {
     const v = [];
     const m = cs.transform;
     if (m && m !== "none") {
-      const q = (m.match(/-?[\d.e+]+/g) || []).map(Number);
+      const q = (m.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi) || []).map(Number);
       if (m.startsWith("matrix3d")) v.push(q[0], q[5], q[12], q[13]);
       else v.push(q[0], q[3], q[4], q[5]);
     } else v.push(1, 1, 0, 0);

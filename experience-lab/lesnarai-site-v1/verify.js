@@ -50,7 +50,11 @@
     var t0 = performance.now(), settled = false;
 
     /* count up while the request is in flight, so a slow or dead host reads as
-       busy rather than frozen */
+       busy rather than frozen. Written once immediately as well, so the row
+       does not sit on its pre-contact wording for the first interval. */
+    function show(){ if(!settled && out){ out.removeAttribute("data-done");
+      out.textContent = "checking\u2026 " + ((performance.now() - t0) / 1000).toFixed(1) + "s"; } }
+    show();
     var tick = setInterval(function () {
       if (settled || !out) return;
       out.removeAttribute("data-done");

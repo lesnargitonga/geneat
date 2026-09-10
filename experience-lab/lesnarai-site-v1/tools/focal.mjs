@@ -60,6 +60,12 @@ const VIEWPORTS = [[1440, 900, 30], [390, 844, 30]];   /* w, h, done-by vh% */
 /* A real function, not a string: Playwright evaluates a string as an
    expression and never hands it the argument, which is why the first run of
    this gate came back with nothing to measure. */
+/* The number regex here used to be /-?[\d.e+]+/g, which has no '-' inside
+   the class: a settled transform of matrix(1,0,0,1,0,-2.88658e-15) - what a
+   calc() that should be zero actually produces - split into "-2.88658e" and
+   "-15", so the settled value parsed as NaN and every comparison against it
+   was NaN. The gate then reported that the map's systems never finished
+   arriving, when they finish exactly on time. */
 function READ(sels) {
   return sels.map(s => {
     const el = document.querySelector(s);
@@ -69,7 +75,7 @@ function READ(sels) {
     const v = [];
     const m = cs.transform;
     if (m && m !== "none") {
-      const q = (m.match(/-?[\d.e+]+/g) || []).map(Number);
+      const q = (m.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi) || []).map(Number);
       if (m.startsWith("matrix3d")) v.push(q[0], q[5], q[12], q[13], q[14] || 0);
       else v.push(q[0], q[3], q[4], q[5], 0);
     } else v.push(1, 1, 0, 0, 0);

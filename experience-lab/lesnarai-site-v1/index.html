@@ -68,7 +68,6 @@ try{if(document.documentElement.hasAttribute("data-est")){
 <link rel="preload" as="font" type="font/woff2" href="/fonts/archivo-var.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="/fonts/plex-mono.woff2" crossorigin>
 
-
 <style>
 /* ═══════════════════════════════════════════════════════════════════════════
    LESNAR AI - ARTIFACT-FIRST · v4 art direction pass
@@ -136,7 +135,10 @@ body{margin:0;background:var(--sheet);color:var(--fg);
   font-family:var(--disp);font-weight:400;font-stretch:100%;
   -webkit-font-smoothing:antialiased;overflow-x:hidden}
 img{display:block;max-width:100%}
-.w{max-width:1340px;margin:0 auto;padding:0 clamp(18px,3.4vw,46px)}
+/* the shell tracks the same measure as the content, or the navigation sits
+   pinched in the middle of a screen the page is otherwise filling */
+.w{max-width:clamp(1340px, calc(55.4vw + 543px), 1960px);margin:0 auto;
+  padding:0 clamp(18px,3.4vw,46px)}
 
 /* ── one type system, five voices ─────────────────────────────────────── */
 h1,h2,h3{margin:0;font-family:var(--disp)}
@@ -186,7 +188,6 @@ code{font:500 .88em/1 var(--mono);background:var(--chip);color:var(--fg);padding
    1.00:1: an invisible focus indicator, WCAG 2.2 SC 1.4.11 and 2.4.11. Named
    explicitly rather than with :not(), so adding a dark section later cannot
    silently reintroduce it. */
-
 
 /* ── ACTION COMPOSITION ──────────────────────────────────────────────────
    The record used a third of the width and left the rest empty, while the
@@ -458,7 +459,6 @@ code{font:500 .88em/1 var(--mono);background:var(--chip);color:var(--fg);padding
 .seq__end::before{content:"";position:absolute;left:calc(-1 * clamp(34px,4vw,60px) - 3px);top:0;
   width:clamp(41px,4.6vw,67px);height:4px;background:var(--ink)}
 
-
 /* ═══ CAPABILITY ════════════════════════════════════════════════════════
    Four domains, deliberately unequal. Two wide territories and two tight ones,
    staggered so the eye moves diagonally instead of scanning four identical
@@ -480,14 +480,6 @@ code{font:500 .88em/1 var(--mono);background:var(--chip);color:var(--fg);padding
 .cap__do{margin:12px 0 0;font-size:14.5px;line-height:1.5;color:var(--fg-2);max-width:50ch}
 
 /* the anchor: real material, set as material */
-
-
-
-
-
-
-
-
 
 .cap__by{margin:clamp(16px,2vw,22px) 0 0;display:flex;flex-wrap:wrap;gap:6px 18px}
 .cap__by span{font:500 11px/1.5 var(--mono);letter-spacing:.05em;color:var(--fg-2)}
@@ -633,12 +625,6 @@ code{font:500 .88em/1 var(--mono);background:var(--chip);color:var(--fg);padding
   .hero__cta{padding-bottom:clamp(28px,6vh,48px)}
 
   .prod{grid-template-columns:1fr;gap:22px}
-  /* The shared field is reoriented for a vertically stacked pair: the halves
-     are top and bottom, and the cut that opens between them is horizontal. */
-  [data-af-motion="on"] .af-field--l{left:0;right:0;top:0;bottom:50%;
-    border-right:2px solid var(--ink);border-bottom:0}
-  [data-af-motion="on"] .af-field--r{left:0;right:0;top:50%;bottom:0;
-    border-left:2px solid var(--ink);border-top:0}
   .joint{grid-template-columns:1fr;gap:12px;align-items:start;padding-top:14px}
 
   .sys{grid-template-columns:1fr;gap:26px}
@@ -665,103 +651,13 @@ code{font:500 .88em/1 var(--mono);background:var(--chip);color:var(--fg);padding
   .rec__proof img{max-width:none}
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   V5.1 MOTION LAYER
-
-   Architecture unchanged: scroll position is the clock, the scheduler is event
-   driven, and every rule here is gated behind [data-af-motion="on"] which only
-   motion.js sets. No JavaScript, or reduced motion, renders the accepted V4.2
-   static composition.
-
-   V5.1 corrects three visual states, not the architecture:
-
-   HERO     the customer panel is now a SOLID clipped fragment. It is never
-            translucent, so two readable conversations can never occupy the same
-            pixels at any stopped progress value.
-   PRODUCT  the shared frame is two halves that visibly break apart, and the
-            resolved gap is opened well past the static column gap so the
-            structural event is legible without the heading.
-   ACTION   a physical read-head travels the diagnostic rail. Opacity is no
-            longer the primary cue, and the Measure block stops out-shouting the
-            active stage when it is not the active stage.
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-/* ── scene 01 · hero, evidence extraction ─────────────────────────────── */
-[data-af-motion="on"] .cp__lit{
-  clip-path:inset(var(--afh-ct,12%) var(--afh-cr,6%) var(--afh-cb,46%) var(--afh-cl,42%))}
-[data-af-motion="on"] .cp__veil{opacity:var(--afh-veil,1)}
-[data-af-motion="on"] .cp__frame,
-[data-af-motion="on"] .cp__label{opacity:var(--afh-frame,1)}
-/* Solid at all times. Revealed by clip, moved by transform. No opacity fade on
-   the artifact itself, which is what produced the double exposure in V5. */
-[data-af-motion="on"] .hero__thread{
-  transform-origin:50% 50%;
-  transform:translate3d(var(--afh-tx,0px),var(--afh-ty,0px),0) scale(var(--afh-ts,1));
-  clip-path:inset(var(--afh-kt,0px) var(--afh-kr,-8px) var(--afh-kb,-46px) var(--afh-kl,-8px));
-  background:var(--ink)}
-[data-af-motion="on"] .hero__thread figcaption{opacity:var(--afh-cap,1)}
-
 /* ── scene 02 · product, runtime separation ───────────────────────────── */
 .af-field{display:none}
-[data-af-motion="on"] .af-scene--prod{position:relative}
-[data-af-motion="on"] .af-field{display:block;position:absolute;top:0;bottom:0;
-  border:2px solid var(--ink);pointer-events:none;z-index:2;opacity:var(--afp-field,0)}
-[data-af-motion="on"] .af-field--l{left:0;right:50%;border-right:0;
-  transform:translate3d(var(--afp-dx1,0px),var(--afp-dy1,0px),0)}
-[data-af-motion="on"] .af-field--r{left:50%;right:0;border-left:0;
-  transform:translate3d(var(--afp-dx2,0px),var(--afp-dy2,0px),0)}
-/* Both axes. Desktop drives x, mobile drives y, and the unused axis stays 0. */
-[data-af-motion="on"] .prod>.shot:nth-of-type(1){
-  transform:translate3d(var(--afp-dx1,0px),var(--afp-dy1,0px),0)}
-[data-af-motion="on"] .prod>.shot:nth-of-type(2){
-  transform:translate3d(var(--afp-dx2,0px),var(--afp-dy2,0px),0)}
-/* the independent boundaries resolve as the shared one breaks */
-[data-af-motion="on"] .prod>.shot{border-color:var(--afp-edge,var(--rule-s));
-  border-width:var(--afp-edgew,1px)}
-[data-af-motion="on"] .joint{transform:translate3d(0,var(--afp-jy,0px),0)}
-[data-af-motion="on"] .joint__tab,[data-af-motion="on"] .joint__note{opacity:var(--afp-jt,1)}
 
 /* ── scene 03 · action, diagnostic progression ────────────────────────── */
 .af-head{display:none}
-[data-af-motion="on"] .af-head{display:block;position:absolute;
-  left:calc(clamp(22px,3vw,44px) - 5px);top:0;width:11px;height:11px;
-  background:var(--ink);z-index:3;
-  transform:translate3d(0,var(--afa-y,0px),0)}
-[data-af-motion="on"] .af-head i{position:absolute;left:11px;top:5px;
-  width:clamp(26px,3.4vw,50px);height:1px;background:var(--ink);display:block}
-[data-af-motion="on"] .af-head::after{content:"";position:absolute;left:4px;top:11px;
-  width:1px;height:var(--afa-tail,0px);background:var(--ink);opacity:.32}
-/* Opacity is now a supporting cue, not the instrument. */
-[data-af-motion="on"] .stage[data-af-stage-state="future"]{opacity:.62}
-[data-af-motion="on"] .stage[data-af-stage-state="past"]{opacity:.8}
-[data-af-motion="on"] .stage[data-af-stage-state="current"]{opacity:1}
-[data-af-motion="on"] .stage[data-af-stage-state="current"] .stage__name{letter-spacing:.05em}
-[data-af-motion="on"] .stage[data-af-stage-state="current"]::before{background:var(--ink);height:2px}
-[data-af-motion="on"] .stage::after{display:none}
-/* Measure stops competing when it is not the active stage: the field lightens
-   and the type inverts, so the evidence stays fully readable but stops reading
-   as the current row. */
-[data-af-motion="on"] .stage--measure{background:var(--stage-hi);color:var(--fg)}
-[data-af-motion="on"] .stage--measure .stage__n{color:var(--fg-3)}
-[data-af-motion="on"] .stage--measure .stage__name{color:var(--fg)}
-[data-af-motion="on"] .stage--measure .out{color:var(--fg)}
-[data-af-motion="on"] .stage--measure .out span{color:var(--fg-3)}
-[data-af-motion="on"] .stage--measure[data-af-stage-state="current"]{background:var(--ink);color:var(--on-ink)}
-[data-af-motion="on"] .stage--measure[data-af-stage-state="current"] .stage__n{color:#8A9099}
-[data-af-motion="on"] .stage--measure[data-af-stage-state="current"] .stage__name{color:#fff}
-[data-af-motion="on"] .stage--measure[data-af-stage-state="current"] .out{color:#fff}
-[data-af-motion="on"] .stage--measure[data-af-stage-state="current"] .out span{color:#8A9099}
 
 @media (prefers-reduced-motion: reduce){
-  [data-af-motion="on"] .cp__lit{clip-path:inset(12% 6% 46% 42%)}
-  [data-af-motion="on"] .cp__veil,[data-af-motion="on"] .cp__frame,
-  [data-af-motion="on"] .cp__label,[data-af-motion="on"] .hero__thread,
-  [data-af-motion="on"] .hero__thread figcaption{opacity:1}
-  [data-af-motion="on"] .hero__thread{transform:none;clip-path:none;background:none}
-  [data-af-motion="on"] .af-field,[data-af-motion="on"] .af-head{display:none}
-  [data-af-motion="on"] .prod>.shot,[data-af-motion="on"] .joint{transform:none}
-  [data-af-motion="on"] .stage{opacity:1}
-  [data-af-motion="on"] .stage--measure{background:var(--ink);color:var(--on-ink)}
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -830,102 +726,8 @@ code{font:500 .88em/1 var(--mono);background:var(--chip);color:var(--fg);padding
   .rec__proof img,.crow__name,
   .rec:hover .rec__proof img,.cap:hover 
 }
-
-/* ── scene 04 · the graph builds itself ───────────────────────────────────
-   Scrolling the plate constructs the topology in the order the committed source
-   declares it: start to retrieve, retrieve to agent, tools back to agent, then
-   the two branch edges. The solid spine is drawn with a normalised dash offset.
-   The two dotted branches are REVEALED rather than drawn, because marching
-   dashes would read as flow through a running system, and this section's own
-   copy denies exactly that. Structure assembling itself is honest; traffic is
-   not. Reduced motion and no-JS show the finished graph. */
-[data-af-motion="on"] .graph .e1,
-[data-af-motion="on"] .graph .e2,
-[data-af-motion="on"] .graph .e3{
-  stroke-dasharray:1;stroke-dashoffset:var(--afs-e,1)}
-[data-af-motion="on"] .graph .e1{stroke-dashoffset:var(--afs-e1,1)}
-[data-af-motion="on"] .graph .e2{stroke-dashoffset:var(--afs-e2,1)}
-[data-af-motion="on"] .graph .e3{stroke-dashoffset:var(--afs-e3,1)}
-[data-af-motion="on"] .graph .e4{opacity:var(--afs-e4,1)}
-[data-af-motion="on"] .graph .e5{opacity:var(--afs-e5,1)}
-[data-af-motion="on"] .graph .nd{transform-box:fill-box;transform-origin:50% 50%}
-[data-af-motion="on"] .graph .n1{opacity:var(--afs-n1,1);transform:scale(var(--afs-s1,1))}
-[data-af-motion="on"] .graph .n2{opacity:var(--afs-n2,1);transform:scale(var(--afs-s2,1))}
-[data-af-motion="on"] .graph .n3{opacity:var(--afs-n3,1);transform:scale(var(--afs-s3,1))}
-[data-af-motion="on"] .graph .n4{opacity:var(--afs-n4,1);transform:scale(var(--afs-s4,1))}
-[data-af-motion="on"] .graph .n5{opacity:var(--afs-n5,1);transform:scale(var(--afs-s5,1))}
 @media (prefers-reduced-motion: reduce){
-  [data-af-motion="on"] .graph .e1,[data-af-motion="on"] .graph .e2,
-  [data-af-motion="on"] .graph .e3{stroke-dasharray:none;stroke-dashoffset:0}
-  [data-af-motion="on"] .graph .e4,[data-af-motion="on"] .graph .e5,
-  [data-af-motion="on"] .graph .nd{opacity:1;transform:none}
 }
-
-/* ── page-wide scrubbed reveals ──────────────────────────────────────────
-   Two languages. Type wipes in from the left the way a line is set; blocks
-   rise and resolve. Both are scrubbed, so scrolling back closes them. */
-[data-af-motion="on"] .kicker,
-[data-af-motion="on"] .sec h2,
-[data-af-motion="on"] .compact__t,
-[data-af-motion="on"] .sys__cap{
-  clip-path:none}
-/* Arrive with weight: rise past the resting line, scale up into it, settle.
-   transform-origin sits at the top so a block grows out of the rule above it
-   rather than swelling from its middle. */
-[data-af-motion="on"] .lede,
-[data-af-motion="on"] .sys__lede,
-[data-af-motion="on"] .rec,
-[data-af-motion="on"] .cap,
-[data-af-motion="on"] .crow,
-[data-af-motion="on"] .stop,
-[data-af-motion="on"] .src__g,
-[data-af-motion="on"] .anchor{
-  transform:translate3d(0,var(--afv-y,0px),0) scale(var(--afv-k,1));
-  transform-origin:0 0;will-change:transform}
-
-/* Blocks arrive by wipe, not by fade. Fading text through low opacity meant
-   that for the length of every reveal the page carried text at 2–4:1 against
-   its own ground - briefly, but really, and for every visitor who scrolls at
-   a normal speed. Wiping keeps every glyph at full contrast: a line is either
-   present or not yet, never half-legible. It is also the motion the headings
-   already use, so the page gains consistency rather than a second language. */
-[data-af-motion="on"] .lede,
-[data-af-motion="on"] .sys__lede,
-[data-af-motion="on"] .stop{opacity:1}
-
-/* ── THE PRINT ─────────────────────────────────────────────────────────────
-   A block that has not arrived used to be nothing at all, so scrolling hit
-   stretches of blank page with no indication anything was coming. The fade
-   now sits on the children (--afv-o inherits, so they still read it), which
-   leaves the block itself opaque and able to hold its own impression: the
-   rule it will sit on, and a short tick at its head. The print is the exact
-   inverse of the arrival, so it is fully drawn while the block is absent and
-   completely gone once the block has landed - never both at once.
-
-   With motion off, no JS, or reduced motion, --afv-o is 1, so the print is
-   already at zero and the content is simply present. */
-[data-af-motion="on"] .rec > *,
-[data-af-motion="on"] .cap > *,
-[data-af-motion="on"] .crow > *,
-[data-af-motion="on"] .src__g > *{opacity:1}
-
-
-[data-af-motion="on"] .rec,
-[data-af-motion="on"] .cap,
-[data-af-motion="on"] .crow,
-[data-af-motion="on"] .src__g,
-[data-af-motion="on"] .anchor{position:relative}
-
-
-[data-af-motion="on"] .rec::before,
-[data-af-motion="on"] .cap::before,
-[data-af-motion="on"] .crow::before,
-[data-af-motion="on"] .src__g::before,
-[data-af-motion="on"] .anchor::before{
-  content:"";position:absolute;left:0;top:0;right:0;height:1px;
-  background:linear-gradient(90deg,currentColor 0 26px,var(--rule-s) 26px 100%);
-  opacity:calc((1 - var(--afv-o,1)) * .5);pointer-events:none}
-
 
 /* ── the extraction plate, now inside Product ────────────────────────────
    The control plane is operator material on a dark ground. Inset as its own
@@ -990,208 +792,25 @@ a.hx{text-decoration:none}
 /* Entry. One shot, on load only, CSS-driven so it costs the scheduler
    nothing. The lines set themselves the way the page sets everything else. */
 @media (prefers-reduced-motion:no-preference){
-  [data-af-motion="on"] .hero h1{
-    animation:af-line 900ms cubic-bezier(.16,1,.3,1) both}
-  [data-af-motion="on"] .wordmark{
-    animation:af-line 700ms cubic-bezier(.16,1,.3,1) both}
-  [data-af-motion="on"] .hero__meta{
-    animation:af-rise 800ms 220ms cubic-bezier(.16,1,.3,1) both}
-  [data-af-motion="on"] .hero__cta{
-    animation:af-rise 800ms 340ms cubic-bezier(.16,1,.3,1) both}
-  [data-af-motion="on"] .hero__fg--index{
-    animation:af-rise 900ms 440ms cubic-bezier(.16,1,.3,1) both}
 }
 @keyframes af-line{from{clip-path:inset(-.25em 100% -.25em 0)}to{clip-path:inset(-.25em 0 -.25em 0)}}
 @keyframes af-rise{from{opacity:0;transform:translate3d(0,22px,0)}to{opacity:1;transform:none}}
-[data-af-motion="on"] .af-scene--extract{height:var(--af-hero-range,250vh)}
-[data-af-motion="on"] .af-scene--extract > .extract{position:sticky;
-  top:clamp(0px,calc((100vh - 500px) / 2),120px);height:min(100vh,500px);min-height:0}
 @media (max-width:900px){
-  [data-af-motion="on"] .af-scene--extract{height:auto}
-  [data-af-motion="on"] .af-scene--extract > .extract{position:relative;height:auto;
-    min-height:clamp(340px,42vh,500px)}
 }
-
-/* Evidence settles into its frame as its block arrives. Only figures that
-   already clip get this: adding overflow to a container that holds a link
-   clips its focus ring, which is a 2.4.11 failure, not a style choice.
-   .rec__proof holds a link, so it is deliberately excluded. */
-[data-af-motion="on"] .shot img,
-[data-af-motion="on"] .joint__spec img{transform:scale(var(--afv-s,1));transform-origin:50% 50%}
-
-/* ── depth ───────────────────────────────────────────────────────────────
-   Three rates instead of one. Grounds drag behind the page, evidence inside a
-   clipped frame leads it, headings hold back a little. Nothing here changes
-   layout: every value is a transform on a layer that already exists. */
-[data-af-motion="on"] 
-[data-af-motion="on"] .shot img,
-[data-af-motion="on"] .joint__spec img{
-  transform:translate3d(0,var(--afd-i,0px),0) scale(var(--afv-s,1.06));transform-origin:50% 50%}
-[data-af-motion="on"] .sec h2{transform:translate3d(0,var(--afd-h,0px),0)}
-[data-af-motion="on"] .shot,[data-af-motion="on"] .joint__spec{overflow:hidden}
 
 /* The hero and the plate lean toward the cursor. Bounded to a few pixels, so
    it reads as depth rather than as a gimmick following the mouse. */
 @media (pointer:fine) and (prefers-reduced-motion:no-preference){
-  [data-af-motion="on"] .hero .place img{
-    transform:translate3d(calc(var(--afm-x,0px) * -0.5),calc(var(--afm-y,0px) * -0.5),0)}
-  [data-af-motion="on"] .extract .cp{
-    transform:translate3d(calc(var(--afm-x,0px) * -0.6),calc(var(--afm-y,0px) * -0.4),0)}
 }
-
-/* ── section boundaries ──────────────────────────────────────────────────
-   Every boundary was a hard cut between two grounds. Each section now opens
-   carrying the ground it is arriving from, and wipes it away as you cross.
-   No extra element and no change to .sec's clipping: it is a gradient stop on
-   the section's own background, so at rest the value is 0 and the boundary is
-   exactly the accepted static cut. */
-[data-af-motion="on"] [data-af-edge]{background-repeat:no-repeat,repeat,no-repeat}
-[data-af-motion="on"] [data-af-edge="ink"]{
-  background-image:linear-gradient(180deg,var(--ink) 0 var(--afb,0px),rgba(0,0,0,0) var(--afb,0px))}
-[data-af-motion="on"] [data-af-edge="sheet"]{
-  background-image:linear-gradient(180deg,var(--sheet) 0 var(--afb,0px),rgba(0,0,0,0) var(--afb,0px))}
-[data-af-motion="on"] [data-af-edge="cool"]{
-  background-image:linear-gradient(180deg,var(--sheet-cool) 0 var(--afb,0px),rgba(0,0,0,0) var(--afb,0px))}
-[data-af-motion="on"] [data-af-edge="warm"]{
-  background-image:linear-gradient(180deg,var(--sheet-warm) 0 var(--afb,0px),rgba(0,0,0,0) var(--afb,0px)),
-    var(--grain),
-    radial-gradient(120% 90% at 16% -4%,rgba(255,255,255,.045) 0%,rgba(255,255,255,.014) 40%,transparent 72%);
-  background-size:auto,170px 170px,auto}
-
-/* ── scene 05: the record reads back ─────────────────────────────────────
-   Rows resolve in the order the record stores them; each result lands after
-   its subject. Custom properties are set on the row and inherit to its cells,
-   which avoids transforming a table cell - historically the least reliable
-   box in CSS to move. */
-/* ── scene 06: the plate holds, the reading advances ─────────────────────
-   The graph pins while the observations step past it. Only the observation
-   being read is at full strength; the ones already read stay legible but
-   recede, and the ones ahead wait. Nothing is hidden - every note keeps
-   enough contrast to be read at any moment, because a reader who stops
-   between steps must not be left with unreadable text. */
-/* A grid item stretches to fill its row, so a sticky box has no room to
-   travel inside it and never pins. align-self:start gives it content height
-   and the grid area becomes the track it sticks within. */
-[data-af-motion="on"] .sys__machine{position:sticky;top:clamp(16px,9vh,86px);align-self:start}
-[data-af-motion="on"] .sys__notes>div{
-  transition:none;
-  opacity:1}
-[data-af-motion="on"] .sys__notes>div[data-af-read="ahead"]{opacity:.62}
-[data-af-motion="on"] .sys__notes>div[data-af-read="past"]{opacity:.78}
-[data-af-motion="on"] .sys__notes>div[data-af-read="on"]>.mk{
-  background:var(--ink);color:#F4F5F6;border-color:var(--ink)}
-[data-af-motion="on"] .sys__notes>div[data-af-read="on"]::before{
-  width:88px;transition:width 420ms cubic-bezier(.16,1,.3,1)}
-/* the region of the graph this observation points at */
-[data-af-motion="on"] .sys__machine .mark{opacity:.45}
-[data-af-motion="on"] .sys[data-af-note="1"] .mark:nth-of-type(1),
-[data-af-motion="on"] .sys[data-af-note="2"] .mark:nth-of-type(2),
-[data-af-motion="on"] .sys[data-af-note="3"] .mark:nth-of-type(3){opacity:1}
-
-/* ── the camera ──────────────────────────────────────────────────────────
-   A shot moving across a fixed drawing. The graph's own parts never move
-   relative to each other, because this section's boundary says the topology
-   is structure, not runtime - a diagram that appeared to run would be the one
-   lie the page cannot afford. The frame is what travels. */
-[data-af-motion="on"] .sys__machine{overflow:hidden}
-[data-af-motion="on"] .sys__machine svg{
-  transform:translate(var(--afg-x,0),var(--afg-y,0)) scale(var(--afg-s,1));
-  transform-origin:50% 42%;
-  transition:transform 900ms cubic-bezier(.22,1,.28,1)}
 @media (prefers-reduced-motion:reduce){
-  [data-af-motion="on"] .sys__machine svg{transition:none;transform:none}
 }
-
-/* ── scene 07: the register holds its proof ──────────────────────────────
-   Each entry pins its evidence while the claims about it advance. This is the
-   section a visitor uses to decide whether any of this is real, so the proof
-   is the thing that stays on screen and the words move against it - not the
-   reverse. Same pattern as the System plate: the reading column has to be
-   longer than the held visual or sticky has no travel, so the summary side
-   carries the extra height. */
-[data-af-motion="on"] .rec{align-items:start}
-
-/* The register does NOT pin: its travel held no content, so it bought
-   86vh of emptiness per entry to hold a proof already in view. */
-
-
-
-/* ── the chapter rail ────────────────────────────────────────────────────
-   A fixed spine down the edge carrying the five chapters, the one that is
-   being read marked, and a fill showing how far through the document you are.
-   This is the piece that makes the page read as one thing rather than five
-   stacked sections: it is present the whole way down and it always answers
-   "where am I". Injected by the motion controller, so the static page and the
-   no-JavaScript render are untouched. Decorative and aria-hidden: the section
-   headings are the real structure for assistive technology. */
-[data-af-motion="on"] .af-rail{position:fixed;right:clamp(12px,2vw,30px);top:50%;
-  transform:translateY(-50%);z-index:60;display:flex;flex-direction:column;gap:14px;
-  pointer-events:none;mix-blend-mode:difference}
-[data-af-motion="on"] .af-rail i{display:block;width:26px;height:2px;background:#8A9099;
-  transform-origin:100% 50%;transition:transform 480ms cubic-bezier(.16,1,.3,1),background 300ms ease;
-  transform:scaleX(.42)}
-[data-af-motion="on"] .af-rail i[data-on="1"]{background:#F4F5F6;transform:scaleX(1)}
-[data-af-motion="on"] .af-rail i[data-on="past"]{background:#C6CBD1;transform:scaleX(.66)}
-@media (max-width:900px){ [data-af-motion="on"] .af-rail{display:none} }
+@media (max-width:900px){ }
 @media (prefers-reduced-motion:reduce){
-  [data-af-motion="on"] .af-rail i{transition:none}
 }
-
-/* ── scene 08: capability holds its evidence ─────────────────────────────
-   Same rule as the register: the thing that proves the claim stays on screen
-   while the claim and its boundary move against it. A territory's anchor is
-   its only hard evidence, so it is what pins; the members and the NOT CLAIMED
-   line travel past it. The column carries the extra height, because a sticky
-   box with no travel never pins at all. */
-[data-af-motion="on"] .cap{align-content:start}
-[data-af-motion="on"] .cap 
-
-[data-af-motion="on"] .cap__not{margin-top:clamp(16px,4vh,44px)}
-
-/* Product is deliberately NOT pinned. Its row is only as tall as the
-   specimens, so a sticky specimen pinned for 3% of the section - measured,
-   not guessed - and the only way to get real travel is to pin the whole row,
-   which then occludes the coupling specimen scrolling beneath it. Product
-   already carries the separation scene; it does not need this one. */
-[data-af-motion="on"] .joint{margin-top:clamp(22px,7vh,80px)}
 @media (max-width:900px){
-  [data-af-motion="on"] .cap 
-  [data-af-motion="on"] .cap__not{padding-bottom:0}
 }
 
-/* ── the plate given depth ───────────────────────────────────────────────
-   The topology was a flat drawing behind a camera move. It is now three
-   planes: edges sit back, nodes stand off the surface with a shadow, and the
-   reference marks float above. The planes travel at different rates against
-   the pointer and the scroll, so the diagram has real depth rather than a
-   drop shadow pretending to be one. Nothing here moves the graph's own parts
-   relative to one another - the structure is still exactly the committed
-   source, because that is the section's whole claim. */
-[data-af-motion="on"] .sys__machine svg{perspective:900px}
-[data-af-motion="on"] .sys__machine g[stroke]{
-  transform:translate3d(calc(var(--afm-x,0px) * .30),calc(var(--afm-y,0px) * .22),0);
-  transition:transform 700ms cubic-bezier(.16,1,.3,1);opacity:.92}
-[data-af-motion="on"] .sys__machine .n{
-  transform:translate3d(calc(var(--afm-x,0px) * -.75),calc(var(--afm-y,0px) * -.55),0);
-  transition:transform 620ms cubic-bezier(.16,1,.3,1),filter 420ms ease;
-  filter:drop-shadow(0 10px 18px rgba(0,0,0,.55))}
-[data-af-motion="on"] .sys__machine .mark{
-  transform:translate3d(calc(var(--afm-x,0px) * -1.25),calc(var(--afm-y,0px) * -.9),0);
-  transition:transform 560ms cubic-bezier(.16,1,.3,1),opacity 420ms ease}
-
-/* the node belonging to the observation being read stands furthest forward */
-
-
-/* the committed line that defines the region being read */
-[data-af-motion="on"] .src__g{transition:opacity 420ms ease,transform 520ms cubic-bezier(.16,1,.3,1)}
-[data-af-motion="on"] .sys[data-af-note="1"] .src__g:nth-of-type(1),
-[data-af-motion="on"] .sys[data-af-note="2"] .src__g:nth-of-type(2){
-  transform:translateX(6px)}
-
 @media (prefers-reduced-motion:reduce){
-  [data-af-motion="on"] .sys__machine g[stroke],
-  [data-af-motion="on"] .sys__machine .n,
-  [data-af-motion="on"] .sys__machine .mark{transform:none;transition:none;filter:none;opacity:1}
 }
 /* ── shell ─────────────────────────────────────────────────────────────
    One header on every route. The register is the studio's spine, so the nav
@@ -1215,17 +834,12 @@ a.hx{text-decoration:none}
 
 .site-foot p{margin:0}
 .site-foot a{color:#D7DBDF}
-
-/* home keeps the sticky chapter rail clear of the header */
-[data-af-motion="on"] .af-rail{top:calc(50% + 22px)}
 .skip{position:absolute;left:-9999px;top:0;z-index:200;background:var(--ink);color:#fff;
   padding:12px 18px;text-decoration:none;font:500 12px/1 M,"Mono Fallback",ui-monospace,monospace;
   letter-spacing:.14em;text-transform:uppercase}
 .skip:focus{left:0}
 
-
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-
 
 /* ══ DARK ═══════════════════════════════════════════════════════════════
    The sheet grounds go dark and the text inverts. The ink surfaces (hero,
@@ -1290,38 +904,12 @@ a.hx{text-decoration:none}
   .foot__id{grid-column:1/-1}}
 @media(max-width:520px){.site-foot .w{grid-template-columns:1fr}}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @media(max-width:640px){}
-
-
 
 /* monospace, so the columns can be set in ch and every row aligns exactly */
 
-
-
-
 /* __start__ and __end__ already read as terminals by name; an underline
    only landed on every token in the row and looked arbitrary. */
-
-
-
-
-
-
 
 /* ── TRAVERSAL ─────────────────────────────────────────────────────────────
    A static picture of a graph is the one thing a graph cannot be. What the
@@ -1429,7 +1017,6 @@ a.hx{text-decoration:none}
 .hero__fg{position:relative;z-index:3}
 .place-note{max-width:34ch;line-height:1.6;color:#B6BCC2}
 
-
 /* ── LIGHT MODE MEANS LIGHT ────────────────────────────────────────────────
    The register was an ink plate in both themes, so with the toggle on light
    the homepage still read 73% dark. The plate is right in dark mode and wrong
@@ -1484,34 +1071,7 @@ a.hx{text-decoration:none}
 :root:not([data-theme="dark"]) .sec--work .crow p,
 :root:not([data-theme="dark"]) .sec--work .stop{color:var(--fg-2)}
 :root:not([data-theme="dark"]) section.sec.sec--work p.kicker{color:var(--fg-2)!important}
-
-/* ── EVIDENCE FOLLOWS THE CLAIM ────────────────────────────────────────────
-   Each record states something, then shows the thing that backs it. The text
-   arrives first and the proof lifts in behind it, so the order you read is the
-   order the argument is made: assertion, then evidence.
-
-   Only the image moves. Text is never faded or clipped - that was settled
-   earlier and it stays settled - but a screenshot has no contrast floor to
-   respect, so it can carry the motion the type cannot.
-
-   --proof remaps the block's own arrival: nothing until the text is 35% in,
-   fully resolved by 85%. With motion off or reduced, --afv-o is 1, so --proof
-   is 1 and the image is simply present. */
-/* --proof is written by motion.js from the image's own position in the
-   viewport, not from the block's arrival. The block's reveal saturates within
-   about 200px of scroll while the image is still near the bottom edge, so the
-   staging was finishing before you could see it - real, measurable, and
-   invisible at any normal scroll speed. This runs over ~45% of the viewport
-   instead, so the evidence actually arrives in front of the reader. */
-[data-af-motion="on"] .rec__proof{
-  opacity:var(--proof,1);
-  transform:translate3d(0,calc((1 - var(--proof,1)) * 26px),0) scale(calc(.985 + var(--proof,1) * .015));
-  transform-origin:50% 100%;will-change:transform,opacity}
-[data-af-motion="on"] .rec__proof figcaption{
-  opacity:var(--proof,1)}
 @media(prefers-reduced-motion:reduce){
-  [data-af-motion="on"] .rec__proof{opacity:1;transform:none}
-  [data-af-motion="on"] .rec__proof figcaption{opacity:1}
 }
 
 /* ── THE RECORD VERIFIES ITSELF ────────────────────────────────────────────
@@ -1548,40 +1108,7 @@ a.hx{text-decoration:none}
 .sec--skills{padding-top:clamp(34px,7vh,72px)}
 .sk{margin:clamp(28px,4.5vw,52px) 0 0;display:grid;gap:clamp(22px,3vw,40px);
   grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-.sk__c{display:grid;gap:12px;align-content:start;padding-top:20px;
-  border-top:2px solid var(--rule)}
-.sk__c h3{margin:0;font-weight:680;font-stretch:88%;
-  font-size:clamp(1.1rem,1.7vw,1.35rem);letter-spacing:-.018em;color:var(--fg)}
-.sk__c > p{margin:0;font-size:15px;line-height:1.55;color:var(--fg-2);max-width:42ch}
-.sk__by{margin:6px 0 0;font-size:13.5px;line-height:1.5;color:var(--fg-2)}
-.sk__by a{color:var(--fg);text-underline-offset:3px}
-/* This was a card holding an h3 and a p, so it was a grid. It is one
-   sentence now, and a grid container turned the link and the rest of the
-   sentence into two items torn apart across the full column width. */
-.sk__gap{margin:clamp(30px,5vh,58px) 0 0;padding-top:20px;border-top:1px solid var(--rule);
-  display:block;max-width:62ch;font-size:15px;line-height:1.55;color:var(--fg-2)}
-.sk__gap h3{grid-column:1/-1;margin:0 0 4px;font-weight:660;font-stretch:90%;
-  font-size:clamp(1rem,1.5vw,1.15rem);letter-spacing:-.015em;color:var(--fg)}
-.sk__gap p{margin:0;font-size:14px;line-height:1.5;color:var(--fg-2)}
-
-/* ── SKILLS ARRIVE IN READING ORDER ────────────────────────────────────────
-   Six cards is enough that landing them all at once reads as a slab. They rise
-   in sequence instead, each keyed to its own position, so the column you are
-   looking at is the one resolving. The print rule above each card holds its
-   place beforehand, so nothing jumps and no space sits empty. */
-[data-af-motion="on"] .sk__c,
-[data-af-motion="on"] .sk__gap p{
-  transform:translate3d(0,calc((1 - var(--afv-o,1)) * 20px),0);
-  transform-origin:0 0;will-change:transform}
-[data-af-motion="on"] .sk__c{position:relative}
-[data-af-motion="on"] .sk__c::after{
-  content:"";position:absolute;left:0;top:-2px;height:2px;
-  width:calc(var(--afv-o,1) * 100%);background:var(--fg);
-  transition:none;pointer-events:none}
 @media(prefers-reduced-motion:reduce){
-  [data-af-motion="on"] .sk__c,
-  [data-af-motion="on"] .sk__gap p{transform:none}
-  [data-af-motion="on"] .sk__c::after{width:100%}
 }
 
 /* ── FOOTER, SIZED TO ITS PAGE ─────────────────────────────────────────────
@@ -1615,7 +1142,6 @@ body:not(.route-home) .foot__end{margin-top:clamp(18px,2.6vh,24px);padding-top:1
 .stop,
 .proof-lede,
 .claim-legend li{font-size:15px;line-height:1.55}
-.sk__by{font-size:14px;line-height:1.5}
 .crow p:not([class]){font-size:13px}
 
 /* ── PROSE IS INK, METADATA IS GREY ────────────────────────────────────────
@@ -1718,40 +1244,12 @@ body:not(.route-home) .foot__end{margin-top:clamp(18px,2.6vh,24px);padding-top:1
    wide enough to watch. */
 @property --rw{syntax:"<number>";inherits:false;initial-value:96}
 @property --cw{syntax:"<number>";inherits:false;initial-value:88}
-
-/* ── THE RULE CARRIES THE EVIDENCE ─────────────────────────────────────────
-   Six identical cards under six identical rules said all six capabilities were
-   equally proven, which is not true: full-stack product build is backed by
-   five shipped systems, embedded by two. The section was flattening its own
-   register.
-
-   The rule is now drawn in two parts. The solid span is proportional to how
-   many systems back that capability; the remainder is a hairline. The count
-   sits at the end of it, so the visual weight and the number agree and neither
-   can drift from the links below without the other being wrong too.
-
-   Five is the maximum any capability reaches, so that sets full width. */
-.sk__c{position:relative;border-top:0;padding-top:26px}
-.sk__c::before{content:"";position:absolute;left:0;top:0;height:1px;width:100%;
-  background:var(--rule)}
-.sk__c::after{content:"";position:absolute;left:0;top:0;height:3px;
-  width:calc(var(--n,1) / 5 * 100%);background:var(--fg);
-  transform-origin:0 50%;transform:scaleX(var(--ev,1))}
-.sk__ev{position:absolute;top:9px;left:calc(var(--n,1) / 5 * 100%);
-  transform:translateX(-100%);padding-left:10px;
-  font:500 11px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.02em;
-  color:var(--fg-2);white-space:nowrap}
 @media (prefers-reduced-motion:no-preference){
-  [data-af-motion="on"] .sk__c{--ev:0}
-  [data-af-motion="on"] .sk__c.is-in{--ev:1;
-    transition:--ev 760ms cubic-bezier(.16,1,.3,1);
-    transition-delay:calc(var(--i,0) * 70ms)}
 }
 @property --ev{syntax:"<number>";inherits:false;initial-value:1}
 
 /* the hero's muted text is lifted so the photograph can stay light */
 .hero__meta .an,.hero__meta p,.hero__index-h,.hx i,.place-note{color:#C2C8CE}
-
 
 /* ═══════════════════════════════════════════════════════════════════════════
    SELECTED WORK · RECORDS AND ROWS
@@ -1868,8 +1366,6 @@ body:not(.route-home) .foot__end{margin-top:clamp(18px,2.6vh,24px);padding-top:1
   letter-spacing:-.038em;line-height:.92}
 .sk{grid-template-columns:repeat(auto-fit,minmax(330px,1fr));
   gap:clamp(28px,3.4vw,56px)}
-.sk__c h3{font-size:clamp(1.35rem,2.2vw,1.9rem);font-stretch:82%;
-  letter-spacing:-.025em;line-height:1.02}
 .sec--work .reg__head,.sec--skills .kicker{margin-bottom:.15em}
 
 /* ── THREE RECORDS, THREE COMPOSITIONS ─────────────────────────────────────────
@@ -1984,10 +1480,6 @@ a.hx b{color:var(--on-ink)}
 a.hx i{color:var(--on-ink-2);font-style:normal}
 a.hx:hover b,a.hx:focus-visible b{text-decoration:underline;text-underline-offset:4px}
 a.hx:hover i,a.hx:focus-visible i{color:var(--on-ink)}
-
-.sk__gap a{color:var(--fg);text-decoration:underline;text-underline-offset:3px;
-  text-decoration-thickness:1px;text-decoration-color:var(--rule-s)}
-.sk__gap a:hover,.sk__gap a:focus-visible{text-decoration-color:currentColor}
 
 /* footer page links stack; two of them were sharing a line after the new
    entry was inserted inline */
@@ -2703,7 +2195,7 @@ body.route-home .site-mark{color:var(--v-fg)}
    answers on its rule instead - otherwise one link in the nav is dead to the
    pointer */
 body.route-home .site-head a:hover,
-body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
+body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-fg)}
 
 /* ── theme transition ─────────────────────────────────────────────────────
    A theme switch that repaints instantly reads as a fault. Only grounds, type,
@@ -2725,16 +2217,21 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   :root[data-theme-x] body.route-home .site-foot *{transition:none}
 }
 
-.v4{--gutter:clamp(18px,3.4vw,46px);--maxw:1340px;
+/* ── BIG SCREENS FILL THE SCREEN ─────────────────────────────────────────
+   Everything here used to stop growing at about 1114px wide. At 2560 the
+   content held 52% of the width and the headline was the same 56.8px it is on
+   a laptop. Nothing below 1440 changes: each size is max(<the clamp that was
+   already here>, <a term that keeps growing>), and the two are equal at 1440. */
+.v4{--gutter:clamp(18px,3.4vw,46px);--maxw:clamp(1340px, calc(55.4vw + 543px), 1960px);
     --sig:var(--v-accent);--press:cubic-bezier(.2,.8,.3,1);
     background:var(--v-page);color:var(--v-fg)}
 .v4 .w4{max-width:var(--maxw);margin:0 auto;padding-inline:var(--gutter)}
 .v4 .eyebrow4{font:500 11.5px/1 M,"Mono Fallback",ui-monospace,monospace;
   letter-spacing:.18em;text-transform:uppercase;color:var(--v-fg-2);
   font-variation-settings:"wdth" 100;margin:0}
-.v4 h2{font-size:clamp(1.75rem,3.4vw,2.6rem);font-weight:600;line-height:1.04;
+.v4 h2{font-size:max(clamp(1.75rem,3.4vw,2.6rem), calc(1.42rem + 1.29vw));font-weight:600;line-height:1.04;
   letter-spacing:-.022em;margin:.5rem 0 0;text-wrap:balance;color:var(--v-fg)}
-.v4 .lede4{font-size:clamp(1rem,1.35vw,1.12rem);line-height:1.6;color:var(--v-fg-2);
+.v4 .lede4{font-size:max(clamp(1rem,1.35vw,1.12rem), calc(.86rem + .29vw));line-height:1.6;color:var(--v-fg-2);
   max-width:56ch;margin:.85rem 0 0}
 
 /* ── buttons: kept. They already invert on hover and compress on press. ── */
@@ -2766,15 +2263,19 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   /* it is the first screen, and it should look like it - but only where there
      is the height to spend. Below 700px tall the content sets the height. */
   display:flex;align-items:center}
-@media(min-height:700px){.ch1{min-height:calc(100svh - 76px)}}
+@media(min-height:700px){.ch1{min-height:min(calc(100svh - 76px), 880px)}}
 .ch1__grid{display:grid;gap:clamp(32px,5vw,72px);align-items:center;width:100%;
   perspective:1700px;perspective-origin:58% 42%;
   grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr)}
-.ch1 h1{font-size:clamp(2.15rem,5.1vw,3.55rem);font-weight:600;line-height:1.03;
+.ch1 h1{font-size:max(clamp(2.15rem,5.1vw,3.55rem), calc(2rem + 1.71vw));font-weight:600;line-height:1.03;
   letter-spacing:-.03em;margin:.7rem 0 0;max-width:17ch;color:var(--v-fg);
   font-variation-settings:"wdth" 100;text-wrap:balance}
-.ch1 h1 em{font-style:normal;color:var(--v-accent)}
-.ch1__lede{font-size:clamp(1rem,1.3vw,1.14rem);line-height:1.6;color:var(--v-fg-2);
+/* "run" carried the accent, which made the thesis of the whole page the same
+   colour as every arriving list row. It is emphasised on the axis the rest of
+   this typography already uses - weight and width - and stays ink. */
+.ch1 h1 em{font-style:normal;color:inherit;font-weight:800;
+  font-variation-settings:"wdth" 88;letter-spacing:-.02em}
+.ch1__lede{font-size:max(clamp(1rem,1.3vw,1.14rem), calc(.87rem + .3vw));line-height:1.6;color:var(--v-fg-2);
   max-width:46ch;margin:1.1rem 0 0}
 .ch1__act{display:flex;flex-wrap:wrap;gap:12px;margin:1.9rem 0 0}
 .eyebrow4--split{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -2891,7 +2392,7 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
             scale(calc(1 - var(--hq) * .05));
   transform-origin:60% 50%}
 .fld::after{content:"";position:absolute;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--v-accent),transparent);
+  background:linear-gradient(90deg,transparent,var(--v-fg-2),transparent);
   top:calc(clamp(0,calc((var(--he) - .18)/.5),1) * 100%);
   opacity:calc(clamp(0,calc((var(--he) - .16)/.06),1) * (1 - clamp(0,calc((var(--he) - .62)/.08),1)));
   pointer-events:none}
@@ -2916,13 +2417,16 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
    happens in it is structural: the trunk drops, each branch rule extends the
    full width of its row, a connector drops to every system, and the systems
    travel and settle onto it. */
-.ch2{background:var(--v-page);color:var(--v-fg);height:170vh;position:relative}
+.ch2{background:var(--v-page);color:var(--v-fg);height:min(170vh,1700px);position:relative}
 /* Top-aligned, not centred. Centred, the heading block was paid for twice:
    once as its own height and again as an equal margin above it, which pushed
    the diagram's last branch to 81vh and the way out to 91vh - along the
    bottom bezel, where the final beats of the assembly are least readable. */
+/* Height-capped: on a 1440-tall display an uncapped stage is 1364px holding a
+   560px diagram - a laptop page floating in an empty monitor. Capped, the next
+   chapter shows below it. */
 .map__stick{position:sticky;top:var(--head-h,57px);
-  height:calc(100svh - var(--head-h,57px));display:flex;align-items:flex-start;
+  height:min(calc(100svh - var(--head-h,57px)), 1000px);display:flex;align-items:flex-start;
   padding-top:clamp(16px,3.2vh,34px);overflow:hidden}
 .map__in{width:100%}
 /* THE WAY OUT IS PART OF THE ESTABLISHED COMPOSITION, NOT A FOOTNOTE.
@@ -2930,7 +2434,10 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
    bezel. It now shares the head row with the core: the company on the left,
    the way to all eleven on the right, arriving last but arriving at 34vh -
    and the 60px it used to occupy at the bottom go back to the held branch. */
+/* Capped. Past about 1320px a node is a 600px box holding 300px of text -
+   stretched, not enlarged. Below 1440 nothing changes. */
 .map{position:relative;margin-top:clamp(14px,2.2vh,24px);padding-left:clamp(16px,2.4vw,30px);
+  max-width:min(100%,1320px);
   display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;
   /* A transform-based "compaction" was tried here and removed: translating a
      completed group upward does not close the gap it leaves, because the
@@ -2951,11 +2458,11 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   transform:translate3d(calc((1 - var(--c)) * -30px),0,calc((1 - var(--c)) * -260px))
             scale(calc(.82 + var(--c) * .18));
   transform-origin:0 50%;
-  box-shadow:-4px 0 0 0 color-mix(in srgb,var(--v-accent) calc(var(--c) * 100%),transparent)}
+  box-shadow:-4px 0 0 0 color-mix(in srgb,var(--v-fg) calc(var(--c) * 100%),transparent)}
 .map__core b{font:600 14px/1 A,"Archivo Fallback",system-ui,sans-serif;letter-spacing:-.01em}
 .map__core span{font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
   letter-spacing:.14em;text-transform:uppercase;opacity:.72}
-.map__br{position:relative;padding:clamp(5px,0.75vh,8px) 0}
+.map__br{position:relative;padding:clamp(5px,0.75vh,15px) 0}
 .map__brh{margin:0 0 9px;display:flex;align-items:center;gap:10px;
   font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.16em;
   text-transform:uppercase;color:var(--v-fg-2)}
@@ -2969,47 +2476,52 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 .map__n{list-style:none;margin:0;padding:0;display:grid;gap:6px;
   grid-template-columns:repeat(3,minmax(0,1fr))}
 .map__n{perspective:1200px;perspective-origin:0 50%}
-/* systems arrive out of depth and take their place, rather than sliding 34px */
+/* THE SYSTEM ATTACHES TO ITS BRANCH.
+   These used to fly in from 64px left and 220px back in z - expressive, and it
+   said only "a card arrived". What this diagram is FOR is which systems hang
+   off which branch, so the drop line reaches down from the branch rule first
+   and the system descends onto the end of it. */
 .map__n li{position:relative;
-  transform:translate3d(calc((1 - var(--n)) * -64px), calc((1 - var(--n)) * 26px),
-                        calc((1 - var(--n)) * -220px))
-            scale(calc(.9 + var(--n) * .1));
-  transform-origin:0 50%}
+  --nl:clamp(0, calc((var(--n) - .34) / .66), 1);
+  transform:translate3d(0, calc((1 - var(--nl)) * -13px), 0)}
 .map__n li::before{content:"";position:absolute;left:15px;top:-16px;width:1px;height:16px;
-  background:var(--v-dia-soft);transform-origin:50% 0;transform:scaleY(var(--n))}
+  background:var(--v-dia-soft);transform-origin:50% 0;
+  transform:scaleY(clamp(0, calc(var(--n) / .42), 1))}
 .sysnode{display:grid;grid-template-columns:11px minmax(0,1fr);gap:10px;align-items:baseline;
-  padding:7px 12px 7px 10px;text-decoration:none;color:inherit;
+  padding:clamp(7px,1vh,15px) 12px clamp(7px,1vh,15px) 10px;text-decoration:none;color:inherit;
   /* the arrival is the surface, the rule and the accent stub - not the words */
   background:color-mix(in srgb,var(--v-dia) calc(var(--n) * 100%),transparent);
   border:1px solid color-mix(in srgb,var(--v-rule) calc(var(--n) * 100%),transparent);
-  box-shadow:-3px 0 0 0 color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),transparent);
+  box-shadow:-3px 0 0 0 color-mix(in srgb,var(--v-fg) calc(var(--n) * 100%),transparent);
   transition:transform 240ms var(--press),border-color 200ms ease,
              background-color 200ms ease,box-shadow 260ms var(--press)}
 .sysnode:hover,.sysnode:focus-visible{transform:translateX(5px);border-color:var(--v-fg);
-  background:var(--v-raise);box-shadow:-4px 0 0 0 var(--v-accent)}
+  background:var(--v-raise);box-shadow:-4px 0 0 0 var(--v-fg)}
 .sysnode:active{transform:translateX(5px) scale(.988);
-  background:color-mix(in srgb,var(--v-accent) 10%,var(--v-raise))}
+  background:color-mix(in srgb,var(--v-fg) 7%,var(--v-raise))}
+/* TWO CHANNELS, TWO JOBS. Colour reports a state that was measured; geometry
+   and opacity carry the arrival. Mixing the accent from transparent by
+   progress made green the colour of "something is animating" - which is why
+   it stopped meaning "this one is live". */
 .sysnode__d{width:9px;height:9px;border-radius:50%;align-self:center;
-  border:1.5px solid color-mix(in srgb,var(--v-dia-ink) calc(var(--n) * 100%),var(--v-rule));
-  transform:scale(calc(.28 + var(--n) * .72))}
-.sysnode--live .sysnode__d{
-  background:color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),transparent);
-  border-color:color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),var(--v-rule))}
+  border:1.5px solid var(--v-rule-2);background:transparent;
+  opacity:var(--n);transform:scale(calc(.28 + var(--n) * .72))}
+.sysnode--live .sysnode__d{background:var(--v-accent);border-color:var(--v-accent)}
 .sysnode__t{min-width:0}
 .sysnode__t b{display:block;font:600 14px/1.25 A,"Archivo Fallback",system-ui,sans-serif;
   letter-spacing:-.01em}
 .sysnode__t span{display:block;margin-top:2px;font-size:12px;line-height:1.4;
   color:var(--v-fg-2)}
 .sysnode--flag{border-color:var(--v-rule-2);background:var(--v-raise);
-  box-shadow:-3px 0 0 0 color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),transparent),
+  box-shadow:-3px 0 0 0 color-mix(in srgb,var(--v-fg) calc(var(--n) * 100%),transparent),
              0 calc(var(--n) * 16px) calc(var(--n) * 30px) -22px rgba(var(--v-shadow),.5)}
 /* research work arrives with less confidence than a live product, on purpose */
+/* research work still attaches with less confidence than a live product */
 .map__br:last-of-type .map__n li{
-  transform:translate3d(calc((1 - var(--n)) * -30px),0,calc((1 - var(--n)) * -90px))
-            scale(calc(.96 + var(--n) * .04))}
+  transform:translate3d(0, calc((1 - var(--nl)) * -7px), 0)}
 .sysnode--flag .sysnode__t b::after{content:"Flagship";display:inline-block;margin-left:8px;
   font:500 9px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--v-accent);vertical-align:2px}
+  text-transform:uppercase;color:var(--v-fg-2);vertical-align:2px}
 .sysnode--held{background:transparent;border-style:dashed}
 .sysnode--held .sysnode__t b{font-weight:500;color:var(--v-fg-2)}
 .map__n li:focus-within{opacity:1;transform:none}
@@ -3069,10 +2581,10 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
    Two captured surfaces, not five. Discovery holds the stage, then hands it
    to the merchant page while the relationship beneath it is named. Nothing
    here depicts a transaction, because we did not make one. */
-.pr--biz{background:var(--v-deep);color:var(--v-fg);height:172vh;position:relative;
+.pr--biz{background:var(--v-deep);color:var(--v-fg);height:min(172vh,1720px);position:relative;
   border-block:1px solid var(--v-rule)}
 .bizs{position:sticky;top:var(--head-h,57px);
-  height:calc(100svh - var(--head-h,57px));display:flex;align-items:center;
+  height:min(calc(100svh - var(--head-h,57px)), 1000px);display:flex;align-items:center;
   overflow:hidden}
 .bizs__in{width:100%;display:grid;gap:clamp(18px,3vh,34px);
   grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr);align-items:center}
@@ -3104,8 +2616,8 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 .brel li{padding:13px 0 13px 26px;border-bottom:1px solid var(--v-rule);position:relative}
 .brel li::before{content:"";position:absolute;left:0;top:19px;width:11px;height:11px;
   border-radius:50%;border:1.5px solid var(--v-rule-2);
-  background:color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),transparent);
-  border-color:color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),var(--v-rule-2))}
+  background:color-mix(in srgb,var(--v-dia) calc(var(--n) * 100%),transparent);
+  border-color:color-mix(in srgb,var(--v-rule-2) calc(var(--n) * 100%),var(--v-rule-2))}
 .brel li::after{content:"";position:absolute;left:5px;top:30px;bottom:-13px;width:1px;
   background:var(--v-dia-soft);transform-origin:50% 0;transform:scaleY(var(--n))}
 .brel li:last-child::after{display:none}
@@ -3117,9 +2629,6 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 .bnote{margin:clamp(12px,2vh,18px) 0 0;
   font:400 11px/1.5 M,"Mono Fallback",ui-monospace,monospace;color:var(--v-fg-2);
   max-width:46ch}
-.bizs__prog{margin:clamp(12px,2vh,18px) 0 0;height:2px;background:var(--v-rule)}
-.bizs__prog i{display:block;height:2px;background:var(--v-accent);
-  transform:scaleX(var(--p));transform-origin:0 50%}
 
 @media(max-width:900px){
   .pr--biz{height:166svh}
@@ -3136,8 +2645,7 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   .bizs__say h3{order:2;font-size:clamp(1.45rem,6vw,2rem)}
   .bstage{order:3}
   .bizs__say .brel{order:4}
-  .bizs__say .bnote,.bizs__prog{order:5}
-  .bizs__say .pr__d{display:none}
+  .bizs__say .bnote,  .bizs__say .pr__d{display:none}
   /* the stage is the point of the scene, so on a phone it takes the height
      the narration used to take above it - which also brings its centre back
      toward the middle of the screen rather than the top third */
@@ -3177,7 +2685,7 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 .gates__rail{position:absolute;left:10px;top:10px;bottom:10px;width:1px;
   background:var(--v-rule)}
 .gates__fill{position:absolute;left:10px;top:10px;bottom:10px;width:1px;
-  background:var(--v-accent);transform-origin:50% 0;transform:scaleY(var(--p))}
+  background:var(--v-fg-3);transform-origin:50% 0;transform:scaleY(var(--p))}
 /* the travelling file. An absolutely positioned, layout-contained flex track:
    two spacers share the height in the ratio p : 1-p, so the chip sits exactly
    p of the way down with no measurement and no effect on page layout. */
@@ -3204,8 +2712,8 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   display:grid;place-items:center;background:var(--v-page);
   border:1px solid var(--v-rule);
   font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;color:var(--v-fg-2);
-  background:color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),var(--v-page));
-  border-color:color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),var(--v-rule));
+  background:color-mix(in srgb,var(--v-fg) calc(var(--n) * 100%),var(--v-page));
+  border-color:color-mix(in srgb,var(--v-fg) calc(var(--n) * 100%),var(--v-rule));
   color:color-mix(in srgb,var(--v-raise) calc(var(--n) * 100%),var(--v-fg-2))}
 .gates__l b{display:block;font-size:16px;font-weight:600;letter-spacing:-.012em;
   color:var(--v-fg)}
@@ -3216,7 +2724,9 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   font:500 11px/1.5 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.1em;
   text-transform:uppercase;color:var(--v-fg-2);min-height:1.5em}
 .gates__st i{display:block;width:8px;height:8px;border-radius:50%;
-  background:color-mix(in srgb,var(--v-accent) calc(clamp(0,calc((var(--p) - .92)/.06),1) * 100%),var(--v-rule-2))}
+  /* ink, not green: reaching the end of a published diagram is not a status
+     anyone measured */
+  background:color-mix(in srgb,var(--v-fg) calc(clamp(0,calc((var(--p) - .92)/.06),1) * 100%),var(--v-rule-2))}
 /* three wordings, one slot. All three are absolute inside a slot reserved at
    its widest, so the wording can change without moving anything. */
 .gates__st span{position:relative;display:block;min-width:23ch;min-height:1.4em}
@@ -3251,7 +2761,7 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   padding-left:16px}
 .jrec__s:last-child{border-bottom:0}
 .jrec__s::before{content:"";position:absolute;left:0;top:15px;bottom:15px;width:2px;
-  background:var(--v-accent);transform-origin:50% 0;transform:scaleY(var(--n))}
+  background:var(--v-fg-3);transform-origin:50% 0;transform:scaleY(var(--n))}
 .jrec__s > b{display:block;font:600 10px/1 M,"Mono Fallback",ui-monospace,monospace;
   letter-spacing:.15em;text-transform:uppercase;color:var(--v-fg-2)}
 .jrec__f{margin:7px 0 0;display:flex;flex-wrap:wrap;gap:5px}
@@ -3302,7 +2812,7 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 .cap__c::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
   transition:opacity 260ms ease;
   background:radial-gradient(210px circle at var(--mx,50%) var(--my,50%),
-             color-mix(in srgb,var(--v-accent) 16%,transparent),transparent 70%)}
+             color-mix(in srgb,var(--v-fg) 9%,transparent),transparent 70%)}
 .capg__l:hover .cap__c,.capg__l:focus-within .cap__c{opacity:.55}
 .cap__c:hover,.cap__c:focus-within{opacity:1;--tz:26px;
   background:var(--v-raise);border-color:var(--v-rule);
@@ -3315,7 +2825,7 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 .cap__c span{display:block;margin-top:4px;font-size:14px;line-height:1.5;
   color:var(--v-fg-2);position:relative}
 /* keyboard gets the lift without a pointer, and a rule the pointer never draws */
-.cap__c:focus-within{outline:2px solid var(--v-accent);outline-offset:2px}
+.cap__c:focus-within{outline:2px solid var(--v-fg);outline-offset:2px}
 @media(hover:none){
   .capg__l:hover .cap__c{opacity:1}
   .cap__c:active{--tz:0px;transform:scale(.978);
@@ -3404,14 +2914,13 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
     transform:none;opacity:1;filter:none;clip-path:none}
   .bframe img{width:100%;height:auto;object-fit:fill}
   .bframe figcaption{display:block;opacity:1}
-  .bizs__prog{display:none}
-  .cap__c{transition:none}
+    .cap__c{transition:none}
 }
 
 /* The scroll line the audit called TOO SUBTLE: 2px of the header's own colour
    at 55% opacity. On this page it is the accent, at full strength, and thick
    enough to read as a reading position rather than a hairline artefact. */
-body.route-home .site-head::after{height:3px;background:var(--v-accent);opacity:1}
+body.route-home .site-head::after{height:3px;background:var(--v-fg);opacity:.5}
 
 /* ── TRUE LIGHT MODE ─────────────────────────────────────────────────────
    The shell and the record hero were painted with a fixed ink that never
@@ -3536,14 +3045,17 @@ html{background:var(--v-page)}
    these ideas, driven by one number: --n, either a scroll band or a one-shot
    arrival sweep. Nothing is invented per scene.
 
-     ESTABLISH   arrives out of depth as a mask opens
-     CONNECT     a line draws between two things
-     RESOLVE     a value settles into its final reading
-     HAND-OFF    one element yields the frame to another
-     ACCUMULATE  items land on a structure that visibly grows
-     LOCK        the final position is taken, with a short settle
-     WITHDRAW    recedes into depth as the mask closes
-     RETURN      any of the above, run backwards by scroll
+   There was a set of eight named verbs here, written as reusable classes and
+   documented as the site's vocabulary. Nothing ever used them - every scene
+   carried its own bespoke rules that merely shared some constants - so the
+   classes were 180 lines of dead CSS and the doctrine describing them was a
+   description of something that did not exist. Both are removed.
+
+   What remains is the rule that actually governs: MOTION MUST BE DERIVED FROM
+   THE CONTENT IT MOVES. If you cannot say what a movement tells the reader,
+   it does not ship. Half of what used to be here could not survive that
+   question - a list sliding in, a picture coming forward, four buttons
+   rising - and has been deleted rather than restyled.
 
    TWO KINDS OF MOTION, AND THEY ARE NOT INTERCHANGEABLE
 
@@ -3592,14 +3104,6 @@ html{background:var(--v-page)}
    scores changed pixel area over a 240px window, against each element's own
    scene root - so ordinary scrolling and a held pin both score zero.        */
 :root{
-  --m-far:104px;        /* how far a major element travels in */
-  --m-near:46px;        /* a secondary one */
-  --m-lift:180px;       /* depth, in z */
-  --m-from:.88;         /* the scale a major element arrives from */
-  --m-stag:70ms;
-  --m-in:cubic-bezier(.16,1,.3,1);      /* arrivals - fast out, long settle */
-  --m-hand:cubic-bezier(.65,0,.25,1);   /* hand-offs - committed both ends */
-  --m-lock:cubic-bezier(.22,1.2,.36,1); /* the settle, with a little overshoot */
 }
 @property --n2{syntax:"<number>";inherits:true;initial-value:1}
 
@@ -3607,125 +3111,8 @@ html{background:var(--v-page)}
    welcome, so reduced motion and no-JS both start finished. */
 @keyframes m-arrive{from{--n2:0}to{--n2:1}}
 :root[data-est] [data-arrive]{animation:m-arrive var(--m-dur,1500ms) linear forwards}
-.m-a{--n:clamp(0, calc((var(--n2) - var(--a,0)) / var(--b,1)), 1)}
-
-/* ── ESTABLISH ──────────────────────────────────────────────────────────── */
-.m-est{
-  transform:translate3d(0, calc((1 - var(--n)) * var(--m-far)), calc((1 - var(--n)) * var(--m-lift) * -1))
-            scale(calc(var(--m-from) + var(--n) * (1 - var(--m-from))));
-  transform-origin:0 50%;
-  clip-path:inset(0 0 calc((1 - var(--n)) * 104%) 0)}
-.m-est--near{
-  transform:translate3d(0, calc((1 - var(--n)) * var(--m-near)), 0);
-  clip-path:inset(0 0 calc((1 - var(--n)) * 104%) 0)}
-/* a stage that things establish inside needs the perspective */
-.m-stage{perspective:1400px;perspective-origin:50% 40%}
-
-/* ── CONNECT ────────────────────────────────────────────────────────────── */
-.m-connect-x{transform:scaleX(var(--n));transform-origin:0 50%}
-.m-connect-y{transform:scaleY(var(--n));transform-origin:50% 0}
-
-/* ── LOCK ───────────────────────────────────────────────────────────────── */
-/* the last 12% of the band is the settle, so the element arrives and then
-   takes its position rather than easing asymptotically into it */
-.m-lock{--l:clamp(0, calc((var(--n) - .78) / .22), 1);
-  transform:translate3d(0, calc((1 - var(--n)) * var(--m-near)), 0)
-            scale(calc(.97 + var(--l) * .03))}
-
-/* ── WITHDRAW ───────────────────────────────────────────────────────────── */
-.m-withdraw{
-  transform:translate3d(0, calc(var(--q,0) * -46px), calc(var(--q,0) * -140px))
-            scale(calc(1 - var(--q,0) * .06));
-  opacity:calc(1 - var(--q,0) * .35)}
-
-/* ── HAND-OFF ───────────────────────────────────────────────────────────── */
-/* the outgoing frame is pushed into and cropped away; the incoming one opens
-   from the region the eye was already looking at, so the two read as one move */
-.m-out{transform:scale(calc(1 + var(--n) * .16));
-  clip-path:inset(calc(var(--n) * 34%) calc(var(--n) * 40%) calc(var(--n) * 30%) calc(var(--n) * 6%));
-  opacity:calc(1 - var(--n) * .35);filter:saturate(calc(1 - var(--n) * .55))}
-.m-in{transform:scale(calc(.86 + var(--n) * .14));
-  clip-path:inset(calc((1 - var(--n)) * 30%) calc((1 - var(--n)) * 8%) calc((1 - var(--n)) * 26%) calc((1 - var(--n)) * 44%))}
-
-/* ── WHEN THE READER TAKES OVER ──────────────────────────────────────────
-   Resolving --he quickly is not enough on its own: the layers are staggered
-   across it, so the last row of the live panel still landed in the final
-   40ms - by which time a reader moving at reading speed had scrolled the
-   panel off the top. Under data-yield the layers stop being staggered and
-   resolve together. The sequence is what makes the arrival worth watching;
-   once the reader has decided not to watch it, the sequence is just delay. */
-:root[data-yield] .ch1 .eyebrow4,:root[data-yield] .ch1 h1,
-:root[data-yield] .ch1__lede,:root[data-yield] .ch1__act{--a:0;--b:.45}
-:root[data-yield] .fld__r,:root[data-yield] .fld__c{--a:0;--b:.45;--ca:0;--va:0}
-
-/* ── THE TWO RECORD SCENES, AT A SIZE A PERSON CAN SEE ───────────────────
-   Both of these were already choreographed and both measured as static: the
-   whole of CarePro's motion was a 1px rail, a 21px chip and a 27px disc, and
-   Jamii's was a 2px spine and a 4px nudge on a row of field slots. Every one
-   of those is true to the idea and none of them is an event. What follows
-   changes the amplitude, not the idea: the same sequence, at the scale the
-   rest of the vocabulary works at. */
-
-/* CarePro - a file advances, and each gate takes weight as it closes ------ */
-.care{perspective:1400px;perspective-origin:0 40%}
-.gates__rail,.gates__fill{width:2px}
-.gates__file{width:26px;height:26px}
-.gates__track{width:26px}
-.gates__n{width:30px;height:30px;left:-46px}
-.gates__l li{
-  transform:translate3d(calc((1 - var(--n)) * -72px), calc((1 - var(--n)) * 16px),
-                        calc((1 - var(--n)) * -230px))
-            scale(calc(.9 + var(--n) * .1));
-  transform-origin:0 50%}
-/* the surface the gate lands on. A pseudo-element rather than padding, so the
-   row gains weight without any of the four rows changing the page's layout. */
-.gates__l li::after{content:"";position:absolute;z-index:-1;
-  inset:-10px -14px 10px -14px;
-  background:var(--v-raise);
-  box-shadow:inset 2px 0 0 0 var(--v-accent);
-  opacity:calc(var(--n) * .92)}
-.care__ev{transform:translate3d(0, calc((1 - var(--n)) * 58px), calc((1 - var(--n)) * -190px))
-            scale(calc(.94 + var(--n) * .06));
-  transform-origin:50% 38%;
-  box-shadow:0 calc(var(--n) * 26px) calc(var(--n) * 52px) -34px rgba(var(--v-shadow),.5)}
-
-/* Jamii - ONE record, gaining ------------------------------------------------
-   The verb here is ACCUMULATE and it has to be physical: each stage arrives on
-   the same panel and the panel visibly carries more than it did. Field slots
-   are still reserved at full size before anything is written into them, so the
-   record gains weight without the page moving. */
-.jam{perspective:1400px;perspective-origin:0 40%}
-.jrec__b{position:relative}
-/* how far down the record has been written */
-.jrec__b::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
-  background:var(--v-accent);opacity:.5;
-  transform:scaleY(var(--p));transform-origin:50% 0}
-.jrec__s{
-  transform:translate3d(calc((1 - var(--n)) * -58px), calc((1 - var(--n)) * 12px),
-                        calc((1 - var(--n)) * -205px))
-            scale(calc(.93 + var(--n) * .07));
-  transform-origin:0 50%}
-.jrec__s::before{width:3px}
-.jrec__s::after{content:"";position:absolute;z-index:-1;inset:0 -16px;
-  background:var(--v-surf);opacity:calc(var(--n) * .8)}
-.jam__ev{transform:translate3d(0, calc((1 - var(--n)) * 58px), calc((1 - var(--n)) * -190px))
-            scale(calc(.94 + var(--n) * .06));
-  transform-origin:50% 38%;
-  box-shadow:0 calc(var(--n) * 26px) calc(var(--n) * 52px) -34px rgba(var(--v-shadow),.5)}
-
-/* the map's last beat: the three flagships take their emphasis and the way
-   out of the chapter locks, so the assembly finishes at the end of the pin
-   rather than three quarters of the way through it */
-/* It arrives from the right edge of its own row, not from below: sitting in
-   the head row now, a downward entrance put it straight through the first
-   branch heading for the whole first third of the assembly. */
-.map__all{--n:clamp(0, calc((var(--p) - .88) / .11), 1);
-  transform:translate3d(calc((1 - var(--n)) * 18px), 0, 0)}
 
 @media(prefers-reduced-motion:reduce){
-  .m-est,.m-est--near,.m-lock,.m-withdraw,.m-out,.m-in{
-    transform:none;clip-path:none;opacity:1;filter:none}
-  .m-connect-x,.m-connect-y{transform:none}
   .gates__l li,.care__ev,.jrec__s,.jam__ev,.map__all{transform:none}
   .jrec__b::before{transform:none}
   :root[data-est] [data-arrive]{animation:none}
@@ -3900,7 +3287,6 @@ html{background:var(--v-page)}
         </ol>
         <p class="bnote">The two frames are captures. The three steps are what the
           product does &mdash; not a transaction staged for this page.</p>
-        <p class="bizs__prog" aria-hidden="true"><i></i></p>
       </div>
 
       <div class="bstage st" data-oneof="frame" style="--a:.05;--b:.90">
@@ -3955,10 +3341,13 @@ html{background:var(--v-page)}
               doesn&rsquo;t.</span></li>
         </ol>
       </div>
+      <!-- These describe the DIAGRAM being walked through, not a file being
+           qualified. Nothing on this page establishes that Lesnar AI watched a
+           nurse or a file pass CarePro's checks, so nothing here says so. -->
       <p class="gates__st" aria-live="off"><i aria-hidden="true"></i><span data-oneof="status">
-        <b class="st" style="--a:0;--b:.001;--c:.12;--d:.08">File not yet verified</b>
-        <b class="st" style="--a:.14;--b:.08;--c:.90;--d:.06">In verification</b>
-        <b class="st" style="--a:.92;--b:.06">Verified &middot; four steps</b>
+        <b class="st" style="--a:0;--b:.001;--c:.12;--d:.08">The published sequence</b>
+        <b class="st" style="--a:.14;--b:.08;--c:.90;--d:.06">Reading the sequence</b>
+        <b class="st" style="--a:.92;--b:.06">Four published steps</b>
       </span></p>
     </div>
 
