@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>(function(){try{var t=localStorage.getItem("lai-theme");
+if(t!=="dark"&&t!=="light")t=matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+document.documentElement.setAttribute("data-theme",t);
+document.documentElement.setAttribute("data-js","1");}catch(e){}})();</script>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light dark">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Theme check</title>
+<style>
+/* A throwaway diagnostic. Not linked from anywhere; delete once answered. */
+:root{color-scheme:light;--pg:#F1F3F0;--fg:#101613}
+:root[data-theme="dark"]{color-scheme:dark;--pg:#0D1211;--fg:#E7ECE8}
+html{background:var(--pg)}
+body{margin:0;background:var(--pg);color:var(--fg);
+  font:15px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;padding:16px}
+h1{font-size:17px;margin:0 0 14px}
+table{border-collapse:collapse;width:100%;margin-bottom:18px}
+td{padding:6px 4px;border-bottom:1px solid rgba(128,128,128,.35);vertical-align:top}
+td:first-child{opacity:.7;width:42%}
+b{font-weight:700}
+.sw{height:64px;display:grid;place-items:center;margin:8px 0;
+  font:700 13px/1 ui-monospace,monospace;border:1px solid rgba(128,128,128,.5)}
+#pure{background:#FFFFFF;color:#000}
+#tok{background:var(--pg);color:var(--fg)}
+button{font:600 16px/1 inherit;padding:16px;width:100%;margin:10px 0;
+  background:var(--fg);color:var(--pg);border:0;cursor:pointer}
+.note{opacity:.75;font-size:13px;margin-top:14px}
+</style>
+</head>
+<body>
+<h1>Theme check</h1>
+<div class="sw" id="pure">this block is literally #FFFFFF</div>
+<div class="sw" id="tok">this block is the page's own light colour</div>
+<button id="t">Switch theme</button>
+<table id="out"></table>
+<p class="note">If the white block above is not white, the browser is
+re-colouring the page and no site setting can stop it.</p>
+<script>
+var root=document.documentElement;
+function paint(){
+  var cs=getComputedStyle(root), bs=getComputedStyle(document.body);
+  var pure=getComputedStyle(document.getElementById("pure")).backgroundColor;
+  var ls; try{ localStorage.setItem("__t","1"); ls=localStorage.getItem("lai-theme")+" (writable)"; }
+  catch(e){ ls="BLOCKED"; }
+  var rows=[
+    ["data-theme", root.getAttribute("data-theme")],
+    ["color-scheme", cs.colorScheme],
+    ["html background", cs.backgroundColor],
+    ["body background", bs.backgroundColor],
+    ["#FFFFFF renders as", pure],
+    ["stored choice", ls],
+    ["OS prefers dark", String(matchMedia("(prefers-color-scheme:dark)").matches)],
+    ["script running", "yes"]
+  ];
+  document.getElementById("out").innerHTML =
+    rows.map(function(r){return "<tr><td>"+r[0]+"</td><td><b>"+r[1]+"</b></td></tr>";}).join("");
+}
+document.getElementById("t").addEventListener("click",function(){
+  var next = root.getAttribute("data-theme")==="dark" ? "light":"dark";
+  try{ localStorage.setItem("lai-theme",next); }catch(e){}
+  root.setAttribute("data-theme",next);
+  setTimeout(paint,60);
+});
+paint();
+</script>
+</body>
+</html>
