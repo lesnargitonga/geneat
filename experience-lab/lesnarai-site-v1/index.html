@@ -2761,8 +2761,12 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 .fld{margin:0;background:var(--v-dia);border:1px solid var(--v-rule);
   padding:clamp(16px,2vw,24px);position:relative;
   --fr:clamp(0,calc(var(--he)/.16),1);
-  transform:translateY(calc(var(--hq) * -22px + (1 - var(--fr)) * 10px));
-  box-shadow:0 calc(18px - var(--hq)*10px) calc(40px - var(--hq)*18px) -28px rgba(var(--v-shadow),.5);
+  --fe:clamp(0, calc((var(--he) - .06) / .26), 1);
+  transform:translate3d(0, calc(var(--hq) * -30px + (1 - var(--fe)) * 40px),
+                        calc(var(--hq) * -190px + (1 - var(--fe)) * -240px))
+            scale(calc(.92 + var(--fe) * .08 - var(--hq) * .05));
+  transform-origin:60% 50%;
+  box-shadow:0 calc(26px - var(--hq)*14px) calc(56px - var(--hq)*26px) -30px rgba(var(--v-shadow),.5);
   opacity:calc(.15 + var(--fr) * .85)}
 .fld__h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
   padding-bottom:12px;border-bottom:1px solid var(--v-rule)}
@@ -2784,7 +2788,7 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 .fld__r{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:12px;
   align-items:center;padding:11px 0;border-bottom:1px solid var(--v-rule);
   position:relative;
-  transform:translateY(calc(var(--hq) * var(--sep,0) * 9px));
+  transform:translate3d(calc((1 - var(--n)) * -22px), calc(var(--hq) * var(--sep,0) * 11px), 0);
   opacity:calc(var(--n) * (1 - var(--hq) * .30))}
 .fld__r:last-child{border-bottom:0}
 /* the connector reaching from the spine to the system */
@@ -2825,6 +2829,26 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 :root[data-est] .ch1{animation:establish 1950ms linear forwards}
 @keyframes establish{from{--he:0}to{--he:1}}
 
+/* the proposition arrives in layers, each one locking rather than fading */
+.ch1__say{perspective:1400px;perspective-origin:0 40%}
+.ch1 .eyebrow4,.ch1 h1,.ch1__lede,.ch1__act{
+  --n:clamp(0, calc((var(--he) - var(--a,0)) / var(--b,1)), 1);
+  transform:translate3d(0, calc((1 - var(--n)) * 54px), calc((1 - var(--n)) * -150px));
+  clip-path:inset(0 0 calc((1 - var(--n)) * 105%) 0)}
+.ch1 .eyebrow4{--a:.02;--b:.16}
+.ch1 h1        {--a:.10;--b:.26}
+.ch1__lede     {--a:.30;--b:.20}
+.ch1__act      {--a:.44;--b:.18}
+
+/* the field is a plate that comes forward out of the page and goes back into
+   it when you leave, with one accent line sweeping it as it settles */
+.ch1__proof{perspective:1500px;perspective-origin:60% 45%}
+.fld::after{content:"";position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--v-accent),transparent);
+  top:calc(clamp(0,calc((var(--he) - .18)/.5),1) * 100%);
+  opacity:calc(clamp(0,calc((var(--he) - .16)/.06),1) * (1 - clamp(0,calc((var(--he) - .62)/.08),1)));
+  pointer-events:none}
+
 @media(max-width:980px){
   .ch1__grid{grid-template-columns:1fr;gap:clamp(28px,5vh,44px)}
   .ch1 h1{max-width:20ch}
@@ -2845,7 +2869,7 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
    happens in it is structural: the trunk drops, each branch rule extends the
    full width of its row, a connector drops to every system, and the systems
    travel and settle onto it. */
-.ch2{background:var(--v-page);color:var(--v-fg);height:180vh;position:relative}
+.ch2{background:var(--v-page);color:var(--v-fg);height:170vh;position:relative}
 .map__stick{position:sticky;top:var(--head-h,57px);
   height:calc(100svh - var(--head-h,57px));display:flex;align-items:center;
   overflow:hidden}
@@ -2861,9 +2885,11 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
      --v-page: at rest that was near-white on light grey, 1:1. The words are
      the one thing here that never animates. What arrives is the accent stub
      and the position. */
-  transform:translateX(calc((1 - clamp(0,calc(var(--p)/.16),1)) * -12px));
-  box-shadow:-4px 0 0 0 color-mix(in srgb,var(--v-accent)
-             calc(clamp(0,calc(var(--p)/.16),1) * 100%),transparent)}
+  --c:clamp(0,calc(var(--p)/.10),1);
+  transform:translate3d(calc((1 - var(--c)) * -30px),0,calc((1 - var(--c)) * -260px))
+            scale(calc(.82 + var(--c) * .18));
+  transform-origin:0 50%;
+  box-shadow:-4px 0 0 0 color-mix(in srgb,var(--v-accent) calc(var(--c) * 100%),transparent)}
 .map__core b{font:600 14px/1 A,"Archivo Fallback",system-ui,sans-serif;letter-spacing:-.01em}
 .map__core span{font:500 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
   letter-spacing:.14em;text-transform:uppercase;opacity:.72}
@@ -2880,8 +2906,12 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   flex:1 1 auto;order:2}
 .map__n{list-style:none;margin:0;padding:0;display:grid;gap:8px;
   grid-template-columns:repeat(3,minmax(0,1fr))}
+.map__n{perspective:1200px;perspective-origin:0 50%}
+/* systems arrive out of depth and take their place, rather than sliding 34px */
 .map__n li{position:relative;
-  transform:translateX(calc((1 - var(--n)) * -34px)) scale(calc(.965 + var(--n) * .035));
+  transform:translate3d(calc((1 - var(--n)) * -64px), calc((1 - var(--n)) * 26px),
+                        calc((1 - var(--n)) * -220px))
+            scale(calc(.9 + var(--n) * .1));
   transform-origin:0 50%}
 .map__n li::before{content:"";position:absolute;left:15px;top:-16px;width:1px;height:16px;
   background:var(--v-dia-soft);transform-origin:50% 0;transform:scaleY(var(--n))}
@@ -2908,7 +2938,13 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   letter-spacing:-.01em}
 .sysnode__t span{display:block;margin-top:2px;font-size:12px;line-height:1.4;
   color:var(--v-fg-2)}
-.sysnode--flag{border-color:var(--v-rule-2);background:var(--v-raise)}
+.sysnode--flag{border-color:var(--v-rule-2);background:var(--v-raise);
+  box-shadow:-3px 0 0 0 color-mix(in srgb,var(--v-accent) calc(var(--n) * 100%),transparent),
+             0 calc(var(--n) * 16px) calc(var(--n) * 30px) -22px rgba(var(--v-shadow),.5)}
+/* research work arrives with less confidence than a live product, on purpose */
+.map__br:last-of-type .map__n li{
+  transform:translate3d(calc((1 - var(--n)) * -30px),0,calc((1 - var(--n)) * -90px))
+            scale(calc(.96 + var(--n) * .04))}
 .sysnode--flag .sysnode__t b::after{content:"Flagship";display:inline-block;margin-left:8px;
   font:500 9px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.14em;
   text-transform:uppercase;color:var(--v-accent);vertical-align:2px}
@@ -2919,7 +2955,7 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
 .map__all{margin:clamp(14px,2.2vh,22px) 0 0}
 
 @media(max-width:820px){
-  .ch2{height:192svh}
+  .ch2{height:180svh}
   .map__n{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
   .sysnode{min-height:46px;align-items:center;padding:6px 10px 6px 8px}
   .map__br{padding:clamp(6px,1vh,10px) 0}
@@ -2950,7 +2986,7 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
    Two captured surfaces, not five. Discovery holds the stage, then hands it
    to the merchant page while the relationship beneath it is named. Nothing
    here depicts a transaction, because we did not make one. */
-.pr--biz{background:var(--v-deep);color:var(--v-fg);height:195vh;position:relative;
+.pr--biz{background:var(--v-deep);color:var(--v-fg);height:172vh;position:relative;
   border-block:1px solid var(--v-rule)}
 .bizs{position:sticky;top:var(--head-h,57px);
   height:calc(100svh - var(--head-h,57px));display:flex;align-items:center;
@@ -2967,13 +3003,17 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   font:600 10.5px/1 M,"Mono Fallback",ui-monospace,monospace;
   letter-spacing:.14em;color:var(--v-fg);margin-bottom:5px}
 /* A: holds, then withdraws left and back.  B: advances from the right. */
+/* The stage is pushed INTO the discovery frame and cropped away while the
+   merchant frame opens from the region the eye was already on, so the two read
+   as one move through the product rather than two screenshots trading places. */
 .bframe--a{z-index:1;
-  transform:translateX(calc(var(--n) * -13%)) scale(calc(1 - var(--n) * .13));
-  opacity:calc(1 - var(--n) * .62);
-  filter:saturate(calc(1 - var(--n) * .5))}
+  transform:scale(calc(1 + var(--n) * .22));transform-origin:38% 52%;
+  clip-path:inset(calc(var(--n) * 30%) calc(var(--n) * 44%) calc(var(--n) * 26%) calc(var(--n) * 4%));
+  opacity:calc(1 - var(--n) * .30);
+  filter:saturate(calc(1 - var(--n) * .55))}
 .bframe--b{z-index:2;
-  transform:translateX(calc((1 - var(--n)) * 27%)) scale(calc(.86 + var(--n) * .14));
-  opacity:calc(.04 + var(--n) * .96)}
+  transform:scale(calc(.88 + var(--n) * .12));transform-origin:62% 48%;
+  clip-path:inset(calc((1 - var(--n)) * 26%) calc((1 - var(--n)) * 5%) calc((1 - var(--n)) * 22%) calc((1 - var(--n)) * 46%))}
 .bframe--b figcaption{opacity:calc(clamp(0,calc((var(--p) - .56)/.20),1))}
 .bframe--a figcaption{opacity:calc(1 - var(--n))}
 .brel{list-style:none;margin:0;padding:0;display:grid;gap:0;
@@ -2999,7 +3039,7 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
   transform:scaleX(var(--p));transform-origin:0 50%}
 
 @media(max-width:900px){
-  .pr--biz{height:185svh}
+  .pr--biz{height:166svh}
   .bizs{height:calc(100svh - var(--head-h,57px));align-items:center}
   .bizs__in{grid-template-columns:1fr;gap:clamp(12px,2.2vh,22px);align-content:center}
   .bizs__say h3{font-size:clamp(1.45rem,6vw,2rem)}
@@ -3257,8 +3297,11 @@ body.route-home .site-head a:focus-visible{border-bottom-color:var(--v-accent)}
     padding-block:clamp(48px,8vh,96px)}
   .bstage{aspect-ratio:auto;height:auto;display:grid;gap:clamp(14px,2vw,26px);
     grid-template-columns:1fr 1fr}
+  /* clip-path too. Without it the discovery frame rests at the END of the
+     hand-off - cropped to inset(30% 44% 26% 4%) - so a reader with reduced
+     motion never saw that capture or its caption at all. */
   .bframe{position:relative;inset:auto;width:auto;height:auto;
-    transform:none;opacity:1;filter:none}
+    transform:none;opacity:1;filter:none;clip-path:none}
   .bframe img{width:100%;height:auto;object-fit:fill}
   .bframe figcaption{display:block;opacity:1}
   .bizs__prog{display:none}
@@ -3387,6 +3430,194 @@ body.route-home .site-head::after{height:3px;background:var(--v-accent);opacity:
    cross, and the UA's light canvas showed through the gap as a white
    flash. The page paints its own root, following the same token. */
 html{background:var(--v-page)}
+
+/* ══ THE LESNAR MOTION SYSTEM ═══════════════════════════════════════════════
+   Eight verbs and one set of constants. Every animation on this site is one of
+   these ideas, driven by one number: --n, either a scroll band or a one-shot
+   arrival sweep. Nothing is invented per scene.
+
+     ESTABLISH   arrives out of depth as a mask opens
+     CONNECT     a line draws between two things
+     RESOLVE     a value settles into its final reading
+     HAND-OFF    one element yields the frame to another
+     ACCUMULATE  items land on a structure that visibly grows
+     LOCK        the final position is taken, with a short settle
+     WITHDRAW    recedes into depth as the mask closes
+     RETURN      any of the above, run backwards by scroll
+
+   TWO KINDS OF MOTION, AND THEY ARE NOT INTERCHANGEABLE
+
+   A LOAD ARRIVAL is one-shot. It runs off --n2, a registered property swept
+   once by a keyframe when the page opens. It may use masks and depth, because
+   it resolves in under two seconds and nothing is withheld from a reader. It
+   is NOT reversible by scroll and must not be described as if it were:
+   scrolling back to the top does not replay it, and nothing downstream may
+   depend on it having run.
+
+   A SCROLL-DRIVEN scene is reversible. It runs off --p, a pure function of
+   scroll position, so RETURN costs nothing: scrolling up is the same function
+   read backwards, stopping freezes it, and jumping arrives correct. A scroll
+   scene may not hide words - it moves structure, weight, rules and depth, and
+   the text stays readable throughout. That is the lesson from the round where
+   twenty-two elements sat at 6% opacity waiting to be scrolled into.
+
+   THE DEAD-TAIL RULE
+
+   Meaningful visual change continues to roughly 75-90% of a scene's effective
+   scroll span. The last 10-25% is the hold, the release, or the hand-off to
+   whatever arrives next.
+
+       up to 30%    fine
+       30 - 40%     needs a reason, written down beside it
+       over 40%     a failure, unless the held state is itself the point
+
+   Two spans, never collapsed into one number:
+
+       TOTAL SCROLL HOLD    the scroll distance over which the scene owns the
+                            viewport. What it costs the reader.
+       ACTIVE MOTION BAND   first to last scroll position at which the scene's
+                            own pixels visibly changed.
+
+   THE AMPLITUDE RULE, which is the same rule from the other side
+
+   A change that cannot reach about 2% of the viewport's pixels across 240px
+   of scroll is decoration, not an event, and does not count as motion for the
+   rule above. A 1px rule drawing, a 9px disc tinting and a 4px nudge on a
+   chip are all true to the idea and none of them is visible at reading
+   distance - that is how two whole scenes measured as choreographed and read
+   as static. It is not a licence to pad the end of a band either: the final
+   fifth has to be as legible as the first.
+
+   Both are measured by tools/pace.mjs, which walks the page in 60px steps and
+   scores changed pixel area over a 240px window, against each element's own
+   scene root - so ordinary scrolling and a held pin both score zero.        */
+:root{
+  --m-far:104px;        /* how far a major element travels in */
+  --m-near:46px;        /* a secondary one */
+  --m-lift:180px;       /* depth, in z */
+  --m-from:.88;         /* the scale a major element arrives from */
+  --m-stag:70ms;
+  --m-in:cubic-bezier(.16,1,.3,1);      /* arrivals - fast out, long settle */
+  --m-hand:cubic-bezier(.65,0,.25,1);   /* hand-offs - committed both ends */
+  --m-lock:cubic-bezier(.22,1.2,.36,1); /* the settle, with a little overshoot */
+}
+@property --n2{syntax:"<number>";inherits:true;initial-value:1}
+
+/* the one-shot arrival sweep. Stamped by the head script only when motion is
+   welcome, so reduced motion and no-JS both start finished. */
+@keyframes m-arrive{from{--n2:0}to{--n2:1}}
+:root[data-est] [data-arrive]{animation:m-arrive var(--m-dur,1500ms) linear forwards}
+.m-a{--n:clamp(0, calc((var(--n2) - var(--a,0)) / var(--b,1)), 1)}
+
+/* ── ESTABLISH ──────────────────────────────────────────────────────────── */
+.m-est{
+  transform:translate3d(0, calc((1 - var(--n)) * var(--m-far)), calc((1 - var(--n)) * var(--m-lift) * -1))
+            scale(calc(var(--m-from) + var(--n) * (1 - var(--m-from))));
+  transform-origin:0 50%;
+  clip-path:inset(0 0 calc((1 - var(--n)) * 104%) 0)}
+.m-est--near{
+  transform:translate3d(0, calc((1 - var(--n)) * var(--m-near)), 0);
+  clip-path:inset(0 0 calc((1 - var(--n)) * 104%) 0)}
+/* a stage that things establish inside needs the perspective */
+.m-stage{perspective:1400px;perspective-origin:50% 40%}
+
+/* ── CONNECT ────────────────────────────────────────────────────────────── */
+.m-connect-x{transform:scaleX(var(--n));transform-origin:0 50%}
+.m-connect-y{transform:scaleY(var(--n));transform-origin:50% 0}
+
+/* ── LOCK ───────────────────────────────────────────────────────────────── */
+/* the last 12% of the band is the settle, so the element arrives and then
+   takes its position rather than easing asymptotically into it */
+.m-lock{--l:clamp(0, calc((var(--n) - .78) / .22), 1);
+  transform:translate3d(0, calc((1 - var(--n)) * var(--m-near)), 0)
+            scale(calc(.97 + var(--l) * .03))}
+
+/* ── WITHDRAW ───────────────────────────────────────────────────────────── */
+.m-withdraw{
+  transform:translate3d(0, calc(var(--q,0) * -46px), calc(var(--q,0) * -140px))
+            scale(calc(1 - var(--q,0) * .06));
+  opacity:calc(1 - var(--q,0) * .35)}
+
+/* ── HAND-OFF ───────────────────────────────────────────────────────────── */
+/* the outgoing frame is pushed into and cropped away; the incoming one opens
+   from the region the eye was already looking at, so the two read as one move */
+.m-out{transform:scale(calc(1 + var(--n) * .16));
+  clip-path:inset(calc(var(--n) * 34%) calc(var(--n) * 40%) calc(var(--n) * 30%) calc(var(--n) * 6%));
+  opacity:calc(1 - var(--n) * .35);filter:saturate(calc(1 - var(--n) * .55))}
+.m-in{transform:scale(calc(.86 + var(--n) * .14));
+  clip-path:inset(calc((1 - var(--n)) * 30%) calc((1 - var(--n)) * 8%) calc((1 - var(--n)) * 26%) calc((1 - var(--n)) * 44%))}
+
+/* ── THE TWO RECORD SCENES, AT A SIZE A PERSON CAN SEE ───────────────────
+   Both of these were already choreographed and both measured as static: the
+   whole of CarePro's motion was a 1px rail, a 21px chip and a 27px disc, and
+   Jamii's was a 2px spine and a 4px nudge on a row of field slots. Every one
+   of those is true to the idea and none of them is an event. What follows
+   changes the amplitude, not the idea: the same sequence, at the scale the
+   rest of the vocabulary works at. */
+
+/* CarePro - a file advances, and each gate takes weight as it closes ------ */
+.care{perspective:1400px;perspective-origin:0 40%}
+.gates__rail,.gates__fill{width:2px}
+.gates__file{width:26px;height:26px}
+.gates__track{width:26px}
+.gates__n{width:30px;height:30px;left:-46px}
+.gates__l li{
+  transform:translate3d(calc((1 - var(--n)) * -72px), calc((1 - var(--n)) * 16px),
+                        calc((1 - var(--n)) * -230px))
+            scale(calc(.9 + var(--n) * .1));
+  transform-origin:0 50%}
+/* the surface the gate lands on. A pseudo-element rather than padding, so the
+   row gains weight without any of the four rows changing the page's layout. */
+.gates__l li::after{content:"";position:absolute;z-index:-1;
+  inset:-10px -14px 10px -14px;
+  background:var(--v-raise);
+  box-shadow:inset 2px 0 0 0 var(--v-accent);
+  opacity:calc(var(--n) * .92)}
+.care__ev{--n:clamp(0, calc(var(--p) / .34), 1);
+  transform:translate3d(0, calc((1 - var(--n)) * 58px), calc((1 - var(--n)) * -190px))
+            scale(calc(.94 + var(--n) * .06));
+  transform-origin:50% 38%;
+  box-shadow:0 calc(var(--n) * 26px) calc(var(--n) * 52px) -34px rgba(var(--v-shadow),.5)}
+
+/* Jamii - ONE record, gaining ------------------------------------------------
+   The verb here is ACCUMULATE and it has to be physical: each stage arrives on
+   the same panel and the panel visibly carries more than it did. Field slots
+   are still reserved at full size before anything is written into them, so the
+   record gains weight without the page moving. */
+.jam{perspective:1400px;perspective-origin:0 40%}
+.jrec__b{position:relative}
+/* how far down the record has been written */
+.jrec__b::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--v-accent);opacity:.5;
+  transform:scaleY(var(--p));transform-origin:50% 0}
+.jrec__s{
+  transform:translate3d(calc((1 - var(--n)) * -58px), calc((1 - var(--n)) * 12px),
+                        calc((1 - var(--n)) * -205px))
+            scale(calc(.93 + var(--n) * .07));
+  transform-origin:0 50%}
+.jrec__s::before{width:3px}
+.jrec__s::after{content:"";position:absolute;z-index:-1;inset:0 -16px;
+  background:var(--v-surf);opacity:calc(var(--n) * .8)}
+.jam__ev{--n:clamp(0, calc(var(--p) / .30), 1);
+  transform:translate3d(0, calc((1 - var(--n)) * 58px), calc((1 - var(--n)) * -190px))
+            scale(calc(.94 + var(--n) * .06));
+  transform-origin:50% 38%;
+  box-shadow:0 calc(var(--n) * 26px) calc(var(--n) * 52px) -34px rgba(var(--v-shadow),.5)}
+
+/* the map's last beat: the three flagships take their emphasis and the way
+   out of the chapter locks, so the assembly finishes at the end of the pin
+   rather than three quarters of the way through it */
+.map__all{--n:clamp(0, calc((var(--p) - .88) / .11), 1);
+  transform:translate3d(0, calc((1 - var(--n)) * 26px), 0)}
+
+@media(prefers-reduced-motion:reduce){
+  .m-est,.m-est--near,.m-lock,.m-withdraw,.m-out,.m-in{
+    transform:none;clip-path:none;opacity:1;filter:none}
+  .m-connect-x,.m-connect-y{transform:none}
+  .gates__l li,.care__ev,.jrec__s,.jam__ev,.map__all{transform:none}
+  .jrec__b::before{transform:none}
+  :root[data-est] [data-arrive]{animation:none}
+}
 </style>
 </head>
 <body class="route-home">
@@ -3482,51 +3713,51 @@ html{background:var(--v-page)}
         <p class="map__core"><b>Lesnar&nbsp;AI</b><span>Nairobi</span></p>
 
         <div class="map__br">
-          <p class="map__brh st" style="--a:.26;--b:.10"><i aria-hidden="true"></i>Commerce and marketplaces</p>
+          <p class="map__brh st" style="--a:.12;--b:.09"><i aria-hidden="true"></i>Commerce and marketplaces</p>
           <ul class="map__n">
-            <li class="st" style="--a:.30;--b:.11"><a class="sysnode sysnode--live sysnode--flag" href="work/bizmtaani/">
+            <li class="st" style="--a:.17;--b:.12"><a class="sysnode sysnode--live sysnode--flag" href="work/bizmtaani/">
               <i class="sysnode__d" aria-hidden="true"></i>
               <span class="sysnode__t"><b>BizMtaani</b><span>Neighbourhood marketplace, ordering and delivery</span></span></a></li>
-            <li class="st" style="--a:.35;--b:.11"><a class="sysnode sysnode--live" href="work/gen-eat/">
+            <li class="st" style="--a:.22;--b:.12"><a class="sysnode sysnode--live" href="work/gen-eat/">
               <i class="sysnode__d" aria-hidden="true"></i>
               <span class="sysnode__t"><b>Gen-Eat</b><span>Campus food ordering over WhatsApp</span></span></a></li>
-            <li class="st" style="--a:.40;--b:.11"><a class="sysnode sysnode--live" href="work/hazina-nomads/">
+            <li class="st" style="--a:.27;--b:.12"><a class="sysnode sysnode--live" href="work/hazina-nomads/">
               <i class="sysnode__d" aria-hidden="true"></i>
               <span class="sysnode__t"><b>Hazina Nomads</b><span>Private sourcing and Kenyan heritage gifts</span></span></a></li>
           </ul>
         </div>
 
         <div class="map__br">
-          <p class="map__brh st" style="--a:.46;--b:.10"><i aria-hidden="true"></i>Care and community records</p>
+          <p class="map__brh st" style="--a:.36;--b:.09"><i aria-hidden="true"></i>Care and community records</p>
           <ul class="map__n">
-            <li class="st" style="--a:.50;--b:.11"><a class="sysnode sysnode--live sysnode--flag" href="work/carepro/">
+            <li class="st" style="--a:.41;--b:.12"><a class="sysnode sysnode--live sysnode--flag" href="work/carepro/">
               <i class="sysnode__d" aria-hidden="true"></i>
               <span class="sysnode__t"><b>CarePro</b><span>Home nursing, with published verification</span></span></a></li>
-            <li class="st" style="--a:.55;--b:.11"><a class="sysnode sysnode--live sysnode--flag" href="work/jamii-projects-hub/">
+            <li class="st" style="--a:.47;--b:.12"><a class="sysnode sysnode--live sysnode--flag" href="work/jamii-projects-hub/">
               <i class="sysnode__d" aria-hidden="true"></i>
               <span class="sysnode__t"><b>Jamii Projects Hub</b><span>Community projects, votes and balances</span></span></a></li>
           </ul>
         </div>
 
         <div class="map__br">
-          <p class="map__brh st" style="--a:.64;--b:.10"><i aria-hidden="true"></i>Held &middot; research and unqualified</p>
+          <p class="map__brh st" style="--a:.56;--b:.09"><i aria-hidden="true"></i>Held &middot; research and unqualified</p>
           <ul class="map__n">
-            <li class="st" style="--a:.68;--b:.11"><a class="sysnode sysnode--held" href="work/sentinelcore/">
+            <li class="st" style="--a:.62;--b:.12"><a class="sysnode sysnode--held" href="work/sentinelcore/">
               <i class="sysnode__d" aria-hidden="true"></i>
               <span class="sysnode__t"><b>SentinelCore</b><span>Host security tooling</span></span></a></li>
-            <li class="st" style="--a:.715;--b:.11"><a class="sysnode sysnode--held" href="work/cypher/">
+            <li class="st" style="--a:.655;--b:.12"><a class="sysnode sysnode--held" href="work/cypher/">
               <i class="sysnode__d" aria-hidden="true"></i>
               <span class="sysnode__t"><b>Cypher</b><span>Encryption work</span></span></a></li>
-            <li class="st" style="--a:.75;--b:.11"><a class="sysnode sysnode--held" href="work/gold-trader/">
+            <li class="st" style="--a:.69;--b:.12"><a class="sysnode sysnode--held" href="work/gold-trader/">
               <i class="sysnode__d" aria-hidden="true"></i>
               <span class="sysnode__t"><b>Gold Trader</b><span>Trading system</span></span></a></li>
-            <li class="st" style="--a:.785;--b:.11"><a class="sysnode sysnode--held" href="work/greenhouse-controller/">
+            <li class="st" style="--a:.725;--b:.12"><a class="sysnode sysnode--held" href="work/greenhouse-controller/">
               <i class="sysnode__d" aria-hidden="true"></i>
               <span class="sysnode__t"><b>Greenhouse controller</b><span>Embedded control</span></span></a></li>
-            <li class="st" style="--a:.82;--b:.11"><a class="sysnode sysnode--held" href="work/sensing-and-radar/">
+            <li class="st" style="--a:.76;--b:.12"><a class="sysnode sysnode--held" href="work/sensing-and-radar/">
               <i class="sysnode__d" aria-hidden="true"></i>
               <span class="sysnode__t"><b>Sensing &amp; radar</b><span>Signal research</span></span></a></li>
-            <li class="st" style="--a:.855;--b:.11"><a class="sysnode sysnode--held" href="work/aerial-systems/">
+            <li class="st" style="--a:.80;--b:.12"><a class="sysnode sysnode--held" href="work/aerial-systems/">
               <i class="sysnode__d" aria-hidden="true"></i>
               <span class="sysnode__t"><b>Aerial systems</b><span>Active research, nothing flown</span></span></a></li>
           </ul>
@@ -3551,16 +3782,16 @@ html{background:var(--v-page)}
         <p class="pr__d">Two captured surfaces from the live marketplace: finding a
           business near you, and the shop&rsquo;s own page.</p>
         <ol class="brel">
-          <li class="st" style="--a:.05;--b:.14"><b>Find</b><span>Businesses open near you, by name or by what they sell</span></li>
-          <li class="st" style="--a:.28;--b:.18"><b>Choose</b><span>The shop&rsquo;s own page &mdash; its items, and its prices</span></li>
-          <li class="st" style="--a:.56;--b:.20"><b>Order</b><span>Placed with that shop, collected at the counter or brought by a rider</span></li>
+          <li class="st" style="--a:.03;--b:.20"><b>Find</b><span>Businesses open near you, by name or by what they sell</span></li>
+          <li class="st" style="--a:.34;--b:.24"><b>Choose</b><span>The shop&rsquo;s own page &mdash; its items, and its prices</span></li>
+          <li class="st" style="--a:.68;--b:.26"><b>Order</b><span>Placed with that shop, collected at the counter or brought by a rider</span></li>
         </ol>
         <p class="bnote">The two frames are captures. The three steps are what the
           product does &mdash; not a transaction staged for this page.</p>
         <p class="bizs__prog" aria-hidden="true"><i></i></p>
       </div>
 
-      <div class="bstage st" data-oneof="frame" style="--a:.12;--b:.68">
+      <div class="bstage st" data-oneof="frame" style="--a:.05;--b:.90">
         <figure class="bframe bframe--a">
           <picture>
             <source media="(max-width:900px)" srcset="media/biz/m-01-discover.webp" width="780" height="1688">
@@ -3583,7 +3814,7 @@ html{background:var(--v-page)}
 <!-- ═══ 4 · PROOF TWO · CAREPRO · ADVANCE THROUGH GATES ══════════════════
      The file travels down the column and the gates close behind it. The
      wording stays the product's: these are steps CarePro publishes. -->
-<article class="pr pr--care" data-scene="through" data-band=".08,.70" aria-labelledby="pr-care">
+<article class="pr pr--care" data-scene="through" data-band=".07,.74" aria-labelledby="pr-care">
   <div class="w4 care">
     <div class="care__say">
       <p class="pr__k">Live product &middot; carepro.co.ke</p>
@@ -3634,7 +3865,7 @@ html{background:var(--v-page)}
      What the record holds, stage by stage. Every field is reserved before any
      of it is written, so nothing on the page moves. These are the fields the
      product keeps - not any group's actual contributions. -->
-<article class="pr pr--jam" data-scene="through" data-band=".10,.70" aria-labelledby="pr-jam">
+<article class="pr pr--jam" data-scene="through" data-band=".08,.76" aria-labelledby="pr-jam">
   <div class="w4 jam">
     <div class="jam__say">
       <p class="pr__k">Live product &middot; jamii.lesnarai.co.ke</p>

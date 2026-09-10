@@ -7,7 +7,11 @@ document.documentElement.setAttribute("data-theme",t);
 /* Which of the two header layouts renders is decided here, before first
    paint, so the header's height on the first frame is the height it keeps.
    The navigation itself is in the markup either way. */
-document.documentElement.setAttribute("data-js","1");}catch(e){}})();</script>
+document.documentElement.setAttribute("data-js","1");
+/* the one-shot arrival sweep, stamped before first paint and only when
+   motion is welcome, so reduced motion starts finished */
+if(!matchMedia("(prefers-reduced-motion:reduce)").matches)
+  document.documentElement.setAttribute("data-est","1");}catch(e){}})();</script>
 
 <meta charset="utf-8">
 <!-- Chrome for Android and Samsung Internet force-darken any page that does
@@ -1065,6 +1069,214 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
    cross, and the UA's light canvas showed through the gap as a white
    flash. The page paints its own root, following the same token. */
 html{background:var(--sheet)}
+
+/* ══ THE LESNAR MOTION SYSTEM ═══════════════════════════════════════════════
+   Eight verbs and one set of constants. Every animation on this site is one of
+   these ideas, driven by one number: --n, either a scroll band or a one-shot
+   arrival sweep. Nothing is invented per scene.
+
+     ESTABLISH   arrives out of depth as a mask opens
+     CONNECT     a line draws between two things
+     RESOLVE     a value settles into its final reading
+     HAND-OFF    one element yields the frame to another
+     ACCUMULATE  items land on a structure that visibly grows
+     LOCK        the final position is taken, with a short settle
+     WITHDRAW    recedes into depth as the mask closes
+     RETURN      any of the above, run backwards by scroll
+
+   TWO KINDS OF MOTION, AND THEY ARE NOT INTERCHANGEABLE
+
+   A LOAD ARRIVAL is one-shot. It runs off --n2, a registered property swept
+   once by a keyframe when the page opens. It may use masks and depth, because
+   it resolves in under two seconds and nothing is withheld from a reader. It
+   is NOT reversible by scroll and must not be described as if it were:
+   scrolling back to the top does not replay it, and nothing downstream may
+   depend on it having run.
+
+   A SCROLL-DRIVEN scene is reversible. It runs off --p, a pure function of
+   scroll position, so RETURN costs nothing: scrolling up is the same function
+   read backwards, stopping freezes it, and jumping arrives correct. A scroll
+   scene may not hide words - it moves structure, weight, rules and depth, and
+   the text stays readable throughout. That is the lesson from the round where
+   twenty-two elements sat at 6% opacity waiting to be scrolled into.
+
+   THE DEAD-TAIL RULE
+
+   Meaningful visual change continues to roughly 75-90% of a scene's effective
+   scroll span. The last 10-25% is the hold, the release, or the hand-off to
+   whatever arrives next.
+
+       up to 30%    fine
+       30 - 40%     needs a reason, written down beside it
+       over 40%     a failure, unless the held state is itself the point
+
+   Two spans, never collapsed into one number:
+
+       TOTAL SCROLL HOLD    the scroll distance over which the scene owns the
+                            viewport. What it costs the reader.
+       ACTIVE MOTION BAND   first to last scroll position at which the scene's
+                            own pixels visibly changed.
+
+   THE AMPLITUDE RULE, which is the same rule from the other side
+
+   A change that cannot reach about 2% of the viewport's pixels across 240px
+   of scroll is decoration, not an event, and does not count as motion for the
+   rule above. A 1px rule drawing, a 9px disc tinting and a 4px nudge on a
+   chip are all true to the idea and none of them is visible at reading
+   distance - that is how two whole scenes measured as choreographed and read
+   as static. It is not a licence to pad the end of a band either: the final
+   fifth has to be as legible as the first.
+
+   Both are measured by tools/pace.mjs, which walks the page in 60px steps and
+   scores changed pixel area over a 240px window, against each element's own
+   scene root - so ordinary scrolling and a held pin both score zero.        */
+:root{
+  --m-far:104px;        /* how far a major element travels in */
+  --m-near:46px;        /* a secondary one */
+  --m-lift:180px;       /* depth, in z */
+  --m-from:.88;         /* the scale a major element arrives from */
+  --m-stag:70ms;
+  --m-in:cubic-bezier(.16,1,.3,1);      /* arrivals - fast out, long settle */
+  --m-hand:cubic-bezier(.65,0,.25,1);   /* hand-offs - committed both ends */
+  --m-lock:cubic-bezier(.22,1.2,.36,1); /* the settle, with a little overshoot */
+}
+@property --n2{syntax:"<number>";inherits:true;initial-value:1}
+
+/* the one-shot arrival sweep. Stamped by the head script only when motion is
+   welcome, so reduced motion and no-JS both start finished. */
+@keyframes m-arrive{from{--n2:0}to{--n2:1}}
+:root[data-est] [data-arrive]{animation:m-arrive var(--m-dur,1500ms) linear forwards}
+.m-a{--n:clamp(0, calc((var(--n2) - var(--a,0)) / var(--b,1)), 1)}
+
+/* ── ESTABLISH ──────────────────────────────────────────────────────────── */
+.m-est{
+  transform:translate3d(0, calc((1 - var(--n)) * var(--m-far)), calc((1 - var(--n)) * var(--m-lift) * -1))
+            scale(calc(var(--m-from) + var(--n) * (1 - var(--m-from))));
+  transform-origin:0 50%;
+  clip-path:inset(0 0 calc((1 - var(--n)) * 104%) 0)}
+.m-est--near{
+  transform:translate3d(0, calc((1 - var(--n)) * var(--m-near)), 0);
+  clip-path:inset(0 0 calc((1 - var(--n)) * 104%) 0)}
+/* a stage that things establish inside needs the perspective */
+.m-stage{perspective:1400px;perspective-origin:50% 40%}
+
+/* ── CONNECT ────────────────────────────────────────────────────────────── */
+.m-connect-x{transform:scaleX(var(--n));transform-origin:0 50%}
+.m-connect-y{transform:scaleY(var(--n));transform-origin:50% 0}
+
+/* ── LOCK ───────────────────────────────────────────────────────────────── */
+/* the last 12% of the band is the settle, so the element arrives and then
+   takes its position rather than easing asymptotically into it */
+.m-lock{--l:clamp(0, calc((var(--n) - .78) / .22), 1);
+  transform:translate3d(0, calc((1 - var(--n)) * var(--m-near)), 0)
+            scale(calc(.97 + var(--l) * .03))}
+
+/* ── WITHDRAW ───────────────────────────────────────────────────────────── */
+.m-withdraw{
+  transform:translate3d(0, calc(var(--q,0) * -46px), calc(var(--q,0) * -140px))
+            scale(calc(1 - var(--q,0) * .06));
+  opacity:calc(1 - var(--q,0) * .35)}
+
+/* ── HAND-OFF ───────────────────────────────────────────────────────────── */
+/* the outgoing frame is pushed into and cropped away; the incoming one opens
+   from the region the eye was already looking at, so the two read as one move */
+.m-out{transform:scale(calc(1 + var(--n) * .16));
+  clip-path:inset(calc(var(--n) * 34%) calc(var(--n) * 40%) calc(var(--n) * 30%) calc(var(--n) * 6%));
+  opacity:calc(1 - var(--n) * .35);filter:saturate(calc(1 - var(--n) * .55))}
+.m-in{transform:scale(calc(.86 + var(--n) * .14));
+  clip-path:inset(calc((1 - var(--n)) * 30%) calc((1 - var(--n)) * 8%) calc((1 - var(--n)) * 26%) calc((1 - var(--n)) * 44%))}
+
+@media(prefers-reduced-motion:reduce){
+  .m-est,.m-est--near,.m-lock,.m-withdraw,.m-out,.m-in{
+    transform:none;clip-path:none;opacity:1;filter:none}
+  .m-connect-x,.m-connect-y{transform:none}
+  :root[data-est] [data-arrive]{animation:none}
+}
+
+/* ── A RECORD ARRIVES, AND A FILE IS QUALIFIED ───────────────────────────
+   The hero establishes in layers. Then the four published checks are the
+   record's one distinctive idea: they enter the system in order and the panel
+   they sit in visibly gains weight as each one lands. Verification is the
+   grammar of this product, so it is the grammar of its page. */
+.route-system .sys-hero .w{perspective:1500px;perspective-origin:0 35%}
+.sys-hero .kicker,.sys-hero h1,.sys-hero .sys-lede,.sys-hero .lede,.sys-act{
+  --n:clamp(0, calc((var(--n2) - var(--a,0)) / var(--b,1)), 1);
+  transform:translate3d(0, calc((1 - var(--n)) * 50px), calc((1 - var(--n)) * -180px));
+  clip-path:inset(0 0 calc((1 - var(--n)) * 106%) 0)}
+.sys-hero .kicker{--a:.02;--b:.16}
+.sys-hero h1     {--a:.10;--b:.28}
+.sys-hero .sys-lede,.sys-hero .lede{--a:.32;--b:.22}
+.sys-act         {--a:.46;--b:.20}
+
+/* the panel comes forward as a plate, and each check enters it in turn */
+.sys-hero .sig{--s:clamp(0, calc((var(--n2) - .40) / .34), 1);
+  transform:translate3d(0,calc((1 - var(--s)) * 44px),calc((1 - var(--s)) * -260px))
+            scale(calc(.93 + var(--s) * .07));
+  transform-origin:50% 30%;
+  box-shadow:0 calc(var(--s) * 28px) calc(var(--s) * 54px) -34px rgba(10,11,13,.5)}
+.sys-hero .gates li{
+  --n:clamp(0, calc((var(--n2) - (.52 + var(--i,0) * .085)) / .22), 1);
+  transform:translate3d(calc((1 - var(--n)) * -34px),0,calc((1 - var(--n)) * -120px));
+  transform-origin:0 50%}
+.sys-hero .gates li i,.sys-hero .gates li b{position:relative}
+/* the check itself resolves last, so the gate is read before it is stamped */
+.sys-hero .gates li::before{content:"";position:absolute;left:-1px;top:-1px;bottom:-1px;width:2px;
+  background:var(--sig,#5FBF9B);
+  transform:scaleY(clamp(0, calc((var(--n) - .55) / .45), 1));transform-origin:50% 0}
+
+/* the rest of the record: rules draw, evidence mounts establish */
+.sec--surface,.flow{position:relative}
+.flow__h::after{content:"";position:absolute;left:0;right:0;bottom:-8px;height:1px;
+  background:currentColor;opacity:.3;
+  transform:scaleX(clamp(0, calc(var(--p) / .3), 1));transform-origin:0 50%}
+.surface{--n:clamp(0, calc((var(--p) - .1) / .4), 1);
+  transform:translate3d(0,calc((1 - var(--n)) * 40px),0) scale(calc(.97 + var(--n) * .03))}
+/* ── THE CAPTURE, AND WHAT IT IS EVIDENCE OF ─────────────────────────────
+   "The image comes forward" is not an event and does not earn a scene. What
+   this section is actually for is the discipline around the capture: three
+   things it evidences, and one it does not. Those were a single run-on
+   sentence in the caption; they are now three observations that take weight
+   in turn, which is the same claim, read at the pace it is made. */
+.ost{--n:clamp(0, calc((var(--p) - var(--a,0)) / var(--b,1)), 1)}
+.sec--surface{perspective:1500px;perspective-origin:50% 30%}
+.surface{--n:clamp(0, calc(var(--p) / .34), 1);
+  transform:translate3d(0, calc((1 - var(--n)) * 62px), calc((1 - var(--n)) * -230px))
+            scale(calc(.93 + var(--n) * .07));
+  transform-origin:50% 34%;
+  box-shadow:0 calc(var(--n) * 30px) calc(var(--n) * 58px) -36px rgba(11,12,14,.45)}
+.obs{list-style:none;margin:14px 0 0;padding:0;width:100%;
+  display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.obs li{position:relative;background:var(--sheet);padding:11px 14px;
+  display:flex;flex-wrap:wrap;gap:3px 14px;align-items:baseline;
+  transform:translate3d(calc((1 - var(--n)) * -40px), 0, 0)}
+.obs li::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--fg);transform:scaleX(var(--n));transform-origin:0 50%}
+.obs li b{font-weight:600;color:var(--fg);white-space:nowrap}
+.obs li span{color:var(--fg-2);flex:1 1 34ch}
+@media(min-width:760px){.obs{grid-template-columns:1fr}}
+
+/* ── THE FOUR NAMED STEPS ARRIVE, THEN THE READER DRIVES THEM ────────────
+   This component is operated, not scrolled: its states belong to the tabs.
+   The only thing scroll owns is the arrival - the track assembling itself in
+   published order - after which the motion is the reader's. */
+.flow{perspective:1300px;perspective-origin:50% 40%}
+.flow__track{transform-style:flat}
+.flow__step{--i:0;
+  --n:clamp(0, calc((var(--p) - (.14 + var(--i) * .16)) / .26), 1);
+  transform:translate3d(0, calc((1 - var(--n)) * 40px), calc((1 - var(--n)) * -200px))
+            scale(calc(.9 + var(--n) * .1))}
+.flow__bar i{transition:width 260ms cubic-bezier(.65,0,.25,1)}
+.flow__bar{transform:scaleX(clamp(0, calc((var(--p) - .10) / .70), 1));transform-origin:0 50%}
+.flow__detail{--n:clamp(0, calc((var(--p) - .58) / .30), 1);
+  transform:translate3d(0, calc((1 - var(--n)) * 34px), 0)}
+
+@media(prefers-reduced-motion:reduce){
+  .sys-hero .kicker,.sys-hero h1,.sys-hero .sys-lede,.sys-hero .lede,.sys-act,
+  .sys-hero .sig,.sys-hero .gates li,.surface{transform:none;clip-path:none}
+  .sys-hero .gates li::before,.flow__h::after{transform:none}
+  .surface,.obs li,.flow__step,.flow__bar,.flow__detail{transform:none}
+  .obs li::before{transform:none}
+}
 </style>
 <link rel="canonical" href="https://www.lesnarai.co.ke/work/carepro/">
 <meta property="og:type" content="website">
@@ -1093,7 +1305,7 @@ html{background:var(--sheet)}
   </div>
 </header>
 <main id="main" tabindex="-1">
-<div class="sys-hero"><div class="w">
+<div class="sys-hero" data-arrive style="--m-dur:1900ms"><div class="w">
   <a class="backto" href="../"><span aria-hidden="true">&larr;</span> All work</a><p class="kicker">03 · Register entry</p>
   <div class="sys-head">
     <h1>CarePro</h1>
@@ -1103,10 +1315,10 @@ html{background:var(--sheet)}
   <div class="sig sig--gates">
     <p class="sig__k">Verification, as published</p>
     <ol class="gates">
-      <li><i>01</i><b>Credentials</b></li>
-      <li><i>02</i><b>Registry check</b></li>
-      <li><i>03</i><b>Interview</b></li>
-      <li><i>04</i><b>Clinical sign-off</b></li>
+      <li style="--i:0"><i>01</i><b>Credentials</b></li>
+      <li style="--i:1"><i>02</i><b>Registry check</b></li>
+      <li style="--i:2"><i>03</i><b>Interview</b></li>
+      <li style="--i:3"><i>04</i><b>Clinical sign-off</b></li>
     </ol>
     <p class="sig__n">The four steps CarePro publishes. Described by the product, not measured by us.</p>
   </div></div></div><div class="page"><div class="w">
@@ -1118,7 +1330,7 @@ html{background:var(--sheet)}
   <p class="stop">Reachability only. Its role and state-machine model are described, not measured.</p>
 </div></div>
 
-<section class="w sec--surface" aria-labelledby="surf-h">
+<section class="w sec--surface" data-scene="through" data-band=".06,.86" aria-labelledby="surf-h">
   <h2 id="surf-h">The surface, as it stood on 6 September 2026</h2>
   <p class="proof-lede">CarePro publishes a reachable homepage. It is shown here unedited, including the parts that are unflattering, because cropping them would make the capture a claim rather than an observation.</p>
   <figure class="surface">
@@ -1128,15 +1340,19 @@ html{background:var(--sheet)}
     </picture>
     <figcaption>
       <span>carepro.co.ke · captured 2026-09-06 · 1440 × 900</span>
-      <span class="dis">Observed surface. It evidences that the page loaded and what it said at
-        that moment - nothing about traffic, revenue, uptime or scale. The counter on the page reads 19 nurses joined and 0 approved for assignments. Those are the live values on the day of capture, not placeholders.</span>
+      <span class="dis">Observed surface, shown unedited.</span>
+      <ol class="obs">
+        <li class="ost" style="--a:.40;--b:.15"><b>It evidences</b><span>That the page loaded, and what it said at that moment.</span></li>
+        <li class="ost" style="--a:.56;--b:.15"><b>The counter reads</b><span>19 nurses joined and 0 approved for assignments — the live values on the day of capture, not placeholders.</span></li>
+        <li class="ost" style="--a:.72;--b:.17"><b>It is not evidence of</b><span>Traffic, revenue, uptime or scale. A capture cannot show any of those.</span></li>
+      </ol>
     </figcaption>
   </figure>
 </section>
-<section class="w flow" id="flow" aria-labelledby="flow-h" style="--flow-cols:4">
+<section class="w flow" data-scene="through" data-band=".06,.84" id="flow" aria-labelledby="flow-h" style="--flow-cols:4">
   <h2 class="flow__h" id="flow-h">What “verified” actually means</h2>
   <p class="flow__lede">CarePro publishes its verification process as four named steps. This is what each one claims, and what it does not.</p>
-  <div class="flow__track" role="tablist" aria-label="What “verified” actually means"><button class="flow__step" role="tab" id="fs0" aria-controls="fp0" aria-selected="true" tabindex="0"><span class="flow__n">01</span><span class="flow__who">Credentials</span><span class="flow__what">National ID and nursing licence</span></button><button class="flow__step" role="tab" id="fs1" aria-controls="fp1" aria-selected="false" tabindex="-1"><span class="flow__n">02</span><span class="flow__who">Registry check</span><span class="flow__what">Verified against the Nursing Council</span></button><button class="flow__step" role="tab" id="fs2" aria-controls="fp2" aria-selected="false" tabindex="-1"><span class="flow__n">03</span><span class="flow__who">Interview</span><span class="flow__what">Scored on a clinical rubric</span></button><button class="flow__step" role="tab" id="fs3" aria-controls="fp3" aria-selected="false" tabindex="-1"><span class="flow__n">04</span><span class="flow__who">Clinical sign-off</span><span class="flow__what">A registered nurse approves, or does not</span></button></div>
+  <div class="flow__track" role="tablist" aria-label="What “verified” actually means"><button class="flow__step" role="tab" style="--i:0" id="fs0" aria-controls="fp0" aria-selected="true" tabindex="0"><span class="flow__n">01</span><span class="flow__who">Credentials</span><span class="flow__what">National ID and nursing licence</span></button><button class="flow__step" role="tab" style="--i:1" id="fs1" aria-controls="fp1" aria-selected="false" tabindex="-1"><span class="flow__n">02</span><span class="flow__who">Registry check</span><span class="flow__what">Verified against the Nursing Council</span></button><button class="flow__step" role="tab" style="--i:2" id="fs2" aria-controls="fp2" aria-selected="false" tabindex="-1"><span class="flow__n">03</span><span class="flow__who">Interview</span><span class="flow__what">Scored on a clinical rubric</span></button><button class="flow__step" role="tab" style="--i:3" id="fs3" aria-controls="fp3" aria-selected="false" tabindex="-1"><span class="flow__n">04</span><span class="flow__who">Clinical sign-off</span><span class="flow__what">A registered nurse approves, or does not</span></button></div>
   <div class="flow__bar" aria-hidden="true"><i id="flow-bar"></i></div>
   <div class="flow__detail"><div class="flow__body" role="tabpanel" id="fp0" aria-labelledby="fs0"><p>Identity and licence documents are required, and uploaded certificates are reviewed by hand rather than accepted automatically.</p><p>Step one of the published verification panel.</p></div><div class="flow__body" role="tabpanel" id="fp1" aria-labelledby="fs1" hidden><p>The licence is checked against the Nursing Council of Kenya register, with expiry tracked continuously rather than once at signup.</p><p>Step two of the published verification panel.</p></div><div class="flow__body" role="tabpanel" id="fp2" aria-labelledby="fs2" hidden><p>A structured interview is scored against a rubric by the operations team, so the judgement is recorded rather than remembered.</p><p>Step three of the published verification panel.</p></div><div class="flow__body" role="tabpanel" id="fp3" aria-labelledby="fs3" hidden><p>A registered nurse reviews the whole file and makes the call. The published counter shows 19 nurses joined and 0 approved for assignments — the gate has admitted no one yet.</p><p>Step four, and the counter, are both published on the live page.</p></div><div class="flow__meta" id="fm0"><span><b>Checks</b> ID, licence, certificate</span><span><b>Method</b> Manual review</span><span><b>Limit</b> No regulatory approval</span></div><div class="flow__meta" id="fm1" hidden><span><b>Source</b> Nursing Council of Kenya</span><span><b>Cadence</b> Expiry tracked continuously</span><span><b>Limit</b> No certification of the platform</span></div><div class="flow__meta" id="fm2" hidden><span><b>Method</b> Structured, rubric-scored</span><span><b>By</b> Operations team</span><span><b>Limit</b> No clinical decision-making</span></div><div class="flow__meta" id="fm3" hidden><span><b>Decision</b> Registered nurse</span><span><b>Published today</b> 19 joined, 0 approved</span><span><b>Limit</b> No medical-device status</span></div></div>
   <div class="flow__nav">
@@ -1171,7 +1387,7 @@ html{background:var(--sheet)}
   </div>
 </footer>
 <script src="../../site.js" defer></script>
-<script src="../../theme.js" defer></script><script src="../../ui.js" defer></script>
+<script src="../../theme.js" defer></script><script src="../../ui.js" defer></script><script src="../../v4-motion.js" defer></script>
 <script src="../../axis.js" defer></script>
 <script src="../../flow.js" defer></script>
 </body>
