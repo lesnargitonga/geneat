@@ -3382,6 +3382,11 @@ body.route-home .site-head::after{height:3px;background:var(--v-accent);opacity:
 :root:not([data-theme="dark"]) .sig{border-color:#96A398}
 :root:not([data-theme="dark"]) .site-foot nav a:hover,
 :root:not([data-theme="dark"]) .site-foot nav a:focus-visible{border-bottom-color:#101613}
+/* The root had no background of its own, so the canvas was the browser's.
+   color-scheme flips in a single frame while the ground takes 380ms to
+   cross, and the UA's light canvas showed through the gap as a white
+   flash. The page paints its own root, following the same token. */
+html{background:var(--v-page)}
 </style>
 </head>
 <body class="route-home">
