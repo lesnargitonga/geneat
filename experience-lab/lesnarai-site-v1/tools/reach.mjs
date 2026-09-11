@@ -95,3 +95,9 @@ for (const [W, H] of VIEWPORTS) {
 await b.close();
 console.log(fails.length ? `\nREACH: ${fails.length} failure(s)\n  ` + fails.join("\n  ")
                          : "\nREACH: every passed scene reaches its terminal state at maxScroll");
+
+/* EXIT CONTRACT — 0 assertions passed · 1 assertions failed · 2 setup or
+   infrastructure error. This gate previously printed its failures and then
+   fell off the end of the file, which exits 0: in CI it could report a
+   defect and still be read as a pass. Proven by execution, not by reading. */
+process.exit(fails.length ? 1 : 0);

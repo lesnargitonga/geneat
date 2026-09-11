@@ -105,35 +105,44 @@ for (const path of PAGES) {
 
 /* ── C · does a scene finish while you can still see it? ────────────────── */
 console.log("\n══ C · VISIBLE COMPLETION ════════════════════════════════════");
+/* This used to MODEL where a scene completes, with the through-mode formula
+   y = top - vh + p * (vh + H). That is wrong for a focal scene, whose
+   progress comes from its reference point against the focal zone, not from
+   its transit. The model predicted completion once the scene had fully left
+   and failed pr-care and pr-jam at every viewport; measured, they complete
+   with 79-100% of themselves on screen. It only passed pr-biz because that
+   scene is twice as tall, so the wrong formula happened to land somewhere
+   visible - it was grading on height, not on behaviour.
+   So it no longer models anything: it scrolls until --p actually reaches 1
+   and looks. */
 for (const [w, h] of [[1440, 900], [430, 932], [390, 844], [360, 800]]) {
   const ctx = await browser.newContext({ viewport: { width: w, height: h } });
   const page = await ctx.newPage();
   await page.goto(BASE + "/", { waitUntil: "networkidle" });
   await page.waitForTimeout(2300);
-  const rows = await page.evaluate(vh => {
-    const out = [];
-    for (const sc of document.querySelectorAll("[data-scene]")) {
-      if (sc.dataset.scene === "lead") continue;
-      const id = sc.getAttribute("aria-labelledby") || sc.className.trim().split(/\s+/)[0];
-      const mode = sc.dataset.scene;
-      const top = sc.getBoundingClientRect().top + scrollY, H = sc.offsetHeight;
-      const band = (sc.dataset.band || "0,1").split(",").map(Number);
-      const stick = sc.querySelector("[data-stick]");
-      const stickH = stick ? stick.offsetHeight : vh;
-      const pinned = stick && getComputedStyle(stick).position === "sticky" && H - stickH > 1;
-      const yFor = pp => { const raw = band[0] + pp * (band[1] - band[0]);
-        if (pinned) return top + raw * (H - stickH);
-        return top - vh + raw * (vh + H); };
-      const y = yFor(1);
-      /* a pinned stage is on screen for its whole span by construction */
-      const shown = pinned ? 1 : Math.max(0, Math.min(top + H, y + vh) - Math.max(top, y)) / Math.min(H, vh);
-      out.push({ id, mode, pinned: !!pinned, shown: +shown.toFixed(2) });
+  const ids = await page.evaluate(() => [...document.querySelectorAll("[data-scene]")]
+    .filter(sc => sc.dataset.scene !== "lead")
+    .map(sc => sc.getAttribute("aria-labelledby") || sc.className.trim().split(/\s+/)[0]));
+  const max = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+  for (const id of ids) {
+    const sel = `[aria-labelledby="${id}"], .${id}`;
+    let seen = null;
+    for (let y = 0; y <= max; y += 15) {
+      await page.evaluate(v => scrollTo(0, v), y);
+      await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+      seen = await page.evaluate(s => {
+        const e = document.querySelector(s); if (!e) return "gone";
+        if (+getComputedStyle(e).getPropertyValue("--p") < 0.999) return null;
+        const b = e.getBoundingClientRect();
+        const vis = Math.max(0, Math.min(b.bottom, innerHeight) - Math.max(b.top, 0));
+        return +(vis / Math.min(b.height, innerHeight)).toFixed(2);
+      }, sel);
+      if (seen !== null) break;
     }
-    return out;
-  }, h);
-  for (const r of rows)
-    check(r.shown >= SEE, `${w}x${h} ${r.id}: still visible when it completes`,
-          `only ${Math.round(r.shown * 100)}% of the scene on screen at p=1`);
+    if (seen === "gone" || seen === null) { note(`${w}x${h} ${id}: never reaches p=1`); continue; }
+    check(seen >= SEE, `${w}x${h} ${id}: still visible when it completes`,
+          `only ${Math.round(seen * 100)}% of the scene on screen at p=1`);
+  }
   await ctx.close();
 }
 

@@ -36,7 +36,11 @@ const CASES = [
   { page: "/",       sel: ".sysnode--held",       states: ["hover"] },
   { page: "/",       sel: ".btn--line",      states: ["hover", "active"] },
   { page: "/",       sel: ".cap__c",         states: ["hover"] },
-  { page: "/",       sel: ".site-nav a",     states: ["hover", "focus-visible"] },
+  { page: "/",       sel: '.site-nav a:not([aria-current="page"])',
+                                          states: ["hover", "focus-visible"] },
+  /* the current page's own link is deliberately already underlined, so
+     hover has nothing left to add at element level - testing it asserted
+     that a correct design was broken */
   { page: "/",       sel: ".site-foot nav a",states: ["hover"] },
   { page: "/work/",  sel: ".live-e",         states: ["hover", "active"] },
   { page: "/work/",  sel: ".reg-close .btn--go", states: ["hover", "active"] },
@@ -73,11 +77,18 @@ for (const c of CASES) {
     fail++; await ctx.close(); continue;
   }
 
+  /* Much of this site's hover and focus feedback is a ::after underline that
+     scales from 0 to 1, and the element itself does not move. Sampling only
+     the element reported "no measurable change" for navigation links that
+     visibly respond, so the pseudo-elements are sampled too. */
   const read = () => page.evaluate(([sel, props]) => {
     const e = document.querySelector(sel);
-    const cs = getComputedStyle(e);
     const o = {};
-    for (const p of props) o[p] = cs[p];
+    for (const [tag, pseudo] of [["", null], ["::before", "::before"], ["::after", "::after"]]) {
+      const cs = getComputedStyle(e, pseudo);
+      if (pseudo && cs.content === "none") continue;
+      for (const p of props) o[tag + p] = cs[p];
+    }
     return o;
   }, [c.sel, WATCH]);
 

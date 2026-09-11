@@ -169,3 +169,9 @@ await b.close();
 if (notes.length) console.log(`\nFOCAL composition notes (pinned stations, not late reveals):\n  ` + notes.join("\n  "));
 console.log(fails.length ? `\nFOCAL: ${fails.length} late reveal(s)\n  ` + fails.join("\n  ")
                          : "\nFOCAL: 0 late reveals - every travelling reveal completes inside its focal zone");
+
+/* EXIT CONTRACT — 0 assertions passed · 1 assertions failed · 2 setup or
+   infrastructure error. This gate previously printed its failures and then
+   fell off the end of the file, which exits 0: in CI it could report a
+   defect and still be read as a pass. Proven by execution, not by reading. */
+process.exit(fails.length ? 1 : 0);

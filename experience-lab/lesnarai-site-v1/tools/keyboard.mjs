@@ -8,6 +8,7 @@
    passes a source grep and fails a person with a keyboard. */
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readdirSync, statSync } from "node:fs";
 const HERE = fileURLToPath(new URL(".", import.meta.url));
 const ROOT = join(HERE, "..");
 const PW = [process.env.PLAYWRIGHT_PATH,
@@ -17,9 +18,29 @@ let chromium = null;
 for (const p of PW) { try { ({ chromium } = await import(p)); break; } catch {} }
 if (!chromium) { console.error("playwright not found"); process.exit(2); }
 const BASE = process.env.CLS_BASE || "http://127.0.0.1:4210";
-const PATH = process.argv[2] || "/";
+/* COVERAGE. This gate tested "/" only - 32 stops in 2 seconds - and was
+   being reported as site-wide keyboard proof. The forms on /book/ and
+   /contact/ were never traversed at all. Pages are derived by walking for
+   index.html, the same way cls.mjs and theme.mjs do, so the list cannot
+   drift; a single path may still be passed as an argument. */
+const arg1 = process.argv[2] && !process.argv[2].startsWith("-") ? process.argv[2] : null;
+function discover() {
+  const out = [];
+  (function walk(dir, url) {
+    for (const e of readdirSync(dir)) {
+      const f = join(dir, e);
+      if (statSync(f).isDirectory()) { if (!/^(node_modules|tools|media|\.git)$/.test(e)) walk(f, url + e + "/"); }
+      else if (e === "index.html") out.push(url);
+    }
+  })(ROOT, "/");
+  return out.sort();
+}
+const PATHS = arg1 ? [arg1] : discover();
 
 const browser = await chromium.launch();
+const perPage = [];
+let invisibleAll = [], offscreenAll = [];
+for (const PATH of PATHS) {
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
 const page = await ctx.newPage();
 await page.route("**/api/status*", r => r.fulfill({ status: 500, body: "x" }));
@@ -68,14 +89,25 @@ for (let i = 0; i < 60; i++) {
   if (info.w < 2 || info.h < 2) offscreen.push(`${info.tag}.${info.cls} (${info.w}x${info.h})`);
 }
 
-await browser.close();
-console.log(`  ${stops} keyboard stops on ${PATH}`);
-if (invisible.length) {
-  console.log(`  ${invisible.length} with no visible focus indicator:`);
-  invisible.slice(0, 8).forEach(x => console.log(`     ${x}`));
-} else console.log("  every stop shows a measurable focus state");
-if (offscreen.length) {
-  console.log(`  ${offscreen.length} with no usable focus target:`);
-  offscreen.slice(0, 6).forEach(x => console.log(`     ${x}`));
+await ctx.close();
+perPage.push({ PATH, stops, invisible: invisible.length, offscreen: offscreen.length });
+invisibleAll = invisibleAll.concat(invisible.map(x => `${PATH}  ${x}`));
+offscreenAll = offscreenAll.concat(offscreen.map(x => `${PATH}  ${x}`));
 }
-process.exit(invisible.length || offscreen.length ? 1 : 0);
+await browser.close();
+
+for (const r of perPage)
+  console.log(`  ${String(r.stops).padStart(3)} stops  ${r.PATH.padEnd(32)}` +
+              `${r.invisible ? "  " + r.invisible + " with no focus indicator" : ""}` +
+              `${r.offscreen ? "  " + r.offscreen + " unfocusable" : ""}`);
+console.log(`\n  ${perPage.length} page(s), ${perPage.reduce((a, r) => a + r.stops, 0)} keyboard stops`);
+if (invisibleAll.length) {
+  console.log(`  ${invisibleAll.length} with no visible focus indicator:`);
+  invisibleAll.slice(0, 10).forEach(x => console.log(`     ${x}`));
+} else console.log("  every stop shows a measurable focus state");
+if (offscreenAll.length) {
+  console.log(`  ${offscreenAll.length} with no usable focus target:`);
+  offscreenAll.slice(0, 8).forEach(x => console.log(`     ${x}`));
+}
+/* 0 assertions passed · 1 assertions failed · 2 setup error */
+process.exit(invisibleAll.length || offscreenAll.length ? 1 : 0);

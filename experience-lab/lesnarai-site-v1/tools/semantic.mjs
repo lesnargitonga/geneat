@@ -184,3 +184,9 @@ const bad  = m => { fail.push(m); console.log("  FAIL " + m); };
 }
 await b.close();
 console.log(fail.length ? `\nSEMANTIC: ${fail.length} failure(s)` : "\nSEMANTIC: 0 truth-copy contradictions, 0 interaction disagreements");
+
+/* EXIT CONTRACT — 0 assertions passed · 1 assertions failed · 2 setup or
+   infrastructure error. This gate previously printed its failures and then
+   fell off the end of the file, which exits 0: in CI it could report a
+   defect and still be read as a pass. Proven by execution, not by reading. */
+process.exit(fail.length ? 1 : 0);

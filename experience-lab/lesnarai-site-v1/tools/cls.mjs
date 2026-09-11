@@ -44,6 +44,8 @@ if (!chromium) {
 }
 
 const BASE = process.env.CLS_BASE || "http://127.0.0.1:4210";
+const PER_MEASURE_MS = 45000;  /* one page × viewport × motion measurement */
+const INFRA_LIMIT = 5;         /* diagnose, do not persist heroically */
 const INVESTIGATE = 0.02, FAIL = 0.05, BLOCKER = 0.10;
 
 const VIEWPORTS = [
@@ -163,19 +165,43 @@ async function measure(browser, path, [w, h], motion) {
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e.message).slice(0, 120)));
 
-  await page.goto(BASE + path, { waitUntil: "networkidle" });
-  await exercise(page, h);
-
-  const r = await page.evaluate(() => ({ cls: window.__cls, shifts: window.__shifts }));
-  await ctx.close();
-  return { ...r, apiFailures, errors };
+  /* A measurement must fail LOCALLY and say where. Previously a closed target
+     threw out of exercise(), ctx.close() never ran, the exception did not end
+     the process because the live browser kept the event loop open, and the run
+     hung until an external watchdog killed it 15 minutes later without naming
+     the page, viewport or motion mode. Every measurement now carries its own
+     status; infrastructure failure is data, not a crash. */
+  let timer = null;
+  try {
+    const work = (async () => {
+      await page.goto(BASE + path, { waitUntil: "networkidle" });
+      await exercise(page, h);
+      return page.evaluate(() => ({ cls: window.__cls, shifts: window.__shifts }));
+    })();
+    const bound = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`exceeded ${PER_MEASURE_MS}ms`)), PER_MEASURE_MS);
+    });
+    const r = await Promise.race([work, bound]);
+    return { status: "ok", cls: r.cls, shifts: r.shifts, apiFailures, errors, infra: null };
+  } catch (e) {
+    return { status: "infra", cls: null, shifts: [], apiFailures, errors,
+             infra: `${path} ${w}x${h} ${motion}: ${String(e.message).split("\n")[0].slice(0, 110)}` };
+  } finally {
+    if (timer) clearTimeout(timer);          /* never outlive the measurement */
+    await ctx.close().catch(() => {});
+  }
 }
 
 const verdict = (v) => v > BLOCKER ? "BLOCKER" : v > FAIL ? "FAIL"
                      : v > INVESTIGATE ? "investigate" : "ok";
 
 const browser = await chromium.launch();
+/* no live Playwright resource may outlive a fatal error in this file */
+for (const sig of ["uncaughtException", "unhandledRejection"])
+  process.on(sig, async (e) => { console.error(`\nCLS: fatal ${sig}: ${e && e.message}`);
+    await browser.close().catch(() => {}); process.exit(2); });
 const rows = [];
+const infra = [];
 let worst = { cls: -1 };
 
 for (const path of PAGES) {
@@ -185,17 +211,31 @@ for (const path of PAGES) {
       let last = null;
       for (let i = 0; i < RUNS; i++) {
         last = await measure(browser, path, [w, h], motion);
-        runs.push(last.cls);
+        /* every run keeps its own status - reading only the LAST run would
+           discard an infrastructure failure that happened on an earlier one */
+        if (last.status === "infra") infra.push(`run ${i + 1}/${RUNS} ${last.infra}`);
+        else runs.push(last.cls);
       }
-      const max = Math.max(...runs);
-      const row = { path, w, h, motion, runs, max, v: verdict(max),
+      /* no usable measurement is UNMEASURED, which is never "ok" */
+      const measured = runs.filter((v) => typeof v === "number" && isFinite(v));
+      const max = measured.length ? Math.max(...measured) : null;
+      const row = { path, w, h, motion, runs: measured, max,
+                    v: max === null ? "UNMEASURED" : verdict(max),
                     shifts: last.shifts, api: last.apiFailures, errors: last.errors };
       rows.push(row);
-      if (max > worst.cls) worst = { ...row, cls: max };
+      if (max !== null && max > worst.cls) worst = { ...row, cls: max };
+      if (infra.length >= INFRA_LIMIT) {
+        console.log(`\nABORTING: ${infra.length} infrastructure failures - the runner is broken, not the page`);
+        for (const i2 of infra) console.log("   " + i2);
+        await browser.close().catch(() => {});
+        process.exit(2);
+      }
 
       if (row.v !== "ok" || ATTRIBUTE) {
-        const range = RUNS > 1
-          ? `${Math.min(...runs).toFixed(4)}–${max.toFixed(4)}`
+        /* UNMEASURED has no number; it must never be formatted as one, and
+           must never read as a pass. */
+        const range = max === null ? "unmeasured"
+          : RUNS > 1 ? `${Math.min(...measured).toFixed(4)}–${max.toFixed(4)}`
           : max.toFixed(4);
         console.log(`${row.v.toUpperCase().padEnd(11)} ${path.padEnd(30)} ` +
                     `${(w + "x" + h).padEnd(9)} ${motion.padEnd(14)} ${range}`);
@@ -215,14 +255,15 @@ for (const path of PAGES) {
 }
 await browser.close();
 
-const bad = rows.filter(r => r.max > FAIL);
-const watch = rows.filter(r => r.max > INVESTIGATE && r.max <= FAIL);
+const unmeasured = rows.filter(r => r.max === null);
+const bad = rows.filter(r => r.max !== null && r.max > FAIL);
+const watch = rows.filter(r => r.max !== null && r.max > INVESTIGATE && r.max <= FAIL);
 const api = [...new Set(rows.flatMap(r => r.api))];
 
 console.log(`\n${rows.length} combinations · ${PAGES.length} pages · ` +
             `${VIEWS.length} viewports · ${MOTIONS.length} motion modes` +
             (RUNS > 1 ? ` · ${RUNS} runs each` : ""));
-console.log(`worst: ${worst.cls.toFixed(4)}  ${worst.path} ` +
+console.log(worst.cls < 0 ? `worst: none measured` : `worst: ${worst.cls.toFixed(4)}  ${worst.path} ` +
             `${worst.w}x${worst.h} ${worst.motion}`);
 console.log(`${bad.length} over ${FAIL}, ${watch.length} between ${INVESTIGATE} and ${FAIL}`);
 if (api.length)
@@ -232,4 +273,19 @@ if (api.length)
 const errs = [...new Set(rows.flatMap(r => r.errors))];
 if (errs.length) console.log(`page errors: ${errs.join(" | ")}`);
 
+/* EXIT CONTRACT
+     0  every required measurement completed and every CLS threshold passed
+     1  every required measurement completed, one or more thresholds failed
+     2  infrastructure/setup failure left required coverage incomplete
+   124 belongs to an outer watchdog only, and means the run is broken, not
+   that the page is fine. An incomplete run is never a pass. */
+if (infra.length || unmeasured.length) {
+  console.log(`\nCLS: INCOMPLETE - ${unmeasured.length} combination(s) unmeasured, ` +
+              `${infra.length} infrastructure failure(s)`);
+  for (const i of infra.slice(0, 10)) console.log("   " + i);
+  process.exit(2);
+}
+console.log(bad.length
+  ? `\nCLS: ${bad.length} combination(s) over ${FAIL}`
+  : `\nCLS: all ${rows.length} combinations measured and within ${FAIL}`);
 process.exit(bad.length ? 1 : 0);
