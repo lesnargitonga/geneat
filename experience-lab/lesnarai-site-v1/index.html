@@ -3328,6 +3328,104 @@ html{background:var(--v-page)}
   .noev{border:0;border-radius:0;padding:0;margin-left:7px;font-size:9px;
     opacity:.75;letter-spacing:.08em;text-transform:none;font-style:italic}
 }
+
+/* ═══ ELEVEN SYSTEMS · A NEW REVEAL ══════════════════════════════════════
+   WHAT WAS WRONG. Filmed at --p 0.10 every one of the eleven names was
+   already readable, and the whole remaining scene only faded in borders,
+   connector lines and dots AROUND text that never arrived. The reader learned
+   nothing from 90% of the scroll. It was also built from exactly the
+   vocabulary that keeps failing: a vertical trunk, a drop line per card, a
+   rule that grows through each group label (striking the labels out), and a
+   coloured dot on every row.
+
+   THE NEW IDEA. The section is called "Eleven systems. Three kinds of work",
+   so the reveal is the CLASSIFICATION, performed rather than decorated.
+
+   At the start all eleven are the same: flat, unlifted, equally muted - which
+   is honestly what they are before you are told anything. As the scene runs,
+   the five that are live products LIFT: they take a surface, their names go
+   to full ink, and each states that it is a live product. The six held
+   systems deliberately do not lift. They stay flat and stay muted, and they
+   say HELD.
+
+   So what changes is the DIFFERENCE between them, and what the reader learns
+   is the thing the heading claims: which of these eleven are real products
+   you can open, and which are research that is not pretending otherwise.
+   Nothing is marked with a dot and nothing is joined by a line. Weight,
+   surface and the words do all of it. */
+
+/* the old diagram furniture, gone at every width */
+.map__trunk,.map__n li::before,.map__brh i,.sysnode__d{display:none}
+.sysnode{grid-template-columns:minmax(0,1fr)}
+
+/* the group name is a heading and nothing is drawn through it */
+.map__brh{gap:0;color:var(--v-fg);font-weight:600}
+
+/* every system starts flat; only a live one lifts */
+.map__n li{transform:none}
+.sysnode{position:relative;
+  background:transparent;border:1px solid transparent;box-shadow:none;
+  transition:transform 240ms var(--press)}
+.sysnode__t b{color:color-mix(in srgb,var(--v-fg) calc(38% + var(--n) * 62%),var(--v-fg-3))}
+.sysnode__t span{color:color-mix(in srgb,var(--v-fg-2) calc(45% + var(--n) * 55%),transparent)}
+
+.sysnode--live{
+  background:color-mix(in srgb,var(--v-surf) calc(var(--n) * 100%),transparent);
+  border-color:color-mix(in srgb,var(--v-rule) calc(var(--n) * 100%),transparent);
+  box-shadow:0 calc(var(--n) * 15px) calc(var(--n) * 26px) -20px rgba(var(--v-shadow),.55)}
+/* it says what it is, instead of carrying a dot that has to be decoded */
+.sysnode--live .sysnode__t b::before{content:"Live product";display:block;
+  margin-bottom:3px;font:600 8.5px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--v-fg-3);
+  opacity:var(--n)}
+.sysnode--held .sysnode__t b::before{content:"Held";display:block;
+  margin-bottom:3px;font:500 8.5px/1 M,"Mono Fallback",ui-monospace,monospace;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--v-fg-3);
+  opacity:calc(var(--n) * .8)}
+/* the held six never take a surface - that is the point of the group */
+.sysnode--held{background:transparent;border-color:transparent;box-shadow:none;
+  border-style:solid}
+.sysnode--flag .sysnode__t b::after{content:"Flagship"}
+.sysnode--held .sysnode__t b::after{content:none}
+
+.sysnode:hover,.sysnode:focus-visible{transform:translateX(4px)}
+.sysnode--live:hover,.sysnode--live:focus-visible{border-color:var(--v-fg)}
+@media(prefers-reduced-motion:reduce){.sysnode{transition:none}}
+
+/* ═══ ONE VOCABULARY, SITE-WIDE: SURFACE AND WEIGHT ══════════════════════
+   The other two product scenes were built from the same furniture the map
+   has just lost - a marker dot per step and a connector line joining them,
+   plus a rail, an arm per gate and a numbered circle on the CarePro scene.
+   They now say what they mean the same way the eleven systems do: the step
+   being shown takes a SURFACE and full ink, and the steps that are not
+   being shown stay flat. Nothing is marked with a dot. Nothing is joined by
+   a line. */
+
+/* ── BIZMTAANI · FIND / CHOOSE / ORDER ── */
+.brel li::before,.brel li::after{display:none}
+.brel li{padding:13px 14px;
+  background:color-mix(in srgb,var(--v-surf) calc(var(--n) * 100%),transparent);
+  box-shadow:0 calc(var(--n) * 12px) calc(var(--n) * 22px) -20px rgba(var(--v-shadow),.5)}
+.brel b{color:color-mix(in srgb,var(--v-fg) calc(36% + var(--n) * 64%),var(--v-fg-3))}
+
+/* ── CAREPRO · THE FOUR PUBLISHED STEPS ── */
+.gates{padding-left:0}
+/* gates__file was a token that travelled DOWN the rail - the purest form of
+   the vocabulary being removed, and with the rail gone it was left floating
+   over the second step's description. The flow row it sat in goes with it. */
+.gates__rail,.gates__fill,.gates__l li::before,.gates__st i,
+.gates__file,.gates__track{display:none}
+.gates__l li{padding:11px 13px;margin-bottom:5px;
+  background:color-mix(in srgb,var(--v-surf) calc(var(--n) * 100%),transparent);
+  border:1px solid color-mix(in srgb,var(--v-rule) calc(var(--n) * 100%),transparent);
+  box-shadow:0 calc(var(--n) * 12px) calc(var(--n) * 22px) -20px rgba(var(--v-shadow),.5)}
+.gates__l li:last-child{margin-bottom:0}
+/* the number is a number, not a token in a circle */
+.gates__n{position:static;width:auto;height:auto;border:0;border-radius:0;
+  background:none;display:block;margin:0 0 3px;place-items:start;
+  font:500 9px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.16em;
+  color:color-mix(in srgb,var(--v-fg-2) calc(40% + var(--n) * 60%),var(--v-fg-3))}
+.gates__st{padding-left:0}
 </style>
 </head>
 <body class="route-home">
