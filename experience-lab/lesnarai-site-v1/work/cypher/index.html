@@ -942,6 +942,38 @@ a,button,.cta,.lnk,.live-e,.held-e,.sys-open,.clip-play,.recs__more a,
    cross, and the UA's light canvas showed through the gap as a white
    flash. The page paints its own root, following the same token. */
 html{background:var(--sheet)}
+
+/* ── MOBILE HEADER · REBUILT ─────────────────────────────────────────────
+   The bar carried five things on a phone - brand, Work, Start, Menu and the
+   theme control - and the last three were adjacent bordered boxes. That is
+   desktop navigation squeezed onto a 390px screen.
+
+   The mobile architecture is now: brand, one primary action, menu.
+   - "Work" leaves the bar; it is already the first item in the panel.
+   - The theme control moves INTO the panel (it is now a child of <nav>), so
+     it is present where the rest of the secondary navigation is, and is not
+     a permanent third box in the bar.
+   - "Menu" loses its border, so "Start" is the single emphasised control.
+   Every target stays at or above 44px. */
+@media(max-width:719px){
+  :root[data-js] .nav-q--work{display:none}
+  :root[data-js] .site-head .w{gap:4px}
+  :root[data-js] .nav-q--go{margin-left:auto}
+  :root[data-js] .nav-t{border:0;padding:0 6px;gap:8px;min-width:auto}
+  /* the theme control now lives in the panel, as its last row */
+  :root[data-js] .site-head .site-nav .theme-t{
+    display:flex;align-items:center;justify-content:flex-start;gap:10px;
+    width:100%;min-height:48px;padding:0;margin:0;border:0;background:none;
+    color:inherit;font:600 15px/1 A,"Archivo Fallback",system-ui,sans-serif}
+  :root[data-js] .site-head .site-nav .theme-t__l{display:inline;min-width:0}
+  :root[data-js] .site-head .site-nav .theme-t:hover{background:none}
+  :root[data-js] .site-head .site-nav .theme-t:hover .theme-t__l{color:inherit}
+}
+/* on a wide screen it sits at the end of the navigation row */
+@media(min-width:720px){
+  .site-head .site-nav{align-items:center}
+  .site-head .site-nav .theme-t{margin-left:clamp(10px,1.6vw,22px)}
+}
 </style>
 <link rel="canonical" href="https://www.lesnarai.co.ke/work/cypher/">
 <meta property="og:type" content="website">
@@ -966,7 +998,7 @@ html{background:var(--sheet)}
     <a class="nav-q nav-q--work" href="../../work/">Work</a>
     <a class="nav-q nav-q--go" href="../../book/">Start</a>
     <button class="nav-t" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open navigation"><span class="nav-t__b" aria-hidden="true"></span><span class="nav-t__l">Menu</span></button>
-    <button class="theme-t" type="button" aria-pressed="false" title="Switch between light and dark"><span class="theme-t__i" aria-hidden="true"></span><span class="theme-t__l">Dark</span></button><nav class="site-nav" id="site-nav" aria-label="Main"><a href="../../">Home</a><a href="../../work/" aria-current="page">Work</a><a href="../../services/">Services</a><a href="../../about/">About</a><a href="../../book/">Book</a></nav>
+    <nav class="site-nav" id="site-nav" aria-label="Main"><a href="../../">Home</a><a href="../../work/" aria-current="page">Work</a><a href="../../services/">Services</a><a href="../../about/">About</a><a href="../../book/">Book</a><button class="theme-t" type="button" aria-pressed="false" title="Switch between light and dark"><span class="theme-t__i" aria-hidden="true"></span><span class="theme-t__l">Dark</span></button></nav>
   </div>
 </header>
 <main id="main" tabindex="-1">

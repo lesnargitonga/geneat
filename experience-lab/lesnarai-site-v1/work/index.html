@@ -1204,6 +1204,69 @@ html{background:var(--sheet)}
   .route-work .kicker,.route-work h1,.route-work .lede,
   .reg-band__h::after,.route-work .page > .w::before{transform:none}
 }
+
+/* ── MOBILE HEADER · REBUILT ─────────────────────────────────────────────
+   The bar carried five things on a phone - brand, Work, Start, Menu and the
+   theme control - and the last three were adjacent bordered boxes. That is
+   desktop navigation squeezed onto a 390px screen.
+
+   The mobile architecture is now: brand, one primary action, menu.
+   - "Work" leaves the bar; it is already the first item in the panel.
+   - The theme control moves INTO the panel (it is now a child of <nav>), so
+     it is present where the rest of the secondary navigation is, and is not
+     a permanent third box in the bar.
+   - "Menu" loses its border, so "Start" is the single emphasised control.
+   Every target stays at or above 44px. */
+@media(max-width:719px){
+  :root[data-js] .nav-q--work{display:none}
+  :root[data-js] .site-head .w{gap:4px}
+  :root[data-js] .nav-q--go{margin-left:auto}
+  :root[data-js] .nav-t{border:0;padding:0 6px;gap:8px;min-width:auto}
+  /* the theme control now lives in the panel, as its last row */
+  :root[data-js] .site-head .site-nav .theme-t{
+    display:flex;align-items:center;justify-content:flex-start;gap:10px;
+    width:100%;min-height:48px;padding:0;margin:0;border:0;background:none;
+    color:inherit;font:600 15px/1 A,"Archivo Fallback",system-ui,sans-serif}
+  :root[data-js] .site-head .site-nav .theme-t__l{display:inline;min-width:0}
+  :root[data-js] .site-head .site-nav .theme-t:hover{background:none}
+  :root[data-js] .site-head .site-nav .theme-t:hover .theme-t__l{color:inherit}
+}
+/* on a wide screen it sits at the end of the navigation row */
+@media(min-width:720px){
+  .site-head .site-nav{align-items:center}
+  .site-head .site-nav .theme-t{margin-left:clamp(10px,1.6vw,22px)}
+}
+
+/* ── STATIC MOBILE COMPOSITION ───────────────────────────────────────────
+   1 · THE HEADLINE. font-size:max(clamp(2.4rem,7.2vw,6rem), calc(3.2rem +
+   4.4vw)) has a 51px constant inside the growth term, so the growth term wins
+   at EVERY width, not just on a large screen. On a 390px phone it resolved to
+   68px and put five lines of headline into the whole first screen. The clamp
+   is allowed to do its job below 720px.
+
+   2 · EVIDENCE. Each row showed a 1440px-wide page capture rendered 359px
+   wide - the product's own UI at a quarter of legible size. The capture is
+   now cropped rather than shrunk: the image is laid out at 190% of the frame
+   and the frame clips it, so the reader sees the top-left of the real surface
+   at nearly twice the scale. These are the same source pixels, cropped. No
+   interface is redrawn.
+
+   3 · The proposition outranks the status: the product name and what it does
+   come first, and the host and reachability readout sit under them. */
+@media(max-width:719px){
+  .route-work h1{font-size:clamp(2.1rem,8.6vw,3rem);max-width:none;line-height:1.02}
+  .route-work .lede{font-size:16px}
+
+  .live-e__shot{aspect-ratio:16/9}
+  .live-e__shot img{width:190%;height:auto;max-width:none;object-fit:fill}
+  .live-e:hover .live-e__shot img,.live-e:focus-visible .live-e__shot img{transform:none}
+
+  /* the readout is evidence, not the headline of the row */
+  .live-e__host{font-size:11px;opacity:.85}
+  /* and the register's own method note is subordinate to the register */
+  .regscan{margin-top:1.6rem;font-size:10px;opacity:.9}
+  .regscan__t{min-height:0}
+}
 </style>
 <link rel="canonical" href="https://www.lesnarai.co.ke/work/">
 <meta property="og:type" content="website">
@@ -1228,7 +1291,7 @@ html{background:var(--sheet)}
     <a class="nav-q nav-q--work" href="../work/">Work</a>
     <a class="nav-q nav-q--go" href="../book/">Start</a>
     <button class="nav-t" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open navigation"><span class="nav-t__b" aria-hidden="true"></span><span class="nav-t__l">Menu</span></button>
-    <button class="theme-t" type="button" aria-pressed="false" title="Switch between light and dark"><span class="theme-t__i" aria-hidden="true"></span><span class="theme-t__l">Dark</span></button><nav class="site-nav" id="site-nav" aria-label="Main"><a href="../">Home</a><a href="../work/" aria-current="page">Work</a><a href="../services/">Services</a><a href="../about/">About</a><a href="../book/">Book</a></nav>
+    <nav class="site-nav" id="site-nav" aria-label="Main"><a href="../">Home</a><a href="../work/" aria-current="page">Work</a><a href="../services/">Services</a><a href="../about/">About</a><a href="../book/">Book</a><button class="theme-t" type="button" aria-pressed="false" title="Switch between light and dark"><span class="theme-t__i" aria-hidden="true"></span><span class="theme-t__l">Dark</span></button></nav>
   </div>
 </header>
 <main id="main" tabindex="-1">
@@ -1252,9 +1315,7 @@ html{background:var(--sheet)}
   <div class="reg-band" data-scene="focal" data-focus=".live-list,.held-list">
   <div class="reg-band__h">
     <h2>Flagship products</h2>
-    <p>The three with a public surface and the deepest evidence behind them. Each is
-        contacted from your browser as you reach it, so the state is reachability now,
-        never an uptime record.</p>
+    <p>The three with a public surface and the deepest evidence behind them.</p>
     <span class="reg-band__n">01&ndash;03</span>
   </div>
   <ul class="live-list"><li><a class="live-e" href="bizmtaani/" data-probe="bizmtaani.com"><span class="live-e__n">01</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/bizmtaani-760.webp 760w, ../media/bizmtaani.webp 1440w"><img src="../media/bizmtaani.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/bizmtaani-760.jpg 760w, ../media/bizmtaani.jpg 1440w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>BizMtaani</h3><span class="a-sep">. </span><p>A neighbourhood marketplace: local shops list what they sell, customers order and pay from a phone, and riders carry the order.</p><span class="live-e__host">bizmtaani.com &middot; <span class="pv">not yet checked</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="carepro/" data-probe="carepro.co.ke"><span class="live-e__n">02</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/carepro-760.webp 760w, ../media/carepro.webp 1280w"><img src="../media/carepro.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/carepro-760.jpg 760w, ../media/carepro.jpg 1280w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>CarePro</h3><span class="a-sep">. </span><p>Book a vetted nurse to care for someone at home, with payment arranged through the platform.</p><span class="live-e__host">carepro.co.ke &middot; <span class="pv">not yet checked</span></span></span><span class="live-e__s">Live product</span></a></li><li><a class="live-e" href="jamii-projects-hub/" data-probe="jamii.lesnarai.co.ke"><span class="live-e__n">03</span><span class="a-sep">. </span><figure class="live-e__shot"><picture><source type="image/webp" sizes="(max-width:900px) 92vw, 240px" srcset="../media/jamii-live-760.webp 760w, ../media/jamii-live.webp 1440w"><img src="../media/jamii-live.jpg" sizes="(max-width:900px) 92vw, 240px" srcset="../media/jamii-live-760.jpg 760w, ../media/jamii-live.jpg 1440w" alt="" width="480" height="300" loading="lazy" decoding="async"></picture></figure><span class="live-e__b"><h3>Jamii Projects Hub</h3><span class="a-sep">. </span><p>See what projects your community is planning, vote on what matters, and keep clear records for a family, chama or welfare group.</p><span class="live-e__host">jamii.lesnarai.co.ke &middot; <span class="pv">not yet checked</span></span></span><span class="live-e__s">Live product</span></a></li></ul>
