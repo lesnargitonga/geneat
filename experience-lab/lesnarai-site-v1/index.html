@@ -3426,6 +3426,139 @@ html{background:var(--v-page)}
   font:500 9px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.16em;
   color:color-mix(in srgb,var(--v-fg-2) calc(40% + var(--n) * 60%),var(--v-fg-3))}
 .gates__st{padding-left:0}
+
+/* ═══ THE EVIDENCE TRAVELS ═══════════════════════════════════════════════
+   Measured across their whole reveal, the scenes changed: BizMtaani 170% of
+   a viewport, the eleven systems 29%, CarePro 18%, Jamii 1%. BizMtaani is
+   the one that works, and the reason is now obvious - the thing that moves
+   there is the EVIDENCE, two real captured frames. The others only ever
+   moved their decoration, so removing the dots and rails removed the motion
+   with them.
+
+   So the capture itself moves. CarePro's published panel is 1250x1417 - far
+   taller than the frame it sits in - and each of the four steps names a band
+   inside it. Instead of drawing a box on a picture that never moves, the
+   picture TRAVELS to the band being named, and stops on it.
+
+   It is the largest object in the scene, so it is the largest motion in the
+   scene. It is caused by the step you are reading. And it does a second job
+   for free: the window shows 55% of the panel instead of all of it, so the
+   band you are being told about is legible rather than thumbnail-sized.
+
+   The marks ride inside the same travelling element, so they stay registered
+   to the pixels they outline. */
+.ev-port{display:block;position:relative;overflow:hidden;aspect-ratio:16/10;
+  border:1px solid var(--v-rule);background:var(--v-page)}
+.ev-port .ev-shot{display:block;
+  transition:transform 420ms cubic-bezier(.22,.9,.3,1)}
+.ev-port .ev-shot img{border:0;display:block;width:100%;height:auto}
+/* A mark in a travelling frame must be visible ONLY while the frame is
+   stopped on its band. Driving that from the mark's own scroll bands was
+   approximate: at 1024x768 the "04" label was still opaque while its band
+   was below the window, so it sat outside the port - clipped and invisible,
+   but with a box that landed on the caption underneath.
+
+   So the marks are driven by the SAME ramps that move the picture. Each one
+   is (arrived at its stop) minus (left for the next), which makes exactly
+   one mark visible at a time and makes it impossible for a mark and the
+   frame to disagree, at any viewport. */
+.ev-port .ev-mark{opacity:0}
+/* A mark must not appear while the frame is still travelling toward its
+   band, or it is outlining something off-screen: tied directly to the ramp,
+   mark 04 was already 20% opaque when the picture was only 20% of the way to
+   it, which at 390 and 430 put its label below the window and onto the
+   caption. So arriving lags the move and leaving leads it: a mark is opaque
+   only over the last quarter of the travel toward its band, and clears in
+   the first quarter of the travel away from it. */
+.care__ev .ev-port .ev-shot{
+  --in1:clamp(0, calc((var(--s1) - .75) / .25), 1);
+  --in2:clamp(0, calc((var(--s2) - .75) / .25), 1);
+  --in3:clamp(0, calc((var(--s3) - .75) / .25), 1);
+  --go1:clamp(0, calc(var(--s1) / .25), 1);
+  --go2:clamp(0, calc(var(--s2) / .25), 1);
+  --go3:clamp(0, calc(var(--s3) / .25), 1)}
+.care__ev .ev-port .ev-mark:nth-of-type(1){opacity:calc(1 - var(--go1))}
+.care__ev .ev-port .ev-mark:nth-of-type(2){opacity:calc(var(--in1) - var(--go2))}
+.care__ev .ev-port .ev-mark:nth-of-type(3){opacity:calc(var(--in2) - var(--go3))}
+.care__ev .ev-port .ev-mark:nth-of-type(4){opacity:var(--in3)}
+.jam__ev .ev-port .ev-shot{
+  --inz:clamp(0, calc((var(--z1) - .75) / .25), 1);
+  --goz:clamp(0, calc(var(--z2) / .25), 1);
+  --inz2:clamp(0, calc((var(--z2) - .75) / .25), 1)}
+.jam__ev .ev-port .ev-mark:nth-of-type(1){opacity:calc(var(--inz) - var(--goz))}
+.jam__ev .ev-port .ev-mark:nth-of-type(2){opacity:var(--inz2)}
+/* The label sat ABOVE the band it names, which is fine on a picture that
+   never moves and wrong inside a travelling window: whenever the band sits
+   near an edge the label lands outside the port - clipped, invisible, but
+   still carrying a box that carried onto the caption below. Inside a
+   travelling frame the label goes INSIDE its band, so it cannot be anywhere
+   its band is not. */
+.ev-port .ev-mark b{top:0;transform:none;left:0}
+.ev-port .ev-mark{display:flex;align-items:flex-start}
+
+/* the four stops, taken from the same band geometry the marks are cut from:
+   each step's band, centred in the window */
+.care__ev .ev-port .ev-shot{
+  --s1:clamp(0, calc((var(--p) - .28) / .08), 1);
+  --s2:clamp(0, calc((var(--p) - .50) / .08), 1);
+  --s3:clamp(0, calc((var(--p) - .72) / .08), 1);
+  --pan:calc(10.75 * var(--s1) + 16.3 * var(--s2) + 16.25 * var(--s3));
+  transform:translate3d(0, calc(var(--pan) * -1%), 0)}
+@media(prefers-reduced-motion:reduce){
+  .ev-port{aspect-ratio:auto}
+  .ev-port .ev-shot{transform:none;transition:none}
+}
+
+/* ── JAMII · THE CAPTURE CLOSES IN ───────────────────────────────────────
+   Jamii measured 1% change across its entire reveal: nothing happened at all.
+   Its capture is landscape and fits its frame whole, so there is nothing to
+   pan through - but both stages it names live in one panel on the right of
+   the page. So the move is a close-in rather than a travel: the reader is
+   shown the whole product first, then the frame closes on the panel, then it
+   shifts from the project's fields to its vote tally.
+
+   Same rule as CarePro: the largest object in the scene is what moves, the
+   step being read is what moves it, and the result is that the thing being
+   described is finally big enough to read. */
+.jam__ev .ev-port .ev-shot{
+  --z1:clamp(0, calc((var(--p) - .06) / .14), 1);
+  --z2:clamp(0, calc((var(--p) - .48) / .14), 1);
+  --zoom:calc(1 + .95 * var(--z1));
+  --tx:calc(49.5 * var(--z1));
+  --ty:calc(25.7 * var(--z1) - 13.75 * var(--z2));
+  transform-origin:0 0;
+  transform:scale(var(--zoom)) translate(calc(var(--tx) * -1%), calc(var(--ty) * -1%))}
+/* the outline scales with the pixels it outlines; its label should not */
+.jam__ev .ev-port .ev-mark{border-width:calc(1.5px / var(--zoom,1))}
+.jam__ev .ev-port .ev-mark b{
+  transform:translateY(-100%) scale(calc(1 / var(--zoom,1)));
+  transform-origin:0 100%}
+@media(prefers-reduced-motion:reduce){
+  .jam__ev .ev-port .ev-shot{transform:none}
+  .jam__ev .ev-port .ev-mark b{transform:translateY(-100%)}
+}
+
+/* ── THE ELEVEN SYSTEMS · GIVE THE LIFT SOME TRAVEL ──────────────────────
+   The classification idea is right but it was only a surface fading in, so
+   it measured 29% of a viewport across the whole scene. A lift should look
+   like a lift: a live product now rises as it takes its surface, and the
+   held six settle back very slightly as the live ones come forward. Five
+   large elements actually move, and the two groups end up on visibly
+   different planes - which is the point the section is making. */
+.map__n li{will-change:transform}
+.sysnode--live{
+  transform:translate3d(0, calc((1 - var(--n)) * 14px), 0)
+            scale(calc(.985 + var(--n) * .015))}
+.sysnode--held{
+  transform:scale(calc(1 - var(--n) * .012));
+  opacity:calc(.62 + (1 - var(--n)) * .38)}
+.sysnode--live:hover,.sysnode--live:focus-visible{
+  transform:translate3d(4px,0,0) scale(1)}
+.sysnode--held:hover,.sysnode--held:focus-visible{
+  transform:translate3d(4px,0,0) scale(1);opacity:1}
+@media(prefers-reduced-motion:reduce){
+  .sysnode--live,.sysnode--held{transform:none}
+}
 </style>
 </head>
 <body class="route-home">
@@ -3671,13 +3804,13 @@ html{background:var(--v-page)}
            product's own layout no longer renders at the proportion the earlier
            pair was cut to, and the whole panel is worth more than the old
            geometry: nothing is cropped, upscaled or enhanced. -->
-      <span class="ev-shot"><img src="media/carepro-panel.jpg" alt="CarePro's published verification panel: credentials, registry check, interview and clinical sign-off." width="1250" height="1417" loading="lazy" decoding="async">
+      <span class="ev-port"><span class="ev-shot"><img src="media/carepro-panel.jpg" alt="CarePro's published verification panel: credentials, registry check, interview and clinical sign-off." width="1250" height="1417" loading="lazy" decoding="async">
         <!-- read off the capture: the four bands CarePro publishes -->
-        <i class="ev-mark st" style="--a:.06;--b:.26;--c:.36;--d:.14;--t:11.7;--h:16.7"><b>01</b></i>
-        <i class="ev-mark st" style="--a:.28;--b:.26;--c:.58;--d:.14;--t:32.1;--h:12.3"><b>02</b></i>
-        <i class="ev-mark st" style="--a:.50;--b:.26;--c:.80;--d:.14;--t:48.4;--h:12.3"><b>03</b></i>
-        <i class="ev-mark st" style="--a:.72;--b:.26;--t:64.5;--h:12.6"><b>04</b></i>
-      </span>
+        <i class="ev-mark st" style="--a:.04;--b:.14;--c:.28;--d:.08;--t:11.7;--h:16.7"><b>01</b></i>
+        <i class="ev-mark st" style="--a:.36;--b:.12;--c:.50;--d:.08;--t:32.1;--h:12.3"><b>02</b></i>
+        <i class="ev-mark st" style="--a:.58;--b:.10;--c:.72;--d:.08;--t:48.4;--h:12.3"><b>03</b></i>
+        <i class="ev-mark st" style="--a:.80;--b:.10;--t:64.5;--h:12.6"><b>04</b></i>
+      </span></span>
       <figcaption>The panel as CarePro publishes it &middot; captured surface</figcaption>
     </figure>
   </div>
@@ -3720,7 +3853,7 @@ html{background:var(--v-page)}
     </div>
 
     <figure class="jam__ev" data-fp>
-      <span class="ev-shot"><picture>
+      <span class="ev-port"><span class="ev-shot"><picture>
         <source media="(max-width:640px)" srcset="media/jamii-card-m.jpg" width="1200" height="880">
         <source srcset="media/jamii-surface-full.webp" type="image/webp">
         <img src="media/jamii-surface-full.jpg" alt="The Jamii Projects Hub homepage, showing a community project open for voting." width="1440" height="900" loading="lazy" decoding="async">
@@ -3728,9 +3861,9 @@ html{background:var(--v-page)}
       <!-- read off the capture: the proposal's fields, and the vote tally.
            Review and Report are stages the record holds that this public
            capture does not display, and the two rows say so. -->
-      <i class="ev-mark evm-prop st" style="--a:.04;--b:.28;--c:.34;--d:.14"><b>PROPOSAL</b></i>
-      <i class="ev-mark evm-vote st" style="--a:.48;--b:.28"><b>VOTE</b></i>
-      </span>
+      <i class="ev-mark evm-prop st" style="--a:.20;--b:.14;--c:.48;--d:.12"><b>PROPOSAL</b></i>
+      <i class="ev-mark evm-vote st" style="--a:.62;--b:.14"><b>VOTE</b></i>
+      </span></span>
       <figcaption>jamii.lesnarai.co.ke &middot; captured surface</figcaption>
     </figure>
   </div>

@@ -85,6 +85,18 @@ function scan([oxMin, oyMin]) {
     let hidden = false, an = pe;
     while (an && an !== document.body) {
       const acs = getComputedStyle(an), ab = an.getBoundingClientRect();
+      /* opacity composites the whole subtree, so a transparent ANCESTOR makes
+         this text invisible even though the text's own parent is opaque. The
+         check above only looks at the immediate parent, which let a mark at
+         opacity 0 - clipped, and 4984px off-screen - report as a collision. */
+      if (parseFloat(acs.opacity) < 0.08) { hidden = true; break; }
+      /* a full-size overflow:hidden ancestor clips what lies outside it just
+         as surely as the 1px screen-reader box below does */
+      if (acs.overflow === "hidden" && ab.width > 2 && ab.height > 2) {
+        const rr = pe.getBoundingClientRect();
+        if (rr.bottom <= ab.top || rr.top >= ab.bottom ||
+            rr.right <= ab.left || rr.left >= ab.right) { hidden = true; break; }
+      }
       if ((ab.width <= 2 || ab.height <= 2) && acs.overflow === "hidden") { hidden = true; break; }
       if (acs.clip && acs.clip !== "auto" && /rect\(\s*0/.test(acs.clip)) { hidden = true; break; }
       if (acs.clipPath && acs.clipPath.indexOf("inset(50%") !== -1) { hidden = true; break; }
