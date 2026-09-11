@@ -3559,6 +3559,46 @@ html{background:var(--v-page)}
 @media(prefers-reduced-motion:reduce){
   .sysnode--live,.sysnode--held{transform:none}
 }
+
+/* ── THE COMPANY SECTION MUST FIT THE STAGE IT IS PINNED IN ──────────────
+   Caught by tools/usability.mjs, which I had stopped running: at 360x800 the
+   composition needed 814px inside a 731px stage, and at 390x844 it needed
+   792px inside 772px. overflow:hidden was quietly eating the difference, and
+   what it ate was .map__all - "All eleven, with what each proves" - the
+   section's only route to the register, 42px below the fold and untappable.
+   My own ad-hoc fit check had said it fits, because it measured the wrong
+   element at a different scroll position.
+
+   The composition is trimmed to fit rather than the stage stretched: the
+   stage is bounded by the viewport, so on a short phone there is nothing to
+   stretch it with. Every target stays at or above 42px. */
+@media(max-width:400px){
+  .map__core{margin-bottom:8px}
+  .map__br + .map__br{margin-top:12px}
+  .map__brh{margin:0 0 6px}
+  .sysnode{min-height:42px;padding:7px 10px 7px 9px}
+  .sysnode__t span{margin-top:1px;font-size:11px}
+  .map__br:last-of-type .sysnode{min-height:34px;padding:5px 8px}
+  .map__br:last-of-type .map__n{gap:4px 6px}
+  .map__n{gap:5px}
+  .map__all{margin-top:10px}
+  .map__all .btn{min-height:44px;padding:10px 12px}   /* 44 is the floor, not a suggestion */
+}
+/* At 360 the heading wraps to a second line, which costs 23px the stage does
+   not have. The type holds its size - it is the hierarchy - and the space
+   comes out of the held block and the supporting line instead. */
+@media(max-width:365px){
+  .ch2 .lede4{font-size:13.5px;line-height:1.4;margin-top:4px}
+  .ch2 h2{margin-top:4px}
+  .ch2 .map{margin-top:6px}
+  .sysnode__t span{line-height:1.3}
+  .map__n{gap:4px}
+  .map__br + .map__br{margin-top:10px}
+  .map__br:last-of-type .sysnode{min-height:32px}
+  .map__br:last-of-type .map__n{gap:3px 6px}
+  .map__core{margin-bottom:6px}
+  .map__all{margin-top:8px}
+}
 </style>
 </head>
 <body class="route-home">
@@ -3738,7 +3778,7 @@ html{background:var(--v-page)}
             <img src="media/biz/01-discovery-d.webp" alt="BizMtaani discovery: a search for a business, and the shops open near you." width="1100" height="687" loading="lazy" decoding="async">
           </picture>
           <!-- the search, and the shop it found -->
-          <i class="ev-mark evm-find st" style="--a:.03;--b:.20;--c:.26;--d:.16"><b>FIND</b></i>
+          <i class="ev-mark evm-find st" aria-hidden="true" style="--a:.03;--b:.20;--c:.26;--d:.16"><b>FIND</b></i>
           <figcaption><b>Find</b> Businesses open near you</figcaption>
         </figure>
         <figure class="bframe bframe--b">
@@ -3748,8 +3788,8 @@ html{background:var(--v-page)}
           </picture>
           <!-- the menu with its prices, and the order panel - which reads
                "Nothing added yet", because nothing was ordered for this page -->
-          <i class="ev-mark evm-choose st" style="--a:.34;--b:.24;--c:.64;--d:.16"><b>CHOOSE</b></i>
-          <i class="ev-mark evm-order st" style="--a:.68;--b:.26"><b>ORDER</b></i>
+          <i class="ev-mark evm-choose st" aria-hidden="true" style="--a:.34;--b:.24;--c:.64;--d:.16"><b>CHOOSE</b></i>
+          <i class="ev-mark evm-order st" aria-hidden="true" style="--a:.68;--b:.26"><b>ORDER</b></i>
           <figcaption><b>Choose</b> The shop&rsquo;s page, its items and its prices</figcaption>
         </figure>
       </div>
@@ -3804,12 +3844,12 @@ html{background:var(--v-page)}
            product's own layout no longer renders at the proportion the earlier
            pair was cut to, and the whole panel is worth more than the old
            geometry: nothing is cropped, upscaled or enhanced. -->
-      <span class="ev-port"><span class="ev-shot"><img src="media/carepro-panel.jpg" alt="CarePro's published verification panel: credentials, registry check, interview and clinical sign-off." width="1250" height="1417" loading="lazy" decoding="async">
+      <span class="ev-port"><span class="ev-shot" data-oneof="band"><img src="media/carepro-panel.jpg" alt="CarePro's published verification panel: credentials, registry check, interview and clinical sign-off." width="1250" height="1417" loading="lazy" decoding="async">
         <!-- read off the capture: the four bands CarePro publishes -->
-        <i class="ev-mark st" style="--a:.04;--b:.14;--c:.28;--d:.08;--t:11.7;--h:16.7"><b>01</b></i>
-        <i class="ev-mark st" style="--a:.36;--b:.12;--c:.50;--d:.08;--t:32.1;--h:12.3"><b>02</b></i>
-        <i class="ev-mark st" style="--a:.58;--b:.10;--c:.72;--d:.08;--t:48.4;--h:12.3"><b>03</b></i>
-        <i class="ev-mark st" style="--a:.80;--b:.10;--t:64.5;--h:12.6"><b>04</b></i>
+        <i class="ev-mark st" aria-hidden="true" style="--a:.04;--b:.14;--c:.28;--d:.08;--t:11.7;--h:16.7"><b>01</b></i>
+        <i class="ev-mark st" aria-hidden="true" style="--a:.36;--b:.12;--c:.50;--d:.08;--t:32.1;--h:12.3"><b>02</b></i>
+        <i class="ev-mark st" aria-hidden="true" style="--a:.58;--b:.10;--c:.72;--d:.08;--t:48.4;--h:12.3"><b>03</b></i>
+        <i class="ev-mark st" aria-hidden="true" style="--a:.80;--b:.10;--t:64.5;--h:12.6"><b>04</b></i>
       </span></span>
       <figcaption>The panel as CarePro publishes it &middot; captured surface</figcaption>
     </figure>
@@ -3853,7 +3893,7 @@ html{background:var(--v-page)}
     </div>
 
     <figure class="jam__ev" data-fp>
-      <span class="ev-port"><span class="ev-shot"><picture>
+      <span class="ev-port"><span class="ev-shot" data-oneof="band"><picture>
         <source media="(max-width:640px)" srcset="media/jamii-card-m.jpg" width="1200" height="880">
         <source srcset="media/jamii-surface-full.webp" type="image/webp">
         <img src="media/jamii-surface-full.jpg" alt="The Jamii Projects Hub homepage, showing a community project open for voting." width="1440" height="900" loading="lazy" decoding="async">
@@ -3861,8 +3901,8 @@ html{background:var(--v-page)}
       <!-- read off the capture: the proposal's fields, and the vote tally.
            Review and Report are stages the record holds that this public
            capture does not display, and the two rows say so. -->
-      <i class="ev-mark evm-prop st" style="--a:.20;--b:.14;--c:.48;--d:.12"><b>PROPOSAL</b></i>
-      <i class="ev-mark evm-vote st" style="--a:.62;--b:.14"><b>VOTE</b></i>
+      <i class="ev-mark evm-prop st" aria-hidden="true" style="--a:.20;--b:.14;--c:.48;--d:.12"><b>PROPOSAL</b></i>
+      <i class="ev-mark evm-vote st" aria-hidden="true" style="--a:.62;--b:.14"><b>VOTE</b></i>
       </span></span>
       <figcaption>jamii.lesnarai.co.ke &middot; captured surface</figcaption>
     </figure>
