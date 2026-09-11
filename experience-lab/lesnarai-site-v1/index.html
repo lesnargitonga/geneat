@@ -3426,6 +3426,112 @@ html{background:var(--v-page)}
   font:500 9px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.16em;
   color:color-mix(in srgb,var(--v-fg-2) calc(40% + var(--n) * 60%),var(--v-fg-3))}
 .gates__st{padding-left:0}
+
+/* ═══ THE PRODUCTS GET THEIR OWN WORLD ═══════════════════════════════════
+   The site quarantined every drop of colour inside small screenshots and
+   left the page around them grey, which is exactly why three real products
+   read as three sets of notes. Each product scene now IS its product: a
+   full-bleed ground in the colour the product actually uses, with the
+   captured surface raised on a white mount so the evidence is the brightest
+   thing in the frame.
+
+   This is done by re-declaring the scene's --v-* tokens rather than by
+   restyling it. Every rule inside already reads those tokens, so type,
+   rules, surfaces, diagrams and shadows all re-skin themselves and stay
+   internally consistent - and the dark/light theme switch keeps working
+   because the world is declared at the scene, not at the root.
+
+   Colours are taken from each product's own interface. Nothing here reports
+   a status; --v-accent is untouched, so green still only ever means measured
+   or published state. */
+
+.pr--biz{  /* BizMtaani - the marketplace red, on a warm near-black */
+  --pc:#E85A32;
+  --v-page:#160B08; --v-surf:#211109; --v-raise:#2B1710; --v-strong:#0C0605;
+  --v-fg:#FCEFE9; --v-fg-2:#CBAA9E; --v-fg-3:#B8978B;
+  --v-rule:#3C231A; --v-rule-2:#5E382B;
+  --v-dia:#211109; --v-dia-ink:#F3E2DA; --v-dia-soft:#4C2C22;
+  --v-shadow:0,0,0}
+.pr--care{ /* CarePro - the navy its own product is built on */
+  --pc:#5B9BD5;
+  --v-page:#0A1222; --v-surf:#111C30; --v-raise:#17243B; --v-strong:#060C17;
+  --v-fg:#E9F0FA; --v-fg-2:#9EADC7; --v-fg-3:#8D9DB8;
+  --v-rule:#1F2E48; --v-rule-2:#37496B;
+  --v-dia:#111C30; --v-dia-ink:#DCE6F5; --v-dia-soft:#2B3E5C;
+  --v-shadow:0,0,0}
+.pr--jam{  /* Jamii - the forest green of the record it keeps */
+  --pc:#4FB98A;
+  --v-page:#08160F; --v-surf:#0F2118; --v-raise:#152A1E; --v-strong:#050E09;
+  --v-fg:#E6F2EA; --v-fg-2:#9DB7A8; --v-fg-3:#8CA898;
+  --v-rule:#17321F; --v-rule-2:#2C4E39;
+  --v-dia:#0F2118; --v-dia-ink:#DBEBE1; --v-dia-soft:#254335;
+  --v-shadow:0,0,0}
+
+/* the world itself, full bleed, with the product's colour breathing behind
+   the evidence rather than painted over anything */
+.pr--biz,.pr--care,.pr--jam{
+  background:var(--v-page);color:var(--v-fg);position:relative;isolation:isolate}
+.pr--biz::before,.pr--care::before,.pr--jam::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(120% 80% at 78% 18%,
+    color-mix(in srgb,var(--pc) 26%,transparent) 0%,
+    color-mix(in srgb,var(--pc) 7%,transparent) 42%,transparent 72%)}
+
+/* the name is the loudest thing in its own world */
+.pr--biz h3,.pr--care h3,.pr--jam h3{
+  font-size:clamp(2.1rem,4.6vw,3.6rem);letter-spacing:-.025em;line-height:1;
+  font-weight:700;margin-top:.35rem}
+.pr--biz .pr__k,.pr--care .pr__k,.pr--jam .pr__k{color:var(--pc)}
+
+/* the evidence is the brightest object in the frame, and it has real depth */
+.bframe,.care__ev,.jam__ev{
+  box-shadow:0 40px 80px -40px rgba(0,0,0,.85),0 8px 24px -14px rgba(0,0,0,.6)}
+
+/* the step that is being shown lifts out of the dark, not into more grey */
+.pr--biz .brel li,.pr--care .gates__l li{
+  background:color-mix(in srgb,var(--v-surf) calc(var(--n) * 100%),transparent)}
+.pr--biz .brel li,.pr--jam .jrec__s{border-color:var(--v-rule)}
+
+@media(max-width:820px){
+  .pr--biz h3,.pr--care h3,.pr--jam h3{font-size:clamp(1.9rem,8.4vw,2.6rem)}
+}
+
+/* ═══ THE COMPANY CHAPTER GOES TO INK ════════════════════════════════════
+   The reveal was right but it was staged in grey on grey, so "lifting" meant
+   a faintly lighter rectangle appearing on a faintly lighter page - the
+   drama was invisible, and this chapter sat as the dullest thing on the page
+   immediately before three saturated product worlds.
+
+   It is now the ink chapter. The ground is near-black and a live product
+   lifts out of it as a WHITE card with real elevation. The six held systems
+   stay in the dark, flat, and say so. The difference between a product you
+   can open and research that is not pretending is now the difference between
+   white and black, which is as plainly as it can be put.
+
+   The light/dark rhythm of the page becomes: light hero, ink company, then
+   red, navy and forest for the three products, then light again. */
+.ch2{
+  --v-page:#0B0F0D; --v-surf:#FFFFFF; --v-raise:#FFFFFF; --v-strong:#060907;
+  --v-fg:#EDF2EE; --v-fg-2:#9AA69E; --v-fg-3:#87938B;
+  --v-rule:#252D28; --v-rule-2:#3B453E;
+  --v-dia:#121714; --v-dia-ink:#E4EAE6; --v-dia-soft:#2B332E;
+  --v-shadow:0,0,0}
+/* A white card carries its own ink - but only once the card is actually
+   there. Held at a flat dark value, a live product was unreadable before it
+   lifted: dark ink on a black ground. The ink travels WITH the surface, from
+   light on the dark ground to near-black on the white card, so the row is
+   legible at every point of the scene. */
+.ch2 .sysnode--live{
+  --v-fg:color-mix(in srgb,#101613 calc(var(--n) * 100%),#E8EDE9);
+  --v-fg-2:color-mix(in srgb,#4C574F calc(var(--n) * 100%),#9AA69E);
+  --v-fg-3:color-mix(in srgb,#6A746C calc(var(--n) * 100%),#8B978F);
+  --v-rule:#D7DED8}
+.ch2 .sysnode--live{
+  box-shadow:0 calc(var(--n) * 26px) calc(var(--n) * 48px) -26px rgba(0,0,0,.95),
+             0 calc(var(--n) * 3px) calc(var(--n) * 8px) -5px rgba(0,0,0,.55)}
+/* held work stays in the dark - that is the whole point of the group */
+.ch2 .sysnode--held{--v-fg:#C3CCC6; --v-fg-2:#7E8A83}
+.ch2 .map__brh{color:var(--v-fg-2);letter-spacing:.17em}
 </style>
 </head>
 <body class="route-home">
