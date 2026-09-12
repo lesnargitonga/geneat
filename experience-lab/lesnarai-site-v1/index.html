@@ -3599,6 +3599,130 @@ html{background:var(--v-page)}
   .map__core{margin-bottom:6px}
   .map__all{margin-top:8px}
 }
+
+/* the flagship capture is a MOBILE-ONLY element: on desktop the map is a
+   dense three-column diagram and a 760px screenshot inside one cell blows the
+   grid apart. Hidden by default, shown only in the mobile composition. */
+.sysnode__ev{display:none}
+
+/* ═══ ELEVEN SYSTEMS · MOBILE PROTOTYPE ══════════════════════════════════
+   The previous mobile version had eighteen runs of uppercase mono, seven
+   bordered rectangles, "LIVE PRODUCT" printed five times, "HELD" printed
+   six, and five live products at identical visual weight even though three
+   of them are flagships. It read as internal engineering documentation.
+
+   It is recomposed around the classifications that already exist, without
+   inventing any new claim:
+
+     FLAGSHIP        its own captured surface, the name at display size.
+                     These carry the public evidence, so they get the space.
+     ALSO LIVE       a compact row - name and what it is, no frame.
+     HELD            a quiet list. The category says "held" once, so the
+                     word does not need repeating against every name.
+
+   The section is no longer pinned on a phone. A 731px stage cut from a
+   desktop mechanic is exactly why everything had to be shrunk to fit; the
+   composition now takes the height it needs and the reader scrolls.
+
+   Type, surface and the product's own screen carry the hierarchy. There is
+   one rule left in the whole block and it belongs to the CTA. */
+@media(max-width:820px){
+  /* out of the cage */
+  .ch2{height:auto;padding-bottom:clamp(40px,7vh,72px)}
+  .map__stick{position:static;height:auto;top:auto}
+  .map__in{height:auto}
+
+  .ch2 .eyebrow4{font-size:10px;letter-spacing:.2em;opacity:.75}
+  .ch2 h2{font-size:clamp(1.9rem,8.6vw,2.5rem);line-height:1.02;letter-spacing:-.02em;
+    max-width:14ch;margin-bottom:.5rem}
+  .ch2 .lede4{font-size:15px;line-height:1.5;max-width:38ch}
+
+  /* the studio plate was diagram furniture; the heading already says this */
+  .map__core{display:none}
+
+  /* a category is a heading, in the page's own voice */
+  .map__brh{font:600 13px/1.2 A,"Archivo Fallback",system-ui,sans-serif;
+    letter-spacing:0;text-transform:none;color:var(--v-fg);
+    margin:0 0 10px;padding-bottom:0}
+  .map__br + .map__br{margin-top:26px}
+  .map__n{gap:2px}
+
+  /* ── flagship: its own surface, at the size of the thing ── */
+  .sysnode--flag{display:block;padding:0 0 18px;border:0;background:none;
+    box-shadow:none;transform:none}
+  .sysnode__ev{display:block;margin:0 0 11px;overflow:hidden;
+    background:var(--v-surf);aspect-ratio:16/10;
+    border:1px solid var(--v-rule)}
+  .sysnode__ev img{width:100%;height:100%;object-fit:cover;object-position:top center;
+    display:block}
+  .sysnode--flag .sysnode__t b{font-size:clamp(1.35rem,6.4vw,1.75rem);line-height:1.05;
+    letter-spacing:-.02em;font-weight:700;color:var(--v-fg)}
+  .sysnode--flag .sysnode__t span{font-size:14.5px;line-height:1.45;margin-top:5px;
+    color:var(--v-fg-2)}
+  .sysnode--flag .sysnode__t b::before{content:none}      /* no "LIVE PRODUCT" */
+  .sysnode--flag .sysnode__t b::after{content:"Flagship";display:inline-block;
+    margin-left:9px;vertical-align:.3em;
+    font:600 8.5px/1 M,"Mono Fallback",ui-monospace,monospace;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--v-fg-3)}
+
+  /* ── also live: a row, not a card ── */
+  .sysnode--live:not(.sysnode--flag){display:block;border:0;background:none;
+    box-shadow:none;padding:9px 0;transform:none;
+    border-top:1px solid var(--v-rule)}
+  .sysnode--live:not(.sysnode--flag) .sysnode__t b{font-size:16px;font-weight:600;
+    color:var(--v-fg)}
+  .sysnode--live:not(.sysnode--flag) .sysnode__t b::before{content:none}
+  .sysnode--live:not(.sysnode--flag) .sysnode__t span{font-size:13.5px;margin-top:2px;
+    color:var(--v-fg-2)}
+  .sysnode__ev{display:none}
+  .sysnode--flag .sysnode__ev{display:block}
+
+  /* ── held: a quiet list; the category already said "held" ── */
+  .map__br:last-of-type .map__n{grid-template-columns:minmax(0,1fr);gap:0}
+  .map__br:last-of-type .sysnode{display:block;border:0;background:none;box-shadow:none;
+    padding:8px 0;min-height:40px;transform:none;border-top:1px solid var(--v-rule)}
+  .map__br:last-of-type .sysnode__t b{font-size:15px;font-weight:500;color:var(--v-fg-2)}
+  .map__br:last-of-type .sysnode__t b::before,
+  .map__br:last-of-type .sysnode__t b::after{content:none}
+  .map__br:last-of-type .sysnode__t span{display:block;font-size:13px;margin-top:1px;
+    color:var(--v-fg-3)}
+
+  /* ── the way out, as a line of type rather than a control ── */
+  .map__all{margin-top:24px;padding-top:16px;border-top:2px solid var(--v-fg)}
+  .map__all .btn{border:0;background:none;padding:0;min-height:44px;
+    display:flex;align-items:center;justify-content:space-between;width:100%;
+    font:700 16px/1.2 A,"Archivo Fallback",system-ui,sans-serif;color:var(--v-fg)}
+}
+@media(max-width:820px){
+  /* nothing should land under the sticky header when the page scrolls to it:
+     the section eyebrow was sitting inside the 64px the bar occupies */
+  :root{scroll-padding-top:76px}
+
+  /* held work is de-emphasised by colour, not by a progress-driven fade:
+     the still frame must read the same however the reader arrived at it */
+  .sysnode--held{opacity:1;transform:none}
+
+  /* ── HEADER ──────────────────────────────────────────────────────────
+     Brand, one action, menu. "Start" stops being an outlined box - the only
+     bordered object in the bar - and becomes a filled action, so the one
+     thing the header asks of a visitor looks deliberate rather than like
+     chrome. Menu stays plain. The bar loses 8px of height it was spending
+     on nothing. */
+  .site-head{padding-block:2px}
+  /* "Start" is a bare text node, so the label colour has to be set on the
+     anchor itself - currentColor as a background painted it on top of its
+     own text. Both values are tokens, so it inverts with the theme. */
+  /* .site-head is needed in the selector: a light-mode rule at
+     :root:not([data-theme="dark"]) .site-head a sets every header link to
+     #101613, which painted this label in its own background colour at
+     1.07:1. Both values stay tokens so the pill inverts with the theme. */
+  :root[data-js] .site-head .nav-q--go{background:var(--fg);color:var(--sheet);
+    border:0;padding:0 15px;border-radius:2px;min-height:44px;font-weight:600}
+  :root[data-js] .site-head .nav-q--go:hover,
+  :root[data-js] .site-head .nav-q--go:focus-visible{
+    background:var(--fg-2);color:var(--sheet)}
+  .site-mark{font-size:15px;letter-spacing:.16em}
+}
 </style>
 </head>
 <body class="route-home">
@@ -3699,6 +3823,7 @@ html{background:var(--v-page)}
           <ul class="map__n">
             <li class="st" style="--a:.17;--b:.12"><a class="sysnode sysnode--live sysnode--flag" href="work/bizmtaani/">
               <i class="sysnode__d" aria-hidden="true"></i>
+              <span class="sysnode__ev"><picture><source type="image/webp" srcset="media/bizmtaani-760.webp"><img src="media/bizmtaani-760.jpg" alt="BizMtaani's marketplace home, captured." width="760" height="475" loading="lazy" decoding="async"></picture></span>
               <span class="sysnode__t"><b>BizMtaani</b><span>Neighbourhood marketplace, ordering and delivery</span></span></a></li>
             <li class="st" style="--a:.22;--b:.12"><a class="sysnode sysnode--live" href="work/gen-eat/">
               <i class="sysnode__d" aria-hidden="true"></i>
@@ -3714,9 +3839,11 @@ html{background:var(--v-page)}
           <ul class="map__n">
             <li class="st" style="--a:.41;--b:.12"><a class="sysnode sysnode--live sysnode--flag" href="work/carepro/">
               <i class="sysnode__d" aria-hidden="true"></i>
+              <span class="sysnode__ev"><picture><source type="image/webp" srcset="media/carepro-760.webp"><img src="media/carepro-760.jpg" alt="CarePro's booking surface, captured." width="760" height="475" loading="lazy" decoding="async"></picture></span>
               <span class="sysnode__t"><b>CarePro</b><span>Home nursing, with published verification</span></span></a></li>
             <li class="st" style="--a:.47;--b:.12"><a class="sysnode sysnode--live sysnode--flag" href="work/jamii-projects-hub/">
               <i class="sysnode__d" aria-hidden="true"></i>
+              <span class="sysnode__ev"><picture><source type="image/webp" srcset="media/jamii-live-760.webp"><img src="media/jamii-live-760.jpg" alt="The Jamii Projects Hub home, captured." width="760" height="475" loading="lazy" decoding="async"></picture></span>
               <span class="sysnode__t"><b>Jamii Projects Hub</b><span>Community projects, votes and balances</span></span></a></li>
           </ul>
         </div>
