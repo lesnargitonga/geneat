@@ -614,17 +614,12 @@ main{view-transition-name:page-body}
 @property --cw{syntax:"<number>";inherits:false;initial-value:88}
 
 /* ── THE REGISTER CHECKS ITSELF ─────────────────────────────────────────────
-   Each live entry contacts its own host as you reach it, so the page reports
-   what answered just now rather than what answered when it was written. The
-   scan runs while the request is in flight and stops when it resolves, so how
-   long you see it is the latency. A failure desaturates the capture and says
-   so - a picture of a healthy product must not outlive the product. */
+   One same-origin /api/status response carries all five live systems, checked
+   from our server and cached for a few minutes, so the page reports a recent
+   reading rather than what was true when it was written. The browser contacts
+   no product origin. A failure desaturates the capture and says so - a picture
+   of a healthy product must not outlive the product. */
 .live-e[data-probe] .live-e__shot{position:relative}
-.live-e[data-probe] .live-e__shot::after{content:"";position:absolute;left:0;right:0;top:0;
-  height:2px;pointer-events:none;opacity:var(--scan,0);
-  background:linear-gradient(90deg,transparent,var(--accent) 30%,var(--accent) 70%,transparent);
-  transform:translate3d(0,calc(var(--scanY,0) * 1%),0);
-  box-shadow:0 0 16px 2px rgba(212,85,42,.42)}
 .live-e[data-state="fail"] .live-e__shot img{filter:grayscale(1) brightness(.55)}
 .live-e .pv{font-variant-numeric:tabular-nums}
 .live-e[data-state="ok"] .pv{color:#276740}
@@ -635,7 +630,6 @@ main{view-transition-name:page-body}
    completes the three probe states - checking, answering, no answer. */
 :root:not([data-theme="dark"]) .live-e[data-state="fail"] .pv{color:#A8401C}
 :root[data-theme="dark"] .live-e[data-state="ok"] .pv{color:#5BD98A}
-@media(prefers-reduced-motion:reduce){.live-e[data-probe] .live-e__shot::after{display:none}}
 
 /* ── NAVIGATION YOU CAN ACTUALLY HIT ────────────────────────────────────────
    The nav was 10px uppercase mono at 23px tall, with "Home" a 31px-wide tap
@@ -1093,10 +1087,10 @@ html{background:var(--sheet)}
 
 /* ── THE REGISTER CHECKS ITSELF ──────────────────────────────────────────
    The one thing that genuinely happens here is that five live systems are
-   contacted from the reader's browser and each either answers or does not.
-   It is now the page's only substantial movement, and every step of it is
-   caused by a real response. No stagger is invented: if four hosts answer in
-   60ms the four rows settle together, because that is what happened. */
+   checked by our server and each either responds or does not. It is the
+   page's only substantial movement, and it is caused by a real response. No
+   stagger is invented: the five rows settle together because they arrive
+   together, in one response. */
 .vh{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
   clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 .regscan{display:grid;grid-template-columns:auto minmax(0,1fr);
@@ -1172,8 +1166,8 @@ html{background:var(--sheet)}
 
    The hero is now readable in the first frame, and the page's one real event
    owns the opening instead of queueing behind it. Five of the eleven systems
-   are live, and each is contacted from this browser. So the arrival is the
-   MEASURE of that: the track draws its own empty length, and the count and
+   are live, and all five arrive in one same-origin reading. So the arrival is
+   the MEASURE of that: the track draws its own empty length, and the count and
    the sentence follow it. The reader learns the size of what is about to be
    counted, and that none of it has been counted yet, before a single row is
    reached. Everything after this point on the page is caused by a response. */
@@ -1193,8 +1187,8 @@ html{background:var(--sheet)}
 /* THE ROWS DO NOT ARRIVE ANY MORE.
    Eleven rows sliding in from the left told a reader nothing they did not
    already know from the fact that a list is a list. The register's real event
-   is the CHECK LANDING: each entry is contacted from the reader's browser and
-   "not yet checked" becomes "answered in 942 ms" or "no answer". */
+   is the CHECK LANDING: "not yet checked" becomes "reachable" or
+   "no response" when the one same-origin reading arrives. */
 .live-list li,.held-list li{position:relative}
 /* a live product carries its status as a flat edge - green because it is
    answering, not because it is animating */
@@ -1385,37 +1379,31 @@ html{background:var(--sheet)}
 
   /* reachability, quiet and factual, after the proposition.
 
-     verify.js is untouched: same probe, same 4s timeout, same same-origin
-     architecture, same wording on the record pages. What changes here is only
-     what the REGISTER prints. The readout it writes - "answered in 66 ms",
-     "checking. 0.8s" - is latency instrumentation, and a public list of
-     products is not the place to lead with it.
+     verify.js reads one same-origin /api/status; the browser contacts no
+     product origin. The readout is the narrow vocabulary that architecture
+     can support, and nothing wider:
 
-     So the precise reading is kept in the DOM for assistive technology and the
-     visible line is rendered from [data-state], which is the same fact said
-     plainly. The mapping is the state contract, nothing added:
+       (no data-state)      not yet checked / not checked
+       data-state="ok"      reachable        our server's HEAD was answered
+       data-state="fail"    no response      it timed out or the connection failed
 
-       (no data-state)      not yet checked   no request has returned
-       data-state="ok"      reachable         the request completed
-       data-state="fail"    no answer         timed out at 4s, or rejected
-
-     "Reachable" is the strongest true word available. The fetch is no-cors, so
-     the response is opaque: we know the host answered, never WHAT it answered.
-     It therefore claims no status code, no health, no uptime and no SLA - and
-     it stays true for a host that answers 404 or 500. Latency stays on the
-     record pages, which are not touched in this pass. */
+     "Reachable" is the strongest true word available: a HEAD that returns
+     tells us the host answered, not that it is healthy, up, or serving
+     correctly - it stays true for a host answering 404 or 500. Latency is
+     measured from our server, so it is not printed here as though it came
+     from the visitor's device. */
+  /* The readout was a CSS ::after rendering a semantic word while the real
+     .pv text - "answered in 66 ms" - stayed clipped in the DOM for assistive
+     technology. That gave a screen reader a different, and now untrue, story:
+     the latency is measured from our server, not from the visitor's device.
+     verify.js writes the semantic word directly, so the visible text and the
+     accessible text are one string. */
   .live-e__host{margin-top:.8em;font-size:10.5px;letter-spacing:.01em;color:var(--fg-2)}
-  .live-e .pv{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
-    clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0;min-width:0}
-  .live-e__host::after{content:"not yet checked"}
-  .live-e[data-state="ok"]   .live-e__host::after{content:"reachable"}
-  .live-e[data-state="fail"] .live-e__host::after{content:"no answer"}
-  /* success is not an event worth a colour; a failure is worth a restrained one */
-  .live-e[data-state="fail"] .live-e__host::after{color:var(--accent)}
-  /* --accent is #D4552A, which is 3.84:1 on the light page at 10.5px. The
-     page already carries this correction for .pv; the generated line needs
-     the same one, or the only message that matters is the hardest to read. */
-  :root:not([data-theme="dark"]) .live-e[data-state="fail"] .live-e__host::after{color:#A8401C}
+  .live-e .pv{min-width:0}
+  /* reachability is not an event worth a colour; a failure keeps a restrained
+     one, corrected to #A8401C in light by the base rule below this block */
+  .live-e[data-state="ok"] .pv,
+  :root[data-theme="dark"] .live-e[data-state="ok"] .pv{color:inherit}
 
   /* the state chip repeated the band it already sits in */
   .live-e__s{display:none}
@@ -1501,16 +1489,16 @@ html{background:var(--sheet)}
   <h1>Eleven systems. Five are live products.</h1>
   <p class="lede">Three carry the deepest public evidence. Two more are live. The remaining
     six are prototypes and research, named for what they actually are.</p>
-  <!-- Not a decorative progress bar. Every increment is one real HTTP response
-       arriving from one of the five live systems. A system is contacted when
-       the reader reaches it, not on load, so the wording says that. The count
-       is CHECKS COMPLETED - a host that timed out has been checked and did not
-       answer, and calling that "answered" is the claim this page exists to
-       avoid. With no script it says nothing has been contacted. -->
+  <!-- Not a decorative progress bar. Every increment is one system carried in
+       one same-origin /api/status response, checked from our server and cached
+       for a few minutes - the visitor's browser never contacts a product
+       origin. The count is CHECKS COMPLETED: a host that timed out has been
+       checked and did not respond, and calling that "reachable" is the claim
+       this page exists to avoid. With no script it says nothing is checked. -->
   <p class="regscan" data-regscan aria-hidden="true">
     <span class="regscan__c"><b>0</b>&#8202;/&#8202;<span>5</span> checked</span>
     <i class="regscan__r"><i></i></i>
-    <span class="regscan__t"><i class="regscan__d" aria-hidden="true"></i><span>Each live system is contacted as you reach it</span></span>
+    <span class="regscan__t"><i class="regscan__d" aria-hidden="true"></i><span>Checked from our server, not your browser, and cached for a few minutes</span></span>
   </p>
   <p class="vh" role="status" data-regsay></p>
   <div class="reg-band reg-band--lead" data-scene="focal" data-focus=".live-list,.held-list">
@@ -1595,12 +1583,12 @@ html{background:var(--sheet)}
     var done=ok+bad, all=rows.length;
     n.textContent=done;
     box.style.setProperty("--done",(done/all).toFixed(3));
-    var tail = bad ? (ok+" answered \u00b7 "+bad+" no answer")
-                   : (ok ? (ok===all ? "all answered" : ok+" answered") : "");
+    var tail = bad ? (ok+" reachable \u00b7 "+bad+" no response")
+                   : (ok ? (ok===all ? "all reachable" : ok+" reachable") : "");
     if(done<all){
       box.removeAttribute("data-all");
       t.textContent = done ? (done+" checked \u00b7 "+tail)
-                           : "Each live system is contacted as you reach it";
+                           : "Checked from our server, not your browser, and cached for a few minutes";
     } else {
       box.setAttribute("data-all",bad?"mixed":"ok");
       t.textContent = "All "+all+" checked \u00b7 "+tail;

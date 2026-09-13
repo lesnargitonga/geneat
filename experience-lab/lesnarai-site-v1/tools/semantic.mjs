@@ -35,11 +35,11 @@ const bad  = m => { fail.push(m); console.log("  FAIL " + m); };
     }, [ok, no]);
     const done = ok + no, total = 5;
     let why = null;
-    /* the claim "N answered" must never exceed the number that answered */
-    const m = r.text.match(/(\d+)\s+answered/);
-    if (m && +m[1] !== ok) why = `says "${m[1]} answered" but ${ok} answered`;
-    if (/all answered/i.test(r.text) && ok !== total) why = `says "all answered" with ${no} failure(s)`;
-    if (no > 0 && !/no answer/.test(r.text)) why = `${no} failure(s) but no "no answer" in the copy`;
+    /* the claim "N reachable" must never exceed the number that responded */
+    const m = r.text.match(/(\d+)\s+reachable/);
+    if (m && +m[1] !== ok) why = `says "${m[1]} reachable" but ${ok} responded`;
+    if (/all reachable/i.test(r.text) && ok !== total) why = `says "all reachable" with ${no} failure(s)`;
+    if (no > 0 && !/no response/.test(r.text)) why = `${no} failure(s) but no "no response" in the copy`;
     if (!r.count.startsWith(String(done))) why = `count says "${r.count}" for ${done} completed checks`;
     if (Math.abs(+r.fillW - done / total) > 0.002) why = `fill ${r.fillW} != checks ${done}/${total}`;
     if (done === total && r.all !== (no ? "mixed" : "ok")) why = `aggregate flag "${r.all}" wrong`;
@@ -53,7 +53,10 @@ const bad  = m => { fail.push(m); console.log("  FAIL " + m); };
   const rowCopy = await p.evaluate(() =>
     [...document.querySelectorAll(".live-list [data-probe]")].map(r =>
       (r.getAttribute("data-state") || "-") + "=" + r.querySelector(".pv").textContent.trim()));
-  const allowed = /^(-=not yet checked|-=checking….*|ok=answered in \d+ ms|fail=no answer)$/;
+  /* "not checked" is the honest state when /api/status itself did not return -
+     the static test server has no serverless runtime, so it is the state under
+     test here. "not yet checked" is the resting value in the markup. */
+  const allowed = /^(-=not yet checked|-=not checked|ok=reachable|fail=no response)$/;
   rowCopy.forEach(x => { if (!allowed.test(x)) bad(`row copy not in the permitted set: "${x}"`); });
   note(`row wordings: ${[...new Set(rowCopy.map(x => x.split("=")[1].replace(/\d+/g, "N")))].join(" | ")}`);
   await c.close();

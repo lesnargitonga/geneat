@@ -1,123 +1,112 @@
-/* THE RECORD VERIFIES ITSELF ───────────────────────────────────────────────
-   Every record used to print "HTTP 200" under a screenshot taken days ago —
-   an assertion about a moment that had passed, on a site whose entire argument
-   is that it doesn't do that. Now each record contacts its own host when you
-   reach it, and the caption is written from the answer.
+/* THE REGISTER READS ONE SAME-ORIGIN STATUS ────────────────────────────────
+   What this used to do, and why it was wrong:
 
-   The scan is not an animation played over a picture. It starts when the
-   request goes out and stops when it comes back, so its duration is the
-   latency: a slow host visibly takes longer. Nothing is faked to look brisk.
+   Every live entry fired its own opaque no-cors GET straight from the
+   visitor's browser to the product's own origin - bizmtaani.com,
+   carepro.co.ke and three more - when the row scrolled into view, and again
+   every 30 seconds while it stayed there. Five third-party origins received
+   the visitor's IP, User-Agent, Referer and client hints on every visit, for
+   nothing but a readout. It also lied: with tracking protection enabled every
+   request was blocked, so all five live systems reported "no answer" while all
+   five were up, and the page printed that as fact.
 
-   Cross-origin rules make the response opaque — we can see the request
-   completed, not what status came back. So it reports "answered in N ms", the
-   same wording as the check section, and never claims a status code.
+   The homepage had already been moved off that pattern. This file now does
+   what the homepage does:
 
-   A failure desaturates the screenshot and says "no answer". That is the point:
-   a picture of a healthy-looking product must not outlive the product. */
+       visitor browser -> /api/status (same origin)
+                       -> server-side HEAD per system, cached 60s
+                       -> presentation
+
+   ONE request per refresh cycle for the whole page, not one per product. The
+   browser never touches a product origin. Clicking through to a product is a
+   navigation the visitor asked for, and is not this file's business.
+
+   The vocabulary is deliberately narrow, and it is the truth the architecture
+   can actually support:
+
+       reachable      the server's HEAD was answered
+       no response    the server's HEAD timed out or the connection failed
+       not checked    /api/status did not return - we know nothing, and say so
+       not yet checked  the resting value in the markup, before any answer
+
+   None of those means uptime, health, transaction success or SLA, and none of
+   them implies the visitor's own browser contacted anything - because after
+   this change it did not. Latency is measured from our server, so it is not
+   published here as though it came from the visitor's device.                */
 (function () {
   "use strict";
-  var figs = [].slice.call(document.querySelectorAll("[data-probe]"));
-  if (!figs.length) return;
 
-  var reduced = window.matchMedia &&
-                window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  /* 8s left a dead host sitting on "checking…" long enough to read as frozen.
-     A surface that has not answered in four seconds has not answered. */
-  var TIMEOUT = 4000;
+  var rows = [].slice.call(document.querySelectorAll("[data-probe]"));
+  if (!rows.length || !window.fetch) return;
 
-  function scan(fig, run) {
-    if (reduced) return function () {};
-    var t0 = performance.now(), raf = 0, alive = true;
-    (function step() {
-      if (!alive) return;
-      var t = ((performance.now() - t0) / 900) % 1;          /* one sweep ≈ .9s */
-      fig.style.setProperty("--scan", "1");
-      fig.style.setProperty("--scanY", (t * 4800).toFixed(0));  /* 0 → 4800% of a 2px bar */
-      raf = requestAnimationFrame(step);
-    })();
-    return function stop() {
-      alive = false; cancelAnimationFrame(raf);
-      fig.style.setProperty("--scan", "0");
-    };
+  /* The register's resting line, used when we have no result to report. It
+     describes the method, which stays true whether the answer is fresh,
+     cached or missing. */
+  var scan = document.querySelector("[data-regscan]");
+  var scanText = scan && scan.querySelector(".regscan__t > span");
+
+  function setRow(row, state, word) {
+    var pv = row.querySelector(".pv");
+    if (state) row.setAttribute("data-state", state);
+    else row.removeAttribute("data-state");
+    if (!pv) return;
+    pv.textContent = word;
+    /* data-done stops the "being checked" breathing animation. The unknown
+       state gets one too: nothing is in flight, so nothing should pulse. */
+    pv.setAttribute("data-done", state || "none");
   }
 
-  function probe(fig) {
-    if (fig.pvBusy) return;
-    fig.pvBusy = true;
-    var host = fig.getAttribute("data-probe");
-    var out = fig.querySelector(".pv");
-    var stop = scan(fig, true);
-    var t0 = performance.now(), settled = false;
-
-    /* count up while the request is in flight, so a slow or dead host reads as
-       busy rather than frozen. Written once immediately as well, so the row
-       does not sit on its pre-contact wording for the first interval. */
-    function show(){ if(!settled && out){ out.removeAttribute("data-done");
-      out.textContent = "checking\u2026 " + ((performance.now() - t0) / 1000).toFixed(1) + "s"; } }
-    show();
-    var tick = setInterval(function () {
-      if (settled || !out) return;
-      out.removeAttribute("data-done");
-      out.textContent = "checking… " + ((performance.now() - t0) / 1000).toFixed(1) + "s";
-    }, 100);
-
-    function settle(ok) {
-      if (settled) return;
-      settled = true;
-      fig.pvBusy = false;
-      fig.pvLast = Date.now();
-      clearInterval(tick);
-      stop();
-      var ms = Math.round(performance.now() - t0);
-      fig.setAttribute("data-state", ok ? "ok" : "fail");
-      if (out) {
-        out.textContent = ok ? "answered in " + ms + " ms" : "no answer";
-        /* the readout breathes only while a system is actually being
-           contacted; once it has answered it holds still */
-        out.setAttribute("data-done", ok ? "ok" : "fail");
-      }
-    }
-
-    var timer = setTimeout(function () { settle(false); }, TIMEOUT);
-    fetch("https://" + host + "/?_v=" + Date.now(), {
-      mode: "no-cors", cache: "no-store", redirect: "follow"
-    }).then(function () { clearTimeout(timer); settle(true); })
-      .catch(function () { clearTimeout(timer); settle(false); });
+  function unknown(word) {
+    rows.forEach(function (r) { setRow(r, null, word || "not checked"); });
   }
 
-  /* A reading taken when you arrived is an assertion about a moment that has
-     passed - the exact thing this record refuses to do elsewhere. So the check
-     repeats while you are actually looking at it: only for records on screen,
-     only while the tab is in front, and never on top of a request already in
-     flight. A host that comes back up corrects itself without a reload. */
-  var PERIOD = 30000;
-
-  function due(fig) {
-    return !fig.pvBusy && fig.pvOn && !document.hidden &&
-           (!fig.pvLast || Date.now() - fig.pvLast >= PERIOD);
-  }
-
-  function sweep() { figs.forEach(function (f) { if (due(f)) probe(f); }); }
-
-  if (!("IntersectionObserver" in window)) {
-    figs.forEach(function (f) { f.pvOn = true; });
-    sweep();
-    setInterval(sweep, 5000);
-    return;
-  }
-
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      e.target.pvOn = e.isIntersecting;
-      if (e.isIntersecting && due(e.target)) probe(e.target);
+  function apply(data) {
+    if (!data || !data.systems) { unknown(); tellUnavailable(); return; }
+    var byHost = {};
+    data.systems.forEach(function (s) { byHost[s.host] = s; });
+    rows.forEach(function (row) {
+      var s = byHost[row.getAttribute("data-probe")];
+      /* A system the endpoint does not carry is not a failure. We simply have
+         no reading for it, and must not invent one. */
+      if (!s) { setRow(row, null, "not checked"); return; }
+      setRow(row, s.answered ? "ok" : "fail",
+                  s.answered ? "reachable" : "no response");
     });
-  }, { threshold: 0.25 });
-  figs.forEach(function (f) { io.observe(f); });
+  }
 
-  /* Coming back to the tab is exactly when a stale reading is most misleading. */
+  function tellUnavailable() {
+    /* The tally script only rewrites this line when a row's state changes.
+       With no states arriving it would sit on the resting method line, which
+       is true but says nothing about the outcome - so say the outcome. */
+    if (scanText) scanText.textContent = "Check unavailable";
+  }
+
+  var inFlight = false;
+  function load() {
+    if (inFlight) return;
+    inFlight = true;
+    fetch("/api/status", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { inFlight = false; apply(d); })
+      .catch(function () { inFlight = false; unknown(); tellUnavailable(); });
+  }
+
+  /* One bounded shared timer for the page, matched to the endpoint's own 60s
+     cache so a refresh can actually return something new. It does not run
+     while the tab is hidden - a reading nobody is looking at is worth no
+     request at all - and returning to the tab is exactly when a stale reading
+     is most misleading, so coming back refreshes once. */
+  var PERIOD = 60000;
+  var timer = 0;
+
+  function start() { if (!timer) timer = setInterval(load, PERIOD); }
+  function stop() { if (timer) { clearInterval(timer); timer = 0; } }
+
   document.addEventListener("visibilitychange", function () {
-    if (!document.hidden) sweep();
+    if (document.hidden) { stop(); }
+    else { load(); start(); }
   });
 
-  setInterval(sweep, 5000);
+  load();
+  if (!document.hidden) start();
 })();

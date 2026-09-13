@@ -1077,12 +1077,12 @@ a.hx{text-decoration:none}
 /* ── THE RECORD VERIFIES ITSELF ────────────────────────────────────────────
    These captions asserted HTTP 200 from a capture taken days earlier - a claim
    about a moment that had passed, on a site whose whole argument is not doing
-   that. Each record now contacts its own host as you reach it and writes its
-   caption from what comes back.
+   that. The caption is now written from one same-origin /api/status reading,
+   checked from our server and cached for a few minutes; the visitor's browser
+   contacts no product origin.
 
-   The scan runs while the request is in flight and stops when it resolves, so
-   how long you see it *is* the latency. A failure leaves the image desaturated
-   and says so, rather than quietly showing a healthy-looking picture. */
+   A failure leaves the image desaturated and says so, rather than quietly
+   showing a healthy-looking picture. */
 .rec__proof{position:relative}
 .rec__proof[data-probe]::after{
   content:"";position:absolute;left:0;right:0;top:0;height:2px;pointer-events:none;
@@ -3855,7 +3855,7 @@ html{background:var(--v-page)}
           </ol>
         </div>
         <p class="fld__note">Checked from our server, not your browser, and cached
-          for up to a minute. Reachability at the moment shown &mdash; not an uptime
+          for a few minutes. Reachability at the moment shown &mdash; not an uptime
           record.</p>
       </figure>
     </div>
