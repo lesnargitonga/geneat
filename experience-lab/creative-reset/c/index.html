@@ -1,0 +1,228 @@
+<!doctype html><html lang="en" data-cal="day"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LESNAR AI — Direction C · The Field</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Inter+Tight:wght@400;500;600&family=Martian+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F6F6F4; --panel:#FFFFFF; --hair:#C8C9C4; --ink:#0D0E0C; --soft:#5B5D58; --faint:#95978F;
+  --sig:#4409FF; --live:#0B7A4B; --hold:#B4540A;
+  --d:"Unbounded",system-ui,sans-serif; --b:"Inter Tight",system-ui,sans-serif; --m:"Martian Mono",monospace;
+}
+:root[data-cal="night"]{
+  --bg:#0A0B0A; --panel:#121412; --hair:#2A2D29; --ink:#F2F3EF; --soft:#A2A59C; --faint:#6A6E66;
+  --sig:#9D7BFF; --live:#4FD69A; 
+  --hold:#FFA24C;
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--b);font-size:16.5px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+.w{max-width:1500px;margin:0 auto;padding-inline:clamp(16px,3vw,52px)}
+.mono{font-family:var(--m);font-size:10.5px;letter-spacing:.02em;text-transform:uppercase;color:var(--faint)}
+
+/* ── chrome ───────────────────────────────────────────── */
+.bar{position:fixed;inset:0 0 auto;z-index:70;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--hair)}
+.bar .w{display:flex;align-items:center;gap:26px;padding-block:13px}
+.lg{font-family:var(--d);font-weight:800;font-size:15px;letter-spacing:-.03em;text-decoration:none;color:var(--ink)}
+.lg span{color:var(--sig)}
+.bar nav{margin-left:auto;display:flex;gap:24px}
+.bar nav a{text-decoration:none;color:var(--soft);font-size:13.5px;font-weight:500}
+.bar nav a:hover{color:var(--sig)}
+.cal{border:1px solid var(--hair);background:none;color:var(--faint);font-family:var(--m);font-size:10px;
+  text-transform:uppercase;padding:6px 11px;cursor:pointer;letter-spacing:.06em}
+.cal:hover{border-color:var(--sig);color:var(--sig)}
+
+/* ── the field ────────────────────────────────────────── */
+.field{position:relative;height:100svh;min-height:660px}
+#f{position:absolute;inset:0;width:100%;height:100%;cursor:grab;touch-action:none}
+#f:active{cursor:grabbing}
+.over{position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;
+  padding:clamp(76px,10vh,124px) 0 clamp(22px,4vh,44px)}
+.over .w{width:100%}
+h1{font-family:var(--d);font-weight:800;font-size:clamp(2.1rem,5.4vw,5.2rem);line-height:.95;
+  letter-spacing:-.05em;max-width:16ch;text-wrap:balance}
+h1 span{color:var(--sig)}
+.tag{margin-top:18px;color:var(--soft);max-width:40ch;font-size:clamp(.95rem,1.3vw,1.15rem)}
+.readout{display:flex;gap:clamp(14px,3vw,46px);flex-wrap:wrap;align-items:flex-end}
+.readout div{border-top:1px solid var(--hair);padding-top:9px;min-width:88px}
+.readout b{font-family:var(--d);font-weight:600;font-size:clamp(1.1rem,2vw,1.7rem);display:block;line-height:1}
+.hint{pointer-events:none;color:var(--faint)}
+
+/* ── node label that tracks the cursor ────────────────── */
+#lbl{position:fixed;z-index:65;pointer-events:none;background:var(--ink);color:var(--bg);
+  font-family:var(--m);font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;
+  padding:6px 9px;opacity:0;transform:translate(-50%,-180%);transition:opacity .16s}
+#lbl.on{opacity:1}
+
+/* ── detail ───────────────────────────────────────────── */
+.dtl{position:fixed;inset:auto 0 0 0;z-index:80;transform:translateY(101%);
+  transition:transform .58s cubic-bezier(.16,1,.3,1);background:var(--panel);
+  border-top:1px solid var(--hair);max-height:84svh;overflow-y:auto}
+.dtl.on{transform:none}
+.dtl .w{padding-block:clamp(26px,4vw,48px) clamp(34px,5vw,64px)}
+.dtl .hd{display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap}
+.dtl h2{font-family:var(--d);font-weight:600;font-size:clamp(1.6rem,4vw,3rem);letter-spacing:-.04em;line-height:1}
+.dtl .st{margin-left:auto;display:flex;gap:18px;flex-wrap:wrap}
+.dtl .grid{display:grid;gap:clamp(18px,3vw,44px);margin-top:clamp(20px,3vw,38px)}
+@media(min-width:900px){.dtl .grid{grid-template-columns:1.15fr .85fr}}
+.dtl p{color:var(--soft);max-width:56ch}
+.ev{border:1px solid var(--hair);padding:20px;background:var(--bg)}
+.ev b{display:block;font-family:var(--m);font-size:10px;text-transform:uppercase;color:var(--sig);margin-bottom:10px;letter-spacing:.06em}
+.ev p{color:var(--ink);font-size:15px}
+.shut{position:absolute;top:18px;right:clamp(16px,3vw,52px);background:none;border:1px solid var(--hair);
+  color:var(--soft);width:34px;height:34px;cursor:pointer;font-size:17px;line-height:1}
+.shut:hover{border-color:var(--sig);color:var(--sig)}
+
+/* ── list fallback / structured index ─────────────────── */
+.idx{padding-block:clamp(40px,6vw,90px);border-top:1px solid var(--hair)}
+.ln{display:grid;grid-template-columns:34px 1fr auto;gap:18px;align-items:baseline;
+  padding-block:15px;border-bottom:1px solid var(--hair);cursor:pointer;transition:background .3s}
+.ln:hover{background:var(--panel)}
+.ln h3{font-family:var(--d);font-weight:400;font-size:clamp(1rem,1.7vw,1.35rem);letter-spacing:-.02em}
+.ln .m{font-family:var(--m);font-size:10px;text-transform:uppercase;color:var(--faint);letter-spacing:.05em}
+.ln .m.l{color:var(--live)}.ln .m.p{color:var(--hold)}
+footer{border-top:1px solid var(--hair);padding-block:clamp(40px,6vw,80px)}
+footer h2{font-family:var(--d);font-weight:600;font-size:clamp(1.6rem,4.6vw,3.4rem);letter-spacing:-.045em;line-height:1;max-width:15ch}
+footer a{color:var(--sig);text-decoration:none}
+@media(max-width:820px){
+  .bar nav{display:none}
+  .field{height:92svh}
+  h1{font-size:clamp(2rem,8vw,3rem)}
+  .hint{display:none}
+  .readout{gap:0 18px;row-gap:14px}
+  .readout div{min-width:0;flex:0 0 calc(33.333% - 12px)}
+  .readout b{font-size:1.25rem}
+  .readout .mono{font-size:9.5px}
+}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+</style></head><body>
+
+<header class="bar"><div class="w">
+  <a class="lg" href="#">LESNAR<span>·</span>AI</a>
+  <nav><a href="#idx">Work</a><a href="#">Capabilities</a><a href="#">Engineering</a><a href="#">Company</a></nav>
+  <button class="cal" id="cal">Night</button>
+</div></header>
+
+<section class="field">
+  <canvas id="f"></canvas>
+  <div class="over">
+    <div class="w">
+      <p class="mono">Nairobi · operational systems</p>
+      <h1>Eleven systems, at the <span>real</span> distance from done.</h1>
+      <p class="tag">Position is maturity. What is live sits close. What is only a direction sits far out.
+         Drag the field. Open anything.</p>
+    </div>
+    <div class="w readout">
+      <div><b>5</b><span class="mono">Live</span></div>
+      <div><b>1</b><span class="mono">Pilot</span></div>
+      <div><b>1</b><span class="mono">Internal</span></div>
+      <div><b>3</b><span class="mono">Research</span></div>
+      <div><b>1</b><span class="mono">Direction</span></div>
+      <div style="border:0;margin-left:auto"><span class="mono hint">Drag to orbit · click a node</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="idx" id="idx"><div class="w">
+  <p class="mono" style="margin-bottom:18px">Index</p><div id="list"></div>
+</div></section>
+
+<footer><div class="w">
+  <h2>Bring the problem, not the specification.</h2>
+  <p style="margin-top:22px;color:var(--soft)">A paragraph is enough. We reply within two working days.<br>
+    <a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a> · +254 715 540 653</p>
+</div></footer>
+
+<div id="lbl"></div>
+<div class="dtl" id="dtl"><button class="shut" id="shut" aria-label="Close">×</button><div class="w">
+  <div class="hd"><h2 id="d-n"></h2><div class="st"><span class="mono" id="d-m"></span><span class="mono" id="d-s"></span></div></div>
+  <div class="grid"><div><p id="d-b"></p></div>
+    <div class="ev"><b>What the evidence says</b><p id="d-e"></p></div></div>
+</div></div>
+
+<script>
+const S=[
+ {n:"CarePro",m:"Live",r:.16,d:"Vetted nurses placed with families across Nairobi.",s:"Published",e:"20 nurses joined, 0 approved. Four stages ending in clinical sign-off by a registered nurse."},
+ {n:"BizMtaani",m:"Live",r:.18,d:"Shops list, customers order and pay by phone, riders carry it.",s:"Published",e:"One business listed at capture, in one of seven trade categories."},
+ {n:"Jamii Projects Hub",m:"Live",r:.2,d:"Community projects, votes and records built to survive scrutiny.",s:"Published",e:"A pilot in Mbeere North. No membership or project count published."},
+ {n:"Gen-Eat",m:"Live",r:.22,d:"Campus food over WhatsApp, collected between lectures.",s:"Published",e:"A pilot at USIU. No order volume or revenue published."},
+ {n:"Hazina Nomads",m:"Live",r:.24,d:"Private Kenyan sourcing, delivered with discretion.",s:"Published",e:"Its own service and data store. The one separation the audit documents."},
+ {n:"Greenhouse controller",m:"Pilot",r:.42,d:"Climate held without a person and without a network.",s:"Owner-reported",e:"No firmware, log, photograph or measurement exists. The owner's report is the only basis."},
+ {n:"SentinelCore",m:"Internal",r:.46,d:"Our own tool for checking a Linux server is safe.",s:"Measured",e:"133 tests passed, 0 failed, 21 files. A passing suite is not a deployment."},
+ {n:"Cypher",m:"Research",r:.66,d:"Rules for what an AI may do, and a person who approves first.",s:"Structural",e:"A governance spine to sprint 024, with no live sending."},
+ {n:"Gold Trader",m:"Research",r:.7,d:"Automated gold trading, tested only on paper.",s:"Structural",e:"Gated by its own status table: paper yes, live no."},
+ {n:"Aerial systems",m:"Research",r:.74,d:"Drone state and mission simulation, modelled in software.",s:"Structural",e:"Nothing has been flown. No control laws, no hardware, no logged flight."},
+ {n:"Sensing and radar",m:"Direction",r:.95,d:"A direction we intend to work in.",s:"None",e:"Nothing is built. The absence is the claim."}];
+(function(){const band={};S.forEach(s=>{(band[s.m]=band[s.m]||[]).push(s);});
+ Object.values(band).forEach(g=>g.forEach((s,i)=>{
+   s.a=(i/g.length)*Math.PI*2 + (g.length===1?1.1:0.25); s.px=0; s.py=0;}));})();
+
+const L=document.getElementById('list');
+S.forEach((s,i)=>{const d=document.createElement('div');d.className='ln';d.tabIndex=0;
+ const cls=s.m==='Live'?'l':(s.m==='Pilot'?'p':'');
+ d.innerHTML=`<span class="m">${String(i+1).padStart(2,'0')}</span><h3>${s.n}</h3><span class="m ${cls}">${s.m}</span>`;
+ d.onclick=()=>open_(s);d.onkeydown=e=>{if(e.key==='Enter')open_(s)};L.appendChild(d);});
+
+const dtl=document.getElementById('dtl');
+function open_(s){document.getElementById('d-n').textContent=s.n;
+ document.getElementById('d-m').textContent=s.m;document.getElementById('d-s').textContent=s.s;
+ document.getElementById('d-b').textContent=s.d;document.getElementById('d-e').textContent=s.e;
+ dtl.classList.add('on');focusNode=s;}
+document.getElementById('shut').onclick=()=>{dtl.classList.remove('on');focusNode=null;};
+addEventListener('keydown',e=>{if(e.key==='Escape'){dtl.classList.remove('on');focusNode=null;}});
+document.getElementById('cal').onclick=e=>{const r=document.documentElement;
+ r.dataset.cal=r.dataset.cal==='day'?'night':'day';
+ e.target.textContent=r.dataset.cal==='day'?'Night':'Day';};
+
+/* ── field: position encodes maturity, drag orbits ── */
+const cv=document.getElementById('f'),g=cv.getContext('2d');
+let W,H,D,rot=.2,vel=0,drag=false,lx=0,hover=null,focusNode=null,T=0;
+const V=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+function size(){D=Math.min(devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;
+ cv.width=W*D;cv.height=H*D;g.setTransform(D,0,0,D,0,0);}
+addEventListener('resize',size);size();
+cv.addEventListener('pointerdown',e=>{drag=true;lx=e.clientX;cv.setPointerCapture(e.pointerId);});
+cv.addEventListener('pointerup',()=>drag=false);
+cv.addEventListener('pointermove',e=>{
+ if(drag){vel=(e.clientX-lx)*.00042;rot+=vel;lx=e.clientX;}
+ const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
+ hover=null;S.forEach(s=>{const dx=px-s.px,dy=py-s.py;if(dx*dx+dy*dy<26*26)hover=s;});
+ const lb=document.getElementById('lbl');
+ if(hover){lb.textContent=hover.n+' · '+hover.m;lb.style.left=e.clientX+'px';lb.style.top=e.clientY+'px';lb.classList.add('on');cv.style.cursor='pointer';}
+ else{lb.classList.remove('on');cv.style.cursor=drag?'grabbing':'grab';}});
+cv.addEventListener('click',()=>{if(hover)open_(hover);});
+function loop(){
+ T+=.006; if(!drag){rot+=vel;vel*=.94;rot+=.0006;}
+ g.clearRect(0,0,W,H);
+ const cx=W*.5,cy=H*.575,R=Math.max(W*.455,H*.60);
+ const hair=V('--hair'),sig=V('--sig'),live=V('--live'),ink=V('--ink'),faint=V('--faint');
+ // maturity rings
+ [.16,.44,.7,.95].forEach((r,i)=>{
+  g.strokeStyle=hx(hair,i===0?1:.75);g.lineWidth=i===0?1.4:1;
+  g.setLineDash(i>1?[3,7]:[]);g.beginPath();
+  g.ellipse(cx,cy,R*r,R*r*.30,0,0,7);g.stroke();g.setLineDash([]);
+  });
+ const pts=S.map(s=>{const a=s.a+rot+Math.sin(T+s.r*7)*.012;
+  const X=cx+Math.cos(a)*R*s.r, Y=cy+Math.sin(a)*R*s.r*.34 - s.r*30;
+  s.px=X;s.py=Y;return {s,X,Y,dep:Math.sin(a)};});
+ // spokes from centre
+ pts.forEach(({s,X,Y})=>{g.strokeStyle=hx(hair,.7);g.lineWidth=1;g.beginPath();g.moveTo(cx,cy);g.lineTo(X,Y);g.stroke();});
+ // core
+ g.fillStyle=hx(sig,.10);g.beginPath();g.arc(cx,cy,34,0,7);g.fill();
+ g.strokeStyle=hx(sig,.85);g.lineWidth=1.6;g.beginPath();g.arc(cx,cy,34,0,7);g.stroke();
+ g.strokeStyle=hx(sig,.35);g.lineWidth=1;g.beginPath();g.arc(cx,cy,34+8+Math.sin(T*2)*3,0,7);g.stroke();
+ pts.sort((a,b)=>a.dep-b.dep).forEach(({s,X,Y,dep})=>{
+  const on=hover===s||focusNode===s, sz=(s.m==='Live'?13:s.m==='Direction'?6:9)+(on?5:0);
+  const col=s.m==='Live'?live:(s.m==='Direction'?faint:sig);
+  const al=.42+(dep+1)*.28;
+  g.fillStyle=hx(col,on?.95:al);g.beginPath();g.arc(X,Y,sz,0,7);g.fill();
+  if(on){g.strokeStyle=hx(col,.5);g.lineWidth=1;g.beginPath();g.arc(X,Y,sz+9,0,7);g.stroke();}
+  if(on){g.fillStyle=hx(ink,.95);g.font='500 11.5px "Martian Mono",monospace';
+   g.textAlign='center';g.fillText(s.n.toUpperCase(),X,Y-sz-13);}
+ });
+ requestAnimationFrame(loop);}
+function hx(h,a){h=h.replace('#','').trim();if(h.length===3)h=h.split('').map(s=>s+s).join('');
+ const n=parseInt(h,16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;}
+loop();
+</script></body></html>

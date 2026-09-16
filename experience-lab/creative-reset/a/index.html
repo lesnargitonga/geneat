@@ -1,0 +1,235 @@
+<!doctype html><html lang="en" data-theme="night"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LESNAR AI — Direction A · Night Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter+Tight:wght@400;500;600&display=swap">
+<style>
+:root{
+  --void:#05070B; --deep:#0A0E15; --lift:#111722; --edge:#1D2634;
+  --ink:#EEF2F7; --mid:#9AA7BA; --dim:#5D6B80;
+  --sodium:#FF9E4A; --cold:#6FD3FF; --ok:#4ADE9B; --warn:#FF6B4A;
+  --d:"Syne",system-ui,sans-serif; --b:"Inter Tight",system-ui,sans-serif;
+}
+:root[data-theme="day"]{
+  --void:#EDEEF0; --deep:#E3E5E9; --lift:#FFFFFF; --edge:#C9CDD6;
+  --ink:#0A0E15; --mid:#4A5768; --dim:#7A8798;
+  --sodium:#C2560A; --cold:#0E6E9E; --ok:#116B45; --warn:#A8331A;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--ink);font-family:var(--b);
+  font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.w{max-width:1320px;margin:0 auto;padding-inline:clamp(20px,4vw,64px)}
+
+/* ── nav ─────────────────────────────────────────────── */
+nav{position:fixed;inset:0 0 auto;z-index:60;padding-block:20px;
+  backdrop-filter:blur(14px);background:color-mix(in srgb,var(--void) 72%,transparent);
+  border-bottom:1px solid color-mix(in srgb,var(--edge) 60%,transparent);transition:transform .4s}
+nav .w{display:flex;align-items:center;gap:32px}
+.logo{font-family:var(--d);font-weight:800;font-size:19px;letter-spacing:-.02em;color:var(--ink);text-decoration:none}
+.logo i{font-style:normal;color:var(--sodium)}
+nav ul{margin-left:auto;display:flex;gap:30px;list-style:none;padding:0}
+nav a{color:var(--mid);text-decoration:none;font-size:14.5px;font-weight:500;transition:color .2s}
+nav a:hover{color:var(--ink)}
+.tog{background:none;border:1px solid var(--edge);color:var(--mid);width:38px;height:38px;
+  border-radius:50%;cursor:pointer;display:grid;place-items:center;transition:.25s}
+.tog:hover{color:var(--sodium);border-color:var(--sodium);transform:rotate(-20deg)}
+.tog svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.7}
+
+/* ── hero ────────────────────────────────────────────── */
+.hero{position:relative;height:100svh;min-height:640px;overflow:hidden}
+#scene{position:absolute;inset:0;width:100%;height:100%}
+.hero .w{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:flex-end;
+  padding-bottom:clamp(48px,9vh,120px)}
+.hero h1{font-family:var(--d);font-weight:800;line-height:.92;letter-spacing:-.04em;
+  font-size:clamp(3rem,9.2vw,9.5rem);max-width:15ch;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--sodium)}
+.sub{margin-top:26px;font-size:clamp(1rem,1.5vw,1.3rem);color:var(--mid);max-width:46ch;line-height:1.45}
+.place{display:flex;align-items:center;gap:12px;margin-bottom:26px;font-size:12px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
+.place b{width:26px;height:1px;background:var(--sodium);display:block}
+.scrollcue{position:absolute;bottom:26px;right:clamp(20px,4vw,64px);z-index:3;font-size:11px;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:10px}
+.scrollcue span{width:1px;height:38px;background:linear-gradient(var(--sodium),transparent);display:block;
+  animation:drop 2.4s ease-in-out infinite}
+@keyframes drop{0%,100%{opacity:.25;transform:scaleY(.5)}50%{opacity:1;transform:scaleY(1)}}
+
+/* ── belief ──────────────────────────────────────────── */
+.belief{padding-block:clamp(90px,15vh,200px);border-top:1px solid var(--edge)}
+.belief p{font-family:var(--d);font-weight:600;font-size:clamp(1.7rem,4.2vw,3.6rem);
+  line-height:1.12;letter-spacing:-.03em;max-width:20ch}
+.belief p span{color:var(--dim)}
+
+/* ── systems ─────────────────────────────────────────── */
+.systems{padding-block:clamp(60px,10vh,140px)}
+.eyebrow{font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--sodium);margin-bottom:18px}
+.sys{display:grid;gap:2px;margin-top:44px}
+.row{position:relative;display:grid;grid-template-columns:70px 1fr auto;gap:28px;align-items:center;
+  padding:30px 26px;background:var(--deep);cursor:pointer;overflow:hidden;
+  transition:background .45s cubic-bezier(.2,.8,.2,1)}
+.row::after{content:"";position:absolute;inset:0;background:var(--lift);transform:scaleX(0);
+  transform-origin:left;transition:transform .55s cubic-bezier(.16,1,.3,1);z-index:0}
+.row:hover::after,.row.on::after{transform:scaleX(1)}
+.row>*{position:relative;z-index:1}
+.num{font-family:var(--d);font-size:13px;color:var(--dim)}
+.nm{font-family:var(--d);font-weight:700;font-size:clamp(1.3rem,3vw,2.3rem);letter-spacing:-.025em;
+  display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+.nm small{font-family:var(--b);font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);opacity:0;transform:translateX(-8px);transition:.4s .05s}
+.row:hover .nm small,.row.on .nm small{opacity:1;transform:none}
+.line{font-size:14.5px;color:var(--mid);max-width:52ch;margin-top:8px;
+  max-height:0;opacity:0;overflow:hidden;transition:max-height .5s cubic-bezier(.16,1,.3,1),opacity .35s}
+.row:hover .line,.row.on .line{max-height:80px;opacity:1}
+.mat{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.mat.live{color:var(--ok)} .mat.res{color:var(--cold)} .mat.dir{color:var(--dim)}
+
+/* ── detail overlay ──────────────────────────────────── */
+.sheet{position:fixed;inset:0;z-index:80;pointer-events:none}
+.sheet .veil{position:absolute;inset:0;background:color-mix(in srgb,var(--void) 82%,transparent);
+  opacity:0;transition:opacity .45s;backdrop-filter:blur(3px)}
+.sheet .panel{position:absolute;inset:0 0 0 auto;width:min(760px,100%);background:var(--deep);
+  border-left:1px solid var(--edge);transform:translateX(100%);
+  transition:transform .62s cubic-bezier(.16,1,.3,1);overflow-y:auto;padding:clamp(28px,5vw,64px)}
+.sheet.open{pointer-events:auto}
+.sheet.open .veil{opacity:1}
+.sheet.open .panel{transform:none}
+.sheet h2{font-family:var(--d);font-weight:800;font-size:clamp(2rem,5vw,3.4rem);letter-spacing:-.035em;line-height:1}
+.sheet .meta{display:flex;gap:22px;flex-wrap:wrap;margin:20px 0 34px;font-size:11.5px;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+.sheet p{color:var(--mid);max-width:58ch;margin-bottom:16px}
+.proof{margin-top:30px;padding:24px;background:var(--lift);border-left:2px solid var(--sodium)}
+.proof b{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--sodium);margin-bottom:10px}
+.proof p{color:var(--ink);margin:0}
+.x{position:absolute;top:22px;right:22px;background:none;border:0;color:var(--mid);cursor:pointer;
+  font-size:26px;line-height:1;padding:6px}
+.x:hover{color:var(--sodium)}
+
+footer{border-top:1px solid var(--edge);padding-block:60px 70px;margin-top:80px}
+footer .w{display:flex;gap:40px;flex-wrap:wrap;align-items:flex-end}
+footer a{color:var(--sodium);text-decoration:none}
+.big{font-family:var(--d);font-weight:800;font-size:clamp(2rem,6vw,4.6rem);letter-spacing:-.04em;line-height:1;max-width:14ch}
+@media(max-width:820px){
+  nav ul{display:none}
+  .hero{height:92svh}
+  .row{grid-template-columns:1fr auto;gap:12px;padding:22px 18px}
+  .num{display:none}
+  .line{max-height:none;opacity:1;margin-top:10px}
+  .sheet .panel{width:100%}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}
+</style></head><body>
+
+<nav><div class="w">
+  <a class="logo" href="#">LESNAR<i>.</i>AI</a>
+  <ul><li><a href="#systems">Work</a></li><li><a href="#">Capabilities</a></li>
+      <li><a href="#">Engineering</a></li><li><a href="#">Company</a></li></ul>
+  <button class="tog" id="tog" aria-label="Switch theme">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/></svg>
+  </button>
+</div></nav>
+
+<header class="hero">
+  <canvas id="scene"></canvas>
+  <div class="w">
+    <div class="place"><b></b> Nairobi · operating since 2024</div>
+    <h1>Systems that hold when the <em>conditions</em> don't.</h1>
+    <p class="sub">Money moves late. Networks drop. Institutions are slow and people improvise.
+       We build the software that keeps working anyway.</p>
+  </div>
+  <div class="scrollcue"><span></span> Scroll</div>
+</header>
+
+<section class="belief"><div class="w">
+  <p>The hard part was never the model. <span>It is the money, the network, the institution and the person at the counter.</span></p>
+</div></section>
+
+<section class="systems" id="systems"><div class="w">
+  <p class="eyebrow">Eleven systems · five with a public surface</p>
+  <div class="sys" id="sys"></div>
+</div></section>
+
+<footer><div class="w">
+  <p class="big">Bring the problem, not the specification.</p>
+  <p style="margin-left:auto"><a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a><br>
+     <span style="color:var(--dim)">+254 715 540 653</span></p>
+</div></footer>
+
+<div class="sheet" id="sheet"><div class="veil" data-close></div>
+  <article class="panel"><button class="x" data-close aria-label="Close">×</button>
+    <h2 id="s-nm"></h2><div class="meta" id="s-meta"></div>
+    <p id="s-body"></p><div class="proof"><b id="s-pl"></b><p id="s-pv"></p></div>
+  </article></div>
+
+<script>
+const SYS=[
+ ["CarePro","Live","live","Vetted nurses placed with families across Nairobi. Verification, matching and payment held by the platform.","Published on carepro.co.ke","20 nurses joined. 0 approved for assignments. Four verification stages ending in clinical sign-off by a registered nurse."],
+ ["BizMtaani","Live","live","A neighbourhood marketplace. Shops list, customers order and pay from a phone, riders carry it.","Operated by LESNAR AI LTD","One business listed at capture, in one of seven trade categories. The rest are open to apply."],
+ ["Jamii Projects Hub","Live","live","Community projects, votes and records that have to survive later scrutiny.","Running in Mbeere North","A pilot. No membership figure and no project count is published."],
+ ["Gen-Eat","Live","live","Campus food ordered over WhatsApp, collected between lectures.","A pilot at USIU","No order volume and no revenue is published."],
+ ["Hazina Nomads","Live","live","Private Kenyan sourcing for travellers, diaspora families and corporate clients.","Dedicated service and data store","The only infrastructure separation the audit could document directly."],
+ ["Greenhouse controller","Pilot","res","Temperature, moisture and watering held without a person and without a network.","Owner-reported","No firmware, log, photograph or measurement exists. The owner's report is the only basis."],
+ ["SentinelCore","Internal","res","The studio's own tool for checking a Linux server is safe.","Measured 16 Sep 2026","133 tests passed, 0 failed, 21 test files. A passing suite is not deployment."],
+ ["Cypher","Research","res","Rules about what an AI system may do, and a person who approves before anything happens.","Sandbox only","A governance spine to sprint 024, with no live sending."],
+ ["Gold Trader","Research","res","Automated gold trading, tested only on paper.","Paper yes, live no","Gated by its own status table until twenty forward grade-A trades confirm an edge."],
+ ["Aerial systems","Research","res","Drone state and mission simulation, modelled in software.","Nothing has been flown","No control laws, no hardware, no logged flight."],
+ ["Sensing and radar","Direction","dir","A direction we intend to work in.","Nothing is built","The absence is the claim."]];
+const wrap=document.getElementById('sys');
+SYS.forEach((s,i)=>{const d=document.createElement('div');d.className='row';d.tabIndex=0;
+ d.innerHTML=`<span class="num">${String(i+1).padStart(2,'0')}</span>
+   <div><div class="nm">${s[0]}<small>Open</small></div><div class="line">${s[3]}</div></div>
+   <span class="mat ${s[2]}">${s[1]}</span>`;
+ d.onclick=()=>open_(s); d.onkeydown=e=>{if(e.key==='Enter')open_(s)}; wrap.appendChild(d);});
+const sheet=document.getElementById('sheet');
+function open_(s){document.getElementById('s-nm').textContent=s[0];
+ document.getElementById('s-meta').innerHTML=`<span>${s[1]}</span><span>${s[4]}</span>`;
+ document.getElementById('s-body').textContent=s[3];
+ document.getElementById('s-pl').textContent='What the evidence says';
+ document.getElementById('s-pv').textContent=s[5];
+ sheet.classList.add('open');}
+sheet.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>sheet.classList.remove('open'));
+addEventListener('keydown',e=>{if(e.key==='Escape')sheet.classList.remove('open')});
+document.getElementById('tog').onclick=()=>{
+  const r=document.documentElement;r.dataset.theme=r.dataset.theme==='night'?'day':'night';};
+
+/* ── the scene: an operation seen from inside, at depth ── */
+const c=document.getElementById('scene'),x=c.getContext('2d');
+let W,H,DPR,t=0,mx=0,my=0,sc=0;
+const NODES=[],LINKS=[];
+for(let i=0;i<64;i++)NODES.push({x:Math.random()*2-1,y:Math.random()*2-1,z:Math.random(),
+  w:14+Math.random()*90,h:8+Math.random()*44,s:Math.random()*.4+.15,k:Math.random()<.16});
+for(let i=0;i<34;i++)LINKS.push([NODES[(Math.random()*NODES.length)|0],NODES[(Math.random()*NODES.length)|0]]);
+function size(){DPR=Math.min(devicePixelRatio||1,2);W=c.clientWidth;H=c.clientHeight;
+  c.width=W*DPR;c.height=H*DPR;x.setTransform(DPR,0,0,DPR,0,0);}
+addEventListener('resize',size);size();
+addEventListener('pointermove',e=>{mx=(e.clientX/innerWidth-.5);my=(e.clientY/innerHeight-.5);});
+addEventListener('scroll',()=>{sc=scrollY/innerHeight;});
+const css=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+function draw(){
+  t+=.0035;
+  const night=document.documentElement.dataset.theme==='night';
+  x.clearRect(0,0,W,H);
+  const cx=W/2,cy=H/2, sod=css('--sodium'), cold=css('--cold');
+  const pts=NODES.map(n=>{
+    const z=(n.z+t*n.s+sc*.5)%1;                    // camera dolly
+    const p=.35/(z+.18);                             // perspective
+    return {n,z,p,X:cx+(n.x*W*.62+mx*90*(1-z))*p,Y:cy+(n.y*H*.62+my*70*(1-z))*p,
+            a:Math.min(1,(1-z)*1.5)*(night?.85:.6)};
+  });
+  x.lineWidth=1;
+  LINKS.forEach(([a,b])=>{const A=pts[NODES.indexOf(a)],B=pts[NODES.indexOf(b)];
+    if(!A||!B)return; const al=Math.min(A.a,B.a)*.22;
+    if(al<.02)return;
+    x.strokeStyle=hex(sod,al);x.beginPath();x.moveTo(A.X,A.Y);x.lineTo(B.X,B.Y);x.stroke();});
+  pts.sort((a,b)=>b.z-a.z).forEach(({n,p,X,Y,a})=>{
+    const w=n.w*p*1.5,h=n.h*p*1.5;
+    x.strokeStyle=hex(n.k?sod:cold,a*(n.k?.75:.3));
+    x.fillStyle=hex(n.k?sod:cold,a*(n.k?.10:.05));
+    x.beginPath();x.rect(X-w/2,Y-h/2,w,h);x.fill();x.stroke();
+    if(n.k&&p>.5){x.fillStyle=hex(sod,a*.5);x.fillRect(X-w/2,Y-h/2,Math.min(w,7*p),2*p);}
+  });
+  requestAnimationFrame(draw);
+}
+function hex(h,a){h=h.replace('#','');if(h.length===3)h=h.split('').map(s=>s+s).join('');
+  const n=parseInt(h,16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;}
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches)draw();else{size();t=.2;draw.call&&(()=>{})}
+</script></body></html>

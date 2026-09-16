@@ -1,0 +1,200 @@
+<!doctype html><html lang="en" data-theme="paper"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LESNAR AI — Direction B · The Monograph</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --paper:#F3F3F1; --card:#FFFFFF; --ink:#0B0B0C; --soft:#55565B; --faint:#9A9BA1;
+  --rule:#D6D6D2; --accent:#1B34FF; --flag:#C8320F;
+  --d:"Instrument Serif",Georgia,serif; --b:"Inter Tight",system-ui,sans-serif;
+}
+:root[data-theme="press"]{
+  --paper:#0C0C0E; --card:#141417; --ink:#F4F4F2; --soft:#A8A9AF; --faint:#6A6B72;
+  --rule:#26262B; --accent:#8AA0FF; --flag:#FF7A55;
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--b);font-size:17px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+.w{max-width:1440px;margin:0 auto;padding-inline:clamp(18px,4vw,72px)}
+a{color:inherit}
+
+/* ── masthead ─────────────────────────────────────────── */
+.mast{border-bottom:1px solid var(--ink);position:sticky;top:0;z-index:50;background:var(--paper)}
+.mast .w{display:flex;align-items:baseline;gap:clamp(16px,3vw,48px);padding-block:16px}
+.wordmark{font-family:var(--d);font-size:clamp(22px,2.4vw,30px);letter-spacing:-.01em;text-decoration:none}
+.wordmark i{font-style:italic;color:var(--accent)}
+.mast nav{margin-left:auto;display:flex;gap:clamp(14px,2vw,32px)}
+.mast nav a{text-decoration:none;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+.mast nav a:hover{color:var(--accent)}
+.tt{background:none;border:0;cursor:pointer;color:var(--soft);font-size:13px;letter-spacing:.1em;
+  text-transform:uppercase;padding:0}
+.tt:hover{color:var(--accent)}
+
+/* ── cover ────────────────────────────────────────────── */
+.cover{padding-block:clamp(40px,7vw,96px) clamp(30px,5vw,70px);border-bottom:1px solid var(--ink)}
+.issue{display:flex;justify-content:space-between;font-size:12px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--faint);border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:clamp(26px,4vw,54px)}
+.cover h1{font-family:var(--d);font-weight:400;font-size:clamp(3.4rem,11vw,11rem);line-height:.86;
+  letter-spacing:-.035em;text-wrap:balance}
+.cover h1 em{font-style:italic;color:var(--accent)}
+.deck{display:grid;grid-template-columns:1fr;gap:clamp(20px,3vw,48px);margin-top:clamp(28px,4vw,58px)}
+@media(min-width:900px){.deck{grid-template-columns:1.1fr .9fr;align-items:end}}
+.deck p{font-size:clamp(1.05rem,1.5vw,1.35rem);color:var(--soft);max-width:44ch;line-height:1.42}
+.dropcap::first-letter{font-family:var(--d);font-size:3.4em;float:left;line-height:.78;padding:.06em .12em 0 0;color:var(--ink)}
+.stat{display:flex;gap:clamp(20px,3vw,44px);align-self:end}
+.stat div{border-top:2px solid var(--ink);padding-top:10px}
+.stat b{font-family:var(--d);font-size:clamp(2rem,4vw,3.4rem);display:block;line-height:1}
+.stat span{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+
+/* ── feature ──────────────────────────────────────────── */
+.feature{border-bottom:1px solid var(--ink);padding-block:clamp(48px,8vw,120px)}
+.kicker{font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--flag);margin-bottom:18px}
+.feature h2{font-family:var(--d);font-weight:400;font-size:clamp(2.2rem,6vw,5.2rem);line-height:.96;
+  letter-spacing:-.03em;max-width:17ch}
+.pull{display:grid;gap:clamp(24px,4vw,64px);margin-top:clamp(28px,4vw,56px)}
+@media(min-width:960px){.pull{grid-template-columns:1fr 1fr;align-items:start}}
+.plate{position:relative;background:var(--card);border:1px solid var(--rule);overflow:hidden}
+.plate img{display:block;width:100%;height:auto;
+  clip-path:inset(0 0 0 0);transition:transform .9s cubic-bezier(.16,1,.3,1)}
+.plate:hover img{transform:scale(1.035)}
+.plate figcaption{position:absolute;left:0;bottom:0;right:0;padding:14px 18px;
+  background:linear-gradient(transparent,color-mix(in srgb,var(--card) 96%,transparent) 55%);
+  font-size:12px;letter-spacing:.09em;color:var(--soft)}
+.note{border-left:2px solid var(--accent);padding-left:18px;margin-top:22px}
+.note b{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+
+/* ── index of work ────────────────────────────────────── */
+.index{padding-block:clamp(40px,6vw,90px)}
+.item{border-top:1px solid var(--rule);padding-block:clamp(18px,2.4vw,30px);cursor:pointer;
+  display:grid;grid-template-columns:52px 1fr auto;gap:clamp(14px,2.4vw,40px);align-items:baseline;
+  transition:padding-left .5s cubic-bezier(.16,1,.3,1)}
+.item:hover,.item:focus-visible{padding-left:14px;outline:0}
+.item:last-child{border-bottom:1px solid var(--rule)}
+.item .n{font-family:var(--d);font-size:15px;color:var(--faint)}
+.item h3{font-family:var(--d);font-weight:400;font-size:clamp(1.5rem,3.6vw,2.9rem);line-height:1;letter-spacing:-.02em}
+.item p{font-size:14.5px;color:var(--soft);max-width:54ch;margin-top:8px;
+  opacity:0;max-height:0;overflow:hidden;transition:.5s cubic-bezier(.16,1,.3,1)}
+.item:hover p,.item:focus-visible p{opacity:1;max-height:72px}
+.item .st{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);white-space:nowrap}
+.item .st.l{color:var(--flag)}
+
+/* ── article overlay ──────────────────────────────────── */
+.art{position:fixed;inset:0;z-index:90;pointer-events:none}
+.art .bg{position:absolute;inset:0;background:var(--paper);transform:translateY(100%);
+  transition:transform .7s cubic-bezier(.16,1,.3,1);overflow-y:auto}
+.art.on{pointer-events:auto}.art.on .bg{transform:none}
+.art.on .close{opacity:1;pointer-events:auto}
+.art .inner{max-width:900px;margin:0 auto;padding:clamp(56px,9vw,120px) clamp(18px,4vw,48px)}
+.art h2{font-family:var(--d);font-weight:400;font-size:clamp(2.4rem,7vw,5rem);line-height:.95;letter-spacing:-.03em}
+.art .meta{display:flex;gap:26px;flex-wrap:wrap;margin:22px 0 40px;padding-bottom:20px;
+  border-bottom:1px solid var(--rule);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+.art p{color:var(--soft);max-width:60ch;margin-bottom:18px;font-size:17.5px}
+.art .lead{font-family:var(--d);font-size:clamp(1.3rem,2.6vw,1.9rem);color:var(--ink);line-height:1.3;max-width:34ch}
+.close{position:fixed;opacity:0;pointer-events:none;transition:opacity .3s;top:22px;right:clamp(18px,4vw,48px);background:var(--ink);color:var(--paper);
+  border:0;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:20px;z-index:2}
+footer{border-top:1px solid var(--ink);padding-block:clamp(44px,7vw,90px)}
+footer h2{font-family:var(--d);font-weight:400;font-size:clamp(2.2rem,7vw,5.4rem);line-height:.94;letter-spacing:-.03em;max-width:13ch}
+footer .row{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;margin-top:40px;
+  font-size:14px;color:var(--soft)}
+footer a{color:var(--accent);text-decoration:none}
+@media(max-width:820px){
+  .mast nav{display:none}
+  .item{grid-template-columns:1fr auto;gap:10px}
+  .item .n{display:none}
+  .item p{opacity:1;max-height:none}
+}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+</style></head><body>
+
+<header class="mast"><div class="w">
+  <a class="wordmark" href="#">Lesnar<i>AI</i></a>
+  <nav><a href="#index">Work</a><a href="#">Capabilities</a><a href="#">Engineering</a><a href="#">Company</a></nav>
+  <button class="tt" id="tt">Press</button>
+</div></header>
+
+<section class="cover"><div class="w">
+  <div class="issue"><span>Nairobi, Kenya</span><span>Operational systems</span><span>№ 01</span></div>
+  <h1>We build for the conditions, not the <em>demo</em>.</h1>
+  <div class="deck">
+    <p class="dropcap">Money moves late. Networks drop. Institutions are slow, and the person at the
+      counter improvises. LESNAR AI builds and operates the software that keeps working when none of
+      that behaves like a clean assumption.</p>
+    <div class="stat">
+      <div><b>11</b><span>Systems</span></div>
+      <div><b>5</b><span>Public surfaces</span></div>
+      <div><b>1</b><span>Engineer</span></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="feature"><div class="w">
+  <p class="kicker">Feature · Verification</p>
+  <h2>What “verified” has to mean when a nurse enters a stranger's home.</h2>
+  <div class="pull">
+    <figure class="plate">
+      <img src="../carepro.png" alt="CarePro's published verification panel showing four numbered stages and its own counters.">
+      <figcaption>CarePro, carepro.co.ke · captured 16 September 2026</figcaption>
+    </figure>
+    <div>
+      <p>CarePro places vetted nurses with families across Nairobi. Before anyone is matched, a
+         licence is checked against the Nursing Council register, an interview is scored against a
+         clinical rubric, and a registered nurse reviews the whole file.</p>
+      <p>The platform publishes its own count. Twenty nurses have joined. None has been approved.</p>
+      <div class="note"><b>Why that number stays up</b>
+        The gate is the product. A zero means nobody was waved through, and we would rather publish
+        that than a figure that flatters us.</div>
+    </div>
+  </div>
+</div></section>
+
+<section class="index" id="index"><div class="w">
+  <p class="kicker">The work · eleven entries</p>
+  <div id="list"></div>
+</div></section>
+
+<footer><div class="w">
+  <h2>Bring the problem, not the specification.</h2>
+  <div class="row">
+    <span>A paragraph is enough. We reply within two working days.</span>
+    <span><a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a> · +254 715 540 653</span>
+  </div>
+</div></footer>
+
+<div class="art" id="art"><button class="close" data-x aria-label="Close">×</button>
+  <div class="bg"><div class="inner">
+    <h2 id="a-t"></h2><div class="meta" id="a-m"></div>
+    <p class="lead" id="a-l"></p><p id="a-b"></p>
+    <div class="note"><b>Evidence</b><span id="a-e"></span></div>
+  </div></div></div>
+
+<script>
+const W=[["CarePro","Live","l","Vetted nurses placed with families across Nairobi.","Published · carepro.co.ke","Twenty joined, none approved. Four stages ending in clinical sign-off."],
+["BizMtaani","Live","l","Shops list, customers order and pay by phone, riders carry it.","Published · bizmtaani.com","One business listed at capture, across one of seven categories."],
+["Jamii Projects Hub","Live","l","Community projects, votes and records built to survive scrutiny.","Published · Mbeere North","A pilot. No membership or project count is published."],
+["Gen-Eat","Live","l","Campus food ordered over WhatsApp, collected between lectures.","Published · USIU","No order volume or revenue is published."],
+["Hazina Nomads","Live","l","Private Kenyan sourcing, delivered with discretion.","Published","Its own service and data store. The one separation we can document."],
+["Greenhouse controller","Pilot","","Climate held without a person and without a network.","Owner-reported","No firmware, log or measurement exists. The owner's word is the basis."],
+["SentinelCore","Internal","","Our own tool for checking a Linux server is safe.","Measured","133 tests passed, 0 failed. A passing suite is not a deployment."],
+["Cypher","Research","","Rules for what an AI may do, and a person who approves first.","Sandbox","A governance spine to sprint 024, with no live sending."],
+["Gold Trader","Research","","Automated gold trading, tested only on paper.","Paper only","Gated by its own table until twenty forward grade-A trades confirm an edge."],
+["Aerial systems","Research","","Drone state and mission simulation, modelled in software.","Nothing flown","No control laws, no hardware, no logged flight."],
+["Sensing and radar","Direction","","A direction we intend to work in.","Nothing built","The absence is the claim."]];
+const L=document.getElementById('list');
+W.forEach((w,i)=>{const d=document.createElement('article');d.className='item';d.tabIndex=0;
+ d.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span>
+  <div><h3>${w[0]}</h3><p>${w[3]}</p></div><span class="st ${w[2]}">${w[1]}</span>`;
+ const go=()=>{document.getElementById('a-t').textContent=w[0];
+  document.getElementById('a-m').innerHTML=`<span>${w[1]}</span><span>${w[4]}</span>`;
+  document.getElementById('a-l').textContent=w[3];
+  document.getElementById('a-b').textContent=w[5];
+  document.getElementById('a-e').textContent=w[4];
+  document.getElementById('art').classList.add('on');};
+ d.onclick=go;d.onkeydown=e=>{if(e.key==='Enter')go()};L.appendChild(d);});
+document.querySelector('[data-x]').onclick=()=>document.getElementById('art').classList.remove('on');
+addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('art').classList.remove('on')});
+const tt=document.getElementById('tt');
+tt.onclick=()=>{const r=document.documentElement;
+  r.dataset.theme=r.dataset.theme==='paper'?'press':'paper';
+  tt.textContent=r.dataset.theme==='paper'?'Press':'Paper';};
+</script></body></html>
