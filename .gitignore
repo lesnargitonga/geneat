@@ -57,3 +57,6 @@ test_keys.py
 deploy/render/*.local
 deploy/render/*.local.env
 deploy/render/*.secrets.env
+
+# Vercel project link (contains project and org IDs)
+.vercel/

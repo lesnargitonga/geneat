@@ -1,0 +1,6 @@
+# The Vercel project's Root Directory is lesnarai-landing. Everything else in
+# this monorepo is product code, studies and evidence, and has no business in
+# a static site deployment.
+*
+!lesnarai-landing
+!lesnarai-landing/**
