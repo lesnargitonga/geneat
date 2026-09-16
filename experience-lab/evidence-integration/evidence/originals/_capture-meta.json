@@ -1,0 +1,118 @@
+[
+ {
+  "id": "carepro",
+  "url": "https://carepro.co.ke/",
+  "status": 200,
+  "title": "CarePro, Verified home nursing, coordinated with care",
+  "h1": [
+   "Rest while we take care ofYour loved ones"
+  ],
+  "nav": [
+   "Care services",
+   "How we vet",
+   "Travel · Events · Corporate",
+   "For nurses",
+   "Log in",
+   "Get started",
+   "Terms of Service",
+   "Privacy & Medical Data",
+   "Nurse Agreement"
+  ],
+  "words": 4337,
+  "forms": 0,
+  "errs": 0,
+  "sha256": "662e87e953c240b0",
+  "bytes": 536300
+ },
+ {
+  "id": "bizmtaani",
+  "url": "https://bizmtaani.com/",
+  "status": 200,
+  "title": "BizMtaani · Your neighbourhood, open for business",
+  "h1": [
+   "Your neighbourhood, open for business"
+  ],
+  "nav": [
+   "BizMtaani"
+  ],
+  "words": 1220,
+  "forms": 1,
+  "errs": 0,
+  "sha256": "2dce0b7b89698dbe",
+  "bytes": 387437
+ },
+ {
+  "id": "jamii",
+  "url": "https://jamii.lesnarai.co.ke/",
+  "status": 200,
+  "title": "Jamii Projects Hub: community projects and clear group records",
+  "h1": [
+   "See what your community is doing, and have your say."
+  ],
+  "nav": [
+   "JJamii Projects HubCommunity projects & clear group records",
+   "Projects",
+   "Forms",
+   "Help",
+   "Request access",
+   "About",
+   "Log in",
+   "Create account",
+   "Public projects",
+   "Submit a project",
+   "Public forms",
+   "Help",
+   "Request access",
+   "Governance"
+  ],
+  "words": 7202,
+  "forms": 0,
+  "errs": 0,
+  "sha256": "248203feeaa836d7",
+  "bytes": 417016
+ },
+ {
+  "id": "geneat",
+  "url": "https://geneat.lesnarai.co.ke/",
+  "status": 200,
+  "title": "Gen-Eat · USIU campus food, on tap",
+  "h1": [
+   "Eat betweenclasses."
+  ],
+  "nav": [
+   "GGen-Eat",
+   "Cafés",
+   "Campus map",
+   "For owners",
+   "About",
+   "Order now"
+  ],
+  "words": 2238,
+  "forms": 0,
+  "errs": 0,
+  "sha256": "ff24cd053372b980",
+  "bytes": 340532
+ },
+ {
+  "id": "hazina",
+  "url": "https://hazina.lesnarai.co.ke/",
+  "status": 200,
+  "title": "Hazina Nomads · Private Sourcing Concierge",
+  "h1": [
+   "Private Kenyan curation, delivered with discretion."
+  ],
+  "nav": [
+   "Hazina Nomads",
+   "Collections",
+   "Build",
+   "Curation",
+   "About",
+   "Continue on WhatsApp"
+  ],
+  "words": 3399,
+  "forms": 0,
+  "errs": 0,
+  "sha256": "1be333e7800b41e9",
+  "bytes": 3288632
+ }
+]

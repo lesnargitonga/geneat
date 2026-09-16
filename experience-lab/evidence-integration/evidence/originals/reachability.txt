@@ -1,0 +1,11 @@
+reachability measurement · method: single HTTP GET, curl/8, 12s timeout, no auth, no redirect-follow-limit, from Nairobi client · 2026-09-16T06:24:58Z
+URL                                            CODE   TIME_s    FINAL
+https://carepro.co.ke                          200 2.612547 https://carepro.co.ke/
+https://bizmtaani.com                          200 0.869064 https://bizmtaani.com/
+https://jamii.lesnarai.co.ke                   200 3.567641 https://jamii.lesnarai.co.ke/
+https://jamii-projects-hub-prod.vercel.app     200 0.837579 https://jamii-projects-hub-prod.vercel.app/
+https://geneat.lesnarai.co.ke                  200 0.618521 https://geneat.lesnarai.co.ke/
+https://hazina.lesnarai.co.ke                  200 1.249733 https://hazina.lesnarai.co.ke/
+https://hazina-portal.onrender.com             404 0.758195 https://hazina-portal.onrender.com/
+https://api.lesnarai.co.ke/healthz             403 0.389232 https://api.lesnarai.co.ke/healthz
+https://lesnarai.co.ke                         200 1.762515 https://www.lesnarai.co.ke/

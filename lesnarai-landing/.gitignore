@@ -5,3 +5,5 @@ project.json
 # System
 .DS_Store
 *.log
+.vercel
+.env*

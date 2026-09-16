@@ -1,0 +1,24 @@
+asset                                                    kind                 finding
+evidence/originals/reachability.txt                      text                 ⚠ {'internal host': ['hazina-portal.onrender.com']}
+evidence/originals/sentinelcore-tests.txt                text                 clean
+evidence/registry.json                                   text                 clean
+evidence/claims.json                                     text                 clean
+evidence/gaps.md                                         text                 clean
+evidence/web/carepro-verification-2026-09-16.png         image·visible-text   clean
+evidence/web/carepro-counts-2026-09-16.png               image·visible-text   clean
+evidence/web/bizmtaani-roles-2026-09-16.png              image·visible-text   clean
+evidence/web/bizmtaani-hero-2026-09-16.png               image·visible-text   clean
+evidence/originals/carepro-home-1440.png                 image·visible-text   clean
+evidence/originals/bizmtaani-home-1440.png               image·visible-text   clean
+evidence/originals/jamii-home-1440.png                   image·visible-text   clean
+evidence/originals/geneat-home-1440.png                  image·visible-text   clean
+evidence/originals/hazina-home-1440.png                  image·visible-text   clean
+
+13/14 assets clean on content inspection
+
+Also verified by construction:
+  · every capture was made unauthenticated — no session, no cookie, no login
+  · nothing was submitted: no form, no sign-up, no order, no payment, no write
+  · no authenticated or admin route was visited on any product
+  · the SentinelCore artifact publishes only a pass/fail summary — no host,
+    path, target, finding, topology or configuration

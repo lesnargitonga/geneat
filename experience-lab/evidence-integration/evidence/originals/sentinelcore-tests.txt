@@ -1,0 +1,13 @@
+SENTINELCORE — CONTROLLED TEST RUN
+method   : python3 -m pytest tests -q
+repo     : SentinelCore (private), commit 65cbd3c
+host     : local Linux workstation (host identity deliberately omitted)
+when     : 2026-09-16, Africa/Nairobi
+scope    : no network target scanned, no host modified, no live system touched
+
+........................................................................ [ 54%]
+.............................................................            [100%]
+133 passed, 1 warning in 21.87s
+
+LIMIT    : a passing suite proves the implementation behaves as its own tests specify.
+           It does not prove deployment, operational use, or that any real server is protected.

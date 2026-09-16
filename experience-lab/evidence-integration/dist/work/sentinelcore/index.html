@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SentinelCore · LESNAR AI</title>
+<meta name="description" content="SentinelCore: a LESNAR AI system record, showing what the product publishes, what we interpret, its maturity and the limits of the evidence.">
+<link rel="canonical" href="https://lesnarai.co.ke/work/sentinelcore/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LESNAR AI">
+<meta property="og:title" content="SentinelCore · LESNAR AI">
+<meta property="og:description" content="SentinelCore: a LESNAR AI system record, showing what the product publishes, what we interpret, its maturity and the limits of the evidence.">
+<meta property="og:url" content="https://lesnarai.co.ke/work/sentinelcore/">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<script>document.documentElement.dataset.js="on";try{var t=localStorage.getItem("lesnarai-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/system.css">
+<link rel="stylesheet" href="/motion.css">
+<script src="/motion.js" defer></script>
+<script src="/theme.js" defer></script>
+</head>
+<body>
+<header class="site-head"><div class="w">
+  <a class="mark" href="/">LESNAR<i>AI</i></a>
+  <nav class="site-nav" aria-label="Primary"><a href="/work/">Work</a><a href="/capabilities/">Capabilities</a><a href="/engineering/">Engineering</a><a href="/company/">Company</a><a class="nav-start" href="/start/">Start</a></nav>
+  <div class="head-r">
+    <a class="start" href="/start/">Start</a>
+    <a class="menu" href="/menu/" aria-expanded="false">Menu</a>
+  </div>
+</div>
+<div class="panel" id="menu-panel"><div class="w">
+  <ul>
+    <li><a href="/work/">Work</a></li>
+    <li><a href="/capabilities/">Capabilities</a></li>
+    <li><a href="/engineering/">Engineering</a></li>
+    <li><a href="/company/">Company</a></li>
+  </ul>
+  <a class="close" href="/">Close &times;</a>
+</div></div></header>
+<main class="w">
+
+<p class="parent"><a href="/work/">&larr; Register</a> <b>LESNAR AI</b> &middot; system record
+  &middot; Nairobi</p>
+<div class="open">
+  <p class="open__k">Internal &middot; no public surface</p>
+  <h1>SentinelCore</h1>
+  <p class="open__l">The company's own tool for checking a Linux server is safe: it scans for
+     open doors, watches the logs for trouble, and tightens the settings that matter.</p>
+</div>
+
+<section data-density="normal">
+  <span class="k">What this record is</span>
+  <p class="lede">SentinelCore is run by LESNAR AI on its own infrastructure. It is not sold,
+     not hosted for anyone, and has no customer deployment. It appears in the register because
+     it exists and is used, not because it is a product.</p>
+</section>
+
+<section data-density="dense">
+  <span class="k">What the command actually does</span>
+  <h2>Five modules and one orchestrator</h2>
+  <p class="lede">Read from the source, not from a running system. This is the committed
+     structure, named as the repository names it, with each component&rsquo;s implementation
+     state beside it.</p>
+  <div class="struct">
+    <div class="struct__r" data-impl="yes"><span class="struct__k">Orchestrator</span>
+      <span class="struct__w">Runs the stages in order</span><span class="struct__s">Implemented</span></div>
+    <div class="struct__r" data-impl="yes"><span class="struct__k">Module</span>
+      <span class="struct__w">Async port scanning</span><span class="struct__s">Implemented</span></div>
+    <div class="struct__r" data-impl="yes"><span class="struct__k">Module</span>
+      <span class="struct__w">An inotify log watcher</span><span class="struct__s">Implemented</span></div>
+    <div class="struct__r" data-impl="yes"><span class="struct__k">Module</span>
+      <span class="struct__w">Settings hardening</span><span class="struct__s">Implemented</span></div>
+    <div class="struct__r" data-impl="no"><span class="struct__k">Stage</span>
+      <span class="struct__w">Present in the control flow, with no implementation behind it</span>
+      <span class="struct__s">Wired &middot; not built</span></div>
+    <div class="struct__r" data-impl="no"><span class="struct__k">Stage</span>
+      <span class="struct__w">Present in the control flow, with no implementation behind it</span>
+      <span class="struct__s">Wired &middot; not built</span></div>
+  </div>
+  <div class="resp" style="margin-top:14px"><dl>
+    <dt>Source fact</dt><dd>The repository contains five modules and one orchestrator, and two
+      stages wired into the control flow but not implemented.</dd>
+    <dt>Interpretation</dt><dd>The order is <b>read from the source</b>, not observed on a
+      running system. <b>No operational handoff is claimed.</b> These are components, not
+      actors passing responsibility to one another.</dd>
+    <dt>Limit</dt><dd>Nothing here is operated, so nothing operated is shown. This evidences
+      that the code is organised this way, and nothing more.</dd>
+  </dl></div>
+</section>
+
+<section data-density="normal">
+  <span class="k">Evidence</span>
+  <h2>What is committed</h2>
+  <p class="lede">With no public surface there is no capture to show. What the register
+     publishes instead is the set of commitments the system is built to hold, listed exactly as
+     stated in the source.</p>
+  <ul class="plain" style="margin-top:12px">
+    <li>Async port scanning.</li>
+    <li>An inotify log watcher.</li>
+    <li>Settings hardening on the checks that matter.</li>
+    <li>Two further stages wired in and not yet built.</li>
+  </ul>
+  <p class="limit"><b>Not claimed</b><span>A commitment is not a measurement. No detection rate,
+    no coverage figure, no benchmark and no security assurance is published, and none should be
+    inferred from the fact that the code exists.</span></p>
+</section>
+
+<section data-density="normal">
+  <span class="k">Evidence &middot; measured</span>
+  <h2>The suite, run and recorded</h2>
+  <p class="lede">The one thing that can honestly be measured about a system with no public
+     surface is whether its own tests pass, by a method anyone can repeat.</p>
+  <div class="rows" style="margin-top:16px">
+    <div><b>Method</b><span><code>python3 -m pytest tests -q</code> on the SentinelCore repository
+      at a recorded commit, on a local Linux workstation. No network target was scanned and no
+      host was modified.</span></div>
+    <div><b>Result</b><span><b>133 tests passed, 0 failed, in 21.87s</b> across 21 test files:
+      detection, exposure graph, monitoring, evidence legal hold, offensive lifecycle and safety,
+      and owned-source connectors.</span></div>
+    <div><b>Captured</b><span>16 Sep 2026 &middot; EV-SENTINEL-TESTS-01</span></div>
+    <div><b>Strength</b><span>Measured by us, by a stated method, on a stated day.</span></div>
+  </div>
+  <p class="limit"><b>What a passing suite does not prove</b><span>That SentinelCore is deployed,
+    operated, or protecting any real server. It proves the implementation behaves as its own tests
+    specify. Nothing about the world follows from that.</span></p>
+</section>
+
+<section data-density="quiet">
+  <span class="k">Why it is here</span>
+  <p class="lede">SentinelCore is the worked example behind one engineering principle: measure
+     instead of assert. It is the company's deepest record and it belongs to nobody else.</p>
+  <a class="act" href="/engineering/">Engineering principles &rarr;</a>
+</section>
+
+</main>
+<footer class="site-foot"><div class="w">
+  <div><h4>LESNAR AI</h4><p>Nairobi, Kenya.</p>
+    <p>Software, AI, security and connected systems.</p></div>
+  <div><h4>Go</h4><ul>
+    <li><a href="/work/">Work</a></li><li><a href="/capabilities/">Capabilities</a></li>
+    <li><a href="/engineering/">Engineering</a></li><li><a href="/company/">Company</a></li>
+    <li><a href="/start/">Start</a></li></ul></div>
+  <div><h4>Direct</h4>
+    <p>hello@lesnarai.co.ke</p><p>WhatsApp +254 715 540 653</p></div>
+</div>
+<div class="w"><p class="studynote">Phase 9A integrated evidence study · route in production: <b>/work/sentinelcore/</b><br>
+  Not the site. Every claim here is registered in evidence/claims.json, and every evidence object in
+  evidence/registry.json. Every control is created by script. With scripting off, none of them
+  exist and every fact is still stated.</p></div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,38 @@
+[
+ {
+  "id": "carepro-verification-2026-09-16",
+  "url": "https://carepro.co.ke/",
+  "label": "CarePro published verification sequence",
+  "sel": "div.rounded-3xl:has-text(\"WHAT “VERIFIED” ACTUALLY MEANS\")",
+  "sha256": "b449d400d64b2f1f80a5ac7b29e8df4c491549e59b79d6114e39f3b1fe8a6df2",
+  "bytes": 92688,
+  "visible_text": "WHAT “VERIFIED” ACTUALLY MEANS 01 Credentials National ID, nursing council licence and certificate of good conduct are required; uploaded certificates are also reviewed by hand. 02 Registry check Licence verified against the Nursing Council of Kenya register, with expiry tracked continuously. 03 Interview A structured interview scored on a clinical rubric by our operations team. 04 Clinical sign-off A registered nurs"
+ },
+ {
+  "id": "carepro-counts-2026-09-16",
+  "url": "https://carepro.co.ke/",
+  "label": "CarePro published counters",
+  "sel": "div.grid.grid-cols-2:has-text(\"Nurses joined CarePro\")",
+  "sha256": "e84ebda47bb532cb240713f336e2fee2d7a6e702a4e9220da1347098faebc967",
+  "bytes": 10155,
+  "visible_text": "Nurses joined CarePro 20 Approved for assignments 0"
+ },
+ {
+  "id": "bizmtaani-roles-2026-09-16",
+  "url": "https://bizmtaani.com/",
+  "label": "BizMtaani published role structure",
+  "sel": "footer",
+  "sha256": "ba672216c63e4ff7244a7e46f0851a4e75bddd07dcac7291bbc8186a5f3e8c13",
+  "bytes": 300973,
+  "visible_text": "BizMtaani Find a business near you, order and pay from your phone. Any business can apply to sell here. BUYING Browse businesses Your orders Your account ABOUT Questions What we do Your details Terms Privacy SELLING Apply to join What it costs Businesses with branches For larger businesses Ride or drive Business sign-in 0715 540 653 hello@lesnarai.co.ke © 2026 BizMtaani, operated by LESNAR AI LTD. Each business sets "
+ },
+ {
+  "id": "bizmtaani-hero-2026-09-16",
+  "url": "https://bizmtaani.com/",
+  "label": "BizMtaani published flow statement",
+  "sel": "header, .hero, main > :first-child",
+  "sha256": "1fb35090a505273afcfeb3e10abcb305ced3f8bfa4085b29b79ddf3941914c3e",
+  "bytes": 46399,
+  "visible_text": "BizMtaani"
+ }
+]

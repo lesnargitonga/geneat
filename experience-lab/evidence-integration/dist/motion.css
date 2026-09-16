@@ -1,0 +1,254 @@
+/* ═══ LESNAR AI · PHASE 8 · MOTION & INTERACTION ═══════════════════════════
+   Loaded after system.css. Phase 7 remains the visual truth; this file only
+   adds behaviour over time.
+
+   FOUR FAMILIES, NOTHING ELSE.
+     1 TRANSFER    responsibility crossing from one actor to another
+     2 SURFACE     a surface allocating or releasing space it really occupies
+     3 MARK        which row is being pointed at, and where a jump landed
+     4 CONTACT     an input was received — press, focus, validity
+
+   What is deliberately absent: entrance animation, scroll reveal, parallax,
+   ambient loops, counters, autoplay, staggered lists, page transitions.
+   Nothing on this site moves unless a person caused it to move.             */
+
+:root{
+  /* Chosen by rendered comparison (see frames/timing-*.png), not convention.
+     FAST is the longest delay that still reads as contact rather than lag.
+     STANDARD is the shortest that lets the eye follow an edge that is moving
+     a real distance. SIGNATURE is the shortest at which a four-way state
+     change is legible as one transfer instead of three separate flickers. */
+  --t-fast:110ms;
+  --t-std:200ms;
+  /* 340ms linear: the ink is visibly in motion for ~100ms across 6 rendered
+     frames — well clear of the ~2-frame point at which a change stops
+     reading as a move and becomes a cut — and it settles at 254ms, so a
+     reader stepping quickly is never waiting on the animation. */
+  --t-sig:340ms;
+  /* Two curves.
+     CONTACT eases: a control is a response, and easing makes the response
+     feel attached to the finger.
+     STRUCTURE is linear, for two reasons that agree. Measured (proof/curve.mjs)
+     every eased curve spent only ~50-59% of its declared duration visibly
+     changing, because ink fading to transparent reaches the ground long
+     before its alpha does; linear reaches 75-77% and gives twice as many
+     rendered frames of visible change at the same duration. And it is the
+     honest curve for the thing being shown: an eased transfer implies
+     momentum and settling, but responsibility does not accelerate. It is a
+     quantity being moved from one owner to another at one rate. */
+  --e-contact:cubic-bezier(.2,0,.2,1);
+  --e-struct:linear;
+}
+
+/* ═══ 1 · TRANSFER ════════════════════════════════════════════════════════
+   Phase 5's vocabulary, unchanged and not extended:
+     FILLED   an actor currently holds responsibility
+     OUTLINED an actor has released it
+     PARTED   responsibility is transferring; NEITHER actor holds it
+     PLAIN    not responsible — not yet, no longer, or observing
+
+   Two rules follow from that and govern everything below.
+
+   A GAP CANNOT BE A HOLDER. The crossing boundary is never given the holder
+   fill. It is drawn as two opposed ink slabs with the page ground open
+   between them: the strongest structural event on screen, and unmistakably
+   "between" rather than "here". There is no fifth term — it is PARTED.
+
+   RESPONSIBILITY IS ACTOR-LEVEL. Consecutive steps by one actor form a single
+   ownership REGION and are drawn as one continuous object carrying one label.
+   Two adjacent rows are two published actions, never two holders.            */
+
+.op[data-js] .step{
+  transition:background var(--t-sig) var(--e-struct),
+             color      var(--t-sig) var(--e-struct),
+             box-shadow var(--t-sig) var(--e-struct),
+             border-bottom-color var(--t-sig) var(--e-struct),
+             padding    var(--t-sig) var(--e-struct)}
+.op[data-js] .own{transition:opacity var(--t-fast) var(--e-contact)}
+.op[data-moving] .own{opacity:0!important}
+.op[data-js] .bound{
+  transition:border-width var(--t-sig) var(--e-struct),
+             border-color var(--t-sig) var(--e-struct),
+             padding      var(--t-sig) var(--e-struct)}
+
+/* ── FILLED · one ownership region, one continuous ink field ───────────── */
+.step[data-own="held"]{background:var(--fg);color:var(--page);
+  padding-left:16px;padding-right:16px}
+.step[data-own="held"] b{color:var(--page);opacity:.74}
+.step[data-own="held"] span{font-weight:600}
+/* internal row rules disappear so the region reads as ONE object */
+.step[data-own="held"][data-run="first"],
+.step[data-own="held"][data-run="mid"]{border-bottom-color:transparent}
+.step[data-own="held"][data-run="first"],
+.step[data-own="held"][data-run="only"]{padding-top:19px}
+.step[data-own="held"][data-run="last"],
+.step[data-own="held"][data-run="only"]{padding-bottom:19px}
+
+/* ── OUTLINED · the same region, drawn as one outline, ink departed ────── */
+.step[data-own="released"]{padding-left:16px;padding-right:16px;
+  border-bottom-color:transparent}
+.step[data-own="released"][data-run="first"]{padding-top:19px;
+  box-shadow:inset 2px 0 0 0 var(--fg),inset -2px 0 0 0 var(--fg),inset 0 2px 0 0 var(--fg)}
+.step[data-own="released"][data-run="mid"]{
+  box-shadow:inset 2px 0 0 0 var(--fg),inset -2px 0 0 0 var(--fg)}
+.step[data-own="released"][data-run="last"]{padding-bottom:19px;
+  box-shadow:inset 2px 0 0 0 var(--fg),inset -2px 0 0 0 var(--fg),inset 0 -2px 0 0 var(--fg)}
+.step[data-own="released"][data-run="only"]{padding-top:19px;padding-bottom:19px;
+  box-shadow:inset 0 0 0 2px var(--fg)}
+
+/* PLAIN needs no rule: it is the resting step. WATCHING is PLAIN plus a word,
+   and carries no ownership treatment of any kind. */
+
+/* ── the word · one per region, never per row ──────────────────────────── */
+.own{font-style:normal;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;font-weight:500;color:var(--fg-3);opacity:0;
+  justify-self:start;white-space:nowrap}
+.step[data-own] .own{opacity:1}
+.step[data-own="held"] .own{color:var(--page)}
+.op[data-js] .step{grid-template-columns:minmax(0,9rem) minmax(0,1fr) minmax(0,7.5rem)}
+@media (max-width:820px){
+  .op[data-js] .step{
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"who own" "act act";
+    gap:5px 14px;align-items:baseline}
+  .op[data-js] .step > b{grid-area:who}
+  .op[data-js] .step > span{grid-area:act}
+  .op[data-js] .step > .own{grid-area:own;justify-self:end}
+  /* a region of two actions stays ONE object: the inner rule still vanishes and
+     the ink runs unbroken, so the second action never reads as a second holder */
+  .op[data-js] .step[data-own]{padding-left:14px;padding-right:14px}
+}
+
+/* ── PARTED · two opposed slabs, ground open between them ──────────────── */
+/* The seam is the page itself. Nothing is filled, because nothing is held. */
+.op[data-js] .bound{border-style:solid;border-top-width:4px;border-bottom-width:4px;
+  border-color:var(--r-sec)}
+.op[data-js] .bound b,.op[data-js] .bound span{color:var(--fg-3)}
+.op[data-js] .bound[data-live]{border-top-width:13px;border-bottom-width:13px;
+  border-color:var(--fg);padding-top:32px;padding-bottom:32px;background:transparent}
+.op[data-js] .bound[data-live] b{color:var(--fg)}
+.op[data-js] .bound[data-live] span{color:var(--fg)}
+/* at rest, and with no script, both crossings keep the Phase 7 signature */
+.op[data-state="0"] .bound{border-style:double;border-top-width:4px;border-bottom-width:4px;
+  border-color:var(--fg)}
+.op[data-state="0"] .bound b{color:var(--fg-2)}
+.op[data-state="0"] .bound span{color:var(--fg)}
+
+/* ── controls ──────────────────────────────────────────────────────────── */
+.ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:20px}
+.ctl:empty{display:none}
+.ctl button{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.13em;
+  text-transform:uppercase;background:transparent;color:var(--fg);
+  border:1px solid var(--r-edge);border-radius:0;padding:0 16px;min-height:44px;cursor:pointer;
+  transition:background var(--t-fast) var(--e-contact),color var(--t-fast) var(--e-contact),
+             border-color var(--t-fast) var(--e-contact)}
+.ctl button:disabled{color:var(--fg-3);border-color:var(--r-row);cursor:default}
+.ctl button[hidden]{display:none}
+.ctl__pos{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--fg-2);
+  margin-left:auto}
+.ctl__say{font-size:14.5px;line-height:1.45;color:var(--fg-2);margin:14px 0 0;
+  max-width:56ch;min-height:4.35em}
+@media (max-width:360px){.ctl__say{min-height:5.8em}}
+@media (hover:hover){
+  .ctl button:hover:not(:disabled){background:var(--fg);color:var(--page);border-color:var(--fg)}
+}
+.ctl button:active:not(:disabled){background:var(--fg-2);border-color:var(--fg-2);color:var(--page)}
+
+/* ═══ 2 · SURFACE ═════════════════════════════════════════════════════════
+   The menu is the only surface on this site that opens. It allocates the
+   height it will really occupy — it does not slide in from off-screen, and it
+   does not cover the page. grid-template-rows is used so the height animates
+   without JS measuring anything, which keeps the closed state honest at every
+   viewport width.
+
+   Only reachable when scripting is on. With scripting off the header link
+   navigates to menu-open.html, which serves the panel already open.         */
+
+html[data-js="on"] body .panel{
+  display:grid;grid-template-rows:0fr;visibility:hidden;border-bottom-width:0;
+  transition:grid-template-rows var(--t-std) var(--e-struct),
+             border-bottom-width var(--t-std) var(--e-struct),
+             visibility 0s linear var(--t-std)}
+html[data-js="on"] body .panel > .w{overflow:hidden;min-height:0}
+html[data-js="on"] body[data-menu="open"] .panel{
+  grid-template-rows:1fr;visibility:visible;border-bottom-width:3px;
+  transition:grid-template-rows var(--t-std) var(--e-struct),
+             border-bottom-width var(--t-std) var(--e-struct),
+             visibility 0s linear 0s}
+@media (min-width:821px){
+  html[data-js="on"] body .panel,
+  html[data-js="on"] body[data-menu="open"] .panel{display:none}
+}
+.head-r .menu{transition:background var(--t-fast) var(--e-contact),
+  color var(--t-fast) var(--e-contact),border-color var(--t-fast) var(--e-contact);
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  background:transparent;color:var(--fg);border:1px solid var(--r-edge);border-radius:0;
+  padding:0 13px;min-height:44px;display:inline-flex;align-items:center;cursor:pointer}
+.head-r .menu[aria-expanded="true"]{background:var(--fg);color:var(--page);border-color:var(--fg)}
+.panel a{transition:background var(--t-fast) var(--e-contact)}
+@media (hover:hover){.panel a:hover{background:var(--page)}}
+
+/* ═══ 3 · MARK ════════════════════════════════════════════════════════════
+   Which row is being pointed at, and where a jump landed. The Phase 7 hover
+   ground is a 4% luminance step — real on a calibrated desktop panel, and
+   invisible on a phone in daylight. A pointed-at row therefore gains an ink
+   bar as well as the ground, so the mark survives glare, greyscale and a
+   colour-vision difference.                                                 */
+
+.reg__row,.capidx a{transition:background var(--t-fast) var(--e-contact),
+  box-shadow var(--t-fast) var(--e-contact)}
+@media (hover:hover){
+  .reg__row:hover,.capidx a:hover{background:var(--raise);box-shadow:inset 3px 0 0 var(--fg)}
+}
+.reg__row:focus-visible,.capidx a:focus-visible{background:var(--raise)}
+
+/* A jump into the capability list lands in the middle of six near-identical
+   blocks. Without a mark the reader cannot tell which one they asked for. */
+.cap{transition:box-shadow var(--t-std) var(--e-contact),
+  padding-left var(--t-std) var(--e-contact)}
+.cap:target{box-shadow:inset 3px 0 0 var(--fg);padding-left:17px}
+
+/* ═══ 4 · CONTACT ═════════════════════════════════════════════════════════
+   An input was received. Press is a state, not an animation; it is FAST
+   because anything slower detaches the response from the finger.
+
+   The focus ring is deliberately NOT transitioned. Someone tabbing moves
+   faster than 110ms per stop, and a fading ring lags behind the caret it is
+   supposed to locate. Focus must be instantaneous.                          */
+
+.act,.site-nav a,.form__alt a{transition:border-color var(--t-fast) var(--e-contact),
+  opacity var(--t-fast) var(--e-contact)}
+.act:active,.site-nav a:active,.panel a:active,.reg__row:active,
+.capidx a:active,.form__alt a:active{opacity:.55}
+:where(a,button,input,textarea):focus-visible{transition:none}
+
+/* Validation. The error is the one place the negative semantic belongs, and
+   it appears only after a real check has failed — never on arrival. */
+.fld input,.fld textarea{transition:border-color var(--t-fast) var(--e-contact)}
+.fld .err{margin:7px 0 0}
+.form__act button:not(:disabled){color:var(--fg);background:var(--page);
+  border-color:var(--fg);cursor:pointer;
+  transition:background var(--t-fast) var(--e-contact),color var(--t-fast) var(--e-contact)}
+@media (hover:hover){
+  .form__act button:not(:disabled):hover{background:var(--fg);color:var(--page)}
+}
+.form__act button:not(:disabled):active{background:var(--fg-2);border-color:var(--fg-2);
+  color:var(--page)}
+.form__state{font-size:15px;line-height:1.45;color:var(--fg-2);margin:16px 0 0;max-width:56ch;
+  min-height:1.45em}
+.form__state b{color:var(--fg);font-weight:600}
+
+/* ═══ REDUCED MOTION ══════════════════════════════════════════════════════
+   Less motion, identical facts. Every state this file can reach is still
+   reachable, still labelled, and still shows exactly one holder. What is
+   removed is the tween between states, not a state.                         */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:1ms!important;animation-duration:1ms!important;
+    animation-iteration-count:1!important;scroll-behavior:auto!important}
+  /* grid-template-rows at 1ms is a hard cut, which is correct here; the
+     panel must still be removed from the tab order when closed, and
+     visibility carries that with no delay. */
+  html[data-js="on"] body .panel{transition:none}
+}
+
+.ctl button[hidden]{display:none}
