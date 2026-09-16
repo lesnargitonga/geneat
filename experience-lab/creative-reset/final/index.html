@@ -1,0 +1,631 @@
+<!doctype html><html lang="en" data-t="dark"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LESNAR AI</title>
+<meta name="description" content="LESNAR AI builds software for places where money arrives late, the network drops and somebody is already standing at the counter.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#05070B; --bg2:#0A0D14; --lift:#111722; --edge:#1B2331;
+  --ink:#EFF3F8; --mid:#9AA8BB; --dim:#828F9F;
+  --amber:#FF9A3C; --cool:#6FC8FF; --ok:#5FD08B;
+  --acc:var(--amber);
+  --d:"Syne",sans-serif; --b:"Inter Tight",system-ui,-apple-system,sans-serif;
+  --m:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --pad:clamp(20px,4.4vw,76px);
+  --ez:cubic-bezier(.16,1,.3,1);
+}
+:root[data-t="light"]{
+  --bg:#EFEEEA; --bg2:#E5E4DF; --lift:#FBFBF9; --edge:#CECDC7;
+  --ink:#0A0C10; --mid:#464F5C; --dim:#5A636E; --amber:#A04C04; --cool:#0A6188; --ok:#0E6B3C;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--b);font-size:17px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .8s var(--ez),color .8s}
+.w{max-width:1440px;margin:0 auto;padding-inline:var(--pad)}
+img{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+h2{font-family:var(--d);font-weight:800;letter-spacing:-.048em;line-height:.93;text-wrap:balance}
+.k{font-family:var(--m);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);
+  display:flex;align-items:center;gap:11px}
+.k::before{content:"";width:20px;height:1px;background:currentColor;flex:none}
+.lead{color:var(--mid);font-size:clamp(1rem,1.25vw,1.15rem);max-width:44ch}
+
+/* ── chrome ───────────────────────────────────────────── */
+nav{position:fixed;inset:0 0 auto;z-index:90;transition:transform .45s var(--ez),background .5s}
+nav.hide{transform:translateY(-102%)}
+nav .w{display:flex;align-items:center;gap:30px;padding-block:17px;
+  border-bottom:1px solid transparent;transition:border-color .5s}
+nav.stuck{background:color-mix(in srgb,var(--bg) 76%,transparent);backdrop-filter:blur(20px)}
+nav.stuck .w{border-bottom-color:color-mix(in srgb,var(--edge) 75%,transparent)}
+.lg{font-family:var(--d);font-weight:800;font-size:17px;letter-spacing:-.02em;color:var(--ink);
+  text-decoration:none;display:flex;align-items:center}
+.lg em{font-style:normal;width:5px;height:5px;background:var(--amber);border-radius:50%;margin:0 6px;
+  transition:background .6s,transform .6s var(--ez)}
+nav.stuck .lg em{transform:scale(.7)}
+nav ul{margin-left:auto;display:flex;gap:25px;list-style:none;padding:0}
+nav ul a{color:var(--mid);text-decoration:none;font-size:14px;font-weight:500;transition:color .25s}
+nav ul a:hover{color:var(--ink)}
+.tg{width:32px;height:32px;border:1px solid var(--edge);background:none;border-radius:50%;cursor:pointer;
+  color:var(--mid);display:grid;place-items:center;transition:.35s var(--ez);flex:none}
+.tg:hover{color:var(--amber);border-color:var(--amber);transform:rotate(-30deg)}
+.tg svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round}
+.tg .sun{display:none}:root[data-t="light"] .tg .sun{display:block}
+:root[data-t="light"] .tg .moon{display:none}
+
+/* ── 1 · arrival ──────────────────────────────────────── */
+.arr{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;
+  padding-block:clamp(100px,14vh,150px) clamp(70px,10vh,110px);
+  background:radial-gradient(128% 74% at 68% 4%,var(--bg2),var(--bg) 62%)}
+.dep{position:absolute;inset:0}
+.pl{position:absolute;overflow:hidden;border:1px solid var(--edge);box-shadow:0 46px 110px rgba(0,0,0,.62);
+  will-change:transform;opacity:0;transition:opacity 1.4s var(--ez)}
+.pl img{width:100%;height:100%;object-fit:cover;object-position:50% 0}
+.pl.in{opacity:1}
+.pl::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(200deg,color-mix(in srgb,var(--bg) 20%,transparent),color-mix(in srgb,var(--bg) 88%,transparent))}
+.p1{width:min(35vw,500px);right:2%;top:9%;aspect-ratio:4/3}
+.p2{width:min(20vw,278px);right:29%;top:14%;aspect-ratio:16/10}
+.p3{width:min(25vw,340px);left:37%;bottom:1%;aspect-ratio:3/2}
+.p4{width:min(24vw,325px);right:0%;bottom:5%;aspect-ratio:5/4}
+.p5{width:min(16vw,220px);left:-4%;top:20%;aspect-ratio:4/5}
+.dep::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(95deg,var(--bg) 30%,color-mix(in srgb,var(--bg) 80%,transparent) 56%,transparent 84%)}
+.arr .w{position:relative;z-index:6;width:100%}
+.arr .k{margin-bottom:clamp(22px,3vw,34px)}
+h1{font-family:var(--d);font-weight:800;line-height:.87;letter-spacing:-.052em;
+  font-size:clamp(2.7rem,7vw,7.1rem);max-width:12.5ch}
+h1 em{font-style:normal;color:var(--amber)}
+h1 .ln{display:block;overflow:hidden}
+h1 .ln i{display:block;font-style:normal;transform:translateY(106%);animation:rise 1s var(--ez) forwards}
+h1 .ln:nth-child(2) i{animation-delay:.08s}
+h1 .ln:nth-child(3) i{animation-delay:.16s}
+@keyframes rise{to{transform:none}}
+.arr .lead{margin-top:clamp(24px,3vw,34px);opacity:0;animation:fade 1s .55s forwards}
+@keyframes fade{to{opacity:1}}
+.cue{position:absolute;left:var(--pad);bottom:clamp(20px,3vh,34px);z-index:7;font-family:var(--m);
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);
+  display:flex;align-items:center;gap:11px;opacity:0;animation:fade 1s 1.2s forwards}
+.cue b{width:1px;height:30px;background:linear-gradient(var(--amber),transparent);
+  animation:fall 2.8s ease-in-out infinite;transform-origin:top}
+@keyframes fall{0%,100%{opacity:.18;transform:scaleY(.35)}50%{opacity:1;transform:scaleY(1)}}
+
+/* ── 2 · thesis ───────────────────────────────────────── */
+.th{padding-block:clamp(88px,16vh,190px);border-top:1px solid var(--edge)}
+.th ol{list-style:none;padding:0;margin:0}
+.th li{font-family:var(--d);font-weight:700;letter-spacing:-.045em;line-height:1;
+  font-size:clamp(1.65rem,4.5vw,3.8rem);color:var(--dim);padding-block:.06em;
+  transition:color .65s var(--ez)}
+.th li.lit{color:var(--ink)}
+.th li:last-child{color:var(--amber);margin-top:.36em}
+.th li:last-child.lit{color:var(--amber)}
+
+/* ── movement shell ───────────────────────────────────── */
+.mv{padding-block:clamp(76px,13vh,170px);border-top:1px solid var(--edge);position:relative}
+.mv h2{font-size:clamp(1.9rem,4.6vw,3.9rem);max-width:26ch;margin-top:16px}
+.hd{display:grid;gap:clamp(18px,2.6vw,34px)}
+.hd .lead{justify-self:end}
+.mv h2+.lead,.hd>div+.lead{margin-top:-.2em}
+.meta{display:flex;gap:22px;flex-wrap:wrap;font-family:var(--m);font-size:11px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
+.meta b{color:var(--acc);font-weight:500}
+
+/* device frame */
+.dev{margin-top:clamp(32px,4.5vw,64px);border:1px solid var(--edge);background:var(--lift);overflow:hidden}
+.dev figcaption{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--edge);
+  font-family:var(--m);font-size:11px;color:var(--dim);letter-spacing:.05em;background:var(--bg2)}
+.dev figcaption i{width:6px;height:6px;border-radius:50%;background:var(--acc);flex:none;font-style:normal}
+.dev .im{overflow:hidden}
+.dev img{width:100%;transition:transform 1.4s var(--ez)}
+.dev:hover img{transform:scale(1.02)}
+
+/* ── 3 · counter ──────────────────────────────────────── */
+.counter{--acc:var(--amber)}
+.stage{display:grid;gap:clamp(22px,3vw,44px);align-items:start;margin-top:clamp(32px,4.5vw,64px)}
+@media(min-width:1120px){.stage{grid-template-columns:minmax(0,940px) 1fr}}
+.stage .dev{margin-top:0}
+.stage .meta{flex-direction:column;gap:13px;padding-top:58px}
+
+/* ── 4 · handoff ──────────────────────────────────────── */
+.hand{border-top:1px solid var(--edge);background:var(--bg2);--acc:var(--amber)}
+.hand .track{height:340svh;position:relative}
+.hand .stick{position:sticky;top:0;height:100svh;display:flex;align-items:center;overflow:hidden}
+.glow{position:absolute;top:50%;width:70vw;height:70vw;max-width:900px;max-height:900px;
+  border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,color-mix(in srgb,var(--acc) 26%,transparent),transparent 64%);
+  transform:translate(-50%,-50%);left:18%;transition:left 1s var(--ez),background .8s}
+.hand .w{position:relative;z-index:3;width:100%}
+/* rail */
+.rail{display:grid;grid-template-columns:auto 1fr auto 1fr auto;align-items:center;
+  gap:clamp(8px,1.6vw,20px);margin-top:clamp(26px,4vw,48px)}
+.rail b{font-family:var(--m);font-size:clamp(10px,1.1vw,12.5px);letter-spacing:.14em;text-transform:uppercase;
+  font-weight:500;color:var(--dim);white-space:nowrap;transition:color .5s,text-shadow .5s;position:relative;
+  padding-bottom:9px}
+.rail b::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--amber);
+  transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ez)}
+.rail b.holds{color:var(--ink)}
+.rail b.holds::after{transform:scaleX(1)}
+.rail s{height:1px;background:var(--edge);text-decoration:none;position:relative;display:block}
+.rail s::after{content:"";position:absolute;inset:0;background:var(--cool);transform:scaleX(0);
+  transform-origin:left;transition:transform .55s var(--ez)}
+.rail s.moving::after{transform:scaleX(1)}
+/* lines */
+.lines{display:grid;margin-top:clamp(30px,5vh,64px)}
+.lines p{grid-area:1/1;font-family:var(--d);font-weight:700;letter-spacing:-.045em;line-height:.98;
+  font-size:clamp(1.8rem,5.6vw,4.6rem);color:var(--ink);max-width:16ch;
+  opacity:0;transform:translateY(14px);transition:opacity .5s,transform .6s var(--ez)}
+.lines p.on{opacity:1;transform:none}
+.lines p.cross{color:var(--cool)}
+.hand .note{margin-top:clamp(24px,3.4vh,40px);font-size:13px;color:var(--dim);max-width:54ch;
+  border-left:1px solid var(--edge);padding-left:15px;line-height:1.55}
+
+/* ── 5 · gate ─────────────────────────────────────────── */
+.gate{--acc:var(--cool)}
+.gate .split{display:grid;gap:clamp(26px,4vw,60px);margin-top:clamp(34px,4.6vw,64px);align-items:start}
+@media(min-width:1000px){.gate .split{grid-template-columns:.85fr 1.15fr}}
+.gate .dev{margin-top:0}
+.cnt{display:grid;gap:0;margin-top:30px;border-top:1px solid var(--edge)}
+.cnt div{display:flex;align-items:baseline;gap:16px;padding-block:16px;border-bottom:1px solid var(--edge)}
+.cnt b{font-family:var(--d);font-weight:800;font-size:clamp(2.2rem,4.4vw,3.4rem);line-height:.9;
+  min-width:2.4ch;letter-spacing:-.04em}
+.cnt span{font-family:var(--m);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim)}
+.gate .meta{margin-top:26px}
+
+/* ── 6 · the room (the one inversion) ─────────────────── */
+.room{background:#E9E2D6;color:#191410;border-top:1px solid #191410;
+  --ink:#191410;--mid:#57503F;--dim:#6C6454;--edge:#CBC2B2;--acc:#8A5A16;--lift:#F3EEE5}
+.room h2{max-width:24ch}
+.room .full{margin-top:clamp(30px,4.4vw,58px);overflow:hidden;border:1px solid var(--edge);position:relative}
+.room .full img{width:100%}
+.room .meta{margin-top:20px}
+
+/* ── 7 · places ───────────────────────────────────────── */
+.places{--acc:var(--amber)}
+.pgrid{display:grid;margin-top:clamp(34px,4.6vw,62px);border-top:1px solid var(--edge)}
+@media(min-width:840px){.pgrid{grid-template-columns:repeat(4,1fr);border-top:0}}
+.pgrid div{padding:clamp(20px,2.3vw,30px) 0;border-bottom:1px solid var(--edge);position:relative}
+@media(min-width:840px){.pgrid div{border-top:1px solid var(--edge);border-bottom:0;padding-right:26px}}
+.pgrid div::before{content:"";position:absolute;left:0;top:0;height:1px;width:0;background:var(--amber);
+  transition:width .7s var(--ez)}
+@media(min-width:840px){.pgrid div.in::before{width:100%}}
+.pgrid b{font-family:var(--d);font-weight:700;font-size:clamp(1.45rem,2.7vw,2.2rem);
+  letter-spacing:-.035em;display:block}
+.pgrid span{display:block;margin-top:10px;font-size:14px;color:var(--mid);max-width:26ch}
+
+/* ── 8 · tooling ──────────────────────────────────────── */
+.tool{--acc:var(--amber);background:var(--bg2)}
+.pipe{margin-top:clamp(32px,4.4vw,58px);border-top:1px solid var(--edge)}
+.pipe div{display:grid;grid-template-columns:2.4ch minmax(0,15ch) 1fr;gap:clamp(12px,2vw,26px);
+  align-items:baseline;padding-block:15px;border-bottom:1px solid var(--edge);
+  font-family:var(--m);font-size:13.5px;transition:background .35s}
+.pipe div:hover{background:var(--lift)}
+.pipe i{font-style:normal;color:var(--dim);font-size:11px}
+.pipe b{font-weight:500;color:var(--ink);letter-spacing:-.01em}
+.pipe span{font-family:var(--b);font-size:15px;color:var(--mid)}
+.pipe div.off b,.pipe div.off i{color:var(--dim)}
+.pipe div.off{border-bottom-style:dashed}
+.run{margin-top:clamp(26px,3.4vw,44px);display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 26px}
+.run b{font-family:var(--d);font-weight:800;font-size:clamp(1.5rem,3.4vw,2.6rem);
+  letter-spacing:-.04em;color:var(--ink);line-height:1}
+.run b.zero{color:var(--ok)}
+.run>span{display:flex;align-items:baseline;gap:10px}
+.run i{font-style:normal;font-family:var(--m);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim)}
+.run em{font-style:normal;font-family:var(--m);font-size:12px;color:var(--dim);letter-spacing:.05em}
+.tool .after{margin-top:18px;font-size:14px;color:var(--dim);max-width:52ch}
+
+/* ── 9 · register ─────────────────────────────────────── */
+.reg{--acc:var(--amber)}
+.rows{margin-top:clamp(32px,4.4vw,60px);border-top:1px solid var(--edge)}
+.rw{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.25fr) 148px;gap:6px clamp(20px,3vw,48px);align-items:baseline;
+  padding-block:17px;border-bottom:1px solid var(--edge);cursor:pointer;position:relative;
+  transition:padding-left .5s var(--ez)}
+.rw::before{content:"";position:absolute;left:0;top:-1px;bottom:-1px;width:2px;background:var(--amber);
+  transform:scaleY(0);transition:transform .4s var(--ez)}
+.rw:hover,.rw:focus-visible{padding-left:15px;outline:0}
+.rw:hover::before,.rw:focus-visible::before{transform:scaleY(1)}
+.rw h3{font-family:var(--d);font-weight:600;font-size:clamp(1.1rem,2.1vw,1.55rem);letter-spacing:-.03em}
+.rw p{font-size:15px;color:var(--mid);max-width:52ch}
+.rw .st{display:flex;align-items:center;justify-content:flex-end;gap:11px;font-family:var(--m);font-size:12px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.rw .st::after{content:"\2192";font-family:var(--b);font-size:15px;color:var(--amber);width:13px;
+  opacity:0;transform:translateX(-6px);transition:.4s var(--ez);margin-left:4px}
+.rw:hover .st::after,.rw:focus-visible .st::after{opacity:1;transform:none}
+.rw .st i{width:6px;height:6px;border-radius:50%;background:var(--dim);flex:none;font-style:normal}
+.rw[data-s="Live"] .st{color:var(--mid)}
+.rw[data-s="Live"] .st i{background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 18%,transparent)}
+.rw[data-s="Pilot"] .st i{background:var(--amber)}
+.rw[data-s="Research"] .st i{background:none;border:1px solid var(--dim)}
+.rw[data-s="Direction"] .st i{background:none;border:1px dashed var(--dim)}
+
+/* ── 10 · invitation ──────────────────────────────────── */
+.inv{border-top:1px solid var(--edge);padding-block:clamp(80px,14vh,180px);--acc:var(--amber)}
+.inv h2{font-size:clamp(2.2rem,6.4vw,5.4rem);max-width:13ch}
+.inv .row{display:flex;justify-content:space-between;gap:28px;flex-wrap:wrap;align-items:flex-end;
+  margin-top:clamp(36px,5vw,60px);padding-top:26px;border-top:1px solid var(--edge);
+  color:var(--mid);font-size:14.5px}
+.inv a{font-family:var(--d);font-weight:700;font-size:clamp(1.05rem,2.2vw,1.6rem);letter-spacing:-.03em;
+  color:var(--amber);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--amber) 35%,transparent);
+  padding-bottom:3px;transition:border-color .3s}
+.inv a:hover{border-bottom-color:currentColor}
+.fin{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding-block:22px;
+  border-top:1px solid var(--edge);font-family:var(--m);font-size:11px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--dim)}
+
+/* ── detail sheet ─────────────────────────────────────── */
+.sh{position:fixed;inset:0;z-index:95;pointer-events:none}
+.sh .v{position:absolute;inset:0;background:color-mix(in srgb,var(--bg) 84%,transparent);opacity:0;
+  transition:opacity .4s;backdrop-filter:blur(3px)}
+.sh .pn{position:absolute;inset:0 0 0 auto;width:min(660px,100%);background:var(--bg2);
+  border-left:1px solid var(--edge);transform:translateX(100%);transition:transform .6s var(--ez);
+  overflow-y:auto;padding:clamp(32px,5vw,62px)}
+.sh.on{pointer-events:auto}.sh.on .v{opacity:1}.sh.on .pn{transform:none}
+.sh h3{font-family:var(--d);font-weight:800;font-size:clamp(1.85rem,4.4vw,2.9rem);
+  letter-spacing:-.045em;line-height:1;padding-right:44px}
+.sh .m{margin:15px 0 26px;font-family:var(--m);font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim)}
+.sh p{color:var(--mid);max-width:52ch}
+.sh .ev{margin-top:26px;padding:20px;background:var(--lift);border-left:2px solid var(--amber)}
+.sh .ev b{display:block;font-family:var(--m);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--amber);margin-bottom:9px}
+.sh .ev p{color:var(--ink);font-size:15px}
+.x{position:absolute;top:22px;right:22px;background:none;border:1px solid var(--edge);border-radius:50%;
+  width:34px;height:34px;color:var(--mid);font-size:19px;line-height:1;cursor:pointer;transition:.3s}
+.x:hover{color:var(--amber);border-color:var(--amber)}
+
+.rv{opacity:0;transform:translateY(20px)}
+.rv.in{opacity:1;transform:none;transition:opacity .85s var(--ez),transform .85s var(--ez)}
+
+/* ── mobile ───────────────────────────────────────────── */
+@media(max-width:900px){
+  nav ul{display:none}
+  nav .w{gap:14px}
+  .tg{margin-left:auto}
+  .arr{min-height:96svh;padding-top:96px}
+  h1{font-size:clamp(2.1rem,9vw,3.2rem);max-width:none;letter-spacing:-.042em;text-wrap:balance}
+  h1 .ln{display:inline;overflow:visible}
+  h1 .ln i{display:inline;transform:none;animation:fade .9s forwards;opacity:0}
+  .p2,.p4,.p5{display:none}
+  .p1{width:88vw;right:-20%;top:6%}
+  .p3{display:none}
+  .p1{mask-image:linear-gradient(196deg,#000 38%,transparent 86%)}
+  .dep::after{background:linear-gradient(175deg,color-mix(in srgb,var(--bg) 72%,transparent) 8%,var(--bg) 34%,var(--bg) 78%,color-mix(in srgb,var(--bg) 88%,transparent))}
+  .cue{bottom:14px}
+  .hand .track{height:300svh}
+  .rail{grid-template-columns:1fr;gap:0;justify-items:start}
+  .rail b{padding:0 0 7px;border-bottom:1px solid var(--edge);width:100%}
+  .rail b::after{height:1px;bottom:-1px}
+  .rail s{width:2px;height:24px;margin:0 0 0 3px;background:var(--edge)}
+  .rail s::after{transform:scaleY(0);transform-origin:top}
+  .rail s.moving::after{transform:scaleY(1)}
+  .lines p{max-width:none;font-size:clamp(2.05rem,8.6vw,3rem)}
+  .lines{margin-top:26px}
+  .gate .dev .im{max-height:none}
+  .pipe div{grid-template-columns:2.4ch 1fr;row-gap:4px}
+  .pipe span{grid-column:2}
+  
+  .sh .pn{width:100%}
+  .rw{grid-template-columns:1fr auto;align-items:center;row-gap:6px}
+  .rw h3{grid-column:1}
+  .rw .st{grid-column:2;grid-row:1}
+  .rw p{grid-column:1/-1;font-size:14px}
+  .run>span{gap:8px}
+  .rw .st::after{opacity:.5;transform:none}
+  .room .full img{width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .pl,.rv{opacity:1!important;transform:none!important}
+  h1 .ln i{transform:none;opacity:1}
+  html{scroll-behavior:auto}
+}
+</style></head><body>
+
+<nav id="nav"><div class="w">
+  <a class="lg" href="#top">LESNAR<em></em>AI</a>
+  <ul><li><a href="#counter">Work</a></li><li><a href="#hand">Approach</a></li>
+      <li><a href="#tool">Engineering</a></li><li><a href="#inv">Contact</a></li></ul>
+  <button class="tg" id="tg" aria-label="Switch to the light theme">
+    <svg class="moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg>
+  </button>
+</div></nav>
+
+<!-- 1 · arrival -->
+<header class="arr" id="top">
+  <div class="dep" aria-hidden="true">
+    <figure class="pl p1"><img src="img/biz-counter.jpg" alt=""></figure>
+    <figure class="pl p2"><img src="img/jamii-list.jpg" alt=""></figure>
+    <figure class="pl p3"><img src="img/geneat-cafe.jpg" alt=""></figure>
+    <figure class="pl p4"><img src="img/carepro-verify.jpg" alt=""></figure>
+    <figure class="pl p5"><img src="img/hazina-object.jpg" alt=""></figure>
+  </div>
+  <div class="w">
+    <p class="k">Nairobi</p>
+    <h1><span class="ln"><i>Software that</i></span> <span class="ln"><i>meets the <em>counter</em>,</i></span> <span class="ln"><i>not the slide.</i></span></h1>
+    <p class="lead">Five systems running where money arrives late, the network drops,
+      and somebody is already standing there waiting.</p>
+  </div>
+  <div class="cue" aria-hidden="true"><b></b> Scroll</div>
+</header>
+
+<!-- 2 · thesis -->
+<section class="th" aria-label="What we build for"><div class="w">
+  <ol id="th">
+    <li>Money arrives late.</li>
+    <li>The network drops.</li>
+    <li>The institution is slow.</li>
+    <li>The person at the counter improvises.</li>
+    <li>We build for that.</li>
+  </ol>
+</div></section>
+
+<!-- 3 · the counter -->
+<section class="mv counter" id="counter"><div class="w rv">
+  <div class="hd">
+    <div>
+      <p class="k">BizMtaani</p>
+      <h2>A marketplace is only as real as the screen behind the till.</h2>
+    </div>
+    <p class="lead">Shops list what they actually sell. Customers order and pay from a phone.
+      Riders carry it. The merchant view is built for somebody standing at a counter with a queue.</p>
+  </div>
+  <div class="stage">
+    <figure class="dev">
+      <figcaption><i></i> bizmtaani.com · merchant order view</figcaption>
+      <div class="im"><img src="img/biz-counter.jpg" alt="The BizMtaani merchant view: a priced menu on the left and an order panel on the right reading collect at the counter."></div>
+    </figure>
+    <p class="meta"><span><b>Live</b> bizmtaani.com</span><span>The Villager, Embu</span><span>Operated by LESNAR AI LTD</span></p>
+  </div>
+</div></section>
+
+<!-- 4 · the handoff -->
+<section class="hand" id="hand"><div class="track"><div class="stick">
+  <div class="glow" id="glow" aria-hidden="true"></div>
+  <div class="w">
+    <p class="k">One order, three parties</p>
+    <div class="rail" id="rail" aria-hidden="true">
+      <b data-p="0">Customer</b><s data-c="0"></s><b data-p="1">The shop</b><s data-c="1"></s><b data-p="2">A rider</b>
+    </div>
+    <div class="lines" id="lines">
+      <p data-h="0">Finds a shop in their own town.</p>
+      <p data-h="0">Adds what they want and pays.</p>
+      <p data-h="x" data-c="0" class="cross">The customer lets go.</p>
+      <p data-h="1">Someone at the counter hears about it.</p>
+      <p data-h="x" data-c="1" class="cross">The shop lets go.</p>
+      <p data-h="2">A rider carries it to the door.</p>
+    </div>
+    <p class="note">BizMtaani publishes these actions and addresses three parties through its own
+      navigation. The order in which responsibility changes hands is our reading of that,
+      not a state the product declares.</p>
+  </div>
+</div></div></section>
+
+<!-- 5 · the gate -->
+<section class="mv gate"><div class="w rv">
+  <div class="hd">
+    <div>
+      <p class="k">CarePro</p>
+      <h2>Before a nurse enters a stranger's home.</h2>
+    </div>
+    <p class="lead">A licence checked against the Nursing Council register. An interview scored on a
+      clinical rubric. A registered nurse reviewing the whole file.</p>
+  </div>
+  <div class="split">
+    <div>
+      <p style="color:var(--mid)">CarePro publishes every stage of that gate on its own homepage, and
+        publishes its own counts beneath it. We repeat them here exactly as they stand.</p>
+      <div class="cnt">
+        <div><b>20</b><span>Nurses joined CarePro</span></div>
+        <div><b>0</b><span>Approved for assignments</span></div>
+      </div>
+      <p class="meta"><span><b>Live</b> carepro.co.ke</span><span>Nairobi</span></p>
+    </div>
+    <figure class="dev">
+      <figcaption><i></i> carepro.co.ke · verification</figcaption>
+      <div class="im"><img src="img/carepro-verify.jpg" alt="CarePro's published verification panel: four numbered stages ending in clinical sign-off, above counters reading 20 nurses joined CarePro and 0 approved for assignments."></div>
+    </figure>
+  </div>
+</div></section>
+
+<!-- 6 · the room -->
+<section class="mv room"><div class="w rv">
+  <div class="hd">
+    <div>
+      <p class="k">Hazina Nomads</p>
+      <h2>The same company, a completely different room.</h2>
+    </div>
+    <p class="lead">Private Kenyan sourcing for travellers and diaspora families. No checkout-first
+      storefront. A brief, a curator, and a conversation that carries on in WhatsApp.</p>
+  </div>
+  <figure class="full"><picture><source media="(max-width:900px)" srcset="img/hazina-room-m.jpg"><img src="img/hazina-room.jpg" alt="The Hazina Nomads page for The Kenya Edit: an annotated photograph of the boxed contents beside a curator's note, priced at USD 249 and KES 32,400."></picture></figure>
+  <p class="meta"><span><b>Live</b> hazina.lesnarai.co.ke</span><span>Its own service and data store</span></p>
+</div></section>
+
+<!-- 7 · places -->
+<section class="mv places"><div class="w rv">
+  <p class="k">Where the work runs</p>
+  <h2>Four places, four sets of constraints.</h2>
+  <div class="pgrid">
+    <div><b>Embu</b><span>A club and hospitality venue taking orders at the counter.</span></div>
+    <div><b>Nairobi</b><span>Families matched to nurses, with payment held by the platform.</span></div>
+    <div><b>USIU</b><span>Campus food ordered over WhatsApp between lectures.</span></div>
+    <div><b>Mbeere North</b><span>Community projects voted on and recorded in the open.</span></div>
+  </div>
+</div></section>
+
+<!-- 8 · tooling -->
+<section class="mv tool" id="tool"><div class="w rv">
+  <div class="hd">
+    <div>
+      <p class="k">SentinelCore</p>
+      <h2>We point the tooling at ourselves first.</h2>
+    </div>
+    <p class="lead">A security toolchain we run against our own hosts. Six modules under one
+      orchestrator, with the only two that can change a machine kept separate from the rest.</p>
+  </div>
+  <div class="pipe">
+    <div><i>01</i><b>cli</b><span>One orchestrator. Everything below reports into a single structured run.</span></div>
+    <div><i>02</i><b>scanner</b><span>Asynchronous port scanning and banner capture.</span></div>
+    <div><i>03</i><b>monitor</b><span>A live watcher over the logs that matter.</span></div>
+    <div><i>04</i><b>firewall · remediator</b><span>The only two modules allowed to change a host.</span></div>
+    <div><i>05</i><b>telemetry</b><span>Outbound streaming with backoff.</span></div>
+    <div class="off"><i>06</i><b>evidence</b><span>Wired into the run and not yet built.</span></div>
+  </div>
+  <p class="run"><span><b>133</b><i>passed</i></span><span><b class="zero">0</b><i>failed</i></span><span><b>21</b><i>files</i></span>
+     <em>run 16 September 2026, at a recorded commit</em></p>
+  <p class="after">A passing suite is not a deployment, and we do not present it as one.</p>
+</div></section>
+
+<!-- 9 · register -->
+<section class="mv reg" id="reg"><div class="w rv">
+  <div class="hd">
+    <div>
+      <p class="k">The register</p>
+      <h2>Everything else, at its real distance from done.</h2>
+    </div>
+    <p class="lead">We publish the stage each system is actually at. Open any row to see what is
+      behind the label.</p>
+  </div>
+  <div class="rows" id="rows"></div>
+</div></section>
+
+<!-- 10 · invitation -->
+<section class="inv" id="inv"><div class="w rv">
+  <h2>Bring the problem, not the specification.</h2>
+  <div class="row">
+    <span>A paragraph about what is going wrong is enough.<br>We reply within two working days.</span>
+    <a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a>
+  </div>
+</div></section>
+<footer><div class="w"><div class="fin">
+  <span>LESNAR AI LTD · Nairobi, Kenya</span><span>Built for the counter</span>
+</div></div></footer>
+
+<div class="sh" id="sh" role="dialog" aria-modal="true" aria-labelledby="sn">
+  <div class="v" data-x></div>
+  <article class="pn">
+    <button class="x" data-x aria-label="Close">&times;</button>
+    <h3 id="sn"></h3><p class="m" id="sm"></p><p id="sd"></p>
+    <div class="ev"><b>What stands behind it</b><p id="se"></p></div>
+  </article></div>
+
+<script>
+/* ── register ─────────────────────────────────────────── */
+const REG=[
+ ["Jamii Projects Hub","Live","Community projects, votes and records built to survive scrutiny.",
+  "Running as a pilot in Mbeere North. We publish no membership figure and no project count."],
+ ["Gen-Eat","Live","Campus food ordered over WhatsApp and collected between lectures.",
+  "Running as a pilot at USIU. We publish no order volume and no revenue."],
+ ["Greenhouse controller","Pilot","Climate held steady without a person and without a network.",
+  "Owner-reported only. No firmware, log, photograph or measurement exists on our side."],
+ ["Cypher","Research","Rules for what an AI system may do, and a person who approves before anything happens.",
+  "A governance spine carried to sprint 024. Nothing is sent live."],
+ ["Gold Trader","Research","Automated gold trading, tested only on paper.",
+  "Gated by its own status table, which reads: paper yes, live no."],
+ ["Aerial systems","Research","Drone state and mission behaviour, modelled in software.",
+  "Nothing has been flown. No control laws and no hardware."],
+ ["Sensing and radar","Direction","A field we intend to work in.",
+  "Nothing is built. We list it so the register is complete."]];
+const rows=document.getElementById('rows'),sh=document.getElementById('sh');
+let opener=null;
+REG.forEach(r=>{
+  const a=document.createElement('article');
+  a.className='rw';a.tabIndex=0;a.setAttribute('role','button');a.dataset.s=r[1];
+  a.setAttribute('aria-label',r[0]+', '+r[1]+'. Open detail.');
+  a.innerHTML='<h3></h3><p></p><span class="st"><i></i></span>';
+  a.querySelector('h3').textContent=r[0];
+  a.querySelector('p').textContent=r[2];
+  a.querySelector('.st').append(document.createTextNode(r[1]));
+  const open=()=>{
+    opener=a;
+    sn.textContent=r[0];sm.textContent=r[1];sd.textContent=r[2];se.textContent=r[3];
+    sh.classList.add('on');sh.querySelector('.x').focus();
+  };
+  a.addEventListener('click',open);
+  a.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});
+  rows.appendChild(a);
+});
+const close=()=>{sh.classList.remove('on');if(opener)opener.focus();};
+sh.querySelectorAll('[data-x]').forEach(b=>b.addEventListener('click',close));
+addEventListener('keydown',e=>{if(e.key==='Escape'&&sh.classList.contains('on'))close();});
+
+/* ── theme ────────────────────────────────────────────── */
+const tg=document.getElementById('tg'),root=document.documentElement;
+tg.addEventListener('click',()=>{
+  root.dataset.t = root.dataset.t==='dark' ? 'light' : 'dark';
+  tg.setAttribute('aria-label', root.dataset.t==='dark'
+    ? 'Switch to the light theme' : 'Switch to the dark theme');
+});
+
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ── reveals ──────────────────────────────────────────── */
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12});
+document.querySelectorAll('.rv,.pl,.pgrid div').forEach(e=>io.observe(e));
+
+/* ── thesis ───────────────────────────────────────────── */
+/* on a narrow screen the whole stanza fits the band, so it lights as one */
+const band=innerWidth<900?'-18% 0px -18% 0px':'-40% 0px -40% 0px';
+const io2=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('lit',e.isIntersecting)),
+  {rootMargin:band});
+document.querySelectorAll('#th li').forEach(e=>io2.observe(e));
+
+/* ── nav ──────────────────────────────────────────────── */
+const nav=document.getElementById('nav');let last=0;
+addEventListener('scroll',()=>{
+  const y=scrollY;
+  nav.classList.toggle('stuck',y>40);
+  nav.classList.toggle('hide',y>last&&y>420&&!sh.classList.contains('on'));
+  last=y;
+},{passive:true});
+
+/* ── the handoff ──────────────────────────────────────── */
+const hand=document.getElementById('hand'),
+      lines=[...document.querySelectorAll('#lines p')],
+      parties=[...document.querySelectorAll('#rail b')],
+      cross=[...document.querySelectorAll('#rail s')],
+      glow=document.getElementById('glow'),
+      GX=['18%','50%','82%'];
+let step=-1;
+function handoff(){
+  const r=hand.getBoundingClientRect(), span=hand.offsetHeight-innerHeight;
+  const p=Math.min(.9999,Math.max(0,-r.top/span));
+  const i=Math.floor(p*lines.length);
+  if(i===step)return; step=i;
+  const L=lines[i], crossing=L.dataset.h==='x';
+  lines.forEach((l,n)=>l.classList.toggle('on',n===i));
+  parties.forEach((b,n)=>b.classList.toggle('holds',!crossing && +L.dataset.h===n));
+  cross.forEach((s,n)=>s.classList.toggle('moving',crossing && +L.dataset.c===n));
+  hand.style.setProperty('--acc',crossing?'var(--cool)':'var(--amber)');
+  glow.style.left = crossing ? (L.dataset.c==='0'?'34%':'66%') : GX[+L.dataset.h];
+}
+addEventListener('scroll',handoff,{passive:true});
+addEventListener('resize',()=>{step=-1;handoff();});
+handoff();
+
+/* ── depth ────────────────────────────────────────────── */
+const pls=[...document.querySelectorAll('.pl')], Z=[1,2.3,1.5,2.7,3.2];
+let mx=0,my=0,tx=0,ty=0,sy=0,running=false;
+addEventListener('pointermove',e=>{
+  if(e.pointerType!=='mouse')return;
+  tx=e.clientX/innerWidth-.5; ty=e.clientY/innerHeight-.5;
+});
+addEventListener('scroll',()=>{sy=scrollY;},{passive:true});
+const arr=document.querySelector('.arr');
+new IntersectionObserver(es=>{running=es[0].isIntersecting;if(running)cam();}).observe(arr);
+function cam(){
+  if(!running)return;
+  mx+=(tx-mx)*.055; my+=(ty-my)*.055;
+  for(let i=0;i<pls.length;i++){
+    const z=Z[i], d=1/z;
+    pls[i].style.transform=
+      `translate3d(${-mx*50*d}px,${-my*32*d - sy*d*.34}px,0) scale(${1+(1-d)*.05})`;
+    pls[i].style.filter=`blur(${Math.max(0,(z-1.5))*1.15}px) brightness(${1-(z-1)*.085})`;
+  }
+  requestAnimationFrame(cam);
+}
+if(!RM)cam();
+</script></body></html>
