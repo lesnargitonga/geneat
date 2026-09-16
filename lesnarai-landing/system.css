@@ -1,0 +1,353 @@
+/* ═══ LESNAR AI · PHASE 7 FINAL VISUAL SYSTEM ══════════════════════════════
+   Material character: MACHINED AND DOCUMENTARY — precisely ruled surfaces,
+   real captures inspected at their true edges, and nothing rendered that was
+   not measured or photographed.
+
+   Primary  Archivo            400/500/600/700 · SIL OFL · Google Fonts
+   Technical IBM Plex Mono     400/500        · SIL OFL · Google Fonts
+   Two families, six weights. Mono never carries company voice.              */
+
+:root{
+  color-scheme:light dark;
+  /* ── neutral ground · cool, machined, never paper-warm ── */
+  --page:#E7E9EA; --raise:#DDE0E1; --deep:#D1D5D7;
+  /* --fg-3 measured 4.498:1 at 10px: technically failing and, more to the
+     point, sitting exactly on the line with no headroom for a small mono
+     label. Darkened to 5.57:1. */
+  --fg:#14171A; --fg-2:#4D5358; --fg-3:#565C60;
+  /* ── rules: four weights, each with a job ── */
+  --r-row:#C3C7C9; --r-sec:#9AA0A4; --r-edge:#8E959A;
+  /* ── semantic: state only, never brand ── */
+  --ok:#1B6B52; --down:#9C3A18;
+  /* ── brand signal: identity, primary action, operating-surface rule ── */
+  --sig:#1D4E89;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --disp:"Archivo","Helvetica Neue",Arial,sans-serif;
+  /* ── rhythm ── */
+  --gap-page:clamp(38px,5vw,72px);
+  --gap-sec:clamp(30px,3.4vw,52px);
+  --gap-tight:14px;
+  --measure:64ch;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --page:#101315; --raise:#181C1F; --deep:#0A0C0E;
+  --fg:#E9EBEC; --fg-2:#9BA2A7; --fg-3:#838A8F;
+  --r-row:#272C30; --r-sec:#424A4F; --r-edge:#4C555B;
+  --ok:#63C39F; --down:#E28459; --sig:#7FB2E8;
+}}
+:root[data-theme="light"]{color-scheme:only light}
+:root[data-theme="dark"]{color-scheme:only dark}
+:root[data-theme="dark"]{
+  --page:#101315; --raise:#181C1F; --deep:#0A0C0E;
+  --fg:#E9EBEC; --fg-2:#9BA2A7; --fg-3:#838A8F;
+  --r-row:#272C30; --r-sec:#424A4F; --r-edge:#4C555B;
+  --ok:#63C39F; --down:#E28459; --sig:#7FB2E8;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--fg);font-family:var(--disp);
+  font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  font-feature-settings:"kern" 1;text-rendering:optimizeLegibility}
+.w{max-width:1180px;margin:0 auto;padding:0 clamp(18px,3vw,40px)}
+.col{max-width:var(--measure)}
+
+/* ── type scale ─────────────────────────────────────────────────────────── */
+h1{font-weight:700;font-size:clamp(2.1rem,5.2vw,3.5rem);line-height:1.02;
+  letter-spacing:-.03em;margin:0;max-width:19ch}
+h2{font-weight:700;font-size:clamp(1.3rem,2.5vw,1.75rem);line-height:1.12;
+  letter-spacing:-.021em;margin:0 0 var(--gap-tight)}
+h3{font-weight:600;font-size:17px;line-height:1.25;letter-spacing:-.012em;margin:0 0 5px}
+p{margin:0 0 .85em}p:last-child{margin-bottom:0}
+.k{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--fg-3);margin:0 0 12px;display:block}
+.lede{font-size:17px;line-height:1.5;color:var(--fg-2);max-width:56ch}
+.open__l{font-size:clamp(1.05rem,1.7vw,1.22rem);line-height:1.45;color:var(--fg-2);
+  margin:20px 0 0;max-width:52ch}
+.stmt{font-weight:600;font-size:clamp(1.3rem,2.8vw,1.75rem);line-height:1.26;
+  letter-spacing:-.02em;max-width:48ch;margin:0}
+a{color:var(--fg)}
+
+/* ── header · signal at identity ────────────────────────────────────────── */
+.site-head{border-bottom:3px solid var(--fg)}
+.site-head > .w{display:flex;align-items:center;gap:22px;padding-block:16px}
+.mark{font-weight:700;font-size:17px;letter-spacing:.075em;color:var(--sig);
+  text-decoration:none;white-space:nowrap}
+/* TREATMENT B. The qualifier was mono, raised and widely spaced, which read as
+   a trademark appendage stuck onto the name and cramped badly in square
+   contexts. It now sits on the baseline in the primary family, close-set, so
+   LESNAR AI reads as one identity rather than a name plus a badge. It also
+   returns mono to technical semantics: a company name is not one. */
+.mark i{font-style:normal;font-weight:500;font-size:.62em;letter-spacing:.14em;
+  color:var(--fg-2);margin-left:.34em}
+.site-nav{margin-left:auto;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.site-nav a{font-size:14.5px;color:var(--fg);text-decoration:none;padding-block:4px;
+  border-bottom:2px solid transparent}
+.site-nav a:hover{border-bottom-color:var(--r-sec)}
+.site-nav a[aria-current="page"]{border-bottom-color:var(--fg);font-weight:600}
+.nav-start{font-weight:600;color:var(--sig)!important;border-bottom-color:currentColor!important}
+.head-r{margin-left:auto;display:none;gap:18px;align-items:center}
+.head-r a{font-size:14.5px;text-decoration:none;color:var(--fg)}
+.head-r .start{font-weight:600;color:var(--sig);border-bottom:2px solid currentColor}
+.head-r .menu{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  border:1px solid var(--r-edge);padding:10px 13px;min-height:44px;display:inline-flex;align-items:center}
+.panel{display:none;border-bottom:3px solid var(--fg);background:var(--raise)}
+.panel ul{list-style:none;margin:0;padding:0}
+.panel li{border-bottom:1px solid var(--r-row)}.panel li:last-child{border-bottom:0}
+.panel a{display:block;padding:17px 0;font-size:19px;font-weight:600;text-decoration:none}
+.panel .close{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--fg-2);padding:15px 0;display:block}
+.menu-note{display:none}
+
+/* ── page opening ───────────────────────────────────────────────────────── */
+.open{padding-block:var(--gap-page) 0}
+.open__k{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--fg-2);margin:0 0 18px}
+section{padding-block:var(--gap-sec)}
+section+section{border-top:1px solid var(--r-sec)}
+.act{display:inline-block;margin-top:20px;font-weight:600;font-size:16px;color:var(--sig);
+  border-bottom:2px solid currentColor;padding-bottom:3px;text-decoration:none}
+:where(a,button,input,textarea):focus-visible{outline:3px solid var(--sig);outline-offset:3px}
+
+/* ── operating grammar · the signal opens an operating surface ──────────── */
+.op{margin-top:8px;border-top:3px solid var(--sig)}
+.cond{border:1px solid var(--r-edge);border-left:4px solid var(--r-edge);
+  padding:13px 16px;margin:16px 0 0}
+.cond b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--fg-2);margin-bottom:5px;font-weight:500}
+.cond span{font-size:14.5px;line-height:1.45;color:var(--fg-2)}
+.steps{list-style:none;margin:16px 0 0;padding:0}
+.step{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr);gap:0 22px;
+  padding:15px 0;border-bottom:1px solid var(--r-row);align-items:baseline}
+.step b{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--fg-3);font-weight:500}
+.step span{font-size:16.5px;line-height:1.32}
+/* the handoff · double rule and inset — never confusable with a section rule */
+.bound{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr);gap:0 22px;
+  margin:20px 0;padding:18px 18px 18px 34px;
+  border-top:4px double var(--fg);border-bottom:4px double var(--fg)}
+.bound b{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--fg-2);font-weight:500}
+.bound span{font-weight:700;font-size:16px;letter-spacing:-.01em}
+/* the responsibility note must not read as another bordered object: the
+   condition is a bordered box with a left bar, the evidence figure is a
+   bordered frame around an image. Three 1px boxes in one section made the
+   rule hierarchy interchangeable, so this one becomes a raised field. */
+.resp{margin-top:18px;background:var(--raise);border:0;padding:16px 18px}
+.resp dl{margin:0;display:grid;grid-template-columns:minmax(0,8rem) minmax(0,1fr);gap:6px 18px}
+.resp dt{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--fg-3);padding-top:3px}
+.resp dd{margin:0;font-size:14.5px;line-height:1.45;color:var(--fg-2)}
+.resp dd b{color:var(--fg);font-weight:600}
+
+/* ── implementation state · quiet, not the handoff ──────────────────────── */
+.struct{border-top:1px solid var(--r-sec);margin-top:16px}
+.struct__r{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) minmax(0,10rem);
+  gap:3px 22px;padding:14px 0;border-bottom:1px solid var(--r-row);align-items:baseline}
+.struct__k{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--fg-3)}
+.struct__w{font-size:15.5px;line-height:1.4}
+.struct__s{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--fg-2);justify-self:start}
+.struct__r[data-impl="no"] .struct__w{color:var(--fg-2)}
+.struct__r[data-impl="no"] .struct__s{color:var(--fg-3);box-shadow:inset 0 -1px 0 var(--r-edge)}
+
+/* ── evidence · a captured object, inspected at its true edge ───────────── */
+.ev{margin-top:8px}
+.ev__fig{border:1px solid var(--r-edge);background:var(--raise);display:block;
+  position:relative;overflow:hidden;max-width:560px}
+.ev__fig img{display:block;width:100%;height:auto}
+.ev__cap{margin:14px 0 0;display:grid;grid-template-columns:minmax(0,7rem) minmax(0,1fr);
+  gap:6px 18px;max-width:600px}
+.ev__cap dt{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--fg-3);padding-top:3px}
+.ev__cap dd{margin:0;font-size:14.5px;line-height:1.45;color:var(--fg-2)}
+.ev__cap dd b{color:var(--fg);font-weight:600}
+/* A LIMIT IS A FACT, NOT A FAILURE. Rust is reserved for a measured negative
+   state; using it for "not claimed" made the company's own honesty look like
+   an alarm. The limit is now structural: a heavy ink rule and a full-ink
+   label, which reads as deliberate rather than apologetic. */
+.limit{border-left:3px solid var(--fg);padding:3px 0 3px 17px;margin-top:20px;max-width:56ch}
+.limit b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--fg);margin-bottom:5px;font-weight:500}
+.limit span{font-size:14.5px;line-height:1.45;color:var(--fg-2)}
+
+/* ── maturity · colour-free ladder, no prestige ─────────────────────────── */
+.mat{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--fg-2);white-space:nowrap;display:inline-flex;align-items:center;gap:8px}
+.mat i{font-style:normal;width:9px;height:9px;flex:none}
+.mat--live i{background:var(--fg)}
+.mat--pilot i{background:linear-gradient(90deg,var(--fg) 50%,transparent 50%);
+  box-shadow:inset 0 0 0 1.5px var(--fg)}
+.mat--internal i{box-shadow:inset 0 0 0 1.5px var(--fg)}
+.mat--research i{box-shadow:inset 0 0 0 1px var(--r-sec)}
+.mat--direction i{box-shadow:inset 0 0 0 1px var(--r-sec);opacity:.5}
+
+/* ── register ───────────────────────────────────────────────────────────── */
+.reg{border-top:3px solid var(--fg)}
+.reg__grp{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--fg);padding:26px 0 9px;margin:0;border-bottom:1px solid var(--r-sec);font-weight:500}
+.reg__grp em{font-style:normal;color:var(--fg-3);letter-spacing:.06em;text-transform:none;
+  font-size:11.5px;margin-left:12px;font-family:var(--disp)}
+.reg__row{display:grid;grid-template-columns:minmax(0,14rem) minmax(0,1fr) minmax(0,9rem);
+  gap:5px 26px;padding:17px 0;border-bottom:1px solid var(--r-row);align-items:baseline;
+  text-decoration:none;color:inherit}
+.reg__row:hover{background:var(--raise)}
+.reg__n{font-weight:600;font-size:18px;letter-spacing:-.014em}
+.reg__p{font-size:14.5px;line-height:1.45;color:var(--fg-2)}
+.reg__m{justify-self:start}
+
+/* ── capability / principle ─────────────────────────────────────────────── */
+.capidx{border-top:3px solid var(--fg);margin-bottom:var(--gap-sec)}
+.capidx a{display:grid;grid-template-columns:minmax(0,16rem) minmax(0,1fr) minmax(0,13rem);
+  gap:4px 26px;padding:15px 0;border-bottom:1px solid var(--r-row);align-items:baseline;
+  text-decoration:none;color:inherit}
+.capidx a:hover{background:var(--raise)}
+.capidx b{font-weight:600;font-size:16.5px;letter-spacing:-.012em}
+.capidx span{font-size:14.5px;color:var(--fg-2);line-height:1.4}
+.capidx em{font-style:normal;font-family:var(--mono);font-size:10px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--fg-2);justify-self:start}
+.cap,.prin{padding:26px 0;border-bottom:1px solid var(--r-row)}
+.cap__h{display:flex;gap:16px;align-items:baseline;flex-wrap:wrap;margin-bottom:8px}
+.cap__h h2{margin:0;font-size:19px}
+.cap__r{font-size:15.5px;line-height:1.5;color:var(--fg-2);max-width:58ch}
+.cap__e{margin-top:12px;font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;color:var(--fg-2)}
+.cap__e b{color:var(--fg);font-weight:500}
+.prin h2{font-size:19px;margin:0 0 6px}
+.prin__d{font-size:15.5px;line-height:1.5;color:var(--fg-2);max-width:58ch;margin-top:4px}
+.prin__x{margin-top:14px;border-left:2px solid var(--r-sec);padding-left:17px;max-width:56ch}
+.prin__x b{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--fg-3);display:block;margin-bottom:4px;font-weight:500}
+.prin__x span{font-size:14.5px;line-height:1.45;color:var(--fg-2)}
+/* the principle's limit is a fact, like every other limit in the system: a
+   heavy ink rule, not the failure colour */
+.prin__x--lim{margin-top:14px;border-left-width:3px;border-left-color:var(--fg)}
+.prin__x--lim b{color:var(--fg)}
+
+/* ── relational pairs · width only where two things depend ──────────────── */
+.pair{display:block}
+@media (min-width:1080px){
+  .pair{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:0 48px;align-items:start}
+  .pair > :first-child{border-right:1px solid var(--r-row);padding-right:48px}
+  .pair__b{margin-top:0}
+}
+.pair__b{margin-top:20px}
+
+/* ── start gate ─────────────────────────────────────────────────────────── */
+.gate{display:grid;gap:3px;background:var(--r-sec);border:1px solid var(--r-sec);
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-top:8px}
+.gate > div{background:var(--page);padding:22px}
+.gate h2{font-size:17px;margin:0 0 12px}
+.gate ul{margin:0;padding-left:1.15em}
+.gate li{font-size:15.5px;line-height:1.5;color:var(--fg-2);margin-bottom:9px}
+/* "Not this" is a different category of work, not an error state. The two
+   sides are distinguished by ground, not by colour. */
+.gate--no{background:var(--raise)}
+.gate--no h2{color:var(--fg)}
+.poorfit{border:2px solid var(--fg);padding:20px;max-width:56ch}
+
+/* ── documentary slot ───────────────────────────────────────────────────── */
+.slot{border:1px dashed var(--r-edge);background:var(--raise);padding:30px 22px;
+  display:flex;flex-direction:column;gap:8px;max-width:560px}
+.slot b{font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--fg-2);font-weight:500}
+.slot span{font-size:14.5px;line-height:1.45;color:var(--fg-2)}
+
+/* ── misc ───────────────────────────────────────────────────────────────── */
+.parent{display:flex;gap:16px;align-items:baseline;flex-wrap:wrap;font-family:var(--mono);
+  font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--fg-2);
+  padding-block:18px 0}
+.parent a{color:var(--fg-2)}.parent b{color:var(--fg);font-weight:500}
+.plain{margin:0;padding-left:1.15em}
+.plain li{font-size:16px;line-height:1.5;color:var(--fg-2);margin-bottom:9px;max-width:56ch}
+.rows{border-top:1px solid var(--r-sec)}
+.rows div{display:grid;grid-template-columns:minmax(0,13rem) minmax(0,1fr);gap:4px 24px;
+  padding:15px 0;border-bottom:1px solid var(--r-row);align-items:baseline}
+.rows b{font-weight:600;font-size:16px}
+.rows span{font-size:15px;line-height:1.45;color:var(--fg-2)}
+
+/* ── footer ─────────────────────────────────────────────────────────────── */
+.site-foot{border-top:3px solid var(--fg);margin-top:var(--gap-page)}
+.site-foot .w{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:26px;padding-block:26px 30px}
+.site-foot h4{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--fg-3);margin:0 0 11px;font-weight:500}
+.site-foot ul{list-style:none;margin:0;padding:0}
+.site-foot li{margin-bottom:7px}
+.site-foot a{font-size:14.5px;color:var(--fg-2)}
+.site-foot p{font-size:14px;color:var(--fg-2);margin:0 0 6px}
+.studynote{font-family:var(--mono);font-size:10px;line-height:1.7;letter-spacing:.05em;
+  color:var(--fg-3);border-top:1px solid var(--r-row);padding:12px 0 22px;margin:0}
+
+/* ── responsive · breakpoints chosen after visual testing ───────────────── */
+@media (max-width:820px){
+  .site-nav{display:none}
+  .head-r{display:flex}
+  body[data-menu="open"] .panel{display:block}
+  h1{max-width:none}
+  .step{grid-template-columns:minmax(0,1fr);gap:3px;padding:13px 0}
+  .bound{grid-template-columns:minmax(0,1fr);gap:4px;padding:15px 15px 15px 22px;margin:16px 0}
+  .reg__row{grid-template-columns:minmax(0,1fr);gap:4px;padding:15px 0}
+  .reg__m{order:3}
+  .capidx a{grid-template-columns:minmax(0,1fr);gap:4px}
+  .struct__r{grid-template-columns:minmax(0,1fr);gap:3px}
+  .resp dl,.ev__cap{grid-template-columns:minmax(0,1fr);gap:2px 0}
+  .resp dd,.ev__cap dd{margin-bottom:10px}
+  .rows div{grid-template-columns:minmax(0,1fr)}
+  body{font-size:16.5px}
+}
+
+/* ── Start form · appearance only, no backend ──────────────────────────────
+   No action attribute, submit disabled and labelled as a study control. There
+   is no success state and no sending state, because neither would be true. */
+.form{margin-top:8px;max-width:640px}
+.fld{margin-bottom:26px}
+.fld label{display:block;font-weight:600;font-size:16px;margin-bottom:5px}
+.fld .opt{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--fg-3);margin-left:10px;font-weight:400}
+.fld .help{font-size:14px;line-height:1.45;color:var(--fg-2);margin:0 0 9px}
+.fld input,.fld textarea{width:100%;font-family:var(--disp);font-size:16.5px;line-height:1.45;
+  color:var(--fg);background:var(--page);border:1px solid var(--r-edge);border-radius:0;
+  padding:13px 14px;min-height:50px;-webkit-appearance:none}
+.fld textarea{min-height:104px;resize:vertical}
+.fld input::placeholder,.fld textarea::placeholder{color:var(--fg-3)}
+.fld input:focus-visible,.fld textarea:focus-visible{outline:3px solid var(--sig);outline-offset:2px;
+  border-color:var(--fg)}
+/* error is the one place the negative semantic belongs: a real validation
+   failure, never a required-field decoration */
+.fld[data-err] input,.fld[data-err] textarea{border-color:var(--down);border-width:2px}
+.fld .err{display:none;font-size:14px;color:var(--down);margin:7px 0 0;font-weight:500}
+.fld[data-err] .err{display:block}
+.form__act{display:flex;gap:20px;align-items:center;flex-wrap:wrap;padding-top:6px;
+  border-top:1px solid var(--r-sec)}
+.form__act button{font-family:var(--disp);font-weight:600;font-size:16px;color:var(--fg-3);
+  background:var(--raise);border:1px solid var(--r-edge);border-radius:0;
+  padding:14px 20px;min-height:50px;cursor:not-allowed}
+.form__note{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;color:var(--fg-2);
+  line-height:1.6}
+.form__alt{margin-top:26px;padding-top:20px;border-top:1px solid var(--r-sec)}
+.form__alt p{font-size:16px;color:var(--fg-2)}
+.form__alt a{color:var(--sig);font-weight:600;border-bottom:2px solid currentColor;
+  text-decoration:none;padding-bottom:2px}
+
+
+/* ── theme control ───────────────────────────────────────────────────────
+   Three explicit states and nothing else: SYSTEM, LIGHT, DARK. Created by
+   script, because without script it could not work and the site does not
+   render controls that do nothing. */
+.theme{display:none;gap:0;align-items:stretch;border:1px solid var(--r-edge)}
+html[data-js="on"] .theme{display:inline-flex}
+.theme button{font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;
+  background:transparent;color:var(--fg-2);border:0;border-right:1px solid var(--r-edge);
+  padding:0 9px;min-height:34px;cursor:pointer;white-space:nowrap}
+.theme button:last-child{border-right:0}
+.theme button[aria-pressed="true"]{background:var(--fg);color:var(--page);font-weight:500}
+@media (hover:hover){.theme button:not([aria-pressed="true"]):hover{background:var(--raise);color:var(--fg)}}
+.theme button:focus-visible{outline:3px solid var(--sig);outline-offset:-3px}
+@media (max-width:820px){
+  .site-head > .w .theme{display:none}
+  html[data-js="on"] .panel .theme{display:inline-flex;margin-top:4px}
+  .panel .theme button{min-height:44px;padding:0 14px;font-size:11px}
+}
+.theme__l{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--fg-3);margin-right:9px;align-self:center}
+@media (max-width:820px){.panel .theme__l{display:block;margin:18px 0 8px}}

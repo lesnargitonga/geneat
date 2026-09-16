@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://lesnarai.co.ke/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
+  <url><loc>https://lesnarai.co.ke/</loc><lastmod>2026-09-16</lastmod><priority>1.0</priority></url>
+  <url><loc>https://lesnarai.co.ke/capabilities/</loc><lastmod>2026-09-16</lastmod><priority>0.8</priority></url>
+  <url><loc>https://lesnarai.co.ke/company/</loc><lastmod>2026-09-16</lastmod><priority>0.8</priority></url>
+  <url><loc>https://lesnarai.co.ke/engineering/</loc><lastmod>2026-09-16</lastmod><priority>0.8</priority></url>
+  <url><loc>https://lesnarai.co.ke/start/</loc><lastmod>2026-09-16</lastmod><priority>0.8</priority></url>
+  <url><loc>https://lesnarai.co.ke/work/</loc><lastmod>2026-09-16</lastmod><priority>0.8</priority></url>
+  <url><loc>https://lesnarai.co.ke/work/aerial-systems/</loc><lastmod>2026-09-16</lastmod><priority>0.6</priority></url>
+  <url><loc>https://lesnarai.co.ke/work/bizmtaani/</loc><lastmod>2026-09-16</lastmod><priority>0.6</priority></url>
+  <url><loc>https://lesnarai.co.ke/work/carepro/</loc><lastmod>2026-09-16</lastmod><priority>0.6</priority></url>
+  <url><loc>https://lesnarai.co.ke/work/cypher/</loc><lastmod>2026-09-16</lastmod><priority>0.6</priority></url>
+  <url><loc>https://lesnarai.co.ke/work/gen-eat/</loc><lastmod>2026-09-16</lastmod><priority>0.6</priority></url>
+  <url><loc>https://lesnarai.co.ke/work/gold-trader/</loc><lastmod>2026-09-16</lastmod><priority>0.6</priority></url>
+  <url><loc>https://lesnarai.co.ke/work/greenhouse-controller/</loc><lastmod>2026-09-16</lastmod><priority>0.6</priority></url>
+  <url><loc>https://lesnarai.co.ke/work/hazina-nomads/</loc><lastmod>2026-09-16</lastmod><priority>0.6</priority></url>
+  <url><loc>https://lesnarai.co.ke/work/jamii-projects-hub/</loc><lastmod>2026-09-16</lastmod><priority>0.6</priority></url>
+  <url><loc>https://lesnarai.co.ke/work/sensing-and-radar/</loc><lastmod>2026-09-16</lastmod><priority>0.6</priority></url>
+  <url><loc>https://lesnarai.co.ke/work/sentinelcore/</loc><lastmod>2026-09-16</lastmod><priority>0.6</priority></url>
 </urlset>
