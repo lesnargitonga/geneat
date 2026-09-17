@@ -551,7 +551,6 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 </div></div></footer>
 
 <script>
-const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const root=document.documentElement;
 
 /* theme */
@@ -560,7 +559,7 @@ tg.addEventListener('click',()=>{
   root.dataset.t = root.dataset.t==='dark' ? 'light' : 'dark';
   tg.setAttribute('aria-label', root.dataset.t==='dark'
     ? 'Switch to the light theme' : 'Switch to the dark theme');
-  draw(); drawRuns();
+  Paint.all();
 });
 
 /* reveals */
@@ -574,20 +573,87 @@ addEventListener('scroll',()=>{const y=scrollY;
   nav.classList.toggle('stuck',y>40);
   nav.classList.toggle('hide',y>last&&y>420); last=y;},{passive:true});
 
-/* ── real recorded telemetry ─────────────────────────── */
-let TEL=null;
-const cv=document.getElementById('tel'), ctx=cv.getContext('2d');
-const rc=document.getElementById('runs'), rx=rc.getContext('2d');
+/* ═══════════════════════════════════════════════════════
+   state · one store, one paint registry, one motion gate.
+   nothing draws before its data is verified ready.
+   ═══════════════════════════════════════════════════════ */
+
+/* a signal is a set of listeners that replays its last value
+   to anyone who subscribes late. this is what kills the race. */
+function Signal(){
+  const subs=new Set(); let value; let settled=false;
+  return {
+    get value(){return value},
+    get settled(){return settled},
+    set(v){ value=v; settled=true;
+      subs.forEach(fn=>{try{fn(v)}catch(e){console.error('[signal]',e)}}); },
+    subscribe(fn){ subs.add(fn); if(settled) fn(value); return ()=>subs.delete(fn); }
+  };
+}
+
+/* motion gate. every rAF loop on this page goes through here, so
+   prefers-reduced-motion is enforced in one place and the audit can
+   assert that nothing is looping. */
+const Motion=(()=>{
+  const q=matchMedia('(prefers-reduced-motion: reduce)');
+  let live=0;
+  const api={
+    get reduced(){ return q.matches },
+    /* run(fn) -> stop(). fn(dt, elapsed) returns false to finish. */
+    run(fn){
+      if(q.matches) return ()=>{};
+      let id=0, t0=performance.now(), prev=t0, stopped=false;
+      live++; window.__rafRunning=true;
+      const step=t=>{
+        if(stopped) return;
+        const dt=t-prev; prev=t;
+        if(fn(dt, t-t0)===false){ api._end(); return; }
+        id=requestAnimationFrame(step);
+      };
+      id=requestAnimationFrame(step);
+      return ()=>{ if(stopped)return; stopped=true; cancelAnimationFrame(id); api._end(); };
+    },
+    _end(){ live=Math.max(0,live-1); if(!live) window.__rafRunning=false; }
+  };
+  q.addEventListener?.('change',()=>{ if(q.matches) Paint.all(); });
+  return api;
+})();
+
+/* paint registry. components register a repaint fn; theme change and
+   resize replay them all. a component never wires its own listeners. */
+const Paint=(()=>{
+  const fns=new Set();
+  return {
+    register(fn){ fns.add(fn); return fn },
+    all(){ fns.forEach(fn=>{try{fn()}catch(e){console.error('[paint]',e)}}) }
+  };
+})();
+
+/* the telemetry store */
+const Telemetry=Signal();
 
 function css(n){return getComputedStyle(root).getPropertyValue(n).trim()}
 
-function draw(){
-  if(!TEL) return;
+/* canvas helper: sizes the backing store to DPR and hands back a
+   context already scaled to CSS pixels. returns null if not laid out. */
+function fit(canvas){
   const dpr=Math.min(2,devicePixelRatio||1);
-  const W=cv.clientWidth, H=cv.clientHeight;
-  if(!W||!H) return;
-  cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
-  ctx.clearRect(0,0,W,H);
+  const W=canvas.clientWidth, H=canvas.clientHeight;
+  if(!W||!H) return null;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  const c=canvas.getContext('2d');
+  c.setTransform(dpr,0,0,dpr,0,0);
+  c.clearRect(0,0,W,H);
+  return {c,W,H};
+}
+
+const cv=document.getElementById('tel');
+const rc=document.getElementById('runs');
+
+function draw(){
+  const TEL=Telemetry.value; if(!TEL||!cv) return;
+  const f=fit(cv); if(!f) return;
+  const {c:ctx,W,H}=f;
   /* a recording strip: one row per run that registered detections,
      one stroke per confidence bucket, height by confidence */
   const runs=TEL.runs, ink=css('--mid');
@@ -614,12 +680,9 @@ function draw(){
 }
 
 function drawRuns(){
-  if(!TEL||!rc) return;
-  const dpr=Math.min(2,devicePixelRatio||1);
-  const W=rc.clientWidth, H=rc.clientHeight;
-  if(!W||!H) return;
-  rc.width=W*dpr; rc.height=H*dpr; rx.setTransform(dpr,0,0,dpr,0,0);
-  rx.clearRect(0,0,W,H);
+  const TEL=Telemetry.value; if(!TEL||!rc) return;
+  const f=fit(rc); if(!f) return;
+  const {c:rx,W,H}=f;
   const runs=TEL.runs, ink=css('--ink'), dim=css('--dim'), edge=css('--edge');
   const padL=W*0.045, padR=W*0.045, span=W-padL-padR;
   const base=H-34, top=14, peak=base-top;
@@ -665,10 +728,20 @@ function drawRuns(){
   rx.globalAlpha=1;
 }
 
-fetch('telemetry.json').then(r=>r.json()).then(d=>{
-  TEL=d; draw(); drawRuns();
-  requestAnimationFrame(()=>cv.classList.add('in'));
-}).catch(()=>{ cv.style.display='none'; });
+Paint.register(draw);
+Paint.register(drawRuns);
 
-let t; addEventListener('resize',()=>{clearTimeout(t);t=setTimeout(()=>{draw();drawRuns();},180)});
+/* both canvases subscribe; the signal replays to whichever arrives late */
+Telemetry.subscribe(()=>{ draw(); requestAnimationFrame(()=>cv&&cv.classList.add('in')); });
+Telemetry.subscribe(drawRuns);
+
+fetch('telemetry.json')
+  .then(r=>{ if(!r.ok) throw new Error('telemetry '+r.status); return r.json(); })
+  .then(d=>{
+    if(!d||!Array.isArray(d.runs)||!d.runs.length) throw new Error('telemetry empty');
+    Telemetry.set(d);
+  })
+  .catch(e=>{ console.warn('[telemetry]',e.message); if(cv) cv.style.display='none'; });
+
+let rsz; addEventListener('resize',()=>{clearTimeout(rsz);rsz=setTimeout(Paint.all,180)},{passive:true});
 </script></body></html>
