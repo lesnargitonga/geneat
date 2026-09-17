@@ -1,11 +1,16 @@
 /* LESNAR AI homepage — release gate.
-   node tools/audit.mjs [screenshot-dir]
+   node tools/audit.mjs [screenshot-dir]        (ENGINE=webkit|firefox|chromium)
    Serve first:  python3 -m http.server 8910 --bind 127.0.0.1   (from creative-reset/)
    Exits non-zero if any gate fails. */
-import { chromium } from '/home/lesnar/Documents/ai model/experience-lab/study-b-webgl/node_modules/playwright/index.mjs';
+import * as pw from '/home/lesnar/Documents/ai model/experience-lab/study-b-webgl/node_modules/playwright/index.mjs';
+import fs from 'node:fs'; import path from 'node:path'; import os from 'node:os';
+import crypto from 'node:crypto';
+import { URL as NodeURL } from 'node:url';  /* the page URL constant below shadows the global */
 
 const OUT=process.argv[2]||null, URL='http://127.0.0.1:8910/final2/';
-const b=await chromium.launch();
+const ENGINE=process.env.ENGINE||'chromium';
+if(!pw[ENGINE]) { console.error(`unknown engine "${ENGINE}" — use chromium, firefox or webkit`); process.exit(2); }
+const b=await pw[ENGINE].launch();
 let FAIL=0;
 
 /* contrast: parses rgb(), rgba() and color(srgb r g b / a), and composites
@@ -59,11 +64,77 @@ const OVERFLOW=()=>{const lim=document.documentElement.clientWidth+1,bad=[];
     if(r.width>0&&(r.right>lim+8||r.left<-8))bad.push(el.tagName+'.'+String(el.className).slice(0,22)+':'+Math.round(r.right));});
   return [...new Set(bad)].slice(0,8);};
 
+/* WebKit's network process cannot reach the loopback server in this sandbox,
+   though it renders and scripts fine. Serving the site off disk through the
+   route layer puts Safari inside the gate instead of leaving it a caveat.
+   The webfonts are cached to tmp by node (which does have network) so WebKit
+   measures real Newsreader/Inter Tight metrics -- fallback metrics would make
+   the overflow gate meaningless, which is exactly the class of bug that got
+   through on Firefox. */
+const DISK = process.env.SERVE==='disk' || ENGINE==='webkit';
+const SITE = path.resolve(import.meta.dirname,'../..');
+const FONTDIR = path.join(os.tmpdir(),'lesnar-fontcache');
+const MIME={'.html':'text/html','.json':'application/json','.css':'text/css',
+  '.js':'text/javascript','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg',
+  '.webp':'image/webp','.avif':'image/avif','.svg':'image/svg+xml','.woff2':'font/woff2'};
+
+async function cacheFonts(){
+  fs.mkdirSync(FONTDIR,{recursive:true});
+  const idx=path.join(FONTDIR,'index.json');
+  if(fs.existsSync(idx)) return JSON.parse(fs.readFileSync(idx,'utf8'));
+  const UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 '+
+           '(KHTML, like Gecko) Version/17.4 Safari/605.1.15';
+  const href=fs.readFileSync(path.join(SITE,'final2/index.html'),'utf8')
+    .match(/href="(https:\/\/fonts\.googleapis\.com\/css2[^"]+)"/)?.[1];
+  if(!href) return null;
+  const map={};
+  const css=await (await fetch(href.replace(/&amp;/g,'&'),{headers:{'User-Agent':UA}})).text();
+  map[href.replace(/&amp;/g,'&')]={file:'sheet.css',type:'text/css'};
+  fs.writeFileSync(path.join(FONTDIR,'sheet.css'),css);
+  for(const u of [...new Set([...css.matchAll(/url\((https:[^)]+)\)/g)].map(m=>m[1]))]){
+    const name=crypto.createHash('sha1').update(u).digest('hex').slice(0,16)+path.extname(new NodeURL(u).pathname);
+    fs.writeFileSync(path.join(FONTDIR,name),Buffer.from(await (await fetch(u,{headers:{'User-Agent':UA}})).arrayBuffer()));
+    map[u]={file:name,type:MIME[path.extname(name)]||'font/woff2'};
+  }
+  fs.writeFileSync(idx,JSON.stringify(map));
+  return map;
+}
+const FONTS = DISK ? await cacheFonts().catch(e=>{console.error('font cache failed:',e.message); return null}) : null;
+
+async function serveFromDisk(p){
+  await p.route('**/*', route=>{
+    const url=route.request().url(), u=new NodeURL(url);
+    if(FONTS && FONTS[url]){
+      const f=FONTS[url];
+      return route.fulfill({status:200,body:fs.readFileSync(path.join(FONTDIR,f.file)),
+        headers:{'content-type':f.type,'access-control-allow-origin':'*'}});
+    }
+    if(u.hostname!=='127.0.0.1'&&u.hostname!=='localhost') return route.abort();
+    let fp=path.join(SITE,decodeURIComponent(u.pathname).replace(/^\/+/,''));
+    try{ if(fs.statSync(fp).isDirectory()) fp=path.join(fp,'index.html'); }catch{}
+    try{ return route.fulfill({status:200,body:fs.readFileSync(fp),
+      headers:{'content-type':MIME[path.extname(fp)]||'application/octet-stream'}}); }
+    catch{ return route.fulfill({status:404,body:''}); }
+  });
+}
+
+async function open(opts){
+  const p=await b.newPage(opts);
+  if(DISK) await serveFromDisk(p);
+  return p;
+}
+
 async function run(w,h,tag,opts={}){
-  const p=await b.newPage({viewport:{width:w,height:h},...opts});
-  const errs=[]; p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});
+  const p=await open({viewport:{width:w,height:h},...opts});
+  const errs=[];
+  /* preconnect is a connection hint, not a request, so the route layer cannot
+     fulfil it and WebKit logs the abort. Narrowly ignored in disk mode only --
+     every other console error still fails the gate. */
+  const artifact=t=>DISK&&/Failed to preconnect to https:\/\/fonts\.(googleapis|gstatic)\.com/.test(t);
+  p.on('console',m=>{if(m.type()==='error'&&!artifact(m.text()))errs.push(m.text())});
   p.on('pageerror',e=>errs.push('PAGEERROR '+e.message));
-  await p.goto(URL,{waitUntil:'networkidle'}); await p.waitForTimeout(1900);
+  await p.goto(URL,{waitUntil:DISK?'domcontentloaded':'networkidle'});
+  await p.evaluate(()=>document.fonts.ready); await p.waitForTimeout(1900);
   if(opts.light){await p.click('#tg'); await p.waitForTimeout(900);}
   await p.evaluate(async()=>{const H=document.body.scrollHeight;
     for(let y=0;y<H;y+=380){scrollTo(0,y);await new Promise(r=>setTimeout(r,40));}});
@@ -97,7 +168,7 @@ await run(390,844,'M-dark');
 await run(1440,900,'L-light',{light:true});
 await run(390,844,'ML-light',{light:true});
 
-const p=await b.newPage({viewport:{width:1440,height:900},reducedMotion:'reduce'});
+const p=await open({viewport:{width:1440,height:900},reducedMotion:'reduce'});
 const rerr=[]; p.on('pageerror',e=>rerr.push(e.message));
 await p.goto(URL,{waitUntil:'networkidle'}); await p.waitForTimeout(1200);
 const rm=await p.evaluate(()=>({
@@ -111,5 +182,5 @@ console.log((rmBad?'FAIL ':'ok   ')+'reduced-motion','hiddenAtRest',rm.hidden,'t
   'rafRunning',rm.raf,'rafLive',rm.live,'errors',rerr.length);
 console.log('     page height',await p.evaluate(()=>document.body.scrollHeight));
 await p.close(); await b.close();
-console.log(FAIL?`\n=== ${FAIL} GATE(S) FAILED ===`:'\n=== ALL GATES PASS ===');
+console.log(FAIL?`\n=== ${FAIL} GATE(S) FAILED on ${ENGINE} ===`:`\n=== ALL GATES PASS on ${ENGINE} ===`);
 process.exit(FAIL?1:0);
