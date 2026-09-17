@@ -106,11 +106,7 @@ h1 .ln i{display:block;font-style:normal}
 .terrain{position:relative;min-height:min(104svh,980px);display:flex;align-items:flex-end;
   padding-block:clamp(90px,13vh,150px) clamp(28px,4vh,52px);overflow:hidden}
 .terrain .map{position:absolute;inset:0}
-.terrain .map img{width:100%;height:100%;object-fit:cover;object-position:62% 46%;
-  filter:blur(var(--defocus,0px));transform:translateZ(0)}
-/* will-change is applied by script for the duration of a scroll only:
-   holding a permanent composite layer for a full-bleed image is a real cost */
-.terrain .map.calibrating img{will-change:filter}
+.terrain .map img{width:100%;height:100%;object-fit:cover;object-position:62% 46%}
 .terrain::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(88deg,#070706 22%,color-mix(in srgb,#070706 72%,transparent) 50%,transparent 78%),
              linear-gradient(#070706 2%,transparent 22%,transparent 58%,#070706 99%)}
@@ -278,7 +274,7 @@ h1 .ln i{display:block;font-style:normal}
 .inv a:hover{text-decoration-color:currentColor}
 .fin{display:flex;gap:26px;flex-wrap:wrap;padding-block:26px;font-size:13.5px;color:var(--dim)}
 
-.rv{opacity:0;transform:scale(.96) translateZ(0)}
+.rv{opacity:0;transform:scale(.985) translateZ(0)}
 .rv.in{opacity:1;transform:scale(1) translateZ(0);
   transition:opacity .85s var(--ez),transform .85s var(--ez)}
 
@@ -296,8 +292,7 @@ h1 .ln i{display:block;font-style:normal}
   #tel{width:100%;mask-image:linear-gradient(transparent,#000 14%,#000 62%,transparent 96%)}
   #tel.in{opacity:.85}
   .terrain{min-height:auto;padding-block:clamp(70px,11vh,110px) 0}
-  .terrain .map img{object-position:52% 40%;
-    filter:contrast(1.06) saturate(.92) blur(var(--defocus,0px))}
+  .terrain .map img{object-position:52% 40%;filter:contrast(1.06) saturate(.92)}
   .terrain::after{background:linear-gradient(#070706 2%,color-mix(in srgb,#070706 52%,transparent) 20%,
     color-mix(in srgb,#070706 74%,transparent) 40%,color-mix(in srgb,#070706 86%,transparent) 68%,#070706 96%)}
   :root[data-t="light"] .terrain::after{background:linear-gradient(#E6E3DB 2%,color-mix(in srgb,#E6E3DB 52%,transparent) 20%,
@@ -343,8 +338,9 @@ h1 .ln i{display:block;font-style:normal}
 
 <nav id="nav"><div class="w">
   <a class="lg" href="#top">LESNAR<em></em>AI</a>
-  <ul><li><a href="#medimatch">Work</a></li><li><a href="#security">Security</a></li>
-      <li><a href="#infrastructure">Engineering</a></li><li><a href="#contact">Contact</a></li></ul>
+  <ul><li><a href="#medimatch">Work</a></li><li><a href="/capabilities/">Capabilities</a></li>
+      <li><a href="#infrastructure">Engineering</a></li><li><a href="/company/">Company</a></li>
+      <li><a href="/start/">Start</a></li></ul>
   <button class="tg" id="tg" aria-label="Switch to the light theme">
     <svg class="moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
     <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg>
@@ -359,7 +355,7 @@ h1 .ln i{display:block;font-style:normal}
     <p class="define">LESNAR AI is a technology company in Nairobi. We build software, AI and
       autonomous systems for operational problems that are hard in the field: some for
       institutions, some that we run ourselves.</p>
-    <p class="proof">A national health-logistics platform. An autonomous flight stack for
+    <p class="proof">National-scale health logistics. Simulation-validated autonomy for
       GPS-denied airspace. A security operations control plane. And products running in Kenya.</p>
     <p class="telcap">Behind this page: 71,813 obstacle and proximity events recorded across 87
       simulation runs of our own autonomy stack, 13 to 16 April 2026. Thirty-four runs recorded
@@ -834,91 +830,6 @@ fetch('telemetry.json')
 
 let rsz; addEventListener('resize',()=>{clearTimeout(rsz);rsz=setTimeout(Paint.all,180)},{passive:true});
 
-/* ═══════════════════════════════════════════════════════
-   decrypt · a heading arrives as signal and resolves to type.
-   the accessible name is set once, up front, and never changes;
-   the scrambling glyphs are hidden from assistive tech entirely.
-   ═══════════════════════════════════════════════════════ */
-const Decrypt=(()=>{
-  const POOL='0123456789ABCDEF+-_/\\|*';
-  const START_MS=150, FRAME_MS=42;   /* ~24fps: glyphs read as glyphs */
-  const prepared=new Map();
-
-  /* wrap every leaf text node so markup (em, span.ln) survives intact */
-  function prep(h){
-    const walk=document.createTreeWalker(h,NodeFilter.SHOW_TEXT);
-    const nodes=[]; let n;
-    while(n=walk.nextNode()) if(n.textContent.trim()) nodes.push(n);
-    if(!nodes.length) return null;
-    h.setAttribute('aria-label', h.textContent.replace(/\s+/g,' ').trim());
-    const cells=nodes.map(node=>{
-      const sp=document.createElement('span');
-      sp.setAttribute('aria-hidden','true');
-      sp.dataset.dc='pending';
-      sp.textContent=node.textContent;
-      node.parentNode.replaceChild(sp,node);
-      return {el:sp,text:sp.textContent};
-    });
-    const rec={h,cells};
-    prepared.set(h,rec);
-    return rec;
-  }
-
-  function settle(rec){
-    rec.cells.forEach(c=>{ c.el.textContent=c.text; c.el.dataset.dc='done'; });
-    rec.h.style.height=''; rec.h.style.overflow='';
-  }
-
-  function start(rec){
-    if(Motion.reduced){ settle(rec); return; }
-    /* hold the real height and clip: scrambled glyphs are wider than the
-       serif and would otherwise push an extra line, moving the whole page */
-    /* offsetHeight, not getBoundingClientRect: the .rv ancestor is mid
-       scale(.96) when this fires, and a scaled rect would lock a height
-       4% short, then grow on settle and shift the page */
-    rec.h.style.height=rec.h.offsetHeight+'px';
-    rec.h.style.overflow='hidden';
-    /* one bounded lock time, so a long heading does not take three seconds */
-    const chars=rec.cells.reduce((a,c)=>a+c.text.length,0);
-    const DUR=Math.min(1250,Math.max(620,chars*24));
-    let acc=FRAME_MS;
-    Motion.run((dt,elapsed)=>{
-      const t=elapsed-START_MS;
-      if(t<0) return true;
-      acc+=dt; if(acc<FRAME_MS) return true; acc=0;
-      const frontier=(t/DUR)*chars;
-      let done=true, i=0;
-      for(const cell of rec.cells){
-        let out='';
-        for(let k=0;k<cell.text.length;k++,i++){
-          const ch=cell.text[k];
-          if(ch===' '||ch==='\n'||ch==='\t'){ out+=ch; continue; }
-          if(i<frontier) out+=ch;
-          else { out+=POOL[(Math.random()*POOL.length)|0]; done=false; }
-        }
-        if(cell.el.textContent!==out) cell.el.textContent=out;
-      }
-      if(done){ settle(rec); return false; }
-      return true;
-    });
-  }
-
-  return {
-    init(sel){
-      const recs=[...document.querySelectorAll(sel)].map(prep).filter(Boolean);
-      if(Motion.reduced){ recs.forEach(settle); return; }
-      const io=new IntersectionObserver(es=>es.forEach(e=>{
-        if(!e.isIntersecting) return;
-        io.unobserve(e.target);
-        const rec=prepared.get(e.target);
-        if(rec) start(rec);
-      }),{threshold:.25,rootMargin:'0px 0px -6% 0px'});
-      recs.forEach(r=>io.observe(r.h));
-    }
-  };
-})();
-
-Decrypt.init('h1, .wd h2, .inv h2');
 
 /* ═══════════════════════════════════════════════════════
    the sentinel scrubber · the canvas is decoration; the native
@@ -1006,88 +917,58 @@ const Scrub=Signal();
   Scrub.set(null);
 })();
 
-/* ═══════════════════════════════════════════════════════
-   the optic · scroll velocity defocuses the terrain, and stopping
-   snaps it sharp. blur during scroll is expensive, so the loop only
-   exists while the map is on screen and while the page is moving.
-   ═══════════════════════════════════════════════════════ */
-(()=>{
-  if(Motion.reduced) return;                    /* the optic stays sharp */
-  const map=document.querySelector('.terrain .map');
-  const img=map&&map.querySelector('img');
-  if(!map||!img) return;
 
-  const MAX=3, FLOOR=0.35, GAIN=1.7;            /* px/ms below FLOOR reads as still */
-  let onScreen=false, stop=null, idle=0, cur=0, lastY=scrollY, lastT=performance.now();
-
-  const clear=()=>{ cur=0; map.style.setProperty('--defocus','0px');
-                    map.classList.remove('calibrating'); };
-  function settle(){ if(stop){stop();stop=null;} clear(); }
-
-  function tick(){
-    const y=scrollY, t=performance.now();
-    const dt=Math.max(1,t-lastT);
-    const v=Math.abs(y-lastY)/dt;
-    lastY=y; lastT=t;
-    const target=Math.min(MAX,Math.max(0,(v-FLOOR)*GAIN));
-    /* ease toward the target so the optic ramps, then snap on settle */
-    cur+=(target-cur)*0.34;
-    if(cur<0.05) cur=0;
-    map.style.setProperty('--defocus',cur?cur.toFixed(2)+'px':'0px');
-    return true;
-  }
-
-  function onScroll(){
-    if(!onScreen) return;
-    if(!stop){ map.classList.add('calibrating'); lastY=scrollY; lastT=performance.now();
-               stop=Motion.run(tick); }
-    clearTimeout(idle); idle=setTimeout(settle,110);   /* snap back sharp */
-  }
-
-  new IntersectionObserver(es=>{
-    onScreen=es[0].isIntersecting;
-    if(!onScreen){ clearTimeout(idle); settle(); }
-  },{rootMargin:'10% 0px'}).observe(map);
-
-  addEventListener('scroll',onScroll,{passive:true});
-})();
 
 /* ═══════════════════════════════════════════════════════
-   the wire · a sealed packet crosses the relay. the relay's ring
-   flashes to verify the signature; the packet is unchanged by it.
+   the wire · a sealed packet crosses the relay once. the relay's ring
+   flashes to verify a signature; the packet is unchanged by it and
+   comes to rest at the recipient. it is an explanation, not a loop.
    ═══════════════════════════════════════════════════════ */
 (()=>{
-  if(Motion.reduced) return;                    /* the wire stays static */
   const rail=document.querySelector('.rail2');
+  const wire=document.querySelector('.wire');
   const sect=document.querySelector('.inf');
-  if(!rail||!sect) return;
+  if(!rail||!wire||!sect) return;
 
-  /* one cycle, in ms */
-  const OUT=260, LEG=820, HOLD=150, IN=240, REST=1900;
-  const T1=OUT, T2=T1+LEG, T3=T2+HOLD, T4=T3+LEG, CYCLE=T4+IN+REST;
+  const OUT=260, LEG=820, HOLD=180, IN=240;
+  const T1=OUT, T2=T1+LEG, T3=T2+HOLD, T4=T3+LEG, END=T4+IN;
   const set=(k,v)=>rail.style.setProperty(k,v);
   const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+  const atRest=()=>{ set('--w1','0'); set('--o1','0');
+                     set('--w2','1'); set('--o2','1'); set('--vf','0'); };
 
-  function frame(_dt,elapsed){
-    const t=elapsed%CYCLE;
+  let stop=null, played=false;
+
+  function frame(_dt,t){
     let w1=0,w2=0,o1=0,o2=0,vf=0;
-    if(t<T1){                     o1=t/T1; w1=0; }
-    else if(t<T2){                o1=1; w1=ease((t-T1)/LEG); }
-    else if(t<T3){                o1=1; w1=1; vf=1; }          /* verifying */
-    else if(t<T4){                o2=1; w2=ease((t-T3)/LEG);
-                                  vf=Math.max(0,1-(t-T3)/220); }
-    else if(t<T4+IN){             o2=1; w2=1; }
-    else {                        o2=Math.max(0,1-(t-T4-IN)/200); w2=1; }
-    set('--w1',w1); set('--w2',w2); set('--o1',o1.toFixed(2));
-    set('--o2',o2.toFixed(2)); set('--vf',vf.toFixed(2));
+    if(t<T1){        o1=t/T1; }
+    else if(t<T2){   o1=1; w1=ease((t-T1)/LEG); }
+    else if(t<T3){   o1=1; w1=1; vf=1; }
+    else if(t<T4){   o2=1; w2=ease((t-T3)/LEG); vf=Math.max(0,1-(t-T3)/240); }
+    else {           o2=1; w2=1; }
+    set('--w1',w1); set('--w2',w2);
+    set('--o1',o1.toFixed(2)); set('--o2',o2.toFixed(2)); set('--vf',vf.toFixed(2));
+    if(t>=END){ atRest(); stop=null; return false; }
     return true;
   }
 
-  let stop=null;
-  new IntersectionObserver(es=>{
-    if(es[0].isIntersecting){ if(!stop) stop=Motion.run(frame); }
-    else if(stop){ stop(); stop=null;
-      ['--o1','--o2','--vf'].forEach(k=>set(k,'0')); }
-  },{threshold:.08}).observe(sect);
+  function play(){
+    if(Motion.reduced||stop) return;
+    played=true; stop=Motion.run(frame);
+  }
+
+  atRest();                                   /* settled state, always visible */
+  if(!Motion.reduced){
+    const io=new IntersectionObserver(es=>{
+      if(!es[0].isIntersecting||played) return;
+      io.disconnect(); play();
+    },{threshold:.12});
+    io.observe(sect);
+    /* replay on demand, for anyone who wants to watch it again */
+    wire.addEventListener('pointerenter',play);
+    wire.addEventListener('click',play);
+    wire.style.cursor='pointer';
+    wire.title='Replay';
+  }
 })();
 </script></body></html>
