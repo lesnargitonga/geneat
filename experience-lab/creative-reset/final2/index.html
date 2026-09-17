@@ -258,8 +258,8 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
     <p class="lead">A national health-logistics platform. An autonomous flight stack for GPS-denied
       airspace. A security operations control plane. And products running every day in Kenya.</p>
     <p class="telcap">Behind this page: 71,813 obstacle and proximity events recorded across 87
-      simulation runs of our own autonomy stack, 13 to 16 April 2026. Thirty-four runs registered
-      detections. Fifty-three flew clean.</p>
+      simulation runs of our own autonomy stack, 13 to 16 April 2026. Thirty-four runs recorded
+      detections; fifty-three recorded none.</p>
   </div>
   <div class="cue" aria-hidden="true"><b></b> Scroll</div>
 </header>
@@ -287,14 +287,15 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
   <div class="fig">
     <div><b>64</b><span>Healthcare professionals surveyed</span></div>
     <div><b>56.3%</b><span>Face stockouts weekly or monthly</span></div>
-    <div><b>89.1%</b><span>Willing to pilot redistribution</span></div>
-    <div><b>57%</b><span>KEMSA national order fill rate</span></div>
+    <div><b>57.8%</b><span>Would recommend their facility explore a pilot</span></div>
+    <div><b>57%</b><span>KEMSA published national order fill rate</span></div>
   </div>
 
   <p class="note" style="margin-top:26px">Built on original field research conducted at USIU-Africa,
     Nairobi, and presented at a health conference hosted by Unique Conferences Canada. Survey figures
-    are the unedited response counts, n=64. Facility inventory shown in the platform is synthetic.
-    No patient records are used anywhere in the system.</p>
+    are the unedited response counts, n=64; the fill-rate figure is KEMSA's own published statistic.
+    The platform is built and publicly demonstrated, and has not yet been deployed inside a health
+    system. Facility inventory shown is synthetic. No patient records are used anywhere in it.</p>
 </div></section>
 
 <!-- 3 · autonomous systems -->
@@ -305,14 +306,15 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
       <h2>A drone that has to keep flying when the satellites go quiet.</h2>
     </div>
     <p class="lead">An offline-capable command-and-control and training stack for GPS-degraded and
-      GPS-denied conditions. Nothing critical depends on a network while a mission is running.</p>
+      GPS-denied conditions, built so that no critical function depends on cloud assets while a
+      mission is running.</p>
   </div>
 
   <div class="spec">
-    <div><b>100</b><span>Drone agents tracked per operational cell</span></div>
+    <div><b>100</b><span>Drone agents per operational cell</span></div>
     <div><b>50</b><span>Concurrent operators per node</span></div>
-    <div><b>20&ndash;30 Hz</b><span>Telemetry polling rate</span></div>
-    <div><b>10</b><span>Concurrent command writers, queue-locked</span></div>
+    <div><b>20&ndash;30 Hz</b><span>Operator telemetry polling rate</span></div>
+    <div><b>10</b><span>Command writers, capped by a role-based queue lock</span></div>
   </div>
 
   <div class="runs">
@@ -325,7 +327,9 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
   <p class="stack"><span>PX4 SITL</span><span>Gazebo Harmonic</span><span>AirSim</span>
     <span>MAVSDK teacher bridge</span><span>Redis</span><span>TimescaleDB</span><span>Flask</span><span>React</span></p>
 
-  <p class="note" style="margin-top:24px">LESNAR AI built the autonomy bridge, mission logic,
+  <p class="note" style="margin-top:24px">The four figures above are the platform's designed
+    capacity envelope, taken from its own technical blueprint. They are engineering limits, not
+    load-test results. LESNAR AI built the autonomy bridge, mission logic,
     telemetry pipeline and operator system, and integrated the PX4, Gazebo and AirSim projects,
     which are the work of their own upstream maintainers. The stack is simulation-validated.
     No physical airframe has been flown.</p>
@@ -338,8 +342,8 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
       <p class="k">Security and assurance</p>
       <h2>Most of this work is done under conditions we cannot show you.</h2>
     </div>
-    <p class="lead">Authorised, scoped and evidence-bound engagements, and the tooling we built
-      because the engagements demanded it.</p>
+    <p class="lead">Authorised, scoped and evidence-bound engagements, and the tooling we build
+      and run alongside them.</p>
   </div>
 
   <div class="grid3">
@@ -348,7 +352,7 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
       <p>A Linux security operations control plane: authorised assessment, detection and
         correlation, SIEM intake, adversary emulation and a remediation path that is the only
         part permitted to change a host.</p>
-      <p class="n"><b>391</b> source files &middot; <b>120</b> test files &middot; <b>28</b> subsystems<br>
+      <p class="n"><b>391</b> source files &middot; <b>120</b> test files &middot; <b>28</b> subsystems in the current build<br>
         Purple-team campaigns and blind operational qualification</p>
     </article>
     <article>
@@ -360,11 +364,12 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
     </article>
     <article>
       <h3>Vulnerability research</h3>
-      <p>A high-severity smart-contract finding proving that a standard voluntary close can
-        transfer below-liquidation-margin value to the trader, with a patch that zeroes the
-        improper transfer and leaves healthy closes intact.</p>
-      <p class="n"><b>7</b> passing tests in one canonical run &middot; repeatable across cycles<br>
-        Maximum bounded improper payout <b>37,499.22 USDC</b></p>
+      <p>A reproducible smart-contract finding: a standard voluntary close settles on a stale
+        liquidation status and moves below-margin value to the trader instead of the vault, with
+        a patch that zeroes the improper transfer and leaves healthy closes intact.</p>
+      <p class="n"><b>7</b> passing tests in one canonical run &middot; identical result across cycles<br>
+        Up to <b>37,499.22 USDC</b> of vault value moved in one demonstrated settlement<br>
+        Submitted as high severity. We do not publish an adjudication.</p>
     </article>
   </div>
 
@@ -378,7 +383,7 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
   <div class="hd">
     <div>
       <p class="k">Infrastructure</p>
-      <h2>Two systems we built because we did not trust the alternatives.</h2>
+      <h2>A relay that cannot read your messages, and a lab that tests the model before we trust it.</h2>
     </div>
     <p class="lead">A secure communications relay in Rust, and a private model foundry that
       qualifies a model before anything is allowed to depend on it.</p>
@@ -389,7 +394,8 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
       <h3>Simy</h3>
       <p>A privacy-preserving communications platform for high-risk use. A shared Rust
         cryptographic core, a durable ciphertext relay that never inspects message content,
-        and encrypted session persistence that survives a restart.</p>
+        and encrypted session persistence that survives a restart. The relay and the core are
+        built; the end-user messenger is not finished yet.</p>
       <div class="crypt">
         <div><b>comm-core</b><span>X3DH prekey generation, bundle verification, shared-secret derivation</span></div>
         <div><b>ratchet</b><span>Double Ratchet sessions with encrypted file-backed persistence</span></div>
@@ -411,7 +417,9 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
       </table></div>
       <p class="note" style="margin-top:16px">Qwen2.5-Coder-7B-Instruct Q4_K_M, pinned by SHA-256.
         Ollama followed an untrusted instruction embedded in the task in both repetitions. The
-        baseline is qualified for local coding work with human review, and for nothing else.</p>
+        baseline qualifies for local coding and prompt work with human review, and explicitly not
+        for autonomous code acceptance, security-sensitive decisions or instruction-boundary
+        enforcement.</p>
     </div>
   </div>
 </div></section>
@@ -457,8 +465,8 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
     </article>
   </div>
 
-  <p class="more"><span>Also running or in build: Gen-Eat at USIU, Elixirs in Nairobi, a platform
-    for Sarepta Children Rescue Center, Campus Map, and Cypher.</span></p>
+  <p class="more"><span>Gen-Eat runs as a pilot at USIU. Also built or in progress: Elixirs,
+    a platform for Sarepta Children Rescue Center, Campus Map and Cypher.</span></p>
 </div></section>
 
 <!-- 7 · close -->
