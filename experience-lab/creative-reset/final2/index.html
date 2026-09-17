@@ -1,7 +1,7 @@
 <!doctype html><html lang="en" data-t="dark"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LESNAR AI</title>
-<meta name="description" content="LESNAR AI builds systems for conditions that break ordinary software: national health logistics, autonomous flight in GPS-denied airspace, security operations and assurance, and products running in Kenya.">
+<meta name="description" content="LESNAR AI is a technology company in Nairobi. We build software, AI and autonomous systems for operational problems that are hard in the field: some for institutions, some that we run ourselves.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
@@ -71,7 +71,10 @@ h1 .ln i{display:block;font-style:normal;transform:translateY(106%);animation:ri
 h1 .ln:nth-child(2) i{animation-delay:.08s}
 h1 .ln:nth-child(3) i{animation-delay:.16s}
 @keyframes rise{to{transform:none}}
-.arr .lead{margin-top:clamp(24px,3vw,34px);max-width:50ch;opacity:0;animation:fade 1s .55s forwards}
+.define{margin-top:clamp(26px,3.2vw,38px);max-width:48ch;font-size:clamp(1.05rem,1.35vw,1.22rem);
+  line-height:1.55;color:var(--ink);opacity:0;animation:fade 1s .5s forwards}
+.proof{margin-top:clamp(18px,2.2vw,26px);max-width:52ch;font-size:15px;line-height:1.6;
+  color:var(--mid);opacity:0;animation:fade 1s .7s forwards}
 @keyframes fade{to{opacity:1}}
 .telcap{margin-top:clamp(28px,3.6vw,44px);font-size:13.5px;color:var(--dim);line-height:1.7;
   max-width:56ch;opacity:0;animation:fade 1.2s 1.4s forwards}
@@ -308,8 +311,8 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 
 <nav id="nav"><div class="w">
   <a class="lg" href="#top">LESNAR<em></em>AI</a>
-  <ul><li><a href="#medimatch">Research</a></li><li><a href="#sentinel">Autonomy</a></li>
-      <li><a href="#security">Security</a></li><li><a href="#contact">Contact</a></li></ul>
+  <ul><li><a href="#medimatch">Work</a></li><li><a href="#security">Security</a></li>
+      <li><a href="#infrastructure">Engineering</a></li><li><a href="#contact">Contact</a></li></ul>
   <button class="tg" id="tg" aria-label="Switch to the light theme">
     <svg class="moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
     <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg>
@@ -320,10 +323,12 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 <header class="arr" id="top">
   <canvas id="tel" aria-hidden="true"></canvas>
   <div class="w">
-    <p class="k">Nairobi</p>
     <h1><span class="ln"><i>Built for the <em>conditions</em></i></span> <span class="ln"><i>everything else</i></span> <span class="ln"><i>assumes away.</i></span></h1>
-    <p class="lead">A national health-logistics platform. An autonomous flight stack for GPS-denied
-      airspace. A security operations control plane. And products running in Kenya.</p>
+    <p class="define">LESNAR AI is a technology company in Nairobi. We build software, AI and
+      autonomous systems for operational problems that are hard in the field: some for
+      institutions, some that we run ourselves.</p>
+    <p class="proof">A national health-logistics platform. An autonomous flight stack for
+      GPS-denied airspace. A security operations control plane. And products running in Kenya.</p>
     <p class="telcap">Behind this page: 71,813 obstacle and proximity events recorded across 87
       simulation runs of our own autonomy stack, 13 to 16 April 2026. Thirty-four runs recorded
       detections; fifty-three recorded none.</p>
@@ -449,7 +454,7 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 </div></section>
 
 <!-- 5 · infrastructure -->
-<section class="wd inf tight"><div class="w rv">
+<section class="wd inf tight" id="infrastructure"><div class="w rv">
   <p class="k">Infrastructure</p>
   <h2>One system cannot open what it carries. The other measures before we depend.</h2>
 
