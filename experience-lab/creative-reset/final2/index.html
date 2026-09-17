@@ -140,10 +140,28 @@ h1 .ln i{display:block;font-style:normal}
 @media(min-width:1000px){.pair-head{grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr)}}
 .pair-head .lead{padding-bottom:6px}
 /* the record runs the full width of the viewport, like a strip chart */
-.record{position:relative;margin-top:clamp(40px,6vh,80px)}
+.record{position:relative;margin-top:clamp(52px,6.5vh,84px)}
+.scrub-wrap{position:relative;touch-action:pan-y;cursor:crosshair}
 .record canvas{width:100%;height:clamp(180px,25vh,268px);display:block}
+/* the range input is for keyboard and assistive tech only. it is one pixel
+   and takes no pointer events, so it can never swallow a scroll gesture.
+   pointer and touch are read from the wrapper, which allows pan-y. */
+#run-scrub{position:absolute;left:var(--pad);top:0;width:1px;height:1px;
+  opacity:.01;margin:0;padding:0;pointer-events:none;
+  -webkit-appearance:none;appearance:none;background:transparent}
+.scrub-wrap:focus-within{outline:2px solid var(--ink);outline-offset:-2px}
+/* the readout is a HUD over the instrument, never the legend paragraph,
+   so no prose reflows and nothing below the record can move */
+#run-hud{position:absolute;top:-25px;left:0;pointer-events:none;opacity:0;
+  font-size:13.5px;line-height:1.35;color:var(--ink);white-space:nowrap;
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
+  transition:opacity .12s linear}
+#run-hud.on{opacity:1}
+#run-hud .u{color:var(--dim)}
+#run-hud .g{color:var(--dim);padding:0 .7em}
 .rcap{padding:18px var(--pad) 0;font-size:13.5px;color:var(--dim);max-width:78ch}
 .rcap b{color:var(--mid);font-weight:400}
+@media(max-width:900px){#run-hud{font-size:12.5px;top:-22px}}
 /* the envelope is annotation on the record, not a dashboard */
 .uavfoot{display:grid;gap:clamp(26px,3.6vw,64px);margin-top:clamp(34px,4.8vh,58px);align-items:start}
 @media(min-width:1000px){.uavfoot{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)}}
@@ -382,11 +400,16 @@ h1 .ln i{display:block;font-style:normal}
   </div>
 
   <div class="record rv">
-    <canvas id="runs" aria-label="Detection events recorded across 87 simulation runs between 13 and 16 April 2026. Thirty-four runs recorded detections; fifty-three recorded none." role="img"></canvas>
+    <div class="scrub-wrap" id="scrub-wrap">
+      <canvas id="runs" aria-hidden="true"></canvas>
+      <div id="run-hud" aria-hidden="true"></div>
+      <input type="range" id="run-scrub" min="0" max="86" step="1" value="0"
+             aria-label="Inspect an individual flight run">
+    </div>
     <p class="rcap">Eighty-seven runs of the x500 airframe under PX4 SITL, 13 to 16 April 2026,
       laid out at the time each one started. <b>Thirty-four recorded detections; fifty-three
       recorded none, and those are the short ticks along the base.</b> The solid foot of each
-      column is the share that were proximity alerts rather than obstacles: 17,842 of 71,813.</p>
+      column is proximity alerts, the lighter body obstacles: 17,842 of 71,813.</p>
   </div>
 
   <div class="w rv">
@@ -676,14 +699,24 @@ function draw(){
   ctx.globalAlpha=1;
 }
 
+/* one description of the record's geometry, used by the renderer and by
+   the hit test, so a crosshair can never land somewhere a column is not */
+function recordGeom(W,H){
+  const padL=W*0.045, padR=W*0.045, span=W-padL-padR;
+  const base=H-34, top=14;
+  return {padL,padR,span,base,top,peak:base-top,max:14000,
+          x:r=>padL+r.x*span,
+          w:n=>Math.max(4,span/n*0.8),
+          h:r=>Math.max(6,Math.min(1,r.n/14000)*(base-top))};
+}
+
 function drawRuns(){
   const TEL=Telemetry.value; if(!TEL||!rc) return;
   const f=fit(rc); if(!f) return;
   const {c:rx,W,H}=f;
   const runs=TEL.runs, ink=css('--ink'), dim=css('--dim'), edge=css('--edge');
-  const padL=W*0.045, padR=W*0.045, span=W-padL-padR;
-  const base=H-34, top=14, peak=base-top;
-  const max=14000;
+  const G=recordGeom(W,H);
+  const {padL,padR,span,base,top,peak,max}=G;
 
   /* the day a run belongs to is written once, where that day begins */
   rx.font='13px "Inter Tight",system-ui,sans-serif'; rx.textBaseline='top';
@@ -722,6 +755,48 @@ function drawRuns(){
     });
     rx.stroke();
   });
+  rx.globalAlpha=1;
+
+  /* ── the reticle ─────────────────────────────────────
+     a hairline for position, a bracket that clamps the column,
+     and the peak node on that run's own confidence trace. */
+  const sel=Scrub.value;
+  if(sel===null||sel===undefined||!runs[sel]) return;
+  const r=runs[sel], x=G.x(r), w=G.w(runs.length);
+  const half=Math.round(Math.max(w,6)/2)+4;
+  const cx=Math.round(x)+0.5;                     /* half-pixel: never straddles */
+  const h=r.n?G.h(r):10;
+  const capTop=Math.max(2,Math.round(base-h)-9), capBot=Math.round(base)+5;
+
+  rx.globalAlpha=1; rx.strokeStyle=edge; rx.lineWidth=1;
+  rx.beginPath(); rx.moveTo(cx,0); rx.lineTo(cx,base); rx.stroke();
+
+  if(r.n){
+    rx.globalAlpha=.92; rx.fillStyle=ink;
+    rx.fillRect(x-w/2,base-h,w,h);
+    const ph=h*(r.p/r.n);
+    rx.globalAlpha=1; rx.fillStyle=ink;
+    rx.fillRect(x-w/2,base-ph,w,ph);
+  }else{
+    rx.globalAlpha=1; rx.strokeStyle=ink; rx.lineWidth=2;
+    rx.beginPath(); rx.moveTo(cx,base); rx.lineTo(cx,base-10); rx.stroke();
+  }
+
+  /* [ ] clamped to the column */
+  const L=Math.round(cx-half)+0.5, R=Math.round(cx+half)+0.5, arm=5;
+  rx.globalAlpha=1; rx.strokeStyle=ink; rx.lineWidth=1;
+  rx.beginPath();
+  rx.moveTo(L+arm,capTop); rx.lineTo(L,capTop); rx.lineTo(L,capBot); rx.lineTo(L+arm,capBot);
+  rx.moveTo(R-arm,capTop); rx.lineTo(R,capTop); rx.lineTo(R,capBot); rx.lineTo(R-arm,capBot);
+  rx.stroke();
+
+  /* the peak of this run's confidence trace */
+  if(r.b&&r.b.length>1){
+    let pk=0; for(let i=1;i<r.b.length;i++) if(r.b[i]>r.b[pk]) pk=i;
+    const px=x-w/2+(pk/(r.b.length-1))*w;
+    const py=base-h-2-Math.min(1,r.b[pk]/2)*14;
+    rx.fillStyle=ink; rx.beginPath(); rx.arc(px,py,2.5,0,Math.PI*2); rx.fill();
+  }
   rx.globalAlpha=1;
 }
 
@@ -781,7 +856,10 @@ const Decrypt=(()=>{
     if(Motion.reduced){ settle(rec); return; }
     /* hold the real height and clip: scrambled glyphs are wider than the
        serif and would otherwise push an extra line, moving the whole page */
-    rec.h.style.height=rec.h.getBoundingClientRect().height+'px';
+    /* offsetHeight, not getBoundingClientRect: the .rv ancestor is mid
+       scale(.96) when this fires, and a scaled rect would lock a height
+       4% short, then grow on settle and shift the page */
+    rec.h.style.height=rec.h.offsetHeight+'px';
     rec.h.style.overflow='hidden';
     /* one bounded lock time, so a long heading does not take three seconds */
     const chars=rec.cells.reduce((a,c)=>a+c.text.length,0);
@@ -824,4 +902,90 @@ const Decrypt=(()=>{
 })();
 
 Decrypt.init('h1, .wd h2, .inv h2');
+
+/* ═══════════════════════════════════════════════════════
+   the sentinel scrubber · the canvas is decoration; the native
+   range input is the interface, so pointer, touch, keyboard and
+   assistive tech all arrive through one well-understood control.
+   ═══════════════════════════════════════════════════════ */
+const Scrub=Signal();
+
+(()=>{
+  const wrap=document.getElementById('scrub-wrap');
+  const input=document.getElementById('run-scrub');
+  const hud=document.getElementById('run-hud');
+  if(!wrap||!input||!hud||!rc) return;
+  const MONTH=['January','February','March','April','May','June','July',
+               'August','September','October','November','December'];
+
+  /* 20260413_190109 -> { 13 April, 19:01:09 } */
+  const parts=r=>({
+    day:+r.t.slice(6,8)+' '+MONTH[+r.t.slice(4,6)-1],
+    clock:r.t.slice(9,11)+':'+r.t.slice(11,13)+':'+r.t.slice(13,15),
+    obstacle:r.n-r.p, proximity:r.p
+  });
+
+  const spoken=(i,n,r)=>{
+    const p=parts(r);
+    return r.n
+      ? `Run ${i+1} of ${n}, ${p.day} at ${p.clock}. ${p.obstacle.toLocaleString()} obstacle detections and ${p.proximity.toLocaleString()} proximity alerts.`
+      : `Run ${i+1} of ${n}, ${p.day} at ${p.clock}. No detections recorded.`;
+  };
+
+  function paintHud(i){
+    const TEL=Telemetry.value;
+    if(!TEL||i===null||i===undefined||!TEL.runs[i]){
+      hud.classList.remove('on'); input.removeAttribute('aria-valuetext'); return;
+    }
+    const r=TEL.runs[i], p=parts(r), g='<span class="g">/</span>';
+    hud.innerHTML = r.n
+      ? `${p.day}${g}${p.clock}${g}<b>${p.obstacle.toLocaleString()}</b> <span class="u">obstacle</span>`
+        + `${g}<b>${p.proximity.toLocaleString()}</b> <span class="u">proximity</span>`
+      : `${p.day}${g}${p.clock}${g}<span class="u">No detections recorded</span>`;
+    hud.classList.add('on');
+    input.setAttribute('aria-valuetext',spoken(i,TEL.runs.length,r));
+    /* the HUD locks to the run, not to the cursor, so keyboard and pointer
+       put it in exactly the same place. clamped to stay inside the record. */
+    const box=rc.getBoundingClientRect();
+    const G=recordGeom(box.width,box.height);
+    const wHud=hud.offsetWidth||220;
+    hud.style.left=Math.round(Math.min(Math.max(8,G.x(r)-wHud/2),box.width-wHud-8))+'px';
+  }
+
+  /* runs sit at their real timestamps, never at even intervals, so a pointer
+     resolves to the nearest run by distance rather than by fraction */
+  function nearest(clientX){
+    const TEL=Telemetry.value; if(!TEL) return null;
+    const box=rc.getBoundingClientRect();
+    const G=recordGeom(box.width,box.height);
+    const px=clientX-box.left;
+    let best=0,bd=Infinity;
+    TEL.runs.forEach((r,k)=>{const d=Math.abs(G.x(r)-px); if(d<bd){bd=d;best=k;}});
+    return best;
+  }
+
+  /* input is coalesced to one paint per frame. this is interaction, not
+     animation, so it sits outside the Motion gate and still works when
+     prefers-reduced-motion is set. */
+  let queued=false;
+  Scrub.subscribe(i=>{
+    paintHud(i);
+    if(queued) return; queued=true;
+    requestAnimationFrame(()=>{ queued=false; drawRuns(); paintHud(Scrub.value); });
+  });
+
+  Telemetry.subscribe(d=>{ input.max=String(d.runs.length-1); });
+
+  const set=i=>{ if(i===Scrub.value) return; if(i!==null) input.value=String(i); Scrub.set(i); };
+
+  wrap.addEventListener('pointermove',e=>set(nearest(e.clientX)));
+  wrap.addEventListener('pointerdown',e=>set(nearest(e.clientX)));
+  wrap.addEventListener('pointerleave',()=>{ if(document.activeElement!==input) set(null); });
+  input.addEventListener('input',()=>set(+input.value));
+  input.addEventListener('focus',()=>set(+input.value));
+  input.addEventListener('blur',()=>set(null));
+
+  addEventListener('resize',()=>paintHud(Scrub.value),{passive:true});
+  Scrub.set(null);
+})();
 </script></body></html>
