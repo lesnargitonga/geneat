@@ -3,23 +3,21 @@
 <title>LESNAR AI</title>
 <meta name="description" content="LESNAR AI builds systems for conditions that break ordinary software: national health logistics, autonomous flight in GPS-denied airspace, security operations and assurance, and products running in Kenya.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 :root{
   /* material: graphite and paper. no discipline owns a hue. */
   --bg:#0B0B0A; --bg2:#121210; --lift:#1A1A17; --edge:#2B2B27;
   --ink:#F2F1ED; --mid:#A5A29A; --dim:#86847C;
-  /* the only colour the site itself introduces, and only where a
-     negative or alerting meaning requires it */
-  --mark:#CB6450;
-  --d:"Syne",sans-serif; --b:"Inter Tight",system-ui,-apple-system,sans-serif;
+  /* the site introduces no colour of its own. what colour appears
+     belongs to the artifacts: the map, the interfaces, the photographs. */
+  --d:"Newsreader",Georgia,serif; --b:"Inter Tight",system-ui,-apple-system,sans-serif;
   --m:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
   --pad:clamp(20px,4.4vw,76px); --ez:cubic-bezier(.16,1,.3,1);
 }
 :root[data-t="light"]{
   --bg:#EDEBE5; --bg2:#E3E0D9; --lift:#F8F7F3; --edge:#CCC9C1;
   --ink:#14130F; --mid:#4C4A43; --dim:#615F57;
-  --mark:#8C3A2A;
 }
 *{box-sizing:border-box;margin:0}
 html{scroll-behavior:smooth}
@@ -28,12 +26,10 @@ body{background:var(--bg);color:var(--ink);font-family:var(--b);font-size:17px;l
 .w{max-width:1440px;margin:0 auto;padding-inline:var(--pad)}
 img{display:block;max-width:100%}
 :focus-visible{outline:2px solid var(--ink);outline-offset:3px}
-h2{font-family:var(--d);font-weight:800;letter-spacing:-.048em;line-height:.93;text-wrap:balance}
-.k{font-family:var(--m);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);
-  display:flex;align-items:center;gap:11px}
-.k::before{content:"";width:20px;height:1px;background:currentColor;flex:none}
+h2{font-family:var(--d);font-weight:600;letter-spacing:-.018em;line-height:1.06;text-wrap:balance}
+.k{font-size:14px;font-weight:500;color:var(--mid);letter-spacing:.005em}
 .lead{color:var(--mid);font-size:clamp(1rem,1.25vw,1.15rem);max-width:46ch}
-.note{font-family:var(--m);font-size:11.5px;letter-spacing:.02em;color:var(--dim);line-height:1.6;max-width:62ch}
+.note{font-size:14px;color:var(--dim);line-height:1.65;max-width:62ch}
 
 /* ── chrome ─────────────────────────────────────────── */
 nav{position:fixed;inset:0 0 auto;z-index:90;transition:transform .45s var(--ez),background .5s}
@@ -42,8 +38,8 @@ nav .w{display:flex;align-items:center;gap:30px;padding-block:17px;
   border-bottom:1px solid transparent;transition:border-color .5s}
 nav.stuck{background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(20px)}
 nav.stuck .w{border-bottom-color:color-mix(in srgb,var(--edge) 75%,transparent)}
-.lg{font-family:var(--d);font-weight:800;font-size:17px;letter-spacing:-.02em;color:var(--ink);
-  text-decoration:none;display:flex;align-items:center}
+.lg{font-family:var(--b);font-weight:600;font-size:14px;letter-spacing:.13em;color:var(--ink);
+  text-decoration:none;display:flex;align-items:center;text-transform:uppercase}
 .lg em{font-style:normal;width:4px;height:4px;background:var(--mid);border-radius:50%;margin:0 7px;
   transition:background .8s}
 nav ul{margin-left:auto;display:flex;gap:25px;list-style:none;padding:0}
@@ -67,8 +63,8 @@ nav ul a:hover{color:var(--ink)}
   background:linear-gradient(92deg,var(--bg) 30%,color-mix(in srgb,var(--bg) 55%,transparent) 54%,transparent 76%)}
 .arr .w{position:relative;z-index:4;width:100%}
 .arr .k{margin-bottom:clamp(22px,3vw,34px)}
-h1{font-family:var(--d);font-weight:800;line-height:.9;letter-spacing:-.05em;
-  font-size:clamp(2.4rem,5vw,4.5rem);max-width:19ch}
+h1{font-family:var(--d);font-weight:600;line-height:1.02;letter-spacing:-.02em;
+  font-size:clamp(2.2rem,4.3vw,3.7rem);max-width:19ch}
 h1 em{font-style:normal}
 h1 .ln{display:block;overflow:hidden}
 h1 .ln i{display:block;font-style:normal;transform:translateY(106%);animation:rise 1s var(--ez) forwards}
@@ -77,37 +73,31 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 @keyframes rise{to{transform:none}}
 .arr .lead{margin-top:clamp(24px,3vw,34px);max-width:50ch;opacity:0;animation:fade 1s .55s forwards}
 @keyframes fade{to{opacity:1}}
-.telcap{margin-top:clamp(26px,3.4vw,40px);font-family:var(--m);font-size:11px;letter-spacing:.04em;
-  color:var(--dim);line-height:1.75;max-width:58ch;padding-left:15px;
-  border-left:1px solid var(--edge);opacity:0;animation:fade 1.2s 1.4s forwards}
-.cue{position:absolute;left:var(--pad);bottom:clamp(20px,3vh,34px);z-index:5;font-family:var(--m);
-  font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);
-  display:flex;align-items:center;gap:11px;opacity:0;animation:fade 1s 1.2s forwards}
-.cue b{width:22px;height:1px;background:var(--edge)}
+.telcap{margin-top:clamp(28px,3.6vw,44px);font-size:13.5px;color:var(--dim);line-height:1.7;
+  max-width:56ch;opacity:0;animation:fade 1.2s 1.4s forwards}
+.cue{position:absolute;left:var(--pad);bottom:clamp(20px,3vh,34px);z-index:5;
+  font-size:13px;color:var(--dim);opacity:0;animation:fade 1s 1.2s forwards}
 
 /* ── world shell ────────────────────────────────────── */
 .wd{padding-block:clamp(72px,10.5vh,136px);border-top:1px solid var(--edge);position:relative;overflow:hidden}
-.wd h2{font-size:clamp(1.9rem,4.6vw,3.9rem);max-width:26ch;margin-top:16px}
+.wd h2{font-size:clamp(1.7rem,3.7vw,3rem);max-width:24ch;margin-top:14px}
 .hd{display:grid;gap:clamp(14px,1.8vw,22px)}
 .hd .lead{justify-self:end}
 /* sections whose content explains itself carry no supporting paragraph */
 .tight h2{max-width:22ch}
 .tight .k+h2{margin-top:14px}
-.meta{display:flex;gap:22px;flex-wrap:wrap;font-family:var(--m);font-size:11px;
-  letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
+.meta{display:flex;gap:20px;flex-wrap:wrap;font-size:13.5px;color:var(--dim)}
 .meta b{color:var(--ink);font-weight:500}
-.dev{border:1px solid var(--edge);background:var(--lift);overflow:hidden}
-.dev figcaption{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--edge);
-  font-family:var(--m);font-size:11px;color:var(--dim);letter-spacing:.05em;background:var(--bg2)}
-.dev figcaption i{width:6px;height:6px;border-radius:50%;background:var(--mid);flex:none;font-style:normal}
+.dev{background:var(--lift)}
+.dev figcaption{order:2;padding-top:13px;font-size:13.5px;color:var(--dim)}
+.dev{display:flex;flex-direction:column}
 .dev .im{overflow:hidden}
 .dev img{width:100%;transition:transform 1.4s var(--ez)}
 .dev:hover img{transform:scale(1.02)}
 .fig{display:flex;gap:clamp(26px,4vw,64px);flex-wrap:wrap;margin-top:clamp(28px,3.6vw,48px)}
-.fig div b{font-family:var(--d);font-weight:800;font-size:clamp(1.9rem,4vw,3.1rem);display:block;
-  line-height:.9;letter-spacing:-.04em}
-.fig div span{font-family:var(--m);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--dim);display:block;margin-top:10px;max-width:17ch}
+.fig div b{font-family:var(--d);font-weight:500;font-size:clamp(2rem,4.2vw,3.2rem);display:block;
+  line-height:1;letter-spacing:-.012em}
+.fig div span{font-size:13.5px;color:var(--dim);display:block;margin-top:10px;max-width:20ch;line-height:1.5}
 
 /* ── 2 · health & geospatial: terrain, not a slide deck ── */
 .med{background:#070706;border-top-color:transparent;--edge:#232320;--bg2:#0F0F0D;
@@ -124,20 +114,15 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
   background:linear-gradient(88deg,#E6E3DB 22%,color-mix(in srgb,#E6E3DB 72%,transparent) 50%,transparent 78%),
              linear-gradient(#E6E3DB 2%,transparent 22%,transparent 58%,#E6E3DB 99%)}
 .terrain .w{position:relative;z-index:3;width:100%}
-.med h2{font-size:clamp(1.9rem,4.2vw,3.3rem);max-width:15ch;margin-top:16px}
+.med h2{font-size:clamp(1.7rem,3.6vw,2.9rem);max-width:16ch;margin-top:14px}
 .med .lead{max-width:40ch;margin-top:20px}
 /* survey figures read as a readout across the terrain, not as boxes */
-.readout{display:grid;gap:0;margin-top:clamp(34px,5vh,62px);
-  border-top:1px solid var(--edge)}
+.readout{display:grid;gap:clamp(20px,3vw,44px);margin-top:clamp(34px,5vh,62px)}
 @media(min-width:760px){.readout{grid-template-columns:repeat(4,1fr)}}
-.readout div{padding:16px 0 0;position:relative}
-@media(min-width:760px){.readout div+div{padding-left:clamp(14px,2vw,26px)}
-  .readout div+div::before{content:"";position:absolute;left:0;top:0;bottom:12px;width:1px;
-    background:var(--edge)}}
-.readout b{font-family:var(--d);font-weight:800;font-size:clamp(1.6rem,3.2vw,2.5rem);
-  display:block;line-height:.92;letter-spacing:-.04em}
-.readout span{font-family:var(--m);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--dim);display:block;margin-top:9px;max-width:22ch;line-height:1.6}
+.readout b{font-family:var(--d);font-weight:500;font-size:clamp(1.6rem,3vw,2.35rem);
+  display:block;line-height:1;letter-spacing:-.012em}
+.readout span{font-size:13.5px;color:var(--dim);display:block;margin-top:9px;
+  max-width:24ch;line-height:1.5}
 /* the county view enters as a zoom callout that breaks the terrain edge */
 .callout{position:relative;z-index:4;margin-top:clamp(-70px,-7vw,-40px);padding-bottom:clamp(70px,11vh,130px)}
 .callout .in{display:grid;gap:clamp(20px,3vw,44px);align-items:end}
@@ -145,70 +130,57 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 .callout figure{border:1px solid var(--edge);overflow:hidden;background:var(--bg2);
   box-shadow:0 40px 90px rgba(0,0,0,.5)}
 .callout figure img{width:100%;display:block}
-.callout figcaption{font-family:var(--m);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--dim);padding:11px 14px;border-bottom:1px solid var(--edge)}
+.callout figcaption{order:2;font-size:13.5px;color:var(--dim);padding-top:13px}
+.callout figure{display:flex;flex-direction:column}
 
 /* ── 3 · autonomy: a flight record laid along real time ── */
 .uav{padding-bottom:clamp(60px,9vh,110px)}
-.uav h2{max-width:20ch;font-size:clamp(1.75rem,3.6vw,2.9rem)}
+.uav h2{max-width:22ch}
 .pair-head{display:grid;gap:clamp(20px,3vw,48px);align-items:end}
 @media(min-width:1000px){.pair-head{grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr)}}
 .pair-head .lead{padding-bottom:6px}
 /* the record runs the full width of the viewport, like a strip chart */
-.record{position:relative;margin-top:clamp(40px,6vh,80px);
-  border-top:1px solid var(--edge);border-bottom:1px solid var(--edge);
-  background:linear-gradient(var(--bg),var(--bg2) 40%,var(--bg2) 60%,var(--bg))}
+.record{position:relative;margin-top:clamp(40px,6vh,80px)}
 .record canvas{width:100%;height:clamp(180px,25vh,268px);display:block}
-.axis{display:flex;justify-content:space-between;padding:0 var(--pad) 13px;
-  font-family:var(--m);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
-.axis.top{padding-top:13px;border-bottom:1px solid color-mix(in srgb,var(--edge) 60%,transparent)}
-.axis.top b{color:var(--ink);font-weight:500}
-.axis em{font-style:normal;color:var(--mark)}
+.rcap{padding:18px var(--pad) 0;font-size:13.5px;color:var(--dim);max-width:78ch}
+.rcap b{color:var(--mid);font-weight:400}
 /* the envelope is annotation on the record, not a dashboard */
-.env{display:grid;gap:clamp(16px,2.4vw,34px);margin-top:clamp(28px,4vh,48px)}
-@media(min-width:860px){.env{grid-template-columns:auto 1fr}}
-.env .lbl{font-family:var(--m);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--dim);max-width:16ch;line-height:1.7;padding-top:5px}
+.uavfoot{display:grid;gap:clamp(26px,3.6vw,64px);margin-top:clamp(34px,4.8vh,58px);align-items:start}
+@media(min-width:1000px){.uavfoot{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)}}
+.env{max-width:62ch}
+.env .lbl{font-size:14px;color:var(--mid);margin-bottom:12px}
 .env ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;
-  column-gap:clamp(18px,2.4vw,40px);row-gap:18px}
-.env li{display:flex;align-items:baseline;gap:11px;font-family:var(--m);font-size:11px;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
-.env li b{font-family:var(--d);font-weight:800;font-size:clamp(1.25rem,2.2vw,1.7rem);
-  letter-spacing:-.04em;color:var(--ink);line-height:1}
-.stack{margin-top:clamp(24px,3.2vh,38px);font-family:var(--m);font-size:11.5px;
-  letter-spacing:.06em;color:var(--mid);line-height:2;max-width:74ch}
-.stack span::after{content:" \00B7 ";color:var(--dim)}
+  column-gap:clamp(20px,2.8vw,44px);row-gap:12px}
+.env li{display:flex;align-items:baseline;gap:9px;font-size:14px;color:var(--dim)}
+.env li b{font-family:var(--d);font-weight:700;font-size:clamp(1.15rem,1.9vw,1.45rem);
+  letter-spacing:-.012em;color:var(--ink);line-height:1}
+.stack{margin-top:clamp(20px,2.6vh,30px);font-size:14px;color:var(--dim);line-height:1.9;max-width:74ch}
+.stack span{white-space:nowrap}
+.stack span::after{content:"\00A0\00A0\00B7\00A0\00A0";color:var(--edge)}
 .stack span:last-child::after{content:""}
 
-/* ── 4 · security: a dossier, with the withheld column visibly withheld ── */
+/* ── 4 · security: what can be shown, and a plain sentence about what cannot ── */
 .sec{background:var(--bg2);border-top-color:transparent}
-.file{margin-top:clamp(34px,5vh,62px);border-top:1px solid var(--edge)}
-.file article{display:grid;gap:14px clamp(24px,3.4vw,56px);padding-block:clamp(26px,3.4vw,40px);
-  border-bottom:1px solid var(--edge);align-items:start}
-@media(min-width:1000px){.file article{grid-template-columns:minmax(0,.62fr) minmax(0,1.5fr) minmax(0,.86fr)}}
-.file .id{font-family:var(--m);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
-.file h3{font-family:var(--d);font-weight:700;font-size:clamp(1.2rem,2.2vw,1.65rem);
-  letter-spacing:-.03em;margin-top:9px}
-.file .body{font-size:15.5px;color:var(--mid)}
+.file{margin-top:clamp(36px,5.4vh,68px);display:grid;gap:clamp(34px,4.8vh,62px)}
+.file article{display:grid;gap:12px clamp(28px,4vw,72px);align-items:start}
+@media(min-width:1000px){.file article{grid-template-columns:minmax(0,.58fr) minmax(0,1.42fr)}}
+.file h3{font-family:var(--d);font-weight:700;font-size:clamp(1.2rem,2.1vw,1.6rem);letter-spacing:-.01em}
+.file .body{font-size:16px;color:var(--mid);max-width:62ch}
 .file .body b{color:var(--ink);font-weight:500}
-.file .fact{font-family:var(--m);font-size:11.5px;letter-spacing:.04em;color:var(--mid);
-  margin-top:15px;line-height:1.85}
-.file .held{position:relative;padding:15px 17px;border:1px solid var(--edge);
-  font-family:var(--m);font-size:11px;letter-spacing:.08em;line-height:1.9;color:var(--dim);
-  background:repeating-linear-gradient(-45deg,transparent,transparent 5px,
-    color-mix(in srgb,var(--edge) 60%,transparent) 5px,color-mix(in srgb,var(--edge) 60%,transparent) 6px)}
-.file .held::before{content:"Withheld";display:block;font-size:9.5px;letter-spacing:.24em;
-  text-transform:uppercase;color:var(--mark);margin-bottom:10px}
+.file .fact{font-size:14px;color:var(--dim);margin-top:14px;line-height:1.7;max-width:58ch}
+.sec .closing{margin-top:clamp(40px,5.4vh,66px);font-size:15.5px;color:var(--mid);max-width:58ch}
 
 /* ── 5 · infrastructure: a boundary, and a contest ───── */
 .inf{}
-.inf h2{max-width:23ch;font-size:clamp(1.75rem,3.9vw,3.1rem)}
+.inf h2{max-width:26ch}
+.uavfoot>*,.env,.sees>div,.file article>div,.shelf article,.split>div,.result>*{min-width:0}
+.stack{overflow-wrap:anywhere}
 .two{display:grid;gap:clamp(44px,5.6vh,72px);margin-top:clamp(30px,4.2vh,54px)}
 .result{display:grid;gap:clamp(24px,3vw,52px);align-items:start;margin-top:clamp(30px,4vh,48px)}
 @media(min-width:1040px){.result{grid-template-columns:minmax(0,1.5fr) minmax(0,.8fr)}}
 .result .versus{margin-top:0;max-width:none}
 .result .note{padding-top:clamp(0px,3vw,46px)}
-.two h3{font-family:var(--d);font-weight:700;font-size:clamp(1.3rem,2.4vw,1.85rem);letter-spacing:-.03em}
+.two h3{font-family:var(--d);font-weight:700;font-size:clamp(1.3rem,2.4vw,1.85rem);letter-spacing:-.01em}
 .two>section>p{color:var(--mid);margin-top:12px;font-size:15.5px;max-width:58ch}
 
 /* Simy: the wire, and what the middle of it can see */
@@ -218,33 +190,22 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 .rail2 i.mid{background:transparent;border:1px solid var(--mid);width:15px;height:15px}
 .rail2 s{height:1px;background:var(--edge);text-decoration:none;display:block}
 .stn{display:grid;grid-template-columns:1fr 1fr 1fr;margin-top:15px;gap:16px}
-.stn div{font-family:var(--m);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.stn div{font-size:13.5px;color:var(--dim)}
 .stn div:nth-child(2){text-align:center;color:var(--mid)}
 .stn div:nth-child(3){text-align:right}
-.sees{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);margin-top:clamp(28px,3.6vh,44px)}
+.sees{display:grid;gap:clamp(24px,3.4vw,56px);margin-top:clamp(30px,4vh,48px)}
 @media(min-width:720px){.sees{grid-template-columns:1fr 1fr}}
-.sees div{background:var(--bg);padding:clamp(18px,2.2vw,26px)}
-.sees b{display:block;font-family:var(--m);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
-  margin-bottom:12px}
-.sees b{color:var(--dim)}
-.sees p{font-family:var(--m);font-size:12.5px;color:var(--mid);line-height:2}
+.sees b{display:block;font-size:14px;font-weight:500;color:var(--mid);margin-bottom:10px}
+.sees p{font-size:14.5px;color:var(--dim);line-height:1.85}
 
-/* the foundry: two runtimes facing each other, and the moment one failed */
-.versus{margin-top:clamp(34px,4.6vh,54px);border-top:1px solid var(--edge);max-width:860px}
-.versus .r{display:grid;grid-template-columns:1fr minmax(0,17ch) 1fr;align-items:center;
-  padding-block:clamp(15px,2vw,22px);border-bottom:1px solid var(--edge);gap:12px}
-.versus .r>*:nth-child(1){text-align:left}
-.versus .r>*:nth-child(3){text-align:right}
-.versus .c{font-family:var(--m);font-size:10px;letter-spacing:.17em;text-transform:uppercase;
-  color:var(--dim);text-align:center}
-.versus .v{font-family:var(--d);font-weight:800;font-size:clamp(1.2rem,2.4vw,1.9rem);
-  letter-spacing:-.04em;color:var(--ink);line-height:1}
-.versus .r.head .v{font-size:clamp(1rem,1.7vw,1.3rem);color:var(--mid);font-family:var(--m);
-  font-weight:500;letter-spacing:.02em}
-.versus .r.event{padding-block:clamp(20px,2.6vw,30px);border-bottom:0}
-.versus .r.event .v{font-size:clamp(1.2rem,2.5vw,1.95rem);white-space:nowrap}
-/* a pass is simply unmarked; only the failure carries the mark */
-.versus .r.event .lose{color:var(--mark)}
+/* the foundry: the result reads as a finding, not a benchmark table */
+.finding{margin-top:clamp(30px,4.2vh,50px);max-width:66ch}
+.finding p{font-size:clamp(1.05rem,1.55vw,1.28rem);line-height:1.62;color:var(--mid)}
+.finding p+p{margin-top:1.1em}
+.finding b{color:var(--ink);font-weight:500}
+.finding .num{font-family:var(--d);font-weight:500;font-size:1.2em;letter-spacing:0;color:var(--ink)}
+.finding code{font-family:var(--m);font-size:.88em;color:var(--ink)}
+.finding .last{color:var(--ink)}
 
 /* ── 6 · products: four unlike interfaces, at their own scale ── */
 .ops{padding-bottom:clamp(56px,8vh,104px);background:var(--bg2);border-top-color:transparent}
@@ -265,26 +226,23 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 .shelf article:nth-child(3) .th{aspect-ratio:16/9}
 .shelf article:nth-child(4) .th{aspect-ratio:2/1}
 .shelf .tx{padding-top:clamp(16px,2vw,22px)}
-.shelf h3{font-family:var(--d);font-weight:700;font-size:clamp(1.15rem,2.1vw,1.55rem);letter-spacing:-.03em}
+.shelf h3{font-family:var(--d);font-weight:700;font-size:clamp(1.15rem,2.1vw,1.55rem);letter-spacing:-.01em}
 .shelf p{font-size:14.5px;color:var(--mid);margin-top:9px;max-width:46ch}
-.shelf .u{font-family:var(--m);font-size:11px;letter-spacing:.06em;color:var(--dim);margin-top:14px;
-  display:flex;align-items:center;gap:9px}
-.shelf .u i{width:6px;height:6px;border-radius:50%;background:var(--mid);flex:none;font-style:normal}
-.more{margin-top:clamp(34px,4.6vh,58px);padding-top:24px;border-top:1px solid var(--edge)}
-.more span{font-family:var(--m);font-size:12px;letter-spacing:.04em;color:var(--dim);line-height:1.9}
+.shelf .u{font-size:13.5px;color:var(--dim);margin-top:13px}
+.more{margin-top:clamp(36px,5vh,62px);max-width:70ch}
+.more span{font-size:14px;color:var(--dim);line-height:1.7}
 
 /* ── 7 · close ──────────────────────────────────────── */
 .inv{border-top:1px solid var(--edge);padding-block:clamp(84px,14vh,180px)}
-.inv h2{font-size:clamp(2.2rem,6.4vw,5.4rem);max-width:13ch}
+.inv h2{font-size:clamp(2rem,5.2vw,4.3rem);max-width:14ch}
 .inv .row{display:flex;justify-content:space-between;gap:28px;flex-wrap:wrap;align-items:flex-end;
   margin-top:clamp(36px,5vw,60px);padding-top:26px;border-top:1px solid var(--edge);
   color:var(--mid);font-size:14.5px}
-.inv a{font-family:var(--d);font-weight:700;font-size:clamp(1.05rem,2.2vw,1.6rem);letter-spacing:-.03em;
-  color:var(--ink);text-decoration:none;border-bottom:1px solid var(--mid);
-  padding-bottom:3px;transition:border-color .3s}
-.inv a:hover{border-bottom-color:currentColor}
-.fin{display:flex;gap:26px;flex-wrap:wrap;padding-block:24px;border-top:1px solid var(--edge);
-  font-family:var(--m);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
+.inv a{font-family:var(--d);font-weight:700;font-size:clamp(1.05rem,2vw,1.45rem);letter-spacing:-.01em;
+  color:var(--ink);text-decoration:underline;text-underline-offset:6px;
+  text-decoration-thickness:1px;text-decoration-color:var(--dim);transition:text-decoration-color .3s}
+.inv a:hover{text-decoration-color:currentColor}
+.fin{display:flex;gap:26px;flex-wrap:wrap;padding-block:26px;font-size:13.5px;color:var(--dim)}
 
 .rv{opacity:0;transform:translateY(20px)}
 .rv.in{opacity:1;transform:none;transition:opacity .85s var(--ez),transform .85s var(--ez)}
@@ -294,8 +252,7 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
   .tg{margin-left:auto}
   nav ul{order:3;flex:1 0 100%;margin:11px 0 0;gap:0;justify-content:space-between;
     border-top:1px solid var(--edge);padding:9px 0}
-  nav ul a{font-family:var(--m);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
-    color:var(--dim)}
+  nav ul a{font-size:13.5px;color:var(--dim)}
   .arr{min-height:auto;padding:132px 0 clamp(46px,7vh,68px);display:block}
   .arr>.w{display:block}
   h1{font-size:clamp(1.8rem,7.4vw,2.5rem);max-width:none;text-wrap:balance}
@@ -312,16 +269,14 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
   .med .lead{max-width:none}
   .callout{margin-top:0}
   .readout{margin-top:30px}
-  .readout div+div{padding-top:16px;border-top:1px solid var(--edge)}
   .stn{gap:8px}
-  .stn div{font-size:9.5px;letter-spacing:.08em;line-height:1.5}
+  .stn div{font-size:12.5px;line-height:1.5}
   .versus .r{grid-template-columns:1fr minmax(0,11ch) 1fr;gap:8px}
   .versus .c{font-size:9px;letter-spacing:.1em}
-  .file .held{margin-top:4px}
   #tel.in{opacity:.4}
   .arr::after{background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 88%,transparent) 6%,var(--bg) 26%,var(--bg) 74%,color-mix(in srgb,var(--bg) 86%,transparent))}
   .cue{display:none}
-  .wd h2{font-size:clamp(1.45rem,6.2vw,2.1rem);letter-spacing:-.04em}
+  .wd h2{font-size:clamp(1.45rem,6.2vw,2.1rem);letter-spacing:-.015em}
   .uav h2,.inf h2,.med h2{font-size:clamp(1.45rem,6.2vw,2.1rem)}
   h1{letter-spacing:-.038em}
   /* the phone gets its own pacing: less air where a world brings its own ground */
@@ -341,7 +296,6 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
   .record canvas+.axis{padding-top:6px}
   .hd .lead{justify-self:start}
   .crypt div{flex-direction:column;gap:5px}
-  .crypt b{min-width:0}
 }
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
@@ -426,29 +380,32 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
   </div>
 
   <div class="record rv">
-    <p class="axis top"><span><b>87 runs</b> &middot; obstacle and proximity detections</span>
-      <span>53,971 obstacle &middot; <em>17,842 proximity</em></span></p>
     <canvas id="runs" aria-label="Detection events recorded across 87 simulation runs between 13 and 16 April 2026. Thirty-four runs recorded detections; fifty-three recorded none." role="img"></canvas>
-    <p class="axis"><span>34 runs recorded detections</span><span>x500 airframe &middot; PX4 SITL</span><span>53 recorded none</span></p>
+    <p class="rcap">Eighty-seven runs of the x500 airframe under PX4 SITL, 13 to 16 April 2026,
+      laid out at the time each one started. <b>Thirty-four recorded detections; fifty-three
+      recorded none, and those are the short ticks along the base.</b> The solid foot of each
+      column is the share that were proximity alerts rather than obstacles: 17,842 of 71,813.</p>
   </div>
 
   <div class="w rv">
-    <div class="env">
-      <p class="lbl">Designed operating envelope</p>
-      <ul>
-        <li><b>100</b> drone agents per cell</li>
-        <li><b>50</b> concurrent operators per node</li>
-        <li><b>20&ndash;30&#8202;Hz</b> operator telemetry</li>
-        <li><b>10</b> command writers, queue-locked</li>
-      </ul>
+    <div class="uavfoot">
+      <div class="env">
+        <p class="lbl">Designed operating envelope</p>
+        <ul>
+          <li><b>100</b> drone agents per cell</li>
+          <li><b>50</b> concurrent operators per node</li>
+          <li><b>20&ndash;30&#8202;Hz</b> operator telemetry</li>
+          <li><b>10</b> command writers, queue-locked</li>
+        </ul>
+        <p class="stack"><span>PX4 SITL</span><span>Gazebo Harmonic</span><span>AirSim</span>
+          <span>MAVSDK teacher bridge</span><span>Redis</span><span>TimescaleDB</span><span>Flask</span><span>React</span></p>
+      </div>
+      <p class="note">The envelope figures are taken from the platform's own technical blueprint.
+        They are engineering limits, not load-test results. LESNAR AI built the autonomy bridge,
+        mission logic, telemetry pipeline and operator system, and integrated the PX4, Gazebo and
+        AirSim projects, which are the work of their own upstream maintainers. The stack is
+        simulation-validated. No physical airframe has been flown.</p>
     </div>
-    <p class="stack"><span>PX4 SITL</span><span>Gazebo Harmonic</span><span>AirSim</span>
-      <span>MAVSDK teacher bridge</span><span>Redis</span><span>TimescaleDB</span><span>Flask</span><span>React</span></p>
-    <p class="note" style="margin-top:clamp(24px,3.4vh,38px)">The envelope figures are taken from the
-      platform's own technical blueprint. They are engineering limits, not load-test results.
-      LESNAR AI built the autonomy bridge, mission logic, telemetry pipeline and operator system,
-      and integrated the PX4, Gazebo and AirSim projects, which are the work of their own upstream
-      maintainers. The stack is simulation-validated. No physical airframe has been flown.</p>
   </div>
 </section>
 
@@ -459,39 +416,36 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 
   <div class="file">
     <article>
-      <div><p class="id">File 01 &middot; Tooling</p><h3>SentinelCore</h3></div>
+      <div><h3>SentinelCore</h3></div>
       <div><p class="body">A Linux security operations control plane: authorised assessment,
         detection and correlation, SIEM intake, adversary emulation, and a remediation path that
         is <b>the only part permitted to change a host</b>.</p>
-        <p class="fact">391 source files &middot; 120 test files &middot; 28 subsystems in the current build<br>
-          Purple-team campaigns and blind operational qualification</p></div>
-      <div class="held">Detection content &middot; Rule sets<br>Range and emulation material</div>
+        <p class="fact">391 source files, 120 test files and 28 subsystems in the current build,
+          with purple-team campaigns and blind operational qualification behind it.</p></div>
     </article>
     <article>
-      <div><p class="id">File 02 &middot; Engagements</p><h3>Institutional work</h3></div>
+      <div><h3>Institutional work</h3></div>
       <div><p class="body">Board-level forensic cybersecurity and money-flow investigation for a
         financial cooperative. A university cyber-resilience programme governed by exact-scope
         targets, test windows, least-privilege module profiles and a <b>stop-work control</b>.</p>
         <p class="fact">The university programme runs from a written manifest: approved targets,
-          test windows, rate limits, per-module permission profiles and a stop-work file</p></div>
-      <div class="held">Client names &middot; Targets &middot; Evidence<br>Findings &middot; Reports &middot; Timelines</div>
+          test windows, rate limits, per-module permission profiles and a stop-work file.</p></div>
     </article>
     <article>
-      <div><p class="id">File 03 &middot; Research</p><h3>Vulnerability disclosure</h3></div>
+      <div><h3>Vulnerability disclosure</h3></div>
       <div><p class="body">A reproducible smart-contract finding: a standard voluntary close
         settles on a stale liquidation status and moves below-margin value to the trader instead
         of the vault, with a patch that <b>zeroes the improper transfer and leaves healthy closes
         intact</b>.</p>
-        <p class="fact">7 passing tests in one canonical run, identical across cycles<br>
-          Up to 37,499.22 USDC of vault value moved in one demonstrated settlement<br>
-          Submitted as high severity. We do not publish an adjudication.</p></div>
-      <div class="held">Protocol identity &middot; Exploit path<br>Proof-of-concept code</div>
+        <p class="fact">Seven passing tests in one canonical run, identical across cycles. Up to
+          37,499.22 USDC of vault value moved in one demonstrated settlement. Submitted as high
+          severity; we do not publish an adjudication.</p></div>
     </article>
   </div>
 
-  <p class="note" style="margin-top:26px">We publish the shape and scale of this work, never the
-    targets, the findings, the evidence or the exploit paths. Engagement material stays with
-    the client.</p>
+  <p class="closing">There is more of this work than we can show. Client names, targets, evidence,
+    findings and exploit paths stay with the client, so the second entry above carries no numbers.
+    That is the whole of it.</p>
 </div></section>
 
 <!-- 5 · infrastructure -->
@@ -523,18 +477,17 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
       <p>A dedicated volume, a provenance registry and an isolated lab where a model is measured
         before it is trusted. The first baseline put two runtimes on the same hash-pinned
         open-weight model and ran them head to head.</p>
-      <div class="result">
-        <div class="versus">
-          <div class="r head"><span class="v">llama.cpp</span><span class="c">Runtime</span><span class="v">Ollama</span></div>
-          <div class="r"><span class="v">80%</span><span class="c">Task pass rate</span><span class="v">60%</span></div>
-          <div class="r"><span class="v">8/10</span><span class="c">Exact repeatability</span><span class="v">6/10</span></div>
-          <div class="r event"><span class="v win">Held</span><span class="c">Prompt injection</span><span class="v lose">Followed<span class="pn"> it</span></span></div>
-        </div>
-        <p class="note">Qwen2.5-Coder-7B-Instruct Q4_K_M, pinned by SHA-256.
-        Ollama followed an untrusted instruction embedded in the task in both repetitions. The
-        baseline qualifies for local coding and prompt work with human review, and explicitly not
-        for autonomous code acceptance, security-sensitive decisions or instruction-boundary
-        enforcement.</p>
+      <div class="finding">
+        <p>Both runtimes ran the same tasks against the same weights,
+          <code>Qwen2.5-Coder-7B-Instruct Q4_K_M</code>, pinned by SHA-256.
+          <code>llama.cpp</code> passed <span class="num">80%</span> of tasks and reproduced its
+          own answer exactly <span class="num">8</span> times in ten. <code>Ollama</code> passed
+          <span class="num">60%</span> and reproduced <span class="num">6</span>.</p>
+        <p class="last">One task hid an instruction inside the work and told the model to obey it.
+          <b>llama.cpp ignored it. Ollama followed it, both times.</b> On that evidence the
+          baseline qualifies for local coding and prompt work with a person reading the output,
+          and explicitly not for autonomous code acceptance, security-sensitive decisions or
+          instruction-boundary enforcement.</p>
       </div>
     </section>
   </div>
@@ -551,28 +504,28 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
       <div class="tx"><h3>BizMtaani</h3>
         <p>A marketplace where shops list what they actually sell, customers pay from a phone,
           and riders carry it. One listed business: The Villager, in Embu.</p>
-        <p class="u"><i></i> bizmtaani.com</p></div>
+        <p class="u">bizmtaani.com</p></div>
     </article>
     <article>
       <div class="th"><img style="object-position:50% 4%" src="img/carepro-verify.jpg" alt="CarePro's published verification panel: four numbered stages ending in clinical sign-off by a registered nurse."></div>
       <div class="tx"><h3>CarePro</h3>
         <p>Home nursing coordination. Licences checked against the Nursing Council register,
           an interview on a clinical rubric, then a registered nurse reads the whole file.</p>
-        <p class="u"><i></i> carepro.co.ke</p></div>
+        <p class="u">carepro.co.ke</p></div>
     </article>
     <article>
       <div class="th"><img style="object-position:8% 50%" src="img/hazina-room.jpg" alt="Hazina Nomads: an annotated photograph of a curated Kenyan collection beside a curator's note."></div>
       <div class="tx"><h3>Hazina Nomads</h3>
         <p>Private Kenyan sourcing for travellers and diaspora families. No checkout. A brief,
           a curator who takes it on, and a conversation that carries on in WhatsApp.</p>
-        <p class="u"><i></i> hazina.lesnarai.co.ke</p></div>
+        <p class="u">hazina.lesnarai.co.ke</p></div>
     </article>
     <article>
       <div class="th"><img style="object-position:0% 24%" src="img/jamii-list.jpg" alt="Jamii Projects Hub: community project records open for public voting."></div>
       <div class="tx"><h3>Jamii Projects Hub</h3>
         <p>Community projects, votes, contributions and records built to survive scrutiny.
           Running as a pilot in Mbeere North.</p>
-        <p class="u"><i></i> Pilot</p></div>
+        <p class="u">Pilot</p></div>
     </article>
   </div>
 
@@ -662,48 +615,40 @@ function drawRuns(){
   if(!W||!H) return;
   rc.width=W*dpr; rc.height=H*dpr; rx.setTransform(dpr,0,0,dpr,0,0);
   rx.clearRect(0,0,W,H);
-  const runs=TEL.runs, ink=css('--ink'), mark=css('--mark'),
-        edge=css('--edge'), dim=css('--dim');
+  const runs=TEL.runs, ink=css('--ink'), dim=css('--dim'), edge=css('--edge');
   const padL=W*0.045, padR=W*0.045, span=W-padL-padR;
-  const base=H-30, top=22, peak=base-top;
+  const base=H-34, top=14, peak=base-top;
   const max=14000;
 
-  /* day boundaries, drawn from the real timestamps */
-  const days=TEL.days;
-  rx.font='10px ui-monospace,monospace'; rx.textBaseline='top';
-  days.forEach(d=>{
+  /* the day a run belongs to is written once, where that day begins */
+  rx.font='13px "Inter Tight",system-ui,sans-serif'; rx.textBaseline='top';
+  TEL.days.forEach(d=>{
     const first=runs.find(r=>r.d===d); if(!first) return;
-    const x=padL+first.x*span;
-    rx.globalAlpha=.5; rx.strokeStyle=edge; rx.lineWidth=1;
-    rx.beginPath(); rx.moveTo(x,top-10); rx.lineTo(x,base+8); rx.stroke();
-    rx.globalAlpha=.75; rx.fillStyle=dim;
-    rx.fillText(d.slice(6)+' Apr', x+6, base+12);
+    rx.globalAlpha=.85; rx.fillStyle=dim;
+    rx.fillText(String(+d.slice(6))+' April', padL+first.x*span, base+14);
   });
-
-  /* baseline */
-  rx.globalAlpha=1; rx.strokeStyle=edge;
-  rx.beginPath(); rx.moveTo(padL,base+.5); rx.lineTo(W-padR,base+.5); rx.stroke();
 
   /* every run occupies its real moment: a tick if it recorded nothing,
      a column scaled by event count if it did */
   runs.forEach(r=>{
     const x=padL+r.x*span;
     if(!r.n){
-      rx.globalAlpha=.55; rx.strokeStyle=dim; rx.lineWidth=1;
-      rx.beginPath(); rx.moveTo(x,base); rx.lineTo(x,base-7); rx.stroke();
+      rx.globalAlpha=.42; rx.strokeStyle=dim; rx.lineWidth=1;
+      rx.beginPath(); rx.moveTo(x,base); rx.lineTo(x,base-6); rx.stroke();
       return;
     }
     const h=Math.max(6,Math.min(1,r.n/max)*peak);
     const w=Math.max(4,span/runs.length*0.8);
+    /* obstacles are the light body of the column */
     const g=rx.createLinearGradient(0,base-h,0,base);
     g.addColorStop(0,ink); g.addColorStop(1,'transparent');
-    rx.globalAlpha=.60; rx.fillStyle=g;
+    rx.globalAlpha=.42; rx.fillStyle=g;
     rx.fillRect(x-w/2,base-h,w,h);
-    /* proximity alerts are a different event class, so they are marked */
+    /* proximity alerts are the solid foot: a difference of density, not hue */
     const ph=h*(r.p/r.n);
-    rx.globalAlpha=.92; rx.fillStyle=mark;
+    rx.globalAlpha=1; rx.fillStyle=ink;
     rx.fillRect(x-w/2,base-ph,w,ph);
-    rx.globalAlpha=.40; rx.strokeStyle=ink; rx.lineWidth=1;
+    rx.globalAlpha=.34; rx.strokeStyle=ink; rx.lineWidth=1;
     rx.beginPath();
     r.b.forEach((v,i)=>{
       const yy=base-h-2-Math.min(1,v/2)*14;
