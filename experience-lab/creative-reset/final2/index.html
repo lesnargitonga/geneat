@@ -274,6 +274,12 @@ h1 .ln i{display:block;font-style:normal}
 .inv a:hover{text-decoration-color:currentColor}
 .fin{display:flex;gap:26px;flex-wrap:wrap;padding-block:26px;font-size:13.5px;color:var(--dim)}
 
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(8px);
+  z-index:120;font-size:13px;color:var(--ink);background:var(--lift);
+  border:1px solid var(--edge);padding:10px 16px;border-radius:2px;
+  opacity:0;pointer-events:none;transition:opacity .22s var(--ez),transform .22s var(--ez);
+  max-width:calc(100vw - 2*var(--pad));text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .rv{opacity:0;transform:scale(.985) translateZ(0)}
 .rv.in{opacity:1;transform:scale(1) translateZ(0);
   transition:opacity .85s var(--ez),transform .85s var(--ez)}
@@ -334,7 +340,13 @@ h1 .ln i{display:block;font-style:normal}
   #tel{opacity:.4}
   html{scroll-behavior:auto}
 }
-</style></head><body>
+</style>
+<noscript><style>
+  /* no script, no observers: nothing may be hidden */
+  .rv{opacity:1!important;transform:none!important}
+  #run-hud,.cue{display:none}
+</style></noscript>
+</head><body>
 
 <nav id="nav"><div class="w">
   <a class="lg" href="#top">LESNAR<em></em>AI</a>
@@ -596,9 +608,23 @@ tg.addEventListener('click',()=>{
 });
 
 /* reveals */
-const io=new IntersectionObserver(es=>es.forEach(e=>{
-  if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.1});
-document.querySelectorAll('.rv').forEach(e=>io.observe(e));
+const REVEAL=[...document.querySelectorAll('.rv')];
+const revealAll=()=>REVEAL.forEach(e=>e.classList.add('in'));
+
+if(!('IntersectionObserver' in window)){
+  revealAll();                                   /* no observer: show everything */
+}else{
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.1});
+  REVEAL.forEach(e=>io.observe(e));
+  /* backstop: if the observer never fires but the page has clearly been
+     scrolled, something is wrong with the observer, not with the content */
+  setTimeout(()=>{
+    if(scrollY<100) return;
+    const dark=REVEAL.filter(e=>!e.classList.contains('in'));
+    if(dark.length){ console.warn('[reveal] observer did not fire for',dark.length,'sections; forcing'); revealAll(); }
+  },3000);
+}
 
 /* nav */
 const nav=document.getElementById('nav');let last=0;
@@ -920,55 +946,126 @@ const Scrub=Signal();
 
 
 /* ═══════════════════════════════════════════════════════
-   the wire · a sealed packet crosses the relay once. the relay's ring
-   flashes to verify a signature; the packet is unchanged by it and
-   comes to rest at the recipient. it is an explanation, not a loop.
+   the wire · a sealed packet crosses the relay, rests, then is
+   carried back. the relay's ring flashes to verify a signature both
+   ways; the packet is unchanged by it. a slow mechanical heartbeat,
+   alive only while the section is on screen.
    ═══════════════════════════════════════════════════════ */
 (()=>{
   const rail=document.querySelector('.rail2');
-  const wire=document.querySelector('.wire');
   const sect=document.querySelector('.inf');
-  if(!rail||!wire||!sect) return;
+  if(!rail||!sect) return;
 
-  const OUT=260, LEG=820, HOLD=180, IN=240;
-  const T1=OUT, T2=T1+LEG, T3=T2+HOLD, T4=T3+LEG, END=T4+IN;
+  const OUT=260, LEG=820, HOLD=180, IN=240, REST=6000;
+  const PASS=OUT+LEG+HOLD+LEG+IN;          /* 2320: one crossing */
+  const CYCLE=(PASS+REST)*2;               /* there and back again */
   const set=(k,v)=>rail.style.setProperty(k,v);
   const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
-  const atRest=()=>{ set('--w1','0'); set('--o1','0');
-                     set('--w2','1'); set('--o2','1'); set('--vf','0'); };
 
-  let stop=null, played=false;
+  /* settled at whichever end it last reached */
+  const rest=end=>{ set('--w1',end==='left'?0:0); set('--o1',0);
+                    set('--w2',end==='left'?0:1); set('--o2',end==='left'?0:1);
+                    set('--vf',0);
+                    if(end==='left'){ set('--w1','0'); set('--o1','1'); set('--o2','0'); } };
 
-  function frame(_dt,t){
+  /* one crossing. dir 1 = sender to recipient, dir -1 = the return leg */
+  function pass(t,dir){
     let w1=0,w2=0,o1=0,o2=0,vf=0;
-    if(t<T1){        o1=t/T1; }
-    else if(t<T2){   o1=1; w1=ease((t-T1)/LEG); }
-    else if(t<T3){   o1=1; w1=1; vf=1; }
-    else if(t<T4){   o2=1; w2=ease((t-T3)/LEG); vf=Math.max(0,1-(t-T3)/240); }
-    else {           o2=1; w2=1; }
+    const near=dir>0?1:0, far=dir>0?0:1;        /* which end a wire starts from */
+    if(t<OUT){                       dir>0 ? (o1=t/OUT, w1=far) : (o2=t/OUT, w2=near); }
+    else if(t<OUT+LEG){
+      const k=ease((t-OUT)/LEG);
+      dir>0 ? (o1=1, w1=k) : (o2=1, w2=1-k);
+    }
+    else if(t<OUT+LEG+HOLD){         vf=1; dir>0 ? (o1=1,w1=1) : (o2=1,w2=0); }
+    else if(t<OUT+LEG+HOLD+LEG){
+      const k=ease((t-OUT-LEG-HOLD)/LEG);
+      vf=Math.max(0,1-(t-OUT-LEG-HOLD)/240);
+      dir>0 ? (o2=1, w2=k) : (o1=1, w1=1-k);
+    }
+    else {                           dir>0 ? (o2=1,w2=1) : (o1=1,w1=0); }
     set('--w1',w1); set('--w2',w2);
     set('--o1',o1.toFixed(2)); set('--o2',o2.toFixed(2)); set('--vf',vf.toFixed(2));
-    if(t>=END){ atRest(); stop=null; return false; }
+  }
+
+  function frame(_dt,elapsed){
+    const t=elapsed%CYCLE;
+    if(t<PASS)                    pass(t,1);                      /* out */
+    else if(t<PASS+REST)          rest('right');                  /* held at recipient */
+    else if(t<PASS+REST+PASS)     pass(t-PASS-REST,-1);           /* back */
+    else                          rest('left');                   /* held at sender */
     return true;
   }
 
-  function play(){
-    if(Motion.reduced||stop) return;
-    played=true; stop=Motion.run(frame);
+  rest('left');                                  /* the settled state, always visible */
+  if(Motion.reduced) return;                     /* static under reduced motion */
+  if(!('IntersectionObserver' in window)) return;/* no observer: stays settled */
+
+  let stop=null;
+  new IntersectionObserver(es=>{
+    if(es[0].isIntersecting){ if(!stop) stop=Motion.run(frame); }
+    else if(stop){ stop(); stop=null; rest('left'); }
+  },{threshold:.08}).observe(sect);
+})();
+
+/* ═══════════════════════════════════════════════════════
+   the sweep · the first time the record comes into view the reticle
+   runs the length of it once. nobody discovers a scrubbable chart by
+   guessing, so the instrument demonstrates itself, then gets out of
+   the way the moment the visitor touches it.
+   ═══════════════════════════════════════════════════════ */
+(()=>{
+  const rec=document.querySelector('.record');
+  const wrap=document.getElementById('scrub-wrap');
+  if(!rec||!wrap||Motion.reduced) return;
+
+  let done=false, stop=null, taken=false;
+  /* once the visitor touches the instrument it is theirs. this is a latch,
+     not a cancel: the demonstration must not start late and take it back. */
+  const takeOver=()=>{ taken=true; if(stop){stop();stop=null;} };
+  ['pointerdown','pointermove','wheel','keydown','touchstart']
+    .forEach(ev=>wrap.addEventListener(ev,takeOver,{passive:true}));
+  document.getElementById('run-scrub')?.addEventListener('focus',takeOver);
+
+  function sweep(){
+    const TEL=Telemetry.value;
+    if(!TEL||taken) return;
+    const n=TEL.runs.length-1, DUR=1500;
+    const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    stop=Motion.run((_dt,t)=>{
+      if(taken){ stop=null; return false; }
+      if(t>=DUR){ Scrub.set(n); stop=null; return false; }
+      Scrub.set(Math.round(ease(t/DUR)*n));
+      return true;
+    });
   }
 
-  atRest();                                   /* settled state, always visible */
-  if(!Motion.reduced){
-    const io=new IntersectionObserver(es=>{
-      if(!es[0].isIntersecting||played) return;
-      io.disconnect(); play();
-    },{threshold:.12});
-    io.observe(sect);
-    /* replay on demand, for anyone who wants to watch it again */
-    wire.addEventListener('pointerenter',play);
-    wire.addEventListener('click',play);
-    wire.style.cursor='pointer';
-    wire.title='Replay';
-  }
+  if(!('IntersectionObserver' in window)) return; /* no observer: no demonstration */
+  new IntersectionObserver(es=>{
+    if(!es[0].isIntersecting||done) return;
+    done=true;
+    /* the data may not have landed yet; the signal replays to late subscribers */
+    if(Telemetry.settled) setTimeout(sweep,320);
+    else Telemetry.subscribe(()=>setTimeout(sweep,320));
+  },{threshold:.35}).observe(rec);
+})();
+
+/* ═══════════════════════════════════════════════════════
+   routes · three nav items point at pages that exist in the intended
+   architecture but not in this build. saying so is better than a 404.
+   ═══════════════════════════════════════════════════════ */
+(()=>{
+  const el=document.createElement('div');
+  el.className='toast'; el.setAttribute('role','status'); el.setAttribute('aria-live','polite');
+  document.body.appendChild(el);
+  let t=0;
+  const say=msg=>{ el.textContent=msg; el.classList.add('on');
+                   clearTimeout(t); t=setTimeout(()=>el.classList.remove('on'),3000); };
+  document.querySelectorAll('nav ul a[href^="/"]').forEach(a=>{
+    a.addEventListener('click',e=>{
+      e.preventDefault();
+      say(a.textContent.trim()+' is pending production deployment.');
+    });
+  });
 })();
 </script></body></html>
