@@ -106,7 +106,11 @@ h1 .ln i{display:block;font-style:normal}
 .terrain{position:relative;min-height:min(104svh,980px);display:flex;align-items:flex-end;
   padding-block:clamp(90px,13vh,150px) clamp(28px,4vh,52px);overflow:hidden}
 .terrain .map{position:absolute;inset:0}
-.terrain .map img{width:100%;height:100%;object-fit:cover;object-position:62% 46%}
+.terrain .map img{width:100%;height:100%;object-fit:cover;object-position:62% 46%;
+  filter:blur(var(--defocus,0px));transform:translateZ(0)}
+/* will-change is applied by script for the duration of a scroll only:
+   holding a permanent composite layer for a full-bleed image is a real cost */
+.terrain .map.calibrating img{will-change:filter}
 .terrain::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(88deg,#070706 22%,color-mix(in srgb,#070706 72%,transparent) 50%,transparent 78%),
              linear-gradient(#070706 2%,transparent 22%,transparent 58%,#070706 99%)}
@@ -206,7 +210,19 @@ h1 .ln i{display:block;font-style:normal}
 .rail2{display:grid;grid-template-columns:auto 1fr auto 1fr auto;align-items:center;gap:0}
 .rail2 i{width:10px;height:10px;border-radius:50%;background:var(--ink);flex:none;font-style:normal}
 .rail2 i.mid{background:transparent;border:1px solid var(--mid);width:15px;height:15px}
-.rail2 s{height:1px;background:var(--edge);text-decoration:none;display:block}
+.rail2 s{height:1px;background:var(--edge);text-decoration:none;display:block;position:relative}
+/* the packet: a sealed segment travelling the wire. it is the same ink
+   leaving the sender as arriving at the recipient, because nothing opens it. */
+.rail2 s::after{content:"";position:absolute;top:-1px;height:3px;width:30px;
+  margin-left:-15px;border-radius:2px;pointer-events:none;opacity:0;
+  background:linear-gradient(90deg,transparent,var(--ink) 45%,var(--ink) 55%,transparent)}
+.rail2 s:nth-of-type(1)::after{left:calc(var(--w1,0) * 100%);opacity:var(--o1,0)}
+.rail2 s:nth-of-type(2)::after{left:calc(var(--w2,0) * 100%);opacity:var(--o2,0)}
+.rail2 i.mid{position:relative}
+/* the relay verifies a signature. it does not open anything, so the ring
+   is the only thing that changes and the packet passes through unaltered. */
+.rail2 i.mid::after{content:"";position:absolute;inset:-5px;border-radius:50%;
+  border:1px solid var(--ink);opacity:var(--vf,0);pointer-events:none}
 .stn{display:grid;grid-template-columns:1fr 1fr 1fr;margin-top:15px;gap:16px}
 .stn div{font-size:13.5px;color:var(--dim)}
 .stn div:nth-child(2){text-align:center;color:var(--mid)}
@@ -280,7 +296,8 @@ h1 .ln i{display:block;font-style:normal}
   #tel{width:100%;mask-image:linear-gradient(transparent,#000 14%,#000 62%,transparent 96%)}
   #tel.in{opacity:.85}
   .terrain{min-height:auto;padding-block:clamp(70px,11vh,110px) 0}
-  .terrain .map img{object-position:52% 40%;filter:contrast(1.06) saturate(.92)}
+  .terrain .map img{object-position:52% 40%;
+    filter:contrast(1.06) saturate(.92) blur(var(--defocus,0px))}
   .terrain::after{background:linear-gradient(#070706 2%,color-mix(in srgb,#070706 52%,transparent) 20%,
     color-mix(in srgb,#070706 74%,transparent) 40%,color-mix(in srgb,#070706 86%,transparent) 68%,#070706 96%)}
   :root[data-t="light"] .terrain::after{background:linear-gradient(#E6E3DB 2%,color-mix(in srgb,#E6E3DB 52%,transparent) 20%,
@@ -623,7 +640,7 @@ const Motion=(()=>{
     run(fn){
       if(q.matches) return ()=>{};
       let id=0, t0=performance.now(), prev=t0, stopped=false;
-      live++; window.__rafRunning=true;
+      live++; window.__rafLive=live; window.__rafRunning=true;
       const step=t=>{
         if(stopped) return;
         const dt=t-prev; prev=t;
@@ -633,7 +650,7 @@ const Motion=(()=>{
       id=requestAnimationFrame(step);
       return ()=>{ if(stopped)return; stopped=true; cancelAnimationFrame(id); api._end(); };
     },
-    _end(){ live=Math.max(0,live-1); if(!live) window.__rafRunning=false; }
+    _end(){ live=Math.max(0,live-1); window.__rafLive=live; if(!live) window.__rafRunning=false; }
   };
   q.addEventListener?.('change',()=>{ if(q.matches) Paint.all(); });
   return api;
@@ -987,5 +1004,90 @@ const Scrub=Signal();
 
   addEventListener('resize',()=>paintHud(Scrub.value),{passive:true});
   Scrub.set(null);
+})();
+
+/* ═══════════════════════════════════════════════════════
+   the optic · scroll velocity defocuses the terrain, and stopping
+   snaps it sharp. blur during scroll is expensive, so the loop only
+   exists while the map is on screen and while the page is moving.
+   ═══════════════════════════════════════════════════════ */
+(()=>{
+  if(Motion.reduced) return;                    /* the optic stays sharp */
+  const map=document.querySelector('.terrain .map');
+  const img=map&&map.querySelector('img');
+  if(!map||!img) return;
+
+  const MAX=3, FLOOR=0.35, GAIN=1.7;            /* px/ms below FLOOR reads as still */
+  let onScreen=false, stop=null, idle=0, cur=0, lastY=scrollY, lastT=performance.now();
+
+  const clear=()=>{ cur=0; map.style.setProperty('--defocus','0px');
+                    map.classList.remove('calibrating'); };
+  function settle(){ if(stop){stop();stop=null;} clear(); }
+
+  function tick(){
+    const y=scrollY, t=performance.now();
+    const dt=Math.max(1,t-lastT);
+    const v=Math.abs(y-lastY)/dt;
+    lastY=y; lastT=t;
+    const target=Math.min(MAX,Math.max(0,(v-FLOOR)*GAIN));
+    /* ease toward the target so the optic ramps, then snap on settle */
+    cur+=(target-cur)*0.34;
+    if(cur<0.05) cur=0;
+    map.style.setProperty('--defocus',cur?cur.toFixed(2)+'px':'0px');
+    return true;
+  }
+
+  function onScroll(){
+    if(!onScreen) return;
+    if(!stop){ map.classList.add('calibrating'); lastY=scrollY; lastT=performance.now();
+               stop=Motion.run(tick); }
+    clearTimeout(idle); idle=setTimeout(settle,110);   /* snap back sharp */
+  }
+
+  new IntersectionObserver(es=>{
+    onScreen=es[0].isIntersecting;
+    if(!onScreen){ clearTimeout(idle); settle(); }
+  },{rootMargin:'10% 0px'}).observe(map);
+
+  addEventListener('scroll',onScroll,{passive:true});
+})();
+
+/* ═══════════════════════════════════════════════════════
+   the wire · a sealed packet crosses the relay. the relay's ring
+   flashes to verify the signature; the packet is unchanged by it.
+   ═══════════════════════════════════════════════════════ */
+(()=>{
+  if(Motion.reduced) return;                    /* the wire stays static */
+  const rail=document.querySelector('.rail2');
+  const sect=document.querySelector('.inf');
+  if(!rail||!sect) return;
+
+  /* one cycle, in ms */
+  const OUT=260, LEG=820, HOLD=150, IN=240, REST=1900;
+  const T1=OUT, T2=T1+LEG, T3=T2+HOLD, T4=T3+LEG, CYCLE=T4+IN+REST;
+  const set=(k,v)=>rail.style.setProperty(k,v);
+  const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+
+  function frame(_dt,elapsed){
+    const t=elapsed%CYCLE;
+    let w1=0,w2=0,o1=0,o2=0,vf=0;
+    if(t<T1){                     o1=t/T1; w1=0; }
+    else if(t<T2){                o1=1; w1=ease((t-T1)/LEG); }
+    else if(t<T3){                o1=1; w1=1; vf=1; }          /* verifying */
+    else if(t<T4){                o2=1; w2=ease((t-T3)/LEG);
+                                  vf=Math.max(0,1-(t-T3)/220); }
+    else if(t<T4+IN){             o2=1; w2=1; }
+    else {                        o2=Math.max(0,1-(t-T4-IN)/200); w2=1; }
+    set('--w1',w1); set('--w2',w2); set('--o1',o1.toFixed(2));
+    set('--o2',o2.toFixed(2)); set('--vf',vf.toFixed(2));
+    return true;
+  }
+
+  let stop=null;
+  new IntersectionObserver(es=>{
+    if(es[0].isIntersecting){ if(!stop) stop=Motion.run(frame); }
+    else if(stop){ stop(); stop=null;
+      ['--o1','--o2','--vf'].forEach(k=>set(k,'0')); }
+  },{threshold:.08}).observe(sect);
 })();
 </script></body></html>
