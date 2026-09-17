@@ -1,0 +1,583 @@
+<!doctype html><html lang="en" data-t="dark"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LESNAR AI</title>
+<meta name="description" content="LESNAR AI builds systems for conditions that break ordinary software: national health logistics, autonomous flight in GPS-denied airspace, security operations and assurance, and products running in Kenya.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#04060A; --bg2:#080C13; --lift:#0F151F; --edge:#1A2230;
+  --ink:#EFF3F8; --mid:#9AA8BB; --dim:#828F9F;
+  --amber:#FF9A3C; --teal:#2FD8A8; --coral:#FF5C6E; --cool:#6FC8FF; --ok:#5FD08B;
+  --acc:var(--amber);
+  --d:"Syne",sans-serif; --b:"Inter Tight",system-ui,-apple-system,sans-serif;
+  --m:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --pad:clamp(20px,4.4vw,76px); --ez:cubic-bezier(.16,1,.3,1);
+}
+:root[data-t="light"]{
+  --bg:#EFEEEA; --bg2:#E5E4DF; --lift:#FBFBF9; --edge:#CECDC7;
+  --ink:#0A0C10; --mid:#464F5C; --dim:#5A636E;
+  --amber:#A04C04; --teal:#0A6B4F; --coral:#B02436; --cool:#0A6188; --ok:#0E6B3C;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--b);font-size:17px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .8s var(--ez),color .8s}
+.w{max-width:1440px;margin:0 auto;padding-inline:var(--pad)}
+img{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+h2{font-family:var(--d);font-weight:800;letter-spacing:-.048em;line-height:.93;text-wrap:balance}
+.k{font-family:var(--m);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);
+  display:flex;align-items:center;gap:11px}
+.k::before{content:"";width:20px;height:1px;background:currentColor;flex:none}
+.lead{color:var(--mid);font-size:clamp(1rem,1.25vw,1.15rem);max-width:46ch}
+.note{font-family:var(--m);font-size:11.5px;letter-spacing:.02em;color:var(--dim);line-height:1.6;max-width:62ch}
+
+/* ── chrome ─────────────────────────────────────────── */
+nav{position:fixed;inset:0 0 auto;z-index:90;transition:transform .45s var(--ez),background .5s}
+nav.hide{transform:translateY(-102%)}
+nav .w{display:flex;align-items:center;gap:30px;padding-block:17px;
+  border-bottom:1px solid transparent;transition:border-color .5s}
+nav.stuck{background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(20px)}
+nav.stuck .w{border-bottom-color:color-mix(in srgb,var(--edge) 75%,transparent)}
+.lg{font-family:var(--d);font-weight:800;font-size:17px;letter-spacing:-.02em;color:var(--ink);
+  text-decoration:none;display:flex;align-items:center}
+.lg em{font-style:normal;width:5px;height:5px;background:var(--amber);border-radius:50%;margin:0 6px;
+  transition:background .8s}
+nav ul{margin-left:auto;display:flex;gap:25px;list-style:none;padding:0}
+nav ul a{color:var(--mid);text-decoration:none;font-size:14px;font-weight:500;transition:color .25s}
+nav ul a:hover{color:var(--ink)}
+.tg{width:32px;height:32px;border:1px solid color-mix(in srgb,var(--mid) 42%,transparent);
+  background:none;border-radius:50%;cursor:pointer;color:var(--mid);display:grid;place-items:center;
+  transition:.35s var(--ez);flex:none}
+.tg:hover{color:var(--amber);border-color:var(--amber);transform:rotate(-30deg)}
+.tg svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round}
+.tg .sun{display:none}:root[data-t="light"] .tg .sun{display:block}
+:root[data-t="light"] .tg .moon{display:none}
+
+/* ── 1 · arrival: the company's own recorded telemetry ── */
+.arr{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;
+  padding-block:clamp(110px,15vh,160px) clamp(76px,11vh,120px)}
+#tel{position:absolute;inset:0 0 0 auto;width:62%;height:100%;opacity:0;transition:opacity 2.2s var(--ez);
+  mask-image:linear-gradient(90deg,transparent,#000 34%,#000 88%,transparent)}
+#tel.in{opacity:.9}
+.arr::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(92deg,var(--bg) 30%,color-mix(in srgb,var(--bg) 55%,transparent) 54%,transparent 76%)}
+.arr .w{position:relative;z-index:4;width:100%}
+.arr .k{margin-bottom:clamp(22px,3vw,34px)}
+h1{font-family:var(--d);font-weight:800;line-height:.9;letter-spacing:-.05em;
+  font-size:clamp(2.4rem,5vw,4.5rem);max-width:19ch}
+h1 em{font-style:normal;color:var(--amber)}
+h1 .ln{display:block;overflow:hidden}
+h1 .ln i{display:block;font-style:normal;transform:translateY(106%);animation:rise 1s var(--ez) forwards}
+h1 .ln:nth-child(2) i{animation-delay:.08s}
+h1 .ln:nth-child(3) i{animation-delay:.16s}
+@keyframes rise{to{transform:none}}
+.arr .lead{margin-top:clamp(24px,3vw,34px);max-width:50ch;opacity:0;animation:fade 1s .55s forwards}
+@keyframes fade{to{opacity:1}}
+.telcap{margin-top:clamp(26px,3.4vw,40px);font-family:var(--m);font-size:11px;letter-spacing:.04em;
+  color:var(--dim);line-height:1.75;max-width:58ch;padding-left:15px;
+  border-left:1px solid var(--edge);opacity:0;animation:fade 1.2s 1.4s forwards}
+.cue{position:absolute;left:var(--pad);bottom:clamp(20px,3vh,34px);z-index:5;font-family:var(--m);
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);
+  display:flex;align-items:center;gap:11px;opacity:0;animation:fade 1s 1.2s forwards}
+.cue b{width:1px;height:30px;background:linear-gradient(var(--amber),transparent);
+  animation:fall 2.8s ease-in-out infinite;transform-origin:top}
+@keyframes fall{0%,100%{opacity:.18;transform:scaleY(.35)}50%{opacity:1;transform:scaleY(1)}}
+
+/* ── world shell ────────────────────────────────────── */
+.wd{padding-block:clamp(80px,13vh,168px);border-top:1px solid var(--edge);position:relative;overflow:hidden}
+.wd h2{font-size:clamp(1.9rem,4.6vw,3.9rem);max-width:26ch;margin-top:16px}
+.hd{display:grid;gap:clamp(14px,1.8vw,22px)}
+.hd .lead{justify-self:end}
+.meta{display:flex;gap:22px;flex-wrap:wrap;font-family:var(--m);font-size:11px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
+.meta b{color:var(--acc);font-weight:500}
+.dev{border:1px solid var(--edge);background:var(--lift);overflow:hidden}
+.dev figcaption{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--edge);
+  font-family:var(--m);font-size:11px;color:var(--dim);letter-spacing:.05em;background:var(--bg2)}
+.dev figcaption i{width:6px;height:6px;border-radius:50%;background:var(--acc);flex:none;font-style:normal}
+.dev .im{overflow:hidden}
+.dev img{width:100%;transition:transform 1.4s var(--ez)}
+.dev:hover img{transform:scale(1.02)}
+.fig{display:flex;gap:clamp(26px,4vw,64px);flex-wrap:wrap;margin-top:clamp(28px,3.6vw,48px)}
+.fig div b{font-family:var(--d);font-weight:800;font-size:clamp(1.9rem,4vw,3.1rem);display:block;
+  line-height:.9;letter-spacing:-.04em}
+.fig div span{font-family:var(--m);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dim);display:block;margin-top:10px;max-width:17ch}
+
+/* ── 2 · health & geospatial ────────────────────────── */
+.med{--acc:var(--teal);background:#03100D;--edge:#173028;--bg2:#061912}
+:root[data-t="light"] .med{background:#E2EDE7;--edge:#BCCFC5;--bg2:#D6E5DC}
+.med .full{margin-top:clamp(32px,4.4vw,60px);border:1px solid var(--edge);overflow:hidden;position:relative}
+.med .full img{width:100%}
+.med .pair{display:grid;gap:clamp(16px,2vw,26px);margin-top:clamp(16px,2vw,26px)}
+@media(min-width:900px){.med .pair{grid-template-columns:1.12fr .88fr}}
+.med .pair figure{border:1px solid var(--edge);overflow:hidden;background:var(--lift)}
+.med .pair img{width:100%}
+
+/* ── 3 · autonomous systems ─────────────────────────── */
+.uav{--acc:var(--amber)}
+.spec{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
+  margin-top:clamp(30px,4vw,54px)}
+@media(min-width:760px){.spec{grid-template-columns:repeat(4,1fr)}}
+.spec div{background:var(--bg);padding:clamp(20px,2.4vw,28px) 20px}
+.spec b{font-family:var(--d);font-weight:800;font-size:clamp(1.5rem,2.8vw,2.2rem);display:block;
+  letter-spacing:-.04em;line-height:1}
+.spec span{font-family:var(--m);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dim);display:block;margin-top:9px;line-height:1.6}
+.runs{margin-top:clamp(30px,4vw,54px);border:1px solid var(--edge);background:var(--bg2);padding:clamp(18px,2.4vw,28px)}
+.runs canvas{width:100%;height:clamp(150px,20vh,210px);display:block}
+.runs .rl{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:14px;
+  font-family:var(--m);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
+.stack{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.stack span{font-family:var(--m);font-size:11px;letter-spacing:.06em;color:var(--mid);
+  border:1px solid var(--edge);padding:6px 11px;border-radius:99px}
+
+/* ── 4 · security & assurance ───────────────────────── */
+.sec{--acc:var(--cool);background:var(--bg2)}
+.grid3{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
+  margin-top:clamp(30px,4vw,54px)}
+@media(min-width:920px){.grid3{grid-template-columns:repeat(3,1fr)}}
+.grid3 article{background:var(--bg2);padding:clamp(24px,2.8vw,34px) clamp(20px,2.2vw,28px);
+  display:flex;flex-direction:column;gap:13px}
+.grid3 h3{font-family:var(--d);font-weight:700;font-size:clamp(1.15rem,2vw,1.5rem);letter-spacing:-.03em}
+.grid3 p{font-size:15px;color:var(--mid)}
+.grid3 .n{font-family:var(--m);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dim);margin-top:auto;padding-top:8px;border-top:1px solid var(--edge);line-height:1.7}
+.grid3 .n b{color:var(--cool);font-weight:500}
+
+/* ── 5 · infrastructure ─────────────────────────────── */
+.inf{--acc:var(--ok)}
+.split{display:grid;gap:clamp(30px,4vw,64px);margin-top:clamp(30px,4vw,54px)}
+.split>div,.grid3 article,.spec div,.line article,.line .tx,.med .pair figure{min-width:0}
+.crypt div,.crypt span,.grid3 p,.split>div>p{min-width:0;overflow-wrap:anywhere}
+@media(min-width:960px){.split{grid-template-columns:1fr 1fr}}
+.split h3{font-family:var(--d);font-weight:700;font-size:clamp(1.25rem,2.2vw,1.7rem);letter-spacing:-.03em}
+.split>div>p{color:var(--mid);margin-top:12px;font-size:15.5px}
+.tbl{margin-top:22px;border:1px solid var(--edge);overflow-x:auto}
+.tbl table{border-collapse:collapse;width:100%;font-family:var(--m);font-size:12px;min-width:330px}
+.tbl th,.tbl td{padding-inline:clamp(8px,2.2vw,13px)}
+.tbl th{text-align:left;padding:10px 13px;background:var(--lift);color:var(--dim);
+  font-weight:500;letter-spacing:.1em;text-transform:uppercase;font-size:10px;white-space:nowrap}
+.tbl td{padding:11px 13px;border-top:1px solid var(--edge);color:var(--mid);white-space:nowrap}
+.tbl td:first-child{color:var(--ink)}
+
+.tbl td.good{color:var(--ok)}
+.tbl td.bad{color:var(--coral)}
+.crypt{margin-top:20px;display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge)}
+.crypt div{background:var(--bg);padding:13px 16px;display:flex;gap:14px;align-items:baseline;
+  font-family:var(--m);font-size:12.5px}
+.crypt b{color:var(--ink);font-weight:500;min-width:13ch}
+.crypt span{color:var(--mid);font-family:var(--b);font-size:14.5px}
+
+/* ── 6 · operating products ─────────────────────────── */
+.ops{--acc:var(--amber)}
+.line{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
+  margin-top:clamp(30px,4vw,54px)}
+@media(min-width:680px){.line{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1100px){.line{grid-template-columns:repeat(4,1fr)}}
+.line article{background:var(--bg);display:grid;grid-template-columns:1fr;grid-template-rows:auto 1fr;position:relative}
+.line .th{overflow:hidden;border-bottom:1px solid var(--edge);aspect-ratio:16/10;background:var(--lift)}
+.line .th img{width:100%;height:100%;object-fit:cover;object-position:50% 0;
+  transition:transform 1.2s var(--ez)}
+.line article:hover .th img{transform:scale(1.04)}
+.line .tx{padding:clamp(20px,2.4vw,28px)}
+.line h3{font-family:var(--d);font-weight:700;font-size:clamp(1.15rem,2vw,1.45rem);letter-spacing:-.03em}
+.line p{font-size:14px;color:var(--mid);margin-top:8px}
+.line .u{font-family:var(--m);font-size:11px;letter-spacing:.06em;color:var(--dim);margin-top:13px;
+  display:flex;align-items:center;gap:9px}
+.line .u i{width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none;font-style:normal;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 18%,transparent)}
+.more{margin-top:clamp(24px,3vw,38px);display:flex;gap:26px;flex-wrap:wrap;align-items:baseline}
+.more a{font-family:var(--m);font-size:12px;letter-spacing:.06em;color:var(--amber);text-decoration:none;
+  border-bottom:1px solid color-mix(in srgb,var(--amber) 35%,transparent);padding-bottom:2px}
+.more a:hover{border-bottom-color:currentColor}
+.more span{font-family:var(--m);font-size:11.5px;color:var(--dim)}
+
+/* ── 7 · close ──────────────────────────────────────── */
+.inv{border-top:1px solid var(--edge);padding-block:clamp(84px,14vh,180px);--acc:var(--amber)}
+.inv h2{font-size:clamp(2.2rem,6.4vw,5.4rem);max-width:13ch}
+.inv .row{display:flex;justify-content:space-between;gap:28px;flex-wrap:wrap;align-items:flex-end;
+  margin-top:clamp(36px,5vw,60px);padding-top:26px;border-top:1px solid var(--edge);
+  color:var(--mid);font-size:14.5px}
+.inv a{font-family:var(--d);font-weight:700;font-size:clamp(1.05rem,2.2vw,1.6rem);letter-spacing:-.03em;
+  color:var(--amber);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--amber) 35%,transparent);
+  padding-bottom:3px;transition:border-color .3s}
+.inv a:hover{border-bottom-color:currentColor}
+.fin{display:flex;gap:26px;flex-wrap:wrap;padding-block:24px;border-top:1px solid var(--edge);
+  font-family:var(--m);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
+
+.rv{opacity:0;transform:translateY(20px)}
+.rv.in{opacity:1;transform:none;transition:opacity .85s var(--ez),transform .85s var(--ez)}
+
+@media(max-width:900px){
+  nav ul{display:none}
+  nav .w{gap:14px}
+  .tg{margin-left:auto}
+  .arr{min-height:92svh;padding-top:96px;display:block;padding-bottom:40px}
+  .arr>.w{display:flex;flex-direction:column;justify-content:center;min-height:62svh}
+  h1{font-size:clamp(1.8rem,7.4vw,2.5rem);max-width:none;text-wrap:balance}
+  h1 .ln{display:inline;overflow:visible}
+  h1 .ln i{display:inline;transform:none;animation:fade .9s forwards;opacity:0}
+  #tel{width:100%;mask-image:linear-gradient(transparent,#000 16%,#000 50%,transparent 82%)}
+  #tel.in{opacity:.5}
+  #tel.in{opacity:.4}
+  .arr::after{background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 88%,transparent) 6%,var(--bg) 26%,var(--bg) 74%,color-mix(in srgb,var(--bg) 86%,transparent))}
+  .cue{display:none}
+  .wd h2{font-size:clamp(1.6rem,6.9vw,2.3rem)}
+  .hd .lead{justify-self:start}
+  .crypt div{flex-direction:column;gap:5px}
+  .crypt b{min-width:0}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .rv{opacity:1!important;transform:none!important}
+  h1 .ln i{transform:none}
+  #tel{opacity:.4}
+  html{scroll-behavior:auto}
+}
+</style></head><body>
+
+<nav id="nav"><div class="w">
+  <a class="lg" href="#top">LESNAR<em></em>AI</a>
+  <ul><li><a href="#medimatch">Research</a></li><li><a href="#sentinel">Autonomy</a></li>
+      <li><a href="#security">Security</a></li><li><a href="#contact">Contact</a></li></ul>
+  <button class="tg" id="tg" aria-label="Switch to the light theme">
+    <svg class="moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg>
+  </button>
+</div></nav>
+
+<!-- 1 · arrival -->
+<header class="arr" id="top">
+  <canvas id="tel" aria-hidden="true"></canvas>
+  <div class="w">
+    <p class="k">Nairobi</p>
+    <h1><span class="ln"><i>Built for the <em>conditions</em></i></span> <span class="ln"><i>everything else</i></span> <span class="ln"><i>assumes away.</i></span></h1>
+    <p class="lead">A national health-logistics platform. An autonomous flight stack for GPS-denied
+      airspace. A security operations control plane. And products running every day in Kenya.</p>
+    <p class="telcap">Behind this page: 71,813 obstacle and proximity events recorded across 87
+      simulation runs of our own autonomy stack, 13 to 16 April 2026. Thirty-four runs registered
+      detections. Fifty-three flew clean.</p>
+  </div>
+  <div class="cue" aria-hidden="true"><b></b> Scroll</div>
+</header>
+
+<!-- 2 · health and geospatial research -->
+<section class="wd med" id="medimatch"><div class="w rv">
+  <div class="hd">
+    <div>
+      <p class="k">MediMatch</p>
+      <h2>Hospitals let supplies expire while county facilities run out.</h2>
+    </div>
+    <p class="lead">A geospatial platform that makes that gap visible and routes surplus across it,
+      ranked by distance, urgency, verification and product fit, over real road geometry.</p>
+  </div>
+
+  <figure class="full">
+    <picture><source media="(max-width:900px)" srcset="img/mm-national-m.jpg"><img src="img/mm-national.jpg" alt="MediMatch national redistribution command: a dark map of Kenya with facilities plotted as surplus hubs and urgent needs, showing a selected 810 kilometre coordination route from Nairobi to Mandera and a coordinator brief panel."></picture>
+  </figure>
+
+  <div class="pair">
+    <figure><picture><source media="(max-width:900px)" srcset="img/mm-nairobi-m.jpg"><img src="img/mm-nairobi.jpg" alt="The Nairobi County research view: fifty facilities on a street-scale map with forty-three transfers, beside a four-step explanation of detect, rank, match and route."></picture></figure>
+    <figure><img src="img/mm-heat.jpg" alt="MediMatch demand heatmap showing where shortfall concentrates across the country."></figure>
+  </div>
+
+  <div class="fig">
+    <div><b>64</b><span>Healthcare professionals surveyed</span></div>
+    <div><b>56.3%</b><span>Face stockouts weekly or monthly</span></div>
+    <div><b>89.1%</b><span>Willing to pilot redistribution</span></div>
+    <div><b>57%</b><span>KEMSA national order fill rate</span></div>
+  </div>
+
+  <p class="note" style="margin-top:26px">Built on original field research conducted at USIU-Africa,
+    Nairobi, and presented at a health conference hosted by Unique Conferences Canada. Survey figures
+    are the unedited response counts, n=64. Facility inventory shown in the platform is synthetic.
+    No patient records are used anywhere in the system.</p>
+</div></section>
+
+<!-- 3 · autonomous systems -->
+<section class="wd uav" id="sentinel"><div class="w rv">
+  <div class="hd">
+    <div>
+      <p class="k">Operation Sentinel</p>
+      <h2>A drone that has to keep flying when the satellites go quiet.</h2>
+    </div>
+    <p class="lead">An offline-capable command-and-control and training stack for GPS-degraded and
+      GPS-denied conditions. Nothing critical depends on a network while a mission is running.</p>
+  </div>
+
+  <div class="spec">
+    <div><b>100</b><span>Drone agents tracked per operational cell</span></div>
+    <div><b>50</b><span>Concurrent operators per node</span></div>
+    <div><b>20&ndash;30 Hz</b><span>Telemetry polling rate</span></div>
+    <div><b>10</b><span>Concurrent command writers, queue-locked</span></div>
+  </div>
+
+  <div class="runs">
+    <canvas id="runs" aria-hidden="true"></canvas>
+    <p class="rl"><span>87 recorded runs &middot; 13 to 16 April 2026</span>
+      <span>53,971 obstacle &middot; 17,842 proximity</span>
+      <span>x500 airframe</span></p>
+  </div>
+
+  <p class="stack"><span>PX4 SITL</span><span>Gazebo Harmonic</span><span>AirSim</span>
+    <span>MAVSDK teacher bridge</span><span>Redis</span><span>TimescaleDB</span><span>Flask</span><span>React</span></p>
+
+  <p class="note" style="margin-top:24px">LESNAR AI built the autonomy bridge, mission logic,
+    telemetry pipeline and operator system, and integrated the PX4, Gazebo and AirSim projects,
+    which are the work of their own upstream maintainers. The stack is simulation-validated.
+    No physical airframe has been flown.</p>
+</div></section>
+
+<!-- 4 · security and assurance -->
+<section class="wd sec" id="security"><div class="w rv">
+  <div class="hd">
+    <div>
+      <p class="k">Security and assurance</p>
+      <h2>Most of this work is done under conditions we cannot show you.</h2>
+    </div>
+    <p class="lead">Authorised, scoped and evidence-bound engagements, and the tooling we built
+      because the engagements demanded it.</p>
+  </div>
+
+  <div class="grid3">
+    <article>
+      <h3>SentinelCore</h3>
+      <p>A Linux security operations control plane: authorised assessment, detection and
+        correlation, SIEM intake, adversary emulation and a remediation path that is the only
+        part permitted to change a host.</p>
+      <p class="n"><b>391</b> source files &middot; <b>120</b> test files &middot; <b>28</b> subsystems<br>
+        Purple-team campaigns and blind operational qualification</p>
+    </article>
+    <article>
+      <h3>Institutional engagements</h3>
+      <p>Board-level forensic cybersecurity and money-flow investigation for a financial
+        cooperative. A university cyber-resilience programme governed by exact-scope targets,
+        test windows, least-privilege module profiles and a stop-work control.</p>
+      <p class="n">Client names, targets, evidence and findings remain confidential</p>
+    </article>
+    <article>
+      <h3>Vulnerability research</h3>
+      <p>A high-severity smart-contract finding proving that a standard voluntary close can
+        transfer below-liquidation-margin value to the trader, with a patch that zeroes the
+        improper transfer and leaves healthy closes intact.</p>
+      <p class="n"><b>7</b> passing tests in one canonical run &middot; repeatable across cycles<br>
+        Maximum bounded improper payout <b>37,499.22 USDC</b></p>
+    </article>
+  </div>
+
+  <p class="note" style="margin-top:26px">We publish the shape and scale of this work, never the
+    targets, the findings, the evidence or the exploit paths. Engagement material stays with
+    the client.</p>
+</div></section>
+
+<!-- 5 · infrastructure -->
+<section class="wd inf"><div class="w rv">
+  <div class="hd">
+    <div>
+      <p class="k">Infrastructure</p>
+      <h2>Two systems we built because we did not trust the alternatives.</h2>
+    </div>
+    <p class="lead">A secure communications relay in Rust, and a private model foundry that
+      qualifies a model before anything is allowed to depend on it.</p>
+  </div>
+
+  <div class="split">
+    <div>
+      <h3>Simy</h3>
+      <p>A privacy-preserving communications platform for high-risk use. A shared Rust
+        cryptographic core, a durable ciphertext relay that never inspects message content,
+        and encrypted session persistence that survives a restart.</p>
+      <div class="crypt">
+        <div><b>comm-core</b><span>X3DH prekey generation, bundle verification, shared-secret derivation</span></div>
+        <div><b>ratchet</b><span>Double Ratchet sessions with encrypted file-backed persistence</span></div>
+        <div><b>relay</b><span>PostgreSQL mailboxes, Redis replay detection and throttling, TTL cleanup</span></div>
+        <div><b>clients</b><span>Android Kotlin ratchet store under instrumented test, Tauri desktop reference</span></div>
+      </div>
+    </div>
+    <div>
+      <h3>Model foundry</h3>
+      <p>A dedicated volume, a provenance registry and an isolated lab where a model is
+        measured before it is trusted. The first baseline compared two runtimes on the same
+        hash-pinned open-weight model.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Runtime</th><th>Task pass</th><th>Repeatable</th><th>Prompt injection</th></tr></thead>
+        <tbody>
+          <tr><td>llama.cpp</td><td>80%</td><td>8/10</td><td class="good">Held</td></tr>
+          <tr><td>Ollama</td><td>60%</td><td>6/10</td><td class="bad">Followed it</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note" style="margin-top:16px">Qwen2.5-Coder-7B-Instruct Q4_K_M, pinned by SHA-256.
+        Ollama followed an untrusted instruction embedded in the task in both repetitions. The
+        baseline is qualified for local coding work with human review, and for nothing else.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 6 · operating products -->
+<section class="wd ops"><div class="w rv">
+  <div class="hd">
+    <div>
+      <p class="k">Operating in Kenya</p>
+      <h2>The part of the work that people use without knowing our name.</h2>
+    </div>
+    <p class="lead">Commercial and civic products we build, run and operate ourselves.</p>
+  </div>
+
+  <div class="line">
+    <article>
+      <div class="th"><img style="object-position:0% 0%" src="img/biz-venue.jpg" alt="The Villager on BizMtaani: a food and drink venue in Embu, Kenya, marked open for orders above a priced menu."></div>
+      <div class="tx"><h3>BizMtaani</h3>
+        <p>A marketplace where shops list what they actually sell, customers pay from a phone,
+          and riders carry it. One listed business: The Villager, in Embu.</p>
+        <p class="u"><i></i> bizmtaani.com</p></div>
+    </article>
+    <article>
+      <div class="th"><img style="object-position:50% 6%" src="img/carepro-verify.jpg" alt="CarePro's published verification panel: four numbered stages ending in clinical sign-off by a registered nurse."></div>
+      <div class="tx"><h3>CarePro</h3>
+        <p>Home nursing coordination. Licences checked against the Nursing Council register,
+          an interview on a clinical rubric, then a registered nurse reads the whole file.</p>
+        <p class="u"><i></i> carepro.co.ke</p></div>
+    </article>
+    <article>
+      <div class="th"><img style="object-position:8% 50%" src="img/hazina-room.jpg" alt="Hazina Nomads: an annotated photograph of a curated Kenyan collection beside a curator's note."></div>
+      <div class="tx"><h3>Hazina Nomads</h3>
+        <p>Private Kenyan sourcing for travellers and diaspora families. No checkout. A brief,
+          a curator who takes it on, and a conversation that carries on in WhatsApp.</p>
+        <p class="u"><i></i> hazina.lesnarai.co.ke</p></div>
+    </article>
+    <article>
+      <div class="th"><img style="object-position:0% 26%" src="img/jamii-list.jpg" alt="Jamii Projects Hub: community project records open for public voting."></div>
+      <div class="tx"><h3>Jamii Projects Hub</h3>
+        <p>Community projects, votes, contributions and records built to survive scrutiny.
+          Running as a pilot in Mbeere North.</p>
+        <p class="u"><i></i> Pilot</p></div>
+    </article>
+  </div>
+
+  <p class="more"><span>Also running or in build: Gen-Eat at USIU, Elixirs in Nairobi, a platform
+    for Sarepta Children Rescue Center, Campus Map, and Cypher.</span></p>
+</div></section>
+
+<!-- 7 · close -->
+<section class="inv" id="contact"><div class="w rv">
+  <h2>Bring the problem, not the specification.</h2>
+  <div class="row">
+    <span>A paragraph about what is going wrong is enough.<br>We reply within two working days.</span>
+    <a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a>
+  </div>
+</div></section>
+<footer><div class="w"><div class="fin">
+  <span>LESNAR AI LTD &middot; Nairobi, Kenya</span>
+</div></div></footer>
+
+<script>
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const root=document.documentElement;
+
+/* theme */
+const tg=document.getElementById('tg');
+tg.addEventListener('click',()=>{
+  root.dataset.t = root.dataset.t==='dark' ? 'light' : 'dark';
+  tg.setAttribute('aria-label', root.dataset.t==='dark'
+    ? 'Switch to the light theme' : 'Switch to the dark theme');
+  draw(); drawRuns();
+});
+
+/* reveals */
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.1});
+document.querySelectorAll('.rv').forEach(e=>io.observe(e));
+
+/* nav */
+const nav=document.getElementById('nav');let last=0;
+addEventListener('scroll',()=>{const y=scrollY;
+  nav.classList.toggle('stuck',y>40);
+  nav.classList.toggle('hide',y>last&&y>420); last=y;},{passive:true});
+
+/* ── real recorded telemetry ─────────────────────────── */
+let TEL=null;
+const cv=document.getElementById('tel'), ctx=cv.getContext('2d');
+const rc=document.getElementById('runs'), rx=rc.getContext('2d');
+
+function css(n){return getComputedStyle(root).getPropertyValue(n).trim()}
+
+function draw(){
+  if(!TEL) return;
+  const dpr=Math.min(2,devicePixelRatio||1);
+  const W=cv.clientWidth, H=cv.clientHeight;
+  if(!W||!H) return;
+  cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  /* a recording strip: one row per run that registered detections,
+     one stroke per confidence bucket, height by confidence */
+  const runs=TEL.runs, amber=css('--amber'), coral=css('--coral');
+  const rows=runs.length, gap=H/rows;
+  const pad=W*0.05, span=W-pad*2;
+  runs.forEach((r,i)=>{
+    const y=gap*(i+0.5);
+    const m=r.b.length, step=span/m;
+    const prox=r.p/r.n;
+    ctx.strokeStyle = prox>0.45 ? coral : amber;
+    ctx.globalAlpha = 0.20 + Math.min(0.62, r.n/9000);
+    ctx.lineWidth=1.3; ctx.lineCap='round';
+    ctx.beginPath();
+    for(let j=0;j<m;j++){
+      const x=pad+j*step+step*0.5;
+      const h=Math.min(1,r.b[j]/2)*gap*0.82;
+      ctx.moveTo(x,y-h/2); ctx.lineTo(x,y+h/2);
+    }
+    ctx.stroke();
+    /* baseline for the row */
+    ctx.globalAlpha=0.10;
+    ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(pad+span,y); ctx.stroke();
+  });
+  ctx.globalAlpha=1;
+}
+
+function drawRuns(){
+  if(!TEL) return;
+  const dpr=Math.min(2,devicePixelRatio||1);
+  const W=rc.clientWidth, H=rc.clientHeight;
+  rc.width=W*dpr; rc.height=H*dpr; rx.setTransform(dpr,0,0,dpr,0,0);
+  rx.clearRect(0,0,W,H);
+  const runs=TEL.runs, amber=css('--amber'), edge=css('--edge'), dim=css('--dim');
+  const total=TEL.allRuns, colW=W/total;
+  // baseline
+  rx.strokeStyle=edge; rx.lineWidth=1;
+  rx.beginPath(); rx.moveTo(0,H-.5); rx.lineTo(W,H-.5); rx.stroke();
+  // every run gets a slot; empty runs draw a tick only
+  let ri=0;
+  const byId={}; runs.forEach(r=>{byId[r.d]=r});
+  const keys=Object.keys(byId).sort();
+  for(let i=0;i<total;i++){
+    const x=i*colW;
+    const r=i<keys.length?byId[keys[i]]:null;
+    rx.fillStyle=dim; rx.globalAlpha=.5;
+    rx.fillRect(x+colW*.35,H-4,Math.max(1,colW*.3),4);
+  }
+  runs.forEach((r,i)=>{
+    const x=(i*(W/runs.length));
+    const w=Math.max(2,(W/runs.length)*.62);
+    const h=(r.n/14000)*(H-14);
+    const g=rx.createLinearGradient(0,H-h,0,H);
+    g.addColorStop(0,amber); g.addColorStop(1,'transparent');
+    rx.globalAlpha=.85; rx.fillStyle=g;
+    rx.fillRect(x,H-h-4,w,h);
+    // proximity share
+    const ph=h*(r.p/r.n);
+    rx.globalAlpha=.9; rx.fillStyle=css('--coral');
+    rx.fillRect(x,H-ph-4,w,ph);
+  });
+  rx.globalAlpha=1;
+}
+
+fetch('telemetry.json').then(r=>r.json()).then(d=>{
+  TEL=d; draw(); drawRuns();
+  requestAnimationFrame(()=>cv.classList.add('in'));
+}).catch(()=>{ cv.style.display='none'; });
+
+let t; addEventListener('resize',()=>{clearTimeout(t);t=setTimeout(()=>{draw();drawRuns();},180)});
+</script></body></html>
