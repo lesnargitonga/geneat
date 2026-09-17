@@ -67,10 +67,7 @@ h1{font-family:var(--d);font-weight:600;line-height:1.02;letter-spacing:-.02em;
   font-size:clamp(2.2rem,4.3vw,3.7rem);max-width:19ch}
 h1 em{font-style:normal}
 h1 .ln{display:block;overflow:hidden}
-h1 .ln i{display:block;font-style:normal;transform:translateY(106%);animation:rise 1s var(--ez) forwards}
-h1 .ln:nth-child(2) i{animation-delay:.08s}
-h1 .ln:nth-child(3) i{animation-delay:.16s}
-@keyframes rise{to{transform:none}}
+h1 .ln i{display:block;font-style:normal}
 .define{margin-top:clamp(26px,3.2vw,38px);max-width:48ch;font-size:clamp(1.05rem,1.35vw,1.22rem);
   line-height:1.55;color:var(--ink);opacity:0;animation:fade 1s .5s forwards}
 .proof{margin-top:clamp(18px,2.2vw,26px);max-width:52ch;font-size:15px;line-height:1.6;
@@ -247,8 +244,9 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 .inv a:hover{text-decoration-color:currentColor}
 .fin{display:flex;gap:26px;flex-wrap:wrap;padding-block:26px;font-size:13.5px;color:var(--dim)}
 
-.rv{opacity:0;transform:translateY(20px)}
-.rv.in{opacity:1;transform:none;transition:opacity .85s var(--ez),transform .85s var(--ez)}
+.rv{opacity:0;transform:scale(.96) translateZ(0)}
+.rv.in{opacity:1;transform:scale(1) translateZ(0);
+  transition:opacity .85s var(--ez),transform .85s var(--ez)}
 
 @media(max-width:900px){
   nav .w{flex-wrap:wrap;gap:0 14px;padding-block:13px 0}
@@ -260,7 +258,7 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
   .arr>.w{display:block}
   h1{font-size:clamp(1.8rem,7.4vw,2.5rem);max-width:none;text-wrap:balance}
   h1 .ln{display:inline;overflow:visible}
-  h1 .ln i{display:inline;transform:none;animation:fade .9s forwards;opacity:0}
+  h1 .ln i{display:inline}
   #tel{width:100%;mask-image:linear-gradient(transparent,#000 14%,#000 62%,transparent 96%)}
   #tel.in{opacity:.85}
   .terrain{min-height:auto;padding-block:clamp(70px,11vh,110px) 0}
@@ -303,7 +301,6 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   .rv{opacity:1!important;transform:none!important}
-  h1 .ln i{transform:none}
   #tel{opacity:.4}
   html{scroll-behavior:auto}
 }
@@ -744,4 +741,87 @@ fetch('telemetry.json')
   .catch(e=>{ console.warn('[telemetry]',e.message); if(cv) cv.style.display='none'; });
 
 let rsz; addEventListener('resize',()=>{clearTimeout(rsz);rsz=setTimeout(Paint.all,180)},{passive:true});
+
+/* ═══════════════════════════════════════════════════════
+   decrypt · a heading arrives as signal and resolves to type.
+   the accessible name is set once, up front, and never changes;
+   the scrambling glyphs are hidden from assistive tech entirely.
+   ═══════════════════════════════════════════════════════ */
+const Decrypt=(()=>{
+  const POOL='0123456789ABCDEF+-_/\\|*';
+  const START_MS=150, FRAME_MS=42;   /* ~24fps: glyphs read as glyphs */
+  const prepared=new Map();
+
+  /* wrap every leaf text node so markup (em, span.ln) survives intact */
+  function prep(h){
+    const walk=document.createTreeWalker(h,NodeFilter.SHOW_TEXT);
+    const nodes=[]; let n;
+    while(n=walk.nextNode()) if(n.textContent.trim()) nodes.push(n);
+    if(!nodes.length) return null;
+    h.setAttribute('aria-label', h.textContent.replace(/\s+/g,' ').trim());
+    const cells=nodes.map(node=>{
+      const sp=document.createElement('span');
+      sp.setAttribute('aria-hidden','true');
+      sp.dataset.dc='pending';
+      sp.textContent=node.textContent;
+      node.parentNode.replaceChild(sp,node);
+      return {el:sp,text:sp.textContent};
+    });
+    const rec={h,cells};
+    prepared.set(h,rec);
+    return rec;
+  }
+
+  function settle(rec){
+    rec.cells.forEach(c=>{ c.el.textContent=c.text; c.el.dataset.dc='done'; });
+    rec.h.style.height=''; rec.h.style.overflow='';
+  }
+
+  function start(rec){
+    if(Motion.reduced){ settle(rec); return; }
+    /* hold the real height and clip: scrambled glyphs are wider than the
+       serif and would otherwise push an extra line, moving the whole page */
+    rec.h.style.height=rec.h.getBoundingClientRect().height+'px';
+    rec.h.style.overflow='hidden';
+    /* one bounded lock time, so a long heading does not take three seconds */
+    const chars=rec.cells.reduce((a,c)=>a+c.text.length,0);
+    const DUR=Math.min(1250,Math.max(620,chars*24));
+    let acc=FRAME_MS;
+    Motion.run((dt,elapsed)=>{
+      const t=elapsed-START_MS;
+      if(t<0) return true;
+      acc+=dt; if(acc<FRAME_MS) return true; acc=0;
+      const frontier=(t/DUR)*chars;
+      let done=true, i=0;
+      for(const cell of rec.cells){
+        let out='';
+        for(let k=0;k<cell.text.length;k++,i++){
+          const ch=cell.text[k];
+          if(ch===' '||ch==='\n'||ch==='\t'){ out+=ch; continue; }
+          if(i<frontier) out+=ch;
+          else { out+=POOL[(Math.random()*POOL.length)|0]; done=false; }
+        }
+        if(cell.el.textContent!==out) cell.el.textContent=out;
+      }
+      if(done){ settle(rec); return false; }
+      return true;
+    });
+  }
+
+  return {
+    init(sel){
+      const recs=[...document.querySelectorAll(sel)].map(prep).filter(Boolean);
+      if(Motion.reduced){ recs.forEach(settle); return; }
+      const io=new IntersectionObserver(es=>es.forEach(e=>{
+        if(!e.isIntersecting) return;
+        io.unobserve(e.target);
+        const rec=prepared.get(e.target);
+        if(rec) start(rec);
+      }),{threshold:.25,rootMargin:'0px 0px -6% 0px'});
+      recs.forEach(r=>io.observe(r.h));
+    }
+  };
+})();
+
+Decrypt.init('h1, .wd h2, .inv h2');
 </script></body></html>
