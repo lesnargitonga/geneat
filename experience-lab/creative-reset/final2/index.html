@@ -8,7 +8,7 @@
 :root{
   --bg:#04060A; --bg2:#080C13; --lift:#0F151F; --edge:#1A2230;
   --ink:#EFF3F8; --mid:#9AA8BB; --dim:#828F9F;
-  --amber:#FF9A3C; --teal:#2FD8A8; --coral:#FF5C6E; --cool:#6FC8FF; --ok:#5FD08B;
+  --amber:#C8924F; --teal:#5E9B86; --coral:#C2665E; --cool:#8296AB; --ok:#7FA383;
   --acc:var(--amber);
   --d:"Syne",sans-serif; --b:"Inter Tight",system-ui,-apple-system,sans-serif;
   --m:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -17,7 +17,7 @@
 :root[data-t="light"]{
   --bg:#EFEEEA; --bg2:#E5E4DF; --lift:#FBFBF9; --edge:#CECDC7;
   --ink:#0A0C10; --mid:#464F5C; --dim:#5A636E;
-  --amber:#A04C04; --teal:#0A6B4F; --coral:#B02436; --cool:#0A6188; --ok:#0E6B3C;
+  --amber:#8A5A1F; --teal:#2F6152; --coral:#8F3A33; --cool:#3D566B; --ok:#3B6642;
 }
 *{box-sizing:border-box;margin:0}
 html{scroll-behavior:smooth}
@@ -50,7 +50,7 @@ nav ul a:hover{color:var(--ink)}
 .tg{width:32px;height:32px;border:1px solid color-mix(in srgb,var(--mid) 42%,transparent);
   background:none;border-radius:50%;cursor:pointer;color:var(--mid);display:grid;place-items:center;
   transition:.35s var(--ez);flex:none}
-.tg:hover{color:var(--amber);border-color:var(--amber);transform:rotate(-30deg)}
+.tg:hover{color:var(--amber);border-color:var(--amber)}
 .tg svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round}
 .tg .sun{display:none}:root[data-t="light"] .tg .sun{display:block}
 :root[data-t="light"] .tg .moon{display:none}
@@ -81,9 +81,7 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 .cue{position:absolute;left:var(--pad);bottom:clamp(20px,3vh,34px);z-index:5;font-family:var(--m);
   font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);
   display:flex;align-items:center;gap:11px;opacity:0;animation:fade 1s 1.2s forwards}
-.cue b{width:1px;height:30px;background:linear-gradient(var(--amber),transparent);
-  animation:fall 2.8s ease-in-out infinite;transform-origin:top}
-@keyframes fall{0%,100%{opacity:.18;transform:scaleY(.35)}50%{opacity:1;transform:scaleY(1)}}
+.cue b{width:22px;height:1px;background:var(--dim)}
 
 /* ── world shell ────────────────────────────────────── */
 .wd{padding-block:clamp(72px,10.5vh,136px);border-top:1px solid var(--edge);position:relative;overflow:hidden}
@@ -110,19 +108,19 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
   color:var(--dim);display:block;margin-top:10px;max-width:17ch}
 
 /* ── 2 · health & geospatial: terrain, not a slide deck ── */
-.med{--acc:var(--teal);background:#03100D;--edge:#173028;--bg2:#061912;
+.med{--acc:var(--teal);background:#070E0C;border-top-color:transparent;--edge:#1B2725;--bg2:#0A1412;
   padding:0;border-top:1px solid var(--edge)}
-:root[data-t="light"] .med{background:#E2EDE7;--edge:#BCCFC5;--bg2:#D6E5DC}
+:root[data-t="light"] .med{background:#E7EAE6;--edge:#C5CCC6;--bg2:#DCE1DB}
 .terrain{position:relative;min-height:min(104svh,980px);display:flex;align-items:flex-end;
   padding-block:clamp(90px,13vh,150px) 0;overflow:hidden}
 .terrain .map{position:absolute;inset:0}
 .terrain .map img{width:100%;height:100%;object-fit:cover;object-position:62% 46%}
 .terrain::after{content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(88deg,#03100D 22%,color-mix(in srgb,#03100D 72%,transparent) 50%,transparent 78%),
-             linear-gradient(#03100D 2%,transparent 22%,transparent 58%,#03100D 99%)}
+  background:linear-gradient(88deg,#070E0C 22%,color-mix(in srgb,#070E0C 72%,transparent) 50%,transparent 78%),
+             linear-gradient(#070E0C 2%,transparent 22%,transparent 58%,#070E0C 99%)}
 :root[data-t="light"] .terrain::after{
-  background:linear-gradient(88deg,#E2EDE7 22%,color-mix(in srgb,#E2EDE7 72%,transparent) 50%,transparent 78%),
-             linear-gradient(#E2EDE7 2%,transparent 22%,transparent 58%,#E2EDE7 99%)}
+  background:linear-gradient(88deg,#E7EAE6 22%,color-mix(in srgb,#E7EAE6 72%,transparent) 50%,transparent 78%),
+             linear-gradient(#E7EAE6 2%,transparent 22%,transparent 58%,#E7EAE6 99%)}
 .terrain .w{position:relative;z-index:3;width:100%}
 .med h2{font-size:clamp(1.9rem,4.4vw,3.6rem);max-width:19ch;margin-top:16px}
 .med .lead{max-width:40ch;margin-top:20px}
@@ -150,7 +148,7 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 
 /* ── 3 · autonomy: a flight record laid along real time ── */
 .uav{--acc:var(--amber);padding-bottom:clamp(60px,9vh,110px)}
-.uav h2{max-width:16ch}
+.uav h2{max-width:20ch;font-size:clamp(1.75rem,3.6vw,2.9rem)}
 .pair-head{display:grid;gap:clamp(20px,3vw,48px);align-items:end}
 @media(min-width:1000px){.pair-head{grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr)}}
 .pair-head .lead{padding-bottom:6px}
@@ -158,7 +156,7 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 .record{position:relative;margin-top:clamp(40px,6vh,80px);
   border-top:1px solid var(--edge);border-bottom:1px solid var(--edge);
   background:linear-gradient(var(--bg),var(--bg2) 40%,var(--bg2) 60%,var(--bg))}
-.record canvas{width:100%;height:clamp(230px,34vh,360px);display:block}
+.record canvas{width:100%;height:clamp(180px,25vh,268px);display:block}
 .axis{display:flex;justify-content:space-between;padding:0 var(--pad) 13px;
   font-family:var(--m);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
 .axis.top{padding-top:13px;border-bottom:1px solid color-mix(in srgb,var(--edge) 60%,transparent)}
@@ -170,17 +168,18 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 .env .lbl{font-family:var(--m);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--dim);max-width:16ch;line-height:1.7;padding-top:5px}
 .env ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;
-  column-gap:clamp(26px,4vw,64px);row-gap:20px}
+  column-gap:clamp(18px,2.4vw,40px);row-gap:18px}
 .env li{display:flex;align-items:baseline;gap:11px;font-family:var(--m);font-size:11px;
   letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
-.env li b{font-family:var(--d);font-weight:800;font-size:clamp(1.35rem,2.6vw,2rem);
+.env li b{font-family:var(--d);font-weight:800;font-size:clamp(1.25rem,2.2vw,1.7rem);
   letter-spacing:-.04em;color:var(--ink);line-height:1}
-.stack{display:flex;gap:9px;flex-wrap:wrap;margin-top:clamp(26px,3.6vh,42px)}
-.stack span{font-family:var(--m);font-size:11px;letter-spacing:.06em;color:var(--mid);
-  border:1px solid var(--edge);padding:6px 11px;border-radius:99px}
+.stack{margin-top:clamp(24px,3.2vh,38px);font-family:var(--m);font-size:11.5px;
+  letter-spacing:.06em;color:var(--mid);line-height:2;max-width:74ch}
+.stack span::after{content:" \00B7 ";color:var(--dim)}
+.stack span:last-child::after{content:""}
 
 /* ── 4 · security: a dossier, with the withheld column visibly withheld ── */
-.sec{--acc:var(--cool);background:var(--bg2)}
+.sec{--acc:var(--cool);background:var(--bg2);border-top-color:transparent}
 .file{margin-top:clamp(34px,5vh,62px);border-top:1px solid var(--edge)}
 .file article{display:grid;gap:14px clamp(24px,3.4vw,56px);padding-block:clamp(26px,3.4vw,40px);
   border-bottom:1px solid var(--edge);align-items:start}
@@ -250,7 +249,7 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 .versus .r.event .c{color:var(--coral)}
 
 /* ── 6 · products: four unlike interfaces, at their own scale ── */
-.ops{--acc:var(--amber);padding-bottom:clamp(56px,8vh,104px)}
+.ops{--acc:var(--amber);padding-bottom:clamp(56px,8vh,104px);background:var(--bg2);border-top-color:transparent}
 .shelf{display:grid;gap:clamp(22px,3vw,44px);margin-top:clamp(34px,5vh,64px)}
 @media(min-width:900px){
   .shelf{grid-template-columns:repeat(12,1fr);align-items:start}
@@ -264,10 +263,10 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 .shelf .th img{width:100%;height:100%;object-fit:cover;transition:transform 1.3s var(--ez)}
 .shelf article:hover .th img{transform:scale(1.035)}
 .shelf .th::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--p)}
-.shelf article:nth-child(1){--p:#C98A1E}
-.shelf article:nth-child(2){--p:#7FA8E8}
-.shelf article:nth-child(3){--p:#C2A36A}
-.shelf article:nth-child(4){--p:#5FD08B}
+.shelf article:nth-child(1){--p:#B08340}
+.shelf article:nth-child(2){--p:#6B8099}
+.shelf article:nth-child(3){--p:#A08B62}
+.shelf article:nth-child(4){--p:#5E8468}
 .shelf article:nth-child(1) .th{aspect-ratio:16/9}
 .shelf article:nth-child(2) .th{aspect-ratio:1/1}
 .shelf article:nth-child(3) .th{aspect-ratio:16/9}
@@ -310,11 +309,11 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
   #tel{width:100%;mask-image:linear-gradient(transparent,#000 16%,#000 50%,transparent 82%)}
   #tel.in{opacity:.5}
   .terrain{min-height:auto;padding-block:clamp(70px,11vh,110px) 0}
-  .terrain .map img{object-position:50% 34%}
-  .terrain::after{background:linear-gradient(#03100D 4%,color-mix(in srgb,#03100D 60%,transparent) 26%,
-    color-mix(in srgb,#03100D 90%,transparent) 44%,#03100D 62%)}
-  :root[data-t="light"] .terrain::after{background:linear-gradient(#E2EDE7 4%,color-mix(in srgb,#E2EDE7 60%,transparent) 26%,
-    color-mix(in srgb,#E2EDE7 90%,transparent) 44%,#E2EDE7 62%)}
+  .terrain .map img{object-position:52% 40%;filter:contrast(1.06) saturate(.92)}
+  .terrain::after{background:linear-gradient(#070E0C 2%,color-mix(in srgb,#070E0C 52%,transparent) 20%,
+    color-mix(in srgb,#070E0C 74%,transparent) 40%,color-mix(in srgb,#070E0C 86%,transparent) 68%,#070E0C 96%)}
+  :root[data-t="light"] .terrain::after{background:linear-gradient(#E7EAE6 2%,color-mix(in srgb,#E7EAE6 52%,transparent) 20%,
+    color-mix(in srgb,#E7EAE6 74%,transparent) 40%,color-mix(in srgb,#E7EAE6 86%,transparent) 68%,#E7EAE6 96%)}
   .med .lead{max-width:none}
   .callout{margin-top:0}
   .readout{margin-top:30px}
@@ -327,7 +326,24 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
   #tel.in{opacity:.4}
   .arr::after{background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 88%,transparent) 6%,var(--bg) 26%,var(--bg) 74%,color-mix(in srgb,var(--bg) 86%,transparent))}
   .cue{display:none}
-  .wd h2{font-size:clamp(1.6rem,6.9vw,2.3rem)}
+  .wd h2{font-size:clamp(1.45rem,6.2vw,2.1rem);letter-spacing:-.04em}
+  .uav h2,.inf h2,.med h2{font-size:clamp(1.45rem,6.2vw,2.1rem)}
+  h1{letter-spacing:-.038em}
+  /* the phone gets its own pacing: less air where a world brings its own ground */
+  .wd{padding-block:clamp(56px,7.5vh,84px)}
+  .record{margin-top:clamp(28px,4vh,40px)}
+  .record canvas{height:clamp(150px,19vh,190px)}
+  .env{margin-top:26px;gap:14px}
+  .env .lbl{max-width:none;padding-top:0}
+  .file article{padding-block:24px}
+  .shelf{gap:34px}
+  .two{gap:46px}
+  .wire{margin-top:26px}
+  .sees,.versus{margin-top:22px}
+  .pn{display:none}
+  .axis span:nth-child(2){display:none}
+  .axis{gap:14px}
+  .record canvas+.axis{padding-top:6px}
   .hd .lead{justify-self:start}
   .crypt div{flex-direction:column;gap:5px}
   .crypt b{min-width:0}
@@ -418,7 +434,7 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
     <p class="axis top"><span><b>87 runs</b> &middot; obstacle and proximity detections</span>
       <span>53,971 obstacle &middot; <em>17,842 proximity</em></span></p>
     <canvas id="runs" aria-label="Detection events recorded across 87 simulation runs between 13 and 16 April 2026. Thirty-four runs recorded detections; fifty-three recorded none." role="img"></canvas>
-    <p class="axis"><span>13 Apr 2026</span><span>x500 airframe &middot; PX4 SITL</span><span>16 Apr 2026</span></p>
+    <p class="axis"><span>34 runs recorded detections</span><span>x500 airframe &middot; PX4 SITL</span><span>53 recorded none</span></p>
   </div>
 
   <div class="w rv">
@@ -461,7 +477,8 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
       <div><p class="body">Board-level forensic cybersecurity and money-flow investigation for a
         financial cooperative. A university cyber-resilience programme governed by exact-scope
         targets, test windows, least-privilege module profiles and a <b>stop-work control</b>.</p>
-        <p class="fact">Authorised, scoped and evidence-bound throughout</p></div>
+        <p class="fact">The university programme runs from a written manifest: approved targets,
+          test windows, rate limits, per-module permission profiles and a stop-work file</p></div>
       <div class="held">Client names &middot; Targets &middot; Evidence<br>Findings &middot; Reports &middot; Timelines</div>
     </article>
     <article>
@@ -485,23 +502,23 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
 <!-- 5 · infrastructure -->
 <section class="wd inf tight"><div class="w rv">
   <p class="k">Infrastructure</p>
-  <h2>A relay that cannot read your messages, and a lab that tests the model before we trust it.</h2>
+  <h2>A relay we cannot read, and a lab that tests before we trust.</h2>
 
   <div class="two">
     <section>
       <h3>Simy</h3>
       <p>A privacy-preserving communications platform for high-risk use, written in Rust. The relay
-        carries sealed envelopes between mailboxes and is designed never to be in a position to
-        open one. The relay and the cryptographic core are built; the end-user messenger is not
-        finished yet.</p>
+        carries sealed envelopes between mailboxes. It verifies the signature on a published
+        prekey bundle, and it performs no decryption of its own. The relay and the cryptographic
+        core are built; the end-user messenger is not finished yet.</p>
       <div class="wire">
         <div class="rail2" aria-hidden="true"><i></i><s></s><i class="mid"></i><s class="b"></s><i></i></div>
         <div class="stn"><div>Sealed by the sender</div><div>Relay</div><div>Opened by the recipient</div></div>
         <div class="sees">
           <div><b>The relay stores</b><p>Mailbox records &middot; ciphertext envelopes<br>
-            Delivery state &middot; TTL expiry<br>Replay counters in Redis</p></div>
-          <div><b>The relay never sees</b><p>Message content &middot; identity keys<br>
-            X3DH shared secrets &middot; ratchet state<br>Anything it could decrypt</p></div>
+            Public prekey bundles &middot; device records<br>Delivery state &middot; TTL expiry &middot; replay counters</p></div>
+          <div><b>The relay never sees</b><p>Plaintext message content<br>
+            Private key material of any kind<br>X3DH shared secrets &middot; ratchet state</p></div>
         </div>
       </div>
     </section>
@@ -516,7 +533,7 @@ h1 .ln:nth-child(3) i{animation-delay:.16s}
           <div class="r head"><span class="v">llama.cpp</span><span class="c">Runtime</span><span class="v">Ollama</span></div>
           <div class="r"><span class="v">80%</span><span class="c">Task pass rate</span><span class="v">60%</span></div>
           <div class="r"><span class="v">8/10</span><span class="c">Exact repeatability</span><span class="v">6/10</span></div>
-          <div class="r event"><span class="v win">Held</span><span class="c">Prompt injection</span><span class="v lose">Followed it</span></div>
+          <div class="r event"><span class="v win">Held</span><span class="c">Prompt injection</span><span class="v lose">Followed<span class="pn"> it</span></span></div>
         </div>
         <p class="note">Qwen2.5-Coder-7B-Instruct Q4_K_M, pinned by SHA-256.
         Ollama followed an untrusted instruction embedded in the task in both repetitions. The
@@ -683,7 +700,7 @@ function drawRuns(){
       return;
     }
     const h=Math.max(6,Math.min(1,r.n/max)*peak);
-    const w=Math.max(3,span/runs.length*0.62);
+    const w=Math.max(4,span/runs.length*0.8);
     const g=rx.createLinearGradient(0,base-h,0,base);
     g.addColorStop(0,amber); g.addColorStop(1,'transparent');
     rx.globalAlpha=.9; rx.fillStyle=g;
