@@ -1,5 +1,6 @@
 /* LESNAR AI site — performance measurement.
      node tools/perf.mjs                      cold cache, no throttle
+     BASE=https://www.lesnarai.co.ke node tools/perf.mjs    measure production
      THROTTLE=4g node tools/perf.mjs          cold cache, throttled
      ROUTES=/,/work/ node tools/perf.mjs
    Serve first: python3 -m http.server 8911 --bind 127.0.0.1 (from this dir)
@@ -10,7 +11,7 @@
    is how an earlier run reported LCP as "-" and called it measured. */
 import * as pw from '/home/lesnar/Documents/ai model/experience-lab/study-b-webgl/node_modules/playwright/index.mjs';
 
-const BASE='http://127.0.0.1:8911';
+const BASE=process.env.BASE||'http://127.0.0.1:8911';
 const ROUTES=(process.env.ROUTES||'/,/work/,/work/carepro/,/capabilities/,/start/').split(',');
 const VIEWPORTS=[[1440,900,'desktop'],[1024,900,'laptop'],[390,844,'phone']];
 const PROFILES={

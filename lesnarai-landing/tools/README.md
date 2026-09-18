@@ -65,3 +65,21 @@ are excluded; they are contact details, not claims.
 At the time of writing every published route sits at 100%. The candidate
 homepage sits at 15%, because it leads with MediMatch, Operation Sentinel,
 Simy and Model foundry, and the evidence layer covers none of them.
+
+## perf.mjs
+
+    node tools/perf.mjs
+    BASE=https://www.lesnarai.co.ke THROTTLE=4g node tools/perf.mjs
+
+Cold cache — a fresh context per run — at 1440, 1024 and 390, with optional
+CDP throttling, reporting TTFB, FCP, LCP, CLS and bytes split by type.
+
+Two things it gets right that an earlier attempt did not. LCP comes from a
+PerformanceObserver with `buffered:true` installed before navigation; reading
+`getEntriesByType` afterwards misses it, which is how a run once reported LCP
+as "—" and was called measured. And LCP is taken at rest, before the page is
+scrolled, because scrolling lets a later image become the largest candidate —
+that is why one run showed 3664ms on 4G and 696ms on slow 3G.
+
+`BASE` points it at production. Local numbers have a 1-2ms TTFB and are not
+production timings.

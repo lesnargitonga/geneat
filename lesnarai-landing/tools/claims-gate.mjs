@@ -50,11 +50,19 @@ const text=f=>fs.readFileSync(f,'utf8')
    status code are not claims. */
 const strip=s=>s.replace(/\+?\s*254[\d\s]{6,}/g,' ').replace(/\b404\b/g,' ')
   /* identifiers label a thing; they do not measure it */
-  .replace(/\b(?:sprint|version|v|phase|commit|issue|no\.?)\s*#?\d[\d.]*/gi,' ');
-const figures=s=>[...new Set((s.match(/\b\d[\d,]*\.?\d*\s*%|\b\d[\d,]{2,}\b|\b\d+\.\d+\b/g)||[])
+  .replace(/\b(?:sprint|version|v|phase|commit|issue|no\.?)\s*#?\d[\d.]*/gi,' ')
+  /* dates are when, not how much: ISO dates, day-month pairs, and the
+     zero-padded ordinals of a numbered list (01 Credentials, 02 Registry) */
+  .replace(/\b\d{4}-\d{2}-\d{2}\b/g,' ')
+  .replace(/\b\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\b/gi,' ')
+  .replace(/\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2}\b/gi,' ')
+  .replace(/\b0\d\b/g,' ');
+const figures=s=>[...new Set((s.match(/\b\d[\d,]*\.?\d*\s*%|\b\d[\d,]{1,}\b|\b\d+\.\d+\b/g)||[])
   .map(x=>x.replace(/\s+/g,'')))]
   .filter(x=>{ const bare=x.replace(/,/g,'');
     if(/^(19|20)\d\d$/.test(bare)) return false;
+    /* two digits is enough to be diagnostic once years and identifiers are
+       filtered out; requiring three let a stale "19 nurses joined" through */
     return bare.replace(/[^0-9]/g,'').length>=2; });
 const norm=x=>x.replace(/,/g,'');
 
@@ -97,13 +105,13 @@ for(const [route,rcs] of [...routes].sort()){
     /* What the page publishes is the claim, so the claim's own figures are
        binding. An evidence object's `shows` describes the artifact, which may
        carry detail the page never prints — reported, never enforced. */
-    for(const fig of figures(String(c.claim||''))){
+    for(const fig of figures(strip(String(c.claim||'')))){
       boundFigures++;
       if(!body.includes(norm(fig)) && !body.includes(fig))
         FAIL.push(`${route}  ${c.claim_id}: the published claim carries "${fig}" but the page no longer does`);
     }
     for(const e of ev)
-      for(const fig of figures(String(e.shows||'')))
+      for(const fig of figures(strip(String(e.shows||''))))
         if(!body.includes(norm(fig)) && !body.includes(fig))
           DETAIL.push(`${route}  ${e.evidence_id} records "${fig}"; the page does not print it (usually correct)`);
     const status=String(c.public_status||c.status||'');
@@ -132,7 +140,7 @@ for(const f of pages.sort()){
   /* the evidence this route is actually entitled to cite */
   const pool=new Set();
   for(const c of rcs){
-    pool.add(String(c.claim||''));
+    pool.add(strip(String(c.claim||'')));
     for(const id of c.evidence_ids||[]){
       const e=byId.get(id); if(!e) continue;
       pool.add([e.shows,e.does_not_show,e.limitations,e.source_location].filter(Boolean).join(' '));

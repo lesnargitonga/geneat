@@ -4,7 +4,7 @@
  "claims": [
   {
    "claim_id": "C-HOME-FIVE-PUBLIC",
-   "route": "/",
+   "route": null,
    "system": null,
    "claim": "Five systems have a public surface.",
    "evidence_ids": [
@@ -12,25 +12,25 @@
    ],
    "strongest": "Measured",
    "status": "SUPPORTED",
-   "note": "Five distinct public surfaces each returned 200 on 2026-09-16 and each renders its own real product: CarePro, BizMtaani, Jamii Projects Hub, Gen-Eat, Hazina Nomads.",
+   "note": "Five distinct public surfaces each returned 200 on 2026-09-16 and each renders its own real product: CarePro, BizMtaani, Jamii Projects Hub, Gen-Eat, Hazina Nomads. The homepage was replaced on 2026-09-18 by the evidence-governed build. This claim is not made there any more. The same ground is covered by C-WORK-FIVE-PUBLIC.",
    "phase9_action": "NO ACTION",
-   "public_status": "SUPPORTED"
+   "public_status": "NO LONGER ON THE SITE — carried by C-WORK-FIVE-PUBLIC"
   },
   {
    "claim_id": "C-HOME-ELEVEN",
-   "route": "/",
+   "route": "/work/",
    "system": null,
    "claim": "Eleven systems in the register.",
    "evidence_ids": [],
    "strongest": "Structural",
    "status": "SUPPORTED",
-   "note": "Self-referential and checkable on the page: the register lists eleven.",
+   "note": "Self-referential and checkable on the page: the register lists eleven. The homepage was replaced on 2026-09-18 by the evidence-governed build. This claim is not made there any more. The register count is published on /work/.",
    "phase9_action": "NO ACTION",
    "public_status": "SUPPORTED"
   },
   {
    "claim_id": "C-HOME-HANDOFF-SOURCE",
-   "route": "/",
+   "route": "/work/bizmtaani/",
    "system": "BizMtaani",
    "claim": "Source fact: BizMtaani publishes these five stages, and the three roles — customer, merchant, rider — in its own navigation.",
    "evidence_ids": [
@@ -39,25 +39,25 @@
    ],
    "strongest": "Published",
    "status": "CONTRADICTED",
-   "note": "CONTRADICTED IN PART. The three parties ARE published, but as BUYING / SELLING / 'Ride or drive' functions, not as a navigation labelled customer/merchant/rider. The five stages are published as prose and product structure, not as five named stages. The actions themselves hold up — including 'Orders arrive on a screen built for a counter', which supports the shop step better than the current wording does. Source fact needs rewording; the INTERPRETATION and LIMIT blocks remain correct and unchanged.",
+   "note": "CONTRADICTED IN PART. The three parties ARE published, but as BUYING / SELLING / 'Ride or drive' functions, not as a navigation labelled customer/merchant/rider. The five stages are published as prose and product structure, not as five named stages. The actions themselves hold up — including 'Orders arrive on a screen built for a counter', which supports the shop step better than the current wording does. Source fact needs rewording; the INTERPRETATION and LIMIT blocks remain correct and unchanged. The homepage was replaced on 2026-09-18 by the evidence-governed build. This claim is not made there any more. The handoff is published on the BizMtaani record, which is where the claim now sits.",
    "phase9_action": "CORRECTED",
    "phase9_action_note": "Source fact reworded to what BizMtaani actually publishes — its own two sentences, and buying/selling/riding as its navigation. Interpretation and Limit unchanged.",
    "public_status": "CORRECTED — now supported as written"
   },
   {
    "claim_id": "C-HOME-CAREPRO-QUAL",
-   "route": "/",
+   "route": null,
    "system": "CarePro",
-   "claim": "CarePro publishes 19 nurses joined and 0 approved for assignments — the values on the day of capture.",
+   "claim": "CarePro publishes 20 nurses joined and 0 approved for assignments — the values on the day of capture.",
    "evidence_ids": [
     "EV-CAREPRO-VERIFY-01"
    ],
    "strongest": "Published",
    "status": "STALE",
-   "note": "STALE. Published value is now 20 joined, 0 approved (2026-09-16). The 0 is unchanged. The caption's own 'on the day of capture' framing is what makes this a refresh, not an error.",
+   "note": "STALE. Published value is now 20 joined, 0 approved (2026-09-16). The 0 is unchanged. The caption's own 'on the day of capture' framing is what makes this a refresh, not an error. The homepage was replaced on 2026-09-18 by the evidence-governed build. This claim is not made there any more. The same ground is covered by C-CAREPRO-COUNTS.",
    "phase9_action": "CORRECTED",
    "phase9_action_note": "Refreshed to 20 joined / 0 approved, dated 16 Sep 2026.",
-   "public_status": "CORRECTED — now supported as written"
+   "public_status": "NO LONGER ON THE SITE — carried by C-CAREPRO-COUNTS"
   },
   {
    "claim_id": "C-WORK-FIVE-PUBLIC",
@@ -203,7 +203,7 @@
    "claim_id": "C-CAREPRO-COUNTS",
    "route": "/work/carepro/",
    "system": "CarePro",
-   "claim": "19 nurses joined, 0 approved for assignments — the live values on the day of capture.",
+   "claim": "20 nurses joined, 0 approved for assignments — the live values on the day of capture.",
    "evidence_ids": [
     "EV-CAREPRO-VERIFY-01"
    ],

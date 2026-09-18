@@ -360,12 +360,13 @@
    "source_location": "~/publish-stage/MediMatch",
    "public_safe": true,
    "route_or_artifact": "/",
-   "shows": "A TypeScript client, server and db in one repository, with a presentation deck and captured research views, described by its own README as a geospatial platform that ranks redistribution by distance, urgency, verification and product fit.",
-   "does_not_show": "Deployment inside any health system, any real facility inventory, any transaction, or any patient record. The demonstration data is synthetic and the AI briefs ship hardcoded.",
+   "shows": "A TypeScript client, server and db in one repository, with a presentation deck and captured research views, described by its own README as a geospatial platform that ranks redistribution by distance, urgency, verification and product fit. The captured Nairobi County research view displays its own readout panel: 50 FACILITIES, 43 IN SHORTFALL, 43 TRANSFERS, 2,236 UNITS MOVED.",
+   "does_not_show": "Deployment inside any health system, any real facility inventory, any transaction, or any patient record. The demonstration data is synthetic and the AI briefs ship hardcoded. The readout figures are the demonstration's own output over synthetic inventory. No facility was supplied, no transfer was executed and no unit of stock moved in the world.",
    "privacy_notes": "No patient data exists in the repository.",
    "limitations": "Structural evidence proves the software exists in that shape, not that it is used.",
    "captured_at": "2026-09-18",
-   "timezone": "+03:00 Africa/Nairobi"
+   "timezone": "+03:00 Africa/Nairobi",
+   "artifact_sha256": "see ~/publish-stage/MediMatch/presentation/assets/nairobi-research.png"
   },
   {
    "evidence_id": "EV-SIMY-CORE-01",
