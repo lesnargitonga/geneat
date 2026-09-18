@@ -225,8 +225,8 @@
    "strongest": "Published",
    "status": "SUPPORTED",
    "note": "NEWLY SUPPORTED. Published as visible text on carepro.co.ke today. An earlier check in this programme searched the LESNAR AI study's own HTML, found nothing, and treated the sentence as unsupported — correctly, at the time, for the site. It is verifiable at the product now, so it is available for use if wanted. Still Published, never Measured.",
-   "phase9_action": "CLOSED — NO NEW CLAIM at the time of the study. Owner decision 2026-09-18: published on /work/carepro/ as EV-CAREPRO-PAYMENT-01, quoted verbatim and carrying the limit that it is a published policy and not a transaction record.",
-   "phase9_action_note": "Owner decision taken: evidence availability does not write the story. EV-CAREPRO-PAYMENT-01 remains registered as available Published evidence; no corporate-site claim added.",
+   "phase9_action": "CLOSED — NO NEW CLAIM at the time of the study. Later published on /work/carepro/ as EV-CAREPRO-PAYMENT-01, quoted verbatim and carrying the limit that it is a published policy and not a transaction record. No owner instruction for this is recorded in the source material; evidence being available is not authorisation.",
+   "phase9_action_note": "At the time of the Phase 9 study: evidence availability does not write the story. EV-CAREPRO-PAYMENT-01 was registered as available Published evidence and no corporate-site claim was added. It was published on the CarePro record later; that later publication is not part of this study record.",
    "public_status": "SUPPORTED"
   },
   {
@@ -368,6 +368,135 @@
    "status": "SUPPORTED",
    "note": "A truthful stated absence, already on the page. Phase 9 does not fill it and may not.",
    "phase9_action": "NO ACTION",
+   "public_status": "SUPPORTED"
+  },
+  {
+   "claim_id": "C-CAP-SENTINEL-TESTS",
+   "route": "/capabilities/",
+   "system": "SentinelCore",
+   "claim": "Hardening and watching on Linux servers: an orchestrator and five modules, with 133 tests passing at a recorded commit.",
+   "evidence_ids": [
+    "EV-SENTINEL-TESTS-01",
+    "EV-SENTINEL-STRUCT-01"
+   ],
+   "strongest": "Measured",
+   "status": "SUPPORTED",
+   "note": "The capabilities page repeats the SentinelCore test figure. The evidence already existed and was bound only to /work/sentinelcore/ and /engineering/; registering it here makes the route that publishes it answerable for it.",
+   "phase9_action": "REGISTERED LATER — route binding added, no new evidence",
+   "public_status": "SUPPORTED"
+  },
+  {
+   "claim_id": "C-HOME-SENTINEL-RECORD",
+   "route": "/",
+   "system": "Operation Sentinel",
+   "claim": "Eighty-seven diagnostic runs of the perception stack, 13 to 16 April 2026. Thirty-four recorded detections; fifty-three recorded none. Proximity alerts 17,842 of 71,813 total detections.",
+   "evidence_ids": [
+    "EV-SENTINEL-DETECT-01"
+   ],
+   "strongest": "Measured",
+   "status": "SUPPORTED",
+   "note": "Every figure is a direct tally of the 87 CSV exports. The record is detection diagnostics; no flight log of any kind exists, which is why the page says so beside it.",
+   "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
+   "public_status": "SUPPORTED"
+  },
+  {
+   "claim_id": "C-HOME-SENTINEL-GPSDENIED",
+   "route": "/",
+   "system": "Operation Sentinel",
+   "claim": "An offline-capable command-and-control and training stack for GPS-degraded and GPS-denied conditions, built so no critical function depends on cloud assets while a mission is running.",
+   "evidence_ids": [
+    "EV-SENTINEL-GPSDENIED-01"
+   ],
+   "strongest": "Structural",
+   "status": "SUPPORTED",
+   "note": "A GPS-denied PX4 parameter set exists. Architecture claim; nothing has been flown.",
+   "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
+   "public_status": "SUPPORTED"
+  },
+  {
+   "claim_id": "C-HOME-SENTINELCORE",
+   "route": "/",
+   "system": "SentinelCore",
+   "claim": "An orchestrator and five modules across 242 tracked files, with 133 tests passing and none failing across 21 test files at one commit.",
+   "evidence_ids": [
+    "EV-SENTINEL-TESTS-01",
+    "EV-SENTINEL-STRUCT-01"
+   ],
+   "strongest": "Measured",
+   "status": "SUPPORTED",
+   "note": "Same evidence already bound to /work/sentinelcore/; registered here because the homepage repeats the figures and must answer for them.",
+   "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
+   "public_status": "SUPPORTED"
+  },
+  {
+   "claim_id": "C-HOME-MEDIMATCH-SURVEY",
+   "route": "/",
+   "system": "MediMatch",
+   "claim": "52 healthcare professionals surveyed. 55.8% face stockouts weekly or monthly. 25.0% call the current method for locating emergency supplies ineffective. 53.8% would recommend their facility pilot the platform.",
+   "evidence_ids": [
+    "EV-MEDIMATCH-SURVEY-01"
+   ],
+   "strongest": "Measured",
+   "status": "SUPPORTED",
+   "note": "Tallied directly from the questionnaire export. Replaces the previously published 64 / 56.3% / 57.8%, which no dataset on this machine reproduces.",
+   "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
+   "public_status": "SUPPORTED"
+  },
+  {
+   "claim_id": "C-HOME-MEDIMATCH-BUILT",
+   "route": "/",
+   "system": "MediMatch",
+   "claim": "The platform is built and publicly demonstrated, and has not been deployed inside a health system. Facility inventory shown is synthetic and no patient records are used.",
+   "evidence_ids": [
+    "EV-MEDIMATCH-BUILD-01"
+   ],
+   "strongest": "Structural",
+   "status": "SUPPORTED",
+   "note": "",
+   "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
+   "public_status": "SUPPORTED"
+  },
+  {
+   "claim_id": "C-HOME-SIMY-CORE",
+   "route": "/",
+   "system": "Simy",
+   "claim": "The relay and the cryptographic core are built; the end-user messenger is not finished yet. The relay carries sealed envelopes, verifies a published prekey bundle signature, and performs no decryption of its own.",
+   "evidence_ids": [
+    "EV-SIMY-CORE-01"
+   ],
+   "strongest": "Structural",
+   "status": "SUPPORTED",
+   "note": "X3DH and double-ratchet code is present and the client is a scaffold. Not independently audited.",
+   "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
+   "public_status": "SUPPORTED"
+  },
+  {
+   "claim_id": "C-HOME-FOUNDRY-BASELINE",
+   "route": "/",
+   "system": "Model foundry",
+   "claim": "Two runtimes on the same hash-pinned open-weight model: llama.cpp passed 80% of tasks and reproduced its own answer exactly 8 times in ten; Ollama passed 60% and reproduced 6. On a task hiding an instruction inside the work, llama.cpp ignored it and Ollama followed it, both times.",
+   "evidence_ids": [
+    "EV-FOUNDRY-EVAL-01",
+    "EV-FOUNDRY-PIN-01"
+   ],
+   "strongest": "Measured",
+   "status": "SUPPORTED",
+   "note": "",
+   "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
+   "public_status": "SUPPORTED"
+  },
+  {
+   "claim_id": "C-HOME-DISCLOSURE",
+   "route": "/",
+   "system": "Vulnerability disclosure",
+   "claim": "A reproducible smart-contract settlement finding with a patch. Seven passing tests in one canonical run, and up to 37,499.22 USDC of vault value moved in one demonstrated settlement. Submitted as high severity; no adjudication is published.",
+   "evidence_ids": [
+    "EV-DISCLOSURE-01"
+   ],
+   "strongest": "Structural",
+   "status": "SUPPORTED",
+   "note": "The affected protocol, the proof-of-concept and the exploit path are confidential and are not recorded in the registry. Only the rounded figure and the test count are public-safe.",
+   "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
    "public_status": "SUPPORTED"
   }
  ]

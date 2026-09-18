@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Home · LESNAR AI</title>
-<meta name="description" content="LESNAR AI is a Nairobi technology company building operational systems for environments where money, connectivity, institutions, people and physical work do not behave like clean software assumptions.">
+<meta name="description" content="LESNAR AI is a Nairobi technology company building software, AI and autonomous systems for operational problems that are hard in the field: some for institutions, some that we run ourselves.">
 <link rel="canonical" href="https://lesnarai.co.ke/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="LESNAR AI">
 <meta property="og:title" content="Home · LESNAR AI">
-<meta property="og:description" content="LESNAR AI is a Nairobi technology company building operational systems for environments where money, connectivity, institutions, people and physical work do not behave like clean software assumptions.">
+<meta property="og:description" content="LESNAR AI is a Nairobi technology company building software, AI and autonomous systems for operational problems that are hard in the field: some for institutions, some that we run ourselves.">
 <meta property="og:url" content="https://lesnarai.co.ke/">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
@@ -21,6 +21,160 @@
 <link rel="stylesheet" href="/motion.css">
 <script src="/motion.js" defer></script>
 <script src="/theme.js" defer></script>
+
+<noscript><style>
+  .rv{opacity:1!important;transform:none!important}
+  #run-hud,.scroll-cue{display:none}
+</style></noscript>
+
+<style>
+/* ═══ HOME · integrated narrative ═════════════════════════════════════════
+   Destination structure and tokens are the production system: this file adds
+   no palette, no typeface and no new colour. Every surface below resolves to
+   --page / --raise / --deep, every rule to --r-row / --r-sec / --r-edge, and
+   the only colour that is not neutral belongs to a real captured artifact.
+   Each system is given the shape its own evidence has, rather than one
+   repeating card. ═══════════════════════════════════════════════════════ */
+
+/* reveals: a short rise, not a performance. the resting state is visible so
+   the first frame of the page is the page. */
+.rv{opacity:0;transform:translateY(10px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+
+.home section{padding-block:var(--gap-page);border-top:1px solid var(--r-row)}
+.home section:first-of-type{border-top:0}
+.home .k{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--fg-3);display:block;margin-bottom:10px}
+.home h2{max-width:22ch}
+.home .lede{color:var(--fg-2);max-width:var(--measure);margin-top:10px}
+.home .note{font-size:14px;line-height:1.6;color:var(--fg-3);max-width:70ch;margin-top:14px}
+.home .note b{color:var(--fg-2);font-weight:600}
+
+/* ── opening ─────────────────────────────────────────────────────────────
+   the company is stated in the first sentence, not implied by a slogan. */
+.open-x{padding-block:clamp(44px,7vw,92px) var(--gap-page)}
+.open-x h1{max-width:15ch;margin-bottom:22px}
+.open-x .define{font-size:clamp(17px,1.5vw,19.5px);line-height:1.5;color:var(--fg);max-width:58ch}
+.open-x .proof{margin-top:14px;color:var(--fg-2);max-width:58ch}
+.open-x .srcline{margin-top:26px;padding-top:14px;border-top:1px solid var(--r-row);
+  font-family:var(--mono);font-size:12.5px;line-height:1.65;color:var(--fg-3);max-width:64ch}
+
+/* ── medimatch: a geography, so it is given ground ───────────────────── */
+.terrain{position:relative;isolation:isolate;border:1px solid var(--r-row);
+  background:var(--deep);overflow:hidden;margin-top:22px}
+.terrain img{display:block;width:100%;height:clamp(240px,42vw,460px);object-fit:cover;
+  object-position:62% 46%;filter:saturate(.9) contrast(1.04)}
+.terrain figcaption{position:absolute;left:0;right:0;bottom:0;z-index:2;
+  padding:12px clamp(14px,2vw,20px);font-family:var(--mono);font-size:12px;color:var(--fg-3);
+  background:linear-gradient(transparent,var(--page) 62%)}
+.readout{display:grid;gap:1px;background:var(--r-row);border:1px solid var(--r-row);margin-top:22px;
+  grid-template-columns:repeat(auto-fit,minmax(168px,1fr))}
+.readout>div{background:var(--page);padding:16px 18px;min-width:0}
+.readout b{display:block;font-size:clamp(1.5rem,2.6vw,2rem);font-weight:700;letter-spacing:-.025em;
+  line-height:1;font-variant-numeric:tabular-nums}
+.readout span{display:block;margin-top:7px;font-size:13.5px;line-height:1.45;color:var(--fg-3)}
+.evidence-fig{margin-top:26px;border:1px solid var(--r-row);background:var(--raise)}
+.evidence-fig img{display:block;width:100%;height:auto}
+.evidence-fig figcaption{padding:11px 16px;border-bottom:1px solid var(--r-row);
+  font-family:var(--mono);font-size:12px;color:var(--fg-3)}
+
+/* ── sentinel: a record, so it is given an instrument ─────────────────── */
+.record{margin-top:26px}
+.scrub-wrap{position:relative;touch-action:pan-y;cursor:crosshair;margin-top:34px}
+.scrub-wrap:focus-within{outline:2px solid var(--sig);outline-offset:3px}
+#runs{display:block;width:100%;height:clamp(170px,22vw,230px)}
+#run-scrub{position:absolute;left:0;top:0;width:1px;height:1px;opacity:.01;margin:0;padding:0;
+  pointer-events:none;-webkit-appearance:none;appearance:none;background:transparent}
+#run-hud{position:absolute;top:-26px;left:0;pointer-events:none;opacity:0;white-space:nowrap;
+  font-family:var(--mono);font-size:13px;line-height:1.3;color:var(--fg);
+  font-variant-numeric:tabular-nums;transition:opacity .12s linear}
+#run-hud.on{opacity:1}
+#run-hud .u{color:var(--fg-3)}
+#run-hud .g{color:var(--fg-3);padding:0 .6em}
+@media (max-width:900px){#run-hud{font-size:12.5px;top:-23px}}
+@media (max-width:400px){#run-hud{font-size:12px}#run-hud .g{padding:0 .4em}}
+.rcap{margin-top:16px;font-size:14px;line-height:1.6;color:var(--fg-3);max-width:74ch}
+.rcap b{color:var(--fg-2);font-weight:600}
+.envelope{display:grid;gap:var(--gap-sec);margin-top:30px;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.envelope .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--fg-3);margin-bottom:12px}
+.envelope ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--r-row);min-width:0}
+.envelope li{display:flex;gap:14px;align-items:baseline;padding:9px 0;
+  border-bottom:1px solid var(--r-row);font-size:14.5px;color:var(--fg-2)}
+.envelope li b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums;min-width:4.5em}
+
+/* ── security: a file that is mostly closed ──────────────────────────── */
+.file{border-top:1px solid var(--r-sec);margin-top:22px}
+.file article{display:grid;gap:6px 30px;padding:20px 0;border-bottom:1px solid var(--r-row);
+  grid-template-columns:minmax(0,200px) minmax(0,1fr)}
+@media (max-width:720px){.file article{grid-template-columns:1fr}}
+.file h3{margin:0}
+.file .body{color:var(--fg-2);margin:0}
+.file .body b{color:var(--fg);font-weight:600}
+.file .fact{margin:9px 0 0;font-family:var(--mono);font-size:12.5px;line-height:1.6;color:var(--fg-3)}
+.closing{margin-top:18px;font-size:14px;line-height:1.6;color:var(--fg-3);max-width:70ch}
+
+/* ── infrastructure: two systems, two different points ───────────────── */
+.two{display:grid;gap:var(--gap-page);margin-top:22px;
+  grid-template-columns:repeat(auto-fit,minmax(310px,1fr))}
+.two>div{min-width:0}
+.two h3{margin-bottom:8px}
+.two p{color:var(--fg-2)}
+.wire{margin-top:22px}
+.rail{position:relative;display:flex;align-items:center;gap:0;height:30px}
+.rail i{width:11px;height:11px;border:1px solid var(--r-edge);background:var(--raise);flex:0 0 auto}
+.rail i.mid{width:15px;height:15px;border-color:var(--fg-3)}
+.rail s{position:relative;flex:1 1 auto;height:1px;background:var(--r-edge);text-decoration:none}
+.rail s::after{content:"";position:absolute;top:-3px;left:0;width:7px;height:7px;background:var(--fg);
+  opacity:0;transform:translateX(-50%)}
+.rail s:nth-of-type(1)::after{left:calc(var(--w1,0) * 100%);opacity:var(--o1,0)}
+.rail s:nth-of-type(2)::after{left:calc(var(--w2,0) * 100%);opacity:var(--o2,0)}
+.rail.verify i.mid{border-color:var(--sig);box-shadow:0 0 0 2px var(--raise),0 0 0 3px var(--sig)}
+.stn{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:11.5px;
+  color:var(--fg-3);margin-top:4px}
+.stn div:nth-child(2){text-align:center}
+.stn div:last-child{text-align:right}
+.replay{margin-top:12px;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--fg-3);background:none;border:0;padding:4px 0;cursor:pointer}
+.replay:hover,.replay:focus-visible{color:var(--fg)}
+.sees{display:grid;gap:1px;background:var(--r-row);border:1px solid var(--r-row);margin-top:20px;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.sees>div{background:var(--page);padding:14px 16px;min-width:0}
+.sees b{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+.sees p{margin:0;font-family:var(--mono);font-size:12px;line-height:1.75;color:var(--fg-3)}
+.finding{margin-top:18px;padding:16px 18px;border:1px solid var(--r-row);background:var(--raise)}
+.finding p{margin:0;font-size:14.5px;line-height:1.6;color:var(--fg-2)}
+.finding p+p{margin-top:10px}
+.finding code{font-family:var(--mono);font-size:12.5px;color:var(--fg)}
+.finding .num{font-variant-numeric:tabular-nums;color:var(--fg);font-weight:600}
+.finding b{color:var(--fg);font-weight:600}
+
+/* ── operating products: things people actually use ──────────────────── */
+.shelf{display:grid;gap:1px;background:var(--r-row);border:1px solid var(--r-row);margin-top:22px;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.shelf article{background:var(--page);display:flex;flex-direction:column;min-width:0}
+.shelf a.card{display:flex;flex-direction:column;height:100%;text-decoration:none;color:inherit}
+.shelf a.card:hover .th img{transform:scale(1.02)}
+.shelf a.card:hover h3{color:var(--sig)}
+.shelf a.card:focus-visible{outline:2px solid var(--sig);outline-offset:-2px}
+.shelf .th{overflow:hidden;background:var(--deep);border-bottom:1px solid var(--r-row)}
+.shelf .th img{display:block;width:100%;height:132px;object-fit:cover;
+  transition:transform .5s cubic-bezier(.16,1,.3,1)}
+.shelf .tx{padding:15px 16px;display:flex;flex-direction:column;gap:6px;flex:1 1 auto}
+.shelf h3{margin:0;transition:color .16s linear}
+.shelf p{margin:0;font-size:14px;line-height:1.5;color:var(--fg-3)}
+.shelf .u{font-family:var(--mono);font-size:11.5px;color:var(--fg-3);margin-top:auto;padding-top:8px}
+.more{margin-top:16px;font-size:14px;color:var(--fg-3);max-width:70ch}
+
+/* ── bridges into the architecture ───────────────────────────────────── */
+.bridge{display:grid;gap:var(--gap-sec);grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  margin-top:20px}
+.bridge>div{min-width:0}
+.bridge h3{margin-bottom:6px}
+.bridge p{color:var(--fg-2);font-size:15px;margin:0 0 12px}
+</style>
 </head>
 <body>
 <header class="site-head"><div class="w">
@@ -40,97 +194,282 @@
   </ul>
   <a class="close" href="/">Close &times;</a>
 </div></div></header>
-<main class="w">
 
-<div class="open">
-  <p class="open__k">Nairobi</p>
-  <h1>A technology company building operational systems.</h1>
-  <p class="open__l">For environments where money, connectivity, institutions, people and
-     physical work do not behave like clean software assumptions.</p>
+<main class="w home">
+
+<div class="open-x">
+  <p class="k">Nairobi</p>
+  <h1>Built for the conditions everything else assumes away.</h1>
+  <p class="define">LESNAR AI is a technology company in Nairobi. We build software, AI and
+    autonomous systems for operational problems that are hard in the field: some for
+    institutions, some that we run ourselves.</p>
+  <p class="proof">National-scale health logistics. Offline-capable autonomy for GPS-denied
+    airspace. A security operations control plane. And products running in Kenya.</p>
+  <p class="srcline">Behind the record below: 71,813 obstacle and proximity detections recorded
+    across 87 diagnostic runs of our own perception stack, 13 to 16 April 2026. Thirty-four runs
+    recorded detections; fifty-three recorded none.</p>
 </div>
 
-<section data-density="dense">
-  <span class="k">one operation</span>
-  <h2>How one order moves</h2>
-  <p class="lede">BizMtaani, as the marketplace publishes it. Responsibility passes twice.</p>
-  <div class="op" data-state="0" data-map='[{"hold":0,"rel":null,"b":null,"watch":null,"t":"Our reading: the customer holds it, across both of their published steps."},{"hold":null,"rel":0,"b":0,"watch":null,"t":"Transfer state. We show the customer as released and the shop as not yet holding. Neither is marked as the holder here."},{"hold":1,"rel":null,"b":null,"watch":null,"t":"Our reading: the shop holds it. The published step is “hears about it at the counter”."},{"hold":null,"rel":1,"b":1,"watch":null,"t":"Transfer state again. We show the shop as released and the rider as not yet holding."},{"hold":2,"rel":null,"b":null,"watch":3,"t":"Our reading: a rider holds it. The customer’s published step here is “watches it arrive”, which we mark as observing rather than holding."}]'>
-    <p class="cond"><b>Operating condition</b><span>Search runs on business name and town, so
-      the first thing a customer does is narrow to what is physically near them.</span></p>
-    <ol class="steps">
-      <li class="step" data-actor="customer" data-region="0" data-si="0"><b>Customer</b><span>Finds a shop in their town</span></li>
-      <li class="step" data-actor="customer" data-region="0" data-si="1"><b>Customer</b><span>Adds what they want</span></li>
-      <li><p class="bound" data-bound="0"><b>Responsibility passes</b><span>Customer &rarr; the shop</span></p></li>
-      <li class="step" data-actor="shop" data-region="1" data-si="2"><b>The shop</b><span>Hears about it at the counter</span></li>
-      <li><p class="bound" data-bound="1"><b>Responsibility passes</b><span>The shop &rarr; a rider</span></p></li>
-      <li class="step" data-actor="rider" data-region="2" data-si="3"><b>A rider</b><span>Carries it</span></li>
-      <li class="step" data-actor="customer" data-region="3" data-si="4"><b>Customer</b><span>Watches it arrive</span></li>
-    </ol>
-    <div class="ctl"></div>
-    <p class="ctl__say">Five stages and two crossings, as the marketplace publishes them.</p>
-    <div class="resp"><dl>
-      <dt>Source fact</dt><dd>BizMtaani publishes these actions in its own words:
-        &ldquo;Find a local business, order and pay from your phone &hellip; and riders carry
-        it&rdquo;, and for merchants &ldquo;Orders arrive on a screen built for a counter&rdquo;.
-        It addresses three parties through its own navigation: buying, selling and riding.
-        Captured 16 Sep 2026.</dd>
-      <dt>Interpretation</dt><dd>Responsibility is <b>inferred from that published actor and
-        action sequence</b>. It is our reading of who owes the next action.</dd>
-      <dt>Limit</dt><dd>The product publishes no state name and no ordering guarantee. Nothing
-        here says a step cannot proceed before another.</dd>
-    </dl></div>
+<!-- health and geospatial research -->
+<section class="rv" id="medimatch" aria-labelledby="mm-h">
+  <span class="k">MediMatch</span>
+  <h2 id="mm-h">Hospitals let supplies expire while county facilities run out.</h2>
+  <p class="lede">A geospatial platform that makes that gap visible and routes surplus across it,
+    ranked by distance, urgency, verification and product fit, over real road geometry.</p>
+
+  <figure class="terrain">
+    <picture>
+      <source media="(max-width:900px)" type="image/webp" srcset="/assets/home/mm-terrain-m.webp">
+      <source media="(max-width:900px)" srcset="/assets/home/mm-terrain-m.jpg">
+      <source type="image/webp" srcset="/assets/home/mm-national.webp">
+      <img src="/assets/home/mm-national.jpg" width="1600" height="900" loading="lazy"
+           alt="The MediMatch national view: facilities across Kenya with transfer routes drawn over road geometry.">
+    </picture>
+    <figcaption>National view &middot; facilities and candidate transfers</figcaption>
+  </figure>
+
+  <div class="readout">
+    <div><b>52</b><span>Healthcare professionals surveyed</span></div>
+    <div><b>55.8%</b><span>Face stockouts weekly or monthly</span></div>
+    <div><b>25.0%</b><span>Call the current method ineffective</span></div>
+    <div><b>53.8%</b><span>Would recommend their facility pilot it</span></div>
+  </div>
+
+  <figure class="evidence-fig">
+    <figcaption>Nairobi County &middot; 50 facilities &middot; 43 transfers</figcaption>
+    <picture>
+      <source media="(max-width:900px)" type="image/webp" srcset="/assets/home/mm-nairobi-m.webp">
+      <source media="(max-width:900px)" srcset="/assets/home/mm-nairobi-m.jpg">
+      <source type="image/webp" srcset="/assets/home/mm-nairobi.webp">
+      <img src="/assets/home/mm-nairobi.jpg" width="1400" height="880" loading="lazy"
+           alt="The Nairobi County research view: fifty facilities on a street-scale map with forty-three transfers, beside a four-step explanation of detect, rank, match and route.">
+    </picture>
+  </figure>
+
+  <p class="note">The field study was conducted here. Built on original research at USIU-Africa,
+    Nairobi, and presented at a health conference hosted by Unique Conferences Canada. The figures
+    above are tallied directly from the questionnaire export, n=52, and are a stated need rather
+    than measured demand. <b>The platform is built and publicly demonstrated, and has not been
+    deployed inside a health system.</b> Facility inventory shown is synthetic. No patient records
+    are used anywhere in it.</p>
+</section>
+
+<!-- autonomous systems -->
+<section class="rv" id="sentinel" aria-labelledby="uav-h">
+  <span class="k">Operation Sentinel</span>
+  <h2 id="uav-h">A drone that has to keep flying when the satellites go quiet.</h2>
+  <p class="lede">An offline-capable command-and-control and training stack for GPS-degraded and
+    GPS-denied conditions, built so that no critical function depends on cloud assets while a
+    mission is running.</p>
+
+  <div class="record">
+    <div class="scrub-wrap" id="scrub-wrap">
+      <canvas id="runs" aria-hidden="true"></canvas>
+      <div id="run-hud" aria-hidden="true"></div>
+      <input type="range" id="run-scrub" min="0" max="86" step="1" value="0"
+             aria-label="Inspect an individual diagnostic run">
+    </div>
+    <p class="rcap">Eighty-seven diagnostic runs of the perception stack, 13 to 16 April 2026,
+      laid out at the time each one started. <b>Thirty-four recorded detections; fifty-three
+      recorded none, and those are the short ticks along the base.</b> The solid foot of each
+      column is proximity alerts, the lighter body obstacles: 17,842 of 71,813.</p>
+  </div>
+
+  <div class="envelope">
+    <div>
+      <p class="lbl">How the GPS-denied case is configured</p>
+      <ul>
+        <li><b>EKF2_GPS_CTRL</b> GPS fusion disabled</li>
+        <li><b>EKF2_AID_MASK</b> optical-flow aiding</li>
+        <li><b>EKF2_HGT_MODE</b> range sensor for height</li>
+      </ul>
+    </div>
+    <p class="note">Those are the estimator parameters the stack carries for flying without GPS.
+      LESNAR AI built the autonomy bridge, mission logic, telemetry pipeline and operator system,
+      and integrated the PX4, Gazebo and AirSim projects, which are the work of their own upstream
+      maintainers. <b>No physical airframe has been flown, and no flight log of any kind exists.</b>
+      The record above is recorded detection diagnostics, not logged flight.</p>
   </div>
 </section>
 
-<section data-density="normal">
-  <span class="k">work exists</span>
-  <h2>Eleven systems in the register</h2>
-  <p class="lede">Five have a public surface. The rest are a pilot, an internal tool, research
-     and a stated direction, each shown as what it is.</p>
-  <div class="reg" style="margin-top:18px"><a class="reg__row" href="/work/carepro/"><span class="reg__n">CarePro</span><span class="reg__p">Book a vetted nurse to care for someone at home, with payment arranged through the platform.</span><span class="mat mat--live"><i></i>Live</span></a><a class="reg__row" href="/work/bizmtaani/"><span class="reg__n">BizMtaani</span><span class="reg__p">A neighbourhood marketplace: local shops list what they sell, customers order and pay from a phone, and riders carry the order.</span><span class="mat mat--live"><i></i>Live</span></a><a class="reg__row" href="/work/jamii-projects-hub/"><span class="reg__n">Jamii Projects Hub</span><span class="reg__p">See what projects your community is planning, vote on what matters, and keep clear records for a family, chama or welfare group.</span><span class="mat mat--live"><i></i>Live</span></a></div>
-  <p class="limit" style="margin-top:16px"><b>One visible qualification</b><span>CarePro
-    publishes 20 nurses joined and 0 approved for assignments, alongside a four-stage verification
-    process ending in clinical sign-off by a registered nurse. Captured 16 Sep 2026. That is not
-    evidence of traffic, revenue, uptime or scale.</span></p>
-  <a class="act" href="/work/">Open the register &rarr;</a>
-</section>
-
-<section data-density="normal">
-  <span class="k">relevance</span>
-  <h2>What we can take on with you</h2>
-  <p class="lede">Chosen editorially from the capabilities with credible current evidence, not
-     ranked by system count.</p>
-  <div class="rows" style="margin-top:16px">
-    <div><b>Payments and reconciliation</b><span>Taking payment the way people actually pay, and
-      keeping the internal record in agreement with the provider&rsquo;s. Evidenced by
-      BizMtaani, Gen-Eat and CarePro.</span></div>
-    <div><b>Coordination and fulfilment</b><span>Orders, matching, dispatch and handoffs between
-      people and organisations that do not share one system. Evidenced by BizMtaani, Gen-Eat and
-      Hazina Nomads.</span></div>
-    <div><b>Identity, authority and approval</b><span>Establishing who someone is, what they may
-      do, and who approved a consequential action. Evidenced by CarePro.</span></div>
+<!-- security and assurance -->
+<section class="rv" id="security" aria-labelledby="sec-h">
+  <span class="k">Security and assurance</span>
+  <h2 id="sec-h">Most of this work is done under conditions we cannot show you.</h2>
+  <div class="file">
+    <article>
+      <div><h3><a href="/work/sentinelcore/">SentinelCore</a></h3></div>
+      <div>
+        <p class="body">The company's own tool for checking a Linux server is safe. It scans for
+          open doors, watches the logs, and tightens the settings that matter. LESNAR AI runs it on
+          its own infrastructure: <b>it is not sold, not hosted for anyone, and has no customer
+          deployment</b>.</p>
+        <p class="fact">An orchestrator and five modules named by the repository itself, across 242
+          tracked files. Two stages are wired into the control flow with no implementation behind
+          them yet. 133 tests passed and none failed across 21 test files, at one commit on
+          16 September 2026 &mdash; which shows the code behaves as its own tests specify, and
+          nothing about the world.</p>
+      </div>
+    </article>
+    <article>
+      <div><h3>Institutional work</h3></div>
+      <div>
+        <p class="body">Board-level forensic cybersecurity and money-flow investigation for a
+          financial cooperative. A university cyber-resilience programme governed by exact-scope
+          targets, test windows, least-privilege module profiles and a <b>stop-work control</b>.</p>
+        <p class="fact">The university programme runs from a written manifest: approved targets,
+          test windows, rate limits, per-module permission profiles and a stop-work file.</p>
+      </div>
+    </article>
+    <article>
+      <div><h3>Vulnerability disclosure</h3></div>
+      <div>
+        <p class="body">A reproducible smart-contract finding: a standard voluntary close settles
+          on a stale liquidation status and moves below-margin value to the trader instead of the
+          vault, with a patch that <b>zeroes the improper transfer and leaves healthy closes
+          intact</b>.</p>
+        <p class="fact">Seven passing tests in one canonical run, identical across cycles. Up to
+          37,499.22 USDC of vault value moved in one demonstrated settlement. Submitted as high
+          severity; we do not publish an adjudication.</p>
+      </div>
+    </article>
   </div>
-  <a class="act" href="/capabilities/">All six capabilities &rarr;</a>
+  <p class="closing">There is more of this work than we can show. Client names, targets, evidence,
+    findings and exploit paths stay with the client, so the second entry above carries no numbers.
+    That is the whole of it.</p>
 </section>
 
-<section data-density="quiet">
-  <span class="k">engineering</span>
-  <h2>Measure instead of assert</h2>
-  <p class="lede">What the company measures, it measures by a stated method on a stated day, and
-     publishes with what the result does not prove. Most of what it holds is published or
-     structural, and it says so.</p>
-  <a class="act" href="/engineering/">How the work is built &rarr;</a>
+<!-- infrastructure -->
+<section class="rv" id="infrastructure" aria-labelledby="inf-h">
+  <span class="k">Infrastructure</span>
+  <h2 id="inf-h">One system cannot open what it carries. The other measures before we depend.</h2>
+  <div class="two">
+    <div>
+      <h3>Simy</h3>
+      <p>A privacy-preserving communications platform for high-risk use, written in Rust. The relay
+        carries sealed envelopes between mailboxes. It verifies the signature on a published prekey
+        bundle, and it performs no decryption of its own. The relay and the cryptographic core are
+        built; the end-user messenger is not finished yet.</p>
+      <div class="wire">
+        <div class="rail" id="rail" aria-hidden="true"><i></i><s></s><i class="mid"></i><s class="b"></s><i></i></div>
+        <div class="stn" aria-hidden="true">
+          <div>Sealed by the sender</div><div>Relay</div><div>Opened by the recipient</div>
+        </div>
+        <button class="replay" id="wire-replay" type="button">Replay the crossing</button>
+        <div class="sees">
+          <div><b>The relay stores</b><p>Mailbox records &middot; ciphertext envelopes<br>
+            Public prekey bundles &middot; device records<br>
+            Delivery state &middot; TTL expiry &middot; replay counters</p></div>
+          <div><b>The relay never sees</b><p>Plaintext message content<br>
+            Private key material of any kind<br>
+            X3DH shared secrets &middot; ratchet state</p></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3>Model foundry</h3>
+      <p>A dedicated volume, a provenance registry and an isolated lab where a model is measured
+        before it is trusted. The first baseline put two runtimes on the same hash-pinned
+        open-weight model and ran them head to head.</p>
+      <div class="finding">
+        <p>Both runtimes ran the same tasks against the same weights,
+          <code>Qwen2.5-Coder-7B-Instruct Q4_K_M</code>, pinned by SHA-256.
+          <code>llama.cpp</code> passed <span class="num">80%</span> of tasks and reproduced its
+          own answer exactly <span class="num">8</span> times in ten. <code>Ollama</code> passed
+          <span class="num">60%</span> and reproduced <span class="num">6</span>.</p>
+        <p>One task hid an instruction inside the work and told the model to obey it.
+          <b>llama.cpp ignored it. Ollama followed it, both times.</b> On that evidence the
+          baseline qualifies for local coding and prompt work with a person reading the output,
+          and explicitly not for autonomous code acceptance, security-sensitive decisions or
+          instruction-boundary enforcement.</p>
+      </div>
+    </div>
+  </div>
 </section>
 
-<section data-density="quiet">
-  <span class="k">start</span>
-  <h2>Bring us the problem, not the specification.</h2>
-  <p class="lede">A paragraph about the problem is enough. We reply within two working days,
-     usually with a question or two first. The first conversation is free and carries no
-     commitment.</p>
-  <a class="act" href="/start/">Start a project &rarr;</a>
+<!-- operating products -->
+<section class="rv" aria-labelledby="ops-h">
+  <span class="k">Operating in Kenya</span>
+  <h2 id="ops-h">The part of the work that people use without knowing our name.</h2>
+  <div class="shelf">
+    <article><a class="card" href="/work/bizmtaani/">
+      <div class="th"><picture><source type="image/webp" srcset="/assets/home/biz-venue.webp"><img src="/assets/home/biz-venue.jpg" width="800" height="500" loading="lazy"
+        style="object-position:0% 0%"
+        alt="The Villager on BizMtaani: a food and drink venue in Embu, Kenya, marked open for orders above a priced menu."></picture></div>
+      <div class="tx"><h3>BizMtaani</h3>
+        <p>A marketplace where shops list what they actually sell, customers pay from a phone, and
+          riders carry it. One listed business: The Villager, in Embu.</p>
+        <p class="u">bizmtaani.com</p></div>
+    </a></article>
+    <article><a class="card" href="/work/carepro/">
+      <div class="th"><picture><source type="image/webp" srcset="/assets/home/carepro-verify.webp"><img src="/assets/home/carepro-verify.jpg" width="800" height="500" loading="lazy"
+        style="object-position:50% 4%"
+        alt="CarePro's published verification panel: four numbered stages ending in clinical sign-off by a registered nurse."></picture></div>
+      <div class="tx"><h3>CarePro</h3>
+        <p>Home nursing coordination. Licences checked against the Nursing Council register, an
+          interview on a clinical rubric, then a registered nurse reads the whole file.</p>
+        <p class="u">carepro.co.ke</p></div>
+    </a></article>
+    <article><a class="card" href="/work/hazina-nomads/">
+      <div class="th"><picture><source type="image/webp" srcset="/assets/home/hazina-room.webp"><img src="/assets/home/hazina-room.jpg" width="800" height="500" loading="lazy"
+        style="object-position:8% 50%"
+        alt="Hazina Nomads: an annotated photograph of a curated Kenyan collection beside a curator's note."></picture></div>
+      <div class="tx"><h3>Hazina Nomads</h3>
+        <p>Private Kenyan sourcing for travellers and diaspora families. No checkout. A brief, a
+          curator who takes it on, and a conversation that carries on in WhatsApp.</p>
+        <p class="u">hazina.lesnarai.co.ke</p></div>
+    </a></article>
+    <article><a class="card" href="/work/jamii-projects-hub/">
+      <div class="th"><picture><source type="image/webp" srcset="/assets/home/jamii-list.webp"><img src="/assets/home/jamii-list.jpg" width="800" height="500" loading="lazy"
+        style="object-position:0% 24%"
+        alt="Jamii Projects Hub: community project records open for public voting."></picture></div>
+      <div class="tx"><h3>Jamii Projects Hub</h3>
+        <p>Community projects, votes, contributions and records built to survive scrutiny. Running
+          as a pilot in Mbeere North.</p>
+        <p class="u">Pilot</p></div>
+    </a></article>
+  </div>
+  <p class="more">Gen-Eat runs as a pilot at USIU. Also built or in progress: Elixirs, a platform
+    for Sarepta Children Rescue Center, Campus Map and Cypher.</p>
+  <p style="margin-top:18px"><a class="act" href="/work/">Open the register &rarr;</a></p>
+</section>
+
+<!-- bridges into the rest of the architecture -->
+<section class="rv" aria-labelledby="bridge-h">
+  <span class="k">Working together</span>
+  <h2 id="bridge-h">What we can take on, and how it is built.</h2>
+  <div class="bridge">
+    <div>
+      <h3>Capabilities</h3>
+      <p>What the company can take responsibility for, chosen by current evidence rather than by
+        system count.</p>
+      <a class="act" href="/capabilities/">The six capabilities &rarr;</a>
+    </div>
+    <div>
+      <h3>Engineering</h3>
+      <p>What is measured, by a stated method on a stated day, published with what the result does
+        not prove.</p>
+      <a class="act" href="/engineering/">How the work is built &rarr;</a>
+    </div>
+    <div>
+      <h3>Company</h3>
+      <p>Who the company is, where it operates, and what it holds itself to.</p>
+      <a class="act" href="/company/">About LESNAR AI &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<section class="rv" aria-labelledby="start-h">
+  <span class="k">Start</span>
+  <h2 id="start-h">Bring the problem, not the specification.</h2>
+  <p class="lede">A paragraph about what is going wrong is enough. We reply within two working
+    days, usually with a question or two first. The first conversation is free and carries no
+    commitment.</p>
+  <p style="margin-top:18px"><a class="act" href="/start/">Start a project &rarr;</a></p>
 </section>
 
 </main>
+
 <footer class="site-foot"><div class="w">
   <div><p class="foot-h">LESNAR AI</p><p>Nairobi, Kenya.</p>
     <p>Software, AI, security and connected systems.</p></div>
@@ -140,7 +479,337 @@
     <li><a href="/start/">Start</a></li></ul></div>
   <div><p class="foot-h">Direct</p>
     <p>hello@lesnarai.co.ke</p><p>WhatsApp +254 715 540 653</p></div>
-</div>
-</footer>
+</div></footer>
+
+<script>
+/* ═══ HOME · state, reveals and two instruments ═══════════════════════════
+   Zero dependencies. One rAF gate that obeys prefers-reduced-motion, one
+   signal that replays to late subscribers, and canvases that read their
+   colours from the production token layer so the theme control drives them
+   without a second palette existing. ═══════════════════════════════════ */
+(()=>{
+'use strict';
+
+/* a listener set that replays its last value: kills fetch-then-draw races */
+function Signal(){
+  const subs=new Set(); let value, settled=false;
+  return {
+    get value(){return value}, get settled(){return settled},
+    set(v){ value=v; settled=true; subs.forEach(fn=>{try{fn(v)}catch(e){console.error('[signal]',e)}}); },
+    subscribe(fn){ subs.add(fn); if(settled) fn(value); return ()=>subs.delete(fn); }
+  };
+}
+
+const Motion=(()=>{
+  const q=matchMedia('(prefers-reduced-motion: reduce)');
+  let live=0;
+  const api={
+    get reduced(){ return q.matches },
+    run(fn){
+      if(q.matches) return ()=>{};
+      let id=0, t0=performance.now(), prev=t0, stopped=false;
+      live++; window.__rafLive=live;
+      const step=t=>{ if(stopped) return;
+        const dt=t-prev; prev=t;
+        if(fn(dt,t-t0)===false){ api._end(); return; }
+        id=requestAnimationFrame(step); };
+      id=requestAnimationFrame(step);
+      return ()=>{ if(stopped) return; stopped=true; cancelAnimationFrame(id); api._end(); };
+    },
+    _end(){ live=Math.max(0,live-1); window.__rafLive=live; }
+  };
+  q.addEventListener && q.addEventListener('change',()=>{ if(q.matches) Paint.all(); });
+  return api;
+})();
+
+const Paint=(()=>{ const fns=new Set();
+  return { register(fn){ fns.add(fn); return fn },
+           all(){ fns.forEach(fn=>{ try{fn()}catch(e){console.error('[paint]',e)} }) } }; })();
+
+/* the theme control lives in theme.js and only flips an attribute, so the
+   canvases watch the attribute rather than reaching into that module */
+new MutationObserver(()=>Paint.all())
+  .observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>Paint.all());
+
+const Detections=Signal();
+const Scrub=Signal();
+const tok=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+function fit(canvas){
+  const dpr=Math.min(2,devicePixelRatio||1);
+  const W=canvas.clientWidth, H=canvas.clientHeight;
+  if(!W||!H) return null;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  const c=canvas.getContext('2d');
+  if(!c) return null;
+  c.setTransform(dpr,0,0,dpr,0,0); c.clearRect(0,0,W,H);
+  return {c,W,H};
+}
+
+/* ── reveals, with three independent floors ───────────────────────────── */
+const REVEAL=[...document.querySelectorAll('.rv')];
+const revealAll=()=>REVEAL.forEach(e=>e.classList.add('in'));
+if(!('IntersectionObserver' in window)){ revealAll(); }
+else{
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+  }),{threshold:.08});
+  REVEAL.forEach(e=>io.observe(e));
+  setTimeout(()=>{
+    if(scrollY<100) return;
+    const dark=REVEAL.filter(e=>!e.classList.contains('in'));
+    if(dark.length){ console.warn('[reveal] observer never fired for',dark.length,'sections; forcing'); revealAll(); }
+  },3000);
+}
+
+/* ── the record ───────────────────────────────────────────────────────── */
+(()=>{
+  const rc=document.getElementById('runs');
+  const hud=document.getElementById('run-hud');
+  const input=document.getElementById('run-scrub');
+  const wrap=document.getElementById('scrub-wrap');
+  if(!rc||!hud||!input||!wrap) return;
+
+  /* one geometry, shared by the renderer and the hit test, so what is drawn
+     and what is selected can never drift apart */
+  function geom(W,H){
+    const padL=W*0.045, padR=W*0.045, span=W-padL-padR;
+    const base=H-30, top=12;
+    return {padL,span,base,top,max:14000,
+            x:r=>padL+r.x*span,
+            w:n=>Math.max(4,span/n*0.8),
+            h:r=>Math.max(6,Math.min(1,r.n/14000)*(base-top))};
+  }
+
+  function draw(){
+    const D=Detections.value; if(!D) return;
+    const s=fit(rc); if(!s) return;
+    const {c,W,H}=s, G=geom(W,H);
+    const fg=tok('--fg')||'#14171A', fg3=tok('--fg-3')||'#565C60', row=tok('--r-row')||'#C3C7C9';
+    const runs=D.runs, w=G.w(runs.length);
+
+    c.strokeStyle=row; c.lineWidth=1;
+    c.beginPath(); c.moveTo(0,Math.round(G.base)+0.5); c.lineTo(W,Math.round(G.base)+0.5); c.stroke();
+
+    runs.forEach(r=>{
+      const x=G.x(r);
+      if(!r.n){
+        c.strokeStyle=fg3; c.globalAlpha=.85;
+        c.beginPath(); c.moveTo(Math.round(x)+0.5,G.base-5); c.lineTo(Math.round(x)+0.5,G.base); c.stroke();
+        c.globalAlpha=1; return;
+      }
+      const h=G.h(r), pf=Math.min(1,(r.p||0)/Math.max(1,r.n));
+      c.globalAlpha=.42; c.fillStyle=fg;
+      c.fillRect(x-w/2,G.base-h,w,h);
+      c.globalAlpha=.9;
+      c.fillRect(x-w/2,G.base-h*pf,w,h*pf);
+      c.globalAlpha=1;
+    });
+
+    /* day marks, from the data rather than from a fixed axis */
+    c.fillStyle=fg3; c.font='11px '+(tok('--mono')||'monospace');
+    (D.days||[]).forEach(day=>{
+      const first=runs.find(r=>String(r.t).slice(0,8)===day);
+      if(!first) return;
+      const lbl=day.slice(6,8)+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+day.slice(4,6)-1];
+      c.fillText(lbl,Math.max(0,G.x(first)-6),H-8);
+    });
+
+    /* the reticle: a bracket that clamps the active column */
+    const sel=Scrub.value;
+    if(sel===null||sel===undefined||!runs[sel]) return;
+    const r=runs[sel], x=G.x(r), half=Math.round(Math.max(w,6)/2)+4, cx=Math.round(x)+0.5;
+    const h=r.n?G.h(r):10;
+    const capTop=Math.max(2,Math.round(G.base-h)-9), capBot=Math.round(G.base)+5;
+    c.strokeStyle=fg; c.lineWidth=1;
+    c.globalAlpha=.3;
+    c.beginPath(); c.moveTo(cx,0); c.lineTo(cx,G.base); c.stroke();
+    c.globalAlpha=1;
+    const L=Math.round(cx-half)+0.5, R=Math.round(cx+half)+0.5, arm=5;
+    c.beginPath();
+    c.moveTo(L+arm,capTop); c.lineTo(L,capTop); c.lineTo(L,capBot); c.lineTo(L+arm,capBot);
+    c.moveTo(R-arm,capTop); c.lineTo(R,capTop); c.lineTo(R,capBot); c.lineTo(R-arm,capBot);
+    c.stroke();
+    if(r.b&&r.b.length>1){
+      let pk=0; for(let i=1;i<r.b.length;i++) if(r.b[i]>r.b[pk]) pk=i;
+      const px=x-w/2+(pk/(r.b.length-1))*w;
+      const py=G.base-h-2-Math.min(1,r.b[pk]/2)*12;
+      c.fillStyle=fg; c.beginPath(); c.arc(px,py,2.5,0,Math.PI*2); c.fill();
+    }
+  }
+  Paint.register(draw);
+  Detections.subscribe(draw);
+
+  const MONTH=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function parts(r){
+    const t=String(r.t);
+    return { day:(+t.slice(6,8))+' '+MONTH[+t.slice(4,6)-1].slice(0,3),
+             long:(+t.slice(6,8))+' '+MONTH[+t.slice(4,6)-1],
+             clock:t.slice(9,11)+':'+t.slice(11,13)+':'+t.slice(13,15),
+             obstacle:(r.n||0)-(r.p||0), proximity:r.p||0 };
+  }
+  function spoken(i,total,r){
+    const p=parts(r);
+    return 'Run '+(i+1)+' of '+total+', '+p.long+' at '+p.clock+'. '+
+      (r.n ? p.obstacle.toLocaleString()+' obstacle and '+p.proximity.toLocaleString()+' proximity detections.'
+           : 'No detections recorded.');
+  }
+
+  function paintHud(i){
+    const D=Detections.value;
+    if(!D||i===null||i===undefined||!D.runs[i]){
+      hud.classList.remove('on'); input.removeAttribute('aria-valuetext'); return;
+    }
+    const r=D.runs[i], p=parts(r), g='<span class="g">/</span>';
+    hud.innerHTML = r.n
+      ? p.day+g+p.clock+g+'<b>'+p.obstacle.toLocaleString()+'</b> <span class="u">obstacle</span>'
+        +g+'<b>'+p.proximity.toLocaleString()+'</b> <span class="u">proximity</span>'
+      : p.day+g+p.clock+g+'<span class="u">No detections recorded</span>';
+    hud.classList.add('on');
+    input.setAttribute('aria-valuetext',spoken(i,D.runs.length,r));
+    const box=rc.getBoundingClientRect(), G=geom(box.width,box.height), wH=hud.offsetWidth||220;
+    /* the right-edge clamp must never beat the left one: a readout too wide
+       for the track loses its tail, never the timestamp that identifies it */
+    const maxLeft=Math.max(0,box.width-wH);
+    hud.style.left=Math.round(Math.min(Math.max(0,G.x(r)-wH/2),maxLeft))+'px';
+  }
+
+  let queued=false;
+  Scrub.subscribe(i=>{
+    if(input.value!==String(i) && i!==null && i!==undefined) input.value=i;
+    paintHud(i);
+    if(queued) return; queued=true;
+    requestAnimationFrame(()=>{ queued=false; draw(); });
+  });
+
+  /* runs sit at their real timestamps, so a pointer resolves to the nearest
+     run by distance rather than by fraction of the width */
+  function nearest(clientX){
+    const D=Detections.value; if(!D) return null;
+    const box=rc.getBoundingClientRect(), G=geom(box.width,box.height);
+    const px=clientX-box.left;
+    let best=0,bd=Infinity;
+    D.runs.forEach((r,k)=>{ const d=Math.abs(G.x(r)-px); if(d<bd){bd=d;best=k;} });
+    return best;
+  }
+  const set=v=>{ if(Scrub.value!==v) Scrub.set(v); };
+  wrap.addEventListener('pointermove',e=>set(nearest(e.clientX)));
+  wrap.addEventListener('pointerdown',e=>set(nearest(e.clientX)));
+  /* a touch pointer is destroyed the moment the finger lifts, so the browser
+     fires pointerleave after every tap. only a mouse can actually leave. */
+  wrap.addEventListener('pointerleave',e=>{
+    if(e.pointerType && e.pointerType!=='mouse') return;
+    if(document.activeElement!==input) set(null);
+  });
+  input.addEventListener('input',()=>set(+input.value));
+  input.addEventListener('focus',()=>set(+input.value));
+  input.addEventListener('blur',()=>set(null));
+  addEventListener('resize',()=>{ draw(); paintHud(Scrub.value); },{passive:true});
+  Scrub.set(null);
+
+  /* the demonstration: nobody discovers a scrubbable chart by guessing, so
+     the instrument runs its own length once, then hands over permanently */
+  (()=>{
+    const rec=document.querySelector('.record');
+    if(!rec||Motion.reduced||!('IntersectionObserver' in window)) return;
+    let done=false, stop=null, taken=false;
+    const takeOver=()=>{ taken=true; if(stop){stop();stop=null;} };
+    ['pointerdown','pointermove','wheel','keydown','touchstart']
+      .forEach(ev=>wrap.addEventListener(ev,takeOver,{passive:true}));
+    input.addEventListener('focus',takeOver);
+    new IntersectionObserver(es=>{
+      if(!es[0].isIntersecting||done) return;
+      done=true;
+      const go=()=>setTimeout(()=>{
+        const D=Detections.value; if(!D||taken) return;
+        const n=D.runs.length-1, DUR=1500;
+        const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+        stop=Motion.run((_dt,t)=>{
+          if(taken){ stop=null; return false; }
+          if(t>=DUR){ Scrub.set(n); stop=null; return false; }
+          Scrub.set(Math.round(ease(t/DUR)*n));
+          return true;
+        });
+      },320);
+      Detections.settled ? go() : Detections.subscribe(go);
+    },{threshold:.35}).observe(rec);
+  })();
+
+  fetch('/assets/home/sentinel-detections.json')
+    .then(r=>{ if(!r.ok) throw new Error('detections '+r.status); return r.json(); })
+    .then(d=>{
+      if(!d||!Array.isArray(d.runs)||!d.runs.length) throw new Error('detections empty');
+      Detections.set(d);
+    })
+    .catch(e=>{
+      console.warn('[detections]',e.message);
+      /* an empty instrument under a caption asserting 87 runs would be
+         claiming data that is not there */
+      wrap.style.display='none';
+      input.disabled=true; input.tabIndex=-1;
+      const rec=document.querySelector('.record');
+      if(rec){
+        const cap=rec.querySelector('.rcap');
+        if(cap) cap.textContent='The detection record could not be loaded, so the runs it describes are not being shown.';
+      }
+    });
+})();
+
+/* ── the wire: a sealed packet crosses a relay that cannot open it ─────── */
+(()=>{
+  const rail=document.getElementById('rail');
+  const replay=document.getElementById('wire-replay');
+  const sect=document.getElementById('infrastructure');
+  if(!rail||!sect) return;
+
+  const OUT=260, LEG=820, HOLD=200, IN=240;
+  const PASS=OUT+LEG+HOLD+LEG+IN;
+  const rest=side=>{
+    rail.style.setProperty('--o1',side==='left'?'0':'0');
+    rail.style.setProperty('--o2','0');
+    rail.classList.remove('verify');
+  };
+  function at(t,dir){
+    const fwd=dir>0;
+    if(t<OUT){ rail.classList.remove('verify');
+      rail.style.setProperty(fwd?'--o1':'--o2','1');
+      rail.style.setProperty(fwd?'--w1':'--w2',fwd?'0':'1'); return; }
+    const a=t-OUT;
+    if(a<LEG){ const f=a/LEG;
+      rail.style.setProperty(fwd?'--o1':'--o2','1');
+      rail.style.setProperty(fwd?'--w1':'--w2',String(fwd?f:1-f)); return; }
+    const b=a-LEG;
+    if(b<HOLD){ rail.classList.add('verify');
+      rail.style.setProperty(fwd?'--o1':'--o2','0');
+      rail.style.setProperty(fwd?'--o2':'--o1','0'); return; }
+    rail.classList.remove('verify');
+    const c2=b-HOLD;
+    if(c2<LEG){ const f=c2/LEG;
+      rail.style.setProperty(fwd?'--o2':'--o1','1');
+      rail.style.setProperty(fwd?'--w2':'--w1',String(fwd?f:1-f)); return; }
+    rail.style.setProperty('--o1','0'); rail.style.setProperty('--o2','0');
+  }
+
+  let stop=null;
+  function play(dir){
+    if(stop){ stop(); stop=null; }
+    if(Motion.reduced){ rest('left'); return; }
+    stop=Motion.run((_dt,t)=>{
+      if(t>=PASS){ rest(dir>0?'right':'left'); stop=null; return false; }
+      at(t,dir); return true;
+    });
+  }
+  rest('left');
+  replay && replay.addEventListener('click',()=>play(1));
+
+  if(Motion.reduced||!('IntersectionObserver' in window)) return;
+  let shown=false;
+  new IntersectionObserver(es=>{
+    if(es[0].isIntersecting && !shown){ shown=true; setTimeout(()=>play(1),260); }
+  },{threshold:.3}).observe(sect);
+})();
+})();
+</script>
 </body>
 </html>

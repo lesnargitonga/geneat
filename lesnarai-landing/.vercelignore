@@ -1,6 +1,4 @@
-# Review-only, never a public route. home-candidate.html is the integrated
-# homepage under evaluation; the live route is index.html until it is promoted.
-home-candidate.html
+# Not part of the deployed site.
 audit.mjs
 node_modules
 tools

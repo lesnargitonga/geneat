@@ -192,8 +192,7 @@
    "evidence_id": "EV-AERIAL-SIM-01",
    "system": "Aerial systems",
    "claim_ids": [
-    "C-AERIAL-MATURITY",
-    "C-AERIAL-DESC"
+    "C-AERIAL-MATURITY"
    ],
    "maturity_at_capture": "Research",
    "evidence_strength": "Structural",
@@ -289,6 +288,160 @@
    "derivative_asset_path": null,
    "content_hash": null,
    "hashed_file": null
+  },
+  {
+   "evidence_id": "EV-SENTINEL-DETECT-01",
+   "system": "Operation Sentinel",
+   "claim_ids": [
+    "C-HOME-SENTINEL-RECORD"
+   ],
+   "maturity_at_capture": "Research",
+   "evidence_strength": "Measured",
+   "source_type": "recorded output of our own simulation run",
+   "source_location": "~/workspace/LesnarAI/logs/seg_diag_YYYYMMDD_HHMMSS.csv (87 files)",
+   "public_safe": true,
+   "route_or_artifact": "/",
+   "shows": "87 diagnostic run files with schema drone_id,detected_class,confidence,timestamp, spanning 2026-04-13T13:19:59 to 2026-04-16T20:59:21. 71,813 rows in total: 53,971 obstacle and 17,842 proximity_alert. 34 runs recorded detections; 53 recorded none. Every row carries drone_id x500_0. Largest run 13,991 events.",
+   "does_not_show": "Flight of any kind. No PX4 .ulg or .ulog flight log exists anywhere in the workspace, so there is no logged flight, simulated or physical. It shows a perception pipeline emitting detections, not a vehicle being flown, and nothing about control laws, navigation accuracy or mission success.",
+   "privacy_notes": "No personal data. Synthetic simulation output only.",
+   "limitations": "The confidence column ranges 0.150 to 1.999, so it is not a normalised probability and no accuracy claim can rest on it. Detection counts are the pipeline's own output, not verified against ground truth.",
+   "artifact_sha256": "bbdfabd66ecce2924dc775c33d5e5cd376ea32b229c1a42f6b2ab8d335fcbe50 (concatenated set)",
+   "captured_at": "2026-09-18",
+   "timezone": "+03:00 Africa/Nairobi"
+  },
+  {
+   "evidence_id": "EV-SENTINEL-GPSDENIED-01",
+   "system": "Operation Sentinel",
+   "claim_ids": [
+    "C-HOME-SENTINEL-GPSDENIED"
+   ],
+   "maturity_at_capture": "Research",
+   "evidence_strength": "Structural",
+   "source_type": "implementation / configuration artifact",
+   "source_location": "~/workspace/LesnarAI/px4_config/gps_denied.params",
+   "public_safe": true,
+   "route_or_artifact": "/",
+   "shows": "A PX4 EKF2 parameter file for GPS-denied operation: EKF2_GPS_CTRL 0 disables GPS fusion, EKF2_AID_MASK 2 selects optical-flow aiding, EKF2_HGT_MODE 2 uses a range sensor for height.",
+   "does_not_show": "That the configuration was ever loaded onto an airframe or flown with.",
+   "privacy_notes": "None.",
+   "limitations": "A parameter file proves the configuration was authored, not that it works.",
+   "captured_at": "2026-09-18",
+   "timezone": "+03:00 Africa/Nairobi"
+  },
+  {
+   "evidence_id": "EV-MEDIMATCH-SURVEY-01",
+   "system": "MediMatch",
+   "claim_ids": [
+    "C-HOME-MEDIMATCH-SURVEY"
+   ],
+   "maturity_at_capture": "Research",
+   "evidence_strength": "Measured",
+   "source_type": "primary research data, tallied from the export",
+   "source_location": "~/publish-stage/MediMatch-Data-Generator/Medimatch project Questionnaire.csv",
+   "public_safe": true,
+   "route_or_artifact": "/",
+   "shows": "52 questionnaire responses. Stockouts weekly or monthly: 29 of 52 = 55.8% (Monthly 23, Weekly 6). Current method for locating emergency supplies rated Ineffective by 13 of 52 = 25.0%, Somewhat Effective by 55.8%, Very Effective by 19.2%. Would recommend their facility pilot MediMatch: Yes 28 of 52 = 53.8%, Maybe 36.5%, No 9.6%.",
+   "does_not_show": "The figures published elsewhere in the project's own prose — 64 professionals surveyed, 56.3% weekly/monthly stockouts, 57.8%, 89.1% — cannot be reproduced from this export. It is the only response dataset on this machine.",
+   "privacy_notes": "Responses are unattributed; no names, facilities or contact details are used.",
+   "limitations": "A single self-selected sample of 52 at one point in time, Nairobi County. It is a stated need, not measured demand, and nothing here is a deployment outcome.",
+   "artifact_sha256": "006a64b0b8b62a8b38ed45665fab6332c079d39a1cb01b1e5c7e15919956ed6b",
+   "captured_at": "2026-09-18",
+   "timezone": "+03:00 Africa/Nairobi"
+  },
+  {
+   "evidence_id": "EV-MEDIMATCH-BUILD-01",
+   "system": "MediMatch",
+   "claim_ids": [
+    "C-HOME-MEDIMATCH-BUILT"
+   ],
+   "maturity_at_capture": "Built · publicly demonstrated",
+   "evidence_strength": "Structural",
+   "source_type": "implementation / repository structure",
+   "source_location": "~/publish-stage/MediMatch",
+   "public_safe": true,
+   "route_or_artifact": "/",
+   "shows": "A TypeScript client, server and db in one repository, with a presentation deck and captured research views, described by its own README as a geospatial platform that ranks redistribution by distance, urgency, verification and product fit.",
+   "does_not_show": "Deployment inside any health system, any real facility inventory, any transaction, or any patient record. The demonstration data is synthetic and the AI briefs ship hardcoded.",
+   "privacy_notes": "No patient data exists in the repository.",
+   "limitations": "Structural evidence proves the software exists in that shape, not that it is used.",
+   "captured_at": "2026-09-18",
+   "timezone": "+03:00 Africa/Nairobi"
+  },
+  {
+   "evidence_id": "EV-SIMY-CORE-01",
+   "system": "Simy",
+   "claim_ids": [
+    "C-HOME-SIMY-CORE"
+   ],
+   "maturity_at_capture": "Partially built",
+   "evidence_strength": "Structural",
+   "source_type": "implementation / repository structure",
+   "source_location": "~/publish-stage/Simy/crates/comm-core",
+   "public_safe": true,
+   "route_or_artifact": "/",
+   "shows": "A Rust crate of 10 source files and 2,831 lines implementing the cryptographic core, including x3dh.rs, a filesystem ratchet store and a double-ratchet bootstrap example.",
+   "does_not_show": "A finished end-user messenger. The desktop client exists as a scaffold and the project's own README lists missing and incomplete areas. No third-party cryptographic audit, no deployment, no user.",
+   "privacy_notes": "No keys, no message content, no user data read or recorded.",
+   "limitations": "Structural only. That an X3DH and double-ratchet implementation is present is not evidence that it is correct, and it has not been independently reviewed.",
+   "captured_at": "2026-09-18",
+   "timezone": "+03:00 Africa/Nairobi"
+  },
+  {
+   "evidence_id": "EV-FOUNDRY-EVAL-01",
+   "system": "Model foundry",
+   "claim_ids": [
+    "C-HOME-FOUNDRY-BASELINE"
+   ],
+   "maturity_at_capture": "Internal",
+   "evidence_strength": "Measured",
+   "source_type": "controlled local evaluation",
+   "source_location": "~/precision-main-setup/reports/foundry-wave002-evaluation.md",
+   "public_safe": true,
+   "route_or_artifact": "/",
+   "shows": "Two runtimes on the same hash-pinned weights. llama.cpp b10107: 80% task pass rate, 8/10 exact repeatability. Ollama 0.24.0: 60% task pass rate, 6/10. On the instruction-priority task llama.cpp passed and Ollama failed, returning PWNED in both repetitions. Both failed SKU validation; both passed JSON format, dependency skepticism, bug diagnosis and minimal-patch tasks.",
+   "does_not_show": "General model quality, or behaviour on any other model, quantisation, hardware or task set. It is not a benchmark result and not a safety certification.",
+   "privacy_notes": "No prompts containing personal or client data.",
+   "limitations": "One machine, one GPU, one day, ten tasks with two repetitions each. A 10-task suite cannot support a general claim about either runtime.",
+   "captured_at": "2026-09-18",
+   "timezone": "+03:00 Africa/Nairobi"
+  },
+  {
+   "evidence_id": "EV-FOUNDRY-PIN-01",
+   "system": "Model foundry",
+   "claim_ids": [
+    "C-HOME-FOUNDRY-BASELINE"
+   ],
+   "maturity_at_capture": "Internal",
+   "evidence_strength": "Structural",
+   "source_type": "provenance record",
+   "source_location": "~/precision-main-setup/reports/foundry-wave002-model-provenance.md",
+   "public_safe": true,
+   "route_or_artifact": "/",
+   "shows": "The evaluated file is qwen2.5-coder-7b-instruct-q4_k_m.gguf at 4,683,073,536 bytes with an exact SHA-256 match to the published revision, quantisation Q4_K_M, licence Apache-2.0, recorded before evaluation.",
+   "does_not_show": "Anything about the model's behaviour; it fixes only which artifact was measured.",
+   "privacy_notes": "None.",
+   "limitations": "A pin proves identity of the file, nothing about its fitness.",
+   "captured_at": "2026-09-18",
+   "timezone": "+03:00 Africa/Nairobi"
+  },
+  {
+   "evidence_id": "EV-DISCLOSURE-01",
+   "system": "Vulnerability disclosure",
+   "claim_ids": [
+    "C-HOME-DISCLOSURE"
+   ],
+   "maturity_at_capture": "Submitted",
+   "evidence_strength": "Structural",
+   "source_type": "our own submitted disclosure document",
+   "source_location": "Local disclosure submission document, held offline. The affected protocol, its identity, the proof-of-concept and the exploit path are withheld under engagement confidentiality and are deliberately not recorded here.",
+   "public_safe": false,
+   "route_or_artifact": "/",
+   "shows": "A 414-line submission describing a reproducible settlement finding, a patch, a canonical run of seven tests, and a demonstrated movement of 37,499.216834 USDC of vault value in one settlement. Submitted at high severity.",
+   "does_not_show": "Any adjudication, payout, acceptance or fix by the affected party. We do not publish an outcome we do not control.",
+   "privacy_notes": "The protocol identity, contract addresses, proof-of-concept code and exploit path are confidential and are not stored in this registry. Only the rounded figure and the test count are public-safe.",
+   "limitations": "Our own document. Reproducibility is our own claim about our own harness, and no third party has confirmed it here.",
+   "captured_at": "2026-09-18",
+   "timezone": "+03:00 Africa/Nairobi"
   }
  ]
 }
