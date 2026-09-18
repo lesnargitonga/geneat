@@ -139,21 +139,41 @@ async function run(w,h,tag,opts={}){
   await p.evaluate(async()=>{const H=document.body.scrollHeight;
     for(let y=0;y<H;y+=380){scrollTo(0,y);await new Promise(r=>setTimeout(r,40));}});
   await p.waitForTimeout(900);
-  /* exercise the instrument so its live states are inside the gate */
+  /* exercise the instrument so its live states are inside the gate. every run
+     is swept, not one index: the HUD is nowrap and its width varies with the
+     readout, so a single sample cannot prove it stays inside the viewport. */
   await p.evaluate(()=>{const el=document.getElementById('run-scrub');
     if(!el) return; document.querySelector('.record').scrollIntoView({block:'center'});
     el.value=35; el.dispatchEvent(new Event('input',{bubbles:true}));});
   await p.waitForTimeout(500);
+  const hudSweep=await p.evaluate(async()=>{
+    const hud=document.getElementById('run-hud');
+    if(!hud||typeof Telemetry==='undefined'||!Telemetry.value) return null;
+    const lim=document.documentElement.clientWidth; let minL=1e9,maxR=0,wide=0,at=0;
+    for(let i=0;i<Telemetry.value.runs.length;i++){
+      Scrub.set(i);
+      await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+      const b=hud.getBoundingClientRect();
+      minL=Math.min(minL,b.left); maxR=Math.max(maxR,b.right);
+      if(b.width>wide){wide=b.width;at=i;}
+    }
+    return {minL:Math.round(minL),maxR:Math.round(maxR),lim,
+            wide:Math.round(wide),at,bad:minL<-1||maxR>lim+1};
+  });
   const overflow=await p.evaluate(OVERFLOW);
   const contrast=await p.evaluate(CONTRAST);
   const hudOn=await p.evaluate(()=>{const h=document.getElementById('run-hud');
     return !!h && h.classList.contains('on');});
   const broken=await p.evaluate(()=>[...document.images].filter(i=>!i.complete||i.naturalWidth===0).length);
   const noalt=await p.evaluate(()=>[...document.images].filter(i=>!i.hasAttribute('alt')).length);
-  const bad=errs.length||overflow.length||broken||noalt||contrast.length;
+  const hudBad=!!(hudSweep&&hudSweep.bad);
+  const bad=errs.length||overflow.length||broken||noalt||contrast.length||hudBad;
   if(bad)FAIL++;
   console.log((bad?'FAIL ':'ok   ')+tag,'errors',errs.length,'overflow',overflow.length,
-    'broken',broken,'noalt',noalt,'contrast',contrast.length,'hudActive',hudOn);
+    'broken',broken,'noalt',noalt,'contrast',contrast.length,'hudActive',hudOn,
+    'hudFits',hudSweep?(!hudSweep.bad):'n/a');
+  if(hudBad) console.log('       HUD out of bounds: left',hudSweep.minL,'right',hudSweep.maxR,
+    'limit',hudSweep.lim,'widest',hudSweep.wide+'px at run',hudSweep.at);
   if(errs.length)     console.log('       errors:',JSON.stringify(errs.slice(0,3)));
   if(overflow.length) console.log('       overflow:',JSON.stringify(overflow));
   if(contrast.length) console.log('       contrast:',JSON.stringify(contrast));
@@ -165,8 +185,10 @@ async function run(w,h,tag,opts={}){
 }
 await run(1440,900,'D-dark');
 await run(390,844,'M-dark');
+await run(320,568,'S-dark');
 await run(1440,900,'L-light',{light:true});
 await run(390,844,'ML-light',{light:true});
+await run(320,568,'SL-light',{light:true});
 
 const p=await open({viewport:{width:1440,height:900},reducedMotion:'reduce'});
 const rerr=[]; p.on('pageerror',e=>rerr.push(e.message));
