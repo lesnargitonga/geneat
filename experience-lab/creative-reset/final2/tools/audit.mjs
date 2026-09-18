@@ -39,7 +39,9 @@ const CONTRAST=()=>{
     for(let i=stack.length-1;i>=0;i--) base=over(stack[i],base);
     return base;
   };
-  document.querySelectorAll('p,h1,h2,h3,span,b,a,li,i,em,code,label,output,div').forEach(el=>{
+  /* every element carrying its own text, not an allowlist: figcaption sat
+     outside the old list and shipped a 4.49:1 caption in the light theme. */
+  document.querySelectorAll('body *').forEach(el=>{
     const own=[...el.childNodes].some(n=>n.nodeType===3&&n.textContent.trim());
     if(!own||el.offsetParent===null) return;
     let vis=true,a=el;   /* an ancestor at opacity 0 hides this as surely as its own */

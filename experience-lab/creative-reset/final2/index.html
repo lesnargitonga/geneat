@@ -1,5 +1,7 @@
 <!doctype html><html lang="en" data-t="dark"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<script>/* before first paint, or the stored theme arrives as a flash */
+try{var t=localStorage.getItem('lai-theme');if(t==='light'||t==='dark')document.documentElement.dataset.t=t}catch(e){}</script>
 <title>LESNAR AI</title>
 <meta name="description" content="LESNAR AI is a technology company in Nairobi. We build software, AI and autonomous systems for operational problems that are hard in the field: some for institutions, some that we run ourselves.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -102,7 +104,7 @@ h1 .ln i{display:block;font-style:normal}
 /* ── 2 · health & geospatial: terrain, not a slide deck ── */
 .med{background:#070706;border-top-color:transparent;--edge:#232320;--bg2:#0F0F0D;
   padding:0;border-top:1px solid var(--edge)}
-:root[data-t="light"] .med{background:#E6E3DB;--edge:#C8C5BC;--bg2:#DBD8D0}
+:root[data-t="light"] .med{background:#E6E3DB;--edge:#C8C5BC;--bg2:#DBD8D0;--dim:#5D5B53}
 .terrain{position:relative;min-height:min(104svh,980px);display:flex;align-items:flex-end;
   padding-block:clamp(90px,13vh,150px) clamp(28px,4vh,52px);overflow:hidden}
 .terrain .map{position:absolute;inset:0}
@@ -362,6 +364,7 @@ h1 .ln i{display:block;font-style:normal}
   </button>
 </div></nav>
 
+<main>
 <!-- 1 · arrival -->
 <header class="arr" id="top">
   <canvas id="tel" aria-hidden="true"></canvas>
@@ -594,6 +597,8 @@ h1 .ln i{display:block;font-style:normal}
     <a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a>
   </div>
 </div></section>
+</main>
+
 <footer><div class="w"><div class="fin">
   <span>LESNAR AI LTD &middot; Nairobi, Kenya</span>
 </div></div></footer>
@@ -607,8 +612,15 @@ tg.addEventListener('click',()=>{
   root.dataset.t = root.dataset.t==='dark' ? 'light' : 'dark';
   tg.setAttribute('aria-label', root.dataset.t==='dark'
     ? 'Switch to the light theme' : 'Switch to the dark theme');
+  /* storage can throw in private mode; a forgotten choice is better than a
+     broken toggle, so the failure stays local to the write. */
+  try{ localStorage.setItem('lai-theme', root.dataset.t); }
+  catch(e){ console.warn('[theme] preference not stored:', e.name); }
   Paint.all();
 });
+/* the button ships describing the dark default; a stored light choice is
+   applied in the head, so the label has to catch up before it is read. */
+if(root.dataset.t==='light') tg.setAttribute('aria-label','Switch to the dark theme');
 
 /* reveals */
 const REVEAL=[...document.querySelectorAll('.rv')];
@@ -855,7 +867,27 @@ fetch('telemetry.json')
     if(!d||!Array.isArray(d.runs)||!d.runs.length) throw new Error('telemetry empty');
     Telemetry.set(d);
   })
-  .catch(e=>{ console.warn('[telemetry]',e.message); if(cv) cv.style.display='none'; });
+  .catch(e=>{
+    console.warn('[telemetry]',e.message);
+    if(cv) cv.style.display='none';
+    /* the record describes figures it can no longer show. leaving an empty
+       instrument under a caption that asserts 87 runs would be claiming data
+       that is not there, so the instrument and its control both stand down
+       and the page says what happened. */
+    const wrap=document.getElementById('scrub-wrap'), rec=document.querySelector('.record');
+    if(wrap) wrap.style.display='none';
+    const inp=document.getElementById('run-scrub');
+    if(inp){ inp.disabled=true; inp.tabIndex=-1; }
+    if(rec){
+      rec.classList.add('in');
+      const note=document.createElement('p');
+      note.className='rcap'; note.id='record-down'; note.setAttribute('role','status');
+      note.textContent='The flight record could not be loaded, so the runs below it are not being shown.';
+      rec.prepend(note);
+      const cap=rec.querySelector('.rcap:not(#record-down)');
+      if(cap) cap.hidden=true;
+    }
+  });
 
 let rsz; addEventListener('resize',()=>{clearTimeout(rsz);rsz=setTimeout(Paint.all,180)},{passive:true});
 
@@ -941,7 +973,11 @@ const Scrub=Signal();
 
   wrap.addEventListener('pointermove',e=>set(nearest(e.clientX)));
   wrap.addEventListener('pointerdown',e=>set(nearest(e.clientX)));
-  wrap.addEventListener('pointerleave',()=>{ if(document.activeElement!==input) set(null); });
+  /* a touch pointer is destroyed the moment the finger lifts, so the browser
+     fires pointerleave after every tap. only a mouse can actually leave. */
+  wrap.addEventListener('pointerleave',e=>{
+    if(e.pointerType&&e.pointerType!=='mouse') return;
+    if(document.activeElement!==input) set(null); });
   input.addEventListener('input',()=>set(+input.value));
   input.addEventListener('focus',()=>set(+input.value));
   input.addEventListener('blur',()=>set(null));
