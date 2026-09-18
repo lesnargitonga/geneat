@@ -78,7 +78,8 @@ for(const f of pages){
     const webp=src.replace(/\.(jpg|jpeg|png)$/,'.webp');
     if(!fs.existsSync(path.join(ROOT,webp.replace(/^\//,''))))
       fail(f,`${src} is ${kb.toFixed(0)}KB with no webp sibling`);
-    else if(!s.includes(`srcset="${webp}"`))
+    /* a srcset may list several widths, so look for the path inside one */
+    else if(!new RegExp(`srcset="[^"]*${webp.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}`).test(s))
       fail(f,`${src} is ${kb.toFixed(0)}KB and a webp exists, but nothing offers it`);
   }
 

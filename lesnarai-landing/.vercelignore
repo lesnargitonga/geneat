@@ -2,3 +2,8 @@
 audit.mjs
 node_modules
 tools
+
+# never upload local environment files
+.env
+.env.*
+*.env
