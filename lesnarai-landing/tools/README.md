@@ -46,3 +46,22 @@ Playwright's route layer and fulfils the webfonts from a cache node populates.
 Measuring Safari on fallback font metrics would make the overflow gate
 meaningless, which is exactly how a line-breaking bug reached Firefox and
 Safari unseen.
+
+## claims-gate.mjs
+
+Binds the evidence layer in `experience-lab/evidence-integration/evidence/` to
+the HTML. It fails if a registered claim points at a route that does not exist,
+or if a figure the registry records for a route has drifted out of it, and it
+notes any claim the registry will not stand behind so someone confirms the page
+still qualifies it.
+
+It also prints figure coverage: every distinctive number a route asserts,
+looked up in the evidence layer. A figure that appears nowhere in it is not
+automatically wrong — plenty are sourced in a record's own prose — but it is a
+figure with no registered source, and that is the number to drive down before
+anything is promoted. Phone numbers and a 404 page naming its own status code
+are excluded; they are contact details, not claims.
+
+At the time of writing every published route sits at 100%. The candidate
+homepage sits at 15%, because it leads with MediMatch, Operation Sentinel,
+Simy and Model foundry, and the evidence layer covers none of them.
