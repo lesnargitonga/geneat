@@ -63,6 +63,25 @@ for(const f of pages){
       fail(f,`img src missing on disk: ${src}`);
   }
 
+  /* Every <picture> needs its fallback <img>, and a heavy raster that is
+     referenced without a webp alternative is weight nobody chose to spend. */
+  for(const m of s.matchAll(/<picture>[\s\S]*?<\/picture>/g)){
+    const imgs=(m[0].match(/<img\b/g)||[]).length;
+    if(imgs!==1) fail(f,`<picture> holds ${imgs} <img> fallbacks, expected exactly 1`);
+    if(m[0].includes('<picture>',1)) fail(f,'nested <picture>');
+  }
+  for(const m of s.matchAll(/<img\b[^>]*src="(\/[^"]+\.(?:jpg|jpeg|png))"[^>]*>/g)){
+    const src=m[1], disk=path.join(ROOT,src.replace(/^\//,''));
+    if(!fs.existsSync(disk)) continue;
+    const kb=fs.statSync(disk).size/1024;
+    if(kb<60) continue;
+    const webp=src.replace(/\.(jpg|jpeg|png)$/,'.webp');
+    if(!fs.existsSync(path.join(ROOT,webp.replace(/^\//,''))))
+      fail(f,`${src} is ${kb.toFixed(0)}KB with no webp sibling`);
+    else if(!s.includes(`srcset="${webp}"`))
+      fail(f,`${src} is ${kb.toFixed(0)}KB and a webp exists, but nothing offers it`);
+  }
+
   /* internal links */
   for(const m of s.matchAll(/<a\b[^>]*href="([^"]+)"/g)){
     const href=m[1];
