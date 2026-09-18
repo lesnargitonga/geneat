@@ -216,18 +216,18 @@
   },
   {
    "claim_id": "C-CAREPRO-PAYMENT",
-   "route": null,
+   "route": "/work/carepro/",
    "system": "CarePro",
-   "claim": "(not currently on the site) Payment is held by CarePro until care is delivered.",
+   "claim": "Payment is held by CarePro until care is delivered, as the product publishes it.",
    "evidence_ids": [
     "EV-CAREPRO-PAYMENT-01"
    ],
    "strongest": "Published",
    "status": "SUPPORTED",
    "note": "NEWLY SUPPORTED. Published as visible text on carepro.co.ke today. An earlier check in this programme searched the LESNAR AI study's own HTML, found nothing, and treated the sentence as unsupported — correctly, at the time, for the site. It is verifiable at the product now, so it is available for use if wanted. Still Published, never Measured.",
-   "phase9_action": "CLOSED — NO NEW CLAIM",
+   "phase9_action": "CLOSED — NO NEW CLAIM at the time of the study. Owner decision 2026-09-18: published on /work/carepro/ as EV-CAREPRO-PAYMENT-01, quoted verbatim and carrying the limit that it is a published policy and not a transaction record.",
    "phase9_action_note": "Owner decision taken: evidence availability does not write the story. EV-CAREPRO-PAYMENT-01 remains registered as available Published evidence; no corporate-site claim added.",
-   "public_status": "NOT ON THE SITE"
+   "public_status": "SUPPORTED"
   },
   {
    "claim_id": "C-CAREPRO-MATURITY",
