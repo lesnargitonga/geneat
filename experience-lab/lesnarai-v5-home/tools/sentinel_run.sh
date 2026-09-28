@@ -32,7 +32,9 @@ say() { printf '\n== %s\n' "$*"; }
 die() { printf '\nSTOPPED: %s\n' "$*" >&2; exit 1; }
 diag() {  # the last lines of every log the run writes, so one paste shows what failed
   local f
-  for f in /tmp/lesnar-orchestrator.log "$REPO/logs/gz_world.out" "$REPO/logs/px4_spawn.out" "$REPO/logs/teacher_live_0.out"; do
+  local px4="${PX4_DIR:-$HOME/PX4-Autopilot}/build/px4_sitl_default/instance_0"
+  for f in /tmp/lesnar-orchestrator.log "$REPO/logs/gz_world.out" "$REPO/logs/px4_spawn.out" \
+           "$px4/out.log" "$px4/err.log" "$REPO/logs/teacher_live_0.out"; do
     [ -s "$f" ] || continue
     printf '\n-- last lines of %s\n' "$f"
     tail -n 15 "$f"
@@ -84,6 +86,7 @@ redis_up() { [ "$(docker compose exec -T redis redis-cli ping 2>/dev/null | tr -
 if curl -fsS --max-time 3 "$ORCH/health" >/dev/null 2>&1; then
   was_running=1
   say "Stack already running; /launch-all will restart the simulator inside it"
+  say "(it keeps the environment it was started with; if Gazebo reports GZ_SIM_RESOURCE_PATH unbound, stop the stack and run this again)"
   redis_up || die "the orchestrator is up but Redis does not answer"
 else
   pre_up=$(docker compose ps -q --status running 2>/dev/null | wc -l)
@@ -92,6 +95,11 @@ else
   export LESNAR_GZ_VERBOSITY="${LESNAR_GZ_VERBOSITY:-2}"
   export LESNAR_ORCH_MODEL_CACHE_MAX_AGE_S="${LESNAR_ORCH_MODEL_CACHE_MAX_AGE_S:-120}"
   export LESNAR_TEACHER_BRIDGE_ONLY="${LESNAR_TEACHER_BRIDGE_ONLY:-1}"
+  # start_gz_world.sh and spawn_px4_drones.sh run under set -u and append to these,
+  # as does PX4's gz_env.sh, so an unset one kills Gazebo or PX4 before either starts.
+  # Empty keeps whatever the scripts add; the orchestrator passes it to both.
+  export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:-}"
+  export GZ_SIM_SYSTEM_PLUGIN_PATH="${GZ_SIM_SYSTEM_PLUGIN_PATH:-}"
   mkdir -p "$LESNAR_DATA_ROOT"
   say "Starting backend, Redis and TimescaleDB (data root $LESNAR_DATA_ROOT); a first build can take several minutes"
   # Nothing is running, so clear the project's containers and network first: ones left
