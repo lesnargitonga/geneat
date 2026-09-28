@@ -9,7 +9,7 @@ Rules for all of it: no force-push, no history rewrite, no deploy, nothing
 under production. Never commit `.env`, `deploy/render/*.local.env`, tokens,
 Hugging Face keys or model weights.
 
-## 1. Push the local website work that never reached GitHub
+## 1. Push the local website work that never reached GitHub (done 28 September 2026: `experience/lesnarai-v5-static` at `18a73f3`)
 
 The later site work (Phase 9 corrections, the claims registry and evidence
 contract, commits `b511535` and `18a73f3`) exists only on this machine.
@@ -61,15 +61,14 @@ The mission figure then draws the flown path over the dashed plan, and the
 caption states the run ID, sample count, duration and metres flown, plus
 whether the CSV's SHA-256 matches its manifest.
 
-## 3. Model Foundry material
+## 3. Model Foundry material (the evaluation is already in the Phase 9 registry; this step is only for more)
 
-The Hazina fine-tune ran from `/home/lesnar/Documents/ai model` (the path in
-`training/hazina/out/dataset_meta.json`). List what exists there and under
-`training/hazina/out/lora-hazina/`: trainer state or loss logs, evaluation
-outputs, any comparison between the model and the deterministic gate. Commit
-only small, non-secret records (JSON or CSV summaries), never weights or
-tokens. Anything that shows an experiment failing, or losing to the
-deterministic path, is exactly what the section wants.
+The Phase 9 record says no fine-tune has been produced; the Hazina dataset in
+`training/hazina/` was prepared but not trained. The page shows the llama.cpp
+against Ollama evaluation from `~/precision-main-setup/reports/`. If further
+evaluation runs exist there, commit their small, non-secret reports (markdown,
+JSON or CSV), never weights or tokens. Anything that shows a model failing is
+exactly what the section wants.
 
 ## 4. Operation Sentinel console (product fix, separate from the site)
 

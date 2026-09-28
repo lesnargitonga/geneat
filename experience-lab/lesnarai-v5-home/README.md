@@ -19,14 +19,14 @@ maturity line at the top of every system.
 
 | Section | Maturity | Its own language | Material, and where it came from |
 |---|---|---|---|
-| MediMatch | Demonstrated | Geographic | Kenya outline, the 16 national facilities and 9 transfers from one run. Outline and coordinates from the MediMatch repo; transfers from the supply panel in its own capture, origins checked by distance in `tools/build_assets.py`. The capture itself sits under the map. |
-| Operation Sentinel | Research | Telemetric | The training mission from `training/px4_waypoints.json` and the 59-column CSV header the MAVSDK bridge writes. No telemetry values are shown, because none are committed. |
-| Simy | In development | A trust boundary | What the relay holds and never holds, and the first-contact envelope fields, from `docs/relay-api.md` and `docs/threat-model.md`. |
+| MediMatch | Demonstrated | Geographic | Kenya outline, the 16 national facilities and 9 transfers from one run. Outline and coordinates from the MediMatch repo; transfers from the supply panel in its own capture, origins checked by distance in `tools/build_assets.py`. The page says the run is over synthetic inventory and that no transfer was executed. |
+| Operation Sentinel | Research | Telemetric | The 87 recorded diagnostic runs (13 to 16 April 2026) on their real time axis, from `telemetry.json` on `experience/lesnarai-v5-static`; the training mission from `training/px4_waypoints.json`; the 59-column CSV header the MAVSDK bridge writes. No flight log exists, and the page says so. |
+| Simy | In development | A trust boundary | What the relay holds (including public prekey bundles and device records) and never holds, and the first-contact envelope fields, from `docs/relay-api.md`, `docs/threat-model.md` and the Phase 9 handover. |
 | BizMtaani, CarePro | Live | Their real interfaces | Screen recordings and captures. CarePro's four checks are its published panel. |
 | Jamii, Gen-Eat, Hazina | Live, confirmed by the owner | Their real interfaces | Same. |
 | Gold Trader | Research | An audit ledger | `docs/AUDIT_RESULTS.md`, 29 April to 29 May 2026. |
-| SentinelCore | Internal | A test report | `reports/final_structural_sealing.md`, including its own list of gaps. |
-| Model Foundry | Internal | An experiment record | `training/hazina/out/dataset_meta.json` and commit `61af4b1`, which removed the model from the WhatsApp path. |
+| SentinelCore | Internal | A test report | The Phase 9 registry's measurement (133 tests, commit `65cbd3c`, 16 September 2026), and the gaps its own July sealing report lists. |
+| Model Foundry | Internal | An evaluation record | The registry's llama.cpp against Ollama evaluation, including the instruction-injection failure. No fine-tune exists and the page says so. |
 
 `media/PROVENANCE.md` lists every file. No stock, no generated imagery, and no
 studio photograph.
@@ -54,13 +54,25 @@ Local server, Chromium, slow 4G (1.6 Mbps, 150 ms) and 4x CPU slowdown:
 
 | | Desktop 1440 | Phone 390 |
 |---|---|---|
-| LCP (the headline) | 0.89 to 0.92 s | about 0.86 s |
+| LCP (the headline) | about 1.0 s | about 0.95 s |
 | CLS over a full scroll | 0 | 0 |
 | First load | 161 KB | 116 KB |
 | After a full scroll | 1.6 MB | 0.7 MB |
 
 Most of the full-scroll weight is the five test recordings. Production adds
 real network latency on top of these numbers.
+
+## Truth doctrine
+
+The Phase 9 evidence layer on `experience/lesnarai-v5-static`
+(`experience-lab/evidence-integration/evidence/registry.json` and the
+creative-reset handover's section 5) outranks older sources. Reconciling with
+it corrected four claims in this prototype: Sentinel no longer says PX4 flew
+anything, SentinelCore uses the 16 September measurement and is not described
+as running on real hosts, Model Foundry shows the real evaluation instead of
+implying a fine-tune, and BizMtaani states the one listed business rather than
+the product's category line. `tools/verify.py` checks the page against the
+registry, and fails if any of it drifts.
 
 ## The reel test
 
@@ -78,12 +90,14 @@ frames are capped at the recordings' native 1000 px so they never upscale.
   is what the name covers.
 - Gold Trader's audit document was rerun on 30 May and says some figures
   moved. Check the family table still matches that rerun before release.
-- Operation Sentinel needs one committed online run (PX4 SITL in Gazebo, not
-  `--offline`). `tools/build_assets.py` draws it over the plan when
+- Operation Sentinel shows its real detection record now, but no flight. One
+  committed online run (PX4 SITL in Gazebo, not `--offline`) would let the
+  mission figure show a flown path; `tools/build_assets.py` draws it when
   `SENTINEL_TELEMETRY` and `SENTINEL_MANIFEST` point at the run's files, and
   refuses offline-mode CSVs. See HANDOFF.md.
-- The later local work (Phase 9, the claims registry, commit `18a73f3`) is not
-  on GitHub. This prototype was built without it.
+- The Phase 9 work is on GitHub as `experience/lesnarai-v5-static`. Its
+  homepage (serif, graphite and paper) is what this prototype would replace;
+  its eleven `/work/` pages and route redirects are not touched here.
 
 ## Operation Sentinel's operator console
 

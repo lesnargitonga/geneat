@@ -41,7 +41,7 @@
     <li><a href="#carepro"><span class="conds__c">A nurse is assigned to a family only after four published checks.</span><span class="conds__s">CarePro</span><span class="conds__m">Live</span></a></li>
     <li><a href="#bizmtaani"><span class="conds__c">A neighbourhood shop can sell online without a website of its own.</span><span class="conds__s">BizMtaani</span><span class="conds__m">Live</span></a></li>
     <li><a href="#goldtrader"><span class="conds__c">A trading signal is not an edge until an audit says so.</span><span class="conds__s">Gold Trader</span><span class="conds__m">Research</span></a></li>
-    <li><a href="#internal"><span class="conds__c">Our own hosts and models are held to the same tests.</span><span class="conds__s">SentinelCore, Model Foundry</span><span class="conds__m">Internal</span></a></li>
+    <li><a href="#internal"><span class="conds__c">Our own tools and models are tested before we trust them.</span><span class="conds__s">SentinelCore, Model Foundry</span><span class="conds__m">Internal</span></a></li>
   </ol>
 </section>
 
@@ -59,7 +59,7 @@
         <div><dt>Route kilometres</dt><dd>3,335</dd></div>
         <div><dt>Longest transfer</dt><dd>810 km</dd></div>
       </dl>
-      <p class="mm__note">One run of the demonstration. The longest transfer is 120 units of insulin from Kenyatta National Hospital to Mandera.</p>
+      <p class="mm__note">One run of the demonstration, over synthetic inventory. The longest route it ranked sends 120 units of insulin from Kenyatta National Hospital to Mandera. No facility supplied stock and no transfer was executed.</p>
     </div>
     <figure class="mm__map">
       <svg class="mm-map" viewBox="0 0 760 914" role="img" aria-labelledby="mm-map-t">
@@ -109,10 +109,11 @@
 <section id="sentinel" class="sys st" data-ground="dark" aria-labelledby="st-t">
   <div class="wrap st__grid">
     <div class="sys__head">
-      <p class="status"><b>Research.</b> Simulation on PX4 and Gazebo. No physical flight.</p>
+      <p class="status"><b>Research.</b> A simulation stack for PX4 and Gazebo. No flight is on record, simulated or physical.</p>
       <h2 id="st-t" class="sys__name">Operation Sentinel</h2>
       <p class="sys__cond">A drone may appear on the operator’s screen only if the simulator confirms it exists.</p>
-      <p class="sys__body">A command-and-control stack for autonomous UAV simulation. PX4 flies an x500 in Gazebo Harmonic, a MAVSDK bridge commands it and records every sample, and the operator console registers an aircraft only when real telemetry arrives. No phantom assets, no synthesised figures. Each run is sealed with a SHA-256 manifest of everything it wrote.</p>
+      <p class="sys__body">A command-and-control stack for autonomous UAV simulation. It is built to fly a PX4 x500 in Gazebo Harmonic through a MAVSDK bridge that records every sample, and its backend registers an aircraft only when real telemetry arrives. Each run is sealed with a SHA-256 manifest of everything it wrote.</p>
+      <p class="st__attr">LESNAR AI built the autonomy bridge, mission logic, telemetry pipeline and operator system, and integrated PX4, Gazebo and AirSim, which are the work of their own upstream maintainers.</p>
     </div>
     <figure class="st__mission">
       <svg class="st-mission" viewBox="0 0 481 508" role="img" aria-labelledby="st-m-t">
@@ -127,6 +128,106 @@
       <figcaption>The training mission: four waypoints, a loop of about 465 metres.</figcaption>
     </figure>
   </div>
+  <figure class="wrap st__record">
+    <h3 class="st__h">What the recorded runs show</h3>
+    <div class="st-rwrap">
+<svg class="st-record" viewBox="0 0 1360 204" preserveAspectRatio="none" role="img" aria-label="87 diagnostic runs from 13 to 16 April 2026 on a time axis. 34 recorded detections, 53 recorded none; the largest run recorded 13,991.">
+<path class="st-rbase" d="M8 196.5 H1352"/>
+<path class="st-rnone" d="M8.0 196 V190"/>
+<path class="st-rnone" d="M89.8 196 V190"/>
+<path class="st-rnone" d="M98.0 196 V190"/>
+<path class="st-rnone" d="M100.3 196 V190"/>
+<path class="st-rnone" d="M101.0 196 V190"/>
+<g class="st-rcol" style="--i:0"><rect class="st-robs" x="100.4" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="100.4" y="194.5" width="7" height="1.5"/><title>Run 20260413_190109: 357 detections, 48 proximity alerts</title></g>
+<path class="st-rnone" d="M113.1 196 V190"/>
+<path class="st-rnone" d="M114.3 196 V190"/>
+<path class="st-rnone" d="M114.8 196 V190"/>
+<g class="st-rcol" style="--i:1"><rect class="st-robs" x="117.5" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="117.5" y="193.2" width="7" height="2.8"/><title>Run 20260413_200155: 143 detections, 80 proximity alerts</title></g>
+<path class="st-rnone" d="M128.3 196 V190"/>
+<path class="st-rnone" d="M129.6 196 V190"/>
+<path class="st-rnone" d="M133.0 196 V190"/>
+<g class="st-rcol" style="--i:2"><rect class="st-robs" x="130.8" y="188.0" width="7" height="8.0"/><rect class="st-rprox" x="130.8" y="194.5" width="7" height="1.5"/><title>Run 20260413_204856: 610 detections, 60 proximity alerts</title></g>
+<g class="st-rcol" style="--i:3"><rect class="st-robs" x="135.5" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="135.5" y="191.5" width="7" height="4.5"/><title>Run 20260413_210558: 297 detections, 268 proximity alerts</title></g>
+<g class="st-rcol" style="--i:4"><rect class="st-robs" x="146.6" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="146.6" y="193.3" width="7" height="2.7"/><title>Run 20260413_214512: 344 detections, 184 proximity alerts</title></g>
+<path class="st-rnone" d="M487.2 196 V190"/>
+<path class="st-rnone" d="M528.4 196 V190"/>
+<g class="st-rcol" style="--i:5"><rect class="st-robs" x="538.7" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="538.7" y="193.3" width="7" height="2.7"/><title>Run 20260414_205936: 28 detections, 15 proximity alerts</title></g>
+<path class="st-rnone" d="M550.6 196 V190"/>
+<path class="st-rnone" d="M559.8 196 V190"/>
+<g class="st-rcol" style="--i:6"><rect class="st-robs" x="556.6" y="108.4" width="7" height="87.6"/><rect class="st-rprox" x="556.6" y="194.5" width="7" height="1.5"/><title>Run 20260414_220310: 6,662 detections, 13 proximity alerts</title></g>
+<path class="st-rnone" d="M573.8 196 V190"/>
+<g class="st-rcol" style="--i:7"><rect class="st-robs" x="570.6" y="186.7" width="7" height="9.3"/><rect class="st-rprox" x="570.6" y="194.5" width="7" height="1.5"/><title>Run 20260414_225316: 705 detections, 10 proximity alerts</title></g>
+<g class="st-rcol" style="--i:8"><rect class="st-robs" x="586.0" y="148.9" width="7" height="47.1"/><rect class="st-rprox" x="586.0" y="194.5" width="7" height="1.5"/><title>Run 20260414_234802: 3,582 detections, 13 proximity alerts</title></g>
+<g class="st-rcol" style="--i:9"><rect class="st-robs" x="701.0" y="117.5" width="7" height="78.5"/><rect class="st-rprox" x="701.0" y="194.5" width="7" height="1.5"/><title>Run 20260415_063638: 5,970 detections, 15 proximity alerts</title></g>
+<g class="st-rcol" style="--i:10"><rect class="st-robs" x="704.2" y="74.4" width="7" height="121.6"/><rect class="st-rprox" x="704.2" y="194.5" width="7" height="1.5"/><title>Run 20260415_064803: 9,250 detections, 15 proximity alerts</title></g>
+<g class="st-rcol" style="--i:11"><rect class="st-robs" x="708.9" y="190.2" width="7" height="5.8"/><rect class="st-rprox" x="708.9" y="193.9" width="7" height="2.1"/><title>Run 20260415_070452: 438 detections, 162 proximity alerts</title></g>
+<g class="st-rcol" style="--i:12"><rect class="st-robs" x="726.7" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="726.7" y="194.5" width="7" height="1.5"/><title>Run 20260415_080812: 255 detections, 73 proximity alerts</title></g>
+<path class="st-rnone" d="M735.1 196 V190"/>
+<g class="st-rcol" style="--i:13"><rect class="st-robs" x="739.4" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="739.4" y="194.5" width="7" height="1.5"/><title>Run 20260415_085316: 263 detections, 73 proximity alerts</title></g>
+<path class="st-rnone" d="M749.4 196 V190"/>
+<path class="st-rnone" d="M754.9 196 V190"/>
+<path class="st-rnone" d="M756.7 196 V190"/>
+<path class="st-rnone" d="M771.3 196 V190"/>
+<g class="st-rcol" style="--i:14"><rect class="st-robs" x="768.1" y="12.1" width="7" height="183.9"/><rect class="st-rprox" x="768.1" y="14.4" width="7" height="181.6"/><title>Run 20260415_103521: 13,991 detections, 13,816 proximity alerts</title></g>
+<path class="st-rnone" d="M800.6 196 V190"/>
+<g class="st-rcol" style="--i:15"><rect class="st-robs" x="797.4" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="797.4" y="193.9" width="7" height="2.1"/><title>Run 20260415_121927: 64 detections, 27 proximity alerts</title></g>
+<path class="st-rnone" d="M801.4 196 V190"/>
+<g class="st-rcol" style="--i:16"><rect class="st-robs" x="804.9" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="804.9" y="193.1" width="7" height="2.9"/><title>Run 20260415_124622: 200 detections, 117 proximity alerts</title></g>
+<path class="st-rnone" d="M816.5 196 V190"/>
+<g class="st-rcol" style="--i:17"><rect class="st-robs" x="814.0" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="814.0" y="191.0" width="7" height="5.0"/><title>Run 20260415_131835: 96 detections, 96 proximity alerts</title></g>
+<path class="st-rnone" d="M829.7 196 V190"/>
+<g class="st-rcol" style="--i:18"><rect class="st-robs" x="829.1" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="829.1" y="191.7" width="7" height="4.3"/><title>Run 20260415_141227: 54 detections, 46 proximity alerts</title></g>
+<path class="st-rnone" d="M837.0 196 V190"/>
+<path class="st-rnone" d="M837.2 196 V190"/>
+<path class="st-rnone" d="M843.9 196 V190"/>
+<g class="st-rcol" style="--i:19"><rect class="st-robs" x="841.8" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="841.8" y="192.6" width="7" height="3.4"/><title>Run 20260415_145738: 362 detections, 248 proximity alerts</title></g>
+<g class="st-rcol" style="--i:20"><rect class="st-robs" x="842.8" y="176.1" width="7" height="19.9"/><rect class="st-rprox" x="842.8" y="183.0" width="7" height="13.0"/><title>Run 20260415_150112: 1,511 detections, 988 proximity alerts</title></g>
+<path class="st-rnone" d="M849.7 196 V190"/>
+<path class="st-rnone" d="M850.1 196 V190"/>
+<path class="st-rnone" d="M852.7 196 V190"/>
+<path class="st-rnone" d="M860.5 196 V190"/>
+<path class="st-rnone" d="M862.7 196 V190"/>
+<path class="st-rnone" d="M866.4 196 V190"/>
+<path class="st-rnone" d="M867.5 196 V190"/>
+<path class="st-rnone" d="M868.3 196 V190"/>
+<path class="st-rnone" d="M890.2 196 V190"/>
+<path class="st-rnone" d="M897.7 196 V190"/>
+<path class="st-rnone" d="M905.1 196 V190"/>
+<g class="st-rcol" style="--i:21"><rect class="st-robs" x="902.0" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="902.0" y="193.8" width="7" height="2.2"/><title>Run 20260415_183132: 63 detections, 28 proximity alerts</title></g>
+<path class="st-rnone" d="M910.3 196 V190"/>
+<path class="st-rnone" d="M913.8 196 V190"/>
+<path class="st-rnone" d="M916.3 196 V190"/>
+<path class="st-rnone" d="M916.7 196 V190"/>
+<g class="st-rcol" style="--i:22"><rect class="st-robs" x="1127.6" y="189.7" width="7" height="6.3"/><rect class="st-rprox" x="1127.6" y="194.4" width="7" height="1.6"/><title>Run 20260416_075342: 478 detections, 123 proximity alerts</title></g>
+<path class="st-rnone" d="M1136.6 196 V190"/>
+<g class="st-rcol" style="--i:23"><rect class="st-robs" x="1141.6" y="36.6" width="7" height="159.4"/><rect class="st-rprox" x="1141.6" y="194.5" width="7" height="1.5"/><title>Run 20260416_084346: 12,131 detections, 38 proximity alerts</title></g>
+<g class="st-rcol" style="--i:24"><rect class="st-robs" x="1154.9" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="1154.9" y="194.1" width="7" height="1.9"/><title>Run 20260416_093054: 172 detections, 64 proximity alerts</title></g>
+<path class="st-rnone" d="M1164.7 196 V190"/>
+<path class="st-rnone" d="M1165.7 196 V190"/>
+<g class="st-rcol" style="--i:25"><rect class="st-robs" x="1162.8" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="1162.8" y="194.5" width="7" height="1.5"/><title>Run 20260416_095853: 173 detections, 49 proximity alerts</title></g>
+<g class="st-rcol" style="--i:26"><rect class="st-robs" x="1281.6" y="190.6" width="7" height="5.4"/><rect class="st-rprox" x="1281.6" y="194.3" width="7" height="1.7"/><title>Run 20260416_170134: 411 detections, 127 proximity alerts</title></g>
+<path class="st-rnone" d="M1289.3 196 V190"/>
+<g class="st-rcol" style="--i:27"><rect class="st-robs" x="1286.5" y="189.2" width="7" height="6.8"/><rect class="st-rprox" x="1286.5" y="194.5" width="7" height="1.5"/><title>Run 20260416_171853: 519 detections, 77 proximity alerts</title></g>
+<g class="st-rcol" style="--i:28"><rect class="st-robs" x="1289.0" y="189.0" width="7" height="7.0"/><rect class="st-rprox" x="1289.0" y="194.5" width="7" height="1.5"/><title>Run 20260416_172755: 529 detections, 85 proximity alerts</title></g>
+<path class="st-rnone" d="M1298.2 196 V190"/>
+<g class="st-rcol" style="--i:29"><rect class="st-robs" x="1298.8" y="111.5" width="7" height="84.5"/><rect class="st-rprox" x="1298.8" y="193.5" width="7" height="2.5"/><title>Run 20260416_180241: 6,428 detections, 187 proximity alerts</title></g>
+<path class="st-rnone" d="M1329.2 196 V190"/>
+<path class="st-rnone" d="M1329.5 196 V190"/>
+<path class="st-rnone" d="M1329.8 196 V190"/>
+<g class="st-rcol" style="--i:30"><rect class="st-robs" x="1326.6" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="1326.6" y="194.5" width="7" height="1.5"/><title>Run 20260416_194134: 188 detections, 21 proximity alerts</title></g>
+<g class="st-rcol" style="--i:31"><rect class="st-robs" x="1330.2" y="191.0" width="7" height="5.0"/><rect class="st-rprox" x="1330.2" y="194.5" width="7" height="1.5"/><title>Run 20260416_195407: 228 detections, 24 proximity alerts</title></g>
+<g class="st-rcol" style="--i:32"><rect class="st-robs" x="1336.2" y="143.7" width="7" height="52.3"/><rect class="st-rprox" x="1336.2" y="190.9" width="7" height="5.1"/><title>Run 20260416_201532: 3,977 detections, 389 proximity alerts</title></g>
+<g class="st-rcol" style="--i:33"><rect class="st-robs" x="1341.8" y="178.5" width="7" height="17.5"/><rect class="st-rprox" x="1341.8" y="192.5" width="7" height="3.5"/><title>Run 20260416_203525: 1,334 detections, 263 proximity alerts</title></g>
+<path class="st-rnone" d="M1350.0 196 V190"/>
+<path class="st-rnone" d="M1352.0 196 V190"/>
+</svg>
+<div class="st__rdays" aria-hidden="true"><span style="left:0.59%">13 April</span><span style="left:35.82%">14 April</span><span style="left:51.80%">15 April</span><span style="left:83.17%">16 April</span></div>
+</div>
+    <figcaption class="st__rcap">
+      <p>Every diagnostic run from 13 to 16 April 2026, placed on a real time axis. 34 runs recorded detections and 53 recorded none: 71,813 detections in all, 53,971 obstacles and 17,842 proximity alerts. The solid foot of each column is its proximity alerts.</p>
+      <p>These are the perception pipeline’s own output in simulation. No flight log exists, simulated or physical, so none of this is a record of flight, and a run that recorded nothing is not a clean flight.</p>
+    </figcaption>
+  </figure>
   <div class="wrap st__schema">
     <h3 class="st__h">Every sample records <span class="st__n">59</span> values</h3>
     <div class="st__cols">
@@ -218,7 +319,7 @@
 <section id="simy" class="sys sy" aria-labelledby="sy-t">
   <div class="wrap">
     <div class="sys__head sys__head--wide">
-      <p class="status"><b>In development.</b> Relay and cryptographic core built and tested. Not yet a finished messenger.</p>
+      <p class="status"><b>In development.</b> Relay and cryptographic core built and tested. Not yet a finished messenger, and not independently audited.</p>
       <h2 id="sy-t" class="sys__name">Simy</h2>
       <p class="sys__cond">The server that carries a message must not be able to read it.</p>
       <p class="sys__body">A Rust workspace with a shared cryptographic core for X3DH and Double Ratchet, and a relay on PostgreSQL and Redis that stores only encrypted envelopes, rejects replays and expires what it holds. The boundary below is the design.</p>
@@ -235,9 +336,9 @@
         <div class="sy__col sy__col--relay">
           <h3>Relay</h3>
           <p class="sy__k">Holds</p>
-          <ul><li>Mailbox ID</li><li>A hash of the retrieval secret</li><li>Replay token</li><li>The encrypted envelope</li><li>Expiry time</li></ul>
+          <ul><li>Mailbox ID</li><li>A hash of the retrieval secret</li><li>Public prekey bundles and device records</li><li>Replay token</li><li>The encrypted envelope</li><li>Expiry time</li></ul>
           <p class="sy__k">Never holds</p>
-          <ul class="sy__never"><li>Message text</li><li>Private keys</li></ul>
+          <ul class="sy__never"><li>Message text</li><li>Private keys</li><li>Session secrets and ratchet state</li></ul>
         </div>
         <div class="sy__col sy__col--dev">
           <h3>Recipient’s device</h3>
@@ -284,7 +385,7 @@
       <div class="prod__text">
         <h3 class="prod__name">BizMtaani</h3>
         <p class="prod__cond">A neighbourhood shop can sell online without a website of its own.</p>
-        <p class="prod__body">Shops list what they sell, customers order and pay from their phones, and riders carry the order to the door. Kiosks, supermarkets, farms, butcheries and kitchens on one marketplace.</p>
+        <p class="prod__body">Shops list what they sell, customers order and pay from their phones, and riders carry the order to the door. One business is listed today: The Villager, in Embu. Operated by LESNAR AI LTD.</p>
       </div>
     </article>
 
@@ -318,7 +419,7 @@
         <div class="frame"><div class="frame__bar"><span>geneat.lesnarai.co.ke</span></div>
           <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/geneat-poster.webp" width="1000" height="624" aria-label="Screen recording of Gen-Eat."><source src="media/reel/geneat.mp4" type="video/mp4"></video></div>
         <h3 class="prod__name prod__name--s">Gen-Eat</h3>
-        <p class="prod__body">Campus food ordering over WhatsApp, paid by M-Pesa and ready when the lecture ends.</p>
+        <p class="prod__body">Campus food ordering over WhatsApp, paid by M-Pesa.</p>
       </article>
       <article class="prod prod--small">
         <div class="frame"><div class="frame__bar"><span>hazina.lesnarai.co.ke</span></div>
@@ -365,24 +466,21 @@
 <section id="internal" class="sys in" data-ground="dark" aria-labelledby="in-t">
   <div class="wrap">
     <div class="sys__head sys__head--wide">
-      <p class="status"><b>Internal.</b> We are the operator and the only user.</p>
-      <h2 id="in-t" class="sys__name">What we run on ourselves</h2>
+      <p class="status"><b>Internal.</b> Built for our own use. Not offered as a product, and not shown running in production.</p>
+      <h2 id="in-t" class="sys__name">Tested before we trust them</h2>
     </div>
     <div class="in__grid">
       <article class="in__sys">
         <h3 class="in__name">SentinelCore</h3>
         <p class="prod__cond">A security tool should report its own gaps.</p>
-        <p class="in__body">Host auditing for our Linux machines: port and banner scanning, a log watcher with a sliding-window detector, hardening checks, and authenticated telemetry to a SIEM.</p>
-        <p class="in__verdict">Pass with qualified gaps</p>
-        <ul class="in__list">
-          <li><span>Missing, malformed and mutated bearer tokens rejected</span><b>Pass</b></li>
-          <li><span>Rejected requests persist nothing</span><b>Pass</b></li>
-          <li><span>Token comparison is constant-time</span><b>Pass</b></li>
-          <li><span>No token appears in logs or fallback files</span><b>Pass</b></li>
-          <li><span>No literal secret in the Compose file</span><b>Pass</b></li>
-          <li><span>20 tests collected, 20 passed</span><b>Pass</b></li>
-        </ul>
-        <p class="in__k">Eleven gaps, recorded in the same report</p>
+        <p class="in__body">Host-auditing software for Linux: an orchestrator and five modules, for scanning, monitoring, firewall rules, remediation and telemetry.</p>
+        <dl class="in__exp">
+          <div><dt>Tests</dt><dd>133 passed, 0 failed, across 21 test files</dd></div>
+          <div><dt>Measured</dt><dd>16 September 2026, at commit 65cbd3c, on one workstation</dd></div>
+          <div><dt>Structure</dt><dd>An orchestrator and five modules in 242 tracked files</dd></div>
+          <div><dt>Not shown</dt><dd>Running against a real server, protecting anything, or being deployed</dd></div>
+        </dl>
+        <p class="in__k">Gaps it lists about itself, from its July sealing report</p>
         <ul class="in__gaps">
           <li>The CVE-2024-6387 attribution is not a verified detector.</li>
           <li>Credential-spray detection is not implemented.</li>
@@ -391,15 +489,16 @@
       </article>
       <article class="in__sys">
         <h3 class="in__name">Model Foundry</h3>
-        <p class="prod__cond">A model earns its place in production, or loses it.</p>
-        <p class="in__body">Where models are trained and evaluated before they touch a customer. One experiment, start to finish:</p>
+        <p class="prod__cond">A model earns its place, or loses it.</p>
+        <p class="in__body">Where models are evaluated locally before they are trusted with any work. No fine-tuned model has been produced yet. One evaluation, start to finish:</p>
         <dl class="in__exp">
-          <div><dt>Task</dt><dd>Open-ended concierge replies for Hazina Nomads</dd></div>
-          <div><dt>Base</dt><dd>Llama 3.1 8B, LoRA</dd></div>
-          <div><dt>Data</dt><dd>950 training rows, 50 validation, 55 written by hand</dd></div>
-          <div><dt>Guardrail</dt><dd>The dataset is refused if any of 8 required phrases is missing</dd></div>
-          <div><dt>Outcome</dt><dd>June 2026: the WhatsApp concierge was rebuilt to be fully deterministic. The model no longer answers customers on that path.</dd></div>
+          <div><dt>Model</dt><dd>Qwen2.5-Coder-7B-Instruct, Q4_K_M, pinned by SHA-256 before testing</dd></div>
+          <div><dt>Runtimes</dt><dd>llama.cpp and Ollama, same weights, same machine</dd></div>
+          <div><dt>Result</dt><dd>llama.cpp passed 80% of tasks, 8 of 10 repeatable. Ollama passed 60%, 6 of 10.</dd></div>
+          <div><dt>Failure</dt><dd>One task hid an instruction inside the work. llama.cpp ignored it. Ollama obeyed it, in both repetitions.</dd></div>
+          <div><dt>Verdict</dt><dd>Fit for local coding work with a person reading the output. Not for accepting code on its own, security decisions, or enforcing instruction boundaries.</dd></div>
         </dl>
+        <p class="in__note">Ten tasks, two repetitions, one machine. Not a benchmark.</p>
       </article>
     </div>
   </div>

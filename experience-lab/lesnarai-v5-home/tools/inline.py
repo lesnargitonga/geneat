@@ -32,6 +32,7 @@ assert f'<span class="st__n">{total}</span>' in src, "schema count in the headin
 src = src.replace("<!--#include medimatch-map.svg-->", (MEDIA / "medimatch-map.svg").read_text())
 src = src.replace("<!--#include sentinel-mission.svg-->", (MEDIA / "sentinel-mission.svg").read_text())
 src = src.replace("<!--#include sentinel-columns-->", cols)
+src = src.replace("<!--#include sentinel-record.svg-->", (MEDIA / "sentinel-record.svg").read_text())
 run = json.loads((MEDIA / "sentinel-run.json").read_text()) if (MEDIA / "sentinel-run.json").exists() else None
 if run:
     mins = f", {round(run['duration_s'] / 60)} minutes" if run.get("duration_s") else ""

@@ -149,6 +149,19 @@ ol, ul { padding: 0; list-style: none; }
 .st-wpl { fill: var(--on-ink-2); font: 500 13px "Mona Sans", sans-serif; }
 .st-scale { fill: none; stroke: var(--on-ink-2); stroke-width: 1; }
 .st__mission figcaption { margin-top: 14px; font-size: 14px; color: var(--on-ink-2); }
+.st__attr { margin-top: 16px; font-size: 14px; line-height: 1.5; color: var(--on-ink-2); }
+.st__record { margin-top: clamp(72px, 9vw, 128px); }
+.st-rwrap { position: relative; margin-top: 28px; padding-bottom: 28px; }
+.st-record { width: 100%; height: clamp(150px, 22vw, 200px); overflow: visible; }
+.st__rdays { position: absolute; left: 0; right: 0; bottom: 0; height: 20px; }
+.st__rdays span { position: absolute; top: 0; white-space: nowrap; font-size: 14px; font-weight: 500; color: var(--on-ink-2); }
+.st-rbase { stroke: #3a3f44; stroke-width: 1; fill: none; vector-effect: non-scaling-stroke; }
+.st-rnone { stroke: #5a6066; stroke-width: 1.5; fill: none; vector-effect: non-scaling-stroke; }
+.st-robs { fill: var(--on-ink); opacity: .38; }
+.st-rprox { fill: var(--on-ink); }
+.st-rday { fill: var(--on-ink-2); font: 500 14px "Mona Sans", sans-serif; }
+.st__rcap { margin-top: 18px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--gap); font-size: 14px; line-height: 1.55; color: var(--on-ink-2); }
+.st__rcap p:first-child { color: var(--on-ink); }
 .st__schema { margin-top: clamp(72px, 9vw, 128px); }
 .st__h { font-weight: 500; font-size: clamp(1.4rem, 2.2vw, 2rem); letter-spacing: -.02em; }
 .st__n { font-variant-numeric: tabular-nums; }
@@ -250,6 +263,7 @@ ol, ul { padding: 0; list-style: none; }
 .in__exp dt { font-size: 14px; font-weight: 600; color: var(--on-ink); padding-top: 2px; }
 .in__exp dd { color: var(--on-ink-2); font-size: 16px; }
 .in__exp div:last-child dd { color: var(--on-ink); }
+.in__note { margin-top: 14px; font-size: 14px; color: var(--on-ink-2); }
 
 /* ---------------------------------------------------------------- close */
 .close { padding-block: var(--sec); background: var(--paper); }
@@ -294,9 +308,18 @@ ol, ul { padding: 0; list-style: none; }
       animation-timeline: view();
       animation-range: entry 100% cover 45%;
     }
+    /* The record fills in the order it was recorded, left to right. */
+    .st-rwrap { view-timeline: --rec block; }
+    .st-rcol {
+      transform-box: fill-box; transform-origin: 50% 100%;
+      animation: grow linear both;
+      animation-timeline: --rec;
+      animation-range: cover calc(12% + var(--i) * .8%) cover calc(26% + var(--i) * .8%);
+    }
   }
   @keyframes draw { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
   @keyframes strike { to { background-size: 100% 1px; } }
+  @keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 
   /* Simy: a pinned scene on wide screens. The message is plain text on a
      device, becomes an envelope inside the relay, and opens on the far side. */
@@ -334,6 +357,7 @@ ol, ul { padding: 0; list-style: none; }
   .in__grid { grid-template-columns: 1fr; gap: 88px; }
   .trio { grid-template-columns: 1fr; gap: 64px; }
   .gt__ledger { margin-top: 48px; }
+  .st__rcap { grid-template-columns: 1fr; }
 }
 @media (max-width: 760px) {
   body { font-size: 16px; }

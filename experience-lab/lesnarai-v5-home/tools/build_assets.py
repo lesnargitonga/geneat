@@ -249,6 +249,59 @@ def sentinel():
     return total, round(total_m)
 
 
+# ------------------------------------------- Operation Sentinel: the record
+def sentinel_record():
+    """The 87 seg_diag runs, aggregated in telemetry.json on
+    experience/lesnarai-v5-static, drawn as columns on their real time axis.
+    Height is detection count on a linear scale; the solid foot is the share
+    that were proximity alerts. Confidence is not drawn: the registry notes it
+    ranges 0.150 to 1.999 and is not a normalised probability."""
+    tel = json.loads(Path(os.environ.get("SENTINEL_TEL", "/home/user/v5s/experience-lab/creative-reset/final2/telemetry.json")).read_text())
+    runs = tel["runs"]
+    n_all = sum(r["n"] for r in runs)
+    p_all = sum(r["p"] for r in runs)
+    with_data = sum(1 for r in runs if r["n"])
+    assert n_all == tel["totalEvents"] == 71813, n_all
+    assert with_data == tel["withData"] == 34 and len(runs) == tel["allRuns"] == 87
+    assert p_all == 17842 and n_all - p_all == 53971, (p_all, n_all - p_all)
+    W, H = 1360, 230
+    padL, padR, base, top = 8, 8, H - 34, 12
+    span, peak, cap = W - padL - padR, base - top, 14000
+    w = 7
+    H = H - 26  # day labels are HTML below the drawing, so they stay legible on a phone
+    base = H - 8
+    peak = base - top
+    days = []
+    for d in tel["days"]:
+        first = next((r for r in runs if r["d"] == d), None)
+        if first:
+            days.append((100 * (padL + first["x"] * span) / W, f"{int(d[6:])} April"))
+    out = ['<div class="st-rwrap">',
+           f'<svg class="st-record" viewBox="0 0 {W} {H}" preserveAspectRatio="none" role="img" aria-label="87 diagnostic runs from 13 to 16 April 2026 on a time axis. 34 recorded detections, 53 recorded none; the largest run recorded {max(r["n"] for r in runs):,}.">']
+    out.append(f'<path class="st-rbase" d="M{padL} {base + .5} H{W - padR}"/>')
+    i = 0
+    for r in runs:
+        x = padL + r["x"] * span
+        if not r["n"]:
+            out.append(f'<path class="st-rnone" d="M{x:.1f} {base} V{base - 6}"/>')
+            continue
+        h = max(5, min(1, r["n"] / cap) * peak)
+        ph = max(1.5, h * r["p"] / r["n"]) if r["p"] else 0
+        out.append(f'<g class="st-rcol" style="--i:{i}"><rect class="st-robs" x="{x - w / 2:.1f}" y="{base - h:.1f}" width="{w}" height="{h:.1f}"/>'
+                   + (f'<rect class="st-rprox" x="{x - w / 2:.1f}" y="{base - ph:.1f}" width="{w}" height="{ph:.1f}"/>' if ph else "")
+                   + f'<title>Run {r["t"]}: {r["n"]:,} detections, {r["p"]:,} proximity alerts</title></g>')
+        i += 1
+    out.append("</svg>")
+    out.append('<div class="st__rdays" aria-hidden="true">'
+               + "".join(f'<span style="left:{min(pct, 94):.2f}%">{label}</span>' for pct, label in days) + "</div>")
+    out.append("</div>")
+    (MEDIA / "sentinel-record.svg").write_text("\n".join(out))
+    provenance.append("sentinel-record.svg: telemetry.json from geneat experience/lesnarai-v5-static "
+                      "(experience-lab/creative-reset/final2), the aggregate of 87 seg_diag CSVs; "
+                      "totals asserted against the evidence registry EV-SENTINEL-DETECT-01.")
+    return n_all, p_all, with_data
+
+
 # ------------------------------------------------------------------- images
 def img(src, name, widths, q=78):
     im = Image.open(src).convert("RGB")
@@ -320,6 +373,7 @@ def font():
 if __name__ == "__main__":
     n, transfers = medimatch_map()
     cols, loop = sentinel()
+    sentinel_record()
     images()
     video()
     font()

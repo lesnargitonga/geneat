@@ -19,7 +19,12 @@ R = {
     "SC": Path(os.environ.get("SENTINELCORE", "/home/user/sentinelcore")),
     "GE": Path(os.environ.get("GENEAT", "/home/user/geneat")),
     "V4": Path(os.environ.get("V4", "/home/user/v4/experience-lab/lesnarai-site-v1")),
+    # The Phase 9 evidence layer on experience/lesnarai-v5-static: the registry
+    # and the creative-reset handover's truth doctrine outrank older sources.
+    "V5": Path(os.environ.get("V5S", "/home/user/v5s/experience-lab")),
 }
+REG = "V5/evidence-integration/evidence/registry.json"
+DOC = "V5/creative-reset/final2/docs/HANDOVER.md"
 
 # (page phrase, source, source phrase). Source phrase None means "same as page".
 CHECKS = [
@@ -28,15 +33,24 @@ CHECKS = [
     ("ranked by distance, urgency, verification and product fit", "MM/README.md", "ranked by distance, urgency, verification and product fit"),
     ("public facility names and approximate geocodes, synthetic inventory and need data, no patient records", "MM/client/src/pages/CommandMap.tsx", "synthetic inventory and need data"),
     ("Kenyatta National Hospital to Mandera", "MM/server/src/mock/db.ts", "Mandera County Referral Hospital"),
+    ("No facility supplied stock and no transfer was executed", REG, "No facility was supplied, no transfer was executed"),
     # Operation Sentinel
-    ("PX4 flies an x500 in Gazebo Harmonic", "ST/README.md", "Gazebo Harmonic + PX4 SITL (`x500`)"),
+    ("built to fly a PX4 x500 in Gazebo Harmonic", "ST/README.md", "Gazebo Harmonic + PX4 SITL (`x500`)"),
     ("registers an aircraft only when real telemetry arrives", "ST/README.md", "drones are registered only when real MAVSDK telemetry arrives"),
-    ("No phantom assets, no synthesised figures", "ST/README.md", "No phantom assets, no synthesised KPIs"),
     ("SHA-256 manifest", "ST/README.md", "SHA-256 hashes of every artifact"),
+    ("integrated PX4, Gazebo and AirSim, which are the work of their own upstream maintainers", DOC, "integrated the PX4, Gazebo and AirSim projects, which are the work of their own upstream maintainers"),
+    ("34 runs recorded detections and 53 recorded none", REG, "34 runs recorded detections; 53 recorded none"),
+    ("71,813 detections in all, 53,971 obstacles and 17,842 proximity alerts", REG, "71,813 rows in total: 53,971 obstacle and 17,842 proximity_alert"),
+    ("No flight log exists, simulated or physical", REG, "so there is no logged flight, simulated or physical"),
+    ("No flight is on record, simulated or physical", REG, "so there is no logged flight, simulated or physical"),
+    ("a run that recorded nothing is not a clean flight", DOC, "they do **not** prove 53 clean flights"),
     ("Wind and air density are simulated for training and marked synthetic", "ST/README.md", "environment.synthetic_environment: true"),
     # Simy
     ("X3DH and Double Ratchet", "SY/README.md", "X3DH, and Double Ratchet foundations"),
     ("Not yet a finished messenger", "SY/README.md", "It does not yet implement a production-ready end-user"),
+    ("not independently audited", REG, "No third-party cryptographic audit"),
+    ("Public prekey bundles and device records", DOC, "**public prekey bundles, device records**"),
+    ("Session secrets and ratchet state", DOC, "X3DH shared secrets, ratchet state"),
     ("A hash of the retrieval secret", "SY/docs/relay-api.md", "hashed server-side before storage"),
     ("Replay token", "SY/docs/relay-api.md", "replay_token"),
     ("Message text", "SY/docs/relay-api.md", "The relay never stores plaintext message content."),
@@ -58,28 +72,42 @@ CHECKS = [
     ("none of 206 Grade A signals passed every live gate", "GT/docs/AUDIT_RESULTS.md", "206 Grade A signals, none pass all gates"),
     ("Paper yes, live no", "GT/docs/AUDIT_RESULTS.md", "**Paper yes, live no**"),
     ("until twenty forward trades", "GT/docs/AUDIT_RESULTS.md", "**20+ forward Grade-A trades**"),
-    # SentinelCore
-    ("Pass with qualified gaps", "SC/reports/final_structural_sealing.md", "PASS WITH QUALIFIED GAPS"),
-    ("20 tests collected, 20 passed", "SC/reports/final_structural_sealing.md", "Current collected tests: `20`"),
-    ("Token comparison is constant-time", "SC/reports/final_structural_sealing.md", "Authentication comparison is constant-time | PASS"),
-    ("Rejected requests persist nothing", "SC/reports/final_structural_sealing.md", "Authentication failure does not persist telemetry | PASS"),
+    # SentinelCore: the registry's 16 September measurement, plus the gaps its own July report lists
+    ("133 passed, 0 failed, across 21 test files", REG, "133 tests passed, 0 failed, in 21.87s across 21 test files"),
+    ("at commit 65cbd3c", REG, '"source_commit": "65cbd3c"'),
+    ("An orchestrator and five modules in 242 tracked files", REG, "scanner, monitor, firewall, remediator, telemetry. 242 tracked files"),
+    ("Running against a real server, protecting anything, or being deployed", REG, "running against any real server, protecting anything, or being deployed"),
+    ("from its July sealing report", "SC/reports/final_structural_sealing.md", "Manifest revision: `2026.07.15.2`"),
     ("CVE-2024-6387 attribution is not a verified detector", "SC/reports/final_structural_sealing.md", "CVE-2024-6387 attribution is not a verified vulnerability detector"),
     ("Credential-spray detection is not implemented", "SC/reports/final_structural_sealing.md", "Credential-spray automation is not implemented"),
     ("cannot guarantee erasure on SSDs or snapshots", "SC/reports/final_structural_sealing.md", "cannot guarantee physical erasure on SSD"),
-    # Model Foundry
-    ("950 training rows, 50 validation, 55 written by hand", "GE/training/hazina/out/dataset_meta.json", '"train_count": 950'),
-    ("any of 8 required phrases", "GE/training/hazina/out/dataset_meta.json", '"required_sentinels"'),
-    ("Llama 3.1 8B", "GE/training/hazina/out/dataset_meta.json", "Meta-Llama-3.1-8B-Instruct"),
+    # Model Foundry: the registry's evaluation record
+    ("Qwen2.5-Coder-7B-Instruct, Q4_K_M, pinned by SHA-256", REG, "qwen2.5-coder-7b-instruct-q4_k_m.gguf"),
+    ("llama.cpp passed 80% of tasks, 8 of 10 repeatable", REG, "llama.cpp b10107: 80% task pass rate, 8/10 exact repeatability"),
+    ("Ollama passed 60%, 6 of 10", REG, "Ollama 0.24.0: 60% task pass rate, 6/10"),
+    ("Ollama obeyed it, in both repetitions", REG, "Ollama failed, returning PWNED in both repetitions"),
+    ("No fine-tuned model has been produced yet", DOC, "No fine-tune has been produced"),
+    ("Not for accepting code on its own, security decisions, or enforcing instruction boundaries", DOC, "explicitly not for autonomous code acceptance, security-sensitive decisions or instruction-boundary enforcement"),
+    ("Ten tasks, two repetitions, one machine", REG, "ten tasks with two repetitions each"),
+    # BizMtaani
+    ("One business is listed today: The Villager, in Embu", REG, "One business published and open ('The Villager', Food & drink, Embu)"),
+    ("Operated by LESNAR AI LTD", REG, "operated by LESNAR AI LTD"),
     # CarePro, contact
     ("Registry check.", "V4/work/carepro/index.html", "Registry check"),
     ("Clinical sign-off.", "V4/work/carepro/index.html", "Clinical sign-off"),
     ("We reply within two working days", "V4/index.html", "Usually within two working days."),
 ]
 
+def _tel():
+    import json
+    return json.loads((R["V5"] / "creative-reset/final2/telemetry.json").read_text())
+
+
 COUNTS = [  # extra structural facts that are counted rather than quoted
-    ("8 required phrases", lambda: len(__import__("json").loads((R["GE"] / "training/hazina/out/dataset_meta.json").read_text())["required_sentinels"]) == 8),
-    ("Eleven gaps", lambda: len(re.findall(r"^- ", (R["SC"] / "reports/final_structural_sealing.md").read_text().split("## Known gaps")[1].split("## ")[0], re.M)) == 11),
     ("59 values", lambda: '"total": 59' in (HERE / "media/sentinel-columns.json").read_text()),
+    ("71,813 detections", lambda: sum(r["n"] for r in _tel()["runs"]) == 71813),
+    ("17,842 proximity alerts", lambda: sum(r["p"] for r in _tel()["runs"]) == 17842),
+    ("34 runs recorded detections", lambda: sum(1 for r in _tel()["runs"] if r["n"]) == 34 and len(_tel()["runs"]) == 87),
 ]
 
 

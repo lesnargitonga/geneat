@@ -41,7 +41,7 @@
     <li><a href="#carepro"><span class="conds__c">A nurse is assigned to a family only after four published checks.</span><span class="conds__s">CarePro</span><span class="conds__m">Live</span></a></li>
     <li><a href="#bizmtaani"><span class="conds__c">A neighbourhood shop can sell online without a website of its own.</span><span class="conds__s">BizMtaani</span><span class="conds__m">Live</span></a></li>
     <li><a href="#goldtrader"><span class="conds__c">A trading signal is not an edge until an audit says so.</span><span class="conds__s">Gold Trader</span><span class="conds__m">Research</span></a></li>
-    <li><a href="#internal"><span class="conds__c">Our own hosts and models are held to the same tests.</span><span class="conds__s">SentinelCore, Model Foundry</span><span class="conds__m">Internal</span></a></li>
+    <li><a href="#internal"><span class="conds__c">Our own tools and models are tested before we trust them.</span><span class="conds__s">SentinelCore, Model Foundry</span><span class="conds__m">Internal</span></a></li>
   </ol>
 </section>
 
@@ -59,7 +59,7 @@
         <div><dt>Route kilometres</dt><dd>3,335</dd></div>
         <div><dt>Longest transfer</dt><dd>810 km</dd></div>
       </dl>
-      <p class="mm__note">One run of the demonstration. The longest transfer is 120 units of insulin from Kenyatta National Hospital to Mandera.</p>
+      <p class="mm__note">One run of the demonstration, over synthetic inventory. The longest route it ranked sends 120 units of insulin from Kenyatta National Hospital to Mandera. No facility supplied stock and no transfer was executed.</p>
     </div>
     <figure class="mm__map">
       <!--#include medimatch-map.svg-->
@@ -79,16 +79,25 @@
 <section id="sentinel" class="sys st" data-ground="dark" aria-labelledby="st-t">
   <div class="wrap st__grid">
     <div class="sys__head">
-      <p class="status"><b>Research.</b> Simulation on PX4 and Gazebo. No physical flight.</p>
+      <p class="status"><b>Research.</b> A simulation stack for PX4 and Gazebo. No flight is on record, simulated or physical.</p>
       <h2 id="st-t" class="sys__name">Operation Sentinel</h2>
       <p class="sys__cond">A drone may appear on the operator’s screen only if the simulator confirms it exists.</p>
-      <p class="sys__body">A command-and-control stack for autonomous UAV simulation. PX4 flies an x500 in Gazebo Harmonic, a MAVSDK bridge commands it and records every sample, and the operator console registers an aircraft only when real telemetry arrives. No phantom assets, no synthesised figures. Each run is sealed with a SHA-256 manifest of everything it wrote.</p>
+      <p class="sys__body">A command-and-control stack for autonomous UAV simulation. It is built to fly a PX4 x500 in Gazebo Harmonic through a MAVSDK bridge that records every sample, and its backend registers an aircraft only when real telemetry arrives. Each run is sealed with a SHA-256 manifest of everything it wrote.</p>
+      <p class="st__attr">LESNAR AI built the autonomy bridge, mission logic, telemetry pipeline and operator system, and integrated PX4, Gazebo and AirSim, which are the work of their own upstream maintainers.</p>
     </div>
     <figure class="st__mission">
       <!--#include sentinel-mission.svg-->
       <figcaption><!--#include sentinel-caption--></figcaption>
     </figure>
   </div>
+  <figure class="wrap st__record">
+    <h3 class="st__h">What the recorded runs show</h3>
+    <!--#include sentinel-record.svg-->
+    <figcaption class="st__rcap">
+      <p>Every diagnostic run from 13 to 16 April 2026, placed on a real time axis. 34 runs recorded detections and 53 recorded none: 71,813 detections in all, 53,971 obstacles and 17,842 proximity alerts. The solid foot of each column is its proximity alerts.</p>
+      <p>These are the perception pipeline’s own output in simulation. No flight log exists, simulated or physical, so none of this is a record of flight, and a run that recorded nothing is not a clean flight.</p>
+    </figcaption>
+  </figure>
   <div class="wrap st__schema">
     <h3 class="st__h">Every sample records <span class="st__n">59</span> values</h3>
     <!--#include sentinel-columns-->
@@ -100,7 +109,7 @@
 <section id="simy" class="sys sy" aria-labelledby="sy-t">
   <div class="wrap">
     <div class="sys__head sys__head--wide">
-      <p class="status"><b>In development.</b> Relay and cryptographic core built and tested. Not yet a finished messenger.</p>
+      <p class="status"><b>In development.</b> Relay and cryptographic core built and tested. Not yet a finished messenger, and not independently audited.</p>
       <h2 id="sy-t" class="sys__name">Simy</h2>
       <p class="sys__cond">The server that carries a message must not be able to read it.</p>
       <p class="sys__body">A Rust workspace with a shared cryptographic core for X3DH and Double Ratchet, and a relay on PostgreSQL and Redis that stores only encrypted envelopes, rejects replays and expires what it holds. The boundary below is the design.</p>
@@ -117,9 +126,9 @@
         <div class="sy__col sy__col--relay">
           <h3>Relay</h3>
           <p class="sy__k">Holds</p>
-          <ul><li>Mailbox ID</li><li>A hash of the retrieval secret</li><li>Replay token</li><li>The encrypted envelope</li><li>Expiry time</li></ul>
+          <ul><li>Mailbox ID</li><li>A hash of the retrieval secret</li><li>Public prekey bundles and device records</li><li>Replay token</li><li>The encrypted envelope</li><li>Expiry time</li></ul>
           <p class="sy__k">Never holds</p>
-          <ul class="sy__never"><li>Message text</li><li>Private keys</li></ul>
+          <ul class="sy__never"><li>Message text</li><li>Private keys</li><li>Session secrets and ratchet state</li></ul>
         </div>
         <div class="sy__col sy__col--dev">
           <h3>Recipient’s device</h3>
@@ -166,7 +175,7 @@
       <div class="prod__text">
         <h3 class="prod__name">BizMtaani</h3>
         <p class="prod__cond">A neighbourhood shop can sell online without a website of its own.</p>
-        <p class="prod__body">Shops list what they sell, customers order and pay from their phones, and riders carry the order to the door. Kiosks, supermarkets, farms, butcheries and kitchens on one marketplace.</p>
+        <p class="prod__body">Shops list what they sell, customers order and pay from their phones, and riders carry the order to the door. One business is listed today: The Villager, in Embu. Operated by LESNAR AI LTD.</p>
       </div>
     </article>
 
@@ -200,7 +209,7 @@
         <div class="frame"><div class="frame__bar"><span>geneat.lesnarai.co.ke</span></div>
           <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/geneat-poster.webp" width="1000" height="624" aria-label="Screen recording of Gen-Eat."><source src="media/reel/geneat.mp4" type="video/mp4"></video></div>
         <h3 class="prod__name prod__name--s">Gen-Eat</h3>
-        <p class="prod__body">Campus food ordering over WhatsApp, paid by M-Pesa and ready when the lecture ends.</p>
+        <p class="prod__body">Campus food ordering over WhatsApp, paid by M-Pesa.</p>
       </article>
       <article class="prod prod--small">
         <div class="frame"><div class="frame__bar"><span>hazina.lesnarai.co.ke</span></div>
@@ -247,24 +256,21 @@
 <section id="internal" class="sys in" data-ground="dark" aria-labelledby="in-t">
   <div class="wrap">
     <div class="sys__head sys__head--wide">
-      <p class="status"><b>Internal.</b> We are the operator and the only user.</p>
-      <h2 id="in-t" class="sys__name">What we run on ourselves</h2>
+      <p class="status"><b>Internal.</b> Built for our own use. Not offered as a product, and not shown running in production.</p>
+      <h2 id="in-t" class="sys__name">Tested before we trust them</h2>
     </div>
     <div class="in__grid">
       <article class="in__sys">
         <h3 class="in__name">SentinelCore</h3>
         <p class="prod__cond">A security tool should report its own gaps.</p>
-        <p class="in__body">Host auditing for our Linux machines: port and banner scanning, a log watcher with a sliding-window detector, hardening checks, and authenticated telemetry to a SIEM.</p>
-        <p class="in__verdict">Pass with qualified gaps</p>
-        <ul class="in__list">
-          <li><span>Missing, malformed and mutated bearer tokens rejected</span><b>Pass</b></li>
-          <li><span>Rejected requests persist nothing</span><b>Pass</b></li>
-          <li><span>Token comparison is constant-time</span><b>Pass</b></li>
-          <li><span>No token appears in logs or fallback files</span><b>Pass</b></li>
-          <li><span>No literal secret in the Compose file</span><b>Pass</b></li>
-          <li><span>20 tests collected, 20 passed</span><b>Pass</b></li>
-        </ul>
-        <p class="in__k">Eleven gaps, recorded in the same report</p>
+        <p class="in__body">Host-auditing software for Linux: an orchestrator and five modules, for scanning, monitoring, firewall rules, remediation and telemetry.</p>
+        <dl class="in__exp">
+          <div><dt>Tests</dt><dd>133 passed, 0 failed, across 21 test files</dd></div>
+          <div><dt>Measured</dt><dd>16 September 2026, at commit 65cbd3c, on one workstation</dd></div>
+          <div><dt>Structure</dt><dd>An orchestrator and five modules in 242 tracked files</dd></div>
+          <div><dt>Not shown</dt><dd>Running against a real server, protecting anything, or being deployed</dd></div>
+        </dl>
+        <p class="in__k">Gaps it lists about itself, from its July sealing report</p>
         <ul class="in__gaps">
           <li>The CVE-2024-6387 attribution is not a verified detector.</li>
           <li>Credential-spray detection is not implemented.</li>
@@ -273,15 +279,16 @@
       </article>
       <article class="in__sys">
         <h3 class="in__name">Model Foundry</h3>
-        <p class="prod__cond">A model earns its place in production, or loses it.</p>
-        <p class="in__body">Where models are trained and evaluated before they touch a customer. One experiment, start to finish:</p>
+        <p class="prod__cond">A model earns its place, or loses it.</p>
+        <p class="in__body">Where models are evaluated locally before they are trusted with any work. No fine-tuned model has been produced yet. One evaluation, start to finish:</p>
         <dl class="in__exp">
-          <div><dt>Task</dt><dd>Open-ended concierge replies for Hazina Nomads</dd></div>
-          <div><dt>Base</dt><dd>Llama 3.1 8B, LoRA</dd></div>
-          <div><dt>Data</dt><dd>950 training rows, 50 validation, 55 written by hand</dd></div>
-          <div><dt>Guardrail</dt><dd>The dataset is refused if any of 8 required phrases is missing</dd></div>
-          <div><dt>Outcome</dt><dd>June 2026: the WhatsApp concierge was rebuilt to be fully deterministic. The model no longer answers customers on that path.</dd></div>
+          <div><dt>Model</dt><dd>Qwen2.5-Coder-7B-Instruct, Q4_K_M, pinned by SHA-256 before testing</dd></div>
+          <div><dt>Runtimes</dt><dd>llama.cpp and Ollama, same weights, same machine</dd></div>
+          <div><dt>Result</dt><dd>llama.cpp passed 80% of tasks, 8 of 10 repeatable. Ollama passed 60%, 6 of 10.</dd></div>
+          <div><dt>Failure</dt><dd>One task hid an instruction inside the work. llama.cpp ignored it. Ollama obeyed it, in both repetitions.</dd></div>
+          <div><dt>Verdict</dt><dd>Fit for local coding work with a person reading the output. Not for accepting code on its own, security decisions, or enforcing instruction boundaries.</dd></div>
         </dl>
+        <p class="in__note">Ten tasks, two repetitions, one machine. Not a benchmark.</p>
       </article>
     </div>
   </div>
