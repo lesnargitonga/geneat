@@ -24,6 +24,7 @@
 set -uo pipefail
 
 REPO="${LESNAR_REPO:-$HOME/workspace/LesnarAI}"
+user_gz_ip="${GZ_IP:-}"
 ORCH="${ORCH_URL:-http://127.0.0.1:8765}"
 MISSION_TIMEOUT_S="${MISSION_TIMEOUT_S:-600}"
 PUSH="${PUSH:-1}"
@@ -33,7 +34,7 @@ die() { printf '\nSTOPPED: %s\n' "$*" >&2; exit 1; }
 diag() {  # the last lines of every log the run writes, so one paste shows what failed
   local f
   local px4="${PX4_DIR:-$HOME/PX4-Autopilot}/build/px4_sitl_default/instance_0"
-  for f in /tmp/lesnar-orchestrator.log "$REPO/logs/gz_world.out" "$REPO/logs/px4_spawn.out" \
+  for f in /tmp/lesnar-orchestrator.log "$REPO/logs/gz_world.out" "$REPO/logs/px4_0.out" "$REPO/logs/px4_spawn.out" \
            "$px4/out.log" "$px4/err.log" "$REPO/logs/teacher_live_0.out"; do
     [ -s "$f" ] || continue
     printf '\n-- last lines of %s\n' "$f"
@@ -97,7 +98,7 @@ gz_trials() {
   curl -sS --max-time 60 -X POST "$ORCH/kill-all" >/dev/null 2>&1; sleep 2
   for name in default gz_ip headless_rendering both; do
     [ "$name" = both ] && [ -n "$answered" ] && break   # only if no single change was enough
-    extra="" gzip="${GZ_IP:-}"
+    extra="" gzip="${user_gz_ip:-}"
     case "$name" in gz_ip|both) gzip=127.0.0.1;; esac
     case "$name" in headless_rendering|both) extra=--headless-rendering;; esac
     log=/tmp/sentinel_gz_$name.log
@@ -168,7 +169,19 @@ else
     export PATH="$shim:$PATH"
     say "Gazebo will start with --headless-rendering (wrapper in $shim)"
   fi
-  [ -z "${GZ_IP:-}" ] || say "Gazebo transport pinned to GZ_IP=$GZ_IP"
+  # Measured on the Precision: with its ~20 interfaces (Docker bridges, veths, Wi-Fi)
+  # gz-transport discovery never reached the world; pinned to loopback it answered
+  # in about a second. Everything here runs on one machine, so loopback is enough.
+  export GZ_IP="${GZ_IP:-127.0.0.1}"
+  say "Gazebo transport pinned to GZ_IP=$GZ_IP"
+  # The single-drone launch runs "make px4_sitl gz_x500" and the orchestrator waits
+  # only 90 s for the drone to appear, so a first-time PX4 build is done beforehand.
+  px4_dir="${PX4_DIR:-$HOME/PX4-Autopilot}"
+  if [ -d "$px4_dir" ] && [ ! -x "$px4_dir/build/px4_sitl_default/bin/px4" ]; then
+    say "PX4 SITL is not built yet; building it once (this can take 10 to 20 minutes, log in /tmp/sentinel_px4_build.log)"
+    ( cd "$px4_dir" && make px4_sitl_default ) >/tmp/sentinel_px4_build.log 2>&1 \
+      || { tail -n 25 /tmp/sentinel_px4_build.log; die "the PX4 SITL build failed (last lines above)"; }
+  fi
   mkdir -p "$LESNAR_DATA_ROOT"
   say "Starting backend, Redis and TimescaleDB (data root $LESNAR_DATA_ROOT); a first build can take several minutes"
   # Nothing is running, so clear the project's containers and network first: ones left
