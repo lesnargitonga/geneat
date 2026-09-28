@@ -71,6 +71,63 @@ sys.exit(1)
 PY
 }
 
+# When /launch-all reports that Gazebo never answered, look at it while it still runs,
+# then try it alone three ways, so one paste shows the cause instead of a guess.
+world_answers() {  # the orchestrator's own readiness call
+  timeout 4 gz service -s /world/obstacles/control --reqtype gz.msgs.WorldControl \
+    --reptype gz.msgs.Boolean --req 'pause: false' --timeout 3000 2>&1 | grep -q "data: true"
+}
+gz_probe() {
+  say "Gazebo as the orchestrator left it"
+  echo "   gz: $(command -v gz || echo 'not on PATH'); $(gz sim --versions 2>&1 | head -n 1)"
+  echo "   DISPLAY='${DISPLAY:-}' WAYLAND_DISPLAY='${WAYLAND_DISPLAY:-}' GZ_IP='${GZ_IP:-}' GZ_PARTITION='${GZ_PARTITION:-}'"
+  echo "   interfaces: $(ip -brief link 2>/dev/null | awk '{print $1}' | tr '\n' ' ')"
+  echo "   GPU render nodes: $(ls /dev/dri 2>/dev/null | tr '\n' ' ')"
+  echo "   gz processes (pid, seconds, %cpu, command):"
+  ps -eo pid=,etimes=,pcpu=,args= | grep -E "[g]z sim|[g]z-sim|[r]uby.*gz" | cut -c1-150 | sed 's/^/     /'
+  echo "   services visible to the gz client:"
+  timeout 8 gz service -l 2>&1 | head -n 10 | sed 's/^/     /'
+  echo "   the world control call, verbatim:"
+  timeout 6 gz service -s /world/obstacles/control --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean \
+    --req 'pause: false' --timeout 4000 2>&1 | head -n 4 | sed 's/^/     /'
+}
+gz_trials() {
+  local px4="${PX4_DIR:-$HOME/PX4-Autopilot}" name extra gzip log pid answered=""
+  # The orchestrator's own kill stops the Gazebo it started (a no-op if already done).
+  curl -sS --max-time 60 -X POST "$ORCH/kill-all" >/dev/null 2>&1; sleep 2
+  for name in default gz_ip headless_rendering both; do
+    [ "$name" = both ] && [ -n "$answered" ] && break   # only if no single change was enough
+    extra="" gzip="${GZ_IP:-}"
+    case "$name" in gz_ip|both) gzip=127.0.0.1;; esac
+    case "$name" in headless_rendering|both) extra=--headless-rendering;; esac
+    log=/tmp/sentinel_gz_$name.log
+    say "Gazebo alone, $name: 40 s with full logging (log in $log)"
+    ( cd "$px4" && export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:-}:$px4/Tools/simulation/gz/models" \
+        && { [ -z "$gzip" ] || export GZ_IP="$gzip"; } \
+        && exec timeout -k 5 40 stdbuf -oL -eL gz sim -v4 -r -s $extra "$REPO/obstacles.sdf" ) >"$log" 2>&1 &
+    pid=$!
+    local ok=no t
+    for t in $(seq 1 30); do
+      sleep 1
+      if ( [ -z "$gzip" ] || export GZ_IP="$gzip"; world_answers ); then ok="yes, after about ${t} s"; break; fi
+    done
+    echo "   world answered: $ok"
+    [ "${ok%%,*}" = yes ] && answered="$answered $name"
+    kill "$pid" 2>/dev/null; wait "$pid" 2>/dev/null   # timeout passes the signal on to gz
+    grep -E "\[Err\]|\[Wrn\]|[Ee]rror|Unable|[Ff]ailed|[Ss]egmentation|core dumped|Loaded world|Serving" "$log" \
+      | grep -v "^\s*$" | head -n 12 | cut -c1-200 | sed 's/^/     /'
+    echo "     last line: $(tail -n 1 "$log" | cut -c1-200)"
+  done
+  say "Gazebo answered with:${answered:- none of the variants}"
+  case " $answered " in
+    *" gz_ip "*) echo "   Next, run: GZ_IP=127.0.0.1 bash /tmp/sentinel_run.sh";;
+    *" headless_rendering "*) echo "   Next, run: SENTINEL_GZ_HEADLESS_RENDERING=1 bash /tmp/sentinel_run.sh";;
+    *" both "*) echo "   Next, run: GZ_IP=127.0.0.1 SENTINEL_GZ_HEADLESS_RENDERING=1 bash /tmp/sentinel_run.sh";;
+    *" default "*) echo "   Gazebo answered on its own here, so the orchestrator's launch differs; paste this output";;
+    *) echo "   Paste this output";;
+  esac
+}
+
 cd "$REPO" 2>/dev/null || die "no LesnarAI checkout at $REPO (set LESNAR_REPO)"
 case "$(pwd -P)" in /mnt/*) die "run against the Linux checkout, not $(pwd -P)";; esac
 for t in curl docker git python3; do command -v "$t" >/dev/null || die "$t is not installed"; done
@@ -100,6 +157,18 @@ else
   # Empty keeps whatever the scripts add; the orchestrator passes it to both.
   export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:-}"
   export GZ_SIM_SYSTEM_PLUGIN_PATH="${GZ_SIM_SYSTEM_PLUGIN_PATH:-}"
+  if [ "${SENTINEL_GZ_HEADLESS_RENDERING:-0}" = 1 ]; then
+    # For this run only: a gz ahead of the real one on PATH that adds
+    # --headless-rendering (EGL, no display needed) to "gz sim" and changes nothing else.
+    real_gz=$(command -v gz) || die "gz is not on PATH"
+    shim=$(mktemp -d /tmp/sentinel_gz_shim.XXXXXX)
+    printf '#!/usr/bin/env bash\nif [ "$1" = sim ]; then shift; exec "%s" sim --headless-rendering "$@"; fi\nexec "%s" "$@"\n' \
+      "$real_gz" "$real_gz" > "$shim/gz"
+    chmod +x "$shim/gz"
+    export PATH="$shim:$PATH"
+    say "Gazebo will start with --headless-rendering (wrapper in $shim)"
+  fi
+  [ -z "${GZ_IP:-}" ] || say "Gazebo transport pinned to GZ_IP=$GZ_IP"
   mkdir -p "$LESNAR_DATA_ROOT"
   say "Starting backend, Redis and TimescaleDB (data root $LESNAR_DATA_ROOT); a first build can take several minutes"
   # Nothing is running, so clear the project's containers and network first: ones left
@@ -158,8 +227,11 @@ off0=$(stat -c %s "$log" 2>/dev/null || echo 0)
 say "Launching Gazebo, PX4 SITL x500 and the teacher bridge"
 resp=$(curl -sS --max-time 900 -X POST "$ORCH/launch-all" -H 'Content-Type: application/json' \
   -d '{"drone_count": 1, "gz_headless": true}') || { diag; stop_if_ours; die "POST /launch-all failed"; }
-run_dir=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["run_dir"])' <<<"$resp" 2>/dev/null) \
-  || { diag; stop_if_ours; die "/launch-all returned no run_dir: $resp"; }
+run_dir=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["run_dir"])' <<<"$resp" 2>/dev/null) || {
+  diag
+  case "$resp" in *"Gazebo world did not become responsive"*) gz_probe; stop_if_ours; gz_trials;; *) stop_if_ours;; esac
+  die "/launch-all returned no run_dir: $resp"
+}
 run_id=$(basename "$run_dir")
 drone=$(python3 -c 'import json,sys; m=(json.load(sys.stdin).get("status") or {}).get("drone_models") or []; print(m[0] if m else "x500_0")' <<<"$resp")
 csv="$run_dir/telemetry_live_0.csv"
@@ -217,7 +289,7 @@ say "Land command to $land_subs subscriber(s); landed: $landed"
 # 6. Record the dispatch and the run's teacher log inside the run, then seal
 tail -c +"$((off0 + 1))" "$log" > "$run_dir/teacher_live_0.log" 2>/dev/null
 python3 - "$run_dir/mission.json" "$payload" "$subs" "$dispatched_at" "$outcome" "$landed" "$off" "$log" <<'PY'
-import json, re, sys
+import json, os, re, sys
 out, payload, subs, at, outcome, landed, off, log = sys.argv[1:9]
 with open(log, "rb") as f:
     f.seek(int(off))
@@ -234,6 +306,8 @@ json.dump({
                "at 10 m around the drone's position at dispatch."),
     "outcome": outcome,
     "landed_below_0_5_m": landed == "yes",
+    "gazebo_launch": {"GZ_IP": os.environ.get("GZ_IP") or None,
+                      "headless_rendering": os.environ.get("SENTINEL_GZ_HEADLESS_RENDERING") == "1"},
     "teacher_log_lines_since_dispatch": lines,
 }, open(out, "w"), indent=2)
 PY
