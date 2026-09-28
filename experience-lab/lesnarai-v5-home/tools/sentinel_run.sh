@@ -92,12 +92,23 @@ else
   export LESNAR_TEACHER_BRIDGE_ONLY="${LESNAR_TEACHER_BRIDGE_ONLY:-1}"
   mkdir -p "$LESNAR_DATA_ROOT"
   say "Starting backend, Redis and TimescaleDB (data root $LESNAR_DATA_ROOT); a first build can take several minutes"
-  # Nothing is running, so recreate the containers: ones left from an earlier session
-  # can point at a Docker network that no longer exists. Postgres data is in the
-  # named volume lesnar_postgres, which a recreate keeps; Redis keeps nothing.
+  # Nothing is running, so clear the project's containers and network first: ones left
+  # from an earlier session can point at a Docker network that no longer exists.
+  # down keeps named volumes (Postgres data is in lesnar_postgres); Redis keeps nothing.
   # adminer is included because /launch-all brings it up too.
-  docker compose up -d --build --force-recreate backend redis timescaledb adminer \
-    || die "docker compose up failed (output above)"
+  compose_up() {
+    docker compose up -d --build backend redis timescaledb adminer 2>&1 | tee /tmp/sentinel_compose.log
+    return "${PIPESTATUS[0]}"
+  }
+  docker compose down --remove-orphans >/dev/null 2>&1
+  if ! compose_up; then
+    net=$(grep -oE 'on network [A-Za-z0-9_.-]+' /tmp/sentinel_compose.log | head -n 1 | awk '{print $3}')
+    [ -n "$net" ] || die "docker compose up failed (output above)"
+    say "Removing the stale Docker network $net and retrying once"
+    docker compose down --remove-orphans >/dev/null 2>&1
+    docker network rm "$net" >/dev/null 2>&1
+    compose_up || die "docker compose up failed twice (output above). Restart Docker with: sudo systemctl restart docker, then run this again"
+  fi
   for _ in $(seq 1 30); do redis_up && break; sleep 2; done
   redis_up || die "Redis did not answer after a minute"
   say "Starting the runtime orchestrator"
