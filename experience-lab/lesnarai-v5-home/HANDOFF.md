@@ -40,10 +40,37 @@ Result: three sealed online runs, each on its own LesnarAI branch
 
 All three used a copy of `obstacles.sdf` that gained the NavSat and Magnetometer
 systems and the spherical coordinates PX4 expects; `mission.json` in each run records
-exactly what was added. Still to do, in LesnarAI, by its owner: review and merge
-`fix/offboard-engage` (both bridge fixes) and `fix/console-real-state`; commit the
-world fix to `obstacles.sdf` itself; and decide whether to re-run the April
-diagnostics with the fixed lidar, since their detector read the old one.
+exactly what was added.
+
+Since then, all of it is in LesnarAI's `main` (`3ba2677`), through four pull requests
+on lesnargitonga/LesnarAI: PR 1 the console's real link state, PR 2 both bridge fixes,
+PR 3 the world and the Linux stack (the committed `obstacles.sdf` is byte for byte the
+world run 3 flew, `GZ_IP` defaults to loopback, the scripts are executable, and
+`/mnt/j` is optional), and PR 4 a CI that passes on every job. Still to do, by the
+owner: one confirmation flight from a stock checkout of `main` (below), and a decision
+on whether to re-run the April diagnostics with the fixed lidar, since their detector
+read the old one.
+
+### Confirmation flight from `main`
+
+The aimodel dev containers hold Redis and Postgres on the ports the stack needs, so
+they are stopped for the run and started again after it. Nothing else is touched.
+
+```bash
+cd ~/workspace/LesnarAI && git checkout main && git pull --ff-only
+docker stop aimodel-redis-1 aimodel-postgres-1
+cd ~/Documents/"ai model"
+git fetch origin claude/production-timings-stale-claims-2eg7vc
+git show origin/claude/production-timings-stale-claims-2eg7vc:experience-lab/lesnarai-v5-home/tools/sentinel_run.sh > /tmp/sentinel_run.sh
+bash /tmp/sentinel_run.sh
+docker start aimodel-postgres-1 aimodel-redis-1
+```
+
+Without `SENTINEL_LESNAR_REF` it flies the checkout as it is. It should say
+`obstacles.sdf already has what PX4 needs; flying it unchanged`, and `mission.json`
+then records `"unchanged": true`. The `~/workspace/LesnarAI-run` worktree from the
+earlier runs is no longer needed (`git -C ~/workspace/LesnarAI worktree remove
+../LesnarAI-run`).
 
 How the runs were made:
 
@@ -63,8 +90,10 @@ bash /tmp/sentinel_run.sh
 
 It starts the stack unless it is up, with the same steps and environment as
 `scripts/start_stack_verified.sh` but without the React frontend and its smoke
-test. The repo's `.sh` files are committed without the executable bit, and that
-script runs `start_frontend_guarded.sh` directly, so it fails on a fresh checkout.
+test. At `906a465` the repo's `.sh` files were committed without the executable
+bit, and that script runs `start_frontend_guarded.sh` directly, so it failed on a fresh
+checkout. PR 3 fixed that in `main`; the run script keeps its own steps so it works on
+either.
 It then runs `/launch-all` (Gazebo headless, PX4 SITL, teacher bridge), waits for online
 telemetry, then sends the console's own START TRAINING mission, built exactly as
 `frontend/src/components/DroneList.js` builds it: a 25 m box at 10 m around the

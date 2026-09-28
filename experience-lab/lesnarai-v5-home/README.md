@@ -92,15 +92,14 @@ frames are capped at the recordings' native 1000 px so they never upscale.
 
 ## Open questions
 
-- Model Foundry is shown through the Hazina concierge experiment. Confirm that
-  is what the name covers.
-- Gold Trader's audit document was rerun on 30 May and says some figures
-  moved. Check the family table still matches that rerun before release.
-- Operation Sentinel now shows a completed sealed flight, but it was flown with two
-  bridge fixes that sit on the unmerged LesnarAI branch `fix/offboard-engage`, in a
-  copy of `obstacles.sdf` that gained the GPS and compass systems PX4 expects. Until
-  the branch is merged and the world fix is committed, the stock checkout cannot fly
-  it. The page says the faults are fixed on a branch that is not yet merged, and
+- Operation Sentinel's flight was recorded before its fixes were merged: the bridge
+  ran from a worktree at `bcf9e52`, in a copy of `obstacles.sdf` that gained the GPS
+  and compass systems PX4 expects. LesnarAI's `main` now carries all of it (PRs 1 to
+  4 on lesnargitonga/LesnarAI: the console, both bridge fixes, the world and the Linux
+  stack, and a CI that passes), and main's `obstacles.sdf` is byte for byte the world
+  the run flew (SHA-256 `9340b64c...`, as its sealed `mission.json` records). One
+  flight from a stock checkout of `main` would confirm nothing else was needed; see
+  HANDOFF.md. The page says the faults are fixed in the bridge's main branch, and
   `verify.py` fails if that stops being true.
 - The April detection counts were produced by a detector that read the old lidar
   model, which turned box obstacles into discs, so some are detections of nothing.
@@ -109,6 +108,23 @@ frames are capped at the recordings' native 1000 px so they never upscale.
 - The Phase 9 work is on GitHub as `experience/lesnarai-v5-static`. Its
   homepage (serif, graphite and paper) is what this prototype would replace;
   its eleven `/work/` pages and route redirects are not touched here.
+
+Settled since the last review:
+
+- Model Foundry is the registry's own name for the local-model evaluation
+  (`registry.json` evidence 16 and 17, "Model foundry"). The page shows that
+  evaluation, llama.cpp against Ollama, and not the Hazina concierge experiment.
+- Gold Trader's figures hold after the 30 May rerun. The rerun changed the live
+  gates (the macro hard block, the Grade A gates) and the IFVG path's `_entry_plan`
+  targets, and it replaced the sequential-sim results: the old +$43 on 18 IFVG trades
+  and -$334 on 96 across families. The page uses neither. Its headline and family
+  table are the full-stack overlap figures, and `full_stack_entry_scan.py` takes its
+  targets from the research engine's own candidates, with no live gates on
+  collection, so none of those changes reaches them. The document was committed on
+  16 July with the rerun note and these tables together. `verify.py` now also fails
+  if either superseded figure appears on the page, or if the document stops marking
+  them superseded. The audit's market data is not in the repository, so the overlap
+  run itself was not repeated here.
 
 ## Operation Sentinel's operator console
 
@@ -123,13 +139,13 @@ That contradicts the project's own truth-first rule, so the console should
 not be shown publicly until those lines are driven by real state or removed.
 
 Those lines, the header's fixed Live_Stream label and the footer's fixed
-readouts are now driven by the measured link state on the unmerged LesnarAI
-branch `fix/console-real-state`.
+readouts are now driven by the measured link state, in LesnarAI's `main` since
+PR 1 (`fix/console-real-state`).
 
 ## Checking the page against its sources
 
 `tools/verify.py` confirms every figure and claim on the page appears in the
-file it came from (79 checks with the flight, including counted facts such as the 59
+file it came from (81 checks with the flight, including counted facts such as the 59
 telemetry columns) and that the page carries no em dash. Run it after any copy change.
 
 The flight checks read a lesnargitonga/lesnarai clone (`LESNARAI`, default
@@ -143,7 +159,8 @@ git -C "$LESNARAI" fetch origin 'refs/heads/evidence/*:refs/remotes/origin/evide
 From there they re-hash the flown run's telemetry and mission record against its
 sealed manifest, check each sentence about the earlier runs against that run's sealed
 outcome and the fix commit's own description, check that the fixes are on
-`fix/offboard-engage` and not in `main`, and check the April caveat against the bridge
+`fix/offboard-engage` and in `main` exactly when the page says they are merged, and check
+the April caveat against the bridge
 as committed on 18 March.
 
 ## Rebuilding the assets

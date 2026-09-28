@@ -232,6 +232,15 @@ PY
   # LesnarAI ignores runs/, *.csv and *.log to keep training data out of the repo.
   # This one sealed run is evidence, so only its own folder is added past that rule.
   git -C "$wt" add -f -- "evidence/runs/$run_id"
+  if [ -f "$dest/world_used.sdf" ]; then
+    world_note="world_used.sdf is the world
+Gazebo ran; the manifest does not hash .sdf files, so its SHA-256 and the
+exact additions to obstacles.sdf are recorded in mission.json."
+  else
+    world_note="Gazebo ran the checkout's
+obstacles.sdf unchanged; the manifest does not hash .sdf files, so its SHA-256
+is recorded in mission.json."
+  fi
   if git -C "$wt" diff --cached --quiet; then
     say "Nothing new to commit on $branch (already committed)"
   else
@@ -250,9 +259,7 @@ Telemetry: $facts.
 
 Files are copied byte for byte from the run directory. MANIFEST.json holds
 their SHA-256 hashes; teacher_live_0.log and mission.json were written into
-the run before sealing, so they are covered too. world_used.sdf is the world
-Gazebo ran; the manifest does not hash .sdf files, so its SHA-256 and the
-exact additions to obstacles.sdf are recorded in mission.json.
+the run before sealing, so they are covered too. $world_note
 
 Added with git add -f: the repo ignores runs/, *.csv and *.log to keep
 training data out, and this folder is one sealed evidence run.
@@ -298,15 +305,17 @@ print(m["outcome"], "yes" if m.get("landed_below_0_5_m") else "no", m["dispatche
   exit 0
 fi
 
-# 1. Stack. The repo's .sh files are committed without the executable bit, and
-# start_stack_verified.sh runs start_frontend_guarded.sh directly, so this does the
-# same steps with the same environment itself. The frontend plays no part in a run.
+# 1. Stack. Up to 906a465 the repo's .sh files were committed without the executable
+# bit, and start_stack_verified.sh runs start_frontend_guarded.sh directly, so this does
+# the same steps with the same environment itself, which works before and after the fix.
+# The frontend plays no part in a run.
 # SENTINEL_LESNAR_REF=<branch or commit> flies that version of the orchestrator and the
 # teacher bridge (both run on the host) from a worktree beside the checkout, which is not
 # touched. Containers still come from the checkout: COMPOSE_FILE points compose there,
 # including the orchestrator's own "docker compose up", so it keeps the checkout's .env,
 # build context and project name. The worktree needs no .env and gets none.
-run_repo="$REPO" bridge_ref=""
+# Without a ref, the run flies the checkout as it is and records its branch.
+run_repo="$REPO" bridge_ref="$(git -C "$REPO" symbolic-ref -q --short HEAD || true)"
 if [ -n "${SENTINEL_LESNAR_REF:-}" ]; then
   curl -fsS --max-time 3 "$ORCH/health" >/dev/null 2>&1 \
     && die "the orchestrator is already running from $REPO; stop the stack (bash scripts/stop_stack.sh) before flying $SENTINEL_LESNAR_REF"
@@ -439,7 +448,9 @@ if snips:
 if sc:
     m = re.search(r"</physics>[ \t]*\n", text)
     text = text[:m.end()] + sc + "\n" + text[m.end():]
-open(out, "w", encoding="utf-8").write(text)
+unchanged = not snips and sc is None
+if not unchanged:
+    open(out, "w", encoding="utf-8").write(text)
 sha = lambda path: hashlib.sha256(open(path, "rb").read()).hexdigest()
 ver = subprocess.run(["git", "-C", px4, "describe", "--tags", "--always"], capture_output=True, text=True).stdout.strip()
 print(json.dumps({
@@ -452,11 +463,17 @@ print(json.dumps({
     "skipped_px4_custom_plugins": [p.get("filename") for p in skipped],
     "added_spherical_coordinates": sc is not None,
     "added_xml": snips + ([sc] if sc else []),
-    "used_file": "world_used.sdf", "used_sha256": sha(out),
+    "unchanged": unchanged,
+    "used_file": None if unchanged else "world_used.sdf", "used_sha256": sha(src) if unchanged else sha(out),
 }))
 PYW
-    export LESNAR_GZ_WORLD_SDF="$wdir/obstacles.sdf" SENTINEL_WORLD_INFO="$wdir/world_info.json"
-    say "World copy for this run adds: $(python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); print(", ".join(d["added_plugins"] + (["spherical_coordinates"] if d["added_spherical_coordinates"] else [])) or "nothing")' "$wdir/world_info.json")"
+    export SENTINEL_WORLD_INFO="$wdir/world_info.json"
+    if python3 -c 'import json,sys; sys.exit(0 if json.load(open(sys.argv[1]))["unchanged"] else 1)' "$wdir/world_info.json"; then
+      say "obstacles.sdf already has what PX4 needs; flying it unchanged"
+    else
+      export LESNAR_GZ_WORLD_SDF="$wdir/obstacles.sdf"
+      say "World copy for this run adds: $(python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); print(", ".join(d["added_plugins"] + (["spherical_coordinates"] if d["added_spherical_coordinates"] else [])))' "$wdir/world_info.json")"
+    fi
   else
     say "No PX4 default.sdf or server.config found; using obstacles.sdf as it is"
   fi

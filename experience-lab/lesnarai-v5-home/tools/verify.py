@@ -102,6 +102,16 @@ CHECKS = [
     ("We reply within two working days", "V4/index.html", "Usually within two working days."),
 ]
 
+# Figures the source itself says a later rerun replaced. They must stay off the page, and
+# the check fails if the source stops flagging them, so the page gets looked at again.
+# Gold Trader's 30 May rerun replaced the sequential-sim results (+$43 on 18 IFVG trades,
+# -$334 on 96 across families). The page's overlap figures come from the full-stack tiers,
+# which the rerun's changes (live gates, and _entry_plan targets on the IFVG path) do not reach.
+SUPERSEDED = [
+    (r"\+\$43(?![\d,])", "GT/docs/AUDIT_RESULTS.md", "(vs prior doc +$43 — do not use old number)"),
+    (r"[−-]\$334(?![\d,])", "GT/docs/AUDIT_RESULTS.md", "all-families **56 tr / −$638**"),
+]
+
 # A committed Sentinel run changes what the page may say about flight. Its facts are
 # checked against the run's own files, recomputed here rather than trusted from the build.
 RUN = json.loads((HERE / "media/sentinel-run.json").read_text() or "null") if (HERE / "media/sentinel-run.json").exists() else None
@@ -184,12 +194,14 @@ def history_checks(text):
             checked += 1
             on_branch = _git("merge-base", "--is-ancestor", r["fixed_by"], f"origin/{fix_branch}") is not None
             in_main = _git("merge-base", "--is-ancestor", r["fixed_by"], "origin/main") is not None
-            if not on_branch or in_main:
-                bad.append(f"SOURCE drift:   {r['fixed_by']} is {'merged into main' if in_main else 'not on ' + fix_branch}; "
-                           "the page says it is fixed on a branch that is not yet merged")
+            merged = hist.get("fix_state") == "merged"
+            if not on_branch or in_main != merged:
+                said = "in main" if merged else "on a branch that is not yet merged"
+                bad.append(f"SOURCE drift:   {r['fixed_by']} is {'in main' if in_main else 'not in main'}; "
+                           f"the page says it is fixed {said}")
         checked += 1
-        if hist["unmerged_sentence"] not in text:
-            bad.append(f"PAGE   missing: {hist['unmerged_sentence']!r}")
+        if hist["fix_sentence"] not in text:
+            bad.append(f"PAGE   missing: {hist['fix_sentence']!r}")
     if RUN and RUN.get("flew"):
         # The April detector read a simulated lidar that modelled boxes as discs: the last
         # committed bridge before the runs ended (16 April) shows both.
@@ -239,6 +251,14 @@ def main():
         if label not in text or not ok():
             print(f"COUNT  drift:   {label!r}")
             bad += 1
+    for pattern, src, needle in SUPERSEDED:
+        root, rel = src.split("/", 1)
+        if re.search(pattern, text):
+            print(f"PAGE   uses a figure its source marks superseded: {pattern!r}")
+            bad += 1
+        elif needle not in (R[root] / rel).read_text():
+            print(f"SOURCE drift:   {src} no longer marks {pattern!r} superseded; re-check the page")
+            bad += 1
     if "—" in page:
         print("STYLE  em dash present on the page")
         bad += 1
@@ -254,7 +274,7 @@ def main():
     for line in hist_bad:
         print(line)
     bad += len(hist_bad)
-    n = len(CHECKS) + len(COUNTS) + 2 + (1 if RUN else 0) + hist_n
+    n = len(CHECKS) + len(COUNTS) + len(SUPERSEDED) + 2 + (1 if RUN else 0) + hist_n
     print(f"{n - bad}/{n} checks pass")
     sys.exit(1 if bad else 0)
 

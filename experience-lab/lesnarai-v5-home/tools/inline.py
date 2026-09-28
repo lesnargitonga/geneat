@@ -66,7 +66,7 @@ if run:
         if earlier:
             count = {1: "The sealed run", 2: "The two sealed runs", 3: "The three sealed runs"}.get(len(earlier), f"The {len(earlier)} sealed runs")
             cap += (f"<p>{count} before it stopped short. " + " ".join(r["sentence"] for r in earlier)
-                    + " " + hist.get("unmerged_sentence", "") + "</p>")
+                    + " " + hist.get("fix_sentence", "") + "</p>")
     if run.get("flew"):
         flight = "A simulated flight is on record, and no physical one."
         note = ("These are the perception pipeline’s own output in simulation. None of these April runs has a flight log, "

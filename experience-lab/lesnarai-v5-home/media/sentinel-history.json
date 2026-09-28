@@ -1,5 +1,5 @@
 {
-  "_note": "The sealed runs before the one the page draws, and what stopped them. tools/verify.py checks every sentence against the run's sealed mission.json on its evidence branch and against the commit that fixed the fault, in lesnargitonga/lesnarai.",
+  "_note": "The sealed runs before the one the page draws, and what stopped them. tools/verify.py checks every sentence against the run's sealed mission.json on its evidence branch, against the commit that fixed the fault, and that the fix is in the state fix_state says, in lesnargitonga/lesnarai.",
   "earlier_runs": [
     {
       "run_id": "px4_teacher_20260928_194728_d1",
@@ -25,5 +25,7 @@
     }
   ],
   "fix_branch": "fix/offboard-engage",
-  "unmerged_sentence": "Both faults are fixed on a branch that is not yet merged."
+  "fix_state": "merged",
+  "fix_sentence": "Both faults are now fixed in the bridge’s main branch.",
+  "merged_into": "main"
 }
