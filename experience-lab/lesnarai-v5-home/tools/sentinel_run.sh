@@ -24,6 +24,7 @@
 set -uo pipefail
 
 REPO="${LESNAR_REPO:-$HOME/workspace/LesnarAI}"
+run_repo="$REPO"
 user_gz_ip="${GZ_IP:-}"
 ORCH="${ORCH_URL:-http://127.0.0.1:8765}"
 MISSION_TIMEOUT_S="${MISSION_TIMEOUT_S:-600}"
@@ -34,8 +35,8 @@ die() { printf '\nSTOPPED: %s\n' "$*" >&2; exit 1; }
 diag() {  # the last lines of every log the run writes, so one paste shows what failed
   local f
   local px4="${PX4_DIR:-$HOME/PX4-Autopilot}/build/px4_sitl_default/instance_0"
-  for f in /tmp/lesnar-orchestrator.log "$REPO/logs/gz_world.out" "$REPO/logs/px4_0.out" "$REPO/logs/px4_spawn.out" \
-           "$px4/out.log" "$px4/err.log" "$REPO/logs/teacher_live_0.out"; do
+  for f in /tmp/lesnar-orchestrator.log "$run_repo/logs/gz_world.out" "$run_repo/logs/px4_0.out" "$run_repo/logs/px4_spawn.out" \
+           "$px4/out.log" "$px4/err.log" "$run_repo/logs/teacher_live_0.out"; do
     [ -s "$f" ] || continue
     printf '\n-- last lines of %s\n' "$f"
     tail -n 15 "$f"
@@ -105,7 +106,7 @@ gz_trials() {
     say "Gazebo alone, $name: 40 s with full logging (log in $log)"
     ( cd "$px4" && export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:-}:$px4/Tools/simulation/gz/models" \
         && { [ -z "$gzip" ] || export GZ_IP="$gzip"; } \
-        && exec timeout -k 5 40 stdbuf -oL -eL gz sim -v4 -r -s $extra "$REPO/obstacles.sdf" ) >"$log" 2>&1 &
+        && exec timeout -k 5 40 stdbuf -oL -eL gz sim -v4 -r -s $extra "$run_repo/obstacles.sdf" ) >"$log" 2>&1 &
     pid=$!
     local ok=no t
     for t in $(seq 1 30); do
@@ -171,7 +172,7 @@ print("   teacher log after dispatch:")
 for l in m.get("teacher_log_lines_since_dispatch", [])[:30]:
     print("     " + l[:180])
 PYF
-  local px4log="$REPO/logs/px4_0.out"
+  local px4log="$run_repo/logs/px4_0.out"
   if [ -f "$px4log" ]; then
     echo "   PX4 warnings and errors (last 15, from $px4log):"
     grep -E "WARN|ERROR" "$px4log" | tail -n 15 | cut -c1-160 | sed 's/^/     /'
@@ -241,6 +242,7 @@ One Operation Sentinel run: PX4 SITL x500 in Gazebo Harmonic (headless),
 driven by the MAVSDK teacher bridge in its default bridge mode, launched
 and sealed by the runtime orchestrator (/launch-all, /kill-all).
 
+Bridge: ${SENTINEL_BRIDGE_REF:-the checkout} at ${SENTINEL_BRIDGE_COMMIT:-unknown}.
 Mission: the console's START TRAINING box (DroneList.js), 25 m at 10 m,
 dispatched on the Redis commands channel at $dispatched_at.
 Outcome: $outcome. Landed below 0.5 m: $landed.
@@ -299,6 +301,28 @@ fi
 # 1. Stack. The repo's .sh files are committed without the executable bit, and
 # start_stack_verified.sh runs start_frontend_guarded.sh directly, so this does the
 # same steps with the same environment itself. The frontend plays no part in a run.
+# SENTINEL_LESNAR_REF=<branch or commit> flies that version of the orchestrator and the
+# teacher bridge (both run on the host) from a worktree beside the checkout, which is not
+# touched. Containers still come from the checkout: COMPOSE_FILE points compose there,
+# including the orchestrator's own "docker compose up", so it keeps the checkout's .env,
+# build context and project name. The worktree needs no .env and gets none.
+run_repo="$REPO" bridge_ref=""
+if [ -n "${SENTINEL_LESNAR_REF:-}" ]; then
+  curl -fsS --max-time 3 "$ORCH/health" >/dev/null 2>&1 \
+    && die "the orchestrator is already running from $REPO; stop the stack (bash scripts/stop_stack.sh) before flying $SENTINEL_LESNAR_REF"
+  git fetch -q origin "$SENTINEL_LESNAR_REF" || die "could not fetch $SENTINEL_LESNAR_REF from origin"
+  run_repo="$(dirname "$(pwd -P)")/LesnarAI-run"
+  if [ -d "$run_repo" ]; then
+    [ -z "$(git -C "$run_repo" status --porcelain --untracked-files=no)" ] || die "$run_repo has local changes; not touching it"
+    git -C "$run_repo" checkout -q --detach FETCH_HEAD || die "could not check out $SENTINEL_LESNAR_REF in $run_repo"
+  else
+    git worktree add -q --detach "$run_repo" FETCH_HEAD || die "could not create the worktree $run_repo"
+  fi
+  export COMPOSE_FILE="$REPO/docker-compose.yml"
+  bridge_ref="$SENTINEL_LESNAR_REF"
+  say "Flying LesnarAI $bridge_ref ($(git -C "$run_repo" log -1 --format='%h %s')) from $run_repo; containers still come from $REPO"
+fi
+export SENTINEL_BRIDGE_REF="$bridge_ref" SENTINEL_BRIDGE_COMMIT="$(git -C "$run_repo" rev-parse HEAD)"
 was_running=0 pre_up=0 orch_pid=""
 redis_up() { [ "$(docker compose exec -T redis redis-cli ping 2>/dev/null | tr -d '\r')" = PONG ]; }
 if curl -fsS --max-time 3 "$ORCH/health" >/dev/null 2>&1; then
@@ -359,7 +383,7 @@ else
   px4_config="${GZ_SIM_SERVER_CONFIG_PATH:-$px4_dir/src/modules/simulation/gz_bridge/server.config}"
   if [ -f "$px4_world" ] || [ -f "$px4_config" ]; then
     wdir=$(mktemp -d /tmp/sentinel_world.XXXXXX)
-    python3 - "$REPO/obstacles.sdf" "$px4_world" "$px4_config" "$wdir/obstacles.sdf" "$px4_dir" > "$wdir/world_info.json" <<'PYW' \
+    python3 - "$run_repo/obstacles.sdf" "$px4_world" "$px4_config" "$wdir/obstacles.sdf" "$px4_dir" > "$wdir/world_info.json" <<'PYW' \
       || die "could not prepare the world copy"
 import hashlib, json, re, subprocess, sys
 import xml.etree.ElementTree as ET
@@ -458,7 +482,7 @@ Stop them, then run this again. Nothing was started."
   for _ in $(seq 1 30); do redis_up && break; sleep 2; done
   redis_up || die "Redis did not answer after a minute"
   say "Starting the runtime orchestrator"
-  nohup python3 scripts/runtime_orchestrator.py >/tmp/lesnar-orchestrator.log 2>&1 &
+  nohup python3 "$run_repo/scripts/runtime_orchestrator.py" >/tmp/lesnar-orchestrator.log 2>&1 &
   orch_pid=$!
   for _ in $(seq 1 20); do curl -fsS --max-time 2 "$ORCH/health" >/dev/null 2>&1 && break; sleep 1; done
   curl -fsS --max-time 2 "$ORCH/health" >/dev/null 2>&1 || { diag; die "the runtime orchestrator did not start"; }
@@ -473,7 +497,7 @@ stop_if_ours() {  # stop only what this script started
 }
 
 # 2. Launch
-log="$REPO/logs/teacher_live_0.out"
+log="$run_repo/logs/teacher_live_0.out"
 off0=$(stat -c %s "$log" 2>/dev/null || echo 0)
 say "Launching Gazebo, PX4 SITL x500 and the teacher bridge"
 resp=$(curl -sS --max-time 900 -X POST "$ORCH/launch-all" -H 'Content-Type: application/json' \
@@ -570,6 +594,8 @@ json.dump({
                "at 10 m around the drone's position at dispatch."),
     "outcome": outcome,
     "landed_below_0_5_m": landed == "yes",
+    "bridge": {"ref": os.environ.get("SENTINEL_BRIDGE_REF") or None,
+               "commit": os.environ.get("SENTINEL_BRIDGE_COMMIT") or None},
     "gazebo_launch": {"GZ_IP": os.environ.get("GZ_IP") or None,
                       "headless_rendering": os.environ.get("SENTINEL_GZ_HEADLESS_RENDERING") == "1"},
     "world": (json.load(open(os.environ["SENTINEL_WORLD_INFO"])) if os.environ.get("SENTINEL_WORLD_INFO")
