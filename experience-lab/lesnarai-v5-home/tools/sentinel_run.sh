@@ -311,18 +311,34 @@ if [ -n "${SENTINEL_LESNAR_REF:-}" ]; then
   curl -fsS --max-time 3 "$ORCH/health" >/dev/null 2>&1 \
     && die "the orchestrator is already running from $REPO; stop the stack (bash scripts/stop_stack.sh) before flying $SENTINEL_LESNAR_REF"
   git fetch -q origin "$SENTINEL_LESNAR_REF" || die "could not fetch $SENTINEL_LESNAR_REF from origin"
+  # FETCH_HEAD is per worktree, so resolve it here, in the checkout that fetched it.
+  ref_commit=$(git rev-parse --verify -q "FETCH_HEAD^{commit}") || die "could not resolve $SENTINEL_LESNAR_REF"
   run_repo="$(dirname "$(pwd -P)")/LesnarAI-run"
   if [ -d "$run_repo" ]; then
     [ -z "$(git -C "$run_repo" status --porcelain --untracked-files=no)" ] || die "$run_repo has local changes; not touching it"
-    git -C "$run_repo" checkout -q --detach FETCH_HEAD || die "could not check out $SENTINEL_LESNAR_REF in $run_repo"
+    git -C "$run_repo" checkout -q --detach "$ref_commit" || die "could not check out $SENTINEL_LESNAR_REF in $run_repo"
   else
-    git worktree add -q --detach "$run_repo" FETCH_HEAD || die "could not create the worktree $run_repo"
+    git worktree add -q --detach "$run_repo" "$ref_commit" || die "could not create the worktree $run_repo"
   fi
+  # The orchestrator runs the bridge with <its folder>/.venv-wsl/bin/python3 when that
+  # exists. The checkout's venv is untracked, so a worktree has none and would fall back
+  # to a system python3 without the bridge's packages. Link the checkout's venv in.
+  for v in .venv-wsl .venv; do
+    if [ -d "$REPO/$v" ] && [ ! -e "$run_repo/$v" ]; then
+      ln -s "$REPO/$v" "$run_repo/$v" && say "Using the checkout's $v in the worktree"
+    fi
+  done
   export COMPOSE_FILE="$REPO/docker-compose.yml"
   bridge_ref="$SENTINEL_LESNAR_REF"
   say "Flying LesnarAI $bridge_ref ($(git -C "$run_repo" log -1 --format='%h %s')) from $run_repo; containers still come from $REPO"
 fi
 export SENTINEL_BRIDGE_REF="$bridge_ref" SENTINEL_BRIDGE_COMMIT="$(git -C "$run_repo" rev-parse HEAD)"
+bridge_py="$run_repo/.venv-wsl/bin/python3"; [ -x "$bridge_py" ] || bridge_py=python3
+# The bridge imports mavsdk, and it cannot start without torch: its StudentController is
+# decorated with @torch.no_grad() even when torch failed to import.
+"$bridge_py" -c "import mavsdk, torch" 2>/dev/null \
+  || die "the bridge's Python ($bridge_py) cannot import mavsdk and torch, so the teacher bridge would crash at start"
+say "Bridge Python: $bridge_py"
 was_running=0 pre_up=0 orch_pid=""
 redis_up() { [ "$(docker compose exec -T redis redis-cli ping 2>/dev/null | tr -d '\r')" = PONG ]; }
 if curl -fsS --max-time 3 "$ORCH/health" >/dev/null 2>&1; then
@@ -522,7 +538,13 @@ seal_and_die() {
 # 3. Online telemetry with a position, then let the estimate settle
 say "Waiting for online telemetry"
 pos=""
-for _ in $(seq 1 120); do pos=$(latest "$csv") && break; pos=""; sleep 2; done
+for _ in $(seq 1 120); do
+  pos=$(latest "$csv") && break
+  pos=""
+  curl -fsS --max-time 10 "$ORCH/status" 2>/dev/null | grep -q '"teacher_running": *true' || { sleep 3; \
+    curl -fsS --max-time 10 "$ORCH/status" 2>/dev/null | grep -q '"teacher_running": *true' || seal_and_die "the teacher bridge exited before any telemetry (its log is above)"; }
+  sleep 2
+done
 if [ -z "$pos" ]; then
   python3 - "$csv" <<'PYT'
 import csv, sys
