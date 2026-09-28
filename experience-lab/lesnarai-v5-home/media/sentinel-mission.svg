@@ -1,0 +1,9 @@
+<svg class="st-mission" viewBox="0 0 481 508" role="img" aria-labelledby="st-m-t">
+<title id="st-m-t">The four-waypoint training mission from px4_waypoints.json, a loop of about 465 metres.</title>
+<path class="st-path" style="--len:1115" d="M40.0 143.2 L247.5 40.0 L381.1 305.4 L140.7 438.1 L40.0 143.2"/>
+<circle class="st-wp" cx="40.0" cy="143.2" r="4"/><text class="st-wpl" x="49.0" y="135.2">W1</text>
+<circle class="st-wp" cx="247.5" cy="40.0" r="4"/><text class="st-wpl" x="256.5" y="32.0">W2</text>
+<circle class="st-wp" cx="381.1" cy="305.4" r="4"/><text class="st-wpl" x="390.1" y="297.4">W3</text>
+<circle class="st-wp" cx="140.7" cy="438.1" r="4"/><text class="st-wpl" x="149.7" y="430.1">W4</text>
+<path class="st-scale" d="M40 491.0664000000151 V496.0664000000151 H160.0 V491.0664000000151"/><text class="st-wpl" x="168" y="496">50 m</text>
+</svg>

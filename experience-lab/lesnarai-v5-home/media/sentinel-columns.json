@@ -1,0 +1,115 @@
+{
+ "total": 59,
+ "groups": [
+  [
+   "core",
+   [
+    "timestamp",
+    "lat",
+    "lon",
+    "rel_alt",
+    "vx",
+    "vy",
+    "vz",
+    "yaw",
+    "cmd_vx",
+    "cmd_vy",
+    "cmd_vz",
+    "cmd_yaw",
+    "lidar_min",
+    "front_lidar_min",
+    "cross_track_m",
+    "heading_error_deg",
+    "sideslip_deg",
+    "progress_mps",
+    "geom_clearance_m",
+    "geom_threat",
+    "tilt_target_deg",
+    "lidar_json",
+    "goal_x",
+    "goal_y"
+   ]
+  ],
+  [
+   "attitude",
+   [
+    "roll_deg",
+    "pitch_deg"
+   ]
+  ],
+  [
+   "angular rates",
+   [
+    "roll_rate_dps",
+    "pitch_rate_dps",
+    "yaw_rate_dps"
+   ]
+  ],
+  [
+   "body accelerations",
+   [
+    "accel_fwd_ms2",
+    "accel_right_ms2",
+    "accel_down_ms2"
+   ]
+  ],
+  [
+   "battery / power",
+   [
+    "battery_voltage_v",
+    "battery_current_a",
+    "battery_remaining_pct",
+    "power_draw_w",
+    "energy_consumed_wh",
+    "flight_time_remaining_s"
+   ]
+  ],
+  [
+   "wind / environment",
+   [
+    "wind_north_mps",
+    "wind_east_mps",
+    "wind_speed_mps",
+    "wind_dir_deg",
+    "temperature_deg_c",
+    "air_density_kg_m3"
+   ]
+  ],
+  [
+   "navigation",
+   [
+    "ground_speed_mps",
+    "course_over_ground_deg",
+    "distance_to_goal_m",
+    "path_wps_remaining",
+    "mission_elapsed_s",
+    "total_distance_flown_m",
+    "flight_phase"
+   ]
+  ],
+  [
+   "GPS quality",
+   [
+    "gps_fix_type",
+    "gps_num_sats",
+    "gps_hdop",
+    "altitude_msl_m"
+   ]
+  ],
+  [
+   "obstacle / airspeed",
+   [
+    "obstacle_count_near",
+    "effective_airspeed_mps"
+   ]
+  ],
+  [
+   "flags",
+   [
+    "is_replanning",
+    "is_recovering"
+   ]
+  ]
+ ],
+ "waypoint_loop_m": 465
+}

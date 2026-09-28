@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en-KE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LESNAR AI · Built for the conditions everything else assumes away</title>
+<meta name="description" content="LESNAR AI is a Nairobi technology company building software, AI and intelligent systems for difficult real-world operations.">
+<meta name="robots" content="noindex">
+<link rel="preload" href="fonts/mona-sans.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+<script src="site.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap top__in">
+    <a class="mark" href="/" aria-label="LESNAR AI, home">LESNAR AI</a>
+    <nav class="nav" aria-label="Primary">
+      <a href="/work/">Work</a>
+      <a href="/services/">Services</a>
+      <a href="/about/">About</a>
+      <a href="/contact/">Contact</a>
+    </nav>
+    <a class="btn btn--ink top__cta" href="/book/">Start a project</a>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- HERO -->
+<section class="hero wrap" aria-labelledby="hero-t">
+  <h1 id="hero-t" class="hero__title">Built for the conditions everything else assumes away.</h1>
+  <p class="hero__lede">LESNAR AI is a Nairobi technology company building software, AI and intelligent systems for difficult real-world operations.</p>
+
+  <h2 class="vh">The conditions, and the systems built for them</h2>
+  <ol class="conds">
+    <li><a href="#medimatch"><span class="conds__c">Supply expires in one hospital while another county runs out.</span><span class="conds__s">MediMatch</span><span class="conds__m">Demonstrated</span></a></li>
+    <li><a href="#sentinel"><span class="conds__c">A drone may appear on the operator’s screen only if the simulator confirms it exists.</span><span class="conds__s">Operation Sentinel</span><span class="conds__m">Research</span></a></li>
+    <li><a href="#simy"><span class="conds__c">The server that carries a message must not be able to read it.</span><span class="conds__s">Simy</span><span class="conds__m">In development</span></a></li>
+    <li><a href="#carepro"><span class="conds__c">A nurse is assigned to a family only after four published checks.</span><span class="conds__s">CarePro</span><span class="conds__m">Live</span></a></li>
+    <li><a href="#bizmtaani"><span class="conds__c">A neighbourhood shop can sell online without a website of its own.</span><span class="conds__s">BizMtaani</span><span class="conds__m">Live</span></a></li>
+    <li><a href="#goldtrader"><span class="conds__c">A trading signal is not an edge until an audit says so.</span><span class="conds__s">Gold Trader</span><span class="conds__m">Research</span></a></li>
+    <li><a href="#internal"><span class="conds__c">Our own hosts and models are held to the same tests.</span><span class="conds__s">SentinelCore, Model Foundry</span><span class="conds__m">Internal</span></a></li>
+  </ol>
+</section>
+
+<!-- MEDIMATCH: geographic -->
+<section id="medimatch" class="sys mm" aria-labelledby="mm-t">
+  <div class="wrap mm__grid">
+    <div class="sys__head">
+      <p class="status"><b>Demonstrated.</b> Built and shown. Not deployed in a health system.</p>
+      <h2 id="mm-t" class="sys__name">MediMatch</h2>
+      <p class="sys__cond">Supply expires in one hospital while another county runs out.</p>
+      <p class="sys__body">MediMatch finds surplus medical stock and routes it to the facilities short of it, ranked by distance, urgency, verification and product fit. It grew out of field research on Nairobi County’s health facilities at USIU-Africa, and runs as a national command floor on a real map of Kenya.</p>
+      <dl class="mm__run" aria-label="One demonstration run">
+        <div><dt>Facilities</dt><dd>16</dd></div>
+        <div><dt>Units routed</dt><dd>985</dd></div>
+        <div><dt>Route kilometres</dt><dd>3,335</dd></div>
+        <div><dt>Longest transfer</dt><dd>810 km</dd></div>
+      </dl>
+      <p class="mm__note">One run of the demonstration. The longest transfer is 120 units of insulin from Kenyatta National Hospital to Mandera.</p>
+    </div>
+    <figure class="mm__map">
+      <!--#include medimatch-map.svg-->
+      <figcaption class="mm__legend"><span class="k k--hub">Surplus hub</span><span class="k k--need">Facility in shortfall</span><span class="k k--route">Transfer</span></figcaption>
+    </figure>
+  </div>
+  <figure class="wrap mm__shot">
+    <picture>
+      <source type="image/webp" srcset="media/medimatch-routed-760.webp 760w, media/medimatch-routed-1440.webp 1440w" sizes="(min-width: 1440px) 1360px, calc(100vw - 40px)">
+      <img src="media/medimatch-routed-1440.jpg" width="1440" height="900" loading="lazy" decoding="async" alt="The MediMatch command floor: a dark map of Kenya with surplus hubs, facilities in shortfall and routed transfers, beside panels for coordination impact and supply delivered.">
+    </picture>
+    <figcaption>The command floor as MediMatch renders it. In its own words: public facility names and approximate geocodes, synthetic inventory and need data, no patient records.</figcaption>
+  </figure>
+</section>
+
+<!-- OPERATION SENTINEL: telemetric -->
+<section id="sentinel" class="sys st" aria-labelledby="st-t">
+  <div class="wrap st__grid">
+    <div class="sys__head">
+      <p class="status"><b>Research.</b> Simulation on PX4 and Gazebo. No physical flight.</p>
+      <h2 id="st-t" class="sys__name">Operation Sentinel</h2>
+      <p class="sys__cond">A drone may appear on the operator’s screen only if the simulator confirms it exists.</p>
+      <p class="sys__body">A command-and-control stack for autonomous UAV simulation. PX4 flies an x500 in Gazebo Harmonic, a MAVSDK bridge commands it and records every sample, and the operator console registers an aircraft only when real telemetry arrives. No phantom assets, no synthesised figures. Each run is sealed with a SHA-256 manifest of everything it wrote.</p>
+    </div>
+    <figure class="st__mission">
+      <!--#include sentinel-mission.svg-->
+      <figcaption>The training mission: four waypoints, a loop of about 465 metres.</figcaption>
+    </figure>
+  </div>
+  <div class="wrap st__schema">
+    <h3 class="st__h">Every sample records <span class="st__n">59</span> values</h3>
+    <!--#include sentinel-columns-->
+    <p class="st__foot">Wind and air density are simulated for training and marked synthetic in the data. They never stand in for sensor readings.</p>
+  </div>
+</section>
+
+<!-- SIMY: trust boundary -->
+<section id="simy" class="sys sy" aria-labelledby="sy-t">
+  <div class="wrap">
+    <div class="sys__head sys__head--wide">
+      <p class="status"><b>In development.</b> Relay and cryptographic core built and tested. Not yet a finished messenger.</p>
+      <h2 id="sy-t" class="sys__name">Simy</h2>
+      <p class="sys__cond">The server that carries a message must not be able to read it.</p>
+      <p class="sys__body">A Rust workspace with a shared cryptographic core for X3DH and Double Ratchet, and a relay on PostgreSQL and Redis that stores only encrypted envelopes, rejects replays and expires what it holds. The boundary below is the design.</p>
+    </div>
+  </div>
+  <div class="sy__scene">
+    <div class="sy__stage">
+     <div class="sy__board wrap">
+      <div class="sy__cols">
+        <div class="sy__col sy__col--dev">
+          <h3>Sender’s device</h3>
+          <ul><li>Identity keys</li><li>Session and ratchet state</li><li>The message itself</li></ul>
+        </div>
+        <div class="sy__col sy__col--relay">
+          <h3>Relay</h3>
+          <p class="sy__k">Holds</p>
+          <ul><li>Mailbox ID</li><li>A hash of the retrieval secret</li><li>Replay token</li><li>The encrypted envelope</li><li>Expiry time</li></ul>
+          <p class="sy__k">Never holds</p>
+          <ul class="sy__never"><li>Message text</li><li>Private keys</li></ul>
+        </div>
+        <div class="sy__col sy__col--dev">
+          <h3>Recipient’s device</h3>
+          <ul><li>Identity keys</li><li>Session and ratchet state</li><li>The message, once opened</li></ul>
+        </div>
+      </div>
+      <div class="sy__track" aria-hidden="true">
+        <div class="sy__msg">
+          <div class="sy__face sy__face--plain"><span class="sy__lbl">Message</span>See you at the clinic at nine.</div>
+          <div class="sy__face sy__face--env"><span class="sy__lbl">First-contact envelope</span>
+            <span class="sy__fs">
+              <span class="sy__f">Sender identity keys, public</span>
+              <span class="sy__f">Sender ephemeral key</span>
+              <span class="sy__f">Receiver prekey used</span>
+              <span class="sy__f">Nonce</span>
+              <span class="sy__f sy__f--c">Ciphertext</span>
+            </span>
+          </div>
+        </div>
+      </div>
+     </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <p class="sy__foot">Not a goal, in the threat model’s own words: perfect anonymity against a global passive adversary, or safe operation on a fully compromised device.</p>
+  </div>
+</section>
+
+<!-- LIVE PRODUCTS: their real interfaces -->
+<section id="live" class="sys lv" aria-labelledby="lv-t">
+  <div class="wrap">
+    <div class="sys__head sys__head--wide">
+      <p class="status"><b>Live.</b> Running publicly. Live describes maturity, not adoption.</p>
+      <h2 id="lv-t" class="sys__name">Products in operation</h2>
+    </div>
+
+    <article id="bizmtaani" class="prod prod--wide">
+      <div class="frame">
+        <div class="frame__bar"><span>bizmtaani.com</span></div>
+        <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/bizmtaani-poster.webp" width="1000" height="624" aria-label="Screen recording of BizMtaani: searching for a shop and opening its menu.">
+          <source src="media/reel/bizmtaani.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="prod__text">
+        <h3 class="prod__name">BizMtaani</h3>
+        <p class="prod__cond">A neighbourhood shop can sell online without a website of its own.</p>
+        <p class="prod__body">Shops list what they sell, customers order and pay from their phones, and riders carry the order to the door. Kiosks, supermarkets, farms, butcheries and kitchens on one marketplace.</p>
+      </div>
+    </article>
+
+    <article id="carepro" class="prod prod--split">
+      <div class="frame">
+        <div class="frame__bar"><span>carepro.co.ke</span></div>
+        <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/carepro-poster.webp" width="1000" height="624" aria-label="Screen recording of CarePro’s home page and its published verification panel.">
+          <source src="media/reel/carepro.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="prod__text">
+        <h3 class="prod__name">CarePro</h3>
+        <p class="prod__cond">A nurse is assigned to a family only after four published checks.</p>
+        <ol class="checks">
+          <li><b>Credentials.</b> ID, nursing licence and certificate of good conduct, reviewed by hand.</li>
+          <li><b>Registry check.</b> Licence verified against the Nursing Council of Kenya, expiry tracked.</li>
+          <li><b>Interview.</b> Structured and scored against a clinical rubric.</li>
+          <li><b>Clinical sign-off.</b> A registered nurse reviews the whole file and decides.</li>
+        </ol>
+      </div>
+    </article>
+
+    <div class="trio">
+      <article class="prod prod--small">
+        <div class="frame"><div class="frame__bar"><span>jamii.lesnarai.co.ke</span></div>
+          <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/jamii-poster.webp" width="1000" height="624" aria-label="Screen recording of Jamii Projects Hub."><source src="media/reel/jamii.mp4" type="video/mp4"></video></div>
+        <h3 class="prod__name prod__name--s">Jamii Projects Hub</h3>
+        <p class="prod__body">Community projects proposed, voted on and recorded, with balances every member can read. Piloting in Mbeere North.</p>
+      </article>
+      <article class="prod prod--small">
+        <div class="frame"><div class="frame__bar"><span>geneat.lesnarai.co.ke</span></div>
+          <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/geneat-poster.webp" width="1000" height="624" aria-label="Screen recording of Gen-Eat."><source src="media/reel/geneat.mp4" type="video/mp4"></video></div>
+        <h3 class="prod__name prod__name--s">Gen-Eat</h3>
+        <p class="prod__body">Campus food ordering over WhatsApp, paid by M-Pesa and ready when the lecture ends.</p>
+      </article>
+      <article class="prod prod--small">
+        <div class="frame"><div class="frame__bar"><span>hazina.lesnarai.co.ke</span></div>
+          <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/hazina-poster.webp" width="1000" height="624" aria-label="Screen recording of Hazina Nomads."><source src="media/reel/hazina.mp4" type="video/mp4"></video></div>
+        <h3 class="prod__name prod__name--s">Hazina Nomads</h3>
+        <p class="prod__body">Private sourcing and Kenyan heritage gifts, with a concierge on WhatsApp.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- GOLD TRADER: audit ledger -->
+<section id="goldtrader" class="sys gt" aria-labelledby="gt-t">
+  <div class="wrap gt__grid">
+    <div class="sys__head">
+      <p class="status"><b>Research.</b> Paper trading only. Live orders are locked.</p>
+      <h2 id="gt-t" class="sys__name">Gold Trader</h2>
+      <p class="sys__cond">A trading signal is not an edge until an audit says so.</p>
+      <p class="sys__body">An autonomous XAUUSD research system with a supervised paper-trading loop. Its thirty-day audit ran nine strategy families through the same engine the live scout uses. Most failed, and were cut.</p>
+      <p class="gt__big"><span class="gt__num">−$79,297</span><span class="gt__cap">Taking every signal for thirty days. 4,738 trades, one in four won.</span></p>
+    </div>
+    <div class="gt__ledger">
+      <table>
+        <caption class="vh">Thirty-day audit, April 29 to May 29 2026, net result per strategy family with every signal taken, and the verdict</caption>
+        <thead><tr><th scope="col">Strategy family</th><th scope="col" class="n">Net, 30 days</th><th scope="col">Verdict</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Asian range breakout</th><td class="n">+$925</td><td>Watchlist</td></tr>
+          <tr><th scope="row">Liquidity sweep</th><td class="n">+$438</td><td>Keep on paper</td></tr>
+          <tr><th scope="row">Inversion fair value gap</th><td class="n">−$700</td><td>Keep, Grade A only</td></tr>
+          <tr><th scope="row">London breakout</th><td class="n">−$36,427</td><td>Tighten</td></tr>
+          <tr class="cut"><th scope="row"><span>Trend pullback</span></th><td class="n">−$1,420</td><td>Disable</td></tr>
+          <tr class="cut"><th scope="row"><span>Momentum burst</span></th><td class="n">−$5,047</td><td>Disable</td></tr>
+          <tr class="cut"><th scope="row"><span>New York session breakout</span></th><td class="n">−$28,623</td><td>Eliminate</td></tr>
+          <tr class="cut"><th scope="row"><span>Compression breakout</span></th><td class="n">−$594</td><td>Eliminate</td></tr>
+          <tr class="cut"><th scope="row"><span>Timed macro regime</span></th><td class="n">−$1,021</td><td>Eliminate</td></tr>
+        </tbody>
+      </table>
+      <p class="gt__after">What held: Grade A setups in a mixed macro regime, +2.65R over seven trades. Too few to trust. Paper yes, live no, until twenty forward trades confirm it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- INTERNAL: what we run on ourselves -->
+<section id="internal" class="sys in" aria-labelledby="in-t">
+  <div class="wrap">
+    <div class="sys__head sys__head--wide">
+      <p class="status"><b>Internal.</b> We are the operator and the only user.</p>
+      <h2 id="in-t" class="sys__name">What we run on ourselves</h2>
+    </div>
+    <div class="in__grid">
+      <article class="in__sys">
+        <h3 class="in__name">SentinelCore</h3>
+        <p class="prod__cond">A security tool should report its own gaps.</p>
+        <p class="in__body">Host auditing for our Linux machines: port and banner scanning, a log watcher with a sliding-window detector, hardening checks, and authenticated telemetry to a SIEM.</p>
+        <p class="in__verdict">Pass with qualified gaps</p>
+        <ul class="in__list">
+          <li><span>Missing, malformed and mutated bearer tokens rejected</span><b>Pass</b></li>
+          <li><span>Rejected requests persist nothing</span><b>Pass</b></li>
+          <li><span>Token comparison is constant-time</span><b>Pass</b></li>
+          <li><span>No token appears in logs or fallback files</span><b>Pass</b></li>
+          <li><span>No literal secret in the Compose file</span><b>Pass</b></li>
+          <li><span>20 tests collected, 20 passed</span><b>Pass</b></li>
+        </ul>
+        <p class="in__k">Eleven gaps, recorded in the same report</p>
+        <ul class="in__gaps">
+          <li>The CVE-2024-6387 attribution is not a verified detector.</li>
+          <li>Credential-spray detection is not implemented.</li>
+          <li>Overwrite-before-delete cannot guarantee erasure on SSDs or snapshots.</li>
+        </ul>
+      </article>
+      <article class="in__sys">
+        <h3 class="in__name">Model Foundry</h3>
+        <p class="prod__cond">A model earns its place in production, or loses it.</p>
+        <p class="in__body">Where models are trained and evaluated before they touch a customer. One experiment, start to finish:</p>
+        <dl class="in__exp">
+          <div><dt>Task</dt><dd>Open-ended concierge replies for Hazina Nomads</dd></div>
+          <div><dt>Base</dt><dd>Llama 3.1 8B, LoRA</dd></div>
+          <div><dt>Data</dt><dd>950 training rows, 50 validation, 55 written by hand</dd></div>
+          <div><dt>Guardrail</dt><dd>The dataset is refused if any of 8 required phrases is missing</dd></div>
+          <div><dt>Outcome</dt><dd>June 2026: the WhatsApp concierge was rebuilt to be fully deterministic. The model no longer answers customers on that path.</dd></div>
+        </dl>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSE -->
+<section class="close" aria-labelledby="cl-t">
+  <div class="wrap close__grid">
+    <h2 id="cl-t" class="close__title">Bring us the hard operational problem.</h2>
+    <div class="close__side">
+      <p>Tell us what has to keep working, where it runs, and what it cannot rely on. We reply within two working days, and the first conversation is free.</p>
+      <p class="close__acts"><a class="btn btn--paper" href="/book/">Start a project</a><a class="close__mail" href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a></p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__in">
+    <p class="mark mark--foot">LESNAR AI</p>
+    <p class="foot__meta">Nairobi, Kenya</p>
+    <nav class="foot__nav" aria-label="Footer"><a href="/work/">Work</a><a href="/services/">Services</a><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/book/">Start a project</a></nav>
+    <p class="foot__meta">© 2026 LESNAR AI</p>
+  </div>
+</footer>
+</body>
+</html>
