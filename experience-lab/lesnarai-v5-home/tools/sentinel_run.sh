@@ -92,7 +92,12 @@ else
   export LESNAR_TEACHER_BRIDGE_ONLY="${LESNAR_TEACHER_BRIDGE_ONLY:-1}"
   mkdir -p "$LESNAR_DATA_ROOT"
   say "Starting backend, Redis and TimescaleDB (data root $LESNAR_DATA_ROOT); a first build can take several minutes"
-  docker compose up -d --build backend redis timescaledb || die "docker compose up failed (output above)"
+  # Nothing is running, so recreate the containers: ones left from an earlier session
+  # can point at a Docker network that no longer exists. Postgres data is in the
+  # named volume lesnar_postgres, which a recreate keeps; Redis keeps nothing.
+  # adminer is included because /launch-all brings it up too.
+  docker compose up -d --build --force-recreate backend redis timescaledb adminer \
+    || die "docker compose up failed (output above)"
   for _ in $(seq 1 30); do redis_up && break; sleep 2; done
   redis_up || die "Redis did not answer after a minute"
   say "Starting the runtime orchestrator"
