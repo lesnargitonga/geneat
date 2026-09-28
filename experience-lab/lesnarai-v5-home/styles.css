@@ -144,6 +144,7 @@ ol, ul { padding: 0; list-style: none; }
 .st__mission { justify-self: end; width: min(100%, 460px); }
 .st-mission { width: 100%; overflow: visible; }
 .st-path { fill: none; stroke: var(--on-ink); stroke-width: 1.6; stroke-linejoin: round; }
+.st-plan { fill: none; stroke: var(--on-ink-2); stroke-width: 1; stroke-dasharray: 4 5; opacity: .7; }
 .st-wp { fill: var(--st-ground); stroke: var(--on-ink); stroke-width: 1.6; }
 .st-wpl { fill: var(--on-ink-2); font: 500 13px "Mona Sans", sans-serif; }
 .st-scale { fill: none; stroke: var(--on-ink-2); stroke-width: 1; }

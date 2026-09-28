@@ -13,6 +13,7 @@ Run:  python3 tools/build_assets.py
 """
 import json
 import math
+from html import escape as html_escape
 import os
 import re
 import shutil
@@ -117,24 +118,98 @@ def medimatch_map():
 
 
 # ---------------------------------------------------------- Operation Sentinel
+def flown_track(path, lat0, lon0, local):
+    """Read a telemetry CSV written by px4_teacher_collect_gz.py and return the
+    flown track in the same local frame as the waypoints, plus run facts.
+    Only rows with a real lat/lon are used; nothing is interpolated."""
+    import csv
+    import hashlib
+    from datetime import datetime
+    rows = []
+    with open(path, newline="") as f:
+        reader = csv.DictReader(f)
+        # --offline writes a 16-column pure-Python simulation, not PX4 in Gazebo.
+        # The page says PX4 flew it, so only the online schema is accepted.
+        online_only = {"gps_num_sats", "battery_voltage_v", "roll_deg", "wind_speed_mps"}
+        missing = online_only - set(reader.fieldnames or [])
+        if missing:
+            raise SystemExit(f"{path}: not an online PX4/Gazebo run (missing {sorted(missing)}). "
+                             "Offline-mode CSVs are a pure Python simulation and cannot back this section.")
+        for r in reader:
+            try:
+                la, lo = float(r["lat"]), float(r["lon"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            if math.isfinite(la) and math.isfinite(lo) and (la, lo) != (0.0, 0.0):
+                rows.append(r | {"_la": la, "_lo": lo})
+    if len(rows) < 2:
+        raise SystemExit(f"{path}: fewer than two samples with a position")
+
+    def ts(v):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return datetime.fromisoformat(str(v).replace("Z", "+00:00")).timestamp()
+    try:
+        duration = ts(rows[-1]["timestamp"]) - ts(rows[0]["timestamp"])
+    except Exception:
+        duration = None
+    pts = [local(r["_la"], r["_lo"]) for r in rows]
+    flown = sum(math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]) for i in range(len(pts) - 1))
+    step = max(1, len(pts) // 600)  # keep the SVG light; every kept point is a real sample
+    digest = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    run = {"samples": len(rows), "duration_s": round(duration) if duration is not None else None,
+           "flown_m": round(flown), "csv_sha256": digest, "csv": Path(path).name}
+    man = os.environ.get("SENTINEL_MANIFEST")
+    if man:
+        mtext = Path(man).read_text()
+        run["manifest_lists_csv_hash"] = digest in mtext
+        try:
+            run["run_id"] = json.loads(mtext).get("run_id") or Path(man).parent.name
+        except ValueError:
+            run["run_id"] = Path(man).parent.name
+    return pts[::step] + [pts[-1]], run
+
+
 def sentinel():
     wps = json.loads((SENTINEL / "training/px4_waypoints.json").read_text())["waypoints"]
     lat0, lon0 = wps[0]["lat"], wps[0]["lon"]
-    pts = [((w["lon"] - lon0) * 111320 * math.cos(math.radians(lat0)), (w["lat"] - lat0) * 110574) for w in wps]
-    minx = min(p[0] for p in pts); maxx = max(p[0] for p in pts)
-    miny = min(p[1] for p in pts); maxy = max(p[1] for p in pts)
+    local = lambda la, lo: ((lo - lon0) * 111320 * math.cos(math.radians(lat0)), (la - lat0) * 110574)
+    pts = [local(w["lat"], w["lon"]) for w in wps]
+    total_m = sum(math.hypot(pts[(i + 1) % 4][0] - pts[i][0], pts[(i + 1) % 4][1] - pts[i][1]) for i in range(4))
+
+    # A committed run, when one is supplied, is drawn over the plan.
+    track, run = None, None
+    if os.environ.get("SENTINEL_TELEMETRY"):
+        track, run = flown_track(os.environ["SENTINEL_TELEMETRY"], lat0, lon0, local)
+        run["planned_m"] = round(total_m)
+    (MEDIA / "sentinel-run.json").write_text(json.dumps(run, indent=1) if run else "null")
+
+    allp = pts + (track or [])
+    minx = min(p[0] for p in allp); maxx = max(p[0] for p in allp)
+    miny = min(p[1] for p in allp); maxy = max(p[1] for p in allp)
     pad = 40
-    S = 2.4  # px per metre
+    S = 2.4 if not track else min(2.4, 380 / max(maxx - minx, maxy - miny, 1))  # px per metre; a wide run is scaled to fit
     W = (maxx - minx) * S + pad * 2 + 60
     H = (maxy - miny) * S + pad * 2 + 30
     P = lambda p: (pad + (p[0] - minx) * S, pad + (maxy - p[1]) * S)
     xy = [P(p) for p in pts] + [P(pts[0])]
     L = sum(math.hypot(xy[i + 1][0] - xy[i][0], xy[i + 1][1] - xy[i][1]) for i in range(len(xy) - 1))
     d = "M" + " L".join(f"{x:.1f} {y:.1f}" for x, y in xy)
-    total_m = sum(math.hypot(pts[(i + 1) % 4][0] - pts[i][0], pts[(i + 1) % 4][1] - pts[i][1]) for i in range(4))
+    if run:
+        title = (f"The planned four-waypoint loop, about {total_m:.0f} metres, and the path flown in simulation run "
+                 f"{run.get('run_id', run['csv'])}: {run['samples']} samples, about {run['flown_m']} metres.")
+    else:
+        title = f"The four-waypoint training mission from px4_waypoints.json, a loop of about {total_m:.0f} metres."
     out = [f'<svg class="st-mission" viewBox="0 0 {W:.0f} {H:.0f}" role="img" aria-labelledby="st-m-t">',
-           f'<title id="st-m-t">The four-waypoint training mission from px4_waypoints.json, a loop of about {total_m:.0f} metres.</title>',
-           f'<path class="st-path" style="--len:{L:.0f}" d="{d}"/>']
+           f'<title id="st-m-t">{html_escape(title)}</title>']
+    if track:
+        txy = [P(p) for p in track]
+        TL = sum(math.hypot(txy[i + 1][0] - txy[i][0], txy[i + 1][1] - txy[i][1]) for i in range(len(txy) - 1))
+        out.append(f'<path class="st-plan" d="{d}"/>')
+        out.append(f'<path class="st-path" style="--len:{TL:.0f}" d="M' + " L".join(f"{x:.1f} {y:.1f}" for x, y in txy) + '"/>')
+    else:
+        out.append(f'<path class="st-path" style="--len:{L:.0f}" d="{d}"/>')
     for i, (x, y) in enumerate(xy[:-1]):
         out.append(f'<circle class="st-wp" cx="{x:.1f}" cy="{y:.1f}" r="4"/><text class="st-wpl" x="{x + 9:.1f}" y="{y - 8:.1f}">W{i + 1}</text>')
     bx, by = pad, H - 12
@@ -166,6 +241,9 @@ def sentinel():
             cur[1].append(col)
     total = sum(len(g[1]) for g in groups)
     (MEDIA / "sentinel-columns.json").write_text(json.dumps({"total": total, "groups": groups, "waypoint_loop_m": round(total_m)}, indent=1))
+    if run:
+        provenance.append(f"sentinel-mission.svg flown path: {run['csv']} (sha256 {run['csv_sha256'][:16]}...), "
+                          f"{run['samples']} samples with a position, drawn as recorded without interpolation.")
     provenance.append(f"sentinel-mission.svg: LesnarAI training/px4_waypoints.json, local metres from W1. "
                       f"sentinel-columns.json: the CSV header in training/px4_teacher_collect_gz.py, {total} columns.")
     return total, round(total_m)

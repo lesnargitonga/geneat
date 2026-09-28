@@ -32,6 +32,15 @@ assert f'<span class="st__n">{total}</span>' in src, "schema count in the headin
 src = src.replace("<!--#include medimatch-map.svg-->", (MEDIA / "medimatch-map.svg").read_text())
 src = src.replace("<!--#include sentinel-mission.svg-->", (MEDIA / "sentinel-mission.svg").read_text())
 src = src.replace("<!--#include sentinel-columns-->", cols)
+run = json.loads((MEDIA / "sentinel-run.json").read_text()) if (MEDIA / "sentinel-run.json").exists() else None
+if run:
+    mins = f", {round(run['duration_s'] / 60)} minutes" if run.get("duration_s") else ""
+    cap = (f"Planned: four waypoints, a loop of about {run['planned_m']} metres. Flown in simulation run "
+           f"{html.escape(str(run.get('run_id', run['csv'])))}: {run['samples']:,} samples{mins}, about {run['flown_m']:,} metres."
+           + (" Its SHA-256 matches the run’s sealed manifest." if run.get("manifest_lists_csv_hash") else ""))
+else:
+    cap = "The training mission: four waypoints, a loop of about 465 metres."
+src = src.replace("<!--#include sentinel-caption-->", cap)
 assert "<!--#include" not in src
 (HERE / "index.html").write_text(src)
 print("index.html", len(src), "bytes")

@@ -23,7 +23,7 @@ maturity line at the top of every system.
 | Operation Sentinel | Research | Telemetric | The training mission from `training/px4_waypoints.json` and the 59-column CSV header the MAVSDK bridge writes. No telemetry values are shown, because none are committed. |
 | Simy | In development | A trust boundary | What the relay holds and never holds, and the first-contact envelope fields, from `docs/relay-api.md` and `docs/threat-model.md`. |
 | BizMtaani, CarePro | Live | Their real interfaces | Screen recordings and captures. CarePro's four checks are its published panel. |
-| Jamii, Gen-Eat, Hazina | Live, carried from v4 | Their real interfaces | Same. Labels not yet re-verified, see open questions. |
+| Jamii, Gen-Eat, Hazina | Live, confirmed by the owner | Their real interfaces | Same. |
 | Gold Trader | Research | An audit ledger | `docs/AUDIT_RESULTS.md`, 29 April to 29 May 2026. |
 | SentinelCore | Internal | A test report | `reports/final_structural_sealing.md`, including its own list of gaps. |
 | Model Foundry | Internal | An experiment record | `training/hazina/out/dataset_meta.json` and commit `61af4b1`, which removed the model from the WhatsApp path. |
@@ -74,14 +74,14 @@ frames are capped at the recordings' native 1000 px so they never upscale.
 
 ## Open questions
 
-- Jamii Projects Hub, Gen-Eat and Hazina Nomads keep the Live label from v4.
-  Confirm each is still public, and whether they belong on the homepage at all.
 - Model Foundry is shown through the Hazina concierge experiment. Confirm that
   is what the name covers.
 - Gold Trader's audit document was rerun on 30 May and says some figures
   moved. Check the family table still matches that rerun before release.
-- Operation Sentinel needs one committed run: a telemetry CSV and its manifest
-  would let the section show a flown path instead of a planned one.
+- Operation Sentinel needs one committed online run (PX4 SITL in Gazebo, not
+  `--offline`). `tools/build_assets.py` draws it over the plan when
+  `SENTINEL_TELEMETRY` and `SENTINEL_MANIFEST` point at the run's files, and
+  refuses offline-mode CSVs. See HANDOFF.md.
 - The later local work (Phase 9, the claims registry, commit `18a73f3`) is not
   on GitHub. This prototype was built without it.
 
