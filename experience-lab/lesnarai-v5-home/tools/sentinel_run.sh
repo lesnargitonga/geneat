@@ -182,6 +182,84 @@ else
     ( cd "$px4_dir" && make px4_sitl_default ) >/tmp/sentinel_px4_build.log 2>&1 \
       || { tail -n 25 /tmp/sentinel_px4_build.log; die "the PX4 SITL build failed (last lines above)"; }
   fi
+  # PX4's own launch sources gz_env.sh (model, world and gz plugin paths); the
+  # single-drone path here does not, which is why MotorFailurePlugin failed to load.
+  if [ -f "$px4_dir/build/px4_sitl_default/rootfs/gz_env.sh" ]; then
+    set +u; . "$px4_dir/build/px4_sitl_default/rootfs/gz_env.sh"; set -u
+    say "Using PX4's gz_env.sh ($(git -C "$px4_dir" describe --tags --always 2>/dev/null || echo 'PX4 version unknown'))"
+  fi
+  # obstacles.sdf predates PX4 taking GPS and compass from Gazebo. PX4 supplies its
+  # world systems through server.config, which Gazebo uses only for a world that
+  # declares none; obstacles.sdf declares seven, so it never got NavSat or the
+  # Magnetometer, and it has no spherical_coordinates. PX4 therefore never gets a
+  # position or a heading. For this run only, a copy gains the Gazebo systems PX4's
+  # server.config and default.sdf load and obstacles.sdf lacks, plus PX4's default
+  # coordinates. The repo's file is not touched, and mission.json records all of it.
+  px4_world="$px4_dir/Tools/simulation/gz/worlds/default.sdf"
+  px4_config="${GZ_SIM_SERVER_CONFIG_PATH:-$px4_dir/src/modules/simulation/gz_bridge/server.config}"
+  if [ -f "$px4_world" ] || [ -f "$px4_config" ]; then
+    wdir=$(mktemp -d /tmp/sentinel_world.XXXXXX)
+    python3 - "$REPO/obstacles.sdf" "$px4_world" "$px4_config" "$wdir/obstacles.sdf" "$px4_dir" > "$wdir/world_info.json" <<'PYW' \
+      || die "could not prepare the world copy"
+import hashlib, json, re, subprocess, sys
+import xml.etree.ElementTree as ET
+import os
+src, ref, cfg, out, px4 = sys.argv[1:6]
+norm = lambda f: re.sub(r"^lib|\.so$", "", f or "")
+text = open(src, encoding="utf-8").read()
+w = ET.parse(src).getroot().find("world")
+rw = ET.parse(ref).getroot().find("world") if os.path.isfile(ref) else None
+cands = list(rw.findall("plugin")) if rw is not None else []
+if os.path.isfile(cfg):
+    for p in ET.parse(cfg).getroot().iter("plugin"):
+        if p.get("entity_type") == "world":
+            for a in ("entity_name", "entity_type"):
+                p.attrib.pop(a, None)
+            cands.append(p)
+have = {norm(p.get("filename")) for p in w.findall("plugin")}
+added, skipped = [], []
+for p in cands:
+    f = norm(p.get("filename"))
+    if f in have:
+        continue
+    have.add(f)
+    # PX4's own camera and optical-flow systems serve sensors the x500 does not carry
+    (added if f.startswith("gz-sim-") else skipped).append(p)
+snips = []
+for p in added:
+    p.tail = None
+    snips.append("    " + ET.tostring(p, encoding="unicode").strip())
+sc = None
+if w.find("spherical_coordinates") is None and rw is not None and rw.find("spherical_coordinates") is not None:
+    e = rw.find("spherical_coordinates"); e.tail = None
+    sc = "    " + ET.tostring(e, encoding="unicode").strip()
+if snips:
+    m = re.search(r"^[ \t]*<plugin[^>]*gz-sim-sensors-system", text, re.M) or re.search(r"^[ \t]*</world>", text, re.M)
+    text = text[:m.start()] + "\n".join(snips) + "\n" + text[m.start():]
+if sc:
+    m = re.search(r"</physics>[ \t]*\n", text)
+    text = text[:m.end()] + sc + "\n" + text[m.end():]
+open(out, "w", encoding="utf-8").write(text)
+sha = lambda path: hashlib.sha256(open(path, "rb").read()).hexdigest()
+ver = subprocess.run(["git", "-C", px4, "describe", "--tags", "--always"], capture_output=True, text=True).stdout.strip()
+print(json.dumps({
+    "source": "obstacles.sdf", "source_sha256": sha(src),
+    "references": {n: sha(f) for n, f in (("PX4-Autopilot/Tools/simulation/gz/worlds/default.sdf", ref),
+                                           ("PX4-Autopilot/src/modules/simulation/gz_bridge/server.config", cfg))
+                   if os.path.isfile(f)},
+    "px4_version": ver or None,
+    "added_plugins": [p.get("filename") for p in added],
+    "skipped_px4_custom_plugins": [p.get("filename") for p in skipped],
+    "added_spherical_coordinates": sc is not None,
+    "added_xml": snips + ([sc] if sc else []),
+    "used_file": "world_used.sdf", "used_sha256": sha(out),
+}))
+PYW
+    export LESNAR_GZ_WORLD_SDF="$wdir/obstacles.sdf" SENTINEL_WORLD_INFO="$wdir/world_info.json"
+    say "World copy for this run adds: $(python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); print(", ".join(d["added_plugins"] + (["spherical_coordinates"] if d["added_spherical_coordinates"] else [])) or "nothing")' "$wdir/world_info.json")"
+  else
+    say "No PX4 default.sdf or server.config found; using obstacles.sdf as it is"
+  fi
   mkdir -p "$LESNAR_DATA_ROOT"
   say "Starting backend, Redis and TimescaleDB (data root $LESNAR_DATA_ROOT); a first build can take several minutes"
   # Nothing is running, so clear the project's containers and network first: ones left
@@ -261,7 +339,19 @@ seal_and_die() {
 say "Waiting for online telemetry"
 pos=""
 for _ in $(seq 1 120); do pos=$(latest "$csv") && break; pos=""; sleep 2; done
-[ -n "$pos" ] || seal_and_die "no online telemetry with a position after 4 minutes"
+if [ -z "$pos" ]; then
+  python3 - "$csv" <<'PYT'
+import csv, sys
+try:
+    rows = list(csv.DictReader(open(sys.argv[1], newline="")))
+except OSError:
+    rows = []
+last = rows[-1] if rows else {}
+print(f"\n   telemetry rows: {len(rows)}; last lat/lon: {last.get('lat')}, {last.get('lon')}; "
+      f"gps_fix_type {last.get('gps_fix_type')}, gps_num_sats {last.get('gps_num_sats')}")
+PYT
+  seal_and_die "no online telemetry with a position after 4 minutes"
+fi
 sleep 15
 pos=$(latest "$csv") || seal_and_die "telemetry stopped"
 read -r lat0 lon0 _ rows0 <<<"$pos"
@@ -301,6 +391,7 @@ say "Land command to $land_subs subscriber(s); landed: $landed"
 
 # 6. Record the dispatch and the run's teacher log inside the run, then seal
 tail -c +"$((off0 + 1))" "$log" > "$run_dir/teacher_live_0.log" 2>/dev/null
+[ -z "${LESNAR_GZ_WORLD_SDF:-}" ] || cp -p "$LESNAR_GZ_WORLD_SDF" "$run_dir/world_used.sdf"
 python3 - "$run_dir/mission.json" "$payload" "$subs" "$dispatched_at" "$outcome" "$landed" "$off" "$log" <<'PY'
 import json, os, re, sys
 out, payload, subs, at, outcome, landed, off, log = sys.argv[1:9]
@@ -321,6 +412,8 @@ json.dump({
     "landed_below_0_5_m": landed == "yes",
     "gazebo_launch": {"GZ_IP": os.environ.get("GZ_IP") or None,
                       "headless_rendering": os.environ.get("SENTINEL_GZ_HEADLESS_RENDERING") == "1"},
+    "world": (json.load(open(os.environ["SENTINEL_WORLD_INFO"])) if os.environ.get("SENTINEL_WORLD_INFO")
+              else {"source": "obstacles.sdf", "unchanged": True}),
     "teacher_log_lines_since_dispatch": lines,
 }, open(out, "w"), indent=2)
 PY
