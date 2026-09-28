@@ -5,7 +5,8 @@
 #   bash sentinel_run.sh
 #
 # What it does, using only the LesnarAI repo's own tooling:
-#   1. starts the stack with scripts/start_stack_verified.sh, unless it is already up
+#   1. starts the stack, unless it is already up: the same steps and environment as
+#      scripts/start_stack_verified.sh, without the React frontend and its smoke test
 #   2. POST /launch-all: Gazebo Harmonic (headless), PX4 SITL x500, teacher bridge
 #   3. waits for online telemetry (the 59-column schema, never --offline)
 #   4. dispatches the console's own training mission, built exactly as
@@ -14,7 +15,7 @@
 #   5. follows the teacher log until the mission completes or fails, then lands
 #   6. writes mission.json and the run's teacher log into the run directory, then
 #      POST /kill-all so the orchestrator seals everything in MANIFEST.json
-#   7. stops the stack again if this script started it
+#   7. stops again whatever this script started, and nothing else
 #   8. commits the sealed files to a new branch evidence/sitl-run-<run_id> from a
 #      separate worktree (your checkout is not touched), scans them, and pushes
 #
@@ -29,6 +30,14 @@ PUSH="${PUSH:-1}"
 
 say() { printf '\n== %s\n' "$*"; }
 die() { printf '\nSTOPPED: %s\n' "$*" >&2; exit 1; }
+diag() {  # the last lines of every log the run writes, so one paste shows what failed
+  local f
+  for f in /tmp/lesnar-orchestrator.log "$REPO/logs/gz_world.out" "$REPO/logs/px4_spawn.out" "$REPO/logs/teacher_live_0.out"; do
+    [ -s "$f" ] || continue
+    printf '\n-- last lines of %s\n' "$f"
+    tail -n 15 "$f"
+  done
+}
 publish() { docker compose exec -T redis redis-cli PUBLISH commands "$1" | tr -dc '0-9'; }
 cmd_json() {  # cmd_json <drone> <action> [params-json]
   local params="${3:-}"
@@ -65,32 +74,57 @@ case "$(pwd -P)" in /mnt/*) die "run against the Linux checkout, not $(pwd -P)";
 for t in curl docker git python3; do command -v "$t" >/dev/null || die "$t is not installed"; done
 say "LesnarAI at $(pwd -P), $(git log -1 --format='%h %s')"
 
-# 1. Stack
-was_running=0
+# 1. Stack. The repo's .sh files are committed without the executable bit, and
+# start_stack_verified.sh runs start_frontend_guarded.sh directly, so this does the
+# same steps with the same environment itself. The frontend plays no part in a run.
+was_running=0 pre_up=0 orch_pid=""
+redis_up() { [ "$(docker compose exec -T redis redis-cli ping 2>/dev/null | tr -d '\r')" = PONG ]; }
 if curl -fsS --max-time 3 "$ORCH/health" >/dev/null 2>&1; then
   was_running=1
   say "Stack already running; /launch-all will restart the simulator inside it"
+  redis_up || die "the orchestrator is up but Redis does not answer"
 else
+  pre_up=$(docker compose ps -q --status running 2>/dev/null | wc -l)
   export LESNAR_DATA_ROOT="${LESNAR_DATA_ROOT:-$HOME/LesnarData}"
-  say "Starting the stack (data root $LESNAR_DATA_ROOT); this rebuilds containers and can take several minutes"
-  ./scripts/start_stack_verified.sh || die "start_stack_verified.sh failed; see /tmp/lesnar-orchestrator.log and /tmp/lesnar-frontend.log"
+  export LESNAR_GZ_HEADLESS="${LESNAR_GZ_HEADLESS:-1}"
+  export LESNAR_GZ_VERBOSITY="${LESNAR_GZ_VERBOSITY:-2}"
+  export LESNAR_ORCH_MODEL_CACHE_MAX_AGE_S="${LESNAR_ORCH_MODEL_CACHE_MAX_AGE_S:-120}"
+  export LESNAR_TEACHER_BRIDGE_ONLY="${LESNAR_TEACHER_BRIDGE_ONLY:-1}"
+  mkdir -p "$LESNAR_DATA_ROOT"
+  say "Starting backend, Redis and TimescaleDB (data root $LESNAR_DATA_ROOT); a first build can take several minutes"
+  docker compose up -d --build backend redis timescaledb || die "docker compose up failed (output above)"
+  for _ in $(seq 1 30); do redis_up && break; sleep 2; done
+  redis_up || die "Redis did not answer after a minute"
+  say "Starting the runtime orchestrator"
+  nohup python3 scripts/runtime_orchestrator.py >/tmp/lesnar-orchestrator.log 2>&1 &
+  orch_pid=$!
+  for _ in $(seq 1 20); do curl -fsS --max-time 2 "$ORCH/health" >/dev/null 2>&1 && break; sleep 1; done
+  curl -fsS --max-time 2 "$ORCH/health" >/dev/null 2>&1 || { diag; die "the runtime orchestrator did not start"; }
 fi
-stop_if_ours() { [ "$was_running" = 1 ] || { say "Stopping the stack this script started"; ./scripts/stop_stack.sh; }; }
+stop_if_ours() {  # stop only what this script started
+  [ "$was_running" = 1 ] && return 0
+  say "Stopping what this script started"
+  curl -sS --max-time 120 -X POST "$ORCH/kill-all" >/dev/null 2>&1   # a sealed run is not sealed again
+  [ -n "$orch_pid" ] && kill "$orch_pid" 2>/dev/null
+  [ "$pre_up" = 0 ] && docker compose down >/dev/null 2>&1
+  return 0
+}
 
 # 2. Launch
 log="$REPO/logs/teacher_live_0.out"
 off0=$(stat -c %s "$log" 2>/dev/null || echo 0)
 say "Launching Gazebo, PX4 SITL x500 and the teacher bridge"
 resp=$(curl -sS --max-time 900 -X POST "$ORCH/launch-all" -H 'Content-Type: application/json' \
-  -d '{"drone_count": 1, "gz_headless": true}') || die "POST /launch-all failed"
+  -d '{"drone_count": 1, "gz_headless": true}') || { diag; stop_if_ours; die "POST /launch-all failed"; }
 run_dir=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["run_dir"])' <<<"$resp" 2>/dev/null) \
-  || die "/launch-all returned no run_dir: $resp"
+  || { diag; stop_if_ours; die "/launch-all returned no run_dir: $resp"; }
 run_id=$(basename "$run_dir")
 drone=$(python3 -c 'import json,sys; m=(json.load(sys.stdin).get("status") or {}).get("drone_models") or []; print(m[0] if m else "x500_0")' <<<"$resp")
 csv="$run_dir/telemetry_live_0.csv"
 [ "$(stat -c %s "$log" 2>/dev/null || echo 0)" -ge "$off0" ] || off0=0   # log was rotated at launch
 say "Run $run_id, drone $drone"
 seal_and_die() {
+  diag
   curl -sS --max-time 120 -X POST "$ORCH/kill-all" >/dev/null 2>&1
   stop_if_ours
   die "$1 (run sealed, not pushed: $run_dir)"
@@ -177,7 +211,7 @@ print("manifest verified:", ", ".join(sorted(listed)))
 PY
 stop_if_ours
 if pgrep -f "px4_teacher_collect_gz.py" >/dev/null; then
-  say "Note: a teacher process is still running; stop it with ./scripts/stop_stack.sh"
+  say "Note: a teacher process is still running; stop it with: bash scripts/stop_stack.sh"
 fi
 
 # Facts for the commit message

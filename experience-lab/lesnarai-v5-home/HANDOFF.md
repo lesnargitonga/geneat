@@ -42,14 +42,17 @@ git show origin/claude/production-timings-stale-claims-2eg7vc:experience-lab/les
 bash /tmp/sentinel_run.sh
 ```
 
-It starts the stack with `scripts/start_stack_verified.sh` unless it is up, runs
-`/launch-all` (Gazebo headless, PX4 SITL, teacher bridge), waits for online
+It starts the stack unless it is up, with the same steps and environment as
+`scripts/start_stack_verified.sh` but without the React frontend and its smoke
+test. The repo's `.sh` files are committed without the executable bit, and that
+script runs `start_frontend_guarded.sh` directly, so it fails on a fresh checkout.
+It then runs `/launch-all` (Gazebo headless, PX4 SITL, teacher bridge), waits for online
 telemetry, then sends the console's own START TRAINING mission, built exactly as
 `frontend/src/components/DroneList.js` builds it: a 25 m box at 10 m around the
 drone, on the Redis `commands` channel in the format `backend/app.py` publishes.
 It follows the teacher log until the mission completes or fails, lands, writes
 `mission.json` and the run's teacher log into the run directory, and seals it
-all with `/kill-all`. It stops the stack again if it started it, then commits
+all with `/kill-all`. It stops whatever it started and nothing else, then commits
 the sealed files to a new branch `evidence/sitl-run-<run_id>` of the LesnarAI
 repo from a separate worktree. It scans them and pushes. A failed flight is
 still sealed and pushed, and says so. If the scan finds anything that looks
