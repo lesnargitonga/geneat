@@ -48,7 +48,11 @@ ol, ul { padding: 0; list-style: none; }
 .skip:focus { top: 12px; }
 
 /* ------------------------------------------------------------ header */
-.top { position: sticky; top: 0; z-index: 10; background: rgb(255 255 255 / .94); backdrop-filter: saturate(1.2); }
+.top { position: sticky; top: 0; z-index: 10; background: rgb(255 255 255 / .94); transition: background-color .35s var(--ease), color .35s var(--ease); }
+/* Over a dark section the header takes that ground instead of sitting on it as a white bar. */
+.top--dark { background: rgb(8 9 10 / .92); color: var(--on-ink); }
+.top--dark .btn--ink { background: var(--on-ink); color: var(--ink); }
+.top--dark .btn--ink:hover { background: #fff; }
 .top__in { display: flex; align-items: center; gap: 32px; height: 76px; }
 .mark { font-weight: 650; font-stretch: 125%; font-size: 17px; letter-spacing: .02em; text-decoration: none; white-space: nowrap; }
 .nav { display: flex; gap: 28px; margin-left: auto; font-weight: 500; font-size: 15px; }

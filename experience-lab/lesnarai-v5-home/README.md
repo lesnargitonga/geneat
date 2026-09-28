@@ -54,7 +54,7 @@ Local server, Chromium, slow 4G (1.6 Mbps, 150 ms) and 4x CPU slowdown:
 
 | | Desktop 1440 | Phone 390 |
 |---|---|---|
-| LCP (the headline) | 744 ms | 716 ms |
+| LCP (the headline) | 0.89 to 0.92 s | about 0.86 s |
 | CLS over a full scroll | 0 | 0 |
 | First load | 161 KB | 116 KB |
 | After a full scroll | 1.6 MB | 0.7 MB |
@@ -85,9 +85,29 @@ frames are capped at the recordings' native 1000 px so they never upscale.
 - The later local work (Phase 9, the claims registry, commit `18a73f3`) is not
   on GitHub. This prototype was built without it.
 
+## Operation Sentinel's operator console
+
+The console was run here in its own demo-safe mode (real backend and UI,
+simulated drone records, no PX4 or Gazebo) to see whether it could supply a
+real surface. It is not used on the page, for two reasons. Its visual style is
+the tracked-uppercase, neon look this redesign moves away from. More
+importantly, `frontend/src/components/DiagnosticTerminal.js` lines 48 to 54
+print a fixed boot sequence on every load, including "ENCRYPTION LAYER:
+AES-256-GCM ACTIVE" and "SYSTEM STATUS: OPTIMAL", whatever the real state.
+That contradicts the project's own truth-first rule, so the console should
+not be shown publicly until those lines are driven by real state or removed.
+
+## Checking the page against its sources
+
+`tools/verify.py` confirms every figure and claim on the page appears in the
+file it came from (49 checks, including counted facts such as the 59
+telemetry columns and SentinelCore's eleven gaps) and that the page carries no
+em dash. Run it after any copy change.
+
 ## Rebuilding the assets
 
 `tools/build_assets.py` reads the source repos (paths via the `MEDIMATCH`,
 `SENTINEL`, `V4`, `GENEAT` and `FONTSRC` environment variables) and writes
 `media/` and `fonts/`. `tools/inline.py` then renders `index.html` from
-`index.src.html`. Edit `index.src.html`, never `index.html`.
+`index.src.html`, and `tools/verify.py` checks the result. Edit
+`index.src.html`, never `index.html`.
