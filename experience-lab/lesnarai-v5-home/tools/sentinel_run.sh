@@ -73,6 +73,8 @@ cd "$REPO" 2>/dev/null || die "no LesnarAI checkout at $REPO (set LESNAR_REPO)"
 case "$(pwd -P)" in /mnt/*) die "run against the Linux checkout, not $(pwd -P)";; esac
 for t in curl docker git python3; do command -v "$t" >/dev/null || die "$t is not installed"; done
 say "LesnarAI at $(pwd -P), $(git log -1 --format='%h %s')"
+[ -n "$(git var GIT_COMMITTER_IDENT 2>/dev/null)" ] \
+  || die "git has no name and email here, so the evidence could not be committed. Set them with: git config --global user.name \"...\" and git config --global user.email \"...\""
 
 # 1. Stack. The repo's .sh files are committed without the executable bit, and
 # start_stack_verified.sh runs start_frontend_guarded.sh directly, so this does the
@@ -101,6 +103,22 @@ else
     return "${PIPESTATUS[0]}"
   }
   docker compose down --remove-orphans >/dev/null 2>&1
+  # The stack publishes these ports, and the teacher bridge on the host talks to
+  # Redis at 127.0.0.1:6379, so this project's Redis must own that port. Anything
+  # else holding one is named, and left alone: stopping it is the owner's call.
+  held=""
+  for port in 5432 6379 8080 5000; do
+    c=$(docker ps --filter "publish=$port" --format '{{.Names}} (image {{.Image}}, project {{.Label "com.docker.compose.project"}})' 2>/dev/null | head -n 1)
+    if [ -n "$c" ]; then
+      held="$held\n   port $port: container $c\n      stop it with: docker stop ${c%% *}   (and afterwards: docker start ${c%% *})"
+    elif (exec 3<>"/dev/tcp/127.0.0.1/$port") 2>/dev/null; then
+      who=$(ss -Hltnp "sport = :$port" 2>/dev/null | grep -o 'users:(("[^"]*"' | head -n 1 | cut -d'"' -f2)
+      held="$held\n   port $port: a process on the host${who:+ ($who)}"
+      [ "$port" = 6379 ] && held="$held\n      if it is the system Redis: sudo systemctl stop redis-server   (afterwards: sudo systemctl start redis-server)"
+    fi
+  done
+  [ -z "$held" ] || die "$(printf "these ports are in use by something outside this stack:$held")
+Stop them, then run this again. Nothing was started."
   if ! compose_up; then
     net=$(grep -oE 'on network [A-Za-z0-9_.-]+' /tmp/sentinel_compose.log | head -n 1 | awk '{print $3}')
     [ -n "$net" ] || die "docker compose up failed (output above)"
