@@ -129,12 +129,172 @@ gz_trials() {
   esac
 }
 
+verify_manifest() {  # every file the manifest lists is on disk with the same SHA-256
+  python3 - "$1" <<'PYM'
+import hashlib, json, sys
+from pathlib import Path
+d = Path(sys.argv[1]); m = json.loads((d / "MANIFEST.json").read_text())
+listed = {f["path"]: f["sha256"] for f in m["files"]}
+for need in ("telemetry_live_0.csv", "mission.json", "RUN.json"):
+    assert need in listed, f"{need} is not in the manifest"
+for p, h in listed.items():
+    assert hashlib.sha256((d / p).read_bytes()).hexdigest() == h, f"{p} hash differs"
+print("manifest verified:", ", ".join(sorted(listed)))
+PYM
+}
+flight_summary() {  # what the sealed files say happened, and PX4's own warnings
+  say "Flight summary"
+  python3 - "$run_dir" <<'PYF'
+import csv, json, math, sys
+from pathlib import Path
+d = Path(sys.argv[1])
+m = json.loads((d / "mission.json").read_text())
+rows = list(csv.DictReader(open(d / "telemetry_live_0.csv", newline="")))
+def num(r, k):
+    try:
+        return float(r.get(k) or "nan")
+    except ValueError:
+        return float("nan")
+alts = [a for a in (num(r, "rel_alt") for r in rows) if math.isfinite(a)]
+ts = [num(r, "timestamp") for r in rows]
+hz = (len(ts) - 1) / (ts[-1] - ts[0]) if len(ts) > 1 and math.isfinite(ts[0]) and ts[-1] > ts[0] else 0
+if alts and hz:
+    above = sum(1 for a in alts if a >= 2)
+    print(f"   outcome {m.get('outcome')}; peak rel_alt {max(alts):.1f} m; about {above / hz:.0f} s above 2 m")
+else:
+    print(f"   outcome {m.get('outcome')}; no altitude data")
+phases = {}
+for r in rows:
+    phases[r.get("flight_phase")] = phases.get(r.get("flight_phase"), 0) + 1
+print("   flight_phase counts:", dict(sorted(phases.items(), key=lambda kv: -kv[1])[:8]))
+print("   teacher log after dispatch:")
+for l in m.get("teacher_log_lines_since_dispatch", [])[:30]:
+    print("     " + l[:180])
+PYF
+  local px4log="$REPO/logs/px4_0.out"
+  if [ -f "$px4log" ]; then
+    echo "   PX4 warnings and errors (last 15, from $px4log):"
+    grep -E "WARN|ERROR" "$px4log" | tail -n 15 | cut -c1-160 | sed 's/^/     /'
+  fi
+}
+publish_evidence() {  # copy the sealed run to evidence/runs/<run_id> on its own branch, scan, commit, push
+  # Facts for the commit message
+  facts=$(python3 - "$csv" <<'PY'
+import csv, hashlib, math, sys
+from datetime import datetime
+path = sys.argv[1]
+rows = []
+for r in csv.DictReader(open(path, newline="")):
+    try:
+        la, lo = float(r["lat"]), float(r["lon"])
+    except (KeyError, TypeError, ValueError):
+        continue
+    if math.isfinite(la) and math.isfinite(lo) and (la, lo) != (0.0, 0.0):
+        rows.append((r, la, lo))
+def ts(v):
+    try: return float(v)
+    except ValueError: return datetime.fromisoformat(v.replace("Z", "+00:00")).timestamp()
+dur = ts(rows[-1][0]["timestamp"]) - ts(rows[0][0]["timestamp"]) if len(rows) > 1 else 0
+la0 = rows[0][1]; k = 111319.0
+pts = [((lo - rows[0][2]) * k * math.cos(math.radians(la0)), (la - la0) * k) for _, la, lo in rows]
+flown = sum(math.dist(pts[i], pts[i + 1]) for i in range(len(pts) - 1))
+print(f"{len(rows)} samples with a position, {dur:.0f} s, {flown:.0f} m flown, "
+      f"csv sha256 {hashlib.sha256(open(path, 'rb').read()).hexdigest()}")
+PY
+  )
+  say "$facts"
+
+  # 8. Evidence branch from a separate worktree
+  git fetch -q origin || die "git fetch failed; the sealed run is at $run_dir"
+  base=$(git symbolic-ref -q --short refs/remotes/origin/HEAD || echo origin/main)
+  branch="evidence/sitl-run-$run_id"
+  wt="$(dirname "$(pwd -P)")/LesnarAI-evidence-$run_id"
+  if [ -d "$wt" ]; then
+    [ "$(git -C "$wt" rev-parse --abbrev-ref HEAD 2>/dev/null)" = "$branch" ] || die "$wt exists but is not on $branch"
+    say "Reusing the worktree left at $wt"
+  elif git show-ref --verify -q "refs/heads/$branch"; then
+    git worktree add -q "$wt" "$branch" || die "could not check out $branch into $wt"
+  else
+    git worktree add -q "$wt" -b "$branch" "$base" || die "could not create worktree $wt"
+  fi
+  dest="$wt/evidence/runs/$run_id"
+  mkdir -p "$dest"
+  find "$run_dir" -maxdepth 1 -type f -exec cp -p {} "$dest/" \;
+  big=$(find "$dest" -type f -size +50M)
+  [ -z "$big" ] || die "over 50 MB, not committed: $big (worktree left at $wt)"
+  say "Scanning the evidence for anything that should not be public"
+  if grep -rIniE "password|passwd|secret|api[_-]?key|bearer|token|BEGIN [A-Z ]*PRIVATE KEY|hf_[A-Za-z0-9]{20,}" "$dest" \
+     || grep -rInE "\b(10\.[0-9]+|192\.168|172\.(1[6-9]|2[0-9]|3[01]))\.[0-9]+\.[0-9]+\b" "$dest"; then
+    die "the lines above need a look before anything is pushed; nothing committed (worktree left at $wt)"
+  fi
+  (cd "$dest" && du -sh -- *) | sed 's/^/   /'
+  # LesnarAI ignores runs/, *.csv and *.log to keep training data out of the repo.
+  # This one sealed run is evidence, so only its own folder is added past that rule.
+  git -C "$wt" add -f -- "evidence/runs/$run_id"
+  if git -C "$wt" diff --cached --quiet; then
+    say "Nothing new to commit on $branch (already committed)"
+  else
+  git -C "$wt" commit -q -F - <<EOF || die "commit failed (worktree at $wt)"
+evidence(sentinel): sealed PX4 SITL run $run_id, mission $outcome
+
+One Operation Sentinel run: PX4 SITL x500 in Gazebo Harmonic (headless),
+driven by the MAVSDK teacher bridge in its default bridge mode, launched
+and sealed by the runtime orchestrator (/launch-all, /kill-all).
+
+Mission: the console's START TRAINING box (DroneList.js), 25 m at 10 m,
+dispatched on the Redis commands channel at $dispatched_at.
+Outcome: $outcome. Landed below 0.5 m: $landed.
+Telemetry: $facts.
+
+Files are copied byte for byte from the run directory. MANIFEST.json holds
+their SHA-256 hashes; teacher_live_0.log and mission.json were written into
+the run before sealing, so they are covered too. world_used.sdf is the world
+Gazebo ran; the manifest does not hash .sdf files, so its SHA-256 and the
+exact additions to obstacles.sdf are recorded in mission.json.
+
+Added with git add -f: the repo ignores runs/, *.csv and *.log to keep
+training data out, and this folder is one sealed evidence run.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01771GfNqwcPG482z5oPN31U
+EOF
+  fi
+  if [ "$PUSH" = 1 ]; then
+    pushed=no
+    for wait in 0 2 4 8 16; do
+      sleep "$wait"
+      git -C "$wt" push -q -u origin "$branch" && { pushed=yes; break; }
+    done
+    [ "$pushed" = yes ] || die "push failed; commit is on $branch in $wt"
+    git worktree remove "$wt"
+  fi
+
+  say "Done. Tell the cloud chat:"
+  echo "   branch $branch, commit $(git rev-parse --short "$branch"), run $run_id, mission $outcome, landed $landed"
+  echo "   $facts"
+}
+
 cd "$REPO" 2>/dev/null || die "no LesnarAI checkout at $REPO (set LESNAR_REPO)"
 case "$(pwd -P)" in /mnt/*) die "run against the Linux checkout, not $(pwd -P)";; esac
 for t in curl docker git python3; do command -v "$t" >/dev/null || die "$t is not installed"; done
 say "LesnarAI at $(pwd -P), $(git log -1 --format='%h %s')"
 [ -n "$(git var GIT_COMMITTER_IDENT 2>/dev/null)" ] \
   || die "git has no name and email here, so the evidence could not be committed. Set them with: git config --global user.name \"...\" and git config --global user.email \"...\""
+
+# Publish an already sealed run without flying again:
+#   SENTINEL_PUBLISH_RUN=<run directory> bash sentinel_run.sh
+if [ -n "${SENTINEL_PUBLISH_RUN:-}" ]; then
+  run_dir=$(cd "$SENTINEL_PUBLISH_RUN" 2>/dev/null && pwd -P) || die "no run directory at $SENTINEL_PUBLISH_RUN"
+  run_id=$(basename "$run_dir"); csv="$run_dir/telemetry_live_0.csv"
+  [ -f "$run_dir/MANIFEST.json" ] && [ -f "$run_dir/mission.json" ] || die "$run_dir is not a sealed run with a mission.json"
+  verify_manifest "$run_dir" || die "MANIFEST.json does not match the files on disk"
+  read -r outcome landed dispatched_at < <(python3 -c 'import json,sys; m=json.load(open(sys.argv[1]))
+print(m["outcome"], "yes" if m.get("landed_below_0_5_m") else "no", m["dispatched_at_utc"])' "$run_dir/mission.json")
+  say "Publishing the sealed run $run_id (mission $outcome)"
+  flight_summary
+  publish_evidence
+  exit 0
+fi
 
 # 1. Stack. The repo's .sh files are committed without the executable bit, and
 # start_stack_verified.sh runs start_frontend_guarded.sh directly, so this does the
@@ -420,95 +580,11 @@ PY
 say "Sealing with /kill-all"
 curl -sS --max-time 120 -X POST "$ORCH/kill-all" >/dev/null || die "POST /kill-all failed; run at $run_dir"
 [ -f "$run_dir/MANIFEST.json" ] || die "no MANIFEST.json in $run_dir"
-python3 - "$run_dir" <<'PY' || die "MANIFEST.json does not match the files on disk"
-import hashlib, json, sys
-from pathlib import Path
-d = Path(sys.argv[1]); m = json.loads((d / "MANIFEST.json").read_text())
-listed = {f["path"]: f["sha256"] for f in m["files"]}
-for need in ("telemetry_live_0.csv", "mission.json", "RUN.json"):
-    assert need in listed, f"{need} is not in the manifest"
-for p, h in listed.items():
-    assert hashlib.sha256((d / p).read_bytes()).hexdigest() == h, f"{p} hash differs"
-print("manifest verified:", ", ".join(sorted(listed)))
-PY
+verify_manifest "$run_dir" || die "MANIFEST.json does not match the files on disk"
 stop_if_ours
 if pgrep -f "px4_teacher_collect_gz.py" >/dev/null; then
   say "Note: a teacher process is still running; stop it with: bash scripts/stop_stack.sh"
 fi
 
-# Facts for the commit message
-facts=$(python3 - "$csv" <<'PY'
-import csv, hashlib, math, sys
-from datetime import datetime
-path = sys.argv[1]
-rows = []
-for r in csv.DictReader(open(path, newline="")):
-    try:
-        la, lo = float(r["lat"]), float(r["lon"])
-    except (KeyError, TypeError, ValueError):
-        continue
-    if math.isfinite(la) and math.isfinite(lo) and (la, lo) != (0.0, 0.0):
-        rows.append((r, la, lo))
-def ts(v):
-    try: return float(v)
-    except ValueError: return datetime.fromisoformat(v.replace("Z", "+00:00")).timestamp()
-dur = ts(rows[-1][0]["timestamp"]) - ts(rows[0][0]["timestamp"]) if len(rows) > 1 else 0
-la0 = rows[0][1]; k = 111319.0
-pts = [((lo - rows[0][2]) * k * math.cos(math.radians(la0)), (la - la0) * k) for _, la, lo in rows]
-flown = sum(math.dist(pts[i], pts[i + 1]) for i in range(len(pts) - 1))
-print(f"{len(rows)} samples with a position, {dur:.0f} s, {flown:.0f} m flown, "
-      f"csv sha256 {hashlib.sha256(open(path, 'rb').read()).hexdigest()}")
-PY
-)
-say "$facts"
-
-# 8. Evidence branch from a separate worktree
-git fetch -q origin || die "git fetch failed; the sealed run is at $run_dir"
-base=$(git symbolic-ref -q --short refs/remotes/origin/HEAD || echo origin/main)
-branch="evidence/sitl-run-$run_id"
-wt="$(dirname "$(pwd -P)")/LesnarAI-evidence-$run_id"
-git worktree add -q "$wt" -b "$branch" "$base" || die "could not create worktree $wt"
-dest="$wt/evidence/runs/$run_id"
-mkdir -p "$dest"
-find "$run_dir" -maxdepth 1 -type f -exec cp -p {} "$dest/" \;
-big=$(find "$dest" -type f -size +50M)
-[ -z "$big" ] || die "over 50 MB, not committed: $big (worktree left at $wt)"
-say "Scanning the evidence for anything that should not be public"
-if grep -rIniE "password|passwd|secret|api[_-]?key|bearer|token|BEGIN [A-Z ]*PRIVATE KEY|hf_[A-Za-z0-9]{20,}" "$dest" \
-   || grep -rInE "\b(10\.[0-9]+|192\.168|172\.(1[6-9]|2[0-9]|3[01]))\.[0-9]+\.[0-9]+\b" "$dest"; then
-  die "the lines above need a look before anything is pushed; nothing committed (worktree left at $wt)"
-fi
-(cd "$dest" && du -sh -- *) | sed 's/^/   /'
-git -C "$wt" add "evidence/runs/$run_id"
-git -C "$wt" commit -q -F - <<EOF || die "commit failed (worktree at $wt)"
-evidence(sentinel): sealed PX4 SITL run $run_id, mission $outcome
-
-One Operation Sentinel run: PX4 SITL x500 in Gazebo Harmonic (headless),
-driven by the MAVSDK teacher bridge in its default bridge mode, launched
-and sealed by the runtime orchestrator (/launch-all, /kill-all).
-
-Mission: the console's START TRAINING box (DroneList.js), 25 m at 10 m,
-dispatched on the Redis commands channel at $dispatched_at.
-Outcome: $outcome. Landed below 0.5 m: $landed.
-Telemetry: $facts.
-
-Files are copied byte for byte from the run directory. MANIFEST.json holds
-their SHA-256 hashes; teacher_live_0.log and mission.json were written into
-the run before sealing, so they are covered too.
-
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01771GfNqwcPG482z5oPN31U
-EOF
-if [ "$PUSH" = 1 ]; then
-  pushed=no
-  for wait in 0 2 4 8 16; do
-    sleep "$wait"
-    git -C "$wt" push -q -u origin "$branch" && { pushed=yes; break; }
-  done
-  [ "$pushed" = yes ] || die "push failed; commit is on $branch in $wt"
-  git worktree remove "$wt"
-fi
-
-say "Done. Tell the cloud chat:"
-echo "   branch $branch, commit $(git rev-parse --short "$branch"), run $run_id, mission $outcome, landed $landed"
-echo "   $facts"
+flight_summary
+publish_evidence
