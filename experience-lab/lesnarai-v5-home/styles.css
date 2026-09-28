@@ -149,6 +149,8 @@ ol, ul { padding: 0; list-style: none; }
 .st-wpl { fill: var(--on-ink-2); font: 500 13px "Mona Sans", sans-serif; }
 .st-scale { fill: none; stroke: var(--on-ink-2); stroke-width: 1; }
 .st__mission figcaption { margin-top: 14px; font-size: 14px; color: var(--on-ink-2); }
+.st__mission figcaption p + p { margin-top: 10px; }
+.st__mission figcaption p:first-child { color: var(--on-ink); }
 .st__attr { margin-top: 16px; font-size: 14px; line-height: 1.5; color: var(--on-ink-2); }
 .st__record { margin-top: clamp(72px, 9vw, 128px); }
 .st-rwrap { position: relative; margin-top: 28px; padding-bottom: 28px; }

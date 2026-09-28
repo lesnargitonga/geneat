@@ -53,14 +53,26 @@ if run:
     alt = f" at {run['plan_alt_m']:g} metres" if run.get("plan_alt_m") else ""
     climb = f", reaching {run['max_alt_m']:g} metres" if run.get("flew") else ", without leaving the ground"
     sealed = run.get("manifest_lists_csv_hash") and run.get("manifest_lists_mission_hash")
-    cap = (f"Planned: the console’s training mission, a {run['side_m']}-metre box{alt}, about {run['planned_m']} metres around. "
-           f"Recorded in simulation run {html.escape(str(run.get('run_id', run['csv'])))}{when}: {run['samples']:,} samples{dur}, "
+    cap = (f"<p>Planned: the console’s training mission, a {run['side_m']}-metre box{alt}, about {run['planned_m']} metres around. "
+           f"{'Flown' if run.get('flew') else 'Recorded'} in simulation run {html.escape(str(run.get('run_id', run['csv'])))}{when}: {run['samples']:,} samples{dur}, "
            f"about {run['flown_m']:,} metres{climb}. {OUTCOME.get(run.get('outcome'), 'The mission outcome was not recorded.')}"
-           + (" The telemetry and mission record match the run’s sealed manifest." if sealed else ""))
+           + (" The telemetry and mission record match the run’s sealed manifest." if sealed else "") + "</p>")
+    # The sealed runs before this one, and what stopped them (media/sentinel-history.json,
+    # every sentence checked by tools/verify.py against the evidence and the fixes).
+    hist_path = MEDIA / "sentinel-history.json"
+    if hist_path.exists():
+        hist = json.loads(hist_path.read_text())
+        earlier = hist.get("earlier_runs", [])
+        if earlier:
+            count = {1: "The sealed run", 2: "The two sealed runs", 3: "The three sealed runs"}.get(len(earlier), f"The {len(earlier)} sealed runs")
+            cap += (f"<p>{count} before it stopped short. " + " ".join(r["sentence"] for r in earlier)
+                    + " " + hist.get("unmerged_sentence", "") + "</p>")
     if run.get("flew"):
-        flight = "One simulated flight is on record, and no physical one."
+        flight = "A simulated flight is on record, and no physical one."
         note = ("These are the perception pipeline’s own output in simulation. None of these April runs has a flight log, "
-                "so none of them is a record of flight, and a run that recorded nothing is not a clean flight.")
+                "so none of them is a record of flight, and a run that recorded nothing is not a clean flight. "
+                "The detector behind them read a simulated lidar that, in the code of the time, modelled box obstacles as discs, "
+                "so some of these detections may be of obstacles that were not there.")
 src = src.replace("<!--#include sentinel-caption-->", cap)
 src = src.replace("<!--#include sentinel-flight-->", flight)
 src = src.replace("<!--#include sentinel-record-note-->", note)

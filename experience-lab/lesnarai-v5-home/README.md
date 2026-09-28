@@ -20,7 +20,7 @@ maturity line at the top of every system.
 | Section | Maturity | Its own language | Material, and where it came from |
 |---|---|---|---|
 | MediMatch | Demonstrated | Geographic | Kenya outline, the 16 national facilities and 9 transfers from one run. Outline and coordinates from the MediMatch repo; transfers from the supply panel in its own capture, origins checked by distance in `tools/build_assets.py`. The page says the run is over synthetic inventory and that no transfer was executed. |
-| Operation Sentinel | Research | Telemetric | The 87 recorded diagnostic runs (13 to 16 April 2026) on their real time axis, from `telemetry.json` on `experience/lesnarai-v5-static`; the training mission from `training/px4_waypoints.json`; the 59-column CSV header the MAVSDK bridge writes. No flight log exists, and the page says so. |
+| Operation Sentinel | Research | Telemetric | One sealed simulated flight: run `px4_teacher_20260928_205942_d1`, PX4 SITL x500 in Gazebo Harmonic flying the console's own 25 m training box, drawn from its sealed `mission.json` and telemetry on the LesnarAI branch `evidence/sitl-run-px4_teacher_20260928_205942_d1`. The two sealed runs before it, and the bridge faults they exposed, from their own evidence branches and the fix commits. The 87 April diagnostic runs on their real time axis, from `telemetry.json` on `experience/lesnarai-v5-static`, with the caveat that their detector read a lidar model that turned boxes into discs. The 59-column CSV header the bridge writes. |
 | Simy | In development | A trust boundary | What the relay holds (including public prekey bundles and device records) and never holds, and the first-contact envelope fields, from `docs/relay-api.md`, `docs/threat-model.md` and the Phase 9 handover. |
 | BizMtaani, CarePro | Live | Their real interfaces | Screen recordings and captures. CarePro's four checks are its published panel. |
 | Jamii, Gen-Eat, Hazina | Live, confirmed by the owner | Their real interfaces | Same. |
@@ -37,7 +37,7 @@ Native browser features only. No Lenis, no GSAP, no library of any kind.
 
 1. MediMatch transfers draw across the map as it scrolls through, shortest
    first, ending on Nairobi to Mandera.
-2. The Sentinel mission loop draws as it enters.
+2. The Sentinel flight path draws as it enters, in the order it was flown: north from home, then east, south and back.
 3. Simy pins on wide screens: the message is text on the sender's device,
    becomes an envelope inside the relay, and opens on the far side.
 4. Gold Trader's cut strategies are struck through as the ledger passes.
@@ -56,8 +56,14 @@ Local server, Chromium, slow 4G (1.6 Mbps, 150 ms) and 4x CPU slowdown:
 |---|---|---|
 | LCP (the headline) | about 1.0 s | about 0.95 s |
 | CLS over a full scroll | 0 | 0 |
-| First load | 161 KB | 116 KB |
+| First load, bytes on the wire | 182 KB | 138 KB |
 | After a full scroll | 1.6 MB | 0.7 MB |
+
+LCP, CLS and first load were re-measured on 28 September after the flight path went in
+(the HTML grew by about 8 KB; first load is now counted from the network layer's
+encoded lengths). The full-scroll row is from the earlier measurement: the Chromium used
+here cannot decode H.264, so it never downloads the recordings in full and would
+undercount.
 
 Most of the full-scroll weight is the five test recordings. Production adds
 real network latency on top of these numbers.
@@ -90,12 +96,16 @@ frames are capped at the recordings' native 1000 px so they never upscale.
   is what the name covers.
 - Gold Trader's audit document was rerun on 30 May and says some figures
   moved. Check the family table still matches that rerun before release.
-- Operation Sentinel shows its real detection record now, but no flight.
-  `tools/sentinel_run.sh` records one sealed online run on the Precision (PX4
-  SITL in Gazebo, never `--offline`) flying the console's own training mission.
-  With `SENTINEL_TELEMETRY` and `SENTINEL_MANIFEST` pointing at its files, the
-  build draws that mission and the recorded path, and the flight wording follows
-  what the telemetry shows. See HANDOFF.md.
+- Operation Sentinel now shows a completed sealed flight, but it was flown with two
+  bridge fixes that sit on the unmerged LesnarAI branch `fix/offboard-engage`, in a
+  copy of `obstacles.sdf` that gained the GPS and compass systems PX4 expects. Until
+  the branch is merged and the world fix is committed, the stock checkout cannot fly
+  it. The page says the faults are fixed on a branch that is not yet merged, and
+  `verify.py` fails if that stops being true.
+- The April detection counts were produced by a detector that read the old lidar
+  model, which turned box obstacles into discs, so some are detections of nothing.
+  Re-running those diagnostics with the fixed bridge, or dropping the chart, would
+  settle it. The page states the caveat.
 - The Phase 9 work is on GitHub as `experience/lesnarai-v5-static`. Its
   homepage (serif, graphite and paper) is what this prototype would replace;
   its eleven `/work/` pages and route redirects are not touched here.
@@ -119,9 +129,22 @@ branch `fix/console-real-state`.
 ## Checking the page against its sources
 
 `tools/verify.py` confirms every figure and claim on the page appears in the
-file it came from (66 checks, including counted facts such as the 59
-telemetry columns and SentinelCore's eleven gaps) and that the page carries no
-em dash. Run it after any copy change.
+file it came from (79 checks with the flight, including counted facts such as the 59
+telemetry columns) and that the page carries no em dash. Run it after any copy change.
+
+The flight checks read a lesnargitonga/lesnarai clone (`LESNARAI`, default
+`/home/user/lesnarai`) with the evidence and fix branches fetched as remote refs:
+
+```bash
+git -C "$LESNARAI" fetch origin 'refs/heads/evidence/*:refs/remotes/origin/evidence/*' \
+  'refs/heads/fix/*:refs/remotes/origin/fix/*' main
+```
+
+From there they re-hash the flown run's telemetry and mission record against its
+sealed manifest, check each sentence about the earlier runs against that run's sealed
+outcome and the fix commit's own description, check that the fixes are on
+`fix/offboard-engage` and not in `main`, and check the April caveat against the bridge
+as committed on 18 March.
 
 ## Rebuilding the assets
 
@@ -130,3 +153,11 @@ em dash. Run it after any copy change.
 `media/` and `fonts/`. `tools/inline.py` then renders `index.html` from
 `index.src.html`, and `tools/verify.py` checks the result. Edit
 `index.src.html`, never `index.html`.
+
+With a sealed Sentinel run (files from its evidence branch):
+
+```bash
+SENTINEL_TELEMETRY=<run>/telemetry_live_0.csv SENTINEL_MANIFEST=<run>/MANIFEST.json \
+python3 tools/build_assets.py && python3 tools/inline.py && python3 tools/verify.py
+git checkout -- fonts/mona-sans.woff2   # the font subset is not byte-reproducible
+```

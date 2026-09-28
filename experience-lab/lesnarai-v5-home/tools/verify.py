@@ -23,6 +23,9 @@ R = {
     # The Phase 9 evidence layer on experience/lesnarai-v5-static: the registry
     # and the creative-reset handover's truth doctrine outrank older sources.
     "V5": Path(os.environ.get("V5S", "/home/user/v5s/experience-lab")),
+    # A lesnargitonga/lesnarai clone with the evidence/* and fix/* branches fetched as
+    # origin/* remote refs: it holds the sealed runs and the commits that fixed them.
+    "LE": Path(os.environ.get("LESNARAI", "/home/user/lesnarai")),
 }
 REG = "V5/evidence-integration/evidence/registry.json"
 DOC = "V5/creative-reset/final2/docs/HANDOVER.md"
@@ -116,7 +119,17 @@ def run_checks(text):
     bad = []
     tel, man = os.environ.get("SENTINEL_TELEMETRY"), os.environ.get("SENTINEL_MANIFEST")
     if not (tel and man):
-        return ["RUN    the page draws a run, so SENTINEL_TELEMETRY and SENTINEL_MANIFEST must point at its files"]
+        # Read the sealed files straight from the run's evidence branch.
+        import tempfile
+        rid = str(RUN["run_id"])
+        tmp = Path(tempfile.mkdtemp(prefix="sentinel-run-"))
+        for name in ("telemetry_live_0.csv", "MANIFEST.json", "mission.json"):
+            blob = _git("show", f"origin/evidence/sitl-run-{rid}:evidence/runs/{rid}/{name}", binary=True)
+            if blob is None:
+                return [f"RUN    cannot read {name} for {rid}: set SENTINEL_TELEMETRY and SENTINEL_MANIFEST, "
+                        f"or fetch origin/evidence/sitl-run-{rid} into {R['LE']}"]
+            (tmp / name).write_bytes(blob)
+        tel, man = str(tmp / "telemetry_live_0.csv"), str(tmp / "MANIFEST.json")
     csv_hash = hashlib.sha256(Path(tel).read_bytes()).hexdigest()
     m = json.loads(Path(man).read_text())
     listed = {f.get("path"): f.get("sha256") for f in m.get("files", [])}
@@ -131,6 +144,66 @@ def run_checks(text):
         if said not in text:
             bad.append(f"RUN    page missing: {said!r}")
     return bad
+
+
+def _git(*args, binary=False):
+    import subprocess
+    r = subprocess.run(["git", "-C", str(R["LE"]), *args], capture_output=True)
+    if r.returncode != 0:
+        return None
+    return r.stdout if binary else r.stdout.decode("utf-8", "replace")
+
+
+def _norm(t):
+    return re.sub(r"\s+", " ", t or "")
+
+
+def history_checks(text):
+    """Every sentence about the earlier sealed runs, and the April lidar caveat, against the
+    evidence branches and the commits in the LesnarAI clone. Returns (checked, failures)."""
+    import json
+    checked, bad = 0, []
+    hp = HERE / "media/sentinel-history.json"
+    hist = json.loads(hp.read_text()) if hp.exists() else None
+    if RUN and hist:
+        fix_branch = hist["fix_branch"]
+        for r in hist["earlier_runs"]:
+            rid = r["run_id"]
+            checked += 1
+            if r["sentence"] not in text:
+                bad.append(f"PAGE   missing: {r['sentence']!r}")
+            checked += 1
+            m = _git("show", f"origin/{r['branch']}:evidence/runs/{rid}/mission.json")
+            if m is None or json.loads(m).get("outcome") != r["outcome"]:
+                bad.append(f"SOURCE drift:   {rid} is not a sealed {r['outcome']} run on origin/{r['branch']}")
+            msg = _norm(_git("log", "-1", "--format=%B", r["fixed_by"]))
+            for phrase in r["fix_says"]:
+                checked += 1
+                if phrase not in msg:
+                    bad.append(f"SOURCE drift:   commit {r['fixed_by']} no longer says {phrase!r}")
+            checked += 1
+            on_branch = _git("merge-base", "--is-ancestor", r["fixed_by"], f"origin/{fix_branch}") is not None
+            in_main = _git("merge-base", "--is-ancestor", r["fixed_by"], "origin/main") is not None
+            if not on_branch or in_main:
+                bad.append(f"SOURCE drift:   {r['fixed_by']} is {'merged into main' if in_main else 'not on ' + fix_branch}; "
+                           "the page says it is fixed on a branch that is not yet merged")
+        checked += 1
+        if hist["unmerged_sentence"] not in text:
+            bad.append(f"PAGE   missing: {hist['unmerged_sentence']!r}")
+    if RUN and RUN.get("flew"):
+        # The April detector read a simulated lidar that modelled boxes as discs: the last
+        # committed bridge before the runs ended (16 April) shows both.
+        checked += 1
+        if "modelled box obstacles as discs" not in text:
+            bad.append("PAGE   missing: 'modelled box obstacles as discs'")
+        checked += 1
+        last = (_git("log", "-1", "--format=%h", "--before=2026-04-16T21:00", "origin/main", "--",
+                     "training/px4_teacher_collect_gz.py") or "").strip()
+        src = _git("show", f"{last}:training/px4_teacher_collect_gz.py") if last else None
+        if not src or "size = (max(obs.dx, obs.dy) / 2) if obs.is_box else obs.radius" not in src \
+                or "1.0 - (float(front_eval_dist) / 20.0)" not in src:
+            bad.append("SOURCE drift:   the April-era bridge does not show the disc lidar feeding the detector")
+    return checked, bad
 
 
 def _tel():
@@ -177,7 +250,11 @@ def main():
     for line in extra:
         print(line)
     bad += 1 if extra else 0
-    n = len(CHECKS) + len(COUNTS) + 2 + (1 if RUN else 0)
+    hist_n, hist_bad = history_checks(text)
+    for line in hist_bad:
+        print(line)
+    bad += len(hist_bad)
+    n = len(CHECKS) + len(COUNTS) + 2 + (1 if RUN else 0) + hist_n
     print(f"{n - bad}/{n} checks pass")
     sys.exit(1 if bad else 0)
 

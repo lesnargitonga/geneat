@@ -27,7 +27,26 @@ push to a new name instead (for example `experience/lesnarai-v6-local`), then
 say which. The renamed `.vercel.unlinked` link file is gitignored and stays
 local; do not rename it back.
 
-## 2. One real Operation Sentinel run
+## 2. One real Operation Sentinel run (done 28 September 2026)
+
+Result: three sealed online runs, each on its own LesnarAI branch
+`evidence/sitl-run-<run_id>`, committed by the owner from the Precision.
+
+| Run | Bridge | Outcome | What it showed |
+|---|---|---|---|
+| `px4_teacher_20260928_194728_d1` | `main` (`906a465`) | timeout | Took off to 10 m and hovered at home for ten minutes: offboard never engaged (MAVSDK `NO_SETPOINT_SET`), and the bridge navigated anyway. Fixed in `6a40f0f`. |
+| `px4_teacher_20260928_203728_d1` | `6a40f0f` | timeout | Flew the first 25 m leg, then the simulated lidar held it 11 m short of waypoint 2. It had read `Wall_1`, a 1 m x 38 m box, as a 19 m disc. Fixed in `bcf9e52`. |
+| `px4_teacher_20260928_205942_d1` | `bcf9e52` | completed | The whole box: 608 samples, 126 s, about 98 m, all four waypoints. This is the run the page draws. |
+
+All three used a copy of `obstacles.sdf` that gained the NavSat and Magnetometer
+systems and the spherical coordinates PX4 expects; `mission.json` in each run records
+exactly what was added. Still to do, in LesnarAI, by its owner: review and merge
+`fix/offboard-engage` (both bridge fixes) and `fix/console-real-state`; commit the
+world fix to `obstacles.sdf` itself; and decide whether to re-run the April
+diagnostics with the fixed lidar, since their detector read the old one.
+
+How the runs were made:
+
 
 Online mode only: PX4 SITL flying the x500 in Gazebo Harmonic. An `--offline`
 run (the pure Python simulator, 16 columns) cannot be used, and the build

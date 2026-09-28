@@ -2,7 +2,9 @@
 
 - medimatch-map.svg: outline from MediMatch client/src/data/kenya.ts (Natural Earth 50m, public domain); facility names and coordinates from server/src/mock/db.ts ids 2-17; transfers from the supply panel in docs/screenshots/conference-command-routed.png, origins matched by straight-line distance within 6 km.
 
-- sentinel-mission.svg: LesnarAI training/px4_waypoints.json, local metres from W1. sentinel-columns.json: the CSV header in training/px4_teacher_collect_gz.py, 59 columns.
+- sentinel-mission.svg: sealed simulation run px4_teacher_20260928_205942_d1 on lesnargitonga/lesnarai branch evidence/sitl-run-px4_teacher_20260928_205942_d1. Planned box from its mission.json (the waypoints dispatched), local metres from home; flown path from telemetry_live_0.csv (sha256 77209d5bfd07269d...), 608 samples with a position, drawn as recorded without interpolation. Distance flown counts only samples at least 0.5 m apart.
+
+- sentinel-columns.json: the CSV header in training/px4_teacher_collect_gz.py, 59 columns.
 
 - sentinel-record.svg: telemetry.json from geneat experience/lesnarai-v5-static (experience-lab/creative-reset/final2), the aggregate of 87 seg_diag CSVs; totals asserted against the evidence registry EV-SENTINEL-DETECT-01.
 

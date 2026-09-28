@@ -155,7 +155,14 @@ def flown_track(path, lat0, lon0, local):
     except Exception:
         duration = None
     pts = [local(r["_la"], r["_lo"]) for r in rows]
-    flown = sum(math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]) for i in range(len(pts) - 1))
+    # Distance flown, counted only between samples at least 0.5 m apart: summing every
+    # sample would add up centimetres of position jitter (a ten-minute hover once summed
+    # to 19 m without the aircraft leaving home).
+    flown, last = 0.0, pts[0]
+    for q in pts[1:]:
+        d = math.hypot(q[0] - last[0], q[1] - last[1])
+        if d >= 0.5:
+            flown, last = flown + d, q
     step = max(1, len(pts) // 600)  # keep the SVG light; every kept point is a real sample
     digest = hashlib.sha256(Path(path).read_bytes()).hexdigest()
     alts = []
@@ -247,7 +254,10 @@ def sentinel():
         out.append(f'<path class="st-path" style="--len:{L:.0f}" d="{d}"/>')
     for i, (x, y) in enumerate(xy[:-1]):
         label = ("Home" if i == 0 else f"W{i}") if track else f"W{i + 1}"
-        out.append(f'<circle class="st-wp" cx="{x:.1f}" cy="{y:.1f}" r="4"/><text class="st-wpl" x="{x + 9:.1f}" y="{y - 8:.1f}">{label}</text>')
+        # The flown path climbs away just east of home and returns a little south of it,
+        # so "Home" sits directly to its left, clear of both.
+        tx, ty, anchor = (x - 9, y + 4, ' text-anchor="end"') if track and i == 0 else (x + 9, y - 8, "")
+        out.append(f'<circle class="st-wp" cx="{x:.1f}" cy="{y:.1f}" r="4"/><text class="st-wpl" x="{tx:.1f}" y="{ty:.1f}"{anchor}>{label}</text>')
     bx, by = pad, H - 12
     bar = 50 if not track else (10 if total_m < 400 else 50)
     out.append(f'<path class="st-scale" d="M{bx} {by - 5} V{by} H{bx + bar * S} V{by - 5}"/><text class="st-wpl" x="{bx + bar * S + 8:.0f}" y="{by:.0f}">{bar} m</text>')
@@ -279,10 +289,14 @@ def sentinel():
     total = sum(len(g[1]) for g in groups)
     (MEDIA / "sentinel-columns.json").write_text(json.dumps({"total": total, "groups": groups, "waypoint_loop_m": round(total_m)}, indent=1))
     if run:
-        provenance.append(f"sentinel-mission.svg flown path: {run['csv']} (sha256 {run['csv_sha256'][:16]}...), "
-                          f"{run['samples']} samples with a position, drawn as recorded without interpolation.")
-    provenance.append(f"sentinel-mission.svg: LesnarAI training/px4_waypoints.json, local metres from W1. "
-                      f"sentinel-columns.json: the CSV header in training/px4_teacher_collect_gz.py, {total} columns.")
+        provenance.append(f"sentinel-mission.svg: sealed simulation run {run.get('run_id', run['csv'])} on lesnargitonga/lesnarai "
+                          f"branch evidence/sitl-run-{run.get('run_id', '')}. Planned box from its mission.json (the waypoints "
+                          f"dispatched), local metres from home; flown path from {run['csv']} (sha256 {run['csv_sha256'][:16]}...), "
+                          f"{run['samples']} samples with a position, drawn as recorded without interpolation. "
+                          f"Distance flown counts only samples at least 0.5 m apart.")
+    else:
+        provenance.append("sentinel-mission.svg: LesnarAI training/px4_waypoints.json, local metres from W1.")
+    provenance.append(f"sentinel-columns.json: the CSV header in training/px4_teacher_collect_gz.py, {total} columns.")
     return total, round(total_m)
 
 

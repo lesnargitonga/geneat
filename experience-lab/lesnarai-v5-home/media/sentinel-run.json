@@ -1,1 +1,19 @@
-null
+{
+ "samples": 608,
+ "duration_s": 126,
+ "flown_m": 98,
+ "max_alt_m": 9.5,
+ "date": "28 September 2026",
+ "csv_sha256": "77209d5bfd07269d3d56acd0344731bbefea54c4e0c1adb2331e3b1cb4e4fdc6",
+ "csv": "telemetry_live_0.csv",
+ "manifest_lists_csv_hash": true,
+ "run_id": "px4_teacher_20260928_205942_d1",
+ "manifest_lists_mission_hash": true,
+ "planned_m": 100,
+ "side_m": 25,
+ "plan_alt_m": 10.0,
+ "mission_type": "TRAINING",
+ "outcome": "completed",
+ "landed": true,
+ "flew": true
+}
