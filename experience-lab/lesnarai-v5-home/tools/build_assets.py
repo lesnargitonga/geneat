@@ -124,7 +124,7 @@ def flown_track(path, lat0, lon0, local):
     Only rows with a real lat/lon are used; nothing is interpolated."""
     import csv
     import hashlib
-    from datetime import datetime
+    from datetime import datetime, timezone
     rows = []
     with open(path, newline="") as f:
         reader = csv.DictReader(f)
@@ -158,38 +158,72 @@ def flown_track(path, lat0, lon0, local):
     flown = sum(math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]) for i in range(len(pts) - 1))
     step = max(1, len(pts) // 600)  # keep the SVG light; every kept point is a real sample
     digest = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    alts = []
+    for r in rows:
+        try:
+            alts.append(float(r.get("rel_alt") or "nan"))
+        except ValueError:
+            pass
+    alts = [a for a in alts if math.isfinite(a)]
+    try:
+        day = datetime.fromtimestamp(ts(rows[0]["timestamp"]), tz=timezone.utc)
+        run_date = f"{day.day} {day:%B %Y}"
+    except Exception:
+        run_date = None
     run = {"samples": len(rows), "duration_s": round(duration) if duration is not None else None,
-           "flown_m": round(flown), "csv_sha256": digest, "csv": Path(path).name}
+           "flown_m": round(flown), "max_alt_m": round(max(alts), 1) if alts else None,
+           "date": run_date, "csv_sha256": digest, "csv": Path(path).name}
     man = os.environ.get("SENTINEL_MANIFEST")
     if man:
-        mtext = Path(man).read_text()
-        run["manifest_lists_csv_hash"] = digest in mtext
-        try:
-            run["run_id"] = json.loads(mtext).get("run_id") or Path(man).parent.name
-        except ValueError:
-            run["run_id"] = Path(man).parent.name
+        m = json.loads(Path(man).read_text())
+        listed = {f.get("path"): f.get("sha256") for f in m.get("files", [])}
+        run["manifest_lists_csv_hash"] = listed.get(Path(path).name) == digest
+        run["run_id"] = (m.get("run") or {}).get("run_id") or Path(man).parent.name
+        mission = Path(man).parent / "mission.json"
+        if mission.exists():
+            run["manifest_lists_mission_hash"] = listed.get("mission.json") == hashlib.sha256(mission.read_bytes()).hexdigest()
     return pts[::step] + [pts[-1]], run
 
 
 def sentinel():
-    wps = json.loads((SENTINEL / "training/px4_waypoints.json").read_text())["waypoints"]
-    lat0, lon0 = wps[0]["lat"], wps[0]["lon"]
+    tel = os.environ.get("SENTINEL_TELEMETRY")
+    mission = None
+    if tel:
+        # A committed run is drawn over the mission it was actually sent, from the
+        # mission.json sealed in the same run, never over an unrelated waypoint file.
+        mpath = Path(os.environ.get("SENTINEL_MISSION") or Path(tel).parent / "mission.json")
+        if not mpath.exists():
+            raise SystemExit(f"{mpath}: a run needs the mission.json it was dispatched with")
+        mission = json.loads(mpath.read_text())
+        raw = mission["payload"]["params"]["waypoints"]
+        wps = [{"lat": w[0], "lon": w[1]} for w in raw]
+        home = wps[-1]  # DroneList.js ends the training box on the drone's own position
+        lat0, lon0 = home["lat"], home["lon"]
+        wps = [home] + wps[:-1]  # drawn in flown order: home, W1, W2, W3, back home
+    else:
+        wps = json.loads((SENTINEL / "training/px4_waypoints.json").read_text())["waypoints"]
+        lat0, lon0 = wps[0]["lat"], wps[0]["lon"]
     local = lambda la, lo: ((lo - lon0) * 111320 * math.cos(math.radians(lat0)), (la - lat0) * 110574)
     pts = [local(w["lat"], w["lon"]) for w in wps]
     total_m = sum(math.hypot(pts[(i + 1) % 4][0] - pts[i][0], pts[(i + 1) % 4][1] - pts[i][1]) for i in range(4))
 
-    # A committed run, when one is supplied, is drawn over the plan.
     track, run = None, None
-    if os.environ.get("SENTINEL_TELEMETRY"):
-        track, run = flown_track(os.environ["SENTINEL_TELEMETRY"], lat0, lon0, local)
+    if tel:
+        track, run = flown_track(tel, lat0, lon0, local)
         run["planned_m"] = round(total_m)
+        run["side_m"] = round(math.hypot(pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]))
+        run["plan_alt_m"] = raw[0][2] if len(raw[0]) > 2 else None
+        run["mission_type"] = mission["payload"]["params"].get("mission_type")
+        run["outcome"] = mission.get("outcome")
+        run["landed"] = mission.get("landed_below_0_5_m")
+        run["flew"] = bool(run["max_alt_m"] is not None and run["max_alt_m"] >= 2)
     (MEDIA / "sentinel-run.json").write_text(json.dumps(run, indent=1) if run else "null")
 
     allp = pts + (track or [])
     minx = min(p[0] for p in allp); maxx = max(p[0] for p in allp)
     miny = min(p[1] for p in allp); maxy = max(p[1] for p in allp)
     pad = 40
-    S = 2.4 if not track else min(2.4, 380 / max(maxx - minx, maxy - miny, 1))  # px per metre; a wide run is scaled to fit
+    S = 2.4 if not track else 380 / max(maxx - minx, maxy - miny, 1)  # px per metre; a run is scaled to fit
     W = (maxx - minx) * S + pad * 2 + 60
     H = (maxy - miny) * S + pad * 2 + 30
     P = lambda p: (pad + (p[0] - minx) * S, pad + (maxy - p[1]) * S)
@@ -197,8 +231,9 @@ def sentinel():
     L = sum(math.hypot(xy[i + 1][0] - xy[i][0], xy[i + 1][1] - xy[i][1]) for i in range(len(xy) - 1))
     d = "M" + " L".join(f"{x:.1f} {y:.1f}" for x, y in xy)
     if run:
-        title = (f"The planned four-waypoint loop, about {total_m:.0f} metres, and the path flown in simulation run "
-                 f"{run.get('run_id', run['csv'])}: {run['samples']} samples, about {run['flown_m']} metres.")
+        title = (f"The training mission sent to simulation run {run.get('run_id', run['csv'])}, a {run['side_m']}-metre "
+                 f"box about {total_m:.0f} metres around, and the recorded path: {run['samples']} samples, "
+                 f"about {run['flown_m']} metres.")
     else:
         title = f"The four-waypoint training mission from px4_waypoints.json, a loop of about {total_m:.0f} metres."
     out = [f'<svg class="st-mission" viewBox="0 0 {W:.0f} {H:.0f}" role="img" aria-labelledby="st-m-t">',
@@ -211,9 +246,11 @@ def sentinel():
     else:
         out.append(f'<path class="st-path" style="--len:{L:.0f}" d="{d}"/>')
     for i, (x, y) in enumerate(xy[:-1]):
-        out.append(f'<circle class="st-wp" cx="{x:.1f}" cy="{y:.1f}" r="4"/><text class="st-wpl" x="{x + 9:.1f}" y="{y - 8:.1f}">W{i + 1}</text>')
+        label = ("Home" if i == 0 else f"W{i}") if track else f"W{i + 1}"
+        out.append(f'<circle class="st-wp" cx="{x:.1f}" cy="{y:.1f}" r="4"/><text class="st-wpl" x="{x + 9:.1f}" y="{y - 8:.1f}">{label}</text>')
     bx, by = pad, H - 12
-    out.append(f'<path class="st-scale" d="M{bx} {by - 5} V{by} H{bx + 50 * S} V{by - 5}"/><text class="st-wpl" x="{bx + 50 * S + 8:.0f}" y="{by:.0f}">50 m</text>')
+    bar = 50 if not track else (10 if total_m < 400 else 50)
+    out.append(f'<path class="st-scale" d="M{bx} {by - 5} V{by} H{bx + bar * S} V{by - 5}"/><text class="st-wpl" x="{bx + bar * S + 8:.0f}" y="{by:.0f}">{bar} m</text>')
     out.append("</svg>")
     (MEDIA / "sentinel-mission.svg").write_text("\n".join(out))
 

@@ -34,14 +34,36 @@ src = src.replace("<!--#include sentinel-mission.svg-->", (MEDIA / "sentinel-mis
 src = src.replace("<!--#include sentinel-columns-->", cols)
 src = src.replace("<!--#include sentinel-record.svg-->", (MEDIA / "sentinel-record.svg").read_text())
 run = json.loads((MEDIA / "sentinel-run.json").read_text()) if (MEDIA / "sentinel-run.json").exists() else None
+# Without a committed run the page says there is no flight. With one, the wording is
+# decided by what the run's own telemetry and sealed mission record show.
+flight = "No flight is on record, simulated or physical."
+note = ("These are the perception pipeline’s own output in simulation. No flight log exists, simulated or physical, "
+        "so none of this is a record of flight, and a run that recorded nothing is not a clean flight.")
+cap = "The training mission: four waypoints, a loop of about 465 metres."
 if run:
-    mins = f", {round(run['duration_s'] / 60)} minutes" if run.get("duration_s") else ""
-    cap = (f"Planned: four waypoints, a loop of about {run['planned_m']} metres. Flown in simulation run "
-           f"{html.escape(str(run.get('run_id', run['csv'])))}: {run['samples']:,} samples{mins}, about {run['flown_m']:,} metres."
-           + (" Its SHA-256 matches the run’s sealed manifest." if run.get("manifest_lists_csv_hash") else ""))
-else:
-    cap = "The training mission: four waypoints, a loop of about 465 metres."
+    OUTCOME = {
+        "completed": "The bridge reported the mission complete.",
+        "failed": "The mission did not complete.",
+        "timeout": "The mission did not complete in the time allowed.",
+        "teacher_exited": "The bridge stopped before the mission completed.",
+    }
+    mins = run["duration_s"] / 60 if run.get("duration_s") else None
+    dur = f", {mins:.0f} minutes" if mins and mins >= 2 else (f", {run['duration_s']} seconds" if run.get("duration_s") else "")
+    when = f" on {run['date']}" if run.get("date") else ""
+    alt = f" at {run['plan_alt_m']:g} metres" if run.get("plan_alt_m") else ""
+    climb = f", reaching {run['max_alt_m']:g} metres" if run.get("flew") else ", without leaving the ground"
+    sealed = run.get("manifest_lists_csv_hash") and run.get("manifest_lists_mission_hash")
+    cap = (f"Planned: the console’s training mission, a {run['side_m']}-metre box{alt}, about {run['planned_m']} metres around. "
+           f"Recorded in simulation run {html.escape(str(run.get('run_id', run['csv'])))}{when}: {run['samples']:,} samples{dur}, "
+           f"about {run['flown_m']:,} metres{climb}. {OUTCOME.get(run.get('outcome'), 'The mission outcome was not recorded.')}"
+           + (" The telemetry and mission record match the run’s sealed manifest." if sealed else ""))
+    if run.get("flew"):
+        flight = "One simulated flight is on record, and no physical one."
+        note = ("These are the perception pipeline’s own output in simulation. None of these April runs has a flight log, "
+                "so none of them is a record of flight, and a run that recorded nothing is not a clean flight.")
 src = src.replace("<!--#include sentinel-caption-->", cap)
+src = src.replace("<!--#include sentinel-flight-->", flight)
+src = src.replace("<!--#include sentinel-record-note-->", note)
 assert "<!--#include" not in src
 (HERE / "index.html").write_text(src)
 print("index.html", len(src), "bytes")

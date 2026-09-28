@@ -5,6 +5,7 @@ Each check names the phrase as the page states it, the source file, and the
 phrase as the source states it. Source paths use the same env vars as
 build_assets.py.
 """
+import json
 import os
 import re
 import sys
@@ -98,6 +99,40 @@ CHECKS = [
     ("We reply within two working days", "V4/index.html", "Usually within two working days."),
 ]
 
+# A committed Sentinel run changes what the page may say about flight. Its facts are
+# checked against the run's own files, recomputed here rather than trusted from the build.
+RUN = json.loads((HERE / "media/sentinel-run.json").read_text() or "null") if (HERE / "media/sentinel-run.json").exists() else None
+if RUN and RUN.get("flew"):
+    NO_FLIGHT = {"No flight log exists, simulated or physical", "No flight is on record, simulated or physical"}
+    CHECKS = [c for c in CHECKS if c[0] not in NO_FLIGHT]
+    CHECKS.append(("None of these April runs has a flight log", REG, "so there is no logged flight, simulated or physical"))
+
+
+def run_checks(text):
+    """Returns a list of failures for the committed run, or [] when there is none."""
+    if not RUN:
+        return []
+    import hashlib
+    bad = []
+    tel, man = os.environ.get("SENTINEL_TELEMETRY"), os.environ.get("SENTINEL_MANIFEST")
+    if not (tel and man):
+        return ["RUN    the page draws a run, so SENTINEL_TELEMETRY and SENTINEL_MANIFEST must point at its files"]
+    csv_hash = hashlib.sha256(Path(tel).read_bytes()).hexdigest()
+    m = json.loads(Path(man).read_text())
+    listed = {f.get("path"): f.get("sha256") for f in m.get("files", [])}
+    mission = Path(man).parent / "mission.json"
+    if csv_hash != RUN["csv_sha256"] or listed.get(Path(tel).name) != csv_hash:
+        bad.append("RUN    telemetry hash differs from the build or the sealed manifest")
+    if listed.get("mission.json") != hashlib.sha256(mission.read_bytes()).hexdigest():
+        bad.append("RUN    mission.json is not the one the manifest sealed")
+    if json.loads(mission.read_text()).get("outcome") != RUN.get("outcome"):
+        bad.append("RUN    mission outcome differs from the sealed mission record")
+    for said in (str(RUN["run_id"]), f"{RUN['samples']:,} samples"):
+        if said not in text:
+            bad.append(f"RUN    page missing: {said!r}")
+    return bad
+
+
 def _tel():
     import json
     return json.loads((R["V5"] / "creative-reset/final2/telemetry.json").read_text())
@@ -138,7 +173,11 @@ def main():
     if "no LLM fallback" not in commit:
         print("SOURCE drift:   commit 61af4b1 no longer says the concierge has no LLM fallback")
         bad += 1
-    n = len(CHECKS) + len(COUNTS) + 2
+    extra = run_checks(text)  # the committed run counts as one check
+    for line in extra:
+        print(line)
+    bad += 1 if extra else 0
+    n = len(CHECKS) + len(COUNTS) + 2 + (1 if RUN else 0)
     print(f"{n - bad}/{n} checks pass")
     sys.exit(1 if bad else 0)
 

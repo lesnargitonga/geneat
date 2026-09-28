@@ -79,7 +79,7 @@
 <section id="sentinel" class="sys st" data-ground="dark" aria-labelledby="st-t">
   <div class="wrap st__grid">
     <div class="sys__head">
-      <p class="status"><b>Research.</b> A simulation stack for PX4 and Gazebo. No flight is on record, simulated or physical.</p>
+      <p class="status"><b>Research.</b> A simulation stack for PX4 and Gazebo. <!--#include sentinel-flight--></p>
       <h2 id="st-t" class="sys__name">Operation Sentinel</h2>
       <p class="sys__cond">A drone may appear on the operator’s screen only if the simulator confirms it exists.</p>
       <p class="sys__body">A command-and-control stack for autonomous UAV simulation. It is built to fly a PX4 x500 in Gazebo Harmonic through a MAVSDK bridge that records every sample, and its backend registers an aircraft only when real telemetry arrives. Each run is sealed with a SHA-256 manifest of everything it wrote.</p>
@@ -95,7 +95,7 @@
     <!--#include sentinel-record.svg-->
     <figcaption class="st__rcap">
       <p>Every diagnostic run from 13 to 16 April 2026, placed on a real time axis. 34 runs recorded detections and 53 recorded none: 71,813 detections in all, 53,971 obstacles and 17,842 proximity alerts. The solid foot of each column is its proximity alerts.</p>
-      <p>These are the perception pipeline’s own output in simulation. No flight log exists, simulated or physical, so none of this is a record of flight, and a run that recorded nothing is not a clean flight.</p>
+      <p><!--#include sentinel-record-note--></p>
     </figcaption>
   </figure>
   <div class="wrap st__schema">

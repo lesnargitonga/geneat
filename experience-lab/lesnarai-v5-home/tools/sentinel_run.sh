@@ -1,0 +1,258 @@
+#!/usr/bin/env bash
+# Record one sealed Operation Sentinel run and push its evidence (HANDOFF.md step 2).
+#
+# Run on the Precision, from any directory:
+#   bash sentinel_run.sh
+#
+# What it does, using only the LesnarAI repo's own tooling:
+#   1. starts the stack with scripts/start_stack_verified.sh, unless it is already up
+#   2. POST /launch-all: Gazebo Harmonic (headless), PX4 SITL x500, teacher bridge
+#   3. waits for online telemetry (the 59-column schema, never --offline)
+#   4. dispatches the console's own training mission, built exactly as
+#      frontend/src/components/DroneList.js builds it (a 25 m box at 10 m), on the
+#      Redis commands channel in the format backend/app.py publishes
+#   5. follows the teacher log until the mission completes or fails, then lands
+#   6. writes mission.json and the run's teacher log into the run directory, then
+#      POST /kill-all so the orchestrator seals everything in MANIFEST.json
+#   7. stops the stack again if this script started it
+#   8. commits the sealed files to a new branch evidence/sitl-run-<run_id> from a
+#      separate worktree (your checkout is not touched), scans them, and pushes
+#
+# A failed or aborted flight is still sealed and pushed, and says so. Nothing here
+# deploys anything, touches production, force-pushes, or reads any credential.
+set -uo pipefail
+
+REPO="${LESNAR_REPO:-$HOME/workspace/LesnarAI}"
+ORCH="${ORCH_URL:-http://127.0.0.1:8765}"
+MISSION_TIMEOUT_S="${MISSION_TIMEOUT_S:-600}"
+PUSH="${PUSH:-1}"
+
+say() { printf '\n== %s\n' "$*"; }
+die() { printf '\nSTOPPED: %s\n' "$*" >&2; exit 1; }
+publish() { docker compose exec -T redis redis-cli PUBLISH commands "$1" | tr -dc '0-9'; }
+cmd_json() {  # cmd_json <drone> <action> [params-json]
+  local params="${3:-}"
+  [ -n "$params" ] || params='{}'
+  python3 -c 'import json,sys; from datetime import datetime,timezone
+print(json.dumps({"drone_id": sys.argv[1], "action": sys.argv[2], "params": json.loads(sys.argv[3]),
+                  "timestamp": datetime.now(timezone.utc).isoformat()}))' "$1" "$2" "$params"
+}
+latest() {  # latest <csv>: "lat lon rel_alt rows" from the newest row with a position
+  python3 - "$1" <<'PY'
+import csv, math, sys
+try:
+    with open(sys.argv[1], newline="") as f:
+        rows = list(csv.DictReader(f))
+except OSError:
+    sys.exit(1)
+need = {"gps_num_sats", "battery_voltage_v", "roll_deg", "wind_speed_mps"}
+if not rows or not need <= set(rows[0]):
+    sys.exit(1)
+for r in reversed(rows):
+    try:
+        la, lo, alt = float(r["lat"]), float(r["lon"]), float(r.get("rel_alt") or "nan")
+    except (KeyError, TypeError, ValueError):
+        continue
+    if math.isfinite(la) and math.isfinite(lo) and (la, lo) != (0.0, 0.0):
+        print(f"{la:.8f} {lo:.8f} {alt:.2f} {len(rows)}")
+        sys.exit(0)
+sys.exit(1)
+PY
+}
+
+cd "$REPO" 2>/dev/null || die "no LesnarAI checkout at $REPO (set LESNAR_REPO)"
+case "$(pwd -P)" in /mnt/*) die "run against the Linux checkout, not $(pwd -P)";; esac
+for t in curl docker git python3; do command -v "$t" >/dev/null || die "$t is not installed"; done
+say "LesnarAI at $(pwd -P), $(git log -1 --format='%h %s')"
+
+# 1. Stack
+was_running=0
+if curl -fsS --max-time 3 "$ORCH/health" >/dev/null 2>&1; then
+  was_running=1
+  say "Stack already running; /launch-all will restart the simulator inside it"
+else
+  export LESNAR_DATA_ROOT="${LESNAR_DATA_ROOT:-$HOME/LesnarData}"
+  say "Starting the stack (data root $LESNAR_DATA_ROOT); this rebuilds containers and can take several minutes"
+  ./scripts/start_stack_verified.sh || die "start_stack_verified.sh failed; see /tmp/lesnar-orchestrator.log and /tmp/lesnar-frontend.log"
+fi
+stop_if_ours() { [ "$was_running" = 1 ] || { say "Stopping the stack this script started"; ./scripts/stop_stack.sh; }; }
+
+# 2. Launch
+log="$REPO/logs/teacher_live_0.out"
+off0=$(stat -c %s "$log" 2>/dev/null || echo 0)
+say "Launching Gazebo, PX4 SITL x500 and the teacher bridge"
+resp=$(curl -sS --max-time 900 -X POST "$ORCH/launch-all" -H 'Content-Type: application/json' \
+  -d '{"drone_count": 1, "gz_headless": true}') || die "POST /launch-all failed"
+run_dir=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["run_dir"])' <<<"$resp" 2>/dev/null) \
+  || die "/launch-all returned no run_dir: $resp"
+run_id=$(basename "$run_dir")
+drone=$(python3 -c 'import json,sys; m=(json.load(sys.stdin).get("status") or {}).get("drone_models") or []; print(m[0] if m else "x500_0")' <<<"$resp")
+csv="$run_dir/telemetry_live_0.csv"
+[ "$(stat -c %s "$log" 2>/dev/null || echo 0)" -ge "$off0" ] || off0=0   # log was rotated at launch
+say "Run $run_id, drone $drone"
+seal_and_die() {
+  curl -sS --max-time 120 -X POST "$ORCH/kill-all" >/dev/null 2>&1
+  stop_if_ours
+  die "$1 (run sealed, not pushed: $run_dir)"
+}
+
+# 3. Online telemetry with a position, then let the estimate settle
+say "Waiting for online telemetry"
+pos=""
+for _ in $(seq 1 120); do pos=$(latest "$csv") && break; pos=""; sleep 2; done
+[ -n "$pos" ] || seal_and_die "no online telemetry with a position after 4 minutes"
+sleep 15
+pos=$(latest "$csv") || seal_and_die "telemetry stopped"
+read -r lat0 lon0 _ rows0 <<<"$pos"
+say "Home fix $lat0, $lon0 after $rows0 samples"
+
+# 4. The console's training mission (DroneList.js): 25 m box at 10 m around the drone
+wps=$(python3 -c 'import json,math,sys
+la,lo=float(sys.argv[1]),float(sys.argv[2]); m=25.0; alt=10.0
+dla=m/111319.0; dlo=m/(111319.0*max(0.2,math.cos(math.radians(la))))
+print(json.dumps([[la+dla,lo,alt],[la+dla,lo+dlo,alt],[la,lo+dlo,alt],[la,lo,alt]]))' "$lat0" "$lon0")
+payload=$(cmd_json "$drone" mission_start "{\"waypoints\": $wps, \"mission_type\": \"TRAINING\"}")
+off=$(stat -c %s "$log" 2>/dev/null || echo 0)
+subs=$(publish "$payload")
+dispatched_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+[ "${subs:-0}" -ge 1 ] || seal_and_die "mission_start reached no subscriber on the commands channel"
+say "Mission dispatched at $dispatched_at to $subs subscriber(s)"
+
+# 5. Follow the teacher log from the dispatch onwards
+outcome=timeout
+end=$((SECONDS + MISSION_TIMEOUT_S))
+while [ "$SECONDS" -lt "$end" ]; do
+  new=$(tail -c +"$((off + 1))" "$log" 2>/dev/null)
+  if grep -q "External mission completed" <<<"$new"; then outcome=completed; break; fi
+  if grep -qE "External mission (aborted|stopped)|Mission start ignored|Traceback" <<<"$new"; then outcome=failed; break; fi
+  curl -fsS --max-time 10 "$ORCH/status" 2>/dev/null | grep -q '"teacher_running": *true' || { outcome=teacher_exited; break; }
+  sleep 3
+done
+say "Mission outcome: $outcome"
+land_subs=$(publish "$(cmd_json "$drone" land)")
+landed=no
+for _ in $(seq 1 45); do
+  read -r _ _ alt _ <<<"$(latest "$csv" || echo "0 0 nan 0")"
+  python3 -c 'import sys; a=float(sys.argv[1]); sys.exit(0 if a==a and a<0.5 else 1)' "$alt" && { landed=yes; break; }
+  sleep 2
+done
+say "Land command to $land_subs subscriber(s); landed: $landed"
+
+# 6. Record the dispatch and the run's teacher log inside the run, then seal
+tail -c +"$((off0 + 1))" "$log" > "$run_dir/teacher_live_0.log" 2>/dev/null
+python3 - "$run_dir/mission.json" "$payload" "$subs" "$dispatched_at" "$outcome" "$landed" "$off" "$log" <<'PY'
+import json, re, sys
+out, payload, subs, at, outcome, landed, off, log = sys.argv[1:9]
+with open(log, "rb") as f:
+    f.seek(int(off))
+    text = f.read().decode("utf-8", "replace")
+keep = re.compile(r"mission|takeoff|land|arm|offboard|!!|Traceback|Error", re.I)
+lines = [l for l in text.splitlines() if keep.search(l)][:300]
+json.dump({
+    "dispatched_at_utc": at,
+    "payload": json.loads(payload),
+    "subscribers": int(subs),
+    "method": ("Published directly on the Redis 'commands' channel in the format backend/app.py "
+               "_publish_command uses, not through the backend API. The waypoints are the console's "
+               "START TRAINING mission as frontend/src/components/DroneList.js builds it: a 25 m box "
+               "at 10 m around the drone's position at dispatch."),
+    "outcome": outcome,
+    "landed_below_0_5_m": landed == "yes",
+    "teacher_log_lines_since_dispatch": lines,
+}, open(out, "w"), indent=2)
+PY
+say "Sealing with /kill-all"
+curl -sS --max-time 120 -X POST "$ORCH/kill-all" >/dev/null || die "POST /kill-all failed; run at $run_dir"
+[ -f "$run_dir/MANIFEST.json" ] || die "no MANIFEST.json in $run_dir"
+python3 - "$run_dir" <<'PY' || die "MANIFEST.json does not match the files on disk"
+import hashlib, json, sys
+from pathlib import Path
+d = Path(sys.argv[1]); m = json.loads((d / "MANIFEST.json").read_text())
+listed = {f["path"]: f["sha256"] for f in m["files"]}
+for need in ("telemetry_live_0.csv", "mission.json", "RUN.json"):
+    assert need in listed, f"{need} is not in the manifest"
+for p, h in listed.items():
+    assert hashlib.sha256((d / p).read_bytes()).hexdigest() == h, f"{p} hash differs"
+print("manifest verified:", ", ".join(sorted(listed)))
+PY
+stop_if_ours
+if pgrep -f "px4_teacher_collect_gz.py" >/dev/null; then
+  say "Note: a teacher process is still running; stop it with ./scripts/stop_stack.sh"
+fi
+
+# Facts for the commit message
+facts=$(python3 - "$csv" <<'PY'
+import csv, hashlib, math, sys
+from datetime import datetime
+path = sys.argv[1]
+rows = []
+for r in csv.DictReader(open(path, newline="")):
+    try:
+        la, lo = float(r["lat"]), float(r["lon"])
+    except (KeyError, TypeError, ValueError):
+        continue
+    if math.isfinite(la) and math.isfinite(lo) and (la, lo) != (0.0, 0.0):
+        rows.append((r, la, lo))
+def ts(v):
+    try: return float(v)
+    except ValueError: return datetime.fromisoformat(v.replace("Z", "+00:00")).timestamp()
+dur = ts(rows[-1][0]["timestamp"]) - ts(rows[0][0]["timestamp"]) if len(rows) > 1 else 0
+la0 = rows[0][1]; k = 111319.0
+pts = [((lo - rows[0][2]) * k * math.cos(math.radians(la0)), (la - la0) * k) for _, la, lo in rows]
+flown = sum(math.dist(pts[i], pts[i + 1]) for i in range(len(pts) - 1))
+print(f"{len(rows)} samples with a position, {dur:.0f} s, {flown:.0f} m flown, "
+      f"csv sha256 {hashlib.sha256(open(path, 'rb').read()).hexdigest()}")
+PY
+)
+say "$facts"
+
+# 8. Evidence branch from a separate worktree
+git fetch -q origin || die "git fetch failed; the sealed run is at $run_dir"
+base=$(git symbolic-ref -q --short refs/remotes/origin/HEAD || echo origin/main)
+branch="evidence/sitl-run-$run_id"
+wt="$(dirname "$(pwd -P)")/LesnarAI-evidence-$run_id"
+git worktree add -q "$wt" -b "$branch" "$base" || die "could not create worktree $wt"
+dest="$wt/evidence/runs/$run_id"
+mkdir -p "$dest"
+find "$run_dir" -maxdepth 1 -type f -exec cp -p {} "$dest/" \;
+big=$(find "$dest" -type f -size +50M)
+[ -z "$big" ] || die "over 50 MB, not committed: $big (worktree left at $wt)"
+say "Scanning the evidence for anything that should not be public"
+if grep -rIniE "password|passwd|secret|api[_-]?key|bearer|token|BEGIN [A-Z ]*PRIVATE KEY|hf_[A-Za-z0-9]{20,}" "$dest" \
+   || grep -rInE "\b(10\.[0-9]+|192\.168|172\.(1[6-9]|2[0-9]|3[01]))\.[0-9]+\.[0-9]+\b" "$dest"; then
+  die "the lines above need a look before anything is pushed; nothing committed (worktree left at $wt)"
+fi
+(cd "$dest" && du -sh -- *) | sed 's/^/   /'
+git -C "$wt" add "evidence/runs/$run_id"
+git -C "$wt" commit -q -F - <<EOF || die "commit failed (worktree at $wt)"
+evidence(sentinel): sealed PX4 SITL run $run_id, mission $outcome
+
+One Operation Sentinel run: PX4 SITL x500 in Gazebo Harmonic (headless),
+driven by the MAVSDK teacher bridge in its default bridge mode, launched
+and sealed by the runtime orchestrator (/launch-all, /kill-all).
+
+Mission: the console's START TRAINING box (DroneList.js), 25 m at 10 m,
+dispatched on the Redis commands channel at $dispatched_at.
+Outcome: $outcome. Landed below 0.5 m: $landed.
+Telemetry: $facts.
+
+Files are copied byte for byte from the run directory. MANIFEST.json holds
+their SHA-256 hashes; teacher_live_0.log and mission.json were written into
+the run before sealing, so they are covered too.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01771GfNqwcPG482z5oPN31U
+EOF
+if [ "$PUSH" = 1 ]; then
+  pushed=no
+  for wait in 0 2 4 8 16; do
+    sleep "$wait"
+    git -C "$wt" push -q -u origin "$branch" && { pushed=yes; break; }
+  done
+  [ "$pushed" = yes ] || die "push failed; commit is on $branch in $wt"
+  git worktree remove "$wt"
+fi
+
+say "Done. Tell the cloud chat:"
+echo "   branch $branch, commit $(git rev-parse --short "$branch"), run $run_id, mission $outcome, landed $landed"
+echo "   $facts"

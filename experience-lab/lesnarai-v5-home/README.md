@@ -90,11 +90,12 @@ frames are capped at the recordings' native 1000 px so they never upscale.
   is what the name covers.
 - Gold Trader's audit document was rerun on 30 May and says some figures
   moved. Check the family table still matches that rerun before release.
-- Operation Sentinel shows its real detection record now, but no flight. One
-  committed online run (PX4 SITL in Gazebo, not `--offline`) would let the
-  mission figure show a flown path; `tools/build_assets.py` draws it when
-  `SENTINEL_TELEMETRY` and `SENTINEL_MANIFEST` point at the run's files, and
-  refuses offline-mode CSVs. See HANDOFF.md.
+- Operation Sentinel shows its real detection record now, but no flight.
+  `tools/sentinel_run.sh` records one sealed online run on the Precision (PX4
+  SITL in Gazebo, never `--offline`) flying the console's own training mission.
+  With `SENTINEL_TELEMETRY` and `SENTINEL_MANIFEST` pointing at its files, the
+  build draws that mission and the recorded path, and the flight wording follows
+  what the telemetry shows. See HANDOFF.md.
 - The Phase 9 work is on GitHub as `experience/lesnarai-v5-static`. Its
   homepage (serif, graphite and paper) is what this prototype would replace;
   its eleven `/work/` pages and route redirects are not touched here.
@@ -111,10 +112,14 @@ AES-256-GCM ACTIVE" and "SYSTEM STATUS: OPTIMAL", whatever the real state.
 That contradicts the project's own truth-first rule, so the console should
 not be shown publicly until those lines are driven by real state or removed.
 
+Those lines, the header's fixed Live_Stream label and the footer's fixed
+readouts are now driven by the measured link state on the unmerged LesnarAI
+branch `fix/console-real-state`.
+
 ## Checking the page against its sources
 
 `tools/verify.py` confirms every figure and claim on the page appears in the
-file it came from (49 checks, including counted facts such as the 59
+file it came from (66 checks, including counted facts such as the 59
 telemetry columns and SentinelCore's eleven gaps) and that the page carries no
 em dash. Run it after any copy change.
 
