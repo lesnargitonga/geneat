@@ -1,0 +1,1650 @@
+<sdf version='1.9'>
+  <world name='obstacles'>
+    <physics type="ode">
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>250</real_time_update_rate>
+    </physics>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>47.397971057728974</latitude_deg>
+      <longitude_deg> 8.546163739800146</longitude_deg>
+      <elevation>0</elevation>
+    </spherical_coordinates>
+    <plugin name='gz::sim::systems::Physics' filename='gz-sim-physics-system'/>
+    <plugin name='gz::sim::systems::UserCommands' filename='gz-sim-user-commands-system'/>
+    <plugin name='gz::sim::systems::SceneBroadcaster' filename='gz-sim-scene-broadcaster-system'/>
+    <plugin name='gz::sim::systems::Contact' filename='gz-sim-contact-system'/>
+    <plugin name='gz::sim::systems::Imu' filename='gz-sim-imu-system'/>
+    <plugin name='gz::sim::systems::AirPressure' filename='gz-sim-air-pressure-system'/>
+    <plugin filename="gz-sim-air-speed-system" name="gz::sim::systems::AirSpeed" />
+    <plugin filename="gz-sim-apply-link-wrench-system" name="gz::sim::systems::ApplyLinkWrench" />
+    <plugin filename="gz-sim-navsat-system" name="gz::sim::systems::NavSat" />
+    <plugin filename="gz-sim-magnetometer-system" name="gz::sim::systems::Magnetometer" />
+    <plugin name='gz::sim::systems::Sensors' filename='gz-sim-sensors-system'>
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <gui fullscreen='false'>
+      <plugin name='3D View' filename='GzScene3D'>
+        <gz-gui>
+          <title>3D View</title>
+          <property type='bool' key='showTitleBar'>0</property>
+          <property type='string' key='state'>docked</property>
+        </gz-gui>
+        <engine>ogre2</engine>
+        <scene>scene</scene>
+        <ambient_light>0.6 0.6 0.6</ambient_light>
+        <background_color>0.8 0.8 0.9</background_color>
+        <camera_pose>-15 0 15 0 0.5 0</camera_pose>
+      </plugin>
+      <plugin name='World control' filename='WorldControl'>
+        <gz-gui>
+          <title>World control</title>
+          <property type='bool' key='showTitleBar'>0</property>
+          <property type='bool' key='resizable'>0</property>
+          <property type='double' key='height'>72</property>
+          <property type='double' key='width'>121</property>
+          <property type='double' key='z'>1</property>
+          <property type='string' key='state'>floating</property>
+          <anchors target='3D View'>
+            <line own='left' target='left'/>
+            <line own='bottom' target='bottom'/>
+          </anchors>
+        </gz-gui>
+        <play_pause>1</play_pause>
+        <step>1</step>
+        <start_paused>0</start_paused>
+      </plugin>
+      <plugin name='World stats' filename='WorldStats'>
+        <gz-gui>
+          <title>World stats</title>
+          <property type='bool' key='showTitleBar'>0</property>
+          <property type='bool' key='resizable'>0</property>
+          <property type='double' key='height'>110</property>
+          <property type='double' key='width'>290</property>
+          <property type='double' key='z'>1</property>
+          <property type='string' key='state'>floating</property>
+            <anchors target='3D View'>
+            <line own='right' target='right'/>
+            <line own='bottom' target='bottom'/>
+          </anchors>
+        </gz-gui>
+        <sim_time>1</sim_time>
+        <real_time>1</real_time>
+        <real_time_factor>1</real_time_factor>
+        <iterations>1</iterations>
+      </plugin>
+    </gui>
+    <scene>
+      <ambient>1.0 1.0 1.0 1.0</ambient>
+      <background>0.8 0.8 0.9 1.0</background>
+      <grid>true</grid>
+      <shadows>true</shadows>
+    </scene>
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 -0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+    <model name='ground_plane'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>2000 2000</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+            <contact/>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>2000 2000</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>0.8 0.8 0.8 1</specular>
+          </material>
+        </visual>
+      </link>
+      <pose>0 0 0 0 -0 0</pose>
+    </model>
+    <model name='Skyscraper_0'>
+      <pose>178 -54 50.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>18 22 101</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>18 22 101</size></box></geometry><material><ambient>1 1 0 1</ambient><diffuse>1 1 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_1'>
+      <pose>-165 70 47.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>22 13 94</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>22 13 94</size></box></geometry><material><ambient>0 0 1 1</ambient><diffuse>0 0 1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_2'>
+      <pose>66 158 48.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>22 10 96</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>22 10 96</size></box></geometry><material><ambient>0 0 1 1</ambient><diffuse>0 0 1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_3'>
+      <pose>244 237 48.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>15 24 96</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>15 24 96</size></box></geometry><material><ambient>1 1 0 1</ambient><diffuse>1 1 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_4'>
+      <pose>-17 -182 43.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>11 26 87</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>11 26 87</size></box></geometry><material><ambient>0.5 0.5 0.5 1</ambient><diffuse>0.5 0.5 0.5 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_5'>
+      <pose>-156 192 75.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>15 28 150</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>15 28 150</size></box></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_6'>
+      <pose>-153 207 42.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>21 24 84</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>21 24 84</size></box></geometry><material><ambient>0 1 1 1</ambient><diffuse>0 1 1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_7'>
+      <pose>-39 -123 40.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>11 24 80</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>11 24 80</size></box></geometry><material><ambient>0 0 1 1</ambient><diffuse>0 0 1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_8'>
+      <pose>81 77 56.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>23 20 113</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>23 20 113</size></box></geometry><material><ambient>1 1 0 1</ambient><diffuse>1 1 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_9'>
+      <pose>139 -202 75.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>19 20 150</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>19 20 150</size></box></geometry><material><ambient>0 0 1 1</ambient><diffuse>0 0 1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_10'>
+      <pose>114 103 59.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>27 24 118</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>27 24 118</size></box></geometry><material><ambient>1 1 0 1</ambient><diffuse>1 1 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_11'>
+      <pose>80 197 67.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>20 16 134</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>20 16 134</size></box></geometry><material><ambient>0 1 1 1</ambient><diffuse>0 1 1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_12'>
+      <pose>52 53 47.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>25 12 95</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>25 12 95</size></box></geometry><material><ambient>0 1 1 1</ambient><diffuse>0 1 1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_13'>
+      <pose>162 67 71.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>13 17 143</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>13 17 143</size></box></geometry><material><ambient>0 1 0 1</ambient><diffuse>0 1 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_14'>
+      <pose>-149 24 42.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>25 20 85</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>25 20 85</size></box></geometry><material><ambient>0 0 1 1</ambient><diffuse>0 0 1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_15'>
+      <pose>-161 121 41.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>22 27 83</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>22 27 83</size></box></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_16'>
+      <pose>170 -51 55.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>10 12 111</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>10 12 111</size></box></geometry><material><ambient>0 1 0 1</ambient><diffuse>0 1 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_17'>
+      <pose>142 -128 44.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>18 21 89</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>18 21 89</size></box></geometry><material><ambient>0 1 1 1</ambient><diffuse>0 1 1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_18'>
+      <pose>-114 -6 75.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>26 26 150</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>26 26 150</size></box></geometry><material><ambient>0 1 0 1</ambient><diffuse>0 1 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_19'>
+      <pose>-75 -126 65.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>12 11 130</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>12 11 130</size></box></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_20'>
+      <pose>122 9 55.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>26 29 110</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>26 29 110</size></box></geometry><material><ambient>0 0 1 1</ambient><diffuse>0 0 1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_21'>
+      <pose>-116 -78 40.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>15 13 80</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>15 13 80</size></box></geometry><material><ambient>0 1 0 1</ambient><diffuse>0 1 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_22'>
+      <pose>46 16 41.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>23 30 83</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>23 30 83</size></box></geometry><material><ambient>0 1 1 1</ambient><diffuse>0 1 1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_23'>
+      <pose>237 145 52.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>24 24 104</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>24 24 104</size></box></geometry><material><ambient>0.5 0.5 0.5 1</ambient><diffuse>0.5 0.5 0.5 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Skyscraper_24'>
+      <pose>-8 -115 40.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>22 13 80</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>22 13 80</size></box></geometry><material><ambient>0 0 1 1</ambient><diffuse>0 0 1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_0'>
+      <pose>169 151 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.3851119192326981</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.3851119192326981</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_1'>
+      <pose>-204 198 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.47903877447713844</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.47903877447713844</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_2'>
+      <pose>61 211 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.4681673765856202</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.4681673765856202</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_3'>
+      <pose>-200 -156 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.44581631200741345</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.44581631200741345</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_4'>
+      <pose>-224 -69 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.3867186266921738</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.3867186266921738</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_5'>
+      <pose>62 158 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.47709940659144723</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.47709940659144723</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_6'>
+      <pose>-47 222 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.46595526813231736</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.46595526813231736</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_7'>
+      <pose>133 -214 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.4003074017150695</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.4003074017150695</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_8'>
+      <pose>128 28 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.264902842425644</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.264902842425644</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_9'>
+      <pose>159 40 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.47379488322787233</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.47379488322787233</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_10'>
+      <pose>106 -62 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.33962730395507773</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.33962730395507773</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_11'>
+      <pose>-20 53 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.491058295464967</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.491058295464967</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_12'>
+      <pose>-168 71 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.3735198801167253</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.3735198801167253</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_13'>
+      <pose>25 119 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.2927591307399839</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.2927591307399839</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_14'>
+      <pose>-28 -118 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.45911367101460715</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.45911367101460715</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_15'>
+      <pose>-70 -210 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.21747525304132187</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.21747525304132187</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_16'>
+      <pose>-83 -107 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.4890352460882555</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.4890352460882555</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_17'>
+      <pose>-145 -246 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.47034292058402727</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.47034292058402727</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_18'>
+      <pose>71 177 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.21156406738607572</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.21156406738607572</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_19'>
+      <pose>-128 -108 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.45270289470616354</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.45270289470616354</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_20'>
+      <pose>-248 -183 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.34875254827759905</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.34875254827759905</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_21'>
+      <pose>139 -113 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.48218072428795306</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.48218072428795306</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_22'>
+      <pose>-237 46 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.20411459557960163</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.20411459557960163</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_23'>
+      <pose>-155 -12 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.4816834138203816</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.4816834138203816</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_24'>
+      <pose>86 -94 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.4521577670168428</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.4521577670168428</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_25'>
+      <pose>163 59 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.21299335867764213</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.21299335867764213</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_26'>
+      <pose>68 186 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.40675459533983915</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.40675459533983915</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_27'>
+      <pose>-19 182 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.28773696133445054</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.28773696133445054</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_28'>
+      <pose>104 49 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.473827415521029</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.473827415521029</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_29'>
+      <pose>-73 76 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.46499906401050634</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.46499906401050634</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_30'>
+      <pose>-103 -173 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.29753795313489706</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.29753795313489706</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_31'>
+      <pose>-91 59 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.4091152607712939</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.4091152607712939</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_32'>
+      <pose>224 -218 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.3545172343501649</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.3545172343501649</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_33'>
+      <pose>-180 -219 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.3727092924935774</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.3727092924935774</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_34'>
+      <pose>215 32 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.2875692238965125</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.2875692238965125</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_35'>
+      <pose>-160 145 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.49343203120130574</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.49343203120130574</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_36'>
+      <pose>-68 -240 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.4473573558580615</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.4473573558580615</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_37'>
+      <pose>142 197 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.33149318535785816</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.33149318535785816</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_38'>
+      <pose>50 248 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.3699464935165014</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.3699464935165014</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_39'>
+      <pose>113 80 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.20116611847402452</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.20116611847402452</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_40'>
+      <pose>190 138 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.3767838128567847</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.3767838128567847</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_41'>
+      <pose>64 -77 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.24775819546895705</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.24775819546895705</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_42'>
+      <pose>119 -246 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.46672014287727004</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.46672014287727004</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_43'>
+      <pose>32 -30 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.382958132884067</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.382958132884067</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_44'>
+      <pose>-137 183 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.412006816319749</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.412006816319749</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_45'>
+      <pose>-99 -158 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.24139794060250905</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.24139794060250905</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_46'>
+      <pose>125 -187 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.3491397350114776</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.3491397350114776</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_47'>
+      <pose>34 24 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.2411957361269375</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.2411957361269375</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_48'>
+      <pose>203 91 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.3654331721300669</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.3654331721300669</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Spire_49'>
+      <pose>41 -227 100.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.26238059529766616</radius><length>200</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.26238059529766616</radius><length>200</length></cylinder></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_0'>
+      <pose>234 -242 7.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.7775662024568268</radius><length>14</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.7775662024568268</radius><length>14</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_1'>
+      <pose>-162 -205 12.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.7847532740561793</radius><length>25</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.7847532740561793</radius><length>25</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_2'>
+      <pose>18 -123 5.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.9860177778806496</radius><length>10</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.9860177778806496</radius><length>10</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_3'>
+      <pose>-148 -177 7.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.6288832305850341</radius><length>14</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.6288832305850341</radius><length>14</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_4'>
+      <pose>94 -21 11.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.4907200034802457</radius><length>22</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.4907200034802457</radius><length>22</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_5'>
+      <pose>139 215 7.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.992268738689231</radius><length>15</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.992268738689231</radius><length>15</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_6'>
+      <pose>43 -125 11.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.6350662108455527</radius><length>22</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.6350662108455527</radius><length>22</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_7'>
+      <pose>213 55 12.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.0092724083176572</radius><length>24</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.0092724083176572</radius><length>24</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_8'>
+      <pose>-109 33 10.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.0057800512753245</radius><length>20</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.0057800512753245</radius><length>20</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_9'>
+      <pose>49 134 9.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.1132183289719126</radius><length>18</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.1132183289719126</radius><length>18</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_10'>
+      <pose>109 231 6.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.5402390580962825</radius><length>13</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.5402390580962825</radius><length>13</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_11'>
+      <pose>101 225 5.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.529085495039706</radius><length>11</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.529085495039706</radius><length>11</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_12'>
+      <pose>56 212 6.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.0685253667157792</radius><length>12</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.0685253667157792</radius><length>12</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_13'>
+      <pose>200 230 11.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.9260853299380698</radius><length>22</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.9260853299380698</radius><length>22</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_14'>
+      <pose>71 -57 8.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.6698129040329539</radius><length>16</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.6698129040329539</radius><length>16</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_15'>
+      <pose>-114 71 6.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.70457057995222</radius><length>13</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.70457057995222</radius><length>13</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_16'>
+      <pose>-41 -215 10.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.8909082507885777</radius><length>21</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.8909082507885777</radius><length>21</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_17'>
+      <pose>234 54 7.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.079940762126884</radius><length>14</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.079940762126884</radius><length>14</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_18'>
+      <pose>91 84 10.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.69559101085574</radius><length>21</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.69559101085574</radius><length>21</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_19'>
+      <pose>-126 11 12.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.5889748293536128</radius><length>24</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.5889748293536128</radius><length>24</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_20'>
+      <pose>-145 -23 12.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.766316491938379</radius><length>24</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.766316491938379</radius><length>24</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_21'>
+      <pose>-187 -119 7.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.040240469659246</radius><length>15</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.040240469659246</radius><length>15</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_22'>
+      <pose>-228 250 11.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.022352138557142</radius><length>22</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.022352138557142</radius><length>22</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_23'>
+      <pose>-222 214 7.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.5313077282036859</radius><length>14</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.5313077282036859</radius><length>14</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_24'>
+      <pose>-239 189 5.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.5515888105808193</radius><length>10</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.5515888105808193</radius><length>10</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_25'>
+      <pose>235 177 11.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.6781188895366408</radius><length>22</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.6781188895366408</radius><length>22</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_26'>
+      <pose>-27 -204 10.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.393169470820165</radius><length>21</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.393169470820165</radius><length>21</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_27'>
+      <pose>193 -21 11.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.8534102228093803</radius><length>23</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.8534102228093803</radius><length>23</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_28'>
+      <pose>203 224 12.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.0151309952357677</radius><length>25</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.0151309952357677</radius><length>25</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_29'>
+      <pose>58 135 8.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.9619250031974332</radius><length>17</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.9619250031974332</radius><length>17</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_30'>
+      <pose>167 57 9.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.8434904151036007</radius><length>19</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.8434904151036007</radius><length>19</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_31'>
+      <pose>-93 -70 10.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.5653269855124452</radius><length>21</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.5653269855124452</radius><length>21</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_32'>
+      <pose>-65 -48 12.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.9834267167731139</radius><length>24</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.9834267167731139</radius><length>24</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_33'>
+      <pose>-15 -212 7.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.26687505403598</radius><length>14</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.26687505403598</radius><length>14</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_34'>
+      <pose>9 135 8.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.7428997518002272</radius><length>17</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.7428997518002272</radius><length>17</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_35'>
+      <pose>24 67 12.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.5786368300999807</radius><length>25</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.5786368300999807</radius><length>25</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_36'>
+      <pose>36 -248 11.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.183375175855891</radius><length>23</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.183375175855891</radius><length>23</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_37'>
+      <pose>159 219 6.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.9909157008117542</radius><length>12</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.9909157008117542</radius><length>12</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_38'>
+      <pose>-235 189 9.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.5133298954968315</radius><length>19</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.5133298954968315</radius><length>19</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_39'>
+      <pose>-92 -161 10.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.0595311579305604</radius><length>21</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.0595311579305604</radius><length>21</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_40'>
+      <pose>-79 84 11.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.5744960607884917</radius><length>22</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.5744960607884917</radius><length>22</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_41'>
+      <pose>26 -7 6.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.3879879858428446</radius><length>12</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.3879879858428446</radius><length>12</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_42'>
+      <pose>-150 224 8.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.3498253779712084</radius><length>17</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.3498253779712084</radius><length>17</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_43'>
+      <pose>186 -49 7.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.597617543201193</radius><length>15</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.597617543201193</radius><length>15</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_44'>
+      <pose>-124 119 11.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.5640534922597282</radius><length>22</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.5640534922597282</radius><length>22</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_45'>
+      <pose>-128 -96 12.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.9171181304450537</radius><length>24</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.9171181304450537</radius><length>24</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_46'>
+      <pose>179 -183 6.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.0154934856984967</radius><length>12</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.0154934856984967</radius><length>12</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_47'>
+      <pose>-227 -11 10.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.380542118087094</radius><length>20</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.380542118087094</radius><length>20</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_48'>
+      <pose>-9 96 10.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.3046672024917934</radius><length>21</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.3046672024917934</radius><length>21</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_49'>
+      <pose>242 -29 5.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.9155713073522613</radius><length>10</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.9155713073522613</radius><length>10</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_50'>
+      <pose>-36 -13 6.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.5182735003644499</radius><length>13</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.5182735003644499</radius><length>13</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_51'>
+      <pose>-220 -7 5.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.6522793023084992</radius><length>11</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.6522793023084992</radius><length>11</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_52'>
+      <pose>-141 141 12.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.9540332959501008</radius><length>25</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.9540332959501008</radius><length>25</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_53'>
+      <pose>-103 -147 9.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.6198481323214473</radius><length>18</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.6198481323214473</radius><length>18</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_54'>
+      <pose>-190 72 9.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.4353709804752965</radius><length>19</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.4353709804752965</radius><length>19</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_55'>
+      <pose>-184 -139 10.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.437297068167199</radius><length>21</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.437297068167199</radius><length>21</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_56'>
+      <pose>-187 163 5.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.7424582826600603</radius><length>10</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.7424582826600603</radius><length>10</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_57'>
+      <pose>-74 125 11.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.0949234667742835</radius><length>22</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.0949234667742835</radius><length>22</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_58'>
+      <pose>-16 51 11.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.7965662832354833</radius><length>23</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.7965662832354833</radius><length>23</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_59'>
+      <pose>-18 165 5.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.6767381152184513</radius><length>11</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.6767381152184513</radius><length>11</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_60'>
+      <pose>-179 -233 9.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.361256453452036</radius><length>18</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.361256453452036</radius><length>18</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_61'>
+      <pose>-210 -10 11.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.7277672711020782</radius><length>22</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.7277672711020782</radius><length>22</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_62'>
+      <pose>119 99 9.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.477666598853233</radius><length>19</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.477666598853233</radius><length>19</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_63'>
+      <pose>-167 -154 7.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.6524967599424123</radius><length>15</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.6524967599424123</radius><length>15</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_64'>
+      <pose>175 -245 10.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.7455067019268864</radius><length>20</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.7455067019268864</radius><length>20</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_65'>
+      <pose>247 -131 11.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.948312115244621</radius><length>23</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.948312115244621</radius><length>23</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_66'>
+      <pose>218 242 6.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.7519599073396588</radius><length>12</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.7519599073396588</radius><length>12</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_67'>
+      <pose>173 -134 11.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.8549202699564206</radius><length>22</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.8549202699564206</radius><length>22</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_68'>
+      <pose>139 -48 5.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.0543752892337053</radius><length>11</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.0543752892337053</radius><length>11</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_69'>
+      <pose>-133 32 8.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.262645480704843</radius><length>17</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.262645480704843</radius><length>17</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_70'>
+      <pose>163 174 8.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.8354748043455367</radius><length>16</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.8354748043455367</radius><length>16</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_71'>
+      <pose>153 -226 5.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.8141327513427581</radius><length>10</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.8141327513427581</radius><length>10</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_72'>
+      <pose>-143 -83 9.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.8855303907357068</radius><length>19</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.8855303907357068</radius><length>19</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_73'>
+      <pose>52 -176 5.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.7947547894720122</radius><length>11</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.7947547894720122</radius><length>11</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_74'>
+      <pose>-94 153 6.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.2376062063500033</radius><length>13</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.2376062063500033</radius><length>13</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_75'>
+      <pose>-123 -85 11.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.8188268863102215</radius><length>23</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.8188268863102215</radius><length>23</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_76'>
+      <pose>-102 -44 7.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.7864474677683548</radius><length>14</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.7864474677683548</radius><length>14</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_77'>
+      <pose>147 95 10.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.7369891779767168</radius><length>21</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.7369891779767168</radius><length>21</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_78'>
+      <pose>-132 -41 5.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.8583448241542828</radius><length>11</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.8583448241542828</radius><length>11</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_79'>
+      <pose>51 151 8.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.2754751063491392</radius><length>16</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.2754751063491392</radius><length>16</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_80'>
+      <pose>190 -71 10.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.5519791651143318</radius><length>21</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.5519791651143318</radius><length>21</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_81'>
+      <pose>185 23 8.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.9423924917368076</radius><length>17</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.9423924917368076</radius><length>17</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_82'>
+      <pose>-54 -19 12.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.6473413824063938</radius><length>25</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.6473413824063938</radius><length>25</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_83'>
+      <pose>171 -6 6.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.9790775610238023</radius><length>12</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.9790775610238023</radius><length>12</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_84'>
+      <pose>-160 172 8.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.9643408983050439</radius><length>17</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.9643408983050439</radius><length>17</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_85'>
+      <pose>-208 -18 5.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.0267715324978781</radius><length>11</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.0267715324978781</radius><length>11</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_86'>
+      <pose>-132 183 8.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.7847124231829952</radius><length>16</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.7847124231829952</radius><length>16</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_87'>
+      <pose>112 76 12.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.7386352783346803</radius><length>24</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.7386352783346803</radius><length>24</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_88'>
+      <pose>-40 44 8.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.6664932269807933</radius><length>17</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.6664932269807933</radius><length>17</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_89'>
+      <pose>-130 115 11.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.8718327192306248</radius><length>23</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.8718327192306248</radius><length>23</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_90'>
+      <pose>53 -111 8.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.9422088380251148</radius><length>17</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.9422088380251148</radius><length>17</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_91'>
+      <pose>-247 122 12.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.431611844453697</radius><length>24</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.431611844453697</radius><length>24</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_92'>
+      <pose>60 -132 12.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.9247403367752601</radius><length>24</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.9247403367752601</radius><length>24</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_93'>
+      <pose>37 -3 10.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.5968545506282723</radius><length>20</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.5968545506282723</radius><length>20</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_94'>
+      <pose>-128 -207 7.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.7657910662892765</radius><length>14</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.7657910662892765</radius><length>14</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_95'>
+      <pose>66 -80 9.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.8590075957994272</radius><length>19</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.8590075957994272</radius><length>19</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_96'>
+      <pose>111 -98 7.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.3651588196158224</radius><length>14</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.3651588196158224</radius><length>14</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_97'>
+      <pose>-157 -250 12.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.7985250862851325</radius><length>24</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.7985250862851325</radius><length>24</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_98'>
+      <pose>-98 -28 6.0 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>1.7857339840249036</radius><length>12</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>1.7857339840249036</radius><length>12</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Tree_99'>
+      <pose>166 31 10.5 0 0 0</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><cylinder><radius>0.7185513605351526</radius><length>21</length></cylinder></geometry></collision>
+         <visual name='visual'><geometry><cylinder><radius>0.7185513605351526</radius><length>21</length></cylinder></geometry><material><ambient>0 0.5 0 1</ambient><diffuse>0 0.5 0 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Wall_0'>
+      <pose>59 -17 15 0 0 1.394733757711454</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>1 38 30</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>1 38 30</size></box></geometry><material><ambient>0.3 0.3 0.3 1</ambient><diffuse>0.3 0.3 0.3 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Wall_1'>
+      <pose>35 25 15 0 0 0.059504435497872155</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>1 38 30</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>1 38 30</size></box></geometry><material><ambient>0.3 0.3 0.3 1</ambient><diffuse>0.3 0.3 0.3 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Wall_2'>
+      <pose>59 30 15 0 0 1.2163635438164502</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>1 27 30</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>1 27 30</size></box></geometry><material><ambient>0.3 0.3 0.3 1</ambient><diffuse>0.3 0.3 0.3 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Wall_3'>
+      <pose>77 -30 15 0 0 0.72270813676339</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>1 50 30</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>1 50 30</size></box></geometry><material><ambient>0.3 0.3 0.3 1</ambient><diffuse>0.3 0.3 0.3 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name='Wall_4'>
+      <pose>50 -37 15 0 0 0.41881144337302545</pose>
+      <static>1</static>
+      <link name='link'>
+         <collision name='collision'><geometry><box><size>1 41 30</size></box></geometry></collision>
+         <visual name='visual'><geometry><box><size>1 41 30</size></box></geometry><material><ambient>0.3 0.3 0.3 1</ambient><diffuse>0.3 0.3 0.3 1</diffuse></material></visual>
+      </link>
+    </model>
+  
+    <!-- CAPTURE ONLY: observation cameras framed on the mission box
+         (x 0..25, y 0..25 at 10 m) taken from the sealed run's mission.json.
+         The world's own Sensors system and ogre2 engine are used as-is.
+         Geometry, lighting, physics, vehicle and mission are untouched. -->
+    <model name="obs_establish">
+      <static>true</static><pose>-18 -18 2.5 0 0.0510 0.7854</pose>
+      <link name="l">
+        <sensor name="c" type="camera">
+          <camera><horizontal_fov>1.15</horizontal_fov>
+            <image><width>1920</width><height>1080</height></image>
+            <clip><near>0.1</near><far>1200</far></clip></camera>
+          <always_on>1</always_on><update_rate>2</update_rate>
+          <topic>obs/establish</topic>
+        </sensor>
+      </link>
+    </model>
+    <model name="obs_ground3q">
+      <static>true</static><pose>-12 -12 3.5 0 -0.1366 0.7854</pose>
+      <link name="l">
+        <sensor name="c" type="camera">
+          <camera><horizontal_fov>1.2</horizontal_fov>
+            <image><width>1920</width><height>1080</height></image>
+            <clip><near>0.1</near><far>1200</far></clip></camera>
+          <always_on>1</always_on><update_rate>2</update_rate>
+          <topic>obs/ground3q</topic>
+        </sensor>
+      </link>
+    </model>
+    <model name="obs_wide">
+      <static>true</static><pose>-45 -45 28.0 0 0.2178 0.7854</pose>
+      <link name="l">
+        <sensor name="c" type="camera">
+          <camera><horizontal_fov>1.05</horizontal_fov>
+            <image><width>1920</width><height>1080</height></image>
+            <clip><near>0.1</near><far>1200</far></clip></camera>
+          <always_on>1</always_on><update_rate>2</update_rate>
+          <topic>obs/wide</topic>
+        </sensor>
+      </link>
+    </model>
+    <model name="obs_lateral">
+      <static>true</static><pose>12.5 -35 12.0 0 0.0421 1.5708</pose>
+      <link name="l">
+        <sensor name="c" type="camera">
+          <camera><horizontal_fov>1.0</horizontal_fov>
+            <image><width>1920</width><height>1080</height></image>
+            <clip><near>0.1</near><far>1200</far></clip></camera>
+          <always_on>1</always_on><update_rate>2</update_rate>
+          <topic>obs/lateral</topic>
+        </sensor>
+      </link>
+    </model>
+    <model name="obs_elevated">
+      <static>true</static><pose>-30 -30 60.0 0 0.6939 0.7854</pose>
+      <link name="l">
+        <sensor name="c" type="camera">
+          <camera><horizontal_fov>1.0</horizontal_fov>
+            <image><width>1920</width><height>1080</height></image>
+            <clip><near>0.1</near><far>1200</far></clip></camera>
+          <always_on>1</always_on><update_rate>2</update_rate>
+          <topic>obs/elevated</topic>
+        </sensor>
+      </link>
+    </model>
+    <model name="obs_topdown">
+      <static>true</static><pose>12.5 12.5 86 0 1.4800 1.5708</pose>
+      <link name="l">
+        <sensor name="c" type="camera">
+          <camera><horizontal_fov>1.05</horizontal_fov>
+            <image><width>1920</width><height>1080</height></image>
+            <clip><near>0.1</near><far>1200</far></clip></camera>
+          <always_on>1</always_on><update_rate>2</update_rate>
+          <topic>obs/topdown</topic>
+        </sensor>
+      </link>
+    </model>
+  </world>
+</sdf>
