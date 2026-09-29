@@ -64,9 +64,16 @@ if run:
         hist = json.loads(hist_path.read_text())
         earlier = hist.get("earlier_runs", [])
         if earlier:
-            count = {1: "The sealed run", 2: "The two sealed runs", 3: "The three sealed runs"}.get(len(earlier), f"The {len(earlier)} sealed runs")
-            cap += (f"<p>{count} before it stopped short. " + " ".join(r["sentence"] for r in earlier)
-                    + " " + hist.get("fix_sentence", "") + "</p>")
+            count = {1: "One earlier sealed run", 2: "Two earlier sealed runs", 3: "Three earlier sealed runs"}.get(len(earlier), f"{len(earlier)} earlier sealed runs")
+            # Said only when this run's own records show it flew the branch the fixes are in:
+            # the run script's ref and commit, the orchestrator's sealed commit, and the
+            # repository's own world file.
+            flew_it = (hist.get("fix_state") == "merged" and run.get("bridge_ref") == hist.get("merged_into")
+                       and run.get("bridge_commit") and run.get("bridge_commit") == run.get("repo_git_rev")
+                       and run.get("world_unchanged"))
+            cap += (f"<p>{count} stopped short. " + " ".join(r["sentence"] for r in earlier)
+                    + " " + hist.get("fix_sentence", "")
+                    + (f" This run flew that branch, at commit {run['bridge_commit'][:7]}." if flew_it else "") + "</p>")
     if run.get("flew"):
         flight = "A simulated flight is on record, and no physical one."
         note = ("These are the perception pipeline’s own output in simulation. None of these April runs has a flight log, "

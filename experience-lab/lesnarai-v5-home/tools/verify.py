@@ -202,6 +202,41 @@ def history_checks(text):
         checked += 1
         if hist["fix_sentence"] not in text:
             bad.append(f"PAGE   missing: {hist['fix_sentence']!r}")
+        for r in hist.get("other_runs", []):
+            checked += 1
+            m = _git("show", f"origin/{r['branch']}:evidence/runs/{r['run_id']}/mission.json")
+            if m is None or json.loads(m).get("outcome") != r["outcome"]:
+                bad.append(f"SOURCE drift:   {r['run_id']} is not a sealed {r['outcome']} run on origin/{r['branch']}")
+        if "This run flew that branch" in text:
+            # Read from the drawn run's own sealed files, not from the build's summary of them.
+            import hashlib
+            checked += 1
+            rid = str(RUN["run_id"])
+            base = f"origin/evidence/sitl-run-{rid}:evidence/runs/{rid}"
+            m, man = _git("show", f"{base}/mission.json"), _git("show", f"{base}/MANIFEST.json")
+            m, man = (json.loads(m) if m else {}), (json.loads(man) if man else {})
+            bridge, world, sealed = m.get("bridge") or {}, m.get("world") or {}, man.get("run") or {}
+            commit = bridge.get("commit") or ""
+            sentence = f"This run flew that branch, at commit {commit[:7]}."
+            world_at = _git("show", f"{commit}:obstacles.sdf", binary=True) if commit else None
+            why = []
+            if sentence not in text:
+                why.append(f"the page does not say {sentence!r}")
+            if bridge.get("ref") != hist.get("merged_into"):
+                why.append(f"the run recorded ref {bridge.get('ref')!r}")
+            if not commit or sealed.get("repo_git_rev") != commit:
+                why.append("the orchestrator's sealed commit differs from the run script's")
+            if not commit or _git("merge-base", "--is-ancestor", commit, f"origin/{hist.get('merged_into')}") is None:
+                why.append(f"{commit[:7]} is not in {hist.get('merged_into')}")
+            for r in hist["earlier_runs"]:
+                if not commit or _git("merge-base", "--is-ancestor", r["fixed_by"], commit) is None:
+                    why.append(f"{commit[:7]} does not contain the fix {r['fixed_by']}")
+            if world.get("unchanged") is not True or world_at is None \
+                    or not (world.get("used_sha256") == sealed.get("obstacles_sdf_sha256")
+                            == hashlib.sha256(world_at).hexdigest()):
+                why.append("Gazebo did not run that commit's own obstacles.sdf")
+            if why:
+                bad.append("SOURCE drift:   'This run flew that branch': " + "; ".join(why))
     if RUN and RUN.get("flew"):
         # The April detector read a simulated lidar that modelled boxes as discs: the last
         # committed bridge before the runs ended (16 April) shows both.

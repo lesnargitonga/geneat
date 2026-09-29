@@ -1,5 +1,5 @@
 {
-  "_note": "The sealed runs before the one the page draws, and what stopped them. tools/verify.py checks every sentence against the run's sealed mission.json on its evidence branch, against the commit that fixed the fault, and that the fix is in the state fix_state says, in lesnargitonga/lesnarai.",
+  "_note": "The sealed runs before the one the page draws. earlier_runs stopped short, and the page says what stopped them; other_runs are on record but not described on the page. tools/verify.py checks every sentence against the run's sealed mission.json on its evidence branch, against the commit that fixed the fault, and that the fix is in the state fix_state says, in lesnargitonga/lesnarai.",
   "earlier_runs": [
     {
       "run_id": "px4_teacher_20260928_194728_d1",
@@ -22,6 +22,14 @@
         "There was no obstacle there."
       ],
       "sentence": "In the second, the simulated lidar read a 1-metre wall as a 19-metre disc and held the aircraft short of an obstacle that was not there."
+    }
+  ],
+  "other_runs": [
+    {
+      "run_id": "px4_teacher_20260928_205942_d1",
+      "branch": "evidence/sitl-run-px4_teacher_20260928_205942_d1",
+      "outcome": "completed",
+      "note": "Flew both fixes from fix/offboard-engage at bcf9e52, before they were merged, in a copy of obstacles.sdf that gained the GPS and compass systems PX4 expects. The page drew it until the run from main replaced it."
     }
   ],
   "fix_branch": "fix/offboard-engage",

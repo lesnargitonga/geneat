@@ -21,6 +21,12 @@
 #
 # A failed or aborted flight is still sealed and pushed, and says so. Nothing here
 # deploys anything, touches production, force-pushes, or reads any credential.
+#
+# To watch the flight, run it from a terminal on the Precision's own screen:
+#   SENTINEL_WATCH=1 bash sentinel_run.sh
+# The simulation still runs headless, exactly as in an unwatched run. A separate Gazebo
+# window joins it as a viewer, follows the drone, and waits for Enter before the
+# mission is sent. Closing the window does not affect the flight.
 set -uo pipefail
 
 REPO="${LESNAR_REPO:-$HOME/workspace/LesnarAI}"
@@ -29,9 +35,15 @@ user_gz_ip="${GZ_IP:-}"
 ORCH="${ORCH_URL:-http://127.0.0.1:8765}"
 MISSION_TIMEOUT_S="${MISSION_TIMEOUT_S:-600}"
 PUSH="${PUSH:-1}"
+WATCH="${SENTINEL_WATCH:-0}"
+viewer_pid=""
 
 say() { printf '\n== %s\n' "$*"; }
 die() { printf '\nSTOPPED: %s\n' "$*" >&2; exit 1; }
+if [ "$WATCH" = 1 ]; then
+  [ -n "${DISPLAY:-}" ] || die "SENTINEL_WATCH=1 opens a window, so it needs a terminal on the Precision's own screen (DISPLAY is not set here, as over SSH)"
+  command -v gz >/dev/null || die "gz is not on PATH"
+fi
 diag() {  # the last lines of every log the run writes, so one paste shows what failed
   local f
   local px4="${PX4_DIR:-$HOME/PX4-Autopilot}/build/px4_sitl_default/instance_0"
@@ -43,6 +55,41 @@ diag() {  # the last lines of every log the run writes, so one paste shows what 
   done
 }
 publish() { docker compose exec -T redis redis-cli PUBLISH commands "$1" | tr -dc '0-9'; }
+open_viewer() {  # a Gazebo window on this screen, joined to the headless world as a viewer only
+  local px4="${PX4_DIR:-$HOME/PX4-Autopilot}"
+  (
+    set +u
+    [ -f "$px4/build/px4_sitl_default/rootfs/gz_env.sh" ] && . "$px4/build/px4_sitl_default/rootfs/gz_env.sh"
+    export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:-}:$px4/Tools/simulation/gz/models"
+    # Same transport as the world. Gazebo's renderer needs X11 (xcb), also under Wayland.
+    export GZ_IP="${GZ_IP:-127.0.0.1}" QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}"
+    exec gz sim -g -v2
+  ) >/tmp/sentinel_viewer.log 2>&1 &
+  viewer_pid=$!
+  sleep 8
+  if ! kill -0 "$viewer_pid" 2>/dev/null; then
+    tail -n 15 /tmp/sentinel_viewer.log
+    say "The Gazebo window did not open (log above, /tmp/sentinel_viewer.log); the run carries on without it"
+    viewer_pid=""
+    return 0
+  fi
+  export SENTINEL_VIEWER=1
+  # Keep the camera on the drone. CameraTracking in Gazebo's default window answers /gui/follow.
+  local _ reply
+  for _ in $(seq 1 20); do
+    reply=$(GZ_IP="${GZ_IP:-127.0.0.1}" gz service -s /gui/follow --reqtype gz.msgs.StringMsg \
+      --reptype gz.msgs.Boolean --timeout 1500 --req "data: \"$drone\"" 2>/dev/null)
+    if grep -q "data: true" <<<"$reply"; then
+      GZ_IP="${GZ_IP:-127.0.0.1}" gz service -s /gui/follow/offset --reqtype gz.msgs.Vector3d --reptype gz.msgs.Boolean \
+        --timeout 1500 --req "x: -12, y: -12, z: 8" >/dev/null 2>&1
+      say "Gazebo window open (pid $viewer_pid), following $drone"
+      return 0
+    fi
+    sleep 1
+  done
+  say "Gazebo window open (pid $viewer_pid). To follow the drone: right-click $drone in the Entity Tree and choose Follow"
+}
+close_viewer() { [ -n "$viewer_pid" ] && kill "$viewer_pid" 2>/dev/null; viewer_pid=""; return 0; }
 cmd_json() {  # cmd_json <drone> <action> [params-json]
   local params="${3:-}"
   [ -n "$params" ] || params='{}'
@@ -342,6 +389,8 @@ if [ -n "${SENTINEL_LESNAR_REF:-}" ]; then
   say "Flying LesnarAI $bridge_ref ($(git -C "$run_repo" log -1 --format='%h %s')) from $run_repo; containers still come from $REPO"
 fi
 export SENTINEL_BRIDGE_REF="$bridge_ref" SENTINEL_BRIDGE_COMMIT="$(git -C "$run_repo" rev-parse HEAD)"
+# Tracked files that differ from that commit, so the record says whether it flew as committed.
+export SENTINEL_BRIDGE_CHANGED="$(git -C "$run_repo" status --porcelain --untracked-files=no | wc -l | tr -d ' ')"
 bridge_py="$run_repo/.venv-wsl/bin/python3"; [ -x "$bridge_py" ] || bridge_py=python3
 # The bridge imports mavsdk, and it cannot start without torch: its StudentController is
 # decorated with @torch.no_grad() even when torch failed to import.
@@ -521,6 +570,7 @@ Stop them, then run this again. Nothing was started."
   curl -fsS --max-time 2 "$ORCH/health" >/dev/null 2>&1 || { diag; die "the runtime orchestrator did not start"; }
 fi
 stop_if_ours() {  # stop only what this script started
+  close_viewer
   [ "$was_running" = 1 ] && return 0
   say "Stopping what this script started"
   curl -sS --max-time 120 -X POST "$ORCH/kill-all" >/dev/null 2>&1   # a sealed run is not sealed again
@@ -545,6 +595,7 @@ drone=$(python3 -c 'import json,sys; m=(json.load(sys.stdin).get("status") or {}
 csv="$run_dir/telemetry_live_0.csv"
 [ "$(stat -c %s "$log" 2>/dev/null || echo 0)" -ge "$off0" ] || off0=0   # log was rotated at launch
 say "Run $run_id, drone $drone"
+[ "$WATCH" = 1 ] && open_viewer
 seal_and_die() {
   diag
   curl -sS --max-time 120 -X POST "$ORCH/kill-all" >/dev/null 2>&1
@@ -574,6 +625,10 @@ print(f"\n   telemetry rows: {len(rows)}; last lat/lon: {last.get('lat')}, {last
       f"gps_fix_type {last.get('gps_fix_type')}, gps_num_sats {last.get('gps_num_sats')}")
 PYT
   seal_and_die "no online telemetry with a position after 4 minutes"
+fi
+if [ -n "$viewer_pid" ] && [ -t 0 ]; then
+  say "The x500 is on the ground in the Gazebo window. Press Enter to send the mission (it goes on its own after 5 minutes)"
+  read -r -t 300 _ || true
 fi
 sleep 15
 pos=$(latest "$csv") || seal_and_die "telemetry stopped"
@@ -611,6 +666,7 @@ for _ in $(seq 1 45); do
   sleep 2
 done
 say "Land command to $land_subs subscriber(s); landed: $landed"
+[ -n "$viewer_pid" ] && sleep 5
 
 # 6. Record the dispatch and the run's teacher log inside the run, then seal
 tail -c +"$((off0 + 1))" "$log" > "$run_dir/teacher_live_0.log" 2>/dev/null
@@ -634,9 +690,11 @@ json.dump({
     "outcome": outcome,
     "landed_below_0_5_m": landed == "yes",
     "bridge": {"ref": os.environ.get("SENTINEL_BRIDGE_REF") or None,
-               "commit": os.environ.get("SENTINEL_BRIDGE_COMMIT") or None},
+               "commit": os.environ.get("SENTINEL_BRIDGE_COMMIT") or None,
+               "tracked_files_changed": int(os.environ.get("SENTINEL_BRIDGE_CHANGED") or 0)},
     "gazebo_launch": {"GZ_IP": os.environ.get("GZ_IP") or None,
-                      "headless_rendering": os.environ.get("SENTINEL_GZ_HEADLESS_RENDERING") == "1"},
+                      "headless_rendering": os.environ.get("SENTINEL_GZ_HEADLESS_RENDERING") == "1",
+                      "viewer_window": os.environ.get("SENTINEL_VIEWER") == "1"},
     "world": (json.load(open(os.environ["SENTINEL_WORLD_INFO"])) if os.environ.get("SENTINEL_WORLD_INFO")
               else {"source": "obstacles.sdf", "unchanged": True}),
     "teacher_log_lines_since_dispatch": lines,

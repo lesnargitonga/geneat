@@ -186,6 +186,7 @@ def flown_track(path, lat0, lon0, local):
         listed = {f.get("path"): f.get("sha256") for f in m.get("files", [])}
         run["manifest_lists_csv_hash"] = listed.get(Path(path).name) == digest
         run["run_id"] = (m.get("run") or {}).get("run_id") or Path(man).parent.name
+        run["repo_git_rev"] = (m.get("run") or {}).get("repo_git_rev")  # the orchestrator's own record
         mission = Path(man).parent / "mission.json"
         if mission.exists():
             run["manifest_lists_mission_hash"] = listed.get("mission.json") == hashlib.sha256(mission.read_bytes()).hexdigest()
@@ -224,6 +225,14 @@ def sentinel():
         run["outcome"] = mission.get("outcome")
         run["landed"] = mission.get("landed_below_0_5_m")
         run["flew"] = bool(run["max_alt_m"] is not None and run["max_alt_m"] >= 2)
+        # What flew: the bridge's ref and commit as the run script recorded them, and whether
+        # Gazebo ran the repository's own obstacles.sdf. tracked_files_changed is absent from
+        # runs recorded before the script counted local changes.
+        bridge, world = mission.get("bridge") or {}, mission.get("world") or {}
+        run["bridge_ref"] = bridge.get("ref")
+        run["bridge_commit"] = bridge.get("commit")
+        run["bridge_tracked_files_changed"] = bridge.get("tracked_files_changed")
+        run["world_unchanged"] = world.get("unchanged") is True
     (MEDIA / "sentinel-run.json").write_text(json.dumps(run, indent=1) if run else "null")
 
     allp = pts + (track or [])
@@ -252,11 +261,35 @@ def sentinel():
         out.append(f'<path class="st-path" style="--len:{TL:.0f}" d="M' + " L".join(f"{x:.1f} {y:.1f}" for x, y in txy) + '"/>')
     else:
         out.append(f'<path class="st-path" style="--len:{L:.0f}" d="{d}"/>')
+    def clear_spot(x, y, w, lines):
+        """The first label spot around (x, y) that no drawn line crosses. Each run's path
+        leaves and rejoins home differently, so no fixed side is safe for every run."""
+        spots = [(x - 9, y + 4, "end"), (x, y + 22, "middle"), (x - 9, y + 20, "end"),
+                 (x - 9, y - 10, "end"), (x + 9, y + 20, "start")]
+        for tx, ty, anchor in spots:
+            x0 = tx - w if anchor == "end" else tx - w / 2 if anchor == "middle" else tx
+            box = (x0 - 3, ty - 13, x0 + w + 3, ty + 5)  # 13px text: cap height above, descent below
+            hit = False
+            for line in lines:
+                for (ax, ay), (bx, by) in zip(line, line[1:]):
+                    n = max(1, int(math.hypot(bx - ax, by - ay) / 2))
+                    if any(box[0] <= ax + (bx - ax) * k / n <= box[2] and box[1] <= ay + (by - ay) * k / n <= box[3]
+                           for k in range(n + 1)):
+                        hit = True
+                        break
+                if hit:
+                    break
+            if not hit:
+                return tx, ty, anchor
+        return spots[0]
+
     for i, (x, y) in enumerate(xy[:-1]):
         label = ("Home" if i == 0 else f"W{i}") if track else f"W{i + 1}"
-        # The flown path climbs away just east of home and returns a little south of it,
-        # so "Home" sits directly to its left, clear of both.
-        tx, ty, anchor = (x - 9, y + 4, ' text-anchor="end"') if track and i == 0 else (x + 9, y - 8, "")
+        if track and i == 0:
+            tx, ty, a = clear_spot(x, y, 36, [txy, xy])
+            anchor = "" if a == "start" else f' text-anchor="{a}"'
+        else:
+            tx, ty, anchor = x + 9, y - 8, ""
         out.append(f'<circle class="st-wp" cx="{x:.1f}" cy="{y:.1f}" r="4"/><text class="st-wpl" x="{tx:.1f}" y="{ty:.1f}"{anchor}>{label}</text>')
     bx, by = pad, H - 12
     bar = 50 if not track else (10 if total_m < 400 else 50)

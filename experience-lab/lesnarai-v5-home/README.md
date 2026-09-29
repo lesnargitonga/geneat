@@ -20,7 +20,7 @@ maturity line at the top of every system.
 | Section | Maturity | Its own language | Material, and where it came from |
 |---|---|---|---|
 | MediMatch | Demonstrated | Geographic | Kenya outline, the 16 national facilities and 9 transfers from one run. Outline and coordinates from the MediMatch repo; transfers from the supply panel in its own capture, origins checked by distance in `tools/build_assets.py`. The page says the run is over synthetic inventory and that no transfer was executed. |
-| Operation Sentinel | Research | Telemetric | One sealed simulated flight: run `px4_teacher_20260928_205942_d1`, PX4 SITL x500 in Gazebo Harmonic flying the console's own 25 m training box, drawn from its sealed `mission.json` and telemetry on the LesnarAI branch `evidence/sitl-run-px4_teacher_20260928_205942_d1`. The two sealed runs before it, and the bridge faults they exposed, from their own evidence branches and the fix commits. The 87 April diagnostic runs on their real time axis, from `telemetry.json` on `experience/lesnarai-v5-static`, with the caveat that their detector read a lidar model that turned boxes into discs. The 59-column CSV header the bridge writes. |
+| Operation Sentinel | Research | Telemetric | One sealed simulated flight: run `px4_teacher_20260929_082014_d1`, PX4 SITL x500 in Gazebo Harmonic flying the console's own 25 m training box from a stock checkout of LesnarAI's `main` at `3ba2677`, in the repository's own `obstacles.sdf`. Drawn from its sealed `mission.json`, `MANIFEST.json` and telemetry on the LesnarAI branch `evidence/sitl-run-px4_teacher_20260929_082014_d1`. The two earlier sealed runs that stopped short, and the bridge faults they exposed, from their own evidence branches and the fix commits. The 87 April diagnostic runs on their real time axis, from `telemetry.json` on `experience/lesnarai-v5-static`, with the caveat that their detector read a lidar model that turned boxes into discs. The 59-column CSV header the bridge writes. |
 | Simy | In development | A trust boundary | What the relay holds (including public prekey bundles and device records) and never holds, and the first-contact envelope fields, from `docs/relay-api.md`, `docs/threat-model.md` and the Phase 9 handover. |
 | BizMtaani, CarePro | Live | Their real interfaces | Screen recordings and captures. CarePro's four checks are its published panel. |
 | Jamii, Gen-Eat, Hazina | Live, confirmed by the owner | Their real interfaces | Same. |
@@ -92,15 +92,6 @@ frames are capped at the recordings' native 1000 px so they never upscale.
 
 ## Open questions
 
-- Operation Sentinel's flight was recorded before its fixes were merged: the bridge
-  ran from a worktree at `bcf9e52`, in a copy of `obstacles.sdf` that gained the GPS
-  and compass systems PX4 expects. LesnarAI's `main` now carries all of it (PRs 1 to
-  4 on lesnargitonga/LesnarAI: the console, both bridge fixes, the world and the Linux
-  stack, and a CI that passes), and main's `obstacles.sdf` is byte for byte the world
-  the run flew (SHA-256 `9340b64c...`, as its sealed `mission.json` records). One
-  flight from a stock checkout of `main` would confirm nothing else was needed; see
-  HANDOFF.md. The page says the faults are fixed in the bridge's main branch, and
-  `verify.py` fails if that stops being true.
 - The April detection counts were produced by a detector that read the old lidar
   model, which turned box obstacles into discs, so some are detections of nothing.
   Re-running those diagnostics with the fixed bridge, or dropping the chart, would
@@ -110,6 +101,16 @@ frames are capped at the recordings' native 1000 px so they never upscale.
   its eleven `/work/` pages and route redirects are not touched here.
 
 Settled since the last review:
+
+- Operation Sentinel flies from a stock checkout. LesnarAI's `main` carries the
+  console, both bridge fixes, the world and the Linux stack, and a CI that passes
+  (PRs 1 to 4 on lesnargitonga/LesnarAI). Run `px4_teacher_20260929_082014_d1` then
+  flew the whole box from `main` at `3ba2677`, with `obstacles.sdf` unchanged, and the
+  page now draws it. The earlier completed run, `px4_teacher_20260928_205942_d1`,
+  flew the fixes from their branch in a patched copy of the world; it stays on record
+  in `media/sentinel-history.json`. The page says the run flew the bridge's main
+  branch at `3ba2677`, not that the checkout had no local edits: that run predates
+  the script recording them (`bridge.tracked_files_changed` in later runs).
 
 - Model Foundry is the registry's own name for the local-model evaluation
   (`registry.json` evidence 16 and 17, "Model foundry"). The page shows that
@@ -145,7 +146,7 @@ PR 1 (`fix/console-real-state`).
 ## Checking the page against its sources
 
 `tools/verify.py` confirms every figure and claim on the page appears in the
-file it came from (81 checks with the flight, including counted facts such as the 59
+file it came from (83 checks with the flight, including counted facts such as the 59
 telemetry columns) and that the page carries no em dash. Run it after any copy change.
 
 The flight checks read a lesnargitonga/lesnarai clone (`LESNARAI`, default
@@ -159,7 +160,9 @@ git -C "$LESNARAI" fetch origin 'refs/heads/evidence/*:refs/remotes/origin/evide
 From there they re-hash the flown run's telemetry and mission record against its
 sealed manifest, check each sentence about the earlier runs against that run's sealed
 outcome and the fix commit's own description, check that the fixes are on
-`fix/offboard-engage` and in `main` exactly when the page says they are merged, and check
+`fix/offboard-engage` and in `main` exactly when the page says they are merged, check
+that the drawn run flew that branch (the run script's ref and commit, the orchestrator's
+sealed commit, both fixes in it, and that commit's own `obstacles.sdf` by hash), and check
 the April caveat against the bridge
 as committed on 18 March.
 

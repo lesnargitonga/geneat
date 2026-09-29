@@ -27,31 +27,33 @@ push to a new name instead (for example `experience/lesnarai-v6-local`), then
 say which. The renamed `.vercel.unlinked` link file is gitignored and stays
 local; do not rename it back.
 
-## 2. One real Operation Sentinel run (done 28 September 2026)
+## 2. One real Operation Sentinel run (done 28 and 29 September 2026)
 
-Result: three sealed online runs, each on its own LesnarAI branch
+Result: four sealed online runs, each on its own LesnarAI branch
 `evidence/sitl-run-<run_id>`, committed by the owner from the Precision.
 
 | Run | Bridge | Outcome | What it showed |
 |---|---|---|---|
 | `px4_teacher_20260928_194728_d1` | `main` (`906a465`) | timeout | Took off to 10 m and hovered at home for ten minutes: offboard never engaged (MAVSDK `NO_SETPOINT_SET`), and the bridge navigated anyway. Fixed in `6a40f0f`. |
 | `px4_teacher_20260928_203728_d1` | `6a40f0f` | timeout | Flew the first 25 m leg, then the simulated lidar held it 11 m short of waypoint 2. It had read `Wall_1`, a 1 m x 38 m box, as a 19 m disc. Fixed in `bcf9e52`. |
-| `px4_teacher_20260928_205942_d1` | `bcf9e52` | completed | The whole box: 608 samples, 126 s, about 98 m, all four waypoints. This is the run the page draws. |
+| `px4_teacher_20260928_205942_d1` | `bcf9e52` | completed | The whole box: 608 samples, 126 s, about 98 m, all four waypoints. |
+| `px4_teacher_20260929_082014_d1` | `main` (`3ba2677`) | completed | The whole box again, from a stock checkout of the merged `main` with `obstacles.sdf` unchanged: 608 samples, 126 s, about 99 m, peak 9.6 m, landed. This is the run the page draws. |
 
-All three used a copy of `obstacles.sdf` that gained the NavSat and Magnetometer
+The first three used a copy of `obstacles.sdf` that gained the NavSat and Magnetometer
 systems and the spherical coordinates PX4 expects; `mission.json` in each run records
-exactly what was added.
+exactly what was added. The fourth needed none: `main`'s `obstacles.sdf` already has
+them.
 
 Since then, all of it is in LesnarAI's `main` (`3ba2677`), through four pull requests
 on lesnargitonga/LesnarAI: PR 1 the console's real link state, PR 2 both bridge fixes,
 PR 3 the world and the Linux stack (the committed `obstacles.sdf` is byte for byte the
 world run 3 flew, `GZ_IP` defaults to loopback, the scripts are executable, and
-`/mnt/j` is optional), and PR 4 a CI that passes on every job. Still to do, by the
-owner: one confirmation flight from a stock checkout of `main` (below), and a decision
-on whether to re-run the April diagnostics with the fixed lidar, since their detector
-read the old one.
+`/mnt/j` is optional), and PR 4 a CI that passes on every job. The confirmation
+flight from a stock checkout of `main` is the fourth run above. Still to do, by the
+owner: a decision on whether to re-run the April diagnostics with the fixed lidar,
+since their detector read the old one.
 
-### Confirmation flight from `main`
+### A flight from `main`
 
 The aimodel dev containers hold Redis and Postgres on the ports the stack needs, so
 they are stopped for the run and started again after it. Nothing else is touched.
@@ -71,6 +73,23 @@ Without `SENTINEL_LESNAR_REF` it flies the checkout as it is. It should say
 then records `"unchanged": true`. The `~/workspace/LesnarAI-run` worktree from the
 earlier runs is no longer needed (`git -C ~/workspace/LesnarAI worktree remove
 ../LesnarAI-run`).
+
+### Watching a flight
+
+Run the same sequence from a terminal on the Precision's own screen, with
+`SENTINEL_WATCH=1` in front of the run:
+
+```bash
+SENTINEL_WATCH=1 bash /tmp/sentinel_run.sh
+```
+
+The simulation runs headless exactly as in an unwatched run; a separate Gazebo window
+(`gz sim -g`) joins it on the same transport as a viewer only, and the camera follows
+the x500. The script waits for Enter before it sends the mission (or goes on its own
+after five minutes), holds five seconds after landing, and closes the window when it
+seals the run. Closing the window early does not affect the flight. Over SSH there is
+no screen, so the script stops before starting anything. `mission.json` records
+`"viewer_window": true`. With `PUSH=0` the run is committed locally and not pushed.
 
 How the runs were made:
 
