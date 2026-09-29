@@ -10,7 +10,7 @@
         "PX4 was never in offboard mode",
         "held its post-takeoff hover at home for ten minutes"
       ],
-      "sentence": "In the first, offboard control never engaged and the aircraft hovered at home for ten minutes."
+      "sentence": "In the first, the autopilot never handed over control, and the drone hovered over its take-off point for ten minutes."
     },
     {
       "run_id": "px4_teacher_20260928_203728_d1",
@@ -21,7 +21,7 @@
         "a 1 m x 38 m box centred at (35, 25), read as a 19 m disc",
         "There was no obstacle there."
       ],
-      "sentence": "In the second, the simulated lidar read a 1-metre wall as a 19-metre disc and held the aircraft short of an obstacle that was not there."
+      "sentence": "In the second, a bug in the simulated obstacle sensor made a 1-metre wall look like a 19-metre disc, and the drone held back from an obstacle that wasn’t there."
     }
   ],
   "other_runs": [
@@ -34,6 +34,6 @@
   ],
   "fix_branch": "fix/offboard-engage",
   "fix_state": "merged",
-  "fix_sentence": "Both faults are now fixed in the bridge’s main branch.",
+  "fix_sentence": "Both bugs are fixed in the main code.",
   "merged_into": "main"
 }

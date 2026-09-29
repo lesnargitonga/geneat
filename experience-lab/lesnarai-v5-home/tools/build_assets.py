@@ -357,6 +357,124 @@ def images():
                       "biz-m-*: captures already published on the v4 site (geneat experience/lesnarai-v4-home media/).")
 
 
+# ----------------------------------------------- Operation Sentinel: the replay
+def flight_replay():
+    """The drawn run's own samples, for the scroll replay: positions in metres from
+    home (the mission's last waypoint), altitude, ground speed and heading, plus the
+    moments the teacher log stamped (armed, each waypoint, complete, land). Every file
+    read here must match the run's sealed manifest, or nothing is written."""
+    import csv
+    import hashlib
+    from datetime import datetime, timezone
+    tel, man = os.environ.get("SENTINEL_TELEMETRY"), os.environ.get("SENTINEL_MANIFEST")
+    out = MEDIA / "flight.json"
+    if not (tel and man):
+        if out.exists():
+            out.unlink()
+        return None
+    run_dir = Path(tel).parent
+    sealed = {f["path"]: f["sha256"] for f in json.loads(Path(man).read_text())["files"]}
+    for name in ("telemetry_live_0.csv", "mission.json", "teacher_live_0.log"):
+        got = hashlib.sha256((run_dir / name).read_bytes()).hexdigest()
+        assert sealed.get(name) == got, f"{name} is not the file the run's manifest sealed"
+    meta = json.loads(Path(man).read_text())["run"]
+    mission = json.loads((run_dir / "mission.json").read_text())
+    wps = mission["payload"]["params"]["waypoints"]
+    lat0, lon0 = wps[-1][0], wps[-1][1]  # DroneList.js ends the box on the drone's own position
+    kx, ky = 111320 * math.cos(math.radians(lat0)), 110574
+    local = lambda la, lo: ((lo - lon0) * kx, (la - lat0) * ky)
+    rows = [r for r in csv.DictReader(open(run_dir / "telemetry_live_0.csv", newline=""))
+            if r.get("lat") and r.get("lon") and r.get("rel_alt")]
+    t0 = float(rows[0]["timestamp"])
+    samples, flown, last = [], 0.0, None
+    for i, r in enumerate(rows):
+        x, y = local(float(r["lat"]), float(r["lon"]))
+        z = max(0.0, float(r["rel_alt"]))
+        # Ground distance, as the caption counts it; jitter under 0.5 m is not travel.
+        if last is None or math.dist(last, (x, y)) >= 0.5:
+            flown += math.dist(last, (x, y)) if last else 0.0
+            last = (x, y)
+        if i % 2 == 0 or i == len(rows) - 1:
+            samples.append([round(float(r["timestamp"]) - t0, 1), round(x, 2), round(y, 2), round(z, 2),
+                            round(float(r.get("ground_speed_mps") or 0), 2), round(float(r.get("yaw") or 0)), round(flown, 1)])
+    stamp = lambda s: datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp() - t0
+    events = []
+    for line in (run_dir / "teacher_live_0.log").read_text().splitlines():
+        m = re.match(r"\[(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ)\] --> (.*)", line)
+        if not m:
+            continue
+        what = m.group(2)
+        w = re.search(r"waypoint (\d)(?:/4)?", what)
+        if "External mission armed" in what:
+            events.append([round(stamp(m.group(1)), 1), "Climbing to 10 m"])
+        elif w and ("navigation engaged" in what or "advanced to waypoint" in what):
+            n = int(w.group(1))
+            events.append([round(stamp(m.group(1)), 1), "Flying home" if n == len(wps) else f"Flying to waypoint {n}"])
+        elif "External mission completed" in what:
+            events.append([round(stamp(m.group(1)), 1), "Route complete"])
+        elif "Received Command: land" in what:
+            events.append([round(stamp(m.group(1)), 1), "Landing"])
+    plan = [[0, 0, 0], [0, 0, wps[0][2]]] + [[*map(lambda v: round(v, 2), local(w[0], w[1])), w[2]] for w in wps]
+    data = {"run_id": meta["run_id"], "commit": meta.get("repo_git_rev"), "plan": plan, "events": events,
+            "samples": samples, "flown_m": round(flown), "duration_s": samples[-1][0]}
+    out.write_text(json.dumps(data, separators=(",", ":")))
+    provenance.append(f"flight.json: every second sample of {meta['run_id']}'s sealed telemetry (positions in metres from "
+                      "home, altitude, ground speed, heading) and the events its teacher log stamped. The CSV, mission.json "
+                      "and teacher log are each checked against the run's MANIFEST.json before anything is written.")
+    return data
+
+
+# ----------------------------------------------------------------- showreel
+def showreel():
+    """Three seconds of each live product's recording, cross-faded into one loop for
+    the hero, plus WebM (VP9) copies of every recording for browsers without H.264."""
+    import imageio_ffmpeg
+    ff = imageio_ffmpeg.get_ffmpeg_exe()
+    reel = MEDIA / "reel"
+    names = ["bizmtaani", "carepro", "jamii", "geneat", "hazina"]
+    args = [ff, "-loglevel", "error", "-y"]
+    for n in names:
+        args += ["-ss", "1", "-t", "3", "-i", str(reel / f"{n}.mp4")]
+    chain, prev, offset = [], "0:v", 0.0
+    for i in range(1, len(names)):
+        offset += 3 - 0.5
+        label = f"x{i}"
+        chain.append(f"[{prev}][{i}:v]xfade=transition=fade:duration=0.5:offset={offset:.1f}[{label}]")
+        prev = label
+    chain[-1] = chain[-1].replace(f"[{prev}]", "[v]")
+    args += ["-filter_complex", ";".join(chain), "-map", "[v]", "-an", "-pix_fmt", "yuv420p"]
+    subprocess.run(args + ["-c:v", "libx264", "-crf", "24", "-preset", "slow", "-movflags", "+faststart", str(reel / "showreel.mp4")], check=True)
+    subprocess.run([ff, "-loglevel", "error", "-y", "-i", str(reel / "showreel.mp4"), "-an", "-c:v", "libvpx-vp9", "-b:v", "0",
+                    "-crf", "36", "-row-mt", "1", str(reel / "showreel.webm")], check=True)
+    # Phones get a 640-wide copy: a third of the bytes, still sharp at phone width.
+    subprocess.run([ff, "-loglevel", "error", "-y", "-i", str(reel / "showreel.mp4"), "-an", "-vf", "scale=640:-2", "-pix_fmt", "yuv420p",
+                    "-c:v", "libx264", "-crf", "27", "-preset", "slow", "-movflags", "+faststart", str(reel / "showreel-640.mp4")], check=True)
+    subprocess.run([ff, "-loglevel", "error", "-y", "-i", str(reel / "showreel.mp4"), "-an", "-vf", "scale=640:-2", "-c:v", "libvpx-vp9",
+                    "-b:v", "0", "-crf", "40", "-row-mt", "1", str(reel / "showreel-640.webm")], check=True)
+    jpg = reel / "showreel-poster.jpg"
+    subprocess.run([ff, "-loglevel", "error", "-y", "-ss", "1.5", "-i", str(reel / "showreel.mp4"), "-frames:v", "1", "-q:v", "2", str(jpg)], check=True)
+    Image.open(jpg).convert("RGB").save(reel / "showreel-poster.webp", "WEBP", quality=74, method=6)
+    jpg.unlink()
+    for n in names:
+        subprocess.run([ff, "-loglevel", "error", "-y", "-i", str(reel / f"{n}.mp4"), "-an", "-c:v", "libvpx-vp9", "-b:v", "0",
+                        "-crf", "36", "-row-mt", "1", str(reel / f"{n}.webm")], check=True)
+    provenance.append("reel/showreel*: seconds 1 to 4 of each of the five recordings above, cross-faded, no other change "
+                      "(showreel-640.* scaled to 640 wide for phones). "
+                      "reel/*.webm: VP9 copies of the same recordings.")
+
+
+# ------------------------------------------------------------------- vendor
+def vendor():
+    """GSAP 3.15.0 and the plugins the page uses, copied from the npm package unchanged."""
+    src = Path(os.environ.get("GSAP_DIST", "/tmp/claude-0/-home-user-geneat/397d8e34-8d73-54ca-af3e-35f8758b9959/scratchpad/gsap-pkg/package/dist"))
+    dst = HERE / "vendor"
+    dst.mkdir(exist_ok=True)
+    for n in ("gsap", "ScrollTrigger", "SplitText", "DrawSVGPlugin", "ScrambleTextPlugin"):
+        shutil.copyfile(src / f"{n}.min.js", dst / f"{n}.min.js")
+    provenance.append("vendor/*.min.js: GSAP 3.15.0 (gsap, ScrollTrigger, SplitText, DrawSVGPlugin, ScrambleTextPlugin) "
+                      "from the npm package, unchanged. GSAP's standard license: free, including commercial use.")
+
+
 # -------------------------------------------------------------------- video
 def video():
     """Old screen recordings from geneat ccf4d69, used only to test the reel idea."""
@@ -404,8 +522,11 @@ def font():
 if __name__ == "__main__":
     n, transfers = medimatch_map()
     cols, loop = sentinel()
+    flight_replay()
     images()
     video()
+    showreel()
+    vendor()
     font()
     (MEDIA / "PROVENANCE.md").write_text("# Where every asset came from\n\n" + "\n\n".join(f"- {p}" for p in provenance) + "\n")
     print(f"facilities={n} transfers={len(transfers)} sentinel_columns={cols} loop_m={loop}")

@@ -44,9 +44,9 @@ CHECKS = [
     ("SHA-256 manifest", "ST/README.md", "SHA-256 hashes of every artifact"),
     ("integrated PX4, Gazebo and AirSim, which are the work of their own upstream maintainers", DOC, "integrated the PX4, Gazebo and AirSim projects, which are the work of their own upstream maintainers"),
     ("No flight is on record, simulated or physical", REG, "so there is no logged flight, simulated or physical"),
-    ("Wind and air density are simulated for training and marked synthetic", "ST/README.md", "environment.synthetic_environment: true"),
     # Simy
     ("X3DH and Double Ratchet", "SY/README.md", "X3DH, and Double Ratchet foundations"),
+    ("built and tested in Rust", "SY/README.md", "a Rust workspace, a shared cryptographic core crate"),
     ("Not yet a finished messenger", "SY/README.md", "It does not yet implement a production-ready end-user"),
     ("not independently audited", REG, "No third-party cryptographic audit"),
     ("Public prekey bundles and device records", DOC, "**public prekey bundles, device records**"),
@@ -54,8 +54,6 @@ CHECKS = [
     ("A hash of the retrieval secret", "SY/docs/relay-api.md", "hashed server-side before storage"),
     ("Replay token", "SY/docs/relay-api.md", "replay_token"),
     ("Message text", "SY/docs/relay-api.md", "The relay never stores plaintext message content."),
-    ("Receiver prekey used", "SY/docs/relay-api.md", "receiver signed prekey public key"),
-    ("perfect anonymity against a global passive adversary", "SY/docs/threat-model.md", "Perfect anonymity against a global passive adversary."),
     # Gold Trader
     ("−$79,297", "GT/docs/AUDIT_RESULTS.md", "**−$79,297**"),
     ("4,738 trades", "GT/docs/AUDIT_RESULTS.md", "| 4,738 | 25.0% |"),
@@ -69,33 +67,40 @@ CHECKS = [
     ("−$594", "GT/docs/AUDIT_RESULTS.md", "`compression_breakout` | −$594"),
     ("−$1,021", "GT/docs/AUDIT_RESULTS.md", "`timed_horizon_macro_regime` | −$1,021"),
     ("+2.65R over seven trades", "GT/docs/AUDIT_RESULTS.md", "**+2.65R** (n=7)"),
-    ("none of 206 Grade A signals passed every live gate", "GT/docs/AUDIT_RESULTS.md", "206 Grade A signals, none pass all gates"),
     ("Paper yes, live no", "GT/docs/AUDIT_RESULTS.md", "**Paper yes, live no**"),
     ("until twenty forward trades", "GT/docs/AUDIT_RESULTS.md", "**20+ forward Grade-A trades**"),
+    ("the audit of 29 April to 29 May 2026", "GT/docs/AUDIT_RESULTS.md", "(Apr 29 – May 29, 2026)"),
     # SentinelCore: the registry's 16 September measurement, plus the gaps its own July report lists
     ("133 passed, 0 failed, across 21 test files", REG, "133 tests passed, 0 failed, in 21.87s across 21 test files"),
     ("at commit 65cbd3c", REG, '"source_commit": "65cbd3c"'),
-    ("An orchestrator and five modules in 242 tracked files", REG, "scanner, monitor, firewall, remediator, telemetry. 242 tracked files"),
-    ("Running against a real server, protecting anything, or being deployed", REG, "running against any real server, protecting anything, or being deployed"),
+    ("run against a real server yet", REG, "running against any real server, protecting anything, or being deployed"),
     ("from its July sealing report", "SC/reports/final_structural_sealing.md", "Manifest revision: `2026.07.15.2`"),
     ("CVE-2024-6387 attribution is not a verified detector", "SC/reports/final_structural_sealing.md", "CVE-2024-6387 attribution is not a verified vulnerability detector"),
     ("Credential-spray detection is not implemented", "SC/reports/final_structural_sealing.md", "Credential-spray automation is not implemented"),
     ("cannot guarantee erasure on SSDs or snapshots", "SC/reports/final_structural_sealing.md", "cannot guarantee physical erasure on SSD"),
     # Model Foundry: the registry's evaluation record
     ("Qwen2.5-Coder-7B-Instruct, Q4_K_M, pinned by SHA-256", REG, "qwen2.5-coder-7b-instruct-q4_k_m.gguf"),
-    ("llama.cpp passed 80% of tasks, 8 of 10 repeatable", REG, "llama.cpp b10107: 80% task pass rate, 8/10 exact repeatability"),
-    ("Ollama passed 60%, 6 of 10", REG, "Ollama 0.24.0: 60% task pass rate, 6/10"),
-    ("Ollama obeyed it, in both repetitions", REG, "Ollama failed, returning PWNED in both repetitions"),
+    ("Ollama obeyed it, both times", REG, "Ollama failed, returning PWNED in both repetitions"),
     ("No fine-tuned model has been produced yet", DOC, "No fine-tune has been produced"),
     ("Not for accepting code on its own, security decisions, or enforcing instruction boundaries", DOC, "explicitly not for autonomous code acceptance, security-sensitive decisions or instruction-boundary enforcement"),
     ("Ten tasks, two repetitions, one machine", REG, "ten tasks with two repetitions each"),
     # BizMtaani
-    ("One business is listed today: The Villager, in Embu", REG, "One business published and open ('The Villager', Food & drink, Embu)"),
+    ("The Villager, in Embu", REG, "One business published and open ('The Villager', Food & drink, Embu)"),
     ("Operated by LESNAR AI LTD", REG, "operated by LESNAR AI LTD"),
-    # CarePro, contact
+    # CarePro: its four published checks, its payment policy and its own published counter
     ("Registry check.", "V4/work/carepro/index.html", "Registry check"),
     ("Clinical sign-off.", "V4/work/carepro/index.html", "Clinical sign-off"),
-    ("We reply within two working days", "V4/index.html", "Usually within two working days."),
+    ("Nursing Council of Kenya", "V4/work/carepro/index.html", "Nursing Council of Kenya register"),
+    ("payment held by CarePro until the care is delivered", REG, "Payment held by CarePro until care is delivered"),
+    ("On 16 September 2026, 20 nurses had joined and none had yet been approved for assignments", REG, "20 nurses joined, 0 approved for assignments"),
+    # The other live products, as the v4 site publishes them
+    ("Running as a pilot in Mbeere North", "V4/work/jamii-projects-hub/index.html", "Running as a pilot in Mbeere North"),
+    ("Community projects proposed, voted on and recorded", "V4/index.html", None),
+    ("Campus food ordering over WhatsApp", "V4/work/gen-eat/index.html", "Campus food ordering over WhatsApp. You message the café, pay from your phone, and pick the order up when it is ready"),
+    ("pay on M-Pesa", "V4/work/gen-eat/index.html", "Pays on M-Pesa"),
+    ("Private sourcing and Kenyan heritage gifts", "V4/index.html", None),
+    # Contact
+    ("I usually reply within two working days", "V4/index.html", "Usually within two working days."),
 ]
 
 # Figures the source itself says a later rerun replaced. They must stay off the page, and
@@ -145,7 +150,10 @@ def run_checks(text):
         bad.append("RUN    mission.json is not the one the manifest sealed")
     if json.loads(mission.read_text()).get("outcome") != RUN.get("outcome"):
         bad.append("RUN    mission outcome differs from the sealed mission record")
-    for said in (str(RUN["run_id"]), f"{RUN['samples']:,} samples"):
+    rate = RUN["samples"] / max(1, RUN["duration_s"])
+    if "about five times a second" in text and not 4.5 <= rate <= 5.5:
+        bad.append(f"RUN    the page says about five times a second; the run recorded {rate:.1f}")
+    for said in (str(RUN["run_id"]), f"{RUN['samples']:,} readings"):
         if said not in text:
             bad.append(f"RUN    page missing: {said!r}")
     return bad
@@ -202,7 +210,7 @@ def history_checks(text):
             m = _git("show", f"origin/{r['branch']}:evidence/runs/{r['run_id']}/mission.json")
             if m is None or json.loads(m).get("outcome") != r["outcome"]:
                 bad.append(f"SOURCE drift:   {r['run_id']} is not a sealed {r['outcome']} run on origin/{r['branch']}")
-        if "This run flew that branch" in text:
+        if "This flight ran that code" in text:
             # Read from the drawn run's own sealed files, not from the build's summary of them.
             import hashlib
             checked += 1
@@ -212,7 +220,7 @@ def history_checks(text):
             m, man = (json.loads(m) if m else {}), (json.loads(man) if man else {})
             bridge, world, sealed = m.get("bridge") or {}, m.get("world") or {}, man.get("run") or {}
             commit = bridge.get("commit") or ""
-            sentence = f"This run flew that branch, at commit {commit[:7]}."
+            sentence = f"This flight ran that code, at commit {commit[:7]}."
             world_at = _git("show", f"{commit}:obstacles.sdf", binary=True) if commit else None
             why = []
             if sentence not in text:
@@ -231,12 +239,36 @@ def history_checks(text):
                             == hashlib.sha256(world_at).hexdigest()):
                 why.append("Gazebo did not run that commit's own obstacles.sdf")
             if why:
-                bad.append("SOURCE drift:   'This run flew that branch': " + "; ".join(why))
+                bad.append("SOURCE drift:   'This flight ran that code': " + "; ".join(why))
     return checked, bad
 
 
+def _page():
+    return (HERE / "index.html").read_text()
+
+
+def _hist():
+    return json.loads((HERE / "media/sentinel-history.json").read_text())
+
+
+def _meter(name, pct):
+    m = re.search(r'data-meter style="--p:(\d+)"><span>' + re.escape(name) + r'</span>', _page())
+    return bool(m) and int(m.group(1)) == pct
+
+
 COUNTS = [  # extra structural facts that are counted rather than quoted
-    ("59 values", lambda: '"total": 59' in (HERE / "media/sentinel-columns.json").read_text()),
+    ("records 59 measurements", lambda: '"total": 59' in (HERE / "media/sentinel-columns.json").read_text()),
+    # the hero and the stats: five products labelled Live, eleven systems in all
+    ("Five things I’ve built are running in public today", lambda: len(re.findall(r'data-status="live"', _page())) == 5),
+    ("products live today", lambda: len(re.findall(r'data-status="live"', _page())) == 5 and 'data-count="5">5</span><span class="stat__l">products live today' in _page()),
+    ("systems designed and built", lambda: len(re.findall(r'data-status="(?:live|demo|research|dev|internal)"', _page())) == 11 and 'data-count="11">11</span><span class="stat__l">systems designed and built' in _page()),
+    # every test flight is a sealed run on its own evidence branch: the earlier ones, and the one drawn
+    ("drone test flights, every one logged", lambda: len(_hist()["earlier_runs"]) + len(_hist().get("other_runs", [])) + 1 == 4 and 'data-count="4">4</span>' in _page()),
+    # Gold Trader: nine families, five of them disabled or eliminated in the audit's own table
+    ("five of the nine strategies were cut", lambda: len(re.findall(r'<li class="cut"', _page())) == 5 and len(re.findall(r'<li (?:class="(?:cut|pos)" )?style="--v:', _page())) == 9),
+    # Model Foundry: the two pass rates drawn as bars
+    ("Share of tasks passed", lambda: _meter("llama.cpp", 80) and "80% task pass rate" in (R["V5"] / "evidence-integration/evidence/registry.json").read_text()
+     and _meter("Ollama", 60) and "60% task pass rate" in (R["V5"] / "evidence-integration/evidence/registry.json").read_text()),
 ]
 
 

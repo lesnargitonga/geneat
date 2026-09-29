@@ -3,296 +3,424 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LESNAR AI · Built for the conditions everything else assumes away</title>
-<meta name="description" content="LESNAR AI is a Nairobi technology company building software, AI and intelligent systems for difficult real-world operations.">
+<title>Lesnar Gitonga · LESNAR AI · Apps, AI tools and autonomous systems</title>
+<meta name="description" content="I'm Lesnar Gitonga, founder of LESNAR AI in Nairobi. I design and build apps, AI tools and autonomous systems, from the first idea to a live product.">
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#0f1113">
 <link rel="preload" href="fonts/mona-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="styles.css">
+<script>
+  // Motion is opt-in: the page is complete without it. html.motion marks a visitor
+  // who has not asked for reduced motion; site.js drops it if GSAP never loads.
+  (function (d) {
+    d.documentElement.classList.add("js");
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) d.documentElement.classList.add("motion");
+  })(document);
+</script>
+<script src="vendor/gsap.min.js" defer></script>
+<script src="vendor/ScrollTrigger.min.js" defer></script>
+<script src="vendor/SplitText.min.js" defer></script>
+<script src="vendor/DrawSVGPlugin.min.js" defer></script>
+<script src="vendor/ScrambleTextPlugin.min.js" defer></script>
 <script src="site.js" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
-<header class="top">
+<header class="top" data-top>
   <div class="wrap top__in">
-    <a class="mark" href="/" aria-label="LESNAR AI, home">LESNAR AI</a>
+    <a class="mark" href="#top" aria-label="LESNAR AI, back to the top">LESNAR AI</a>
     <nav class="nav" aria-label="Primary">
-      <a href="/work/">Work</a>
-      <a href="/services/">Services</a>
-      <a href="/about/">About</a>
-      <a href="/contact/">Contact</a>
+      <a href="#work">Work</a>
+      <a href="#services">Services</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
     </nav>
-    <a class="btn btn--ink top__cta" href="/book/">Start a project</a>
+    <a class="btn btn--ink top__cta" href="#contact">Start a project</a>
   </div>
 </header>
 
 <main id="main">
 
 <!-- HERO -->
-<section class="hero wrap" aria-labelledby="hero-t">
-  <h1 id="hero-t" class="hero__title">Built for the conditions everything else assumes away.</h1>
-  <p class="hero__lede">LESNAR AI is a Nairobi technology company building software, AI and intelligent systems for difficult real-world operations.</p>
-
-  <h2 class="vh">The conditions, and the systems built for them</h2>
-  <ol class="conds">
-    <li><a href="#medimatch"><span class="conds__c">Supply expires in one hospital while another county runs out.</span><span class="conds__s">MediMatch</span><span class="conds__m">Demonstrated</span></a></li>
-    <li><a href="#sentinel"><span class="conds__c">A drone may appear on the operator’s screen only if the simulator confirms it exists.</span><span class="conds__s">Operation Sentinel</span><span class="conds__m">Research</span></a></li>
-    <li><a href="#simy"><span class="conds__c">The server that carries a message must not be able to read it.</span><span class="conds__s">Simy</span><span class="conds__m">In development</span></a></li>
-    <li><a href="#carepro"><span class="conds__c">A nurse is assigned to a family only after four published checks.</span><span class="conds__s">CarePro</span><span class="conds__m">Live</span></a></li>
-    <li><a href="#bizmtaani"><span class="conds__c">A neighbourhood shop can sell online without a website of its own.</span><span class="conds__s">BizMtaani</span><span class="conds__m">Live</span></a></li>
-    <li><a href="#goldtrader"><span class="conds__c">A trading signal is not an edge until an audit says so.</span><span class="conds__s">Gold Trader</span><span class="conds__m">Research</span></a></li>
-    <li><a href="#internal"><span class="conds__c">Our own tools and models are tested before we trust them.</span><span class="conds__s">SentinelCore, Model Foundry</span><span class="conds__m">Internal</span></a></li>
-  </ol>
-</section>
-
-<!-- MEDIMATCH: geographic -->
-<section id="medimatch" class="sys mm" data-ground="dark" aria-labelledby="mm-t">
-  <div class="wrap mm__grid">
-    <div class="sys__head">
-      <p class="status"><b>Demonstrated.</b> Built and shown. Not deployed in a health system.</p>
-      <h2 id="mm-t" class="sys__name">MediMatch</h2>
-      <p class="sys__cond">Supply expires in one hospital while another county runs out.</p>
-      <p class="sys__body">MediMatch finds surplus medical stock and routes it to the facilities short of it, ranked by distance, urgency, verification and product fit. It grew out of field research on Nairobi County’s health facilities at USIU-Africa, and runs as a national command floor on a real map of Kenya.</p>
-      <dl class="mm__run" aria-label="One demonstration run">
-        <div><dt>Facilities</dt><dd>16</dd></div>
-        <div><dt>Units routed</dt><dd>985</dd></div>
-        <div><dt>Route kilometres</dt><dd>3,335</dd></div>
-        <div><dt>Longest transfer</dt><dd>810 km</dd></div>
-      </dl>
-      <p class="mm__note">One run of the demonstration, over synthetic inventory. The longest route it ranked sends 120 units of insulin from Kenyatta National Hospital to Mandera. No facility supplied stock and no transfer was executed.</p>
-    </div>
-    <figure class="mm__map">
-      <!--#include medimatch-map.svg-->
-      <figcaption class="mm__legend"><span class="k k--hub">Surplus hub</span><span class="k k--need">Facility in shortfall</span><span class="k k--route">Transfer</span></figcaption>
-    </figure>
-  </div>
-  <figure class="wrap mm__shot">
-    <picture>
-      <source type="image/webp" srcset="media/medimatch-routed-760.webp 760w, media/medimatch-routed-1440.webp 1440w" sizes="(min-width: 1440px) 1360px, calc(100vw - 40px)">
-      <img src="media/medimatch-routed-1440.jpg" width="1440" height="900" loading="lazy" decoding="async" alt="The MediMatch command floor: a dark map of Kenya with surplus hubs, facilities in shortfall and routed transfers, beside panels for coordination impact and supply delivered.">
-    </picture>
-    <figcaption>The command floor as MediMatch renders it. In its own words: public facility names and approximate geocodes, synthetic inventory and need data, no patient records.</figcaption>
-  </figure>
-</section>
-
-<!-- OPERATION SENTINEL: telemetric -->
-<section id="sentinel" class="sys st" data-ground="dark" aria-labelledby="st-t">
-  <div class="wrap st__grid">
-    <div class="sys__head">
-      <p class="status"><b>Research.</b> A simulation stack for PX4 and Gazebo. <!--#include sentinel-flight--></p>
-      <h2 id="st-t" class="sys__name">Operation Sentinel</h2>
-      <p class="sys__cond">A drone may appear on the operator’s screen only if the simulator confirms it exists.</p>
-      <p class="sys__body">A command-and-control stack for autonomous UAV simulation. It is built to fly a PX4 x500 in Gazebo Harmonic through a MAVSDK bridge that records every sample, and its backend registers an aircraft only when real telemetry arrives. Each run is sealed with a SHA-256 manifest of everything it wrote.</p>
-      <p class="st__attr">LESNAR AI built the autonomy bridge, mission logic, telemetry pipeline and operator system, and integrated PX4, Gazebo and AirSim, which are the work of their own upstream maintainers.</p>
-    </div>
-    <figure class="st__mission">
-      <!--#include sentinel-mission.svg-->
-      <figcaption><!--#include sentinel-caption--></figcaption>
-    </figure>
-  </div>
-  <div class="wrap st__schema">
-    <h3 class="st__h">Every sample records <span class="st__n">59</span> values</h3>
-    <!--#include sentinel-columns-->
-    <p class="st__foot">Wind and air density are simulated for training and marked synthetic in the data. They never stand in for sensor readings.</p>
-  </div>
-</section>
-
-<!-- SIMY: trust boundary -->
-<section id="simy" class="sys sy" aria-labelledby="sy-t">
+<section class="hero" id="top" aria-labelledby="hero-t">
   <div class="wrap">
-    <div class="sys__head sys__head--wide">
-      <p class="status"><b>In development.</b> Relay and cryptographic core built and tested. Not yet a finished messenger, and not independently audited.</p>
-      <h2 id="sy-t" class="sys__name">Simy</h2>
-      <p class="sys__cond">The server that carries a message must not be able to read it.</p>
-      <p class="sys__body">A Rust workspace with a shared cryptographic core for X3DH and Double Ratchet, and a relay on PostgreSQL and Redis that stores only encrypted envelopes, rejects replays and expires what it holds. The boundary below is the design.</p>
+    <p class="hero__eyebrow">Lesnar Gitonga <span aria-hidden="true">·</span> Founder, LESNAR AI <span aria-hidden="true">·</span> Nairobi</p>
+    <h1 id="hero-t" class="hero__title">I build apps, AI tools and autonomous systems.</h1>
+    <div class="hero__row">
+      <p class="hero__lede">From the first idea to a live product. Five things I’ve built are running in public today, from an online marketplace to a home-nursing platform, and my drone autopilot is flying test missions in simulation.</p>
+      <p class="hero__acts">
+        <a class="btn btn--ink" href="#work">See my work</a>
+        <a class="btn btn--line" href="#contact">Start a project</a>
+      </p>
     </div>
   </div>
-  <div class="sy__scene">
-    <div class="sy__stage">
-     <div class="sy__board wrap">
-      <div class="sy__cols">
-        <div class="sy__col sy__col--dev">
-          <h3>Sender’s device</h3>
-          <ul><li>Identity keys</li><li>Session and ratchet state</li><li>The message itself</li></ul>
+  <div class="reel" data-reel>
+    <div class="reel__frame">
+      <div class="frame__bar"><i></i><i></i><i></i><span>Showreel</span></div>
+      <video class="reel__v" muted playsinline loop autoplay preload="metadata" poster="media/reel/showreel-poster.webp" width="1000" height="624"
+             aria-label="Screen recordings of five live products: BizMtaani, CarePro, Jamii Projects Hub, Gen-Eat and Hazina Nomads.">
+        <source src="media/reel/showreel-640.webm" type="video/webm" media="(max-width: 720px)">
+        <source src="media/reel/showreel-640.mp4" type="video/mp4" media="(max-width: 720px)">
+        <source src="media/reel/showreel.webm" type="video/webm">
+        <source src="media/reel/showreel.mp4" type="video/mp4">
+      </video>
+    </div>
+    <p class="reel__cap wrap">Real screen recordings of BizMtaani, CarePro, Jamii Projects Hub, Gen-Eat and Hazina Nomads.</p>
+  </div>
+</section>
+
+<!-- WHAT I HAVE BUILT FOR -->
+<section class="range" aria-label="The kinds of work on this page">
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <span>Online shops</span><span>Home nursing</span><span>Medicine supply</span><span>Drone autonomy</span><span>Community projects</span><span>Campus food ordering</span><span>Heritage gifts</span><span>Trading research</span><span>Private messaging</span><span>Server security</span><span>AI model testing</span><span>Online shops</span><span>Home nursing</span><span>Medicine supply</span><span>Drone autonomy</span><span>Community projects</span><span>Campus food ordering</span><span>Heritage gifts</span><span>Trading research</span><span>Private messaging</span><span>Server security</span><span>AI model testing</span>
+    </div>
+  </div>
+  <div class="wrap stats">
+    <div class="stat"><span class="stat__n" data-count="5">5</span><span class="stat__l">products live today</span></div>
+    <div class="stat"><span class="stat__n" data-count="11">11</span><span class="stat__l">systems designed and built</span></div>
+    <div class="stat"><span class="stat__n" data-count="4">4</span><span class="stat__l">drone test flights, every one logged</span></div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work" class="work" aria-labelledby="work-t">
+  <div class="wrap work__head">
+    <h2 id="work-t" class="h2" data-split>Selected work</h2>
+    <p class="work__intro" data-reveal>Every project carries an honest label, so you know exactly what you are looking at.</p>
+    <ul class="legend" data-reveal>
+      <li><span class="pill pill--live">Live</span> Running in public. Anyone can use it today.</li>
+      <li><span class="pill pill--demo">Demonstrated</span> Works end to end on sample data. Not deployed yet.</li>
+      <li><span class="pill pill--research">Research</span> An experiment, with its results shown as they are.</li>
+      <li><span class="pill pill--dev">In development</span> Core parts built and tested. Not finished.</li>
+      <li><span class="pill pill--internal">Internal</span> Tools I use on my own work.</li>
+    </ul>
+  </div>
+
+  <!-- BizMtaani -->
+  <article id="bizmtaani" class="case case--biz" data-status="live" aria-labelledby="biz-t">
+    <div class="wrap case__grid">
+      <div class="case__text">
+        <p class="case__meta"><span class="pill pill--live">Live</span> <span>Retail</span></p>
+        <h3 id="biz-t" class="case__name">BizMtaani</h3>
+        <p class="case__tag" data-split>Online shops for neighbourhood businesses.</p>
+        <p class="case__body" data-reveal>Local shops get a proper storefront without building a website. They list what they sell, customers order and pay from their phones, and a rider brings it to the door. The first shop is open: The Villager, in Embu.</p>
+        <p class="case__fine" data-reveal>Operated by LESNAR AI LTD.</p>
+        <p data-reveal><a class="link" href="https://bizmtaani.com" rel="noopener">Visit bizmtaani.com <svg class="ext" viewBox="0 0 12 12" aria-hidden="true"><path d="M3.5 8.5l5-5M4.5 3.5h4v4"/></svg></a></p>
+      </div>
+      <div class="case__media biz__media">
+        <div class="frame" data-rise>
+          <div class="frame__bar"><i></i><i></i><i></i><span>bizmtaani.com</span></div>
+          <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/bizmtaani-poster.webp" width="1000" height="624" aria-label="Screen recording of BizMtaani: searching for a shop and opening its menu.">
+            <source src="media/reel/bizmtaani.webm" type="video/webm"><source src="media/reel/bizmtaani.mp4" type="video/mp4">
+          </video>
         </div>
-        <div class="sy__col sy__col--relay">
-          <h3>Relay</h3>
-          <p class="sy__k">Holds</p>
-          <ul><li>Mailbox ID</li><li>A hash of the retrieval secret</li><li>Public prekey bundles and device records</li><li>Replay token</li><li>The encrypted envelope</li><li>Expiry time</li></ul>
-          <p class="sy__k">Never holds</p>
-          <ul class="sy__never"><li>Message text</li><li>Private keys</li><li>Session secrets and ratchet state</li></ul>
-        </div>
-        <div class="sy__col sy__col--dev">
-          <h3>Recipient’s device</h3>
-          <ul><li>Identity keys</li><li>Session and ratchet state</li><li>The message, once opened</li></ul>
+        <div class="phones" data-phones>
+          <figure class="phone"><picture><source type="image/webp" srcset="media/biz-m-01-discover-390.webp"><img src="media/biz-m-01-discover-390.jpg" width="390" height="844" loading="lazy" decoding="async" alt="BizMtaani on a phone: finding a shop nearby."></picture><figcaption>Find a shop</figcaption></figure>
+          <figure class="phone"><picture><source type="image/webp" srcset="media/biz-m-04-basket-390.webp"><img src="media/biz-m-04-basket-390.jpg" width="390" height="844" loading="lazy" decoding="async" alt="BizMtaani on a phone: a basket ready to pay."></picture><figcaption>Fill a basket</figcaption></figure>
+          <figure class="phone"><picture><source type="image/webp" srcset="media/biz-m-05-track-390.webp"><img src="media/biz-m-05-track-390.jpg" width="390" height="844" loading="lazy" decoding="async" alt="BizMtaani on a phone: tracking the delivery."></picture><figcaption>Track the rider</figcaption></figure>
         </div>
       </div>
-      <div class="sy__track" aria-hidden="true">
-        <div class="sy__msg">
-          <div class="sy__face sy__face--plain"><span class="sy__lbl">Message</span>See you at the clinic at nine.</div>
-          <div class="sy__face sy__face--env"><span class="sy__lbl">First-contact envelope</span>
-            <span class="sy__fs">
-              <span class="sy__f">Sender identity keys, public</span>
-              <span class="sy__f">Sender ephemeral key</span>
-              <span class="sy__f">Receiver prekey used</span>
-              <span class="sy__f">Nonce</span>
-              <span class="sy__f sy__f--c">Ciphertext</span>
-            </span>
+    </div>
+  </article>
+
+  <!-- CarePro -->
+  <article id="carepro" class="case case--care" data-status="live" aria-labelledby="care-t">
+    <div class="wrap case__grid case__grid--flip">
+      <div class="case__text">
+        <p class="case__meta"><span class="pill pill--live">Live</span> <span>Home healthcare</span></p>
+        <h3 id="care-t" class="case__name">CarePro</h3>
+        <p class="case__tag" data-split>Home nurses a family can trust.</p>
+        <p class="case__body" data-reveal>A platform that matches families with nurses for care at home, with payment held by CarePro until the care is delivered. No nurse is offered to a family until they have passed four checks:</p>
+        <ol class="checks" data-checks>
+          <li><b>Credentials.</b> ID, nursing licence and certificate of good conduct, checked by hand.</li>
+          <li><b>Registry check.</b> Licence confirmed with the Nursing Council of Kenya, and its expiry tracked.</li>
+          <li><b>Interview.</b> Structured, and scored against a clinical rubric.</li>
+          <li><b>Clinical sign-off.</b> A registered nurse reviews the whole file and decides.</li>
+        </ol>
+        <p class="case__fine" data-reveal>The site publishes its own count. On 16 September 2026, 20 nurses had joined and none had yet been approved for assignments.</p>
+        <p data-reveal><a class="link" href="https://carepro.co.ke" rel="noopener">Visit carepro.co.ke <svg class="ext" viewBox="0 0 12 12" aria-hidden="true"><path d="M3.5 8.5l5-5M4.5 3.5h4v4"/></svg></a></p>
+      </div>
+      <div class="case__media">
+        <div class="frame frame--tall" data-rise>
+          <div class="frame__bar"><i></i><i></i><i></i><span>carepro.co.ke</span></div>
+          <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/carepro-poster.webp" width="1000" height="624" aria-label="Screen recording of CarePro’s home page and its published verification panel.">
+            <source src="media/reel/carepro.webm" type="video/webm"><source src="media/reel/carepro.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- MediMatch -->
+  <article id="medimatch" class="case case--dark mm" data-status="demo" aria-labelledby="mm-t">
+    <div class="panel" data-panel>
+      <div class="wrap case__grid">
+        <div class="case__text">
+          <p class="case__meta"><span class="pill pill--demo">Demonstrated</span> <span>Health supply chain</span></p>
+          <h3 id="mm-t" class="case__name">MediMatch</h3>
+          <p class="case__tag" data-split>Moving surplus medicine to the hospitals that need it.</p>
+          <p class="case__body" data-reveal>One hospital has medicine about to expire on the shelf while another has run out. MediMatch finds the match and plans the transfer, ranked by distance, urgency, verification and product fit. It grew out of field research on Nairobi’s public health facilities at USIU-Africa.</p>
+          <dl class="mm__run" data-reveal aria-label="One demonstration run">
+            <div><dt>Facilities</dt><dd data-count="16">16</dd></div>
+            <div><dt>Units routed</dt><dd data-count="985">985</dd></div>
+            <div><dt>Kilometres of routes</dt><dd data-count="3335">3,335</dd></div>
+            <div><dt>Longest transfer</dt><dd><span data-count="810">810</span> km</dd></div>
+          </dl>
+          <p class="case__fine" data-reveal>A working demonstration on sample stock data. The longest route it planned sends 120 units of insulin from Kenyatta National Hospital to Mandera. No facility supplied stock and no transfer was executed.</p>
+        </div>
+        <figure class="mm__map" data-mm-map>
+          <!--#include medimatch-map.svg-->
+          <figcaption class="mm__legend"><span class="k k--hub">Hospital with surplus</span><span class="k k--need">Hospital running short</span><span class="k k--route">Planned transfer</span></figcaption>
+        </figure>
+      </div>
+      <figure class="wrap mm__shot" data-rise>
+        <picture>
+          <source type="image/webp" srcset="media/medimatch-routed-760.webp 760w, media/medimatch-routed-1440.webp 1440w" sizes="(min-width: 1440px) 1320px, calc(100vw - 40px)">
+          <img src="media/medimatch-routed-1440.jpg" width="1440" height="900" loading="lazy" decoding="async" alt="The MediMatch command floor: a dark map of Kenya with surplus hubs, facilities in shortfall and planned transfers, beside panels for coordination impact and supply delivered.">
+        </picture>
+        <figcaption>The command floor. In its own words: public facility names and approximate geocodes, synthetic inventory and need data, no patient records.</figcaption>
+      </figure>
+    </div>
+  </article>
+
+  <!-- Operation Sentinel -->
+  <article id="sentinel" class="case case--dark st" data-status="research" aria-labelledby="st-t">
+    <div class="wrap st__intro">
+      <p class="case__meta"><span class="pill pill--research">Research</span> <span>Drone autonomy</span></p>
+      <h3 id="st-t" class="case__name">Operation Sentinel</h3>
+      <p class="case__tag" data-split>A drone that flies its mission on its own.</p>
+      <div class="st__cols">
+        <p class="case__body" data-reveal>I built the software between a drone’s autopilot and its mission. It takes a route, flies it with nobody at the controls, and records 59 measurements about five times a second: position, speed, battery, wind and what its sensors see. Every flight is sealed with a SHA-256 manifest, so its record cannot be quietly edited afterwards.</p>
+        <p class="case__body case__body--dim" data-reveal><!--#include sentinel-status--></p>
+      </div>
+    </div>
+    <div class="replay" data-replay>
+      <div class="replay__pin">
+        <div class="wrap replay__grid">
+          <div class="replay__stage">
+            <p class="replay__hint" aria-hidden="true">Scroll to replay the latest flight</p>
+            <svg class="replay__svg" viewBox="0 0 1000 640" role="img" aria-labelledby="replay-t">
+              <title id="replay-t">Replay of the drone’s latest test flight, drawn from its own log: a 25-metre square flown at 10 metres, then a landing where it took off.</title>
+            </svg>
+            <div class="replay__static"><!--#include sentinel-mission.svg--></div>
+          </div>
+          <div class="replay__panel" aria-live="off">
+            <p class="replay__status" data-r="status">Landed</p>
+            <dl class="replay__read">
+              <div><dt>Time</dt><dd data-r="time">2:06</dd></div>
+              <div><dt>Altitude</dt><dd><span data-r="alt">0.0</span> m</dd></div>
+              <div><dt>Speed</dt><dd><span data-r="speed">0.0</span> m/s</dd></div>
+              <div><dt>Distance flown</dt><dd><span data-r="dist">99</span> m</dd></div>
+            </dl>
+            <div class="replay__bar" aria-hidden="true"><i data-r="bar"></i></div>
+            <input class="replay__range" type="range" min="0" max="1000" value="1000" aria-label="Scrub through the flight">
           </div>
         </div>
       </div>
-     </div>
     </div>
-  </div>
-  <div class="wrap">
-    <p class="sy__foot">Not a goal, in the threat model’s own words: perfect anonymity against a global passive adversary, or safe operation on a fully compromised device.</p>
-  </div>
-</section>
-
-<!-- LIVE PRODUCTS: their real interfaces -->
-<section id="live" class="sys lv" aria-labelledby="lv-t">
-  <div class="wrap">
-    <div class="sys__head sys__head--wide">
-      <p class="status"><b>Live.</b> Running publicly. Live describes maturity, not adoption.</p>
-      <h2 id="lv-t" class="sys__name">Products in operation</h2>
+    <div class="wrap st__after">
+      <p class="st__facts" data-reveal><!--#include sentinel-facts--></p>
+      <p class="st__hist" data-reveal><!--#include sentinel-history--></p>
+      <p class="case__fine" data-reveal>It is built to fly a PX4 x500 in Gazebo Harmonic, and registers an aircraft only when real telemetry arrives. LESNAR AI built the autonomy bridge, mission logic, telemetry pipeline and operator system, and integrated PX4, Gazebo and AirSim, which are the work of their own upstream maintainers.</p>
     </div>
+  </article>
 
-    <article id="bizmtaani" class="prod prod--wide">
-      <div class="frame">
-        <div class="frame__bar"><span>bizmtaani.com</span></div>
-        <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/bizmtaani-poster.webp" width="1000" height="624" aria-label="Screen recording of BizMtaani: searching for a shop and opening its menu.">
-          <source src="media/reel/bizmtaani.mp4" type="video/mp4">
-        </video>
+  <!-- Gold Trader -->
+  <article id="goldtrader" class="case gt" data-status="research" aria-labelledby="gt-t">
+    <div class="wrap case__grid">
+      <div class="case__text">
+        <p class="case__meta"><span class="pill pill--research">Research</span> <span>Trading research</span></p>
+        <h3 id="gt-t" class="case__name">Gold Trader</h3>
+        <p class="case__tag" data-split>A trading assistant that tells me when not to trade.</p>
+        <p class="case__body" data-reveal>I built a research system for trading gold, and made it audit itself before any real money moves. The audit was brutal: taking every signal for 30 days would have lost <b class="gt__loss">−$79,297</b> over 4,738 trades. So five of the nine strategies were cut, and the rest stay on paper.</p>
+        <p class="case__body" data-reveal>What held up: one narrow setup, up +2.65R over seven trades, which is too few to trust. Paper yes, live no, until twenty forward trades confirm it.</p>
+        <p class="case__fine" data-reveal>Paper trading only. Live orders are locked. Figures from the audit of 29 April to 29 May 2026.</p>
       </div>
-      <div class="prod__text">
-        <h3 class="prod__name">BizMtaani</h3>
-        <p class="prod__cond">A neighbourhood shop can sell online without a website of its own.</p>
-        <p class="prod__body">Shops list what they sell, customers order and pay from their phones, and riders carry the order to the door. One business is listed today: The Villager, in Embu. Operated by LESNAR AI LTD.</p>
-      </div>
-    </article>
-
-    <article id="carepro" class="prod prod--split">
-      <div class="frame">
-        <div class="frame__bar"><span>carepro.co.ke</span></div>
-        <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/carepro-poster.webp" width="1000" height="624" aria-label="Screen recording of CarePro’s home page and its published verification panel.">
-          <source src="media/reel/carepro.mp4" type="video/mp4">
-        </video>
-      </div>
-      <div class="prod__text">
-        <h3 class="prod__name">CarePro</h3>
-        <p class="prod__cond">A nurse is assigned to a family only after four published checks.</p>
-        <ol class="checks">
-          <li><b>Credentials.</b> ID, nursing licence and certificate of good conduct, reviewed by hand.</li>
-          <li><b>Registry check.</b> Licence verified against the Nursing Council of Kenya, expiry tracked.</li>
-          <li><b>Interview.</b> Structured and scored against a clinical rubric.</li>
-          <li><b>Clinical sign-off.</b> A registered nurse reviews the whole file and decides.</li>
+      <figure class="gt__chart" data-bars>
+        <figcaption class="gt__cap">What each strategy would have made, taking every signal for 30 days</figcaption>
+        <ol class="bars">
+          <li class="pos" style="--v:925"><span class="bars__n">Asian range breakout</span><span class="bars__b"><i></i></span><span class="bars__v">+$925</span><span class="bars__d">Watchlist</span></li>
+          <li class="pos" style="--v:438"><span class="bars__n">Liquidity sweep</span><span class="bars__b"><i></i></span><span class="bars__v">+$438</span><span class="bars__d">Keep on paper</span></li>
+          <li style="--v:-700"><span class="bars__n">Inversion fair value gap</span><span class="bars__b"><i></i></span><span class="bars__v">−$700</span><span class="bars__d">Keep, best setups only</span></li>
+          <li style="--v:-36427"><span class="bars__n">London breakout</span><span class="bars__b"><i></i></span><span class="bars__v">−$36,427</span><span class="bars__d">Tighten</span></li>
+          <li class="cut" style="--v:-1420"><span class="bars__n">Trend pullback</span><span class="bars__b"><i></i></span><span class="bars__v">−$1,420</span><span class="bars__d">Cut</span></li>
+          <li class="cut" style="--v:-5047"><span class="bars__n">Momentum burst</span><span class="bars__b"><i></i></span><span class="bars__v">−$5,047</span><span class="bars__d">Cut</span></li>
+          <li class="cut" style="--v:-28623"><span class="bars__n">New York session breakout</span><span class="bars__b"><i></i></span><span class="bars__v">−$28,623</span><span class="bars__d">Cut</span></li>
+          <li class="cut" style="--v:-594"><span class="bars__n">Compression breakout</span><span class="bars__b"><i></i></span><span class="bars__v">−$594</span><span class="bars__d">Cut</span></li>
+          <li class="cut" style="--v:-1021"><span class="bars__n">Timed macro regime</span><span class="bars__b"><i></i></span><span class="bars__v">−$1,021</span><span class="bars__d">Cut</span></li>
         </ol>
+      </figure>
+    </div>
+  </article>
+
+  <!-- Simy -->
+  <article id="simy" class="case sy" data-status="dev" aria-labelledby="sy-t">
+    <div class="wrap sy__intro">
+      <p class="case__meta"><span class="pill pill--dev">In development</span> <span>Private messaging</span></p>
+      <h3 id="sy-t" class="case__name">Simy</h3>
+      <p class="case__tag" data-split>A messenger its own server can’t read.</p>
+      <p class="case__body" data-reveal>Messages are locked on your phone before they leave it, and unlocked only on the other person’s. The server in between carries sealed envelopes it has no way to open. The encryption core (X3DH and Double Ratchet) and the relay are built and tested in Rust.</p>
+      <p class="case__fine" data-reveal>Not yet a finished messenger, and not independently audited.</p>
+    </div>
+    <div class="sy__scene" data-simy>
+      <div class="sy__pin">
+        <div class="wrap">
+          <ol class="sy__steps" aria-label="How a message travels">
+            <li data-step="0"><b>1</b> Locked on your phone</li>
+            <li data-step="1"><b>2</b> The relay only sees a sealed envelope</li>
+            <li data-step="2"><b>3</b> Unlocked on theirs</li>
+          </ol>
+          <div class="sy__row">
+            <div class="sy__node sy__node--phone"><span class="sy__who">Your phone</span><ul class="sy__keeps"><li>Identity keys</li><li>Session and ratchet state</li><li>The message itself</li></ul></div>
+            <div class="sy__node sy__node--relay">
+              <span class="sy__who">Simy relay</span>
+              <div class="sy__sees">
+                <p class="sy__k">Can see</p>
+                <ul><li>A mailbox ID</li><li>A hash of the retrieval secret</li><li>Public prekey bundles and device records</li><li>Replay token</li><li>The sealed envelope, until it expires</li></ul>
+                <p class="sy__k">Can never see</p>
+                <ul class="sy__never"><li>Message text</li><li>Private keys</li><li>Session secrets and ratchet state</li></ul>
+              </div>
+            </div>
+            <div class="sy__node sy__node--phone"><span class="sy__who">Their phone</span><ul class="sy__keeps"><li>Identity keys</li><li>Session and ratchet state</li><li>The message, once opened</li></ul></div>
+            <div class="sy__msg" aria-hidden="true"><span class="sy__txt">See you at the clinic at nine.</span></div>
+          </div>
+        </div>
       </div>
-    </article>
-
-    <div class="trio">
-      <article class="prod prod--small">
-        <div class="frame"><div class="frame__bar"><span>jamii.lesnarai.co.ke</span></div>
-          <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/jamii-poster.webp" width="1000" height="624" aria-label="Screen recording of Jamii Projects Hub."><source src="media/reel/jamii.mp4" type="video/mp4"></video></div>
-        <h3 class="prod__name prod__name--s">Jamii Projects Hub</h3>
-        <p class="prod__body">Community projects proposed, voted on and recorded, with balances every member can read. Piloting in Mbeere North.</p>
-      </article>
-      <article class="prod prod--small">
-        <div class="frame"><div class="frame__bar"><span>geneat.lesnarai.co.ke</span></div>
-          <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/geneat-poster.webp" width="1000" height="624" aria-label="Screen recording of Gen-Eat."><source src="media/reel/geneat.mp4" type="video/mp4"></video></div>
-        <h3 class="prod__name prod__name--s">Gen-Eat</h3>
-        <p class="prod__body">Campus food ordering over WhatsApp, paid by M-Pesa.</p>
-      </article>
-      <article class="prod prod--small">
-        <div class="frame"><div class="frame__bar"><span>hazina.lesnarai.co.ke</span></div>
-          <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/hazina-poster.webp" width="1000" height="624" aria-label="Screen recording of Hazina Nomads."><source src="media/reel/hazina.mp4" type="video/mp4"></video></div>
-        <h3 class="prod__name prod__name--s">Hazina Nomads</h3>
-        <p class="prod__body">Private sourcing and Kenyan heritage gifts, with a concierge on WhatsApp.</p>
-      </article>
     </div>
-  </div>
+  </article>
+
+  <!-- More live products -->
+  <section class="more" aria-labelledby="more-t">
+    <div class="wrap more__head">
+      <p class="case__meta"><span class="pill pill--live">Live</span></p>
+      <h3 id="more-t" class="case__name" data-split>More products in operation</h3>
+    </div>
+    <div class="more__pin" data-strip>
+      <div class="more__track">
+        <article class="mini" data-status="live" aria-labelledby="jamii-t">
+          <div class="frame"><div class="frame__bar"><i></i><i></i><i></i><span>jamii.lesnarai.co.ke</span></div>
+            <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/jamii-poster.webp" width="1000" height="624" aria-label="Screen recording of Jamii Projects Hub."><source src="media/reel/jamii.webm" type="video/webm"><source src="media/reel/jamii.mp4" type="video/mp4"></video></div>
+          <h4 id="jamii-t" class="mini__name">Jamii Projects Hub</h4>
+          <p class="mini__body">Community projects proposed, voted on and recorded, with balances every member can read. Running as a pilot in Mbeere North.</p>
+          <a class="link" href="https://jamii.lesnarai.co.ke" rel="noopener">jamii.lesnarai.co.ke <svg class="ext" viewBox="0 0 12 12" aria-hidden="true"><path d="M3.5 8.5l5-5M4.5 3.5h4v4"/></svg></a>
+        </article>
+        <article class="mini" data-status="live" aria-labelledby="geneat-t">
+          <div class="frame"><div class="frame__bar"><i></i><i></i><i></i><span>geneat.lesnarai.co.ke</span></div>
+            <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/geneat-poster.webp" width="1000" height="624" aria-label="Screen recording of Gen-Eat."><source src="media/reel/geneat.webm" type="video/webm"><source src="media/reel/geneat.mp4" type="video/mp4"></video></div>
+          <h4 id="geneat-t" class="mini__name">Gen-Eat</h4>
+          <p class="mini__body">Campus food ordering over WhatsApp. Message the café, pay on M-Pesa, and pick the order up when it’s ready. No queue, no app to install.</p>
+          <a class="link" href="https://geneat.lesnarai.co.ke" rel="noopener">geneat.lesnarai.co.ke <svg class="ext" viewBox="0 0 12 12" aria-hidden="true"><path d="M3.5 8.5l5-5M4.5 3.5h4v4"/></svg></a>
+        </article>
+        <article class="mini" data-status="live" aria-labelledby="hazina-t">
+          <div class="frame"><div class="frame__bar"><i></i><i></i><i></i><span>hazina.lesnarai.co.ke</span></div>
+            <video class="frame__v" muted playsinline loop preload="none" data-poster="media/reel/hazina-poster.webp" width="1000" height="624" aria-label="Screen recording of Hazina Nomads."><source src="media/reel/hazina.webm" type="video/webm"><source src="media/reel/hazina.mp4" type="video/mp4"></video></div>
+          <h4 id="hazina-t" class="mini__name">Hazina Nomads</h4>
+          <p class="mini__body">Private sourcing and Kenyan heritage gifts, with a concierge on WhatsApp.</p>
+          <a class="link" href="https://hazina.lesnarai.co.ke" rel="noopener">hazina.lesnarai.co.ke <svg class="ext" viewBox="0 0 12 12" aria-hidden="true"><path d="M3.5 8.5l5-5M4.5 3.5h4v4"/></svg></a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Internal tools -->
+  <section id="internal" class="case case--dark in" aria-labelledby="in-t">
+    <div class="wrap">
+      <p class="case__meta"><span class="pill pill--internal">Internal</span></p>
+      <h3 id="in-t" class="case__name" data-split>Tools I use on my own work</h3>
+      <div class="in__grid">
+        <article class="tool" data-status="internal" aria-labelledby="sc-t" data-reveal>
+          <h4 id="sc-t" class="tool__name">SentinelCore</h4>
+          <p class="tool__tag">A security guard for Linux servers.</p>
+          <p class="tool__body">It scans a server, watches it, manages firewall rules and fixes problems it finds. It hasn’t been run against a real server yet, and it publishes its own known gaps.</p>
+          <div class="term" data-term>
+            <p class="term__h">Latest test run</p>
+            <p class="term__l"><span class="ok">133 passed, 0 failed, across 21 test files</span></p>
+            <p class="term__l term__dim">16 September 2026, at commit 65cbd3c</p>
+            <p class="term__h">Known gaps, from its July sealing report</p>
+            <p class="term__l term__dim">The CVE-2024-6387 attribution is not a verified detector.</p>
+            <p class="term__l term__dim">Credential-spray detection is not implemented.</p>
+            <p class="term__l term__dim">Overwrite-before-delete cannot guarantee erasure on SSDs or snapshots.</p>
+          </div>
+        </article>
+        <article class="tool" data-status="internal" aria-labelledby="mf-t" data-reveal>
+          <h4 id="mf-t" class="tool__name">Model Foundry</h4>
+          <p class="tool__tag">How I decide which AI to trust.</p>
+          <p class="tool__body">Before an AI model touches real work, I test it on my own machine. One test: the same coding model run two ways. One task hid a sneaky instruction inside the work: llama.cpp ignored it, and Ollama obeyed it, both times.</p>
+          <div class="term">
+            <p class="term__h">Share of tasks passed</p>
+            <div class="meter" data-meter style="--p:80"><span>llama.cpp</span><b><i></i></b><em>80%</em></div>
+            <div class="meter" data-meter style="--p:60"><span>Ollama</span><b><i></i></b><em>60%</em></div>
+            <p class="term__l term__dim">Qwen2.5-Coder-7B-Instruct, Q4_K_M, pinned by SHA-256. Ten tasks, two repetitions, one machine.</p>
+            <p class="term__l term__dim">Verdict: fine for coding help with a person reading the output. Not for accepting code on its own, security decisions, or enforcing instruction boundaries. No fine-tuned model has been produced yet.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
 </section>
 
-<!-- GOLD TRADER: audit ledger -->
-<section id="goldtrader" class="sys gt" aria-labelledby="gt-t">
-  <div class="wrap gt__grid">
-    <div class="sys__head">
-      <p class="status"><b>Research.</b> Paper trading only. Live orders are locked.</p>
-      <h2 id="gt-t" class="sys__name">Gold Trader</h2>
-      <p class="sys__cond">A trading signal is not an edge until an audit says so.</p>
-      <p class="sys__body">An autonomous XAUUSD research system with a supervised paper-trading loop. Its thirty-day audit ran nine strategy families through the same engine the live scout uses. Most failed, and were cut.</p>
-      <p class="gt__big"><span class="gt__num">−$79,297</span><span class="gt__cap">Taking every signal for thirty days. 4,738 trades, one in four won.</span></p>
-    </div>
-    <div class="gt__ledger">
-      <table>
-        <caption class="vh">Thirty-day audit, April 29 to May 29 2026, net result per strategy family with every signal taken, and the verdict</caption>
-        <thead><tr><th scope="col">Strategy family</th><th scope="col" class="n">Net, 30 days</th><th scope="col">Verdict</th></tr></thead>
-        <tbody>
-          <tr><th scope="row">Asian range breakout</th><td class="n">+$925</td><td>Watchlist</td></tr>
-          <tr><th scope="row">Liquidity sweep</th><td class="n">+$438</td><td>Keep on paper</td></tr>
-          <tr><th scope="row">Inversion fair value gap</th><td class="n">−$700</td><td>Keep, Grade A only</td></tr>
-          <tr><th scope="row">London breakout</th><td class="n">−$36,427</td><td>Tighten</td></tr>
-          <tr class="cut"><th scope="row"><span>Trend pullback</span></th><td class="n">−$1,420</td><td>Disable</td></tr>
-          <tr class="cut"><th scope="row"><span>Momentum burst</span></th><td class="n">−$5,047</td><td>Disable</td></tr>
-          <tr class="cut"><th scope="row"><span>New York session breakout</span></th><td class="n">−$28,623</td><td>Eliminate</td></tr>
-          <tr class="cut"><th scope="row"><span>Compression breakout</span></th><td class="n">−$594</td><td>Eliminate</td></tr>
-          <tr class="cut"><th scope="row"><span>Timed macro regime</span></th><td class="n">−$1,021</td><td>Eliminate</td></tr>
-        </tbody>
-      </table>
-      <p class="gt__after">What held: Grade A setups in a mixed macro regime, +2.65R over seven trades. Too few to trust. In the 30 May rerun, none of 206 Grade A signals passed every live gate. Paper yes, live no, until twenty forward trades confirm it.</p>
-    </div>
-  </div>
-</section>
-
-<!-- INTERNAL: what we run on ourselves -->
-<section id="internal" class="sys in" data-ground="dark" aria-labelledby="in-t">
+<!-- SERVICES -->
+<section id="services" class="services" aria-labelledby="sv-t">
   <div class="wrap">
-    <div class="sys__head sys__head--wide">
-      <p class="status"><b>Internal.</b> Built for our own use. Not offered as a product, and not shown running in production.</p>
-      <h2 id="in-t" class="sys__name">Tested before we trust them</h2>
-    </div>
-    <div class="in__grid">
-      <article class="in__sys">
-        <h3 class="in__name">SentinelCore</h3>
-        <p class="prod__cond">A security tool should report its own gaps.</p>
-        <p class="in__body">Host-auditing software for Linux: an orchestrator and five modules, for scanning, monitoring, firewall rules, remediation and telemetry.</p>
-        <dl class="in__exp">
-          <div><dt>Tests</dt><dd>133 passed, 0 failed, across 21 test files</dd></div>
-          <div><dt>Measured</dt><dd>16 September 2026, at commit 65cbd3c, on one workstation</dd></div>
-          <div><dt>Structure</dt><dd>An orchestrator and five modules in 242 tracked files</dd></div>
-          <div><dt>Not shown</dt><dd>Running against a real server, protecting anything, or being deployed</dd></div>
-        </dl>
-        <p class="in__k">Gaps it lists about itself, from its July sealing report</p>
-        <ul class="in__gaps">
-          <li>The CVE-2024-6387 attribution is not a verified detector.</li>
-          <li>Credential-spray detection is not implemented.</li>
-          <li>Overwrite-before-delete cannot guarantee erasure on SSDs or snapshots.</li>
-        </ul>
+    <h2 id="sv-t" class="h2" data-split>What I can build for you</h2>
+    <div class="sv__grid">
+      <article class="sv" data-reveal>
+        <span class="sv__i" aria-hidden="true">01</span>
+        <h3 class="sv__name">Websites, web apps and mobile apps</h3>
+        <p>Storefronts, booking platforms, dashboards and member portals, designed, built and launched.</p>
+        <p class="sv__ex">Like <a href="#bizmtaani">BizMtaani</a>, <a href="#carepro">CarePro</a> and <a href="#more-t">Jamii Projects Hub</a>.</p>
       </article>
-      <article class="in__sys">
-        <h3 class="in__name">Model Foundry</h3>
-        <p class="prod__cond">A model earns its place, or loses it.</p>
-        <p class="in__body">Where models are evaluated locally before they are trusted with any work. No fine-tuned model has been produced yet. One evaluation, start to finish:</p>
-        <dl class="in__exp">
-          <div><dt>Model</dt><dd>Qwen2.5-Coder-7B-Instruct, Q4_K_M, pinned by SHA-256 before testing</dd></div>
-          <div><dt>Runtimes</dt><dd>llama.cpp and Ollama, same weights, same machine</dd></div>
-          <div><dt>Result</dt><dd>llama.cpp passed 80% of tasks, 8 of 10 repeatable. Ollama passed 60%, 6 of 10.</dd></div>
-          <div><dt>Failure</dt><dd>One task hid an instruction inside the work. llama.cpp ignored it. Ollama obeyed it, in both repetitions.</dd></div>
-          <div><dt>Verdict</dt><dd>Fit for local coding work with a person reading the output. Not for accepting code on its own, security decisions, or enforcing instruction boundaries.</dd></div>
-        </dl>
-        <p class="in__note">Ten tasks, two repetitions, one machine. Not a benchmark.</p>
+      <article class="sv" data-reveal>
+        <span class="sv__i" aria-hidden="true">02</span>
+        <h3 class="sv__name">AI assistants and automation</h3>
+        <p>Assistants that answer customers and take orders on WhatsApp, and automations that take repetitive work off your team.</p>
+        <p class="sv__ex">Like <a href="#more-t">Hazina Nomads</a> and <a href="#more-t">Gen-Eat</a>.</p>
+      </article>
+      <article class="sv" data-reveal>
+        <span class="sv__i" aria-hidden="true">03</span>
+        <h3 class="sv__name">Data and decision systems</h3>
+        <p>Software that turns messy operational data into a clear next step, like which hospital should get which stock.</p>
+        <p class="sv__ex">Like <a href="#medimatch">MediMatch</a> and <a href="#goldtrader">Gold Trader</a>.</p>
+      </article>
+      <article class="sv" data-reveal>
+        <span class="sv__i" aria-hidden="true">04</span>
+        <h3 class="sv__name">Drones, security and private messaging</h3>
+        <p>Autonomy software for drones, security tooling for servers, and end-to-end encrypted messaging.</p>
+        <p class="sv__ex">Like <a href="#sentinel">Operation Sentinel</a>, <a href="#internal">SentinelCore</a> and <a href="#simy">Simy</a>.</p>
       </article>
     </div>
   </div>
 </section>
 
-<!-- CLOSE -->
-<section class="close" aria-labelledby="cl-t">
-  <div class="wrap close__grid">
-    <h2 id="cl-t" class="close__title">Bring us the hard operational problem.</h2>
-    <div class="close__side">
-      <p>Tell us what has to keep working, where it runs, and what it cannot rely on. We reply within two working days, and the first conversation is free.</p>
-      <p class="close__acts"><a class="btn btn--paper" href="/book/">Start a project</a><a class="close__mail" href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a></p>
+<!-- ABOUT -->
+<section id="about" class="about" aria-labelledby="ab-t">
+  <div class="wrap about__grid">
+    <div class="about__collage" aria-hidden="true" data-collage>
+      <img src="media/bizmtaani-760.webp" width="760" height="475" loading="lazy" decoding="async" alt="">
+      <img src="media/carepro-760.webp" width="760" height="475" loading="lazy" decoding="async" alt="">
+      <img src="media/medimatch-routed-760.webp" width="760" height="475" loading="lazy" decoding="async" alt="">
+      <img src="media/hazina-760.webp" width="760" height="475" loading="lazy" decoding="async" alt="">
+    </div>
+    <div class="about__text">
+      <h2 id="ab-t" class="h2" data-split>Hi, I’m Lesnar.</h2>
+      <p class="about__lede" data-reveal>I’m the founder of LESNAR AI, a software company in Nairobi. I build products end to end: the first conversation, the design, the code and the launch, and I keep the live ones running.</p>
+      <p data-reveal>I’m drawn to problems where software has to be right: medicine that expires in the wrong place, nurses a family has to trust, a drone that has to fly with nobody at the controls. Everything on this page is my own work, labelled for exactly what it is.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="contact" aria-labelledby="ct-t">
+  <div class="wrap">
+    <h2 id="ct-t" class="contact__title" data-split>Have something that needs building?</h2>
+    <div class="contact__row">
+      <p data-reveal>Tell me what you’re working on and what it has to do. I usually reply within two working days.</p>
+      <p class="contact__acts" data-reveal>
+        <a class="btn btn--paper" href="mailto:hello@lesnarai.co.ke?subject=A%20new%20project">Start a project</a>
+        <a class="contact__mail" href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a>
+      </p>
     </div>
   </div>
 </section>
@@ -300,11 +428,13 @@
 
 <footer class="foot">
   <div class="wrap foot__in">
-    <p class="mark mark--foot">LESNAR AI</p>
-    <p class="foot__meta">Nairobi, Kenya</p>
-    <nav class="foot__nav" aria-label="Footer"><a href="/work/">Work</a><a href="/services/">Services</a><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/book/">Start a project</a></nav>
-    <p class="foot__meta">© 2026 LESNAR AI</p>
+    <span class="mark">LESNAR AI</span>
+    <span>Nairobi, Kenya</span>
+    <nav class="foot__nav" aria-label="Footer"><a href="#work">Work</a><a href="#services">Services</a><a href="#about">About</a><a href="#contact">Contact</a></nav>
+    <span>© 2026 LESNAR AI LTD</span>
   </div>
 </footer>
+
+<script type="application/json" id="flight-data"><!--#include flight-json--></script>
 </body>
 </html>
