@@ -90,9 +90,24 @@ Depending on the whole `lead` object would recompute every render, because
 continuously. Verified in the running app: headline and brief both read
 1141 km, and 1141 is the only km figure on screen in the route state.
 
-The stills in this directory were captured before the fix, so
-`mm-route-1440@3x.png` still carries the discrepancy. The motion recording
-below was made after the fix and is the corrected reference.
+`mm-route-1440@3x.png` was recaptured from the fixed branch on 29 September
+2026 with the same settings (1440x900 viewport, deviceScaleFactor 3, same
+Mandera scenario, verified adjacent to the detect state). The headline and the
+brief both read 1141 km and it is the only km figure on the page. No still in
+this directory now carries the stale arc distance.
+
+Checks run against the fix at commit `63e8983`, all passing:
+
+| check | command | result |
+|---|---|---|
+| client typecheck | `tsc --noEmit -p client/tsconfig.json` | exit 0, no diagnostics |
+| client build | `npm --prefix client run build` | exit 0, built in 5.98 s |
+| server tests | `npm --prefix server run test:run` | 3 files, 5 tests passed |
+| server build | `npm --prefix server run build` | exit 0 |
+
+Worth noting: `vite build` does not typecheck, since Vite strips types rather
+than checking them, so `tsc --noEmit` was run separately. That is the check
+that actually covers the changed file. The branch is not merged.
 
 ## Motion recording
 
