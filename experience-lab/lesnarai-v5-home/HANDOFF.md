@@ -49,9 +49,9 @@ on lesnargitonga/LesnarAI: PR 1 the console's real link state, PR 2 both bridge 
 PR 3 the world and the Linux stack (the committed `obstacles.sdf` is byte for byte the
 world run 3 flew, `GZ_IP` defaults to loopback, the scripts are executable, and
 `/mnt/j` is optional), and PR 4 a CI that passes on every job. The confirmation
-flight from a stock checkout of `main` is the fourth run above. Still to do, by the
-owner: a decision on whether to re-run the April diagnostics with the fixed lidar,
-since their detector read the old one.
+flight from a stock checkout of `main` is the fourth run above. Nothing is left to
+do here: the April detections chart, whose detector read the old lidar, was dropped
+from the homepage rather than re-run.
 
 ### A flight from `main`
 
@@ -156,7 +156,7 @@ evaluation runs exist there, commit their small, non-secret reports (markdown,
 JSON or CSV), never weights or tokens. Anything that shows a model failing is
 exactly what the section wants.
 
-## 4. Operation Sentinel console (product fix, separate from the site; done 28 September 2026: branch `fix/console-real-state` in `lesnargitonga/lesnarai`, commit `5e54c29`, not merged)
+## 4. Operation Sentinel console (product fix, separate from the site; done 28 September 2026: branch `fix/console-real-state`, commit `5e54c29`, merged into LesnarAI's `main` through PR 1)
 
 `frontend/src/components/DiagnosticTerminal.js` lines 48 to 54 print a fixed
 boot sequence ("ENCRYPTION LAYER: AES-256-GCM ACTIVE", "SYSTEM STATUS:
@@ -166,8 +166,8 @@ from real state or remove them. Until then the console stays off the website.
 The fix replaces the boot text, the always-green Live_Stream label, the fixed
 buffer and signal readouts and the "Secure Link" claim with what App already
 measures (socket connection, health round trip, telemetry age). The Analytics
-cards still carry a fixed Live_Stream label and were left alone. Review and
-merge it; the console stays off the website either way, for its visual style.
+cards still carry a fixed Live_Stream label and were left alone. The console stays
+off the website either way, for its visual style.
 
 ## After all four
 

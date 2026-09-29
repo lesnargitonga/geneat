@@ -20,7 +20,7 @@ maturity line at the top of every system.
 | Section | Maturity | Its own language | Material, and where it came from |
 |---|---|---|---|
 | MediMatch | Demonstrated | Geographic | Kenya outline, the 16 national facilities and 9 transfers from one run. Outline and coordinates from the MediMatch repo; transfers from the supply panel in its own capture, origins checked by distance in `tools/build_assets.py`. The page says the run is over synthetic inventory and that no transfer was executed. |
-| Operation Sentinel | Research | Telemetric | One sealed simulated flight: run `px4_teacher_20260929_082014_d1`, PX4 SITL x500 in Gazebo Harmonic flying the console's own 25 m training box from a stock checkout of LesnarAI's `main` at `3ba2677`, in the repository's own `obstacles.sdf`. Drawn from its sealed `mission.json`, `MANIFEST.json` and telemetry on the LesnarAI branch `evidence/sitl-run-px4_teacher_20260929_082014_d1`. The two earlier sealed runs that stopped short, and the bridge faults they exposed, from their own evidence branches and the fix commits. The 87 April diagnostic runs on their real time axis, from `telemetry.json` on `experience/lesnarai-v5-static`, with the caveat that their detector read a lidar model that turned boxes into discs. The 59-column CSV header the bridge writes. |
+| Operation Sentinel | Research | Telemetric | One sealed simulated flight: run `px4_teacher_20260929_082014_d1`, PX4 SITL x500 in Gazebo Harmonic flying the console's own 25 m training box from a stock checkout of LesnarAI's `main` at `3ba2677`, in the repository's own `obstacles.sdf`. Drawn from its sealed `mission.json`, `MANIFEST.json` and telemetry on the LesnarAI branch `evidence/sitl-run-px4_teacher_20260929_082014_d1`. The two earlier sealed runs that stopped short, and the bridge faults they exposed, from their own evidence branches and the fix commits. The 59-column CSV header the bridge writes. |
 | Simy | In development | A trust boundary | What the relay holds (including public prekey bundles and device records) and never holds, and the first-contact envelope fields, from `docs/relay-api.md`, `docs/threat-model.md` and the Phase 9 handover. |
 | BizMtaani, CarePro | Live | Their real interfaces | Screen recordings and captures. CarePro's four checks are its published panel. |
 | Jamii, Gen-Eat, Hazina | Live, confirmed by the owner | Their real interfaces | Same. |
@@ -48,22 +48,29 @@ IntersectionObserver for video only. Where a browser has no scroll timelines
 (Firefox today), or the visitor asks for reduced motion, every element shows its
 finished state. Nothing animates on load.
 
+## Renders
+
+`renders/homepage-desktop.jpg` (1440 wide) and `renders/homepage-phone.jpg` (390 wide, at 2x) are
+full-page renders from 29 September, taken with reduced motion so every section shows
+its finished state. Chromium, from a local server, after scrolling the page once so
+every lazy image has loaded.
+
 ## Measured
 
 Local server, Chromium, slow 4G (1.6 Mbps, 150 ms) and 4x CPU slowdown:
 
 | | Desktop 1440 | Phone 390 |
 |---|---|---|
-| LCP (the headline) | about 1.0 s | about 0.95 s |
+| LCP (the headline) | about 1.0 s | about 0.9 s |
 | CLS over a full scroll | 0 | 0 |
-| First load, bytes on the wire | 182 KB | 138 KB |
+| First load, bytes on the wire | 168 KB | 125 KB |
 | After a full scroll | 1.6 MB | 0.7 MB |
 
-LCP, CLS and first load were re-measured on 28 September after the flight path went in
-(the HTML grew by about 8 KB; first load is now counted from the network layer's
-encoded lengths). The full-scroll row is from the earlier measurement: the Chromium used
-here cannot decode H.264, so it never downloads the recordings in full and would
-undercount.
+LCP (median of three loads), CLS and first load were re-measured on 29 September after
+the April chart came out (the HTML shrank by about 12 KB); first load is counted from
+the network layer's encoded lengths. The full-scroll row is from the earlier
+measurement: the Chromium used here cannot decode H.264, so it never downloads the
+recordings in full and would undercount.
 
 Most of the full-scroll weight is the five test recordings. Production adds
 real network latency on top of these numbers.
@@ -92,15 +99,18 @@ frames are capped at the recordings' native 1000 px so they never upscale.
 
 ## Open questions
 
-- The April detection counts were produced by a detector that read the old lidar
-  model, which turned box obstacles into discs, so some are detections of nothing.
-  Re-running those diagnostics with the fixed bridge, or dropping the chart, would
-  settle it. The page states the caveat.
 - The Phase 9 work is on GitHub as `experience/lesnarai-v5-static`. Its
   homepage (serif, graphite and paper) is what this prototype would replace;
   its eleven `/work/` pages and route redirects are not touched here.
 
 Settled since the last review:
+
+- The April detections chart is gone from the homepage. Its counts (87 diagnostic
+  runs, 71,813 detections) came from a detector that read the old lidar model, which
+  turned box obstacles into discs, so some were detections of nothing, and the sealed
+  flight now carries the section. The record itself is unchanged in the evidence
+  registry and in `telemetry.json` on `experience/lesnarai-v5-static`; re-running
+  those diagnostics with the fixed bridge would be the way to bring it back.
 
 - Operation Sentinel flies from a stock checkout. LesnarAI's `main` carries the
   console, both bridge fixes, the world and the Linux stack, and a CI that passes
@@ -146,7 +156,7 @@ PR 1 (`fix/console-real-state`).
 ## Checking the page against its sources
 
 `tools/verify.py` confirms every figure and claim on the page appears in the
-file it came from (83 checks with the flight, including counted facts such as the 59
+file it came from (74 checks with the flight, including counted facts such as the 59
 telemetry columns) and that the page carries no em dash. Run it after any copy change.
 
 The flight checks read a lesnargitonga/lesnarai clone (`LESNARAI`, default
@@ -162,9 +172,7 @@ sealed manifest, check each sentence about the earlier runs against that run's s
 outcome and the fix commit's own description, check that the fixes are on
 `fix/offboard-engage` and in `main` exactly when the page says they are merged, check
 that the drawn run flew that branch (the run script's ref and commit, the orchestrator's
-sealed commit, both fixes in it, and that commit's own `obstacles.sdf` by hash), and check
-the April caveat against the bridge
-as committed on 18 March.
+sealed commit, both fixes in it, and that commit's own `obstacles.sdf` by hash).
 
 ## Rebuilding the assets
 

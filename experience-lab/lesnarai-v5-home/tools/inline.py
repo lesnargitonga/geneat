@@ -32,13 +32,10 @@ assert f'<span class="st__n">{total}</span>' in src, "schema count in the headin
 src = src.replace("<!--#include medimatch-map.svg-->", (MEDIA / "medimatch-map.svg").read_text())
 src = src.replace("<!--#include sentinel-mission.svg-->", (MEDIA / "sentinel-mission.svg").read_text())
 src = src.replace("<!--#include sentinel-columns-->", cols)
-src = src.replace("<!--#include sentinel-record.svg-->", (MEDIA / "sentinel-record.svg").read_text())
 run = json.loads((MEDIA / "sentinel-run.json").read_text()) if (MEDIA / "sentinel-run.json").exists() else None
 # Without a committed run the page says there is no flight. With one, the wording is
 # decided by what the run's own telemetry and sealed mission record show.
 flight = "No flight is on record, simulated or physical."
-note = ("These are the perception pipeline’s own output in simulation. No flight log exists, simulated or physical, "
-        "so none of this is a record of flight, and a run that recorded nothing is not a clean flight.")
 cap = "The training mission: four waypoints, a loop of about 465 metres."
 if run:
     OUTCOME = {
@@ -76,13 +73,8 @@ if run:
                     + (f" This run flew that branch, at commit {run['bridge_commit'][:7]}." if flew_it else "") + "</p>")
     if run.get("flew"):
         flight = "A simulated flight is on record, and no physical one."
-        note = ("These are the perception pipeline’s own output in simulation. None of these April runs has a flight log, "
-                "so none of them is a record of flight, and a run that recorded nothing is not a clean flight. "
-                "The detector behind them read a simulated lidar that, in the code of the time, modelled box obstacles as discs, "
-                "so some of these detections may be of obstacles that were not there.")
 src = src.replace("<!--#include sentinel-caption-->", cap)
 src = src.replace("<!--#include sentinel-flight-->", flight)
-src = src.replace("<!--#include sentinel-record-note-->", note)
 assert "<!--#include" not in src
 (HERE / "index.html").write_text(src)
 print("index.html", len(src), "bytes")

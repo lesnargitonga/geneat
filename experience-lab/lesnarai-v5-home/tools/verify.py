@@ -43,11 +43,7 @@ CHECKS = [
     ("registers an aircraft only when real telemetry arrives", "ST/README.md", "drones are registered only when real MAVSDK telemetry arrives"),
     ("SHA-256 manifest", "ST/README.md", "SHA-256 hashes of every artifact"),
     ("integrated PX4, Gazebo and AirSim, which are the work of their own upstream maintainers", DOC, "integrated the PX4, Gazebo and AirSim projects, which are the work of their own upstream maintainers"),
-    ("34 runs recorded detections and 53 recorded none", REG, "34 runs recorded detections; 53 recorded none"),
-    ("71,813 detections in all, 53,971 obstacles and 17,842 proximity alerts", REG, "71,813 rows in total: 53,971 obstacle and 17,842 proximity_alert"),
-    ("No flight log exists, simulated or physical", REG, "so there is no logged flight, simulated or physical"),
     ("No flight is on record, simulated or physical", REG, "so there is no logged flight, simulated or physical"),
-    ("a run that recorded nothing is not a clean flight", DOC, "they do **not** prove 53 clean flights"),
     ("Wind and air density are simulated for training and marked synthetic", "ST/README.md", "environment.synthetic_environment: true"),
     # Simy
     ("X3DH and Double Ratchet", "SY/README.md", "X3DH, and Double Ratchet foundations"),
@@ -116,9 +112,8 @@ SUPERSEDED = [
 # checked against the run's own files, recomputed here rather than trusted from the build.
 RUN = json.loads((HERE / "media/sentinel-run.json").read_text() or "null") if (HERE / "media/sentinel-run.json").exists() else None
 if RUN and RUN.get("flew"):
-    NO_FLIGHT = {"No flight log exists, simulated or physical", "No flight is on record, simulated or physical"}
+    NO_FLIGHT = {"No flight is on record, simulated or physical"}
     CHECKS = [c for c in CHECKS if c[0] not in NO_FLIGHT]
-    CHECKS.append(("None of these April runs has a flight log", REG, "so there is no logged flight, simulated or physical"))
 
 
 def run_checks(text):
@@ -169,8 +164,8 @@ def _norm(t):
 
 
 def history_checks(text):
-    """Every sentence about the earlier sealed runs, and the April lidar caveat, against the
-    evidence branches and the commits in the LesnarAI clone. Returns (checked, failures)."""
+    """Every sentence about the earlier sealed runs against the evidence branches and the
+    commits in the LesnarAI clone. Returns (checked, failures)."""
     import json
     checked, bad = 0, []
     hp = HERE / "media/sentinel-history.json"
@@ -237,32 +232,11 @@ def history_checks(text):
                 why.append("Gazebo did not run that commit's own obstacles.sdf")
             if why:
                 bad.append("SOURCE drift:   'This run flew that branch': " + "; ".join(why))
-    if RUN and RUN.get("flew"):
-        # The April detector read a simulated lidar that modelled boxes as discs: the last
-        # committed bridge before the runs ended (16 April) shows both.
-        checked += 1
-        if "modelled box obstacles as discs" not in text:
-            bad.append("PAGE   missing: 'modelled box obstacles as discs'")
-        checked += 1
-        last = (_git("log", "-1", "--format=%h", "--before=2026-04-16T21:00", "origin/main", "--",
-                     "training/px4_teacher_collect_gz.py") or "").strip()
-        src = _git("show", f"{last}:training/px4_teacher_collect_gz.py") if last else None
-        if not src or "size = (max(obs.dx, obs.dy) / 2) if obs.is_box else obs.radius" not in src \
-                or "1.0 - (float(front_eval_dist) / 20.0)" not in src:
-            bad.append("SOURCE drift:   the April-era bridge does not show the disc lidar feeding the detector")
     return checked, bad
-
-
-def _tel():
-    import json
-    return json.loads((R["V5"] / "creative-reset/final2/telemetry.json").read_text())
 
 
 COUNTS = [  # extra structural facts that are counted rather than quoted
     ("59 values", lambda: '"total": 59' in (HERE / "media/sentinel-columns.json").read_text()),
-    ("71,813 detections", lambda: sum(r["n"] for r in _tel()["runs"]) == 71813),
-    ("17,842 proximity alerts", lambda: sum(r["p"] for r in _tel()["runs"]) == 17842),
-    ("34 runs recorded detections", lambda: sum(1 for r in _tel()["runs"] if r["n"]) == 34 and len(_tel()["runs"]) == 87),
 ]
 
 
