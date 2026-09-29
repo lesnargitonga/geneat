@@ -1,0 +1,39 @@
+{
+  "_note": "The sealed runs before the one the page draws. earlier_runs stopped short, and the page says what stopped them; other_runs are on record but not described on the page. tools/verify.py checks every sentence against the run's sealed mission.json on its evidence branch, against the commit that fixed the fault, and that the fix is in the state fix_state says, in lesnargitonga/lesnarai.",
+  "earlier_runs": [
+    {
+      "run_id": "px4_teacher_20260928_194728_d1",
+      "branch": "evidence/sitl-run-px4_teacher_20260928_194728_d1",
+      "outcome": "timeout",
+      "fixed_by": "6a40f0f",
+      "fix_says": [
+        "PX4 was never in offboard mode",
+        "held its post-takeoff hover at home for ten minutes"
+      ],
+      "sentence": "In the first, the autopilot never handed over control, and the drone hovered over its take-off point for ten minutes."
+    },
+    {
+      "run_id": "px4_teacher_20260928_203728_d1",
+      "branch": "evidence/sitl-run-px4_teacher_20260928_203728_d1",
+      "outcome": "timeout",
+      "fixed_by": "bcf9e52",
+      "fix_says": [
+        "a 1 m x 38 m box centred at (35, 25), read as a 19 m disc",
+        "There was no obstacle there."
+      ],
+      "sentence": "In the second, a bug in the simulated obstacle sensor made a 1-metre wall look like a 19-metre disc, and the drone held back from an obstacle that wasn’t there."
+    }
+  ],
+  "other_runs": [
+    {
+      "run_id": "px4_teacher_20260928_205942_d1",
+      "branch": "evidence/sitl-run-px4_teacher_20260928_205942_d1",
+      "outcome": "completed",
+      "note": "Flew both fixes from fix/offboard-engage at bcf9e52, before they were merged, in a copy of obstacles.sdf that gained the GPS and compass systems PX4 expects. The page drew it until the run from main replaced it."
+    }
+  ],
+  "fix_branch": "fix/offboard-engage",
+  "fix_state": "merged",
+  "fix_sentence": "Both bugs are fixed in the main code.",
+  "merged_into": "main"
+}
