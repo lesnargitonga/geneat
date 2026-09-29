@@ -60,9 +60,65 @@ The application renders its own disclosure in every frame:
 The homepage may present this differently, but it may not lose the meaning:
 the inventory and need data are synthetic and no patient records are involved.
 
-## Known internal inconsistency
+## Route distance: traced and resolved
 
-In the route state the headline says a 1141 km coordination route while the AI
-brief below it says 806 km. That is the product's own output. It was not
-corrected here and should not be quoted on the homepage without resolving
-which figure is right.
+The stills first captured showed 1141 km in the headline and 806 km in the
+brief, for the same transfer. Traced rather than patched.
+
+The plan is fetched twice by design, and the code says so:
+`/redistribution/plan?roads=0` returns curved arcs immediately, then
+`?roads=1` replaces it with real road geometry once that resolves. Measured
+against the mock plan, 54 of the 55 routes change distance between the two,
+and route 1, Nairobi to Mandera, goes from 806 km to 1141 km, a 42 percent
+difference. The `roads_used` flag is false on the first and true on the second.
+
+Both strings read the same route object, so they could not legitimately
+differ. The cause was `briefFor(lead)` memoised on `[lead?.id]` alone. Route
+ids are stable across the arc-to-road upgrade but distances are not, so the
+headline re-rendered with the road distance while the memoised brief kept the
+arc distance.
+
+**1141 km is correct.** The product routes over real road geometry, its own
+impact panel gates on `roads_used`, and the second fetch is explicitly the
+upgrade. Nairobi to Mandera is roughly 800 km straight line and roughly
+1,100 km by road.
+
+Fixed in the MediMatch repository on branch `fix/brief-stale-arc-distance`,
+commit `63e8983`, by adding `lead?.distance_km` to the memo dependencies.
+Depending on the whole `lead` object would recompute every render, because
+`lead` comes from a `find()`, and that would restart the typewriter
+continuously. Verified in the running app: headline and brief both read
+1141 km, and 1141 is the only km figure on screen in the route state.
+
+The stills in this directory were captured before the fix, so
+`mm-route-1440@3x.png` still carries the discrepancy. The motion recording
+below was made after the fix and is the corrected reference.
+
+## Motion recording
+
+`motion/medimatch-detect-rank-route-impact-1920x1080.webm`
+
+- 30.40 s, 1920x1080, recorded from the live application after the distance fix
+- Captured with Playwright's own recorder. No screen capture tool, no ffmpeg on
+  this machine, no post-processing, no overlays, no presentation effects
+- Zero page errors
+- One scenario throughout, verified beat by beat as the stills were:
+  `01 Urgent signal detected, Mandera supply gap`, then
+  `02 Geospatial ranking, weighing 11 supply hubs`, then
+  `03 Source selected, Nairobi to Mandera`, then
+  `04 Equitable access restored, 53 facilities reached`
+- The take opens on the product's own globe intro carrying
+  "See surplus. Detect need. Close the gap.", which was not staged
+- Confirmed at zoom in the footage: the brief reads "over the 1141 km transfer"
+
+One piece of capture-time instrumentation, and nothing else. The product
+schedules its scenario carousel with exactly `setTimeout(..., 15000)`. That one
+timer was dropped by an init script for the length of the take, so a single
+scenario runs end to end instead of the lead changing mid-sequence. No product
+code was changed for the recording, no visual design was altered, and the
+suppression affects only which scenario is on screen, not what it says.
+
+Frames were verified by drawing the decoded video to a canvas and reading pixel
+data. A headless screenshot of a `<video>` element returns white, because the
+decoded frame is not composited, so that method was discarded rather than
+trusted.
