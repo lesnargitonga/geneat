@@ -91,6 +91,24 @@ seals the run. Closing the window early does not affect the flight. Over SSH the
 no screen, so the script stops before starting anything. `mission.json` records
 `"viewer_window": true`. With `PUSH=0` the run is committed locally and not pushed.
 
+### Recording a flight
+
+To record that window as well, for real footage next to the homepage's replay:
+
+```bash
+SENTINEL_RECORD=1 bash /tmp/sentinel_run.sh
+```
+
+It implies the watch mode, and records from just before the mission is sent until five
+seconds after landing, first with Gazebo's own recorder, then (on an X11 desktop with
+ffmpeg installed) by capturing the screen. If neither works it says so, and a screen
+recorder of your own will do (GNOME: Ctrl+Alt+Shift+R). The footage is saved in the run
+as `footage.mp4`, and `footage.json` (its SHA-256, size and how it was made) is written
+before the run is sealed, so the manifest covers it and the evidence branch carries
+both. A recording over about 47 MB is kept in `~/sentinel-footage/` instead, with
+`footage.json` saying where. Pass the branch name to the cloud session and the homepage
+can show the footage beside the replay.
+
 How the runs were made:
 
 

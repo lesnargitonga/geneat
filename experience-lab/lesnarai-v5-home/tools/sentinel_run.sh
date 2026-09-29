@@ -27,6 +27,12 @@
 # The simulation still runs headless, exactly as in an unwatched run. A separate Gazebo
 # window joins it as a viewer, follows the drone, and waits for Enter before the
 # mission is sent. Closing the window does not affect the flight.
+#
+# To record that window as well (implies SENTINEL_WATCH=1):
+#   SENTINEL_RECORD=1 bash sentinel_run.sh
+# The recording runs from just before the mission is sent until five seconds after
+# landing. It is saved in the run as footage.mp4, and footage.json (its SHA-256, size
+# and how it was made) is written before the run is sealed, so the manifest covers it.
 set -uo pipefail
 
 REPO="${LESNAR_REPO:-$HOME/workspace/LesnarAI}"
@@ -35,7 +41,10 @@ user_gz_ip="${GZ_IP:-}"
 ORCH="${ORCH_URL:-http://127.0.0.1:8765}"
 MISSION_TIMEOUT_S="${MISSION_TIMEOUT_S:-600}"
 PUSH="${PUSH:-1}"
+REC="${SENTINEL_RECORD:-0}"
 WATCH="${SENTINEL_WATCH:-0}"
+[ "$REC" = 1 ] && WATCH=1
+rec_how="" rec_pid="" rec_file=""
 viewer_pid=""
 
 say() { printf '\n== %s\n' "$*"; }
@@ -89,7 +98,64 @@ open_viewer() {  # a Gazebo window on this screen, joined to the headless world 
   done
   say "Gazebo window open (pid $viewer_pid). To follow the drone: right-click $drone in the Entity Tree and choose Follow"
 }
-close_viewer() { [ -n "$viewer_pid" ] && kill "$viewer_pid" 2>/dev/null; viewer_pid=""; return 0; }
+close_viewer() { stop_recording; [ -n "$viewer_pid" ] && kill "$viewer_pid" 2>/dev/null; viewer_pid=""; return 0; }
+start_recording() {  # the flight as the Gazebo window shows it
+  [ "$REC" = 1 ] && [ -n "$viewer_pid" ] || return 0
+  rec_file="$run_dir/footage.mp4"
+  local reply size
+  # Gazebo's own recorder writes the 3D view, whatever the desktop is.
+  reply=$(GZ_IP="${GZ_IP:-127.0.0.1}" gz service -s /gui/record_video --reqtype gz.msgs.VideoRecord --reptype gz.msgs.Boolean \
+    --timeout 3000 --req "start: true, format: \"mp4\", save_filename: \"$rec_file\"" 2>/dev/null)
+  if grep -q "data: true" <<<"$reply"; then rec_how="gazebo"; say "Recording the Gazebo view to $rec_file"; return 0; fi
+  # Otherwise the whole screen, on an X11 desktop with ffmpeg installed.
+  if command -v ffmpeg >/dev/null && [ "${XDG_SESSION_TYPE:-x11}" != wayland ]; then
+    size=$(xdpyinfo 2>/dev/null | awk '/dimensions:/{print $2; exit}')
+    ffmpeg -loglevel error -y -f x11grab -framerate 30 -video_size "${size:-1920x1080}" -i "$DISPLAY" \
+      -c:v libx264 -preset veryfast -crf 28 -pix_fmt yuv420p "$rec_file" </dev/null &
+    rec_pid=$!
+    sleep 1
+    if kill -0 "$rec_pid" 2>/dev/null; then rec_how="ffmpeg-x11grab"; say "Recording the screen to $rec_file"; return 0; fi
+    rec_pid=""
+  fi
+  say "Could not start a recording here. Start your own screen recorder now if you want footage (GNOME: Ctrl+Alt+Shift+R)"
+  rec_file=""
+}
+stop_recording() {
+  [ -n "$rec_how" ] || return 0
+  local how="$rec_how"
+  rec_how=""
+  if [ "$how" = gazebo ]; then
+    GZ_IP="${GZ_IP:-127.0.0.1}" gz service -s /gui/record_video --reqtype gz.msgs.VideoRecord --reptype gz.msgs.Boolean \
+      --timeout 5000 --req "stop: true" >/dev/null 2>&1
+    sleep 4  # the viewer finishes writing the file
+  else
+    # TERM, not INT: a background job of a script ignores INT. ffmpeg finishes the file on
+    # TERM too. It gets ten seconds, so a stuck recorder never holds up the landing.
+    kill -TERM "$rec_pid" 2>/dev/null
+    local _
+    for _ in $(seq 1 20); do kill -0 "$rec_pid" 2>/dev/null || break; sleep 0.5; done
+    kill -KILL "$rec_pid" 2>/dev/null
+    wait "$rec_pid" 2>/dev/null
+  fi
+  if [ ! -s "$rec_file" ]; then say "No footage was written"; rm -f "$rec_file"; return 0; fi
+  # The evidence branch takes files up to 50 MB; a longer recording is kept beside the run instead.
+  local kept="$rec_file"
+  if [ "$(stat -c %s "$rec_file")" -gt 47000000 ]; then
+    mkdir -p "$HOME/sentinel-footage"
+    kept="$HOME/sentinel-footage/$(basename "$run_dir").mp4"
+    mv "$rec_file" "$kept"
+  fi
+  python3 - "$kept" "$how" "$run_dir/footage.json" "$run_dir" <<'PY'
+import hashlib, json, os, sys
+f, how, out, run = sys.argv[1:5]
+json.dump({"file": os.path.relpath(f, run) if f.startswith(run) else f, "bytes": os.path.getsize(f),
+           "sha256": hashlib.sha256(open(f, "rb").read()).hexdigest(), "method": how,
+           "in_run": f.startswith(run),
+           "note": "Recorded from the Gazebo viewer during the flight. The simulation itself ran headless; the viewer only watched it."},
+          open(out, "w"), indent=2)
+PY
+  say "Footage: $kept ($(du -h "$kept" | cut -f1))"
+}
 cmd_json() {  # cmd_json <drone> <action> [params-json]
   local params="${3:-}"
   [ -n "$params" ] || params='{}'
@@ -641,6 +707,7 @@ la,lo=float(sys.argv[1]),float(sys.argv[2]); m=25.0; alt=10.0
 dla=m/111319.0; dlo=m/(111319.0*max(0.2,math.cos(math.radians(la))))
 print(json.dumps([[la+dla,lo,alt],[la+dla,lo+dlo,alt],[la,lo+dlo,alt],[la,lo,alt]]))' "$lat0" "$lon0")
 payload=$(cmd_json "$drone" mission_start "{\"waypoints\": $wps, \"mission_type\": \"TRAINING\"}")
+start_recording
 off=$(stat -c %s "$log" 2>/dev/null || echo 0)
 subs=$(publish "$payload")
 dispatched_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -667,6 +734,7 @@ for _ in $(seq 1 45); do
 done
 say "Land command to $land_subs subscriber(s); landed: $landed"
 [ -n "$viewer_pid" ] && sleep 5
+stop_recording   # before the run is sealed, so footage.json is in the manifest
 
 # 6. Record the dispatch and the run's teacher log inside the run, then seal
 tail -c +"$((off0 + 1))" "$log" > "$run_dir/teacher_live_0.log" 2>/dev/null
@@ -694,7 +762,8 @@ json.dump({
                "tracked_files_changed": int(os.environ.get("SENTINEL_BRIDGE_CHANGED") or 0)},
     "gazebo_launch": {"GZ_IP": os.environ.get("GZ_IP") or None,
                       "headless_rendering": os.environ.get("SENTINEL_GZ_HEADLESS_RENDERING") == "1",
-                      "viewer_window": os.environ.get("SENTINEL_VIEWER") == "1"},
+                      "viewer_window": os.environ.get("SENTINEL_VIEWER") == "1",
+                      "footage": os.path.isfile(os.path.join(os.path.dirname(out), "footage.json"))},
     "world": (json.load(open(os.environ["SENTINEL_WORLD_INFO"])) if os.environ.get("SENTINEL_WORLD_INFO")
               else {"source": "obstacles.sdf", "unchanged": True}),
     "teacher_log_lines_since_dispatch": lines,
