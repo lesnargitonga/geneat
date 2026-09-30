@@ -11,6 +11,29 @@ Governing grammar:
 takeoff footage or touchdown footage, because none exists. See
 [FILM-001-SOURCE-AUDIT.md](FILM-001-SOURCE-AUDIT.md).
 
+## Locked anchors
+
+Fixed by the owner, 30 September 2026. Use these exact assets.
+
+| Role | Anchor |
+|---|---|
+| Opening | committed `world-frames/` |
+| Aircraft reveal / hero freeze | `angle-peaks/close-takeoff-land-peak-0321.png` |
+| Alternate hero | frame `0323` |
+| Final real descent frame | frame `0323` |
+| **Never the return ending** | `0325`, `0327` — the aircraft is already clipped / exiting frame |
+
+Locked chain:
+
+`world → aircraft reveal → 0321 freeze → spatial system journey → operator replay → 0321/0323 return → cut`
+
+Two standing rules about evidence:
+
+- **Directory names are labels only.** `takeoff-land-seq/` and `takeoff-seq/` are
+  not evidence of what the footage depicts, and may not be cited as such.
+- **Run 1 is excluded from hero use.** It contains the aircraft, but at
+  materially inadequate scale — peak 698 px (84×62) against 16,706 px (381×350).
+
 ## Beats
 
 ### 1. Environment
@@ -100,9 +123,13 @@ mark.
 
 `takeoff-land-seq/` holds every **other** frame of a 4 Hz capture, so the
 committed descent is sampled at 2 Hz: five frames across 0315–0323, about two
-seconds of wall time. The intervening even frames were not committed. If
-smoother motion is needed they would have to come from the original run output,
-not from a new capture.
+seconds of wall time.
+
+**The committed 2 Hz sequence is sufficient for this editorial structure.** The
+uncommitted intervening even frames are **not** to be retrieved yet. If visual
+production later proves that denser real motion is essential, flag that specific
+need first and retrieve only then. Retrieval would draw on the original run
+output; it is not a recapture and must never become one.
 
 ## Standing constraints
 
