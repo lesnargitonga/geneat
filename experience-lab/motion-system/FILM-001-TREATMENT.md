@@ -18,14 +18,17 @@ Fixed by the owner, 30 September 2026. Use these exact assets.
 | Role | Anchor |
 |---|---|
 | Opening | committed `world-frames/` |
-| Aircraft reveal / hero freeze | `angle-peaks/close-takeoff-land-peak-0321.png` |
-| Alternate hero | frame `0323` |
-| Final real descent frame | frame `0323` |
+| **Canonical aircraft hero freeze** | `angle-peaks/close-takeoff-land-peak-0321.png` |
+| **Canonical final real descent frame / out point** | frame `0323` |
+| Alternate hero candidate | frame `0323` — documented only; **not** used as a second hero beat in the current film |
 | **Never the return ending** | `0325`, `0327` — the aircraft is already clipped / exiting frame |
+
+The two roles are deliberately split. `0321` carries the primary hero reveal;
+`0323` carries the final resolve. One frame does not do both.
 
 Locked chain:
 
-`world → aircraft reveal → 0321 freeze → spatial system journey → operator replay → 0321/0323 return → cut`
+`world → aircraft reveal → 0321 freeze → spatial system journey → operator replay → spatial collapse → 0321 → 0323 → cut to black`
 
 Two standing rules about evidence:
 
@@ -108,12 +111,21 @@ freshness, not a Run 2 fault), and `LIVE OPS TRACKING` / `REAL-TIME FEED` /
 External label: **Recorded mission replay · PX4 SITL**.
 
 ### 7. Return
-Return to the real descent sequence.
+Return to the real descent sequence, in this order:
+
+`operator replay → spatial collapse → 0321 → 0323 → cut to black`
+
+`0321` reprises the hero anchor as the layers collapse back to the aircraft;
+`0323` is the last real frame before black.
 
 ### 8. Ending
 **Cut at frame 0323.** That is the last frame in which the airframe is fully
 inside the frame; at 0325 it is already clipped by the bottom edge (y 789..1079)
 and at 0327 only a 1,569 px sliver remains.
+
+A short **deterministic hold** on `0323` before black is allowed if the timing
+needs it. Do not generate additional motion from that frame merely to extend the
+ending — no interpolation, no drift, no simulated continuation of the descent.
 
 Do not imply touchdown. There is no ground-contact frame and none may be
 generated. Resolve through editorial timing, black, typography or the LESNAR
