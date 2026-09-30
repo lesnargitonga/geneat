@@ -1,0 +1,35 @@
+{
+ "purpose": "visual capture run, not a sealed evidence run",
+ "source": "obstacles.sdf",
+ "source_sha256": "9340b64c4b4cea09652d08d8de6263c8c3bdc0d28788a884ad0cd0b2d2e36f3b",
+ "canonical_unchanged": true,
+ "used_file": "world_visual.sdf",
+ "used_sha256": "6bcfdf5028e9780e341bdae7709622d78bbb7637db12a717396fbb75e25acaaa",
+ "added_models": [
+  "takeoff",
+  "close3q",
+  "lateral",
+  "wide",
+  "elevated",
+  "topdown"
+ ],
+ "added_plugins": [],
+ "added_spherical_coordinates": false,
+ "camera_poses": {
+  "takeoff": "-9 -9 2.0 0 -0.3045 0.7854",
+  "close3q": "-16 -16 7.0 0 -0.0743 0.7854",
+  "lateral": "12.5 -32 10.5 0 0.0112 1.5708",
+  "wide": "-45 -45 28.0 0 0.2178 0.7854",
+  "elevated": "-30 -30 60.0 0 0.6939 0.7854",
+  "topdown": "12.5 12.5 86 0 1.4800 1.5708"
+ },
+ "camera_fov_rad": {
+  "takeoff": 1.15,
+  "close3q": 1.1,
+  "lateral": 1.0,
+  "wide": 1.05,
+  "elevated": 1.0,
+  "topdown": 1.05
+ },
+ "instrumentation": "static observation cameras only; no geometry, lighting, physics, vehicle or mission change"
+}
