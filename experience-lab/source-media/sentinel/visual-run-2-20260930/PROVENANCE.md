@@ -1,5 +1,27 @@
 # Sentinel visual capture run 2, 30 September 2026
 
+> **CORRECTION, 30 September 2026 — the source outranks this note.**
+>
+> This document states below that the `close-takeoff-land` camera "covers both
+> ascent and descent, so takeoff and landing are both usable from this angle".
+> Measurement of the committed frames does not support that. The airframe is
+> readable in exactly one continuous event, frames 0315–0327, in which it
+> crosses the frame top to bottom while growing — a **descent**. There is no
+> usable ascent in this run, in run 1, or anywhere in the committed Sentinel
+> imagery, and the touchdown is not in frame either: the aircraft is clipped by
+> the bottom edge from 0325 onward.
+>
+> The original text is left unedited below as the record of what was believed at
+> capture time. It is not a description of what the frames contain.
+>
+> The directory names `takeoff-land-seq/` (this run) and `takeoff-seq/` (run 1)
+> are labels, not content descriptions. Run 1's `takeoff-seq/` contains **no
+> visible airframe at all** across its 103 frames.
+>
+> No Sentinel source may be described as takeoff footage or touchdown footage.
+> See `experience-lab/motion-system/FILM-001-SOURCE-AUDIT.md`.
+
+
 ## Identity
 
 | field | value |

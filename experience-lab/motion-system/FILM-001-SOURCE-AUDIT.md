@@ -24,10 +24,15 @@ only near-black achromatic object):
 |---|---|---|
 | `visual-run-2-20260930/takeoff-land-seq/` | 165 | **5 hero + 3 marginal** |
 | `visual-run-2-20260930/leg-seq/` | 23 | 8, all bottom-of-frame |
-| `visual-run-20260930/takeoff-seq/` | 103 | **0** |
-| `visual-run-20260930/angle-stills/` | 6 | **0** |
+| `visual-run-20260930/takeoff-seq/` | 103 | **0 at usable scale** |
+| `visual-run-20260930/angle-stills/` | 6 | **0 at usable scale** |
 
-Run 1's sequence is named `takeoff-seq` and contains no visible airframe at all.
+"Readable" here means an airframe of at least 1,500 px. Run 1 needs a precise
+statement rather than a zero: the aircraft is *present* in 101 of its 103
+`takeoff-seq` frames, but at a peak of only **698 px (84×62)** against Run 2's
+**16,706 px (381×350)** — about 24× smaller in area, a speck rather than a
+subject. Run 1's own note agrees, recording 932 px (59×48) and calling it
+usable only "marginally".
 
 The one continuous readable event in the accepted run is a **descent**:
 
@@ -109,17 +114,14 @@ by `operator-replay/`.
 - No implication of Kenya. The world uses PX4's Zurich default coordinates.
 - Label externally as **Recorded mission replay · PX4 SITL**.
 
-## Consequence for the cut
+## Consequence for the cut — resolved
 
-The treatment's bookends — lift at the start, land at the end — are not both
-available. With source collection closed, the options are editorial:
+The treatment's bookends could not both be truth, so the structure was re-cut.
+The locked replacement is [FILM-001-TREATMENT.md](FILM-001-TREATMENT.md):
 
-1. Open on the descent and let the film end on the operator surface or on the
-   architecture, inverting the bookend.
-2. Open on the environment (`world-frames/`) before the aircraft is present, so
-   the first truth frame is the world rather than a lift.
-3. Open on the static airframe at rest (`angle-peaks/`) and treat beat 1 as
-   arrival rather than ascent.
+**reality → reveal → impossible access → system logic → recorded consequence → reality**
 
-Option 2 preserves the treatment's "begin somewhere concrete" grammar without
-asserting a takeoff that was never captured. None of these requires new capture.
+Opening on `world-frames/` (verified to contain zero airframe pixels), revealing
+through the descent, anchoring the spatial breakout on frame 0321, and cutting
+at **0323** — the last frame in which the airframe is fully inside the frame.
+No takeoff is asserted and no touchdown is implied.
