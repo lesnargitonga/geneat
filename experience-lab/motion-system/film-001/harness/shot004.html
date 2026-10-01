@@ -1,0 +1,202 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  :root{
+    --graphite-1:#5e5e5e; --graphite-2:#565656; --graphite-3:#4c4c4c;
+    --graphite-4:#424242; --graphite-5:#383838;
+    --teal:#0d9a9a; --offwhite:#e7e7f3;
+    --edge:rgba(231,231,243,.66);
+    --mono:"DejaVu Sans Mono","Liberation Mono",monospace;
+  }
+  html,body{margin:0;padding:0;background:#1b1b1b;overflow:hidden}
+  #stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:#1b1b1b}
+  #scene{position:absolute;inset:0;transform-style:preserve-3d;perspective:1400px}
+  #cam{position:absolute;inset:0;transform-style:preserve-3d}
+  .layer{position:absolute;left:50%;top:50%;transform-style:preserve-3d}
+  .plane{position:absolute;left:-960px;top:-540px;width:1920px;height:1080px;
+         border:1px solid var(--edge);box-sizing:border-box;
+         box-shadow:0 0 0 1px rgba(0,0,0,.30) inset, 0 0 90px rgba(0,0,0,.30)}
+  .plane.world{padding:0;border-color:rgba(231,231,243,.65)}
+  .plane.world img{width:100%;height:100%;object-fit:cover;display:block}
+  .tick{position:absolute;width:30px;height:30px;border:0 solid var(--edge)}
+  .tick.tl{left:-1px;top:-1px;border-left-width:2px;border-top-width:2px}
+  .tick.tr{right:-1px;top:-1px;border-right-width:2px;border-top-width:2px}
+  .tick.bl{left:-1px;bottom:-1px;border-left-width:2px;border-bottom-width:2px}
+  .tick.br{right:-1px;bottom:-1px;border-right-width:2px;border-bottom-width:2px}
+  .chan{position:absolute;left:8%;right:8%;height:1px;background:rgba(13,154,154,.30)}
+  .opblk{position:absolute;box-sizing:border-box;border:1px solid rgba(231,231,243,.16)}
+  .lbl{position:absolute;font-family:var(--mono);color:var(--offwhite);
+       text-transform:uppercase;white-space:nowrap;letter-spacing:.22em}
+  .lbl .name{font-size:30px;font-weight:700}
+  .lbl .role{font-size:15px;letter-spacing:.14em;color:rgba(231,231,243,.78);margin-top:10px}
+  .lbl .rule{height:1px;background:var(--edge);margin:14px 0 0 0}
+  #trace{position:absolute;left:0;top:0}
+  #vig{position:absolute;inset:0;pointer-events:none;
+       background:radial-gradient(ellipse 90% 88% at 50% 50%,rgba(0,0,0,0) 70%,rgba(0,0,0,.20) 100%)}
+  #shotlbl{position:absolute;left:96px;bottom:84px;font-family:var(--mono);
+           color:rgba(231,231,243,.80);letter-spacing:.20em;font-size:15px;text-transform:uppercase}
+</style></head>
+<body>
+<div id="stage">
+  <div id="scene"><div id="cam"></div></div>
+  <canvas id="trace" width="1920" height="1080"></canvas>
+  <div id="vig"></div>
+  <div id="shotlbl"></div>
+</div>
+<script>
+const W=1920,H=1080,FPS=24,DUR=3.80,NF=Math.round(DUR*FPS);
+const cam=document.getElementById('cam');
+let TEL=null;
+
+const LAYERS=[
+ {key:'world',   name:'Gazebo world',   role:'simulated world · ground truth', z:0,     shade:null},
+ {key:'px4',     name:'PX4 SITL',       role:'flight control',                 z:-1150, shade:'var(--graphite-2)'},
+ {key:'teacher', name:'MAVSDK teacher', role:'mission + control logic',        z:-2300, shade:'var(--graphite-3)'},
+ {key:'tlm',     name:'Telemetry',      role:'recorded state',                 z:-3450, shade:'var(--graphite-4)'},
+ {key:'op',      name:'Operator system',role:'operational view',               z:-4600, shade:'var(--graphite-5)'},
+];
+
+function build(){
+  for(const L of LAYERS){
+    const d=document.createElement('div'); d.className='layer'; d.id='L_'+L.key;
+    const p=document.createElement('div');
+    p.className='plane'+(L.key==='world'?' world':'');
+    p.id='P_'+L.key;
+    if(L.key==='world'){
+      // the return target: the real Gazebo frame, unaltered source imagery
+      const im=document.createElement('img'); im.src='real-0321.png'; p.appendChild(im);
+    } else {
+      p.style.background=L.shade; p.style.opacity='0.93';
+      for(const c of ['tl','tr','bl','br']){
+        const k=document.createElement('div'); k.className='tick '+c; p.appendChild(k);
+      }
+      if(L.key==='op'){
+        const BLK=[
+          {x:0,     y:0,     w:0.142, h:1.000, l:2.05},
+          {x:0.142, y:0,     w:0.858, h:0.102, l:1.15},
+          {x:0.142, y:0.102, w:0.422, h:0.720, l:0.72},
+          {x:0.564, y:0.102, w:0.273, h:0.720, l:0.59},
+          {x:0.837, y:0.102, w:0.163, h:0.720, l:0.95},
+          {x:0.142, y:0.822, w:0.858, h:0.178, l:2.20},
+        ];
+        for(const b of BLK){
+          const e=document.createElement('div'); e.className='opblk';
+          e.style.left=(b.x*100)+'%'; e.style.top=(b.y*100)+'%';
+          e.style.width=(b.w*100)+'%'; e.style.height=(b.h*100)+'%';
+          const v=Math.round(34*b.l);
+          e.style.background=`rgb(${v},${v},${Math.round(v*1.04)})`;
+          p.appendChild(e);
+        }
+      } else {
+        for(const fy of [0.30,0.50,0.70]){
+          const ch=document.createElement('div'); ch.className='chan';
+          ch.style.top=(fy*100)+'%'; p.appendChild(ch);
+        }
+      }
+    }
+    d.appendChild(p);
+    const lb=document.createElement('div'); lb.className='lbl'; lb.id='B_'+L.key;
+    lb.style.left='-830px'; lb.style.top='-410px'; lb.style.width='700px';
+    lb.innerHTML=`<div class="name">${L.name}</div><div class="role">${L.role}</div><div class="rule"></div>`;
+    d.appendChild(lb);
+    cam.appendChild(d);
+  }
+}
+
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const inv=(t,a,b)=>clamp((t-a)/(b-a),0,1);
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const easeOut=t=>1-Math.pow(1-t,3);
+const easeIn=t=>t*t*t;
+
+/* The camera withdraws from an explanation. The event is never replayed
+   backwards: it has already arrived. What unwinds is the representation —
+   readouts go, the trace gives up its exact values and becomes plain spatial
+   direction, the labels leave, and the layers compress onto the world plane
+   until only the real Gazebo frame remains. */
+function renderFrame(n){
+  const t=n/FPS;
+
+  // 1. the operator blocks settle back into a plain plane
+  const blk=1-inv(t,0.00,0.45);
+  document.querySelectorAll('#P_op .opblk').forEach(e=>e.style.opacity=blk.toFixed(3));
+
+  // 2. labels leave
+  const lab=1-inv(t,0.55,1.35);
+
+  // 3. layers compress toward the world plane, and the camera withdraws with them
+  const comp=easeOut(inv(t,0.40,1.85));         // z-spacing collapses to zero
+  const camZ=4600*(1-comp);
+  cam.style.transform=`translate3d(0px,0px,${camZ}px)`;
+
+  LAYERS.forEach((L,i)=>{
+    const d=document.getElementById('L_'+L.key);
+    d.style.transform=`translateZ(${(L.z*(1-comp)).toFixed(1)}px)`;
+    let vis=1;
+    if(L.key!=='world'){
+      // explanatory layers fade out as they compress; gone before reality returns
+      vis=1-inv(t,0.45+(LAYERS.length-1-i)*0.09,1.55+(LAYERS.length-1-i)*0.07);
+    }
+    d.style.opacity=vis.toFixed(3);
+    d.style.visibility = vis<0.02 ? 'hidden' : 'visible';
+    const b=document.getElementById('B_'+L.key);
+    b.style.opacity=(lab*0.98*vis).toFixed(3);
+  });
+
+  document.getElementById('vig').style.opacity=(1-inv(t,1.20,1.85)).toFixed(3);
+  // the world plane's own framing is interpretive too: it goes, so the final
+  // frames are the unaltered source image and nothing else
+  const fr=1-inv(t,1.15,1.80);
+  const wp=document.getElementById('P_world');
+  wp.style.borderColor=`rgba(231,231,243,${(0.65*fr).toFixed(3)})`;
+  wp.style.boxShadow=fr<0.02?'none':`0 0 0 1px rgba(0,0,0,${(0.30*fr).toFixed(3)}) inset, 0 0 90px rgba(0,0,0,${(0.30*fr).toFixed(3)})`;
+  drawTrace(t);
+  const sl=document.getElementById('shotlbl');
+  sl.textContent='Sentinel · flight architecture';
+  sl.style.opacity=(0.80*(1-inv(t,0.9,1.8))).toFixed(3);
+}
+
+/* The trace gives up its exact figures first, then its shape, leaving only a
+   direction — it is not drawn in reverse and no value counts backwards. */
+function drawTrace(t){
+  const c=document.getElementById('trace'), g=c.getContext('2d');
+  g.clearRect(0,0,W,H);
+  if(!TEL) return;
+  const a=1-inv(t,0.35,1.55); if(a<=0) return;
+  const figs=1-inv(t,0.10,0.55);        // exact readouts disappear first
+  const shape=1-inv(t,0.60,1.45);       // then the curve resolves to direction
+  const win=TEL.window;
+  const x0=W*0.255,x1=W*0.700,yb=H*0.660,hh=128;
+  const alts=win.map(w=>w.alt), lo=Math.min(...alts), hi=Math.max(...alts);
+  g.save(); g.globalAlpha=0.95*a;
+  g.strokeStyle='rgba(231,231,243,.24)'; g.lineWidth=1;
+  g.beginPath(); g.moveTo(x0,yb+14); g.lineTo(x1,yb+14); g.stroke();
+  g.strokeStyle='#0d9a9a'; g.lineWidth=2; g.beginPath();
+  for(let i=0;i<win.length;i++){
+    const X=x0+(x1-x0)*(i/(win.length-1));
+    const Yc=yb-((win[i].alt-lo)/Math.max(1e-6,hi-lo))*hh;   // the recorded curve
+    const Yd=yb-hh*0.5;                                      // plain direction
+    const Y=Yd+(Yc-Yd)*shape;
+    i?g.lineTo(X,Y):g.moveTo(X,Y);
+  }
+  g.stroke();
+  if(figs>0){
+    g.globalAlpha=0.95*a*figs;
+    g.fillStyle='rgba(231,231,243,.78)';
+    g.font='13px "DejaVu Sans Mono","Liberation Mono",monospace';
+    g.fillText(hi.toFixed(3)+' m',x0,yb-hh-12);
+    g.fillText(lo.toFixed(3)+' m',x0,yb+4);
+    g.fillText(win[0].t.toFixed(2)+' s',x0,yb+40);
+    const lb2=win[win.length-1].t.toFixed(2)+' s';
+    g.fillText(lb2,x1-g.measureText(lb2).width,yb+40);
+    g.fillStyle='rgba(13,154,154,.95)';
+    g.fillText('rel altitude · '+win.length+' contiguous sealed samples',x0,yb-hh-38);
+  }
+  g.restore();
+}
+
+window.__ready=false;
+fetch('telemetry.json').then(r=>r.json()).then(j=>{TEL=j;build();renderFrame(0);window.__ready=true;});
+window.renderFrame=renderFrame; window.NF=NF;
+</script>
+</body></html>

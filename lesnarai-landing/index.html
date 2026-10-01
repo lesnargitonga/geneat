@@ -41,6 +41,24 @@
 .rv{opacity:0;transform:translateY(10px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
 .rv.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+.film{margin:26px 0 0}
+.film figure{margin:0}
+.film .frame{position:relative;background:#0c0c0c;border:1px solid rgba(231,231,243,.14);
+  aspect-ratio:16/9;overflow:hidden}
+.film video,.film img.poster{display:block;width:100%;height:100%;object-fit:cover}
+.film img.poster{position:absolute;inset:0}
+.film .play{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-start;
+  padding:0 0 20px 20px;background:linear-gradient(to top,rgba(6,6,6,.52) 0%,rgba(6,6,6,.10) 34%,rgba(6,6,6,0) 62%);
+  border:0;cursor:pointer;color:#e7e7f3;font:inherit;
+  letter-spacing:.18em;text-transform:uppercase;font-size:12px;transition:background .25s}
+.film .play:hover,.film .play:focus-visible span{background:rgba(231,231,243,.12);border-color:#e7e7f3}
+.film .play .sm{display:none}
+.film .play span{border:1px solid rgba(231,231,243,.62);padding:10px 16px;backdrop-filter:blur(2px);transition:background .2s,border-color .2s}
+.film .play:focus-visible{outline:2px solid #e7e7f3;outline-offset:3px}
+.film.playing .play,.film.playing img.poster{display:none}
+@media (max-width:620px){.film .play{font-size:10px;padding:0 0 13px 13px}.film .play span{padding:8px 12px}
+  .film .play .lg{display:none}.film .play .sm{display:inline}}
+@media (prefers-reduced-motion:reduce){.film .play span::after{content:" (25 s, with sound)"}}
 
 .home section{padding-block:var(--gap-page);border-top:1px solid var(--r-row)}
 .home section:first-of-type{border-top:0}
@@ -261,6 +279,27 @@
   <p class="lede">An offline-capable command-and-control and training stack for GPS-degraded and
     GPS-denied conditions, built so that no critical function depends on cloud assets while a
     mission is running.</p>
+
+  <div class="film" id="sentinel-film">
+    <figure>
+      <div class="frame">
+        <img class="poster" src="media/sentinel-film-poster@960.jpg" alt="" width="1920" height="1080" loading="lazy" decoding="async">
+        <video id="sentinel-film-v" width="1920" height="1080" preload="none" playsinline
+               controls poster="media/sentinel-film-poster@960.jpg">
+          <source src="media/sentinel-film-001.webm" type="video/webm">
+        </video>
+        <button class="play" type="button" aria-controls="sentinel-film-v">
+          <span class="lg">Play the flight architecture film</span><span class="sm">Play film · 25 s</span>
+        </button>
+      </div>
+      <figcaption class="rcap">Twenty-five seconds through the stack a mission actually runs on:
+        Gazebo world, PX4 SITL, MAVSDK teacher, telemetry, operator system. The aircraft and the
+        final two frames are the simulation's own imagery, and every figure shown is read from one
+        sealed run. <b>The layered space between them is an explanatory rendering, not flight
+        evidence, and the operator surface is a recorded mission replay.</b> Sound is designed;
+        no audio of any kind was recorded.</figcaption>
+    </figure>
+  </div>
 
   <div class="record">
     <div class="scrub-wrap" id="scrub-wrap">
@@ -502,6 +541,19 @@ function Signal(){
 
 const Motion=(()=>{
   const q=matchMedia('(prefers-reduced-motion: reduce)');
+  (function(){
+    const wrap=document.getElementById('sentinel-film');
+    if(!wrap) return;
+    const v=document.getElementById('sentinel-film-v');
+    const b=wrap.querySelector('.play');
+    b.addEventListener('click',()=>{
+      wrap.classList.add('playing');
+      v.preload='auto';
+      // reduced motion: load and expose controls, but do not start it moving
+      if(q.matches){ v.load(); v.focus(); return; }
+      v.play().catch(()=>{});
+    });
+  })();
   let live=0;
   const api={
     get reduced(){ return q.matches },
