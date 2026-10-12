@@ -95,3 +95,12 @@ consequential transitions, physical landing / contact moments where real source
 permits.
 
 Avoid generic cinematic booms every three seconds.
+
+## Delivery
+
+Every delivered asset is encoded once, frame-exactly, from a PNG sequence and a
+WAV master with `tools/encode_master.sh`, producing WebM (VP9 + Opus) and MP4
+(H.264 + AAC) from the same frames and audio. Real-time canvas + MediaRecorder
+encoding is not used anywhere in production: it was measured doubling and
+skipping frames. No encode ships until `tools/check_decode.py` passes in
+Chromium and Firefox. See `tools/README.md`.
