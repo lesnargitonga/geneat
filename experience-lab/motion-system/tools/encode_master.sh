@@ -14,7 +14,8 @@
 # usage: encode_master.sh <frames_dir> <out_basename> [fps] [quality]
 #   writes <out_basename>.webm and <out_basename>.mp4
 #   frames: <prefix><digits>.png from index 0, contiguous (f000.png, f0000.png, c000.png)
-#   quality: VP9 cq-level (default 18); H.264 uses the same number as its CRF-like quantizer + 2
+#   quality: VP9 cq-level (default 18); x264 gets quantizer quality-2: finer quantizers stopped
+#            improving browser-decoded PSNR (the residual gap to VP9 is decoder colour handling)
 # env:
 #   SIZE=WxH        Lanczos scale before encoding (default: source size)
 #   AUDIO=file.wav  audio master; Opus 192 kb/s in WebM, AAC 192 kb/s in MP4
@@ -78,8 +79,13 @@ if [[ $only != webm ]]; then
   audio=(); [[ -n ${AUDIO:-} ]] && audio=("${source_audio[@]}" ! avenc_aac bitrate=192000 ! aacparse ! queue ! mux.)
   gst-launch-1.0 -q -e mp4mux name=mux faststart=true ! filesink location="$out" \
     "${source_video[@]}" \
-    ! x264enc pass=qual quantizer=$((q + 2)) speed-preset=slower psy-tune=film key-int-max=48 bframes=2 \
+    ! x264enc pass=qual quantizer=$((q - 2)) speed-preset=slower psy-tune=film key-int-max=48 bframes=2 \
+        option-string=scenecut=0 \
     ! "video/x-h264,profile=high" ! h264parse ! queue ! mux. "${audio[@]}"
+  # scenecut=0: a scene cut inside x264's minimum keyframe interval becomes a
+  # non-IDR I-frame that mp4mux still lists as a sync sample; Chromium and
+  # Firefox start seek decodes there and present the wrong picture (measured on
+  # the MediMatch fade-in). Keyframes now come only every 48 frames, all IDR.
   # mp4mux presents the 1024 samples of AAC priming (sound 21.33 ms late); mark
   # them in the audio edit list so players trim them, as gapless encoders do.
   if [[ -n ${AUDIO:-} ]]; then

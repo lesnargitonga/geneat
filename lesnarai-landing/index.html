@@ -241,6 +241,7 @@
            preload="none" poster="media/medimatch-poster@960.jpg"
            aria-label="The MediMatch national view: an urgent signal in Mandera resolving into a ranked transfer route over road geometry.">
       <source src="media/medimatch-command.webm" type="video/webm">
+      <source src="media/medimatch-command.mp4" type="video/mp4">
       <img src="/assets/home/mm-national.jpg" width="1600" height="900" loading="lazy"
            alt="The MediMatch national view: facilities across Kenya with transfer routes drawn over road geometry.">
     </video>
@@ -549,7 +550,7 @@ const Motion=(()=>{
     const v=document.getElementById('mm-loop');
     if(!v) return;
     // small screens and reduced motion keep the still and offer controls
-    // instead of pulling ~1.6 MB on load
+    // instead of pulling ~1.5 MB on load
     if(q.matches || innerWidth<=620){ v.setAttribute('controls',''); return; }
     const io=new IntersectionObserver((es)=>{
       for(const e of es){

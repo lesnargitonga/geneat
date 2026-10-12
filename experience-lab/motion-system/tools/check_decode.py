@@ -17,6 +17,7 @@ import numpy as np
 from PIL import Image
 
 MOVING = 4.0          # MSE between neighbouring source frames above which they are unmistakable
+INDISTINCT = 1.0      # source frames closer than this (thumbnail MSE) cannot be told apart after encoding
 WINDOW = 8            # a drop or duplicate shifts by 1-2 frames; search +/- this many
 THUMB = (320, 180)
 
@@ -55,7 +56,11 @@ def main():
         win = range(max(0, i - WINDOW), min(len(src), i + WINDOW + 1))
         mse = {j: ((d - src[j]) ** 2).mean() for j in win}
         j = min(mse, key=mse.get)
-        match.append(i if i < len(src) and mse[i] <= mse[j] + 0.05 else j)
+        # A decode cannot be told apart from two source frames that are
+        # themselves indistinguishable (a recording's own repeated frame), so
+        # that is a match on its own index, not a double.
+        same = i < len(src) and (mse[i] <= mse[j] + 0.05 or ((src[i] - src[j]) ** 2).mean() < INDISTINCT)
+        match.append(i if same else j)
     dups = [i for i in range(1, len(match)) if match[i - 1] < len(step) and step[match[i - 1]] > MOVING and match[i] == match[i - 1]]
     skips = [i for i in range(1, len(match)) if match[i] - match[i - 1] >= 2
              and all(step[k] > MOVING for k in range(match[i - 1], match[i]))]
