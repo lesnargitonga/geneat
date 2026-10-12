@@ -1,8 +1,27 @@
-# Motion encoding: the one production path
+# LESNAR Motion Pipeline
 
-Every delivered LESNAR motion asset is encoded with `encode_master.sh` and must
-pass `check_decode.py` in Chromium and Firefox before it ships. There is no
-other production encoder.
+Company infrastructure, not project tooling. Every LESNAR motion asset goes
+through it; MediMatch and Sentinel Film 001 MC2 already have.
+
+```
+source (recordings, real assets, sealed state)
+  ↓
+deterministic frames
+  ↓
+audio master
+  ↓
+frame-exact encoder (encode_master.sh)
+  ├── VP9 / WebM
+  └── H.264 / MP4
+  ↓
+browser decode verification (decode_frames.mjs + check_decode.py)
+  ↓
+website asset
+```
+
+Every delivered asset is encoded with `encode_master.sh` and must pass
+`check_decode.py` in Chromium and Firefox before it ships. There is no other
+production encoder.
 
 ## Never: canvas + MediaRecorder
 

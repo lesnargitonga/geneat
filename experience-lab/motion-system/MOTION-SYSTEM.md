@@ -96,7 +96,7 @@ permits.
 
 Avoid generic cinematic booms every three seconds.
 
-## Delivery
+## Delivery: the LESNAR Motion Pipeline
 
 Every delivered asset is encoded once, frame-exactly, from a PNG sequence and a
 WAV master with `tools/encode_master.sh`, producing WebM (VP9 + Opus) and MP4
