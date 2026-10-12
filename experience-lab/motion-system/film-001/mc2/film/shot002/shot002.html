@@ -1,0 +1,259 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  :root{
+    --graphite-1:#76767a; --graphite-2:#6e6e72; --graphite-3:#646468;
+    --graphite-4:#5a5a5e; --graphite-5:#505054;
+    --teal:#49d2ce; --offwhite:#f4f4f8; --red:#a11212;
+    --edge:rgba(231,231,243,.66);
+    --mono:"DejaVu Sans Mono","Liberation Mono",monospace;
+  }
+  html,body{margin:0;padding:0;background:#1b1b1b;overflow:hidden}
+  #stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:#1b1b1b}
+  #scene{position:absolute;inset:0;transform-style:preserve-3d;perspective:1400px}
+  #cam{position:absolute;inset:0;transform-style:preserve-3d}
+  .layer{position:absolute;left:50%;top:50%;transform-style:preserve-3d}
+  /* each functional layer is a rectangular graphite plane, edge-lit */
+  .plane{position:absolute;left:-960px;top:-540px;width:1920px;height:1080px;
+         border:1px solid var(--edge);box-sizing:border-box;
+         box-shadow:0 0 0 1px rgba(0,0,0,.30) inset, 0 0 90px rgba(0,0,0,.30)}
+  .tick{position:absolute;width:30px;height:30px;border:0 solid var(--edge)}
+  .tick.tl{left:-1px;top:-1px;border-left-width:2px;border-top-width:2px}
+  .tick.tr{right:-1px;top:-1px;border-right-width:2px;border-top-width:2px}
+  .tick.bl{left:-1px;bottom:-1px;border-left-width:2px;border-bottom-width:2px}
+  .tick.br{right:-1px;bottom:-1px;border-right-width:2px;border-bottom-width:2px}
+  .chan{position:absolute;left:8%;right:8%;height:1px;background:rgba(13,154,154,.30)}
+  .opblk{position:absolute;box-sizing:border-box;border:1px solid rgba(231,231,243,.16)}
+  .plane.world{padding:0;border-color:rgba(231,231,243,.65)}
+  .plane.world img{width:100%;height:100%;object-fit:cover;display:block}
+  .lbl{position:absolute;font-family:var(--mono);color:var(--offwhite);
+       text-transform:uppercase;white-space:nowrap;letter-spacing:.22em}
+  .lbl .name{font-size:30px;font-weight:700}
+  .lbl .role{font-size:15px;letter-spacing:.14em;color:rgba(255,255,255,.92);margin-top:10px}
+  .lbl .rule{height:1px;background:var(--edge);margin:14px 0 0 0}
+  /* the carried event */
+  #event{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;
+         border:2px solid var(--teal);box-sizing:border-box}
+  #event::after{content:"";position:absolute;inset:6px;background:var(--teal)}
+  #evread{position:absolute;font-family:var(--mono);font-size:15px;color:var(--teal);
+          white-space:pre;letter-spacing:.06em;line-height:1.55}
+  #evlead{position:absolute;height:1px;background:rgba(13,154,154,.55)}
+  #trace{position:absolute;left:0;top:0}
+  #x500{position:absolute;transform-origin:50% 50%}
+  #vig{position:absolute;inset:0;pointer-events:none;
+       background:radial-gradient(ellipse 90% 88% at 50% 50%,rgba(0,0,0,0) 70%,rgba(0,0,0,.20) 100%)}
+  #shotlbl{position:absolute;left:96px;bottom:84px;font-family:var(--mono);
+           color:rgba(231,231,243,.80);letter-spacing:.20em;font-size:15px;text-transform:uppercase}
+  #src{position:absolute;right:96px;bottom:84px;font-family:var(--mono);
+       color:rgba(231,231,243,.42);letter-spacing:.14em;font-size:12px;text-align:right;line-height:1.8}
+</style></head>
+<body>
+<div id="stage">
+  <div id="scene"><div id="cam"></div></div>
+  <canvas id="trace" width="1920" height="1080"></canvas>
+  <div id="vig"></div>
+  <div id="shotlbl"></div>
+  <div id="src"></div>
+</div>
+<script>
+const W=1920,H=1080,FPS=24,DUR=8.0,NF=Math.round(DUR*FPS);
+const cam=document.getElementById('cam');
+let TEL=null;
+
+// ---- functional layers: spatial volumes, not cards -------------------------
+// depth in px along -Z; the camera travels through them following the event
+const LAYERS=[
+ {key:'world',   name:'Gazebo world',   role:'simulated world · ground truth', z:0,     shade:null},
+ {key:'px4',     name:'PX4 SITL',       role:'flight control',                 z:-1150, shade:'var(--graphite-2)'},
+ {key:'teacher', name:'MAVSDK teacher', role:'mission + control logic',        z:-2300, shade:'var(--graphite-3)'},
+ {key:'tlm',     name:'Telemetry',      role:'recorded state',                 z:-3450, shade:'var(--graphite-4)'},
+ {key:'op',      name:'Operator system',role:'operational view',               z:-4600, shade:'var(--graphite-5)'},
+];
+
+function build(){
+  for(const L of LAYERS){
+    const d=document.createElement('div'); d.className='layer'; d.id='L_'+L.key;
+    d.style.transform=`translateZ(${L.z}px)`;
+    const p=document.createElement('div');
+    p.className='plane'+(L.key==='world'?' world':'');
+    if(L.key==='world'){ const im=document.createElement('img'); im.src='shot001-end.png'; p.appendChild(im); }
+    else{
+      p.style.background=L.shade;
+      p.style.opacity='0.93';
+      for(const c of ['tl','tr','bl','br']){
+        const k=document.createElement('div'); k.className='tick '+c; p.appendChild(k);
+      }
+      if(L.key==='op'){
+        // derived from the real operator capture, not invented: relative block
+        // sizes, negative space and luminance distribution only. No interface.
+        const BLK=[
+          {x:0,     y:0,     w:0.142, h:1.000, l:2.05},  // sidebar column
+          {x:0.142, y:0,     w:0.858, h:0.102, l:1.15},  // header band
+          {x:0.142, y:0.102, w:0.422, h:0.720, l:0.72},  // main left field
+          {x:0.564, y:0.102, w:0.273, h:0.720, l:0.59},  // main right field
+          {x:0.837, y:0.102, w:0.163, h:0.720, l:0.95},  // right panel
+          {x:0.142, y:0.822, w:0.858, h:0.178, l:2.20},  // console band
+        ];
+        for(const b of BLK){
+          const d=document.createElement('div'); d.className='opblk';
+          d.style.left=(b.x*100)+'%'; d.style.top=(b.y*100)+'%';
+          d.style.width=(b.w*100)+'%'; d.style.height=(b.h*100)+'%';
+          const v=Math.round(34*b.l);
+          d.style.background=`rgb(${v},${v},${Math.round(v*1.04)})`;
+          p.appendChild(d);
+        }
+      } else {
+        for(const fy of [0.30,0.50,0.70]){
+          const ch=document.createElement('div'); ch.className='chan';
+          ch.style.top=(fy*100)+'%'; p.appendChild(ch);
+        }
+      }
+    }
+    d.appendChild(p);
+    const lb=document.createElement('div'); lb.className='lbl'; lb.id='B_'+L.key;
+    lb.style.left='-830px'; lb.style.top='-410px'; lb.style.width='700px';
+    lb.innerHTML=`<div class="name">${L.name}</div><div class="role">${L.role}</div><div class="rule"></div>`;
+    d.appendChild(lb);
+    cam.appendChild(d);
+  }
+  // The Gazebo world plane IS the real Shot 001 frame, and it already contains
+  // the real x500. No second airframe is composited: the aircraft in this shot
+  // is the same real source imagery, receding as its layer recedes.
+  // carried event + its readout
+  const ev=document.createElement('div'); ev.id='event';
+  const rd=document.createElement('div'); rd.id='evread';
+  const ld=document.createElement('div'); ld.id='evlead';
+  document.getElementById('stage').appendChild(ld);
+  document.getElementById('stage').appendChild(ev);
+  document.getElementById('stage').appendChild(rd);
+}
+
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const inv=(t,a,b)=>clamp((t-a)/(b-a),0,1);
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;      // smooth both ends
+const easeOut=t=>1-Math.pow(1-t,3);
+
+// ---- deterministic timeline ------------------------------------------------
+// every value is a pure function of the frame index
+function renderFrame(n){
+  const t=n/FPS;
+  // camera depth: holds on the real frame, then travels layer to layer
+  const keys=[[0.0,0],[1.1,0],[2.6,450],[4.1,1600],[5.6,2750],[7.1,3900],[8.0,4600]];
+  let z=0;
+  for(let i=0;i<keys.length-1;i++){
+    const [t0,z0]=keys[i],[t1,z1]=keys[i+1];
+    if(t>=t0&&t<=t1){ z=z0+(z1-z0)*ease(inv(t,t0,t1)); break; }
+    if(t>t1) z=z1;
+  }
+  // slight lateral settle so the move reads as travel, not a zoom
+  const drift=-46*easeOut(inv(t,1.1,7.1));
+  const rise = -18*easeOut(inv(t,1.1,7.1));
+  cam.style.transform=`translate3d(${drift}px,${rise}px,${z}px)`;
+
+  // Depth culling: a layer fades as the camera reaches it and is gone once
+  // passed, so the shot reads as travelling THROUGH the architecture rather
+  // than magnifying one plane.
+  const appear=[1.25,2.75,4.25,5.75,7.05];
+  LAYERS.forEach((L,i)=>{
+    const eff=L.z+z;                       // plane position relative to viewer
+    const isLast = (i===LAYERS.length-1);
+    let vis=1;
+    if(eff>0 && !isLast) vis=clamp(1-eff/170,0,1);          // only once passed
+    if(eff<-5400) vis=clamp((eff+6600)/1200,0,1);  // still too far to read
+    const d=document.getElementById('L_'+L.key);
+    d.style.opacity=vis.toFixed(3);
+    d.style.visibility = vis<0.02 ? 'hidden' : 'visible';
+    const b=document.getElementById('B_'+L.key);
+    const a=inv(t,appear[i],appear[i]+0.55);
+    b.style.opacity=(a*Math.max(vis,0)).toFixed(3);
+    b.style.transform=`translateY(${((1-easeOut(a))*16).toFixed(2)}px)`;
+  });
+
+  drawEvent(t);
+  drawTrace(t);
+
+  document.getElementById('shotlbl').textContent='Sentinel · flight architecture';
+  const s=document.getElementById('src');
+  s.innerHTML='Run px4_teacher_20260930_074210_d1<br>sealed telemetry · 608 samples';
+  s.style.opacity=(0.55*inv(t,0.8,1.6)).toFixed(3);
+}
+
+// ---- the carried event ------------------------------------------------------
+// one real sealed sample, transformed at each real system boundary
+function drawEvent(t){
+  const ev=document.getElementById('event'), rd=document.getElementById('evread'), ld=document.getElementById('evlead');
+  const born=inv(t,1.45,1.95);
+  if(born<=0){ ev.style.opacity=0; rd.style.opacity=0; ld.style.opacity=0; return; }
+  ev.style.opacity=1; rd.style.opacity=1; ld.style.opacity=1;
+  // screen path: leaves the airframe, tracks inward through the layers
+  const p=inv(t,1.7,7.0);
+  const ax=W*0.448, ay=H*0.472;                 // the x500 in the real frame
+  const x=ax + (W*0.055)*easeOut(p) - 26*p;
+  const y=ay - (H*0.055)*easeOut(p);
+  const sc=(0.62+0.38*born)*(1-0.10*p);
+  ev.style.left=x+'px'; ev.style.top=y+'px';
+  ev.style.transform=`scale(${sc.toFixed(3)})`;
+  ev.style.borderColor = t<5.55 ? 'var(--teal)' : 'var(--offwhite)';
+
+  // readout: what the event IS at this boundary — every value sealed
+  const e=TEL?TEL.event:null; if(!e) return;
+  let lines;
+  if(t<2.75)      lines=[`sample ${e.index} · t+${e.t_s.toFixed(2)} s`,`lat ${e.lat}`,`lon ${e.lon}`];
+  else if(t<4.25) lines=[`state`,`rel alt ${(+e.rel_alt_m).toFixed(3)} m`,`ground speed ${(+e.ground_speed_mps).toFixed(4)} m/s`];
+  else if(t<5.75) lines=[`mission frame`,`heading ${(+e.yaw_deg).toFixed(2)}°`,`rel alt ${(+e.rel_alt_m).toFixed(3)} m`];
+  else if(t<7.05) lines=[`recorded`,`sample ${e.index} of ${TEL.total_samples}`,`battery ${(+e.battery_remaining_pct).toFixed(1)} %`];
+  else            lines=[`received`,`rel alt ${(+e.rel_alt_m).toFixed(3)} m · ${(+e.ground_speed_mps).toFixed(3)} m/s`,`heading ${(+e.yaw_deg).toFixed(2)}° · battery ${(+e.battery_remaining_pct).toFixed(1)} %`];
+  rd.innerHTML=lines.join('<br>');
+  rd.style.left=(x+34)+'px'; rd.style.top=(y-16)+'px';
+  ld.style.left=(x+12)+'px'; ld.style.top=(y)+'px'; ld.style.width='18px';
+}
+
+// ---- telemetry becomes a recorded stream ------------------------------------
+// real contiguous sealed samples, drawn as an exact trace
+function drawTrace(t){
+  const c=document.getElementById('trace'), g=c.getContext('2d');
+  g.clearRect(0,0,W,H);
+  if(!TEL) return;
+  const a=inv(t,5.55,6.95); if(a<=0) return;
+  const win=TEL.window, n=Math.max(2,Math.floor(win.length*easeOut(a)));
+  const x0=W*0.255,x1=W*0.700,yb=H*0.660,hh=128;
+  const alts=win.map(w=>w.alt), lo=Math.min(...alts), hi=Math.max(...alts);
+  g.save(); g.globalAlpha=0.95*a;
+  // baseline
+  g.strokeStyle='rgba(231,231,243,.24)'; g.lineWidth=1;
+  g.beginPath(); g.moveTo(x0,yb+14); g.lineTo(x1,yb+14); g.stroke();
+  // altitude trace — exact sealed values
+  g.strokeStyle='#49d2ce'; g.lineWidth=2.6; g.beginPath();
+  for(let i=0;i<n;i++){
+    const X=x0+(x1-x0)*(i/(win.length-1));
+    const Y=yb-((win[i].alt-lo)/Math.max(1e-6,hi-lo))*hh;
+    i?g.lineTo(X,Y):g.moveTo(X,Y);
+  }
+  g.stroke();
+  // speed trace, quieter
+  g.strokeStyle='rgba(255,255,255,.80)'; g.lineWidth=1.8; g.beginPath();
+  const sp=win.map(w=>w.spd), slo=Math.min(...sp), shi=Math.max(...sp);
+  for(let i=0;i<n;i++){
+    const X=x0+(x1-x0)*(i/(win.length-1));
+    const Y=yb+14-((sp[i]-slo)/Math.max(1e-6,shi-slo))*54;
+    i?g.lineTo(X,Y):g.moveTo(X,Y);
+  }
+  g.stroke();
+  // exact axis figures
+  g.fillStyle='rgba(255,255,255,.95)';
+  g.font='13px "DejaVu Sans Mono","Liberation Mono",monospace';
+  g.fillText(hi.toFixed(3)+' m',x0,yb-hh-12);
+  g.fillText(lo.toFixed(3)+' m',x0,yb+4);
+  g.fillText(win[0].t.toFixed(2)+' s',x0,yb+40);
+  const lab=win[win.length-1].t.toFixed(2)+' s';
+  g.fillText(lab,x1-g.measureText(lab).width,yb+40);
+  g.fillStyle='#4fd8d4';
+  g.fillText('rel altitude · '+win.length+' contiguous sealed samples',x0,yb-hh-38);
+  g.restore();
+}
+
+window.__ready=false;
+fetch('telemetry.json').then(r=>r.json()).then(j=>{TEL=j;build();renderFrame(0);window.__ready=true;});
+window.renderFrame=renderFrame; window.NF=NF;
+</script>
+</body></html>

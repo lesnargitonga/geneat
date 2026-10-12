@@ -1,0 +1,85 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head><body>
+<script>
+/* Reality opens, built from the real Gazebo frame.
+
+   The 0321 plate was split into the flat surfaces it is actually made of. Each
+   is a plane at its own depth, sized so that from the starting camera they
+   recomposite to the source exactly. Nothing is generated: the camera moves
+   through real pixels, and the depth that appears is depth the simulated world
+   already had. */
+const W=1920,H=1080,FPS=24;
+const DUR=+(new URLSearchParams(location.search).get('dur')||4.0);
+const NF=Math.round(DUR*FPS);
+const ONLY=new URLSearchParams(location.search).get('only');
+const FOV=38, PAD=1.6;                       // layers are overscanned 1.6x
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setSize(W,H); renderer.setPixelRatio(1);
+document.body.appendChild(renderer.domElement);
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x0b0d0e);
+const cam=new THREE.PerspectiveCamera(FOV,W/H,1,20000);
+const HALF=Math.tan(THREE.MathUtils.degToRad(FOV/2));
+
+// far to near; each plane's distance from the start camera
+const LAYERS=[
+  {f:'L0_back_pad.png',  d:2400, opaque:true},
+  {f:'L2_band_pad.png',  d:1900},
+  {f:'L3_navy_pad.png',  d:1750},
+  {f:'L4_spire_pad.png', d:1500},
+  {f:'L5_slab_pad.png',  d:1150},
+  {f:'L6_x500_pad.png',  d: 760},
+];
+const meshes=[];
+let loaded=0;
+const tl=new THREE.TextureLoader();
+LAYERS.forEach((L,i)=>{
+  tl.load(L.f, tex=>{
+    tex.minFilter=THREE.LinearFilter; tex.magFilter=THREE.LinearFilter;
+    tex.generateMipmaps=false;
+    const mat=new THREE.MeshBasicMaterial({map:tex,transparent:!L.opaque,
+      depthWrite:!!L.opaque, side:THREE.DoubleSide});
+    const h=2*L.d*HALF*PAD, w=h*W/H;
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);
+    m.position.set(0,0,-L.d); m.renderOrder=i;
+    m.userData={base:L.d};
+    if(ONLY!==null && +ONLY!==i) m.visible=false;
+    meshes[i]=m; scene.add(m);
+    if(++loaded===LAYERS.length) window.__ready=true;
+  });
+});
+
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const inv=(t,a,b)=>clamp((t-a)/(b-a),0,1);
+// Quintic smootherstep: zero velocity AND zero acceleration at both ends, and
+// acceleration that never jumps. A cubic ease flips from full acceleration to
+// full braking at the midpoint and peaks at 3x the average speed, which reads
+// as a surge; this peaks at 1.875x and glides, the way a dolly is pushed.
+const smoother=t=>t*t*t*(t*(t*6-15)+10);
+
+/* The move: a slow lateral push past the aircraft. While it travels, the
+   surfaces separate along depth — the wall pulls back from the band, the band
+   from the spire — so the parallax reveals that the flat image was a stack. */
+function renderFrame(n, jx=0, jy=0){
+  const t=n/FPS, p=smoother(inv(t,0.0,DUR));
+  // depth separation grows through the move: the stack opens
+  const open=smoother(inv(t,0.35,DUR-0.2));
+  meshes.forEach((m,i)=>{
+    const sep=1+open*(0.10+0.09*(LAYERS.length-1-i));   // far layers recede more
+    m.position.z=-m.userData.base*sep;
+    // rescale so a receded layer still covers frame (it moved back, not shrank)
+    const s=sep; m.scale.set(s,s,1);
+  });
+  cam.position.set(  -160*p + jx,  38*p + jy,  -210*p );
+  cam.lookAt(  -40*p, 14*p, -1400 );
+  cam.rotation.z = -0.012*p;
+  // atmosphere thickens with depth as the space opens, from nothing at t=0
+  scene.fog = new THREE.FogExp2(0x9fb3b3, 0.00011*open);
+  renderer.render(scene,cam);
+}
+window.renderFrame=renderFrame; window.NF=NF;
+</script>
+</body></html>

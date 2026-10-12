@@ -1,0 +1,309 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"/three/build/three.module.js","three/addons/":"/three/examples/jsm/"}}</script>
+</head><body>
+<script type="module">
+/* Sentinel x500, reconstructed in true 3D.
+   Everything placed here is the sealed Run 2 record: the world is world_used.sdf
+   (sha256 b7a272e4...), every visual at its SDF pose and colour; the aircraft is
+   PX4's x500_base (BSD-3, Rudis Laboratories) assembled from its own model.sdf;
+   its position and attitude come from the sealed telemetry (sha256 4d685cf1...);
+   the final camera is the real close-takeoff-land observation camera. The light
+   is the world's own sun direction. Nothing is generated.
+   Coordinates are Gazebo's: metres, Z up, x east, y north. */
+import * as THREE from 'three';
+import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+
+THREE.Object3D.DEFAULT_UP.set(0, 0, 1);
+const P = new URLSearchParams(location.search);
+const W = +(P.get('w') || 1920), H = +(P.get('h') || 1080);
+const lin = (r, g, b) => new THREE.Color().setRGB(r, g, b, THREE.LinearSRGBColorSpace);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H); renderer.setPixelRatio(1);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.NeutralToneMapping;      // keeps the world's hues; AgX washed the cyan out
+renderer.toneMappingExposure = +(P.get('exposure') || 1.0);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const SKY = lin(0.8, 0.8, 0.9);                     // <scene><background> of the sealed world
+scene.background = SKY;
+scene.fog = new THREE.FogExp2(SKY, +(P.get('fog') || 0.0035));
+
+// ---- light: the world's own sun, plus the sky it sits in -------------------
+const SUN_DIR = new THREE.Vector3(-0.5, 0.1, -0.9).normalize();   // <light name="sun"><direction>
+const sun = new THREE.DirectionalLight(0xffffff, +(P.get('sun') || 3.2));
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.bias = -0.0002; sun.shadow.normalBias = 0.002; sun.shadow.radius = 2;
+Object.assign(sun.shadow.camera, { left: -0.9, right: 0.9, top: 0.9, bottom: -0.9, near: 0.1, far: 40 });
+scene.add(sun, sun.target);
+// Ambient and reflections come from the reconstructed world itself: a cube capture at
+// the aircraft's position each frame (sun-lit 0.8-albedo ground below, the sealed
+// sky colour above, the towers around), so the underside gets the ground's real
+// bounce and the metal and clear-coat reflect what is actually there.
+const pmrem = new THREE.PMREMGenerator(renderer);
+const cubeRT = new THREE.WebGLCubeRenderTarget(256, { type: THREE.HalfFloatType });
+const cubeCam = new THREE.CubeCamera(0.3, 2000, cubeRT);
+scene.add(cubeCam);
+scene.environmentIntensity = +(P.get('env') || 1.0);
+let envRT = null;
+function captureEnvironment(at) {
+  aircraft.visible = false; scene.environment = null;
+  cubeCam.position.copy(at); cubeCam.update(renderer, scene);
+  aircraft.visible = true;
+  if (envRT) envRT.dispose();
+  envRT = pmrem.fromCubemap(cubeRT.texture); scene.environment = envRT.texture;
+}
+
+// ---- the sealed world ---------------------------------------------------------
+const world = new THREE.Group(); scene.add(world);
+async function buildWorld() {
+  const items = await (await fetch('world.json')).json();
+  const matCache = new Map();
+  const mat = c => {
+    const k = c.join(',');
+    if (!matCache.has(k)) matCache.set(k, new THREE.MeshStandardMaterial({ color: lin(...c), roughness: 0.85, metalness: 0 }));
+    return matCache.get(k);
+  };
+  for (const it of items) {
+    let geo;
+    if (it.type === 'box') geo = new THREE.BoxGeometry(...it.size);
+    else if (it.type === 'cylinder') { geo = new THREE.CylinderGeometry(it.radius, it.radius, it.length, 40); geo.rotateX(Math.PI / 2); }
+    else if (it.type === 'plane') geo = new THREE.PlaneGeometry(...it.size);
+    else continue;
+    const m = new THREE.Mesh(geo, mat(it.color || [0.8, 0.8, 0.8]));
+    m.matrixAutoUpdate = false; m.matrix.fromArray(it.matrix);
+    m.receiveShadow = true;
+    world.add(m);
+  }
+}
+
+// ---- the x500, assembled from its own model.sdf ------------------------------
+const aircraft = new THREE.Group(); scene.add(aircraft);
+const rotors = [];
+const rpy = (r, p, y) => new THREE.Euler(r, p, y, 'ZYX');          // SDF fixed-axis roll, pitch, yaw
+function place(obj, [x, y, z, r, p, yw], scale = 1) {
+  obj.position.set(x, y, z); obj.setRotationFromEuler(rpy(r, p, yw)); obj.scale.setScalar(scale); return obj;
+}
+// Materials keep the asset's own colours and textures; only the shading model is physical.
+function finish(root, kind) {
+  root.traverse(o => {
+    if (o.isLight || o.isCamera) { o.visible = false; return; }
+    if (!o.isMesh) return;
+    o.castShadow = true; o.receiveShadow = true;
+    const src = Array.isArray(o.material) ? o.material : [o.material];
+    const out = src.map(m => {
+      const name = (m.name || '').toLowerCase();
+      const base = { color: m.color ? m.color.clone() : new THREE.Color(0.2, 0.2, 0.2), map: m.map || null };
+      if (base.map) base.map.colorSpace = THREE.SRGBColorSpace;
+      if (kind === 'prop') return new THREE.MeshStandardMaterial({ color: lin(0.175, 0.175, 0.175), roughness: 0.45 });  // Gazebo/DarkGrey
+      if (name.includes('carbon')) return new THREE.MeshPhysicalMaterial({ ...base, roughness: 0.42, clearcoat: 0.7, clearcoatRoughness: 0.18 });
+      if (name.includes('metal') || name.includes('material_00')) return new THREE.MeshStandardMaterial({ ...base, roughness: 0.32, metalness: 0.85 });
+      if (name.includes('rubber') || name.includes('foam')) return new THREE.MeshStandardMaterial({ ...base, roughness: 0.92 });
+      return new THREE.MeshStandardMaterial({ ...base, roughness: 0.5 });
+    });
+    out.forEach((m, i) => { m.name = src[i].name; });
+    o.material = out.length === 1 ? out[0] : out;
+  });
+  return root;
+}
+// A spinning prop, exposed for more than a turn, records as its time-average: a disc
+// whose opacity at each radius is the fraction of that annulus the real blade covers
+// (measured from the STL footprint, prop_coverage.json).
+let discGeo, discMat;
+async function buildDisc() {
+  const pc = await (await fetch('prop_coverage.json')).json(), N = 256, a = new Uint8Array(N * N * 4);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const r = Math.hypot(x + 0.5 - N / 2, y + 0.5 - N / 2) / (N / 2);
+    const k = Math.min(pc.coverage.length - 1, Math.floor(r * pc.coverage.length));
+    const v = r >= 1 ? 0 : Math.round(255 * pc.coverage[k]); const i = (y * N + x) * 4; a[i] = a[i + 1] = a[i + 2] = v; a[i + 3] = 255;
+  }
+  const tex = new THREE.DataTexture(a, N, N); tex.needsUpdate = true; tex.magFilter = THREE.LinearFilter;
+  discGeo = new THREE.CircleGeometry(pc.r_max, 96);
+  discMat = new THREE.MeshStandardMaterial({ color: lin(0.175, 0.175, 0.175), roughness: 0.45, alphaMap: tex,
+    transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide });
+}
+async function buildAircraft() {
+  await buildDisc();
+  const dae = new ColladaLoader(), stl = new STLLoader();
+  const load = (l, u) => new Promise((res, rej) => l.load(u, res, undefined, rej));
+  const M = '/px4/meshes/';
+  const zUp = c => { c.scene.rotation.set(0, 0, 0); c.scene.updateMatrixWorld(true); return c.scene; };  // undo the loader's Y-up turn
+  const [body, motorBase, bell, propCCW, propCW] = await Promise.all([
+    load(dae, M + 'NXP-HGD-CF.dae').then(zUp), load(dae, M + '5010Base.dae').then(zUp), load(dae, M + '5010Bell.dae').then(zUp),
+    load(stl, M + '1345_prop_ccw.stl'), load(stl, M + '1345_prop_cw.stl')]);
+  aircraft.add(place(finish(body, 'body'), [0, 0, 0.025, 0, 0, Math.PI]));
+  for (const [x, y] of [[0.174, 0.174], [-0.174, 0.174], [0.174, -0.174], [-0.174, -0.174]])
+    aircraft.add(place(finish(motorBase.clone(true), 'motor'), [x, y, 0.032, 0, 0, -0.45]));
+  // rotor_0 (+x,-y) ccw, rotor_1 (-x,+y) ccw, rotor_2 (+x,+y) cw, rotor_3 (-x,-y) cw
+  const R = [[0.174, -0.174, propCCW, +1], [-0.174, 0.174, propCCW, +1], [0.174, 0.174, propCW, -1], [-0.174, -0.174, propCW, -1]];
+  for (const [x, y, geo, dir] of R) {
+    const link = place(new THREE.Group(), [x, y, 0.06, 0, 0, 0]);
+    const prop = place(finish(new THREE.Mesh(geo, new THREE.MeshStandardMaterial()), 'prop'), [-0.022, -0.14638461538461536, -0.016, 0, 0, 0], 0.8461538461538461);
+    link.add(prop);
+    link.add(place(finish(bell.clone(true), 'motor'), [0, 0, -0.032, 0, 0, 0]));
+    const disc = new THREE.Mesh(discGeo, discMat.clone()); disc.position.z = -0.003; disc.renderOrder = 2;
+    link.add(disc);
+    aircraft.add(link); rotors.push({ link, dir, prop, disc });
+  }
+}
+
+// ---- cameras: Gazebo pose -> three camera --------------------------------------
+// A Gazebo camera looks along its +X with +Z up; three's camera looks along -Z with +Y up.
+const camera = new THREE.PerspectiveCamera(30, W / H, 0.05, 4000);
+const FIX = new THREE.Matrix4().makeBasis(new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, 0, 1), new THREE.Vector3(-1, 0, 0));
+function setCamera(c) {
+  const vfov = 2 * Math.atan(Math.tan(c.hfov / 2) * H / W);
+  camera.fov = THREE.MathUtils.radToDeg(vfov); camera.updateProjectionMatrix();
+  camera.position.set(...c.pos);
+  if (c.rpy) {
+    const g = new THREE.Matrix4().makeRotationFromEuler(rpy(...c.rpy)).multiply(FIX);
+    camera.quaternion.setFromRotationMatrix(g);
+  } else { camera.up.set(0, 0, 1); camera.lookAt(...c.look); if (c.roll) camera.rotateZ(c.roll); }
+  camera.updateMatrixWorld(true);
+  // Depth of field by lens sampling: shift the camera across the aperture disc and
+  // shear the frustum so the focal plane stays put; averaged over samples this is
+  // a real thin-lens defocus, not a screen-space blur.
+  if (c.aperture) {
+    const [ox, oy] = c.aperture, F = c.focus;
+    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion), up = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+    camera.position.addScaledVector(right, ox).addScaledVector(up, oy); camera.updateMatrixWorld(true);
+    const e = camera.projectionMatrix.elements;
+    e[8] = -e[0] * ox / F; e[9] = -e[5] * oy / F;
+    camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
+  }
+}
+// ---- aircraft state ---------------------------------------------------------------
+function setAircraft(a) {
+  aircraft.position.set(...a.pos);
+  aircraft.setRotationFromEuler(rpy(...a.rpy));
+  rotors.forEach((r, i) => r.link.rotation.set(0, 0, r.dir * (a.prop[i] || 0)));
+  const disc = a.disc || 0;
+  for (const r of rotors) {
+    r.disc.material.opacity = disc; r.disc.visible = disc > 0.001;
+    r.prop.visible = disc < 0.999;
+    r.prop.material.transparent = disc > 0.001; r.prop.material.opacity = 1 - disc; r.prop.material.depthWrite = disc <= 0.001;
+  }
+  aircraft.updateMatrixWorld(true);
+  // the sun's shadow frustum follows the aircraft so its self-shadows stay crisp
+  sun.target.position.copy(aircraft.position);
+  sun.position.copy(aircraft.position).addScaledVector(SUN_DIR, -20);
+  sun.target.updateMatrixWorld(); sun.updateMatrixWorld();
+}
+
+// ---- render, with sub-frame accumulation in linear light ---------------------------
+const px = new Uint8Array(W * H * 4);
+const toLin = new Float32Array(256).map((_, i) => { const c = i / 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); });
+function renderStates(states) {
+  const gl = renderer.getContext();
+  const acc = new Float32Array(W * H * 3);
+  setAircraft(states[Math.floor(states.length / 2)].aircraft); captureEnvironment(aircraft.position);
+  for (const s of states) {
+    setCamera(s.camera); setAircraft(s.aircraft);
+    renderer.render(scene, camera);
+    gl.readPixels(0, 0, W, H, gl.RGBA, gl.UNSIGNED_BYTE, px);
+    for (let i = 0, j = 0; i < px.length; i += 4, j += 3) { acc[j] += toLin[px[i]]; acc[j + 1] += toLin[px[i + 1]]; acc[j + 2] += toLin[px[i + 2]]; }
+  }
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const ctx = c.getContext('2d'); const img = ctx.createImageData(W, H); const n = states.length;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {          // readPixels is bottom-up
+    const j = ((H - 1 - y) * W + x) * 3, o = (y * W + x) * 4;
+    for (let k = 0; k < 3; k++) {
+      const v = acc[j + k] / n, s = v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055;
+      img.data[o + k] = Math.max(0, Math.min(255, Math.round(s * 255)));
+    }
+    img.data[o + 3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  return c.toDataURL('image/png').split(',')[1];
+}
+window.renderStates = renderStates;
+
+// ---- pose solve against the real frame's aircraft matte -----------------------------
+// Renders the aircraft alone, flat white on black, from the real camera, and scores
+// intersection-over-union with the matte extracted from frame 0321.
+const white = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const maskPx = new Uint8Array(W * H * 4);
+let target = null;
+async function loadTarget(url) {
+  const img = new Image(); img.src = url; await img.decode();
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d'); x.drawImage(img, 0, 0, W, H);
+  const d = x.getImageData(0, 0, W, H).data; target = new Float32Array(W * H);
+  for (let y = 0; y < H; y++) for (let i = 0; i < W; i++) target[(H - 1 - y) * W + i] = d[(y * W + i) * 4] / 255;  // bottom-up, like readPixels
+}
+function iou(state) {
+  setCamera(state.camera); setAircraft(state.aircraft);
+  const keep = [scene.background, scene.fog, renderer.toneMapping];
+  scene.background = new THREE.Color(0, 0, 0); scene.fog = null; renderer.toneMapping = THREE.NoToneMapping;
+  world.visible = false; scene.overrideMaterial = white;
+  renderer.render(scene, camera);
+  const gl = renderer.getContext(); gl.readPixels(0, 0, W, H, gl.RGBA, gl.UNSIGNED_BYTE, maskPx);
+  [scene.background, scene.fog, renderer.toneMapping] = keep; world.visible = true; scene.overrideMaterial = null;
+  let inter = 0, uni = 0;
+  for (let i = 0, j = 0; j < target.length; i += 4, j++) { const a = maskPx[i] / 255, b = target[j]; inter += Math.min(a, b); uni += Math.max(a, b); }
+  return inter / uni;
+}
+function nelderMead(f, x0, step, iters) {
+  const n = x0.length; let pts = [x0.slice()];
+  for (let i = 0; i < n; i++) { const p = x0.slice(); p[i] += step[i]; pts.push(p); }
+  let val = pts.map(f);
+  for (let k = 0; k < iters; k++) {
+    const ord = val.map((v, i) => i).sort((a, b) => val[a] - val[b]); pts = ord.map(i => pts[i]); val = ord.map(i => val[i]);
+    const c = Array(n).fill(0); for (let i = 0; i < n; i++) for (let d = 0; d < n; d++) c[d] += pts[i][d] / n;
+    const lerp = (a, t) => c.map((ci, d) => ci + t * (a[d] - ci));
+    const xr = lerp(pts[n], -1), fr = f(xr);
+    if (fr < val[0]) { const xe = lerp(pts[n], -2), fe = f(xe); if (fe < fr) { pts[n] = xe; val[n] = fe; } else { pts[n] = xr; val[n] = fr; } }
+    else if (fr < val[n - 1]) { pts[n] = xr; val[n] = fr; }
+    else { const xc = lerp(pts[n], 0.5), fc = f(xc);
+      if (fc < val[n]) { pts[n] = xc; val[n] = fc; }
+      else for (let i = 1; i <= n; i++) { pts[i] = pts[i].map((v, d) => pts[0][d] + 0.5 * (v - pts[0][d])); val[i] = f(pts[i]); } }
+  }
+  const b = val.indexOf(Math.min(...val)); return { x: pts[b], f: val[b] };
+}
+const D = Math.PI / 180;
+
+window.scanProps = async (spec) => {
+  await loadTarget(spec.target);
+  const cam = spec.camera, p = spec.pose; let props = spec.prop.slice();
+  const st = () => ({ camera: cam, aircraft: { pos: [p[0], p[1], p[2]], rpy: [p[5] * D, p[4] * D, p[3] * D], prop: props } });
+  const log = [iou(st())];
+  for (const [step, span, passes] of [[2 * D, Math.PI, 2], [0.25 * D, 2 * D, 1]]) {
+    for (let pass = 0; pass < passes; pass++) for (let i = 0; i < 4; i++) {
+      const c = props[i]; let best = [c, iou(st())];
+      for (let a = (span === Math.PI ? 0 : c - span); a < (span === Math.PI ? Math.PI : c + span); a += step) {
+        props[i] = a; const v = iou(st()); if (v > best[1]) best = [a, v];
+      }
+      props[i] = best[0];
+    }
+    log.push(iou(st()));
+  }
+  return { prop: props, iou: iou(st()), log };
+};
+
+window.solvePose = async (spec) => {
+  await loadTarget(spec.target);
+  const cam = spec.camera; let props = spec.prop.slice(); let best;
+  const body = p => ({ camera: cam, aircraft: { pos: [p[0], p[1], p[2]], rpy: [p[5] * D, p[4] * D, p[3] * D], prop: props } });
+  let p = spec.init.slice(), log = [];
+  for (const [scale, iters] of [[1, spec.iters], [0.3, spec.iters]]) {
+    const r = nelderMead(q => -iou(body(q)), p, spec.step.map(s => s * scale), iters); p = r.x; log.push(-r.f);
+    const rp = nelderMead(q => { props = q; return -iou(body(p)); }, props, [0.5, 0.5, 0.5, 0.5].map(s => s * scale), spec.iters); props = rp.x; log.push(-rp.f);
+  }
+  best = { pose: p, prop: props, iou: iou(body(p)), log };
+  return best;
+};
+
+await buildWorld(); await buildAircraft();
+await new Promise(res => { const poll = () => { let pending = 0;
+  aircraft.traverse(o => { if (o.isMesh) for (const m of [].concat(o.material)) if (m.map && !(m.map.image && (m.map.image.complete ?? true) && m.map.image.width)) pending++; });
+  pending ? setTimeout(poll, 50) : res(); }; poll(); });
+
+window.__ready = true;
+</script>
+</body></html>
