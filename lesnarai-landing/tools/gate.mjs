@@ -157,7 +157,9 @@ async function check(route,w,h,theme){
 }
 
 console.log(`runtime gate · ${ENGINE}${DISK?' (disk)':''} · ${ROUTES.length} route(s)${AXE?' · axe':' · axe UNAVAILABLE'}\n`);
-for(const r of ROUTES){ await check(r,1440,900,null); await check(r,390,844,'light'); }
+/* system (the engine's default light scheme), explicit light on a phone, explicit dark.
+   System-dark uses the same tokens as explicit dark; the static gate enforces that. */
+for(const r of ROUTES){ await check(r,1440,900,null); await check(r,390,844,'light'); await check(r,390,844,'dark'); }
 await b.close();
 console.log(FAIL?`\n=== ${FAIL} CHECK(S) FAILED on ${ENGINE} ===`:`\n=== RUNTIME GATE PASSES on ${ENGINE} ===`);
 process.exit(FAIL?1:0);
