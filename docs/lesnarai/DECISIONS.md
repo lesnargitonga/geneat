@@ -3,6 +3,15 @@
 Newest first. Each entry says who decided, what, and what it changed. "Owner" is the founder of
 LESNAR AI. Entries marked **superseded** stay in the log so the reasoning is not lost.
 
+## 2026-11-01 — owner direction, third round (execution)
+
+| # | Decision | Consequence |
+|---|---|---|
+| D-31 | User id 9 in the MediMatch seed data is the owner's own record. Remove the seed from active branches safely, prepare history cleanup without destroying work, and treat password reuse as an outstanding precaution. | Removed from three public branch tips by normal commits. A verified all-refs bundle is the rollback point. The cleanup script is prepared and not run (force-push needs authorisation). |
+| D-30 | Build Phase 2 as one coherent language from Record, Terrain and Contact Sheet. | Field Record (`FIELD_RECORD.md`, `field.css`) is adopted. Every page is rebuilt in it. |
+| D-29 | Optimise the 1.49 MB MediMatch video. | Re-cut from the 1920×1080 recording at 1280×720: WebM 421 KB, MP4 453 KB. Both pass the decode gate in Chromium and Firefox, and the page plays it click-to-play. Home carries no video. |
+| D-28 | Prepare lesnarai.com as the primary production domain; keep .co.ke as it is. | Canonicals, og:url, the sitemap and robots point to lesnarai.com. No redirect, DNS or mail change. |
+
 ## 2026-11-01 — owner decisions, second round
 
 | # | Decision | Consequence |
