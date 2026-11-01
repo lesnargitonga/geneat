@@ -356,3 +356,10 @@ html[data-js="on"] .theme{display:inline-flex}
   .panel .theme__l{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
     text-transform:uppercase;color:var(--fg-3);margin:20px 0 0}
 }
+
+/* ── access utilities ──────────────────────────────────────────────────── */
+.sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:absolute;left:12px;top:-60px;z-index:20;padding:10px 14px;background:var(--fg);
+  color:var(--page);font-weight:600;font-size:15px;text-decoration:none}
+.skip:focus{top:12px;outline:2px solid var(--sig);outline-offset:2px}

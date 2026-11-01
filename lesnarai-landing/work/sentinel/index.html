@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Operation Sentinel · LESNAR AI</title>
+<meta name="description" content="Operation Sentinel: an autonomy stack that flies a PX4 aircraft through a mission in simulation. Seven sealed SITL runs, a phantom wall found and fixed in the telemetry, and the limits of what has been shown.">
+<link rel="canonical" href="https://lesnarai.co.ke/work/sentinel/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="LESNAR AI">
+<meta property="og:title" content="Operation Sentinel · LESNAR AI">
+<meta property="og:description" content="An autonomy stack proven in PX4/Gazebo simulation: seven sealed runs, one phantom wall, no physical flight.">
+<meta property="og:url" content="https://lesnarai.co.ke/work/sentinel/">
+<meta property="og:image" content="https://lesnarai.co.ke/media/sentinel-film-poster.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<script>document.documentElement.dataset.js="on";try{var t=localStorage.getItem("lesnarai-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/system.css">
+<link rel="stylesheet" href="/motion.css">
+<link rel="stylesheet" href="/work/sentinel/sentinel.css">
+<link rel="preload" as="image" href="/media/sentinel-film-poster@960.jpg" imagesrcset="/media/sentinel-film-poster@960.jpg 960w, /media/sentinel-film-poster.jpg 1920w" imagesizes="(max-width:1180px) 100vw, 1100px">
+<script src="/motion.js" defer></script>
+<script src="/theme.js" defer></script>
+<script src="/work/sentinel/film.js" defer></script>
+</head>
+<body class="case case--sentinel">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head"><div class="w">
+  <a class="mark" href="/">LESNAR<i>AI</i></a>
+  <nav class="site-nav" aria-label="Primary"><a href="/work/" aria-current="true">Work</a><a href="/capabilities/">Capabilities</a><a href="/engineering/">Engineering</a><a href="/company/">Company</a><a class="nav-start" href="/start/">Start</a></nav>
+  <div class="head-r">
+    <a class="start" href="/start/">Start</a>
+    <a class="menu" href="/menu/" aria-expanded="false">Menu</a>
+  </div>
+</div>
+<div class="panel" id="menu-panel"><div class="w">
+  <ul>
+    <li><a href="/work/">Work</a></li>
+    <li><a href="/capabilities/">Capabilities</a></li>
+    <li><a href="/engineering/">Engineering</a></li>
+    <li><a href="/company/">Company</a></li>
+  </ul>
+  <a class="close" href="/">Close &times;</a>
+</div></div></header>
+
+<main id="main">
+
+<!-- ── the film band: dark in both themes, because it is a screen ─────── -->
+<section class="band" aria-labelledby="sn-h">
+  <div class="w">
+    <p class="crumb"><a href="/work/">Work</a> <span aria-hidden="true">/</span> Autonomous systems</p>
+    <h1 id="sn-h">Operation Sentinel</h1>
+    <p class="band__lede">An autonomy stack that flies a PX4 aircraft through a mission, stops for what
+      is really there, and answers to an operator. Built and proven in simulation.</p>
+    <p class="stage"><span class="stage__chip">Prototype</span> PX4/Gazebo software-in-the-loop
+      &middot; no physical flight</p>
+
+    <div class="film" id="sentinel-film">
+      <figure>
+        <div class="frame">
+          <img class="poster" src="/media/sentinel-film-poster@960.jpg"
+               srcset="/media/sentinel-film-poster@960.jpg 960w, /media/sentinel-film-poster.jpg 1920w"
+               sizes="(max-width:1180px) 100vw, 1100px" alt="" width="1920" height="1080"
+               fetchpriority="high" decoding="async">
+          <video id="sentinel-film-v" width="1920" height="1080" preload="none" playsinline controls
+                 poster="/media/sentinel-film-poster@960.jpg"
+                 aria-describedby="film-shows">
+            <source src="/media/sentinel-film-001.webm" type="video/webm">
+            <source src="/media/sentinel-film-001.mp4" type="video/mp4">
+          </video>
+          <button class="play" type="button" aria-controls="sentinel-film-v">
+            <span class="lg">Play Film 001 &middot; 28 s, with sound</span><span class="sm">Play &middot; 28 s</span>
+          </button>
+        </div>
+        <figcaption>Film 001. It opens on PX4's x500 model in the world a sealed run flew, moving
+          along that run's recorded descent, then resolves into the simulation's own frame. Every
+          figure on screen is read from the run. Sound is designed; nothing was recorded.</figcaption>
+      </figure>
+      <details class="shows" id="film-shows">
+        <summary>What the film shows, shot by shot</summary>
+        <ol>
+          <li><b>0&ndash;6 s</b> A reconstruction: the x500 model, the run's world, the recorded descent. An explanatory rendering, not flight evidence.</li>
+          <li><b>6&ndash;10 s</b> The real simulation frame separates into the layers it is made of.</li>
+          <li><b>10&ndash;17 s</b> The stack a mission runs on: Gazebo world, PX4 SITL, the bridge, telemetry, the operator system.</li>
+          <li><b>17&ndash;21 s</b> The operator surface, replaying the sealed run's telemetry.</li>
+          <li><b>21&ndash;28 s</b> The explanation collapses back into the real frame, then black.</li>
+        </ol>
+      </details>
+    </div>
+  </div>
+</section>
+
+<div class="w case__body">
+
+<!-- ── what it is ─────────────────────────────────────────────────────── -->
+<section class="what" aria-labelledby="what-h">
+  <h2 id="what-h">Four parts are ours. The aircraft, the autopilot and the world are not.</h2>
+  <div class="parts">
+    <div class="part"><h3>Autonomy bridge</h3>
+      <p>Turns a mission into offboard velocity commands over MAVSDK, and refuses to navigate
+        until PX4 has actually accepted offboard control.</p></div>
+    <div class="part"><h3>Mission logic</h3>
+      <p>Waypoints, an A* grid and an avoidance field built from the world's real geometry, with a
+        hard stop at the lidar.</p></div>
+    <div class="part"><h3>Telemetry pipeline</h3>
+      <p>Position, attitude, commands, the full 72-ray scan, battery and mission state, about five
+        times a second, sealed with the run.</p></div>
+    <div class="part"><h3>Operator console</h3>
+      <p>Dispatches the mission, shows it live, and reports its link to the backend as measured
+        rather than assumed.</p></div>
+  </div>
+  <p class="upstream">Upstream, and credited: <a href="https://px4.io/">PX4 Autopilot</a> flies the
+    aircraft, <a href="https://gazebosim.org/">Gazebo</a> simulates the world, and
+    <a href="https://mavsdk.mavlink.io/">MAVSDK</a> carries the commands.</p>
+</section>
+
+<!-- ── the signal: how one mission moves through the system ──────────── -->
+<section class="signal" aria-labelledby="sig-h">
+  <h2 id="sig-h">One mission, end to end</h2>
+  <ol class="signal__path">
+    <li data-state="idea"><b>Idea</b><span>Fly a mission with no cloud dependency in flight, and
+      eventually without GPS.</span></li>
+    <li data-state="observe"><b>Observe</b><span>A 72-ray lidar scan and the PX4 estimator.</span></li>
+    <li data-state="model"><b>Model</b><span><!-- gen:fact-obstacles -->180<!-- /gen:fact-obstacles -->
+      obstacles read from the world file the run flew in.</span></li>
+    <li data-state="engineer"><b>Engineer</b><span>Waypoints become offboard velocity commands,
+      steered by the grid and the avoidance field.</span></li>
+    <li data-state="protect"><b>Protect</b><span>A lidar hard stop, a heading guard, and an abort if
+      offboard control cannot be engaged.</span></li>
+    <li data-state="review"><b>Human review</b><span>An operator dispatches the mission and watches
+      it run.</span></li>
+    <li data-state="act"><b>Act</b><span>PX4 flies the x500 in Gazebo.</span></li>
+    <li data-state="prove"><b>Prove</b><span>The run is sealed: a manifest with a SHA-256 for every
+      file, the mission, the bridge log, the telemetry and the world.</span></li>
+  </ol>
+</section>
+
+<!-- ── the runs ───────────────────────────────────────────────────────── -->
+<section class="runs" aria-labelledby="runs-h">
+  <h2 id="runs-h"><!-- gen:fact-runs -->7<!-- /gen:fact-runs --> sealed runs. The first two failed.</h2>
+  <p class="lede">Every run flew the console's training mission: a 25 m box at 10 m. Two timed out
+    after <!-- gen:fact-timeout -->631<!-- /gen:fact-timeout --> s. After two fixes,
+    <!-- gen:fact-completed -->5<!-- /gen:fact-completed --> of 5 completed, in
+    <!-- gen:fact-fastest -->126<!-- /gen:fact-fastest -->&ndash;<!-- gen:fact-slowest -->216<!-- /gen:fact-slowest --> s.
+    Each run number opens its sealed record on GitHub.</p>
+  <div class="ledger-wrap">
+<!-- gen:ledger -->
+<table class="ledger">
+<caption class="sr">Seven sealed SITL runs, in the order flown</caption>
+<thead><tr><th scope="col">Run</th><th scope="col">Flown</th><th scope="col">Bridge code</th><th scope="col">Outcome</th><th scope="col">Duration</th></tr></thead><tbody>
+<tr class="is-bad"><th scope="row"><a href="https://github.com/lesnargitonga/LesnarAI/tree/evidence/sitl-run-px4_teacher_20260928_194728_d1">1</a></th><td>28 Sep, 19:47</td><td><code>906a465</code> original bridge</td><td>Timed out</td><td><span class="ledger__bar" style="--d:1.000"></span><span class="ledger__s">631 s</span></td></tr>
+<tr class="is-bad"><th scope="row"><a href="https://github.com/lesnargitonga/LesnarAI/tree/evidence/sitl-run-px4_teacher_20260928_203728_d1">2</a></th><td>28 Sep, 20:37</td><td><code>6a40f0f</code> offboard fix</td><td>Timed out</td><td><span class="ledger__bar" style="--d:1.000"></span><span class="ledger__s">631 s</span></td></tr>
+<tr class="is-ok"><th scope="row"><a href="https://github.com/lesnargitonga/LesnarAI/tree/evidence/sitl-run-px4_teacher_20260928_205942_d1">3</a></th><td>28 Sep, 20:59</td><td><code>bcf9e52</code> geometry fix</td><td>Completed</td><td><span class="ledger__bar" style="--d:0.199"></span><span class="ledger__s">126 s</span></td></tr>
+<tr class="is-ok"><th scope="row"><a href="https://github.com/lesnargitonga/LesnarAI/tree/evidence/sitl-run-px4_teacher_20260929_082014_d1">4</a></th><td>29 Sep, 08:20</td><td><code>3ba2677</code> stack on plain Linux</td><td>Completed</td><td><span class="ledger__bar" style="--d:0.199"></span><span class="ledger__s">126 s</span></td></tr>
+<tr class="is-ok"><th scope="row"><a href="https://github.com/lesnargitonga/LesnarAI/tree/evidence/sitl-run-px4_teacher_20260929_084045_d1">5</a></th><td>29 Sep, 08:40</td><td><code>3ba2677</code> stack on plain Linux</td><td>Completed</td><td><span class="ledger__bar" style="--d:0.342"></span><span class="ledger__s">216 s</span></td></tr>
+<tr class="is-ok"><th scope="row"><a href="https://github.com/lesnargitonga/LesnarAI/tree/evidence/sitl-run-px4_teacher_20260930_071703_d1">6</a></th><td>30 Sep, 07:17</td><td><code>3ba2677</code> stack on plain Linux</td><td>Completed</td><td><span class="ledger__bar" style="--d:0.199"></span><span class="ledger__s">126 s</span></td></tr>
+<tr class="is-ok"><th scope="row"><a href="https://github.com/lesnargitonga/LesnarAI/tree/evidence/sitl-run-px4_teacher_20260930_074210_d1">7</a></th><td>30 Sep, 07:42</td><td><code>3ba2677</code> stack on plain Linux</td><td>Completed</td><td><span class="ledger__bar" style="--d:0.199"></span><span class="ledger__s">126 s</span></td></tr>
+</tbody></table>
+<!-- /gen:ledger -->
+  </div>
+</section>
+
+<!-- ── the phantom wall ───────────────────────────────────────────────── -->
+<section class="phantom" aria-labelledby="ph-h">
+  <h2 id="ph-h">The drone stopped for a wall that was not there.</h2>
+  <div class="phantom__grid">
+    <div class="phantom__text">
+      <p><b>Run 1</b> never left its hover. The bridge asked PX4 for offboard control in a gap
+        between setpoints, PX4 refused, and the bridge carried on as if it were navigating. It now
+        sends a setpoint before every request, retries, and aborts the mission if control cannot
+        be engaged.</p>
+      <p><b>Run 2</b> flew the north leg, turned east, and stopped 1.6 m from an obstacle. It held
+        there for <!-- gen:fact-hold_min -->8.8<!-- /gen:fact-hold_min --> minutes.</p>
+      <p>The simulated lidar modelled every box as a disc half as wide as its longest side. Wall_1,
+        1 m thick and 38 m long, became a 19 m disc reaching into the flight path. The real wall was
+        20.7 m away, beyond the sensor's range.</p>
+      <p>The fix intersects each ray with each obstacle in that obstacle's own frame, rotation
+        included. It agreed with brute-force ray marching on 3,000 random shapes before it flew.
+        Every run since has completed.</p>
+    </div>
+    <figure class="phantom__plan">
+<!-- gen:plan -->
+<svg class="plan" viewBox="0 0 576 477" role="img" aria-labelledby="plan-t plan-d">
+<title id="plan-t">Plan view of the training box, sealed runs 2 and 3</title>
+<desc id="plan-d">Run 2 flies north 25 metres, turns east and stops at 13.6 metres east, 24.3 metres north. Its recorded scan there reads 0 to 2.4 metres across the 125 degrees ahead of it, and 20 metres, its range, everywhere else. The nearest real obstacle, Wall_1, is a wall 1 by 38 metres centred at 35, 25. The pre-fix lidar model treated it as a disc of radius 19 metres. Run 3 flies the whole box.</desc>
+<g class="plan__world">
+<path d="M427.5,0 L652.5,0 L652.5,-108 L427.5,-108 Z"/>
+<path d="M382.5,414 L589.5,414 L589.5,144 L382.5,144 Z"/>
+<circle cx="378" cy="207" r="2.2"/>
+<circle cx="306" cy="486" r="12.5"/>
+<circle cx="405" cy="450" r="14.4"/>
+<path d="M770.6,610.4 L772.1,601.5 L435.4,541.6 L433.9,550.5 Z"/>
+<path d="M715.4,199.4 L718.5,190.9 L490.6,106.6 L487.5,115.1 Z"/>
+<path d="M910.4,864.7 L917.2,858.8 L619.6,521.3 L612.8,527.2 Z"/>
+<path d="M592.9,926.4 L601.1,922.7 L451.1,585.6 L442.9,589.3 Z"/>
+</g>
+<circle class="plan__phantom" cx="387" cy="198" r="171"/>
+<path class="plan__wall" d="M392.7,369 L401.7,368.4 L381.3,27 L372.3,27.6 Z"/>
+<path class="plan__mission" d="M72,423 L72,198 L297,198 L297,423 L72,423"/>
+<path class="plan__scan" d="M14.5,200.6 L14.9,216.3 L16.6,231.9 L19.7,247.3 L24.2,262.3 L29.9,277 L36.9,291 L45.1,304.4 L54.4,317.1 L64.8,328.8 L76.2,339.7 L88.5,349.4 L101.6,358.1 L115.3,365.6 L129.7,371.9 L144.6,376.9 L159.9,380.6 L175.4,382.9 L191.1,383.9 L206.8,383.5 L222.4,381.8 L237.8,378.7 L252.8,374.2 L267.5,368.5 L281.5,361.5 L194.5,203.9 L194.5,203.9 L194.5,203.9 L194.5,203.9 L194.5,203.9 L194.5,203.9 L194.5,203.9 L200.6,206.3 L206.4,207.4 L211.1,207.2 L214.3,206.1 L216,204.4 L216.1,202.5 L214.6,200.8 L211.5,199.7 L207.1,199.6 L201.5,200.8 L195.1,203.6 L194.5,203.9 L194.5,203.9 L194.5,203.9 L194.5,203.9 L194.5,203.9 L194.5,203.9 L194.5,203.9 L259.2,36 L244.3,31 L229,27.3 L213.5,25 L197.8,24 L182.1,24.4 L166.5,26.1 L151.1,29.2 L136.1,33.7 L121.4,39.4 L107.4,46.4 L94,54.6 L81.3,63.9 L69.6,74.3 L58.7,85.7 L49,98 L40.3,111.1 L32.8,124.8 L26.5,139.2 L21.5,154.1 L17.8,169.4 L15.5,184.9 Z"/>
+<path class="plan__ok" d="M72,423.4 L72.2,423.2 L72.2,423 L72.1,422.9 L72,422.9 L72,422.9 L72,423.3 L71.9,423.3 L71.8,423.2 L71.9,423.1 L72.2,423 L72.2,423 L72,423.2 L72,423.1 L72,423.2 L71.9,423.1 L72,423.2 L72.1,423.1 L72.1,423.3 L72,423.2 L71.9,423.2 L72,423.2 L72,423.3 L72,423.2 L72,423.3 L72.2,423.3 L72.2,423.4 L72,423 L72.4,422.8 L73.2,422.5 L73.5,422.2 L74.3,422 L75,421.4 L75.7,420.3 L76.5,416.8 L77.9,404.9 L77.9,389.4 L77.7,373.3 L77.5,356.7 L77.1,340.1 L76.4,323.5 L75.7,306.8 L74.6,290 L73.3,273.7 L71.8,257.3 L70.1,241.4 L67.6,225.7 L65.1,211.3 L64.8,210.3 L64.6,210.2 L65.1,209.9 L65.4,209.7 L65.8,209.9 L66.3,210 L67.4,209.6 L70.8,208.7 L82.6,205.8 L97.9,203.8 L113.9,202.6 L130.4,201.6 L147.4,200.8 L163.9,200.4 L180.4,200.1 L196.8,199.9 L213.1,200.1 L229.5,200.5 L246.1,201.4 L262,202.9 L279.7,205.8 L283.6,207 L284,207.6 L284.4,208.1 L284.3,208.8 L284.3,209.6 L284.2,210.7 L284.6,215.6 L285.9,230.1 L287,246 L287.9,262.7 L288.8,279.2 L289.7,295.8 L290.2,312.5 L290.6,329.2 L290.9,345.8 L290.8,361.8 L289.6,378.2 L287.6,394.3 L285,410.1 L282.1,426 L281.5,428 L281.1,428.4 L280.7,429 L280.3,429.4 L279.7,429.5 L278.7,429.4 L275.2,430 L262.9,432 L247.5,432.6 L231.3,432.3 L214.8,432.1 L198.2,431.9 L181.3,431.9 L164.6,431.8 L147.9,431.8 L131.4,431.8 L115,431.8 L98.8,431.6 L82.3,431.2 L69.3,431.3 L61.8,431.7 L55.2,431.8 L54.4,431.8 L55,431.7 L54.9,431.8 L55.2,431.6 L55.2,432 L55.1,432 L54.8,431.9 L55.1,431.9 L55,431.9 L55.2,432 L55.2,431.8 L55.2,431.7"/>
+<path class="plan__bad" d="M71.9,422.8 L71.8,422.8 L72,422.7 L72,422.9 L72,422.9 L72,422.8 L72,422.9 L72,422.9 L72,422.8 L72,423 L71.8,422.9 L71.7,423.1 L71.8,423.2 L72,423.1 L72,423.2 L72,423.3 L72,423.3 L72,423.1 L72,423.2 L71.8,423.2 L71.6,422.9 L71.9,423 L71.9,423.1 L71.8,423.1 L71.9,423.2 L72,423.2 L72,423.1 L71.9,423.1 L72.4,423.2 L73,422.7 L73.3,422.3 L73.7,421.9 L74.2,421.1 L74.6,420.1 L75.6,416.6 L77.1,404.6 L76.8,389 L76.6,372.9 L76.3,356.2 L76,339.7 L75.2,323.2 L74.3,306.8 L73.2,290.6 L72,273.9 L70.5,257.7 L69,241.4 L67,225.5 L64.8,210.9 L64.6,210 L64.9,209.5 L65.1,209.4 L65.5,209.5 L65.9,209.5 L66.4,209.4 L67.5,209.3 L70.8,208.5 L83.1,206 L98.9,203.9 L115,202.7 L131.2,201.7 L147.9,201.2 L164.7,200.6 L180.5,200.2 L190.6,200 L196.7,199.9 L198,200.3 L198,200.8 L197.7,201.4 L197.4,201.9 L197,202 L196.3,202 L196.1,202.2 L195.9,202.2 L195.7,202.2 L195.4,202.2 L195.3,202.2 L195.1,202.3 L195,202.5 L194.9,202.6 L194.6,202.5 L194.3,202.3 L194.5,202.2 L194.4,202.3 L194.3,202.5 L194.3,202.5 L194.4,202.5 L194.3,202.2 L194.2,202.4 L194.4,202.5 L194.6,202.6 L194.6,202.4 L194.4,202.3 L194.3,202.2 L194.5,202.2 L194.2,202.3 L194.3,202.2 L194.3,202.1 L194.5,201.9 L194.5,201.8 L194.6,201.8 L194.5,202 L194.3,202.2 L194.3,202.1 L194.3,202.1 L194.3,202 L194.2,202 L194.2,202.1 L194.4,202.3 L194.4,202.5 L194.4,202.5 L194.4,202.1 L194.6,202.2 L194.7,202.3 L194.6,202.2 L194.5,202.5 L194.5,202.7 L194.5,202.8 L194.7,202.7 L194.7,202.9 L194.7,203 L194.7,202.9 L194.5,202.9 L194.6,203 L194.6,202.9 L194.7,203 L194.8,203 L194.7,202.9 L194.7,202.9 L194.7,202.7 L194.7,202.6 L194.7,202.8 L195,202.6 L195.1,202.4 L194.8,202.6 L194.9,202.9 L194.9,202.7 L194.8,202.6 L194.5,202.7 L194.5,202.8 L194.5,202.8 L194.6,202.9 L194.5,203 L194.5,203.1 L194.5,203.2 L194.5,203 L194.5,203.1 L194.5,203.2 L194.6,203.2 L194.7,203.2 L194.5,203.3 L194.5,203.2 L194.5,203.3 L194.5,203.5 L194.5,203.5 L194.3,203.2 L194.3,203.5 L194,203.6 L194.2,203.5 L194.4,203.5 L194.5,203.5 L194.5,203.6 L194.5,203.4 L194.2,203 L194.2,202.9 L194.2,202.9 L194.4,203 L194.6,203.2 L194.6,203.4 L194.7,203.4 L194.7,203.2 L194.7,203.1 L194.8,203.1 L194.8,203.4 L194.9,203.4 L194.8,203.3 L194.9,203.2 L195,203.2 L194.8,203.3 L194.9,203 L195.1,202.8 L195,202.9 L195.2,202.9 L195.1,202.9 L195.1,203 L195.1,203.1 L195.1,203.2 L195.3,203.2 L195.1,203.2 L195,203.2 L195.1,203.2 L195.2,203.1 L195.4,203 L195.4,203 L195.3,203.3 L195.3,203.3 L195.3,203.3 L195.2,203.4 L194.9,203.5 L195.1,203.4 L195.2,203.5 L195.1,203.7 L195.1,203.9 L195,203.8 L195,203.7 L195.2,203.8 L195.1,203.8 L195.1,203.8 L195.1,203.7 L195.2,203.8 L195.1,204 L195,204.1 L194.9,204.3 L194.7,204.2 L194.9,204.1 L195,204 L195.2,204 L195.1,204.2 L194.7,204.5 L194.5,204.6 L194.7,204.4 L194.6,204.2 L194.7,204 L194.9,203.9 L194.5,203.9 L194.3,204 L194.4,204.3 L194.5,204.3 L194.5,204.4 L194.2,204.5 L194.4,204.5 L194.4,204.5 L194.4,204.7 L194.5,205.1 L194.5,205.3 L194.5,205 L194.4,204.8 L194.5,204.8 L194.5,205 L194.6,205.1 L194.7,205.1 L194.6,205 L194.3,205 L194.4,204.9 L194.3,204.8 L194.3,204.9 L194.2,204.8 L194.3,204.7 L194.5,204.7 L194.8,204.8 L194.7,204.9 L194.6,204.9 L194.4,205 L194.6,205.3 L194.9,205.1 L194.9,205 L194.8,204.8 L194.8,204.9 L194.7,205.1 L194.9,205.4 L195,205.5 L195.1,205.3 L195.3,205.1 L195.3,205 L195.4,204.9 L195.7,204.9 L195.7,204.9 L195.9,204.9 L195.6,205.3 L195.5,205 L195.5,204.8 L195.5,204.6 L195.3,204.7 L195.5,204.7 L195.4,204.8 L195.5,204.9 L195.5,205.1 L195.3,205 L195.4,205 L195.3,204.9 L195.3,204.5 L195.3,204.4 L195.3,204.4 L195.4,204.4 L195.5,204.5 L195.1,204.5 L195.1,204.4 L195.4,204.2 L195.3,204.2 L195.4,204.3 L195.4,204.3 L195.1,204.5 L195.1,204.6 L195,204.6 L195.1,204.5 L195.1,204.4 L195,204.5 L195,204.4 L195.1,204.4 L195.1,204.5 L195,204.5 L195,204.4 L195.1,204 L195,203.9 L194.9,203.9 L194.6,203.9 L194.5,203.8 L194.6,203.9 L194.7,203.8 L194.7,203.8 L194.9,203.8 L195.1,204.1 L194.9,204.3 L194.7,204.3 L194.5,204 L194.5,203.9 L194.5,203.9 L194.6,203.7 L194.6,203.8 L194.5,203.8 L194.4,203.9 L194.5,203.9 L194.7,203.9 L194.6,203.9 L194.7,203.7 L194.5,203.8 L194.4,203.9 L194.5,203.7 L194.5,203.8 L194.6,203.4 L194.8,203.4 L194.5,203.7 L194.3,203.8 L194.5,203.9 L194.4,203.8 L194.5,203.8 L194.6,204 L194.4,204.1 L194.4,203.9 L194.3,203.8 L194.3,203.7 L194.2,204 L194.2,204 L194.4,204 L194.5,203.9 L194.7,203.9 L194.8,204 L194.6,204.2 L194.7,204.2 L194.8,204.1 L194.7,204 L194.7,204 L194.7,204.1 L194.7,204.2 L194.7,204.3 L194.7,204.4 L194.6,204.4 L194.5,204.4 L194.6,204.4 L194.5,204.3 L194.7,204.4 L194.7,204.4 L194.7,204.5 L194.7,204.3 L194.8,204.5 L194.7,204.5 L194.7,204.6 L194.5,204.7 L194.6,204.5 L194.4,204.7 L194.2,204.7 L194.2,204.7 L194.1,204.5 L194.2,204.6 L194.1,204.6 L194.2,205 L194.2,205 L194.2,204.9 L194.2,205 L194.1,205 L194,205 L194.2,204.8 L194,204.8 L193.8,204.7 L193.8,204.7 L193.7,204.8 L193.8,204.9 L193.9,205 L193.9,205.1 L193.9,205 L194,205.1 L193.8,205.5 L193.6,205.6 L193.6,205.6 L193.5,205.8 L193.7,205.9 L193.8,205.8 L193.6,205.6 L193.5,205.7 L193.5,205.7 L193.4,205.7 L193.3,205.6 L193.5,205.6 L193.6,205.7 L193.7,205.7 L193.5,205.7 L193.3,205.6 L193.4,205.6 L193.5,205.9 L193.6,205.9 L193.8,206.1 L193.8,206.1 L193.7,206.1 L193.5,206.2 L193.5,206.1 L193.8,206 L193.9,206 L194,206.1 L194,206 L193.9,205.9 L193.8,205.9 L193.6,206 L193.6,206.2 L193.6,206.3 L193.6,206.3 L193.4,206 L193.5,205.9 L193.8,206 L193.9,205.8 L194,205.9 L194,205.7 L193.7,205.9 L193.5,205.8 L193.3,205.6 L193.4,205.4 L193.6,205.4 L193.6,205.4 L193.7,205.3 L193.6,205.1 L193.4,205.1 L193.4,205.1 L193.4,205.1 L193.3,205.1 L193.6,205.1 L193.6,205 L193.5,205.1 L193.3,205 L193.3,204.7 L193.6,204.6 L193.8,204.7 L193.7,204.7 L193.6,204.7 L193.6,204.7 L193.6,204.8 L193.8,205 L194,205 L193.8,204.8 L193.8,204.8 L193.6,205 L193.4,205 L193.4,204.8 L193.5,204.8 L193.6,204.9 L193.6,204.9 L193.6,204.9 L193.6,204.9 L193.8,204.9 L193.8,205 L193.8,204.8 L194,204.8 L193.8,204.9 L193.9,205 L193.9,205.3 L193.7,204.9 L193.6,204.6 L193.6,204.9 L193.6,204.9 L193.6,205.1 L193.8,204.9 L193.6,204.7 L193.5,204.6 L193.4,204.7 L193.3,205 L193.2,204.8 L193,204.7 L192.9,204.7 L193,204.8 L193.2,204.9 L193.3,204.9 L193,204.8 L193,204.9 L192.9,204.6 L193,204.7 L193,204.6 L193,204.7 L193.1,204.8 L193.2,204.8 L193.4,204.7 L193.6,204.7 L193.4,204.6 L193.4,204.7 L193.4,204.7 L193.3,204.8 L193.4,204.7 L193.2,204.5 L193.2,204.5 L193.2,204.7 L193.2,204.8 L193.3,204.6 L193.3,204.8 L193.2,204.8 L193.3,204.8 L193.4,204.7 L193.6,204.6 L193.4,204.7 L193.2,204.8 L193.2,204.7 L193.5,204.7 L193.4,204.8 L193.4,204.8 L193.4,204.9 L193.2,204.9 L193.1,205 L193,205 L193.2,205.1 L193.4,205.3 L193.2,205.3 L193.2,205 L193.1,204.7 L193,204.7 L192.6,204.7 L192.6,204.5 L192.7,204.6 L192.8,204.8 L192.8,204.8 L192.7,204.7 L192.8,204.6 L192.7,204.6 L192.6,204.6 L192.8,204.9 L192.6,205 L192.6,204.9 L192.6,205 L192.5,205 L192.7,204.9 L192.6,204.8 L192.4,205 L192.6,205.1 L192.6,204.9 L192.5,204.9 L192.6,205.1 L192.5,204.8 L192.6,204.8 L192.8,204.5 L192.5,204.3 L192.6,204.5 L192.7,204.7 L192.4,204.7 L192.3,204.6 L192.5,204.4 L192.4,204.2 L192.3,204 L192.2,204 L192.2,204.2 L191.9,204.3 L192.8,204.3 L194.8,204.3 L196.1,204.4 L196.6,204.5 L196.8,204.7 L196.9,204.8 L197,204.6 L197,204.6 L197.1,204.7 L197.2,204.8 L197.2,204.9 L197.4,204.8 L197.4,204.7 L197.1,204.6 L197,204.7 L197.1,204.6 L197,204.8 L197,204.8 L197.1,204.8 L197,204.9 L197,204.9 L197,204.9 L197,205 L197.1,204.9 L197,204.9 L196.8,204.9 L197,204.8 L197.3,204.9 L197,204.9 L196.7,204.8 L196.8,204.9 L196.7,204.9"/>
+<circle class="plan__stop" cx="194.5" cy="203.9" r="7"/>
+<text class="plan__lbl " x="61.2" y="455.4" text-anchor="start">home</text>
+<text class="plan__lbl " x="297" y="174.6" text-anchor="middle">waypoint 2</text>
+<text class="plan__lbl is-wall" x="403.2" y="41.4" text-anchor="start">Wall_1 · 1 × 38 m</text>
+<text class="plan__lbl is-bad" x="405" y="390.6" text-anchor="middle">the old model: a 19 m disc</text>
+<text class="plan__lbl is-bad" x="183.7" y="182.3" text-anchor="end">held here</text>
+<text class="plan__lbl is-scan" x="104.5" y="118.4" text-anchor="middle">its scan</text>
+</svg>
+<!-- /gen:plan -->
+      <figcaption><span class="key key--bad"></span>Run 2, and the 72-ray scan it recorded where it stopped
+        <span class="key key--ok"></span>Run 3, after the fix
+        <span class="key key--ghost"></span>Wall_1 as the old model saw it.
+        Drawn from the runs' telemetry and world files; north is up.</figcaption>
+    </figure>
+  </div>
+  <figure class="phantom__speed">
+<!-- gen:speed -->
+<svg class="speed" viewBox="0 0 640 200" role="img" aria-labelledby="spd-t spd-d">
+<title id="spd-t">Ground speed against mission time, runs 2 and 3</title>
+<desc id="spd-d">Run 3 finishes the mission in 126 seconds. Run 2 holds at under 0.1 metres per second, airborne, from 68 to 599 seconds, 8.8 minutes, until the mission times out at 631 seconds.</desc>
+<rect class="speed__hold" x="96" y="10" width="482.1" height="164"/>
+<path class="speed__axis" d="M34,174 L634,174"/>
+<text class="speed__tick" x="34" y="192" text-anchor="middle">0 min</text>
+<text class="speed__tick" x="143.1" y="192" text-anchor="middle">2 min</text>
+<text class="speed__tick" x="252.2" y="192" text-anchor="middle">4 min</text>
+<text class="speed__tick" x="361.3" y="192" text-anchor="middle">6 min</text>
+<text class="speed__tick" x="470.4" y="192" text-anchor="middle">8 min</text>
+<text class="speed__tick" x="579.5" y="192" text-anchor="middle">10 min</text>
+<text class="speed__tick" x="28" y="178" text-anchor="end">0</text>
+<text class="speed__tick" x="28" y="112.4" text-anchor="end">1</text>
+<text class="speed__tick" x="28" y="46.8" text-anchor="end">2</text>
+<polyline class="speed__ok" points="34,173.3 34.4,173.5 34.7,173.4 35.1,173.3 35.5,173.2 35.8,172.8 36.2,172.6 36.6,172.6 36.9,172.9 37.3,172.8 37.6,172.8 38,173 38.4,173.2 38.7,173.6 39.1,173.4 39.5,172.7 39.8,172.3 40.2,172.5 40.6,172.7 40.9,172.7 41.3,172.9 41.7,173.3 42,173.6 42.4,173.8 42.8,173.3 43.1,172.8 43.5,172.7 43.8,173.2 44.2,173.6 44.6,173.7 44.9,173.4 45.3,173.7 45.7,173.5 46,173.5 46.4,173.6 46.8,173.8 47.1,173.7 47.5,173.6 47.9,173.4 48.2,173.4 48.6,173.8 51.1,173.4 51.5,173.2 51.8,173.4 52.2,173.3 52.6,173.2 52.9,173.5 53.3,173.5 53.7,172.3 54,172.6 54.4,173.1 54.8,173 55.1,173.3 55.5,173.3 55.9,173.3 56.2,173.7 56.6,173.8 57,173.8 57.3,173.3 57.7,172.9 58,173 58.4,173.4 58.8,173.8 59.1,173.3 59.5,173.2 60.6,172.9 61,171.8 61.4,173 61.7,172.9 62.1,171.1 62.4,169.8 62.8,169 63.2,168.7 63.5,169.4 63.9,169.8 64.3,169.6 64.6,169.2 65,169.2 65.4,168.8 65.7,167.8 66.1,167.3 66.5,166.6 66.8,163 67.2,160.2 67.6,152.7 67.9,120.5 68.3,92.5 68.6,74.3 69,61.9 69.4,56.7 69.7,54.8 70.1,53.3 70.5,52.7 70.8,52.1 71.2,51.7 71.6,52.1 71.9,52.3 72.3,52.8 72.7,53.1 73,52.9 73.4,53.3 73.8,53.5 74.1,53.5 74.5,53.6 74.8,54.3 75.2,54.9 75.6,54.9 75.9,55 76.3,55.2 76.7,55.3 77,55.5 77.4,56.1 77.8,56.7 78.1,56.8 78.5,57 78.9,57.5 79.4,71.3 79.8,114.3 80.1,152.8 80.5,170.2 80.9,172.3 81.2,171.9 81.6,172.8 82,173.1 82.3,172.3 82.7,171.9 83.1,171.6 83.4,171.7 83.8,171.4 84.1,171.4 84.5,171 84.9,169.9 85.2,169.3 85.6,168.8 86,165.9 86.3,162.2 86.7,158.6 87.1,138.4 87.4,104.9 87.8,82.5 88.2,68.8 88.5,59.6 88.9,54.7 89.3,53.1 89.6,52.7 90,52.5 90.4,52.1 90.7,51.8 91.1,51.8 91.4,52.1 91.8,52.5 92.2,52.9 92.5,53.1 92.9,53.3 93.3,53.7 93.6,53.8 94,54.2 94.4,54.7 94.7,55.1 95.1,55.4 95.5,54.8 95.8,54.9 96.2,55.4 96.6,55.5 96.9,56.1 97.3,56.6 97.7,57.4 98,58.6 98.4,59.3 98.9,63.7 99.3,86.8 99.7,132.7 100,159.6 100.4,169.2 100.8,170.9 101.1,171.3 101.5,171.3 101.8,171.1 102.2,170.6 102.6,170.2 102.9,170.1 103.3,169.4 103.7,168.8 104,168.4 104.4,165.9 104.8,161.9 105.1,153.1 105.5,117.8 105.9,81.5 106.2,62.7 106.6,55.2 107,52.8 107.3,52.7 107.7,52.3 108.1,52 108.4,51.8 108.8,51.6 109.1,52.1 109.5,52.1 109.9,52.2 110.2,52.7 110.6,53 111,53.1 111.3,53.4 111.7,53.4 112.1,53.6 112.4,54.1 112.8,55.4 113.2,56.6 113.5,57.4 113.9,57.7 114.3,57.4 114.6,57.1 115,56.9 115.3,56.5 115.7,56.3 116.1,56.3 116.4,56.3 116.8,57.8 117.4,75.8 117.7,117.7 118.1,153.6 118.5,168.5 118.8,172.1 119.2,172.4 119.5,172.4 120.1,172 120.5,171.9 120.8,171.6 121.2,171.3 121.6,170.6 121.9,169.7 122.3,168.9 122.6,168.6 123,168.1 123.4,167.3 123.7,162.7 124.1,129.6 124.5,97.8 124.8,78.8 125.2,67.1 125.6,58.7 125.9,54.7 126.3,52.8 126.7,52.1 127,51.8 127.4,51.6 127.8,51.4 128.1,51.6 128.5,51.9 128.8,52.1 129.2,52.4 129.6,52.5 129.9,52.8 130.3,53.1 130.7,53 131,53.1 131.4,53.2 131.8,53.7 132.1,54.1 132.5,54.2 132.9,54.3 133.2,54.3 133.6,54.7 134,54.9 134.3,55.2 134.7,55.2 135.1,55.6 135.4,57.9 135.8,79.5 136.1,105.3 136.5,117.4 136.9,122.2 137.2,123.5 137.6,126.7 138,139.7 138.3,162.3 138.7,164.2 139.1,164.2 139.4,168.8 139.8,172 140.2,172.3 140.5,172.6 140.9,172.7 141.3,172.7 141.6,172.9 142,172.2 142.3,171.3 142.7,172 143.1,173.1 143.4,173.4 143.8,173.2 144.2,173.2 144.5,173.9 144.9,172.8 145.3,173 145.6,173.8 146,173.2 146.4,173.3 146.7,173.7 147.1,173.8 147.5,173.5 147.8,172.6 148.2,172.1 148.4,172.1"/>
+<polyline class="speed__bad" points="34,173.3 34.4,173.4 34.7,173.7 35.1,172.8 35.5,172.6 35.8,172.7 36.2,173 36.6,173.4 36.9,173.9 37.3,173.8 37.6,173.8 38,173.8 38.4,173.7 38.7,173.4 39.1,173.5 39.5,173.7 39.8,173.7 40.2,173.6 40.6,173.4 40.9,173.4 41.3,173.3 41.7,173.6 42,173.8 42.4,173.5 42.8,173.1 43.1,172.8 43.5,172.6 43.8,172.8 44.2,172.8 44.6,173.1 44.9,173.3 45.3,173.4 45.7,173.7 46,173.4 46.4,173.2 46.8,173.3 47.1,173.4 47.5,173.5 47.9,173.1 48.2,173.2 48.6,173.2 51.1,173.4 51.5,173.5 51.8,173.8 52.2,173.9 52.6,173.5 52.9,173.5 53.3,173 53.7,171.1 54,171.5 54.4,172.9 54.8,173.2 55.1,172.6 55.5,172.9 55.9,173.4 56.2,173.8 56.6,173.6 57,173.8 57.3,173.3 57.7,173.5 58,173.5 58.4,173.3 58.8,173.2 59.1,173.2 59.5,173.2 60.8,173.7 61,173.8 61.4,172.9 61.7,172.3 62.1,170.5 62.4,169.6 62.8,169.2 63.2,168.9 63.5,168.9 63.9,169.4 64.3,169.5 64.6,169.6 65,169.5 65.4,169 65.7,167.8 66.1,167.2 66.5,167.1 66.8,163.6 67.2,160.6 67.6,152.8 67.9,120.7 68.3,92.2 68.6,74 69,62.2 69.4,56.7 69.7,54.8 70.1,53.3 70.5,52.8 70.8,52.2 71.2,51.8 71.6,51.7 71.9,52 72.3,52.3 72.7,52.7 73,53 73.4,53.3 73.8,53.8 74.1,54.2 74.5,54.3 74.8,54.7 75.2,54.8 75.6,54.7 75.9,54.8 76.3,55.3 76.7,55.6 77,55.7 77.4,55.7 77.8,55.8 78.1,56.1 78.5,56.9 78.9,57.4 79.4,70.7 79.8,113.1 80.1,152.6 80.5,170.6 80.9,172.6 81.2,172.7 81.6,173.2 82,172.9 82.3,172.6 82.7,172.2 83.1,172.1 83.4,171.6 83.8,171.3 84.1,171.2 84.5,170.6 84.9,169.8 85.2,169.2 85.6,168.7 86,166.1 86.3,162.4 86.7,158.7 87.1,138.4 87.4,104.7 87.8,81.5 88.2,66.9 88.5,57.8 88.9,53.7 89.3,52 89.6,52.1 90,52.5 90.4,52.7 90.7,52.5 91.1,52.6 91.4,52.8 91.8,52.9 92.2,52.9 92.5,52.9 92.9,53.6 93.3,59.9 93.6,75 94,94.4 94.4,110.6 94.7,118.2 95.1,130.8 95.5,150 95.8,163.4 96.2,171 96.6,172.1 96.9,171.1 97.5,170.2 97.8,170.1 98.2,169.9 98.6,170.5 98.9,170.7 99.3,171 99.7,171 100,170.9 100.4,171.1 100.9,171.2 101.3,171.5 101.7,172.2 102,172.5 102.4,172.6 102.8,172.7 103.1,172.6 103.5,172.7 104,173 104.4,172.9 104.8,173.2 105.1,173 105.5,173.4 105.9,173.6 106.2,173.4 106.6,173.3 107,173.2 107.5,173.6 107.9,173.5 108.2,173.2 108.6,173.6 109,173.9 109.3,173.7 109.7,173.3 110.1,173.3 110.6,173.6 111,173.6 111.3,173.6 111.7,173.6 112.1,173.7 112.4,173.9 112.8,173.6 113.2,173.8 113.5,173.7 114.1,173.8 114.4,173.9 114.8,173.8 115.2,173.8 115.5,173.8 115.9,173.7 116.3,173.5 116.6,173.5 117.2,173.6 117.5,173.4 117.9,173.6 118.3,173.7 118.6,173.7 119,173.6 119.4,173.5 119.7,173.7 120.1,173.8 120.6,173.8 121,173.5 121.4,173.5 121.7,173.8 122.1,173.8 122.5,173.6 122.8,173.9 123.2,173.6 123.7,173.9 124.1,173.4 124.5,173.5 124.8,173.8 125.2,173.7 125.6,173.5 125.9,173.7 126.3,173.8 126.7,173.6 127.2,173.8 127.6,173.5 127.9,173.6 128.3,173.9 128.7,173.7 129,173.6 129.4,173.8 129.8,173.8 130.3,173.3 130.7,173.4 131,173.5 131.4,173.5 131.8,173.9 132.1,173.7 132.5,173.8 132.9,173.9 133.2,173.7 133.8,173.7 134.1,173.9 134.5,173.9 134.9,173.6 135.2,173.9 135.6,174 136,173.9 136.3,173.9 136.9,173.4 137.2,173.5 137.6,173.8 138,173.5 138.3,173.6 138.7,173.9 139.1,173.6 139.4,173.3 139.8,173.2 140.3,173.7 140.7,173.5 141.1,173.6 141.4,173.7 141.8,173.8 142.2,173.5 142.5,173.6 142.9,173.9 143.5,173.7 143.8,173.6 144.2,173.7 144.5,173.7 144.9,173.7 145.3,173.7 145.6,173.8 146,173.7 146.4,173.6 146.9,173.6 147.3,173.9 147.6,173.7 148,173.8 148.4,173.8 148.7,173.7 149.1,173.7 149.5,173.5 150,173.8 150.4,173.7 150.7,173.4 151.1,173.6 151.5,173.6 151.8,173.9 152.2,173.7 152.6,173.9 152.9,173.8 153.5,173.8 153.8,173.7 154.2,173.9 154.6,173.7 154.9,173.5 155.3,173.4 155.7,173.6 156,173.8 156.6,173.7 156.9,173.7 157.3,173.5 157.7,173.7 158,173.8 158.4,173.4 158.8,173.4 159.1,173.7 159.5,173.8 160,173.5 160.4,173.2 160.8,173.3 161.1,173.6 161.5,173.6 161.9,173.3 162.2,173.3 162.6,173.6 163.2,173.4 163.5,173.6 163.9,173.6 164.2,173.8 164.6,173.7 165,173.6 165.3,173.6 165.7,173.5 166.1,173.5 166.6,173.8 167,173.7 167.3,173.7 167.7,173.9 168.1,173.7 168.4,173.9 168.8,173.7 169.2,173.7 169.7,173.7 170.1,173.7 170.5,173.7 170.8,173.5 171.2,173.4 171.5,173.8 171.9,173.6 172.3,173.6 172.6,173.7 173.2,174 173.6,173.9 173.9,173.8 174.3,173.7 174.6,173.7 175,173.8 175.4,173.9 175.7,173.8 176.3,173.9 176.7,173.8 177,173.8 177.4,173.7 177.7,173.6 178.1,173.9 178.5,173.7 178.8,173.7 179.2,174 179.8,173.7 180.1,173.7 180.5,173.7 180.8,173.8 181.2,173.9 181.6,173.6 181.9,173.4 182.3,173.3 182.9,173.8 183.2,173.6 183.6,173.3 183.9,173.4 184.3,173.5 184.7,173.7 185,173.5 185.4,173 185.8,173.4 186.3,173.6 186.7,173.8 187.1,173.7 187.4,173.7 187.8,173.8 188.1,173.8 188.5,173.8 188.9,173.6 189.4,173.4 189.8,173.2 190.2,173.6 190.5,174 190.9,173.9 191.2,173.7 191.6,173.7 192,173.8 192.3,173.8 192.9,173.7 193.3,173.8 193.6,173.6 194,173.4 194.3,173.6 194.7,173.7 195.1,173.7 195.4,173.8 196,173.8 196.4,173.8 196.7,173.7 197.1,173.7 197.4,173.7 197.8,173.7 198.2,173.5 198.5,173.6 198.9,173.5 199.5,173.6 199.8,173.8 200.2,173.5 200.6,173.9 200.9,173.6 201.3,173.5 201.6,173.9 202,173.8 202.6,173.7 202.9,173.5 203.3,173.7 203.7,173.9 204,173.7 204.4,173.3 204.8,173.6 205.1,173.7 205.5,173.4 206,173.5 206.4,173.8 206.8,173.8 207.1,173.8 207.5,173.7 207.9,173.8 208.2,173.5 208.6,173.6 209.1,173.9 209.5,173.5 209.9,173.7 210.2,173.8 210.6,173.7 211,173.6 211.3,173.7 211.7,173.5 212,173.7 212.6,173.9 213,173.5 213.3,173.6 213.7,173.8 214.1,173.6 214.4,173.4 214.8,173.5 215.1,173.9 215.7,173.9 216.1,173.8 216.4,173.7 216.8,173.7 217.2,173.8 217.5,173.6 217.9,173.6 218.3,173.6 218.6,173.7 219.2,173.9 219.5,173.5 219.9,173.4 220.3,173.7 220.6,173.8 221,173.9 221.4,173.7 221.7,173.8 222.3,173.6 222.6,173.8 223,173.5 223.4,173.4 223.7,173.5 224.1,173.7 224.5,173.6 224.8,173.6 225.2,173.5 225.7,173.6 226.1,173.8 226.5,173.7 226.8,173.6 227.2,173.6 227.6,173.8 227.9,173.8 228.3,173.9 228.8,173.5 229.2,173.5 229.6,173.9 229.9,173.4 230.3,173.3 230.7,173.4 231,173.6 231.4,173.6 231.8,173.7 232.3,173.6 232.7,173.8 233,173.6 233.4,173.8 233.8,173.7 234.1,173.7 234.5,173.8 234.9,173.5 235.4,173.8 235.8,173.8 236.1,173.7 236.5,173.6 236.9,173.6 237.2,173.8 237.6,173.7 238,173.6 238.3,173.9 238.9,173.8 239.2,173.5 239.6,173.3 240,173.5 240.3,173.8 240.7,173.7 241.1,173.6 241.4,173.6 242,173.8 242.3,173.6 242.7,173.3 243.1,173.2 243.4,173.1 243.8,173.3 244.2,173.7 244.5,173.5 244.9,173.5 245.4,173.7 245.8,173.7 246.2,173.7 246.5,173.6 246.9,173.8 247.3,173.5 247.6,173.4 248,173.4 248.5,173.9 248.9,173.4 249.3,173.4 249.6,173.5 250,173.7 250.4,173.4 250.7,173.4 251.1,173.7 251.5,174 252,173.7 252.4,173.7 252.7,173.8 253.1,173.8 253.5,173.5 253.8,173.6 254.2,173.9 254.6,173.7 255.1,173.3 255.5,173.9 255.8,173.6 256.2,173.6 256.6,173.8 256.9,173.6 257.3,173.4 257.7,173.6 258,173.6 258.6,173.6 258.9,173.8 259.3,173.8 259.7,173.7 260,173.5 260.4,173.4 260.8,173.4 261.1,173.6 261.7,173.9 262,173.8 262.4,173.8 262.8,173.8 263.1,173.7 263.5,173.5 263.9,173.9 264.2,173.7 264.6,173.5 265.1,173.9 265.5,173.5 265.9,173.4 266.2,173.4 266.6,173.8 267,173.9 267.3,173.7 267.7,173.6 268.2,173.8 268.6,173.8 269,173.7 269.3,173.7 269.7,173.6 270.1,173.7 270.4,173.6 270.8,173.8 271.2,173.7 271.7,173.9 272.1,173.6 272.4,173.5 272.8,173.3 273.2,173.3 273.5,173.6 273.9,173.7 274.3,173.6 274.8,173.9 275.2,173.8 275.5,173.5 275.9,173.5 276.3,173.6 276.6,173.6 277,173.6 277.4,173.3 277.7,173.2 278.3,173.5 278.6,173.8 279,173.7 279.4,173.6 279.7,173.5 280.1,173.7 280.5,173.9 280.8,173.8 281.4,173.5 281.7,173.6 282.1,173.7 282.5,173.6 282.8,173.3 283.2,173.5 283.6,173.5 283.9,173.8 284.3,173.6 284.8,173.6 285.2,173.6 285.6,173.7 285.9,173.8 286.3,173.7 286.7,173.6 287,173.6 287.4,173.9 287.9,173.6 288.3,173.5 288.7,173.8 289,173.9 289.4,173.7 289.8,173.8 290.1,173.6 290.5,174 290.9,173.5 291.4,173.2 291.8,173.4 292.1,173.7 292.5,173.6 292.9,173.6 293.2,173.6 293.6,173.5 294,173.8 294.5,173.6 294.9,173.4 295.2,173.5 295.6,173.8 296,173.5 296.3,173.8 296.7,173.7 297.1,173.9 297.4,173.9 298,173.8 298.3,173.6 298.7,173.4 299.1,173.7 299.4,173.7 299.8,173.5 300.2,173.8 300.5,173.8 301.1,173.7 301.4,173.8 301.8,173.8 302.2,173.6 302.5,173.3 302.9,173.3 303.3,173.4 303.6,173.8 304,173.6 304.5,173.8 304.9,173.9 305.3,173.6 305.6,173.6 306,173.9 306.4,173.6 306.7,173.7 307.1,173.7 307.6,173.2 308,173.3 308.4,173.7 308.7,173.7 309.1,173.6 309.5,173.4 309.8,173.5 310.2,173.8 310.5,173.7 311.1,173.8 311.5,173.9 311.8,173.8 312.2,173.4 312.6,173.8 312.9,173.6 313.3,173.6 313.6,173.5 314.2,173.9 314.6,173.8 314.9,173.7 315.3,173.5 315.7,173.9 316,173.7 316.4,173.8 316.7,173.8 317.1,173.8 317.7,173.8 318,173.9 318.4,173.8 318.8,173.9 319.1,173.8 319.5,173.9 319.8,173.8 320.2,173.8 320.8,173.6 321.1,173.8 321.5,173.7 321.9,173.3 322.2,173.7 322.6,174 323,173.8 323.3,173.7 323.7,173.5 324.2,173.5 324.6,173.6 325,173.9 325.3,173.9 325.7,173.8 326.1,173.8 326.4,173.7 326.8,173.7 327.3,173.7 327.7,173.8 328.1,173.9 328.4,173.9 328.8,173.6 329.2,173.6 329.5,173.5 329.9,173.5 330.2,173.6 330.8,174 331.2,173.7 331.5,173.6 331.9,173.7 332.3,173.4 332.6,173.3 333,173.2 333.3,173.6 333.9,173.5 334.3,173.5 334.6,173.6 335,173.7 335.4,173.6 335.7,173.4 336.1,173.2 336.5,173.6 336.8,173.9 337.4,173.8 337.7,173.8 338.1,173.6 338.5,173.4 338.8,173.6 339.2,173.7 339.6,173.7 339.9,173.8 340.5,173.8 340.8,173.5 341.2,173.4 341.6,173.7 341.9,173.6 342.3,173.8 342.7,173.7 343,173.5 343.4,173.5 343.9,173.8 344.3,173.7 344.7,173.8 345,173.6 345.4,173.5 345.8,173.6 346.1,173.8 346.5,173.5 347,173.4 347.4,173.8 347.8,173.9 348.1,173.4 348.5,173.5 348.9,173.8 349.2,173.6 349.6,173.7 350,173.5 350.5,173.3 350.9,173.2 351.2,173.5 351.6,173.7 352,173.6 352.3,173.4 352.7,173.2 353.1,173.4 353.6,173.9 354,173.7 354.3,173.9 354.7,173.7 355.1,173.9 355.4,173.9 355.8,173.7 356.2,173.6 356.5,173.5 357.1,173.7 357.4,173.6 357.8,173.6 358.2,173.8 358.5,173.7 358.9,173.4 359.3,173.5 359.6,173.7 360.2,173.9 360.5,173.7 360.9,173.8 361.3,173.8 361.6,173.3 362,173.2 362.4,173.8 362.7,173.7 363.1,174 363.6,173.6 364,173.5 364.4,173.6 364.7,173.8 365.1,173.7 365.5,174 365.8,173.2 366.2,173.1 366.7,173.7 367.1,173.3 367.5,173.5 367.8,173.5 368.2,173.7 368.6,173.9 368.9,173.5 369.3,173.5 369.7,173.9 370.2,173.7 370.6,173.8 370.9,173.7 371.3,173.8 371.7,173.9 372,173.8 372.4,173.8 372.8,173.9 373.3,173.7 373.7,173.9 374,173.9 374.4,173.7 374.8,173.6 375.1,173.7 375.5,173.8 375.9,173.8 376.2,173.8 376.8,173.6 377.1,173.8 377.5,173.9 377.9,173.7 378.2,173.8 378.6,173.8 379,173.7 379.3,173.8 379.9,173.7 380.2,173.8 380.6,173.7 381,174 381.3,173.7 381.7,173.6 382.1,174 382.4,173.7 382.8,173.7 383.3,173.5 383.7,173.6 384.1,173.5 384.4,173.4 384.8,173.9 385.2,173.7 385.5,173.9 385.9,173.7 386.4,173.8 386.8,173.8 387.2,173.8 387.5,173.6 387.9,173.4 388.3,173.8 388.6,173.5 389,173.5 389.4,173.8 389.9,173.9 390.3,173.8 390.6,173.8 391,173.9 391.4,173.9 391.7,173.4 392.1,173.5 392.5,173.8 393,173.7 393.4,174 393.7,173.8 394.1,173.9 394.5,173.7 394.8,173.4 395.2,173.4 395.6,173.7 395.9,173.5 396.5,173.8 396.8,173.7 397.2,173.8 397.6,173.7 397.9,173.6 398.3,173.7 398.7,173.8 399,173.7 399.6,173.9 399.9,173.8 400.3,173.4 400.7,173.5 401,173.9 401.4,173.8 401.8,173.6 402.1,173.4 402.5,173.6 403,173.8 403.4,173.6 403.8,173.8 404.1,173.9 404.5,173.8 404.9,173.9 405.2,173.8 405.6,173.6 406.1,173.7 406.5,173.8 406.9,173.9 407.2,173.6 407.6,173.9 408,173.9 408.3,173.8 408.7,173.8 409.1,173.7 409.6,173.6 410,173.6 410.3,173.5 410.7,173.4 411.1,173.5 411.4,173.7 411.8,173.7 412.2,173.6 412.7,173.8 413.1,173.6 413.4,173.8 413.8,173.7 414.2,173.3 414.5,173.4 414.9,173.6 415.3,173.6 415.6,173.5 416.2,173.6 416.5,173.8 416.9,173.6 417.3,173.5 417.6,173.9 418,173.8 418.4,173.8 418.7,173.8 419.3,173.6 419.6,173.5 420,173.6 420.4,173.4 420.7,173.6 421.1,173.6 421.5,173.6 421.8,173.8 422.2,173.8 422.7,173.9 423.1,173.9 423.5,173.8 423.8,173.6 424.2,173.5 424.6,173.5 424.9,173.7 425.3,173.9 425.8,173.9 426.2,173.7 426.6,173.5 426.9,173.8 427.3,173.9 427.7,173.8 428,173.4 428.4,173.4 428.8,173.5 429.3,173.8 429.7,173.7 430,173.5 430.4,173.8 430.8,173.9 431.1,173.4 431.5,173.5 431.9,173.6 432.4,173.8 432.8,173.8 433.1,173.6 433.5,173.6 433.9,173.7 434.2,173.8 434.6,173.8 435,173.9 435.3,173.7 435.9,173.9 436.2,173.8 436.6,173.8 437,173.7 437.3,173.6 437.7,173.8 438.1,173.9 438.4,173.7 439,173.9 439.3,173.6 439.7,173.3 440.1,173.5 440.4,173.7 440.8,173.7 441.2,173.9 441.5,173.6 441.9,173.6 442.4,173.4 442.8,173.3 443.2,173.5 443.5,173.8 443.9,173.6 444.3,173.6 444.6,173.4 445,173.3 445.5,173.4 445.9,173.8 446.3,173.8 446.6,173.7 447,173.7 447.4,173.9 447.7,173.5 448.1,173.8 448.5,173.5 449,173.3 449.4,173.6 449.7,173.8 450.1,173.6 450.5,173.3 450.8,173.4 451.2,173.8 451.6,173.7 452.1,173.3 452.5,173.5 452.8,173.8 453.2,173.8 453.6,173.8 453.9,173.8 454.3,173.8 454.7,173.9 455,173.8 455.6,173.8 455.9,173.8 456.3,173.5 456.7,173.6 457,173.7 457.4,174 457.8,173.8 458.1,173.9 458.7,173.7 459,173.8 459.4,173.7 459.8,173.9 460.1,173.7 460.5,173.2 460.9,173.3 461.2,173.9 461.6,173.9 462.1,173.8 462.5,173.5 462.9,173.4 463.2,173.7 463.6,173.7 464,173.4 464.3,173.8 464.7,173.9 465.2,173.4 465.6,173.4 466,173.6 466.3,173.8 466.7,173.6 467.1,173.9 467.4,173.8 467.8,173.8 468.2,173.6 468.7,173.8 469.1,174 469.4,173.7 469.8,173.7 470.2,173.8 470.5,173.8 470.9,173.5 471.3,173.4 471.8,173.5 472.2,173.8 472.5,173.7 472.9,173.4 473.3,173.6 473.6,173.8 474,173.9 474.4,174 474.7,173.4 475.3,173.7 475.6,173.7 476,173.7 476.4,173.9 476.7,173.7 477.1,173.8 477.5,173.9 477.8,173.7 478.4,173.6 478.7,173.6 479.1,173.9 479.5,173.8 479.8,173.9 480.2,173.9 480.6,173.9 480.9,174 481.3,173.8 481.8,173.7 482.2,173.7 482.6,173.7 482.9,173.7 483.3,173.7 483.7,173.7 484,173.8 484.4,173.5 484.9,173.7 485.3,173.5 485.7,173.8 486,173.5 486.4,173.6 486.8,173.8 487.1,174 487.5,173.8 487.9,173.7 488.4,173.6 488.8,173.5 489.1,173.6 489.5,173.3 489.9,173.2 490.2,173.3 490.6,173.8 491,173.5 491.5,173.7 491.9,173.9 492.2,173.7 492.6,173.6 493,173.7 493.3,173.5 493.7,173.3 494.1,173.6 494.4,173.7 495,173.5 495.3,173.7 495.7,173.8 496.1,173.6 496.4,173.7 496.8,174 497.2,173.7 497.5,173.4 498.1,173.5 498.4,173.9 498.8,173.7 499.2,173.6 499.5,173.8 499.9,173.7 500.3,173.8 500.6,173.6 501,173.7 501.5,173.7 501.9,173.8 502.3,173.7 502.6,173.7 503,173.4 503.4,173.4 503.7,173.7 504.1,173.6 504.6,173.5 505,173.7 505.4,173.7 505.7,173.6 506.1,173.7 506.5,173.8 506.8,173.5 507.2,173.7 507.6,173.7 508.1,173.9 508.5,173.7 508.8,173.7 509.2,173.8 509.6,173.6 509.9,173.6 510.3,173.8 510.7,173.8 511.2,173.8 511.6,173.9 511.9,173.8 512.3,173.8 512.7,173.6 513,173.3 513.4,173.6 513.8,173.8 514.1,173.8 514.7,173.6 515,173.7 515.4,173.7 515.8,173.8 516.1,174 516.5,173.7 516.9,173.6 517.2,173.7 517.8,173.9 518.1,173.8 518.5,173.7 518.9,173.6 519.2,173.5 519.6,173.7 520,173.6 520.3,173.8 520.7,173.7 521.2,173.5 521.6,173.6 522,173.6 522.3,174 522.7,173.7 523.1,173.7 523.4,173.4 523.8,173.5 524.3,173.5 524.7,173.7 525.1,173.8 525.4,173.9 525.8,173.8 526.2,173.9 526.5,173.5 526.9,173.8 527.2,173.5 527.8,173.5 528.2,173.7 528.5,173.9 528.9,173.8 529.3,173.6 529.6,173.4 530,173.6 530.3,173.6 530.9,173.8 531.3,173.6 531.6,173.4 532,173.6 532.4,173.9 532.7,173.9 533.1,173.7 533.4,173.8 533.8,173.6 534.4,173.8 534.7,173.8 535.1,173.7 535.5,173.8 535.8,173.7 536.2,173.4 536.5,173.6 536.9,173.7 537.5,173.8 537.8,173.8 538.2,173.7 538.6,173.5 538.9,173.5 539.3,173.4 539.6,173.5 540,173.9 540.4,173.6 540.9,173.9 541.3,173.8 541.7,173.5 542,173.4 542.4,173.5 542.7,173.5 543.1,173.8 543.5,173.6 544,173.4 544.4,173.5 544.8,173.6 545.1,173.6 545.5,173.6 545.8,173.6 546.2,173.6 546.6,173.6 546.9,173.9 547.5,173.5 547.9,173.7 548.2,173.9 548.6,173.8 549,173.8 549.3,173.9 549.7,173.7 550,173.7 550.6,173.7 551,173.7 551.3,173.7 551.7,173.6 552.1,173.8 552.4,173.8 552.8,173.6 553.1,173.4 553.5,173.5 554.1,173.8 554.4,173.9 554.8,173.9 555.2,173.9 555.5,173.8 555.9,173.8 556.3,173.8 556.6,173.8 557.2,174 557.5,173.8 557.9,173.5 558.3,173.5 558.6,173.6 559,173.7 559.4,173.5 559.7,173.5 560.1,173.6 560.6,173.8 561,173.8 561.4,173.7 561.7,173.8 562.1,173.8 562.5,174 562.8,173.7 563.2,173.4 563.7,173.7 564.1,173.7 564.5,173.6 564.8,173.4 565.2,173.7 565.6,173.8 565.9,173.6 566.3,173.3 566.7,173.5 567.2,173.3 567.6,173.3 567.9,173.7 568.3,173.7 568.7,173.2 569,173.4 569.4,173.6 569.8,173.6 570.3,173.6 570.7,173.5 571,173.6 571.4,173.8 571.8,173.6 572.1,173.4 572.5,173.7 572.9,173.8 573.2,173.7 573.8,173.5 574.1,173.5 574.5,173.8 574.9,173.8 575.2,173.8 575.6,173.8 576,173.7 576.3,173.6 576.9,173.7 577.2,173.4 577.6,173.7 578,168.8 578.3,161.7 578.7,159.3 579.1,160.1 579.4,161.9 579.8,164.6 580.3,168.2 580.7,169.7 581.1,170.4 581.4,171.4 581.8,172.3 582.2,173 582.5,173.1 582.9,173.1 583.4,173.3 583.8,173.5 584.2,173.3 584.5,173.5 584.9,173.9 585.3,173.6 585.6,173.5 586,173.9 586.4,173.8 586.9,173.8 587.3,173.8 587.6,173.6 588,173.7 588.4,173.9 588.7,173.4 589.1,173.4 589.5,173.8 590,173.6 590.4,173.6 590.7,173.4 591.1,173.5 591.5,173.6 591.8,173.9 592.2,173.5 592.6,173.7 592.9,173.7 593.5,173.5 593.8,173.6 594.2,173.9 594.6,173.8 594.9,173.6 595.3,173.6 595.7,173.8 596,173.7 596.6,173.7 596.9,173.8 597.3,174 597.7,173.9 598,173.7 598.4,173.5 598.8,173.3 599.1,173.2 599.5,173.7 600,173.4 600.4,173.3 600.8,173.6 601.1,173.2 601.5,173 601.9,173.1 602.2,173.5 602.6,173.9 603.1,173.1 603.5,173.1 603.9,173.3 604.2,173.7 604.6,172.9 605,171.8 605.3,172 605.7,172.9 606.1,173.8 606.6,173 607,172.6 607.3,172.1 607.7,172.6 607.9,173.6"/>
+<text class="speed__note" x="337.1" y="32" text-anchor="middle">8.8 minutes at a standstill</text>
+</svg>
+<!-- /gen:speed -->
+    <figcaption>Ground speed in metres per second against mission time, from the same two
+      runs.</figcaption>
+  </figure>
+</section>
+
+<!-- ── perception diagnostics ─────────────────────────────────────────── -->
+<section class="diag" aria-labelledby="diag-h">
+  <h2 id="diag-h">Before the missions: 87 perception runs</h2>
+  <figure>
+<!-- gen:detections -->
+<svg class="det" viewBox="0 0 640 170" role="img" aria-labelledby="det-t det-d">
+<title id="det-t">Perception diagnostics, 87 runs, 13 to 16 April 2026</title>
+<desc id="det-d">34 of 87 runs recorded detections. 17,842 of 71,813 events were proximity alerts. Column height is the square root of each run's event count.</desc>
+<rect class="det__none" x="1.3" y="143" width="4" height="3"/>
+<rect class="det__none" x="8.1" y="143" width="4" height="3"/>
+<rect class="det__none" x="14.8" y="143" width="4" height="3"/>
+<rect class="det__none" x="21.6" y="143" width="4" height="3"/>
+<rect class="det__none" x="28.3" y="143" width="4" height="3"/>
+<rect class="det__body" x="34.7" y="124" width="4.7" height="19.1"/>
+<rect class="det__foot" x="34.7" y="143" width="4.7" height="3"/>
+<rect class="det__none" x="41.8" y="143" width="4" height="3"/>
+<rect class="det__none" x="48.5" y="143" width="4" height="3"/>
+<rect class="det__none" x="55.2" y="143" width="4" height="3"/>
+<rect class="det__body" x="61.6" y="132" width="4.7" height="6.1"/>
+<rect class="det__foot" x="61.6" y="138.2" width="4.7" height="7.8"/>
+<rect class="det__none" x="68.7" y="143" width="4" height="3"/>
+<rect class="det__none" x="75.4" y="143" width="4" height="3"/>
+<rect class="det__none" x="82.2" y="143" width="4" height="3"/>
+<rect class="det__body" x="88.6" y="117.2" width="4.7" height="26"/>
+<rect class="det__foot" x="88.6" y="143.2" width="4.7" height="2.8"/>
+<rect class="det__body" x="95.3" y="125.9" width="4.7" height="2"/>
+<rect class="det__foot" x="95.3" y="127.9" width="4.7" height="18.1"/>
+<rect class="det__body" x="102" y="124.4" width="4.7" height="10.1"/>
+<rect class="det__foot" x="102" y="134.4" width="4.7" height="11.6"/>
+<text class="det__day" x="0" y="164">13 Apr</text>
+<rect class="det__none" x="127.1" y="143" width="4" height="3"/>
+<rect class="det__none" x="133.9" y="143" width="4" height="3"/>
+<rect class="det__body" x="140.3" y="139.8" width="4.7" height="2.9"/>
+<rect class="det__foot" x="140.3" y="142.7" width="4.7" height="3.3"/>
+<rect class="det__none" x="147.3" y="143" width="4" height="3"/>
+<rect class="det__none" x="154.1" y="143" width="4" height="3"/>
+<rect class="det__body" x="160.5" y="50.8" width="4.7" height="95"/>
+<rect class="det__foot" x="160.5" y="145.8" width="4.7" height="0.2"/>
+<rect class="det__none" x="167.5" y="143" width="4" height="3"/>
+<rect class="det__body" x="173.9" y="115" width="4.7" height="30.5"/>
+<rect class="det__foot" x="173.9" y="145.6" width="4.7" height="0.4"/>
+<rect class="det__body" x="180.7" y="76.2" width="4.7" height="69.6"/>
+<rect class="det__foot" x="180.7" y="145.7" width="4.7" height="0.3"/>
+<text class="det__day" x="125.8" y="164">14 Apr</text>
+<rect class="det__body" x="205.4" y="55.9" width="4.7" height="89.9"/>
+<rect class="det__foot" x="205.4" y="145.8" width="4.7" height="0.2"/>
+<rect class="det__body" x="212.1" y="33.8" width="4.7" height="112"/>
+<rect class="det__foot" x="212.1" y="145.8" width="4.7" height="0.2"/>
+<rect class="det__body" x="218.9" y="121.6" width="4.7" height="15.4"/>
+<rect class="det__foot" x="218.9" y="137" width="4.7" height="9"/>
+<rect class="det__body" x="225.6" y="127.4" width="4.7" height="13.3"/>
+<rect class="det__foot" x="225.6" y="140.7" width="4.7" height="5.3"/>
+<rect class="det__none" x="232.7" y="143" width="4" height="3"/>
+<rect class="det__body" x="239.1" y="127.1" width="4.7" height="13.7"/>
+<rect class="det__foot" x="239.1" y="140.7" width="4.7" height="5.3"/>
+<rect class="det__none" x="246.2" y="143" width="4" height="3"/>
+<rect class="det__none" x="252.9" y="143" width="4" height="3"/>
+<rect class="det__none" x="259.6" y="143" width="4" height="3"/>
+<rect class="det__none" x="266.4" y="143" width="4" height="3"/>
+<rect class="det__body" x="272.8" y="8" width="4.7" height="1.7"/>
+<rect class="det__foot" x="272.8" y="9.7" width="4.7" height="136.3"/>
+<rect class="det__none" x="279.8" y="143" width="4" height="3"/>
+<rect class="det__body" x="286.2" y="136.7" width="4.7" height="5.4"/>
+<rect class="det__foot" x="286.2" y="142.1" width="4.7" height="3.9"/>
+<rect class="det__none" x="293.3" y="143" width="4" height="3"/>
+<rect class="det__body" x="299.7" y="129.5" width="4.7" height="6.8"/>
+<rect class="det__foot" x="299.7" y="136.3" width="4.7" height="9.7"/>
+<rect class="det__none" x="306.8" y="143" width="4" height="3"/>
+<rect class="det__body" x="313.2" y="134.6" width="4.7" height="0"/>
+<rect class="det__foot" x="313.2" y="134.6" width="4.7" height="11.4"/>
+<rect class="det__none" x="320.2" y="143" width="4" height="3"/>
+<rect class="det__body" x="326.6" y="137.4" width="4.7" height="1.3"/>
+<rect class="det__foot" x="326.6" y="138.7" width="4.7" height="7.3"/>
+<rect class="det__none" x="333.7" y="143" width="4" height="3"/>
+<rect class="det__none" x="340.5" y="143" width="4" height="3"/>
+<rect class="det__none" x="347.2" y="143" width="4" height="3"/>
+<rect class="det__body" x="353.6" y="123.8" width="4.7" height="7"/>
+<rect class="det__foot" x="353.6" y="130.8" width="4.7" height="15.2"/>
+<rect class="det__body" x="360.3" y="100.6" width="4.7" height="15.7"/>
+<rect class="det__foot" x="360.3" y="116.3" width="4.7" height="29.7"/>
+<rect class="det__none" x="367.4" y="143" width="4" height="3"/>
+<rect class="det__none" x="374.1" y="143" width="4" height="3"/>
+<rect class="det__none" x="380.9" y="143" width="4" height="3"/>
+<rect class="det__none" x="387.6" y="143" width="4" height="3"/>
+<rect class="det__none" x="394.3" y="143" width="4" height="3"/>
+<rect class="det__none" x="401.1" y="143" width="4" height="3"/>
+<rect class="det__none" x="407.8" y="143" width="4" height="3"/>
+<rect class="det__none" x="414.5" y="143" width="4" height="3"/>
+<rect class="det__none" x="421.3" y="143" width="4" height="3"/>
+<rect class="det__none" x="428" y="143" width="4" height="3"/>
+<rect class="det__none" x="434.7" y="143" width="4" height="3"/>
+<rect class="det__body" x="441.1" y="136.7" width="4.7" height="5.1"/>
+<rect class="det__foot" x="441.1" y="141.9" width="4.7" height="4.1"/>
+<rect class="det__none" x="448.2" y="143" width="4" height="3"/>
+<rect class="det__none" x="455" y="143" width="4" height="3"/>
+<rect class="det__none" x="461.7" y="143" width="4" height="3"/>
+<rect class="det__none" x="468.4" y="143" width="4" height="3"/>
+<text class="det__day" x="204.4" y="164">15 Apr</text>
+<rect class="det__body" x="492.8" y="120.5" width="4.7" height="18.9"/>
+<rect class="det__foot" x="492.8" y="139.4" width="4.7" height="6.6"/>
+<rect class="det__none" x="499.9" y="143" width="4" height="3"/>
+<rect class="det__body" x="506.3" y="17.5" width="4.7" height="128.1"/>
+<rect class="det__foot" x="506.3" y="145.6" width="4.7" height="0.4"/>
+<rect class="det__body" x="513" y="130.7" width="4.7" height="9.6"/>
+<rect class="det__foot" x="513" y="140.3" width="4.7" height="5.7"/>
+<rect class="det__none" x="520.1" y="143" width="4" height="3"/>
+<rect class="det__none" x="526.8" y="143" width="4" height="3"/>
+<rect class="det__body" x="533.2" y="130.7" width="4.7" height="11"/>
+<rect class="det__foot" x="533.2" y="141.7" width="4.7" height="4.3"/>
+<rect class="det__body" x="540" y="122.3" width="4.7" height="16.3"/>
+<rect class="det__foot" x="540" y="138.7" width="4.7" height="7.3"/>
+<rect class="det__none" x="547" y="143" width="4" height="3"/>
+<rect class="det__body" x="553.4" y="119.4" width="4.7" height="22.6"/>
+<rect class="det__foot" x="553.4" y="142.1" width="4.7" height="3.9"/>
+<rect class="det__body" x="560.2" y="119.2" width="4.7" height="22.5"/>
+<rect class="det__foot" x="560.2" y="141.7" width="4.7" height="4.3"/>
+<rect class="det__none" x="567.3" y="143" width="4" height="3"/>
+<rect class="det__body" x="573.7" y="52.5" width="4.7" height="90.8"/>
+<rect class="det__foot" x="573.7" y="143.3" width="4.7" height="2.7"/>
+<rect class="det__none" x="580.7" y="143" width="4" height="3"/>
+<rect class="det__none" x="587.5" y="143" width="4" height="3"/>
+<rect class="det__none" x="594.2" y="143" width="4" height="3"/>
+<rect class="det__body" x="600.6" y="130" width="4.7" height="14.2"/>
+<rect class="det__foot" x="600.6" y="144.2" width="4.7" height="1.8"/>
+<rect class="det__body" x="607.3" y="128.4" width="4.7" height="15.8"/>
+<rect class="det__foot" x="607.3" y="144.1" width="4.7" height="1.9"/>
+<rect class="det__body" x="614.1" y="72.4" width="4.7" height="66.4"/>
+<rect class="det__foot" x="614.1" y="138.8" width="4.7" height="7.2"/>
+<rect class="det__body" x="620.8" y="103.4" width="4.7" height="34.2"/>
+<rect class="det__foot" x="620.8" y="137.6" width="4.7" height="8.4"/>
+<rect class="det__none" x="627.9" y="143" width="4" height="3"/>
+<rect class="det__none" x="634.6" y="143" width="4" height="3"/>
+<text class="det__day" x="491.8" y="164">16 Apr</text>
+</svg>
+<!-- /gen:detections -->
+    <figcaption>Diagnostic runs of the perception stack, 13 to 16 April 2026. Thirty-four
+      recorded detections; fifty-three recorded none, the short ticks along the base. The solid
+      foot of each column is proximity alerts, 17,842 of 71,813 events. Heights use a square-root
+      scale so the smaller runs stay visible.</figcaption>
+  </figure>
+</section>
+
+<!-- ── the boundary ───────────────────────────────────────────────────── -->
+<section class="limits" aria-labelledby="lim-h">
+  <div class="limits__gps">
+    <h2 id="lim-h">GPS-denied flight is configured, not yet shown.</h2>
+    <p>The estimator carries the parameters for flying without satellites. The sealed runs fly with
+      simulated GPS and a compass. Flying the same mission with GPS fusion off is the next proof,
+      not a result.</p>
+    <ul class="params">
+      <li><code>EKF2_GPS_CTRL</code> GPS fusion disabled</li>
+      <li><code>EKF2_AID_MASK</code> optical-flow aiding</li>
+      <li><code>EKF2_HGT_MODE</code> range sensor for height</li>
+    </ul>
+  </div>
+  <div class="limits__list">
+    <h3>What this page does not show</h3>
+    <ul>
+      <li>Any physical aircraft. None has been flown.</li>
+      <li>A field test, a range or an endurance figure.</li>
+      <li>More than one aircraft at a time.</li>
+      <li>Height in the lidar model: the scan is flat.</li>
+      <li>Flight evidence in the film's opening or its layered space; both are explanatory
+        renderings, and its operator surface is a recorded replay.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ── credits and next step ──────────────────────────────────────────── -->
+<section class="credits" aria-labelledby="cr-h">
+  <h2 id="cr-h" class="sr">Sources and credits</h2>
+  <p>Source and every sealed run:
+    <a href="https://github.com/lesnargitonga/LesnarAI">github.com/lesnargitonga/LesnarAI</a>.
+    Airframe model: PX4 Gazebo <code>x500_base</code>, BSD 3-Clause, Copyright &copy; 2022 Rudis
+    Laboratories, author Benjamin Perseghetti, derived from the NXP HoverGames development kit.
+    PX4, Gazebo and MAVSDK are the work of their own maintainers.</p>
+</section>
+
+<section class="next" aria-labelledby="next-h">
+  <h2 id="next-h">Building autonomy, simulation or telemetry?</h2>
+  <p>We can start from your mission, your aircraft model or your logs.</p>
+  <a class="act" href="/start/">Start a conversation</a>
+  <a class="back" href="/work/">All work</a>
+</section>
+
+</div>
+</main>
+<footer class="site-foot"><div class="w">
+  <div><p class="foot-h">LESNAR AI</p><p>Nairobi, Kenya.</p>
+    <p>Software, AI, security and connected systems.</p></div>
+  <div><p class="foot-h">Go</p><ul>
+    <li><a href="/work/">Work</a></li><li><a href="/capabilities/">Capabilities</a></li>
+    <li><a href="/engineering/">Engineering</a></li><li><a href="/company/">Company</a></li>
+    <li><a href="/start/">Start</a></li></ul></div>
+  <div><p class="foot-h">Direct</p>
+    <p>hello@lesnarai.co.ke</p><p>WhatsApp +254 715 540 653</p></div>
+</div>
+</footer>
+</body>
+</html>
