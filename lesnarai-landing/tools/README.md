@@ -83,3 +83,30 @@ that is why one run showed 3664ms on 4G and 696ms on slow 3G.
 
 `BASE` points it at production. Local numbers have a 1-2ms TTFB and are not
 production timings.
+
+## behaviour-gate.mjs
+
+    node tools/behaviour-gate.mjs
+    ENGINE=firefox node tools/behaviour-gate.mjs
+    BASE=http://127.0.0.1:8913 node tools/behaviour-gate.mjs
+
+What the runtime gate does not exercise, on the pages rebuilt in November:
+`/work/sentinel/` with JavaScript disabled (the native player is the whole
+player and every figure renders), under reduced motion (play loads the film
+but does not start it), and by keyboard (skip link first, play reachable and
+working); Home with the network watched (no Sentinel film or detections record
+requested); and every `/work/` link resolving, with no-page systems not
+rendered as links. It was checked against a deliberately broken copy (player
+overlay shown without JS, reduced motion ignored, the film back on Home) and
+failed on each before it was trusted.
+
+## sentinel/build_figures.py
+
+    python3 tools/sentinel/build_figures.py --repo ~/workspace/LesnarAI
+
+Regenerates every figure and computed figure on `/work/sentinel/` from the
+sealed SITL runs on the `evidence/sitl-run-*` branches of
+`lesnargitonga/LesnarAI`, pinned by commit and checked file by file against
+each run's manifest. Output goes between `gen:` markers in the page; two runs on
+unchanged inputs are byte-identical, so a diff after re-running means an input
+changed.

@@ -114,8 +114,15 @@ let FAIL=0;
 async function check(route,w,h,theme){
   const p=await b.newPage({viewport:{width:w,height:h}});
   const errs=[];
-  const artifact=t=>DISK&&/Failed to preconnect to https:\/\/fonts\.(googleapis|gstatic)\.com/.test(t);
-  p.on('console',m=>{ if(m.type()==='error'&&!artifact(m.text())) errs.push(m.text()); });
+  /* Disk mode (WebKit here) has two known artifacts of serving through the route
+     layer. Font preconnects fail. And WebKit's native <video controls> load their
+     own icons from engine-created blob: URLs, which break under any request
+     interception, so every page with a player logs "Failed to load resource" at
+     a blob: URL. Neither is a site request. Everything else still counts. */
+  const artifact=m=>DISK&&(/Failed to preconnect to https:\/\/fonts\.(googleapis|gstatic)\.com/.test(m.text())
+    ||/^blob:/.test((m.location()&&m.location().url)||'')
+    ||/^Button failed to load, iconName = /.test(m.text()));
+  p.on('console',m=>{ if(m.type()==='error'&&!artifact(m)) errs.push(m.text()); });
   p.on('pageerror',e=>errs.push('PAGEERROR '+e.message));
   if(DISK) await serveFromDisk(p);
   if(theme) await p.addInitScript(t=>{try{localStorage.setItem('lesnarai-theme',t)}catch(e){}},theme);
