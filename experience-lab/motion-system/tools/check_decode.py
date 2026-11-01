@@ -9,6 +9,8 @@ more than 0.5 dB.
 usage: python check_decode.py <source_frames_dir> <decoded_dir> [fps] [audio_master.wav]
 """
 import glob
+import os
+import re
 import json
 import sys
 import wave
@@ -35,13 +37,20 @@ def true_peak_db(x, sr):
     return 20 * np.log10(max(peak, 1e-12))
 
 
+def frame_number(path):
+    digits = re.findall(r"\d+", os.path.basename(path))
+    return (int(digits[-1]) if digits else -1, path)
+
+
 def main():
     src_dir, dec_dir = sys.argv[1], sys.argv[2]
     fps = float(sys.argv[3]) if len(sys.argv) > 3 else 24.0
     wav = sys.argv[4] if len(sys.argv) > 4 else None
     probe = json.load(open(f"{dec_dir}/probe.json"))
-    srcf = sorted(glob.glob(f"{src_dir}/*.png"))
-    decf = sorted(glob.glob(f"{dec_dir}/f*.png"))
+    # numeric order: decode_frames.mjs pads to 3 digits, so past frame 999 a text sort
+    # would put f1000.png before f101.png
+    srcf = sorted(glob.glob(f"{src_dir}/*.png"), key=frame_number)
+    decf = sorted(glob.glob(f"{dec_dir}/f*.png"), key=frame_number)
     fails = []
 
     if probe["seek_timeouts"]: fails.append(f"{probe['seek_timeouts']} seeks timed out")

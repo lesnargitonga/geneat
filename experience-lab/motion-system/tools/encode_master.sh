@@ -19,7 +19,7 @@
 # env:
 #   SIZE=WxH        Lanczos scale before encoding (default: source size)
 #   AUDIO=file.wav  audio master; Opus 192 kb/s in WebM, AAC 192 kb/s in MP4
-#   MAXRATE=bps     VP9 constrained-quality ceiling (default 20 Mb/s)
+#   MAXRATE=bps     bitrate ceiling for both encoders: VP9 constrained quality, x264 VBV (default 20 Mb/s)
 #   ONLY=webm|mp4   produce just one container
 #
 # Colour: BT.601 limited range, chosen by measurement. Decoded in Chromium and
@@ -79,9 +79,13 @@ if [[ $only != webm ]]; then
   audio=(); [[ -n ${AUDIO:-} ]] && audio=("${source_audio[@]}" ! avenc_aac bitrate=192000 ! aacparse ! queue ! mux.)
   gst-launch-1.0 -q -e mp4mux name=mux faststart=true ! filesink location="$out" \
     "${source_video[@]}" \
-    ! x264enc pass=qual quantizer=$((q - 2)) speed-preset=slower psy-tune=film key-int-max=48 bframes=2 \
-        option-string=scenecut=0 \
+    ! x264enc pass=qual quantizer=$((q - 2)) bitrate=$((maxrate / 1000)) speed-preset=slower psy-tune=film \
+        key-int-max=48 bframes=2 option-string=scenecut=0 \
     ! "video/x-h264,profile=high" ! h264parse ! queue ! mux. "${audio[@]}"
+  # bitrate: in pass=qual GStreamer applies x264enc's bitrate property as the VBV ceiling,
+  # and its default is 2048 kbit/s. Unset, every MP4 was capped at 2 Mb/s whatever the
+  # quality asked for: scrolling text in Episode 001 (1080x1920) decoded as mush at 26.7 dB
+  # PSNR; with the same MAXRATE ceiling as VP9 it encoded at 7.8 Mb/s and 36.0 dB.
   # scenecut=0: a scene cut inside x264's minimum keyframe interval becomes a
   # non-IDR I-frame that mp4mux still lists as a sync sample; Chromium and
   # Firefox start seek decodes there and present the wrong picture (measured on
