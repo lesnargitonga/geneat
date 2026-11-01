@@ -78,6 +78,16 @@
       "permanent": true
     },
     {
+      "source": "/menu",
+      "destination": "/capabilities/",
+      "permanent": true
+    },
+    {
+      "source": "/menu/:p*",
+      "destination": "/capabilities/",
+      "permanent": true
+    },
+    {
       "source": "/confirmation",
       "destination": "/start/",
       "permanent": false

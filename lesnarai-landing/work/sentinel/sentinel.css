@@ -4,6 +4,12 @@
    site theme. Colour carries state only: --down is the failed run and the
    phantom, --ok the run that flew the box, --sig the path a mission takes.  */
 
+/* Field Record migration: the page's own names mapped onto field.css tokens. */
+.case--sentinel{--fg:var(--ink);--fg-2:var(--ink-2);--fg-3:var(--ink-3);--page:var(--paper);
+  --raise:var(--sheet);--r-row:var(--hair);--r-sec:var(--hair);--sig:var(--signal)}
+.band h1.statement{font-size:clamp(56px,10vw,168px);line-height:.86}
+.case__body h2{font-weight:800;font-stretch:62%;text-transform:uppercase;line-height:.92}
+
 /* ── the band ───────────────────────────────────────────────────────────── */
 .band{
   --page:#0A0C0E; --raise:#15191C; --fg:#ECEEEF; --fg-2:#A9B0B5; --fg-3:#8E959A;
