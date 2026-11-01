@@ -430,17 +430,17 @@
   },
   {
    "claim_id": "C-HOME-MEDIMATCH-SURVEY",
-   "route": "/",
+   "route": null,
    "system": "MediMatch",
    "claim": "52 healthcare professionals surveyed. 55.8% face stockouts weekly or monthly. 25.0% call the current method for locating emergency supplies ineffective. 53.8% would recommend their facility pilot the platform.",
    "evidence_ids": [
     "EV-MEDIMATCH-SURVEY-01"
    ],
    "strongest": "Measured",
-   "status": "SUPPORTED",
-   "note": "Tallied directly from the questionnaire export. Replaces the previously published 64 / 56.3% / 57.8%, which no dataset on this machine reproduces.",
+   "status": "WITHDRAWN 2026-11-01",
+   "note": "Withdrawn from Home on 2026-11-01 pending confirmation of the survey's source against primary records. Previously: Tallied directly from the questionnaire export. Replaces the previously published 64 / 56.3% / 57.8%, which no dataset on this machine reproduces.",
    "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
-   "public_status": "SUPPORTED"
+   "public_status": "WITHDRAWN 2026-11-01"
   },
   {
    "claim_id": "C-HOME-MEDIMATCH-BUILT",
