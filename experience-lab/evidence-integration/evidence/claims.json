@@ -360,15 +360,15 @@
   },
   {
    "claim_id": "C-CO-PHOTOGRAPHY",
-   "route": "/company/",
+   "route": null,
    "system": null,
    "claim": "Documentary photography required — not yet commissioned.",
    "evidence_ids": [],
    "strongest": null,
-   "status": "SUPPORTED",
-   "note": "A truthful stated absence, already on the page. Phase 9 does not fill it and may not.",
+   "status": "WITHDRAWN 2026-11-01",
+   "note": "The brief was removed from Company by bb4c92b; the registry catches up. Previously: A truthful stated absence, already on the page. Phase 9 does not fill it and may not.",
    "phase9_action": "NO ACTION",
-   "public_status": "SUPPORTED"
+   "public_status": "WITHDRAWN 2026-11-01"
   },
   {
    "claim_id": "C-CAP-SENTINEL-TESTS",
@@ -487,17 +487,17 @@
   },
   {
    "claim_id": "C-HOME-DISCLOSURE",
-   "route": "/",
+   "route": null,
    "system": "Vulnerability disclosure",
    "claim": "A reproducible smart-contract settlement finding with a patch. Seven passing tests in one canonical run, and up to 37,499.22 USDC of vault value moved in one demonstrated settlement. Submitted as high severity; no adjudication is published.",
    "evidence_ids": [
     "EV-DISCLOSURE-01"
    ],
    "strongest": "Structural",
-   "status": "SUPPORTED",
-   "note": "The affected protocol, the proof-of-concept and the exploit path are confidential and are not recorded in the registry. Only the rounded figure and the test count are public-safe.",
+   "status": "WITHDRAWN 2026-11-01",
+   "note": "Withdrawn from Home on 2026-11-01 under the publication ruling of 2026-10-12: category line only, no mechanics or value. Previously: The affected protocol, the proof-of-concept and the exploit path are confidential and are not recorded in the registry. Only the rounded figure and the test count are public-safe.",
    "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
-   "public_status": "SUPPORTED"
+   "public_status": "WITHDRAWN 2026-11-01"
   }
  ]
 }

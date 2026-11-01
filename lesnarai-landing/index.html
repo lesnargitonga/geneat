@@ -322,50 +322,22 @@
       </div>
     </article>
     <article>
-      <div><h3>Vulnerability disclosure</h3></div>
+      <div><h3>Vulnerability research</h3></div>
       <div>
-        <p class="body">A reproducible smart-contract finding: a standard voluntary close settles
-          on a stale liquidation status and moves below-margin value to the trader instead of the
-          vault, with a patch that <b>zeroes the improper transfer and leaves healthy closes
-          intact</b>.</p>
-        <p class="fact">Seven passing tests in one canonical run, identical across cycles. Up to
-          37,499.22 USDC of vault value moved in one demonstrated settlement. Submitted as high
-          severity; we do not publish an adjudication.</p>
+        <p class="body">Security research across application and smart-contract systems.</p>
       </div>
     </article>
   </div>
   <p class="closing">There is more of this work than we can show. Client names, targets, evidence,
-    findings and exploit paths stay with the client, so the second entry above carries no numbers.
-    That is the whole of it.</p>
+    findings and exploit paths stay with the client, so the last two entries above carry no
+    numbers. That is the whole of it.</p>
 </section>
 
 <!-- infrastructure -->
 <section class="rv" id="infrastructure" aria-labelledby="inf-h">
   <span class="k">Infrastructure</span>
-  <h2 id="inf-h">One system cannot open what it carries. The other measures before we depend.</h2>
-  <div class="two">
-    <div>
-      <h3>Simy</h3>
-      <p>A privacy-preserving communications platform for high-risk use, written in Rust. The relay
-        carries sealed envelopes between mailboxes. It verifies the signature on a published prekey
-        bundle, and it performs no decryption of its own. The relay and the cryptographic core are
-        built; the end-user messenger is not finished yet.</p>
-      <div class="wire">
-        <div class="rail" id="rail" aria-hidden="true"><i></i><s></s><i class="mid"></i><s class="b"></s><i></i></div>
-        <div class="stn" aria-hidden="true">
-          <div>Sealed by the sender</div><div>Relay</div><div>Opened by the recipient</div>
-        </div>
-        <button class="replay" id="wire-replay" type="button">Replay the crossing</button>
-        <div class="sees">
-          <div><b>The relay stores</b><p>Mailbox records &middot; ciphertext envelopes<br>
-            Public prekey bundles &middot; device records<br>
-            Delivery state &middot; TTL expiry &middot; replay counters</p></div>
-          <div><b>The relay never sees</b><p>Plaintext message content<br>
-            Private key material of any kind<br>
-            X3DH shared secrets &middot; ratchet state</p></div>
-        </div>
-      </div>
-    </div>
+  <h2 id="inf-h">A model is measured before we depend on it.</h2>
+  <div class="two col">
     <div>
       <h3>Model foundry</h3>
       <p>A dedicated volume, a provenance registry and an isolated lab where a model is measured
