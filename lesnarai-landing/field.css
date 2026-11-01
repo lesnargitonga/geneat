@@ -198,7 +198,7 @@ a.gaz__row:hover .gaz__sys b{color:var(--signal)}
 /* ── case pages ────────────────────────────────────────────────────────── */
 .crumb{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:28px 0 22px}
 .crumb a{color:var(--ink-3)}
-.case-open{padding:0 0 var(--s1)}
+.case-open{padding-bottom:var(--s1)}
 .case-open .statement{font-size:clamp(52px,8.6vw,136px)}
 .facts{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:22px}
 .limits{border:2px solid var(--rule);padding:20px 22px;max-width:760px}
