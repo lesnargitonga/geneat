@@ -65,7 +65,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--signal);outline-off
 html[data-js="on"] .theme{display:inline-flex}
 .theme button{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;background:none;border:0;color:var(--ink-3);padding:6px 6px;cursor:pointer}
 .theme button[aria-pressed="true"]{color:var(--ink);text-decoration:underline;text-underline-offset:4px}
-@media (max-width:760px){.fr-head .meta{display:none}.site-nav{margin-left:0;width:100%;gap:16px}.site-nav a{font-size:14.5px}.theme{margin-left:auto}}
+@media (max-width:760px){.fr-head .w{padding-block:12px;gap:10px}.fr-head .meta{display:none}.site-nav{margin-left:0;width:100%;gap:4px 13px}.site-nav a{font-size:14px;padding:4px 0}.theme{margin-left:auto}}
 
 .fr-foot{border-top:2px solid var(--rule);margin-top:var(--s2);padding-block:36px 48px;font-size:15px}
 .fr-foot .w{display:grid;grid-template-columns:2fr 1fr 1fr;gap:28px}
@@ -227,3 +227,24 @@ svg.plan,svg.speed,svg.det{display:block;width:100%;height:auto}
 .plan__stop{fill:var(--signal);stroke:var(--paper);stroke-width:3}
 .plan__lbl{font:600 17px var(--sans);fill:var(--ink-2)}
 .plan__lbl.is-bad{fill:var(--signal)}.plan__lbl.is-wall{fill:var(--ink)}.plan__lbl.is-scan{fill:var(--ink-2);font-style:italic}
+
+/* ── the Start form (behaviour in motion.js: composes an email, stores nothing) ── */
+.form{max-width:640px}
+.fld{margin-bottom:24px}
+.fld label{display:block;font-weight:700;font-size:16px;margin-bottom:5px}
+.fld .opt{font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-left:10px}
+.fld .help{font-size:14px;line-height:1.45;color:var(--ink-2);margin:0 0 8px}
+.fld input,.fld textarea{width:100%;font:16.5px/1.45 var(--sans);color:var(--ink);background:var(--paper);border:1.5px solid var(--ink);padding:11px 12px;border-radius:0}
+.fld textarea{min-height:96px;resize:vertical}
+.fld input::placeholder,.fld textarea::placeholder{color:var(--ink-3)}
+.fld input:focus-visible,.fld textarea:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.fld[data-err] input,.fld[data-err] textarea{border-color:var(--down);border-width:2px}
+.fld .err{display:none;font-size:14px;color:var(--down);margin:7px 0 0;font-weight:600}
+.fld[data-err] .err{display:block}
+.form__act{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding-top:6px}
+.form__act button{font:700 16px var(--sans);color:var(--paper);background:var(--ink);border:0;padding:13px 20px;cursor:pointer}
+.form__act button[disabled]{background:var(--hair);color:var(--ink-3);cursor:not-allowed}
+.form__note{font:500 11px/1.5 var(--mono);color:var(--ink-3);max-width:46ch}
+.form__state{font-weight:600;margin-top:10px}
+.form__alt{margin-top:24px;padding-top:18px;border-top:1px solid var(--hair)}
+.form__alt a{color:var(--signal);font-weight:700}
