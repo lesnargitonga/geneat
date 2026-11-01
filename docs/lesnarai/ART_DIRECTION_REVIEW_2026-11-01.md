@@ -73,7 +73,14 @@ weak. Motion is nearly absent.
 - **The LESNAR Motion Pipeline** (frame-exact encoder and decode gate) for every moving asset.
 - **The gates:** static, claims, runtime in three engines, behaviour, transfer and performance.
 
-## 3. Proposed direction for Phase 2 (for approval)
+## 3. Proposed direction for Phase 2 — not approved
+
+> **Owner decision D-24 (2026-11-01):** warm bone and terracotta is not approved as the default; it
+> risks becoming another recognisable template aesthetic. It is superseded by an exploration of three
+> project-specific directions built from real artifacts: Record, Terrain and Contact Sheet. That
+> exploration is kept privately because it uses private product captures. The page-physics notes below
+> still stand as input.
+
 
 **Ground and colour**
 - Return to the V2 roles: a bone or enamel light theme and a graphite dark theme.

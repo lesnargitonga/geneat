@@ -3,6 +3,18 @@
 Newest first. Each entry says who decided, what, and what it changed. "Owner" is the founder of
 LESNAR AI. Entries marked **superseded** stay in the log so the reasoning is not lost.
 
+## 2026-11-01 — owner decisions, second round
+
+| # | Decision | Consequence |
+|---|---|---|
+| D-27 | The white light mode stays experimental and separate from production until it is tested on a real Samsung device. | No enamel theme in any site branch. The device probe is the only artifact. |
+| D-26 | Optimise the 1.49 MB MediMatch loop before the redesign counts as release-ready. | Open: a release-readiness blocker for the redesign, not for the hotfix. |
+| D-25 | MediMatch research: separate the 52 generated responses from the 12 of unverified provenance, and imply neither is validated participant research. Preserve the original thesis artifacts with documented corrections. | Product, README and presentation state the split (MediMatch 4328e60). Correction records sit beside the preserved documentation (df5a69d) and the private thesis chapters (separate private repository). |
+| D-24 | Warm bone and terracotta is **not** approved as the default direction. Develop three substantially different, project-specific directions from real artifacts and earlier research. | Three comps (Record, Terrain, Contact Sheet) are in a private local repository, because they contain private product captures. Supersedes the proposal in §3 of the art-direction review. |
+| D-23 | Treat the exposed MediMatch user record as a security incident. Prepare containment, assess the consequences of making the repository private, establish the credential risk. No history rewrite or disclosure without authorisation. | The incident assessment is kept privately, outside every repository. Nothing has been changed on GitHub. |
+| D-22 | lesnarai.com remains the intended primary domain. Keep .co.ke operational. Don't change redirects or email routing yet. | No domain, redirect or MX change. |
+| D-21 | Prepare all five hotfix commits for release, including the Nairobi capture removal. Verify the Vercel mapping, the exact diff and rollback first. The deploy is authorised separately. | The release plan lists all five. The diff matches the branch exactly, and live production still equals its base on both domains. The Vercel mapping is blocked on CLI login. |
+
 ## 2026-11-01 — owner corrections after Phase 1
 
 | # | Decision | Consequence |
