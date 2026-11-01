@@ -63,6 +63,7 @@ p{margin:0 0 .85em}p:last-child{margin-bottom:0}
 .lede{font-size:17px;line-height:1.5;color:var(--fg-2);max-width:56ch}
 .open__l{font-size:clamp(1.05rem,1.7vw,1.22rem);line-height:1.45;color:var(--fg-2);
   margin:20px 0 0;max-width:52ch}
+.open__role{font-size:14.5px;line-height:1.5;color:var(--fg-3);margin:12px 0 0;max-width:52ch}
 .stmt{font-weight:600;font-size:clamp(1.3rem,2.8vw,1.75rem);line-height:1.26;
   letter-spacing:-.02em;max-width:48ch;margin:0}
 a{color:var(--fg)}
