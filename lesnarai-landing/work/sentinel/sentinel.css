@@ -12,9 +12,9 @@
 
 /* ── the band ───────────────────────────────────────────────────────────── */
 .band{
-  --page:#0A0C0E; --raise:#15191C; --fg:#ECEEEF; --fg-2:#A9B0B5; --fg-3:#8E959A;
+  --page:#000000; --raise:#15191C; --fg:#FFFFFF; --fg-2:#A9B0B5; --fg-3:#8E959A;
   --r-row:#262B2F; --r-sec:#3D454A; --sig:#7FB2E8; --ok:#63C39F; --down:#E8906A;
-  color-scheme:dark; background:var(--page); color:var(--fg);
+  color-scheme:only dark; background:var(--page); color:var(--fg);
   padding-block:clamp(26px,4.5vw,60px) clamp(34px,6vw,84px)}
 .band a{color:var(--fg)}
 .crumb{font-size:14px;color:var(--fg-2);margin:0 0 clamp(22px,4vw,46px)}

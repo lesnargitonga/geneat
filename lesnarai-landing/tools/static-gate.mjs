@@ -116,10 +116,39 @@ if(fs.existsSync(sm)){
   const listed=new Set([...xml.matchAll(/<loc>([^<]+)<\/loc>/g)]
     .map(m=>m[1].replace(/^https?:\/\/[^/]+/,'')||'/'));
   const publicRoutes=pages.map(routeOf)
-    .filter(r=>r!=='/404.html'&&r!=='/menu/');
+    .filter(r=>r!=='/404.html'&&r!=='/menu/'&&!r.startsWith('/lab/'));
   for(const r of publicRoutes) if(!listed.has(r)) FAIL.push(`sitemap.xml  missing route ${r}`);
   for(const l of listed) if(!resolves(l)) FAIL.push(`sitemap.xml  lists dead route ${l}`);
+  for(const l of listed) if(l.startsWith('/lab/')) FAIL.push(`sitemap.xml  lists test page ${l}`);
 } else FAIL.push('sitemap.xml  absent');
+
+/* /lab/ holds test instruments (the theme probe). They stay out of search. */
+for(const f of pages.filter(f=>routeOf(f).startsWith('/lab/')))
+  if(!/<meta name="robots" content="noindex/.test(fs.readFileSync(f,'utf8'))) fail(f,'test page without noindex');
+
+/* Theme contract (docs/lesnarai/FORCED_DARK_MATRIX.md): the dark tokens are declared
+   twice in field.css, once for the device setting and once for the explicit choice.
+   They must be the same set of values, and the papers and inks must be pure. */
+{
+  const css=fs.readFileSync(path.join(ROOT,'field.css'),'utf8');
+  const tokens=b=>Object.fromEntries([...b.matchAll(/(--[a-z0-9-]+):([^;]+);/g)].map(m=>[m[1],m[2].trim()]));
+  const sys=css.match(/@media \(prefers-color-scheme:dark\)\{:root:not\(\[data-theme="light"\]\)\{([^}]*)\}\}/);
+  const exp=css.match(/:root\[data-theme="dark"\]\{color-scheme:only dark;([^}]*)\}/);
+  const light=css.match(/:root\{\s*color-scheme:light dark;([^}]*)\}/);
+  if(!sys||!exp||!light) FAIL.push('field.css  theme token blocks not found');
+  else{
+    const a=tokens(sys[1]), b=tokens(exp[1]), l=tokens(light[1]);
+    if(JSON.stringify(a)!==JSON.stringify(b)) FAIL.push('field.css  system-dark and explicit-dark tokens differ');
+    const want={light:{'--paper':'#FFFFFF','--ink':'#000000','--sheet':'#FFFFFF'},dark:{'--paper':'#000000','--ink':'#FFFFFF','--sheet':'#000000'}};
+    for(const [k,v] of Object.entries(want.light)) if(l[k]!==v) FAIL.push(`field.css  light ${k} is ${l[k]}, contract says ${v}`);
+    for(const [k,v] of Object.entries(want.dark)) if(a[k]!==v) FAIL.push(`field.css  dark ${k} is ${a[k]}, contract says ${v}`);
+  }
+  if(!/:root\[data-theme="light"\]\{color-scheme:only light\}/.test(css)) FAIL.push('field.css  explicit light does not declare color-scheme: only light');
+  for(const f of pages){
+    const s=fs.readFileSync(f,'utf8');
+    if(!s.includes('<meta name="color-scheme" content="light dark">')) fail(f,'no color-scheme meta (light dark) before the theme bootstrap');
+  }
+}
 
 /* The CSP pins every inline script by hash. If the theme bootstrap is ever
    edited, the hash stops matching and the script is silently blocked in

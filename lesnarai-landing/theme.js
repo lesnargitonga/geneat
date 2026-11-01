@@ -7,11 +7,23 @@
   var root = document.documentElement;
 
   function stored() {
-    try { return localStorage.getItem(KEY); } catch (e) { return null; }
+    var v = null;
+    try { v = localStorage.getItem(KEY); } catch (e) {}
+    return v === "light" || v === "dark" ? v : null;
   }
+  /* An explicit choice is declared three ways, because browsers that darken pages
+     on their own read different signals: the data-theme attribute (our CSS), the
+     color-scheme meta tag ("only light" / "only dark" forbids a browser override),
+     and theme-color for the browser chrome. SYSTEM restores "light dark". */
   function apply(v) {
     if (v === "light" || v === "dark") { root.setAttribute("data-theme", v); }
     else { root.removeAttribute("data-theme"); }
+    var scheme = document.querySelector('meta[name="color-scheme"]');
+    if (scheme) { scheme.content = v ? "only " + v : "light dark"; }
+    [].forEach.call(document.querySelectorAll('meta[name="theme-color"]'), function (m) {
+      var dark = v ? v === "dark" : /dark/.test(m.media);
+      m.content = dark ? "#000000" : "#FFFFFF";
+    });
   }
   function save(v) {
     try { v ? localStorage.setItem(KEY, v) : localStorage.removeItem(KEY); } catch (e) {}
