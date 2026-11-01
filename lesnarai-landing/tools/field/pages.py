@@ -15,7 +15,7 @@ SITE = Path(__file__).resolve().parents[2]
 HOME = (SITE / "index.html").read_text()
 BOOT = re.search(r"<script>document\.documentElement.*?</script>", HOME).group(0)
 FOOT = re.search(r'<footer class="fr-foot">.*?</footer>', HOME, re.S).group(0)
-FONTS = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap">'
+FONTS = '<link rel="preload" href="/assets/fonts/archivo-400-800-latin.woff2" as="font" type="font/woff2" crossorigin>'
 NAV = [("/work/", "Work"), ("/capabilities/", "Capabilities"), ("/engineering/", "Engineering"), ("/company/", "Company")]
 
 
@@ -45,8 +45,6 @@ def shell(path, title, desc, current, body, image="sentinel", extra=""):
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 {BOOT}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 {FONTS}
 <link rel="stylesheet" href="/field.css">
 <script src="/theme.js" defer></script>{extra}

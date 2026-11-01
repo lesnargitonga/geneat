@@ -10,6 +10,12 @@
      condensed 62% · statements      normal 100% · reading      wide 125% · places
    ═══════════════════════════════════════════════════════════════════════ */
 
+/* Self-hosted fonts (SIL OFL, licences in /assets/fonts/). Archivo blocks briefly
+   instead of swapping: its condensed widths reflow a fallback badly (measured CLS 0.27). */
+@font-face{font-family:"Archivo";src:url(/assets/fonts/archivo-400-800-latin.woff2) format("woff2");font-weight:400 800;font-stretch:62% 125%;font-style:normal;font-display:block;unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"IBM Plex Mono";src:url(/assets/fonts/ibm-plex-mono-400-latin.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"IBM Plex Mono";src:url(/assets/fonts/ibm-plex-mono-500-latin.woff2) format("woff2");font-weight:500;font-style:normal;font-display:swap;unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+
 :root{
   color-scheme:light dark;
   --paper:#FFFFFF; --sheet:#F4F4F1; --ink:#0B0B0C; --ink-2:#45474B; --ink-3:#6A6D72;
