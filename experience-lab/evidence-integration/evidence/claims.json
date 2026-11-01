@@ -416,7 +416,7 @@
   },
   {
    "claim_id": "C-HOME-SENTINELCORE",
-   "route": "/",
+   "route": "/work/sentinelcore/",
    "system": "SentinelCore",
    "claim": "An orchestrator and five modules across 242 tracked files, with 133 tests passing and none failing across 21 test files at one commit.",
    "evidence_ids": [
@@ -425,7 +425,7 @@
    ],
    "strongest": "Measured",
    "status": "SUPPORTED",
-   "note": "Same evidence already bound to /work/sentinelcore/; registered here because the homepage repeats the figures and must answer for them.",
+   "note": "Moved from Home to the SentinelCore record on 2026-11-01 (Phase 2 Home). Previously: Same evidence already bound to /work/sentinelcore/; registered here because the homepage repeats the figures and must answer for them.",
    "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
    "public_status": "SUPPORTED"
   },
@@ -473,7 +473,7 @@
   },
   {
    "claim_id": "C-HOME-FOUNDRY-BASELINE",
-   "route": "/",
+   "route": "/engineering/",
    "system": "Model foundry",
    "claim": "Two runtimes on the same hash-pinned open-weight model: llama.cpp passed 80% of tasks and reproduced its own answer exactly 8 times in ten; Ollama passed 60% and reproduced 6. On a task hiding an instruction inside the work, llama.cpp ignored it and Ollama followed it, both times.",
    "evidence_ids": [
@@ -482,7 +482,7 @@
    ],
    "strongest": "Measured",
    "status": "SUPPORTED",
-   "note": "",
+   "note": "Moved from Home to Engineering on 2026-11-01 (Phase 2), which owns the Model foundry. Previously: ",
    "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
    "public_status": "SUPPORTED"
   },

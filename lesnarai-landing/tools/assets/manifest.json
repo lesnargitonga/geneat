@@ -1,0 +1,48 @@
+{
+ "sentinel": {
+  "w": 1200,
+  "h": 675,
+  "source": "~/Documents/ai-model-worktrees/portfolio/lesnarai-landing/media/sentinel-film-poster.jpg",
+  "provenance": "Film 001 MC2 frame: a reconstruction of PX4's x500 in a sealed SITL run's world. Not flight evidence."
+ },
+ "medimatch": {
+  "w": 1400,
+  "h": 875,
+  "source": "~/Documents/ai model/experience-lab/source-media/medimatch/mm-route-1440@3x.png",
+  "provenance": "MediMatch running locally, national view, Nairobi to Mandera transfer. Synthetic inventory."
+ },
+ "zygos": {
+  "w": 600,
+  "h": 1140,
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/zygos-demo/01-home.png",
+  "provenance": "Zygos demonstration build, 390 px at 3x, Oct 2026. Records are fictional; the app says so."
+ },
+ "bizmtaani": {
+  "w": 600,
+  "h": 1140,
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/bizmtaani/01-home.png",
+  "provenance": "BizMtaani live storefront, 12 Oct 2026, phone layout. Real merchant listing."
+ },
+ "carepro": {
+  "w": 600,
+  "h": 1140,
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/carepro-live/01-home.png",
+  "provenance": "CarePro public home page, Oct 2026. Public surface only; no patient or nurse screens."
+ },
+ "lesnartv": {
+  "w": 1400,
+  "h": 614,
+  "source": "~/Documents/LesnarTV-private-evidence/emulator-20261027/v03-journeys/glass-v3-home.png",
+  "provenance": "LESNAR TV 0.3 Glass home in the Android TV emulator, fixture apps, 1920x1080, cropped above third-party tiles."
+ },
+ "lesnarplay": {
+  "w": 1400,
+  "h": 788,
+  "source": "~/Documents/LesnarTV-private-evidence/tcl-20261028/tcl-play-0.4.0-coop-wave1.png",
+  "provenance": "LESNAR PLAY 0.4.0 on the real TCL television, co-op wave 1, adb capture, 28 Oct 2026."
+ },
+ "kenya": {
+  "source": "MediMatch kenya.ts (Natural Earth 50m, public domain) + road-routes.json (OSRM on OpenStreetMap, ODbL)",
+  "routes": 54
+ }
+}
