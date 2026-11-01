@@ -1,17 +1,17 @@
 # Release plan — site-truth hotfix (prepared 2026-11-01, not deployed)
 
-**Status:** prepared and gated. Deploy only after the owner approves the release target.
+**Status:** prepared and gated; all five commits are in the release (owner decision, 2026-11-01). The deploy needs separate owner authorisation after the Vercel mapping is verified.
 **Source:** branch `hotfix/site-truth-2026-11-01`, cut from production revision `18a73f3`.
 
 ## 1. What ships
 
 | Commit | Change | Status |
 |---|---|---|
-| `bb4c92b` | Two false Sentinel flight statements corrected; internal photography brief removed from Company | accepted in principle |
-| `8900503` | Simy and the smart-contract disclosure specifics removed from Home | accepted in principle |
-| `7a1ab1c` | Aerial record no longer says nothing was measured | accepted in principle |
-| `ba40649` | MediMatch survey readout withdrawn from Home | accepted in principle |
-| `5d9fb4b` | Nairobi capture removed: its product UI text repeats the field-study line | **optional, awaiting approval** |
+| `bb4c92b` | Two false Sentinel flight statements corrected; internal photography brief removed from Company | included |
+| `8900503` | Simy and the smart-contract disclosure specifics removed from Home | included |
+| `7a1ab1c` | Aerial record no longer says nothing was measured | included |
+| `ba40649` | MediMatch survey readout withdrawn from Home | included |
+| `5d9fb4b` | Nairobi capture removed: its product UI text repeats the field-study line | included (owner decision, 2026-11-01) |
 
 **Deployed surface:** three files under `lesnarai-landing/`, namely `index.html`,
 `company/index.html` and `work/aerial-systems/index.html` (15 lines added, 70 removed with all five
@@ -60,7 +60,7 @@ for each target project.
 - Home contains "Simulation only. No physical airframe has been flown."
 - Neither "no flight log of any kind" nor "no logged simulated flight" appears anywhere.
 - Company has no photography brief.
-- Home has no Simy, no USDC figure, no survey percentages (and, if `5d9fb4b` ships, no Nairobi capture).
+- Home has no Simy, no USDC figure, no survey percentages and no Nairobi capture.
 - Unreleased redesign content is absent: no `/work/sentinel/`, no Film 001 on Home.
 - Response headers still carry the full CSP and the other four security headers.
 
