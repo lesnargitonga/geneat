@@ -18,15 +18,15 @@
   },
   {
    "claim_id": "C-HOME-ELEVEN",
-   "route": "/work/",
+   "route": null,
    "system": null,
    "claim": "Eleven systems in the register.",
    "evidence_ids": [],
    "strongest": "Structural",
-   "status": "SUPPORTED",
-   "note": "Self-referential and checkable on the page: the register lists eleven. The homepage was replaced on 2026-09-18 by the evidence-governed build. This claim is not made there any more. The register count is published on /work/.",
+   "status": "WITHDRAWN 2026-11-01",
+   "note": "The Work register was rebuilt on 2026-11-01 from each system's own repository; its counts and stages changed, and page copy now owns the claim. Previously: Self-referential and checkable on the page: the register lists eleven. The homepage was replaced on 2026-09-18 by the evidence-governed build. This claim is not made there any more. The register count is published on /work/.",
    "phase9_action": "NO ACTION",
-   "public_status": "SUPPORTED"
+   "public_status": "WITHDRAWN 2026-11-01"
   },
   {
    "claim_id": "C-HOME-HANDOFF-SOURCE",
@@ -61,20 +61,21 @@
   },
   {
    "claim_id": "C-WORK-FIVE-PUBLIC",
-   "route": "/work/",
+   "route": null,
    "system": null,
    "claim": "Live — five systems with a public surface.",
    "evidence_ids": [
     "EV-REACH-01"
    ],
    "strongest": "Measured",
-   "status": "SUPPORTED",
+   "status": "WITHDRAWN 2026-11-01",
    "phase9_action": "NO ACTION",
-   "public_status": "SUPPORTED"
+   "public_status": "WITHDRAWN 2026-11-01",
+   "note": "The Work register was rebuilt on 2026-11-01 from each system's own repository; its counts and stages changed, and page copy now owns the claim. Previously: "
   },
   {
    "claim_id": "C-BIZ-DESC",
-   "route": "/work/",
+   "route": null,
    "system": "BizMtaani",
    "claim": "A neighbourhood marketplace: local shops list what they sell, customers order and pay from a phone, and riders carry the order.",
    "evidence_ids": [
@@ -82,10 +83,10 @@
     "EV-BIZ-ROLES-01"
    ],
    "strongest": "Published",
-   "status": "SUPPORTED",
-   "note": "Matches the product's own published description almost word for word.",
+   "status": "WITHDRAWN 2026-11-01",
+   "note": "The Work register was rebuilt on 2026-11-01 from each system's own repository; its counts and stages changed, and page copy now owns the claim. Previously: Matches the product's own published description almost word for word.",
    "phase9_action": "NO ACTION",
-   "public_status": "SUPPORTED"
+   "public_status": "WITHDRAWN 2026-11-01"
   },
   {
    "claim_id": "C-BIZ-MATURITY",
@@ -134,43 +135,43 @@
   },
   {
    "claim_id": "C-AERIAL-MATURITY",
-   "route": "/work/aerial-systems/",
+   "route": null,
    "system": "Aerial systems",
    "claim": "Research into drone state and mission simulation, modelled in software rather than flown in the air.",
    "evidence_ids": [
     "EV-AERIAL-SIM-01"
    ],
    "strongest": "Structural",
-   "status": "SUPPORTED",
-   "note": "CORRECTED IN PHASE 9A and now fully supported by EV-AERIAL-SIM-01. The previous wording claimed 'aircraft and flight control'; the record additionally claimed an Unreal simulation running on an upstream open-source flight stack, with control and flight behaviour worked on inside it. None of that is evidenced. The artifact is one original 580-line module modelling drone state and mission, which is exactly what the corrected sentence says. The record's 'Not claimed' block now names the absent things explicitly: no control laws, no flight-controller work, no SITL or HITL run, no logged simulated flight, no hardware. PX4-Autopilot on this machine is an unmodified third-party clone and is cited nowhere.",
+   "status": "WITHDRAWN 2026-11-01",
+   "note": "The aerial record was retired on 2026-11-01; /work/sentinel/ owns Operation Sentinel and the route redirects there. Previously: CORRECTED IN PHASE 9A and now fully supported by EV-AERIAL-SIM-01. The previous wording claimed 'aircraft and flight control'; the record additionally claimed an Unreal simulation running on an upstream open-source flight stack, with control and flight behaviour worked on inside it. None of that is evidenced. The artifact is one original 580-line module modelling drone state and mission, which is exactly what the corrected sentence says. The record's 'Not claimed' block now names the absent things explicitly: no control laws, no flight-controller work, no SITL or HITL run, no logged simulated flight, no hardware. PX4-Autopilot on this machine is an unmodified third-party clone and is cited nowhere.",
    "phase9_action": "CORRECTED",
    "phase9_action_note": "PHASE 9A. Register line, Company sentence and the whole Aerial record rewritten to the evidence. Research maturity unchanged, no image added, record still compact.",
-   "public_status": "CORRECTED — now supported as written"
+   "public_status": "WITHDRAWN 2026-11-01"
   },
   {
    "claim_id": "C-GREENHOUSE-MATURITY",
-   "route": "/work/",
+   "route": null,
    "system": "Greenhouse controller",
    "claim": "Pilot — owner-reported embedded control for a greenhouse: temperature, moisture and watering, unattended.",
    "evidence_ids": [],
    "strongest": null,
-   "status": "UNSUPPORTED",
-   "note": "PATH B. No traceable, dated owner statement exists, and none was invented. A prior website version (artifact-first v7.2, 2026-08-09) restates the same attestation, but that is the site citing an earlier version of itself — circular, and not evidence. The only basis is the owner's report, which the public wording states plainly. The claim therefore remains UNSUPPORTED BY ARTIFACT and stays on the site, openly labelled. That is an exposed gap, not a hidden one. It would only be removed if the owner-report basis were found to be false.",
+   "status": "WITHDRAWN 2026-11-01",
+   "note": "Retired from the site on 2026-11-01 (owner ruling 2026-10-12); the route redirects. Previously: PATH B. No traceable, dated owner statement exists, and none was invented. A prior website version (artifact-first v7.2, 2026-08-09) restates the same attestation, but that is the site citing an earlier version of itself — circular, and not evidence. The only basis is the owner's report, which the public wording states plainly. The claim therefore remains UNSUPPORTED BY ARTIFACT and stays on the site, openly labelled. That is an exposed gap, not a hidden one. It would only be removed if the owner-report basis were found to be false.",
    "phase9_action": "STANDS — OPENLY LABELLED",
    "phase9_action_note": "PATH B. No traceable owner statement exists and none was invented. The claim stays, explicitly owner-reported, and is counted as the one unsupported-by-artifact claim still on the site.",
-   "public_status": "UNSUPPORTED BY ARTIFACT — openly labelled"
+   "public_status": "WITHDRAWN 2026-11-01"
   },
   {
    "claim_id": "C-SENSING-MATURITY",
-   "route": "/work/",
+   "route": null,
    "system": "Sensing and radar",
    "claim": "A stated direction we intend to work in. Nothing is built yet.",
    "evidence_ids": [],
    "strongest": null,
-   "status": "SUPPORTED",
-   "note": "The absence of evidence IS the claim, and it matches: nothing was found, and nothing is claimed. The strongest truthful evidence type here is truthful absence.",
+   "status": "WITHDRAWN 2026-11-01",
+   "note": "Retired from the site on 2026-11-01 (owner ruling 2026-10-12); the route redirects. Previously: The absence of evidence IS the claim, and it matches: nothing was found, and nothing is claimed. The strongest truthful evidence type here is truthful absence.",
    "phase9_action": "NO ACTION",
-   "public_status": "SUPPORTED"
+   "public_status": "WITHDRAWN 2026-11-01"
   },
   {
    "claim_id": "C-CYPHER-MATURITY",

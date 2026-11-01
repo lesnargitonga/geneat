@@ -81,6 +81,36 @@
       "source": "/confirmation",
       "destination": "/start/",
       "permanent": false
+    },
+    {
+      "source": "/work/aerial-systems",
+      "destination": "/work/sentinel/",
+      "permanent": true
+    },
+    {
+      "source": "/work/aerial-systems/:p*",
+      "destination": "/work/sentinel/",
+      "permanent": true
+    },
+    {
+      "source": "/work/greenhouse-controller",
+      "destination": "/work/",
+      "permanent": true
+    },
+    {
+      "source": "/work/greenhouse-controller/:p*",
+      "destination": "/work/",
+      "permanent": true
+    },
+    {
+      "source": "/work/sensing-and-radar",
+      "destination": "/work/",
+      "permanent": true
+    },
+    {
+      "source": "/work/sensing-and-radar/:p*",
+      "destination": "/work/",
+      "permanent": true
     }
   ]
 }
