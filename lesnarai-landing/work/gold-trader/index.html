@@ -4,80 +4,45 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Gold Trader · LESNAR AI</title>
-<meta name="description" content="Gold Trader: a LESNAR AI system record, showing what the product publishes, what we interpret, its maturity and the limits of the evidence.">
-<link rel="canonical" href="https://lesnarai.co.ke/work/gold-trader/">
+<meta name="description" content="Gold Trader is research into automated gold trading. It proved the naive strategy loses money and keeps live orders locked in code until an edge is shown.">
+<link rel="canonical" href="https://lesnarai.com/work/gold-trader/">
+<meta property="og:url" content="https://lesnarai.com/work/gold-trader/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="LESNAR AI">
 <meta property="og:title" content="Gold Trader · LESNAR AI">
-<meta property="og:description" content="Gold Trader: a LESNAR AI system record, showing what the product publishes, what we interpret, its maturity and the limits of the evidence.">
-<meta property="og:url" content="https://lesnarai.co.ke/work/gold-trader/">
-<meta name="twitter:card" content="summary">
+<meta property="og:description" content="Gold Trader is research into automated gold trading. It proved the naive strategy loses money and keeps live orders locked in code until an edge is shown.">
+<meta property="og:image" content="https://lesnarai.com/assets/field/sentinel.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <script>document.documentElement.dataset.js="on";try{var t=localStorage.getItem("lesnarai-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="/system.css">
-<link rel="stylesheet" href="/motion.css">
-<script src="/motion.js" defer></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/field.css">
 <script src="/theme.js" defer></script>
 </head>
 <body>
-<header class="site-head"><div class="w">
-  <a class="mark" href="/">LESNAR<i>AI</i></a>
-  <nav class="site-nav" aria-label="Primary"><a href="/work/">Work</a><a href="/capabilities/">Capabilities</a><a href="/engineering/">Engineering</a><a href="/company/">Company</a><a class="nav-start" href="/start/">Start</a></nav>
-  <div class="head-r">
-    <a class="start" href="/start/">Start</a>
-    <a class="menu" href="/menu/" aria-expanded="false">Menu</a>
-  </div>
-</div>
-<div class="panel" id="menu-panel"><div class="w">
-  <ul>
-    <li><a href="/work/">Work</a></li>
-    <li><a href="/capabilities/">Capabilities</a></li>
-    <li><a href="/engineering/">Engineering</a></li>
-    <li><a href="/company/">Company</a></li>
-  </ul>
-  <a class="close" href="/">Close &times;</a>
-</div></div></header>
-<main class="w">
-
-<p class="parent"><a href="/work/">&larr; Register</a> <b>LESNAR AI</b> &middot; system record
-  &middot; Nairobi</p>
-<div class="open">
-  <p class="open__k">Research &middot; no public surface</p>
-  <h1>Gold Trader</h1>
-  <p class="open__l">Research into automated gold trading, tested only on paper. It places no real orders with anyone&rsquo;s money.</p>
-</div>
-
-<section data-density="quiet">
-  <span class="k">What exists</span>
-  <ul class="plain"><li>A research and execution agent for XAUUSD, with a paper broker and a live broker path.</li><li>Its own status table gates execution: <b>paper yes, live no</b>, until twenty forward grade-A trades confirm an edge.</li><li>Only grade A is live-eligible. Grade B is paper only. Grades C and D are blocked.</li></ul>
-</section>
-
-<section data-density="quiet">
-  <span class="k">The boundary of the work</span>
-  <h2>Nothing has traded.</h2>
-  <p class="lede">No executed-trade records exist anywhere in the repository. The live path is implemented and gated off, which is a different thing from being absent.</p>
-  <p class="limit"><b>Not claimed</b><span>No performance figure, no return, no win rate, no drawdown and no backtest result is claimed. Nothing here has handled real money.</span></p>
-</section>
-
-<section data-density="quiet">
-  <span class="k">Maturity</span>
-  <div class="rows"><div><b>Public state</b><span>Research. Nothing operated, nothing published.</span></div><div><b>Evidence strength</b><span>Structural. The gating is in the project&rsquo;s own status table; nothing was measured.</span></div><div><b>Record depth</b><span>Compact.</span></div><div><b>Related work</b><span>Cypher, which is the same question asked of an AI system rather than a market.</span></div></div>
-</section>
-
+<a class="skip" href="#main">Skip to content</a>
+<header class="fr-head"><div class="w">
+  <a class="mark" href="/">LESNAR <span>AI</span></a>
+  <span class="meta">Engineering company · Nairobi</span>
+  <nav class="site-nav" aria-label="Primary"><a href="/work/" aria-current="page">Work</a><a href="/capabilities/">Capabilities</a><a href="/engineering/">Engineering</a><a href="/company/">Company</a><a class="nav-start" href="/start/">Start</a></nav>
+</div></header>
+<main id="main">
+<div class="w case-open">
+  <p class="crumb"><a href="/work/">Work</a> / Finance research</p>
+  <h1 class="statement">Gold Trader</h1>
+  <p class="lede">Research into automated XAUUSD trading, run on paper. Its most useful result is the one that says no.</p>
+  <div class="facts"><span class="stage stage--research"><i></i>Research</span><span class="data">paper trading only · never real money</span><span class="data">source: <a href="https://github.com/lesnargitonga/Gold-Trader">github.com/lesnargitonga/Gold-Trader</a></span></div>
+</div><section class="w sec" aria-labelledby="lock-h"><div class="limits" style="border-color:var(--signal)"><h2 id="lock-h" style="color:var(--signal)">Live orders: locked</h2><ul><li>Live trading is off by default in code, and the interface can never switch it on.</li><li>The lock stays until at least 20 forward Grade-A trades show an edge.</li></ul></div></section><section class="w sec" aria-labelledby="neg-h"><div class="sec-head"><h2 class="h2" id="neg-h">The refusal to trade</h2><p class="lede">Replays and backtests, not live results.</p></div><div class="readings"><div class="reading"><div class="reading__v">−$79,297</div><div class="reading__u">unfiltered, overlapping signals from nine strategy families</div><h3>The firehose</h3><span class="stage stage--research"><i></i>Backtest</span></div><div class="reading"><div class="reading__v">−$334</div><div class="reading__u">the same signals, one position at a time</div><h3>Sequential</h3><span class="stage stage--research"><i></i>Backtest</span></div><div class="reading"><div class="reading__v">110→0</div><div class="reading__u">entries allowed once a macro hard block was added, in a 30-day replay</div><h3>Macro block</h3><span class="stage stage--research"><i></i>Replay</span></div><div class="reading"><div class="reading__v">+2.65R</div><div class="reading__u">Grade-A trades when macro was mixed, at a 71% win rate</div><h3>Mixed macro</h3><span class="stage stage--research"><i></i>Replay</span></div><div class="reading"><div class="reading__v">−10.29R</div><div class="reading__u">Grade-A trades when macro was aligned</div><h3>Aligned macro</h3><span class="stage stage--research"><i></i>Replay</span></div><div class="reading"><div class="reading__v">421</div><div class="reading__u">tests passing; one pre-existing failure, one skipped</div><h3>Tests</h3><span class="stage stage--research"><i></i>Suite</span></div></div></section><section class="w sec" aria-labelledby="lim-h"><div class="limits"><h2 id="lim-h">What this page does not show</h2><ul><li>Live performance: no real order has ever been placed.</li><li>A proven edge: it is unproven until forward trades confirm it.</li><li>Advice: nothing here is a recommendation to trade.</li></ul></div></section><section class="w" aria-labelledby="next-h"><div class="next">
+  <h2 class="h2" id="next-h">Need research that is allowed to say no?</h2>
+  <div class="acts"><a class="act" href="/start/">Start a conversation</a><a class="act act--quiet" href="/work/">All work</a></div>
+</div></section>
 </main>
-<footer class="site-foot"><div class="w">
-  <div><p class="foot-h">LESNAR AI</p><p>Nairobi, Kenya.</p>
-    <p>Software, AI, security and connected systems.</p></div>
-  <div><p class="foot-h">Go</p><ul>
-    <li><a href="/work/">Work</a></li><li><a href="/capabilities/">Capabilities</a></li>
-    <li><a href="/engineering/">Engineering</a></li><li><a href="/company/">Company</a></li>
-    <li><a href="/start/">Start</a></li></ul></div>
-  <div><p class="foot-h">Direct</p>
-    <p>hello@lesnarai.co.ke</p><p>WhatsApp +254 715 540 653</p></div>
-</div>
-</footer>
+<footer class="fr-foot"><div class="w">
+  <div><h2>LESNAR AI</h2><p>An engineering company in Nairobi, Kenya.</p><p>Software, AI and autonomous systems.</p></div>
+  <div><p class="k">Go</p><ul><li><a href="/work/">Work</a></li><li><a href="/capabilities/">Capabilities</a></li><li><a href="/engineering/">Engineering</a></li><li><a href="/company/">Company</a></li><li><a href="/start/">Start</a></li></ul></div>
+  <div><p class="k">Direct</p><p>hello@lesnarai.co.ke</p><p>WhatsApp +254 715 540 653</p></div>
+</div></footer>
 </body>
 </html>

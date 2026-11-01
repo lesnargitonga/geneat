@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LESNAR PLAY · LESNAR AI</title>
+<meta name="description" content="LESNAR PLAY runs co-op games on a television with its own local relay. Phones join as controllers by scanning a code, with no app and no account.">
+<link rel="canonical" href="https://lesnarai.com/work/lesnar-play/">
+<meta property="og:url" content="https://lesnarai.com/work/lesnar-play/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LESNAR AI">
+<meta property="og:title" content="LESNAR PLAY · LESNAR AI">
+<meta property="og:description" content="LESNAR PLAY runs co-op games on a television with its own local relay. Phones join as controllers by scanning a code, with no app and no account.">
+<meta property="og:image" content="https://lesnarai.com/assets/field/lesnarplay.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<script>document.documentElement.dataset.js="on";try{var t=localStorage.getItem("lesnarai-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/field.css">
+<script src="/theme.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="fr-head"><div class="w">
+  <a class="mark" href="/">LESNAR <span>AI</span></a>
+  <span class="meta">Engineering company · Nairobi</span>
+  <nav class="site-nav" aria-label="Primary"><a href="/work/" aria-current="page">Work</a><a href="/capabilities/">Capabilities</a><a href="/engineering/">Engineering</a><a href="/company/">Company</a><a class="nav-start" href="/start/">Start</a></nav>
+</div></header>
+<main id="main">
+<div class="w case-open">
+  <p class="crumb"><a href="/work/">Work</a> / Devices</p>
+  <h1 class="statement">LESNAR PLAY</h1>
+  <p class="lede">Couch co-op without a console. The television runs the game and its own local relay, and phones join as controllers by scanning a code.</p>
+  <div class="facts"><span class="stage stage--prototype"><i></i>Prototype</span><span class="data">game: Comet Circuit</span><span class="data">no app · no account · LAN only</span></div>
+</div><section class="sec" aria-labelledby="pair-h"><div class="w"><h2 class="h2" id="pair-h">The phone is the controller</h2></div><div class="w"><div class="strip"><figure class="frame frame--8 frame--select"><div class="frame__edge"><span>TCL TV</span><span>01</span></div><div class="frame__pic"><picture><source type="image/webp" srcset="/assets/field/lesnarplay.webp"><img src="/assets/field/lesnarplay.jpg" width="1400" height="788" loading="lazy" alt="Comet Circuit running on a television"></picture></div><figcaption><b>On the television</b>real TCL television · co-op wave 1 · adb capture, 28 Oct 2026</figcaption></figure><figure class="frame frame--4"><div class="frame__edge"><span>PHONE</span><span>02</span></div><div class="frame__pic"><picture><source type="image/webp" srcset="/assets/field/play-phone.webp"><img src="/assets/field/play-phone.jpg" width="844" height="390" loading="lazy" alt="LESNAR PLAY phone controller"></picture></div><figcaption><b>The pad</b>desktop-browser capture of the phone controller</figcaption></figure><figure class="frame frame--12"><div class="frame__edge"><span>LOBBY</span><span>03</span></div><div class="frame__pic"><picture><source type="image/webp" srcset="/assets/field/play-lobby.webp"><img src="/assets/field/play-lobby.jpg" width="1280" height="720" loading="lazy" alt="Comet Circuit lobby with a QR code and players joined"></picture></div><figcaption><b>Join by code</b>desktop-browser capture · QR code and four-digit join code</figcaption></figure></div></div></section><section class="w sec" aria-labelledby="relay-h"><div class="sec-head"><h2 class="h2" id="relay-h">No console, no laptop, no cloud</h2><span></span></div><ol class="steps"><li><div><b>The TV hosts</b><span>The game and a WebSocket relay run on the television itself.</span></div></li><li><div><b>A code to join</b><span>The screen shows a QR code and a four-digit join code, rate-limited.</span></div></li><li><div><b>The phone plays</b><span>The pad opens in the phone's browser. Nothing to install, no account.</span></div></li><li><div><b>Nothing leaves the room</b><span>Inputs travel over the local network only, under a strict content policy.</span></div></li></ol></section><section class="w sec" aria-labelledby="pm-h"><div class="sec-head"><h2 class="h2" id="pm-h">Measured on the TCL</h2><p class="lede">With one real phone connected, version 0.4.0.</p></div><div class="readings"><div class="reading"><div class="reading__v">26.97<small>%</small></div><div class="reading__u">janky frames during play; the first prototype measured 43.11%</div><h3>Frames</h3><span class="stage stage--research"><i></i>Over budget</span></div><div class="reading"><div class="reading__v">14<small>ms</small></div><div class="reading__u">median frame time; p99 117 ms</div><h3>Pacing</h3><span class="stage stage--prototype"><i></i>Measured</span></div><div class="reading"><div class="reading__v">186.9<small>MB</small></div><div class="reading__u">memory in use on a 2 GB set</div><h3>Memory</h3><span class="stage stage--prototype"><i></i>Measured</span></div></div></section><section class="w sec" aria-labelledby="lim-h"><div class="limits"><h2 id="lim-h">What this page does not show</h2><ul><li>Four real players: four-player play has only run with simulated pads.</li><li>Smooth frame pacing: still well over budget on the TCL.</li><li>Bluetooth gamepads: untested.</li><li>Distribution: it is not published.</li></ul></div></section><section class="w" aria-labelledby="next-h"><div class="next">
+  <h2 class="h2" id="next-h">Turning everyday devices into something new?</h2>
+  <div class="acts"><a class="act" href="/start/">Start a conversation</a><a class="act act--quiet" href="/work/">All work</a></div>
+</div></section>
+</main>
+<footer class="fr-foot"><div class="w">
+  <div><h2>LESNAR AI</h2><p>An engineering company in Nairobi, Kenya.</p><p>Software, AI and autonomous systems.</p></div>
+  <div><p class="k">Go</p><ul><li><a href="/work/">Work</a></li><li><a href="/capabilities/">Capabilities</a></li><li><a href="/engineering/">Engineering</a></li><li><a href="/company/">Company</a></li><li><a href="/start/">Start</a></li></ul></div>
+  <div><p class="k">Direct</p><p>hello@lesnarai.co.ke</p><p>WhatsApp +254 715 540 653</p></div>
+</div></footer>
+</body>
+</html>

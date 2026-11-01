@@ -4,148 +4,45 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SentinelCore · LESNAR AI</title>
-<meta name="description" content="SentinelCore: a LESNAR AI system record, showing what the product publishes, what we interpret, its maturity and the limits of the evidence.">
-<link rel="canonical" href="https://lesnarai.co.ke/work/sentinelcore/">
+<meta name="description" content="SentinelCore is the evidence, event and identity foundation for LESNAR AI's security work. Sentinel Assurance, its qualification layer, runs authorised assessment and retest.">
+<link rel="canonical" href="https://lesnarai.com/work/sentinelcore/">
+<meta property="og:url" content="https://lesnarai.com/work/sentinelcore/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="LESNAR AI">
 <meta property="og:title" content="SentinelCore · LESNAR AI">
-<meta property="og:description" content="SentinelCore: a LESNAR AI system record, showing what the product publishes, what we interpret, its maturity and the limits of the evidence.">
-<meta property="og:url" content="https://lesnarai.co.ke/work/sentinelcore/">
-<meta name="twitter:card" content="summary">
+<meta property="og:description" content="SentinelCore is the evidence, event and identity foundation for LESNAR AI's security work. Sentinel Assurance, its qualification layer, runs authorised assessment and retest.">
+<meta property="og:image" content="https://lesnarai.com/assets/field/sentinel.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <script>document.documentElement.dataset.js="on";try{var t=localStorage.getItem("lesnarai-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="/system.css">
-<link rel="stylesheet" href="/motion.css">
-<script src="/motion.js" defer></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/field.css">
 <script src="/theme.js" defer></script>
 </head>
 <body>
-<header class="site-head"><div class="w">
-  <a class="mark" href="/">LESNAR<i>AI</i></a>
-  <nav class="site-nav" aria-label="Primary"><a href="/work/">Work</a><a href="/capabilities/">Capabilities</a><a href="/engineering/">Engineering</a><a href="/company/">Company</a><a class="nav-start" href="/start/">Start</a></nav>
-  <div class="head-r">
-    <a class="start" href="/start/">Start</a>
-    <a class="menu" href="/menu/" aria-expanded="false">Menu</a>
-  </div>
-</div>
-<div class="panel" id="menu-panel"><div class="w">
-  <ul>
-    <li><a href="/work/">Work</a></li>
-    <li><a href="/capabilities/">Capabilities</a></li>
-    <li><a href="/engineering/">Engineering</a></li>
-    <li><a href="/company/">Company</a></li>
-  </ul>
-  <a class="close" href="/">Close &times;</a>
-</div></div></header>
-<main class="w">
-
-<p class="parent"><a href="/work/">&larr; Register</a> <b>LESNAR AI</b> &middot; system record
-  &middot; Nairobi</p>
-<div class="open">
-  <p class="open__k">Internal &middot; no public surface</p>
-  <h1>SentinelCore</h1>
-  <p class="open__l">The company's own tool for checking a Linux server is safe: it scans for
-     open doors, watches the logs for trouble, and tightens the settings that matter.</p>
-</div>
-
-<section data-density="normal">
-  <span class="k">What this record is</span>
-  <p class="lede">SentinelCore is run by LESNAR AI on its own infrastructure. It is not sold,
-     not hosted for anyone, and has no customer deployment. It appears in the register because
-     it exists and is used, not because it is a product.</p>
-</section>
-
-<section data-density="dense">
-  <span class="k">What the command actually does</span>
-  <h2>Five modules and one orchestrator</h2>
-  <p class="lede">Read from the source, not from a running system. This is the committed
-     structure, named as the repository names it, with each component&rsquo;s implementation
-     state beside it.</p>
-  <div class="struct">
-    <div class="struct__r" data-impl="yes"><span class="struct__k">Orchestrator</span>
-      <span class="struct__w">Runs the stages in order</span><span class="struct__s">Implemented</span></div>
-    <div class="struct__r" data-impl="yes"><span class="struct__k">Module</span>
-      <span class="struct__w">Async port scanning</span><span class="struct__s">Implemented</span></div>
-    <div class="struct__r" data-impl="yes"><span class="struct__k">Module</span>
-      <span class="struct__w">An inotify log watcher</span><span class="struct__s">Implemented</span></div>
-    <div class="struct__r" data-impl="yes"><span class="struct__k">Module</span>
-      <span class="struct__w">Settings hardening</span><span class="struct__s">Implemented</span></div>
-    <div class="struct__r" data-impl="no"><span class="struct__k">Stage</span>
-      <span class="struct__w">Present in the control flow, with no implementation behind it</span>
-      <span class="struct__s">Wired &middot; not built</span></div>
-    <div class="struct__r" data-impl="no"><span class="struct__k">Stage</span>
-      <span class="struct__w">Present in the control flow, with no implementation behind it</span>
-      <span class="struct__s">Wired &middot; not built</span></div>
-  </div>
-  <div class="resp" style="margin-top:14px"><dl>
-    <dt>Source fact</dt><dd>The repository contains five modules and one orchestrator, and two
-      stages wired into the control flow but not implemented.</dd>
-    <dt>Interpretation</dt><dd>The order is <b>read from the source</b>, not observed on a
-      running system. <b>No operational handoff is claimed.</b> These are components, not
-      actors passing responsibility to one another.</dd>
-    <dt>Limit</dt><dd>Nothing here is operated, so nothing operated is shown. This evidences
-      that the code is organised this way, and nothing more.</dd>
-  </dl></div>
-</section>
-
-<section data-density="normal">
-  <span class="k">Evidence</span>
-  <h2>What is committed</h2>
-  <p class="lede">With no public surface there is no capture to show. What the register
-     publishes instead is the set of commitments the system is built to hold, listed exactly as
-     stated in the source.</p>
-  <ul class="plain" style="margin-top:12px">
-    <li>Async port scanning.</li>
-    <li>An inotify log watcher.</li>
-    <li>Settings hardening on the checks that matter.</li>
-    <li>Two further stages wired in and not yet built.</li>
-  </ul>
-  <p class="limit"><b>Not claimed</b><span>A commitment is not a measurement. No detection rate,
-    no coverage figure, no benchmark and no security assurance is published, and none should be
-    inferred from the fact that the code exists.</span></p>
-</section>
-
-<section data-density="normal">
-  <span class="k">Evidence &middot; measured</span>
-  <h2>The suite, run and recorded</h2>
-  <p class="lede">The one thing that can honestly be measured about a system with no public
-     surface is whether its own tests pass, by a method anyone can repeat.</p>
-  <div class="rows" style="margin-top:16px">
-    <div><b>Method</b><span><code>python3 -m pytest tests -q</code> on the SentinelCore repository
-      at a recorded commit, on a local Linux workstation. No network target was scanned and no
-      host was modified.</span></div>
-    <div><b>Result</b><span><b>133 tests passed, 0 failed, in 21.87s</b> across 21 test files:
-      detection, exposure graph, monitoring, evidence legal hold, offensive lifecycle and safety,
-      and owned-source connectors.</span></div>
-    <div><b>Captured</b><span>16 Sep 2026 &middot; EV-SENTINEL-TESTS-01</span></div>
-    <div><b>Strength</b><span>Measured by us, by a stated method, on a stated day.</span></div>
-  </div>
-  <p class="limit"><b>What a passing suite does not prove</b><span>That SentinelCore is deployed,
-    operated, or protecting any real server. It proves the implementation behaves as its own tests
-    specify. Nothing about the world follows from that.</span></p>
-</section>
-
-<section data-density="quiet">
-  <span class="k">Why it is here</span>
-  <p class="lede">SentinelCore is the worked example behind one engineering principle: measure
-     instead of assert. It is the company's deepest record and it belongs to nobody else.</p>
-  <a class="act" href="/engineering/">Engineering principles &rarr;</a>
-</section>
-
+<a class="skip" href="#main">Skip to content</a>
+<header class="fr-head"><div class="w">
+  <a class="mark" href="/">LESNAR <span>AI</span></a>
+  <span class="meta">Engineering company · Nairobi</span>
+  <nav class="site-nav" aria-label="Primary"><a href="/work/" aria-current="page">Work</a><a href="/capabilities/">Capabilities</a><a href="/engineering/">Engineering</a><a href="/company/">Company</a><a class="nav-start" href="/start/">Start</a></nav>
+</div></header>
+<main id="main">
+<div class="w case-open">
+  <p class="crumb"><a href="/work/">Work</a> / Security</p>
+  <h1 class="statement">SentinelCore</h1>
+  <p class="lede">The evidence, event and identity foundation for our own security work, with Sentinel Assurance as its proof and qualification layer.</p>
+  <div class="facts"><span class="stage stage--internal"><i></i>Internal</span><span class="data">not Operation Sentinel, the <a href="/work/sentinel/">aerial simulation</a></span><span class="data">no customer deployment</span></div>
+</div><section class="w sec" aria-labelledby="loop-h"><div class="sec-head"><h2 class="h2" id="loop-h">The assurance loop</h2><p class="lede">Sentinel Assurance: every step is authorised, recorded and retested before anything is closed.</p></div><ol class="steps"><li><div><b>Asset</b><span>A tenant asset with a stable, canonical identity.</span></div></li><li><div><b>Policy and authorisation</b><span>Nothing is assessed without an explicit, recorded permission.</span></div></li><li><div><b>Assessment</b><span>An assessment cycle produces raw evidence, kept as evidence.</span></div></li><li><div><b>Finding</b><span>Findings are fingerprinted so a recurrence is recognised.</span></div></li><li><div><b>Remediation and retest</b><span>A remediation case, then an authorised retest.</span></div></li><li><div><b>Closure or reopen</b><span>Closed only on a passing retest; reopened if it recurs.</span></div></li></ol></section><section class="w sec" aria-labelledby="m-h"><div class="sec-head"><h2 class="h2" id="m-h">Measured, not marketed</h2><span></span></div><div class="readings"><div class="reading"><div class="reading__v">142</div><div class="reading__u">tests passing in the qualified assurance vertical slice</div><h3>Sentinel Assurance</h3><span class="stage stage--internal"><i></i>Qualified slice</span></div><div class="reading"><div class="reading__v">133</div><div class="reading__u">tests passing in 21 files at one commit, 16 September 2026</div><h3>v1.0 baseline</h3><span class="stage stage--internal"><i></i>Baseline</span></div><div class="reading"><div class="reading__v">242</div><div class="reading__u">tracked files: an orchestrator and five modules</div><h3>v1.0 baseline</h3><span class="stage stage--internal"><i></i>Baseline</span></div></div></section><section class="w sec" aria-labelledby="lim-h"><div class="limits"><h2 id="lim-h">What this page does not show</h2><ul><li>External use: it is ready for an internal pilot on owned or synthetic assets only.</li><li>Clearance for an external pilot: a reality audit found two high-severity issues that block one.</li><li>Targets, findings or clients: never published.</li></ul></div></section><section class="w" aria-labelledby="next-h"><div class="next">
+  <h2 class="h2" id="next-h">Need security work that is authorised and evidenced?</h2>
+  <div class="acts"><a class="act" href="/start/">Start a conversation</a><a class="act act--quiet" href="/work/">All work</a></div>
+</div></section>
 </main>
-<footer class="site-foot"><div class="w">
-  <div><p class="foot-h">LESNAR AI</p><p>Nairobi, Kenya.</p>
-    <p>Software, AI, security and connected systems.</p></div>
-  <div><p class="foot-h">Go</p><ul>
-    <li><a href="/work/">Work</a></li><li><a href="/capabilities/">Capabilities</a></li>
-    <li><a href="/engineering/">Engineering</a></li><li><a href="/company/">Company</a></li>
-    <li><a href="/start/">Start</a></li></ul></div>
-  <div><p class="foot-h">Direct</p>
-    <p>hello@lesnarai.co.ke</p><p>WhatsApp +254 715 540 653</p></div>
-</div>
-</footer>
+<footer class="fr-foot"><div class="w">
+  <div><h2>LESNAR AI</h2><p>An engineering company in Nairobi, Kenya.</p><p>Software, AI and autonomous systems.</p></div>
+  <div><p class="k">Go</p><ul><li><a href="/work/">Work</a></li><li><a href="/capabilities/">Capabilities</a></li><li><a href="/engineering/">Engineering</a></li><li><a href="/company/">Company</a></li><li><a href="/start/">Start</a></li></ul></div>
+  <div><p class="k">Direct</p><p>hello@lesnarai.co.ke</p><p>WhatsApp +254 715 540 653</p></div>
+</div></footer>
 </body>
 </html>

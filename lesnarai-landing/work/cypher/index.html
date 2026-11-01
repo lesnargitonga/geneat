@@ -4,80 +4,45 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cypher · LESNAR AI</title>
-<meta name="description" content="Cypher: a LESNAR AI system record, showing what the product publishes, what we interpret, its maturity and the limits of the evidence.">
-<link rel="canonical" href="https://lesnarai.co.ke/work/cypher/">
+<meta name="description" content="Cypher is governed prospect intelligence: retrieval that fails closed at the tenant boundary, measured guardrails, and a person who approves what goes out.">
+<link rel="canonical" href="https://lesnarai.com/work/cypher/">
+<meta property="og:url" content="https://lesnarai.com/work/cypher/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="LESNAR AI">
 <meta property="og:title" content="Cypher · LESNAR AI">
-<meta property="og:description" content="Cypher: a LESNAR AI system record, showing what the product publishes, what we interpret, its maturity and the limits of the evidence.">
-<meta property="og:url" content="https://lesnarai.co.ke/work/cypher/">
-<meta name="twitter:card" content="summary">
+<meta property="og:description" content="Cypher is governed prospect intelligence: retrieval that fails closed at the tenant boundary, measured guardrails, and a person who approves what goes out.">
+<meta property="og:image" content="https://lesnarai.com/assets/field/sentinel.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <script>document.documentElement.dataset.js="on";try{var t=localStorage.getItem("lesnarai-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="/system.css">
-<link rel="stylesheet" href="/motion.css">
-<script src="/motion.js" defer></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/field.css">
 <script src="/theme.js" defer></script>
 </head>
 <body>
-<header class="site-head"><div class="w">
-  <a class="mark" href="/">LESNAR<i>AI</i></a>
-  <nav class="site-nav" aria-label="Primary"><a href="/work/">Work</a><a href="/capabilities/">Capabilities</a><a href="/engineering/">Engineering</a><a href="/company/">Company</a><a class="nav-start" href="/start/">Start</a></nav>
-  <div class="head-r">
-    <a class="start" href="/start/">Start</a>
-    <a class="menu" href="/menu/" aria-expanded="false">Menu</a>
-  </div>
-</div>
-<div class="panel" id="menu-panel"><div class="w">
-  <ul>
-    <li><a href="/work/">Work</a></li>
-    <li><a href="/capabilities/">Capabilities</a></li>
-    <li><a href="/engineering/">Engineering</a></li>
-    <li><a href="/company/">Company</a></li>
-  </ul>
-  <a class="close" href="/">Close &times;</a>
-</div></div></header>
-<main class="w">
-
-<p class="parent"><a href="/work/">&larr; Register</a> <b>LESNAR AI</b> &middot; system record
-  &middot; Nairobi</p>
-<div class="open">
-  <p class="open__k">Research &middot; no public surface</p>
-  <h1>Cypher</h1>
-  <p class="open__l">Rules about what an AI system is allowed to do, and a person who has to approve it before anything happens.</p>
-</div>
-
-<section data-density="quiet">
-  <span class="k">What exists</span>
-  <ul class="plain"><li>A governance spine delivered as a sequence of sprint bundles, carried to sprint 024.</li><li>Its own notes describe a sandbox channel contract with no live sending.</li></ul>
-</section>
-
-<section data-density="quiet">
-  <span class="k">The boundary of the work</span>
-  <h2>Nothing operates.</h2>
-  <p class="lede">The work exists as delivered bundles rather than an operated repository, which is weaker than the structural evidence behind the other systems. Nothing has been run against a live channel.</p>
-  <p class="limit"><b>Not claimed</b><span>No deployment, no operator, no decision it has ever gated in production, and no performance or safety result. A governance model is not a governed system.</span></p>
-</section>
-
-<section data-density="quiet">
-  <span class="k">Maturity</span>
-  <div class="rows"><div><b>Public state</b><span>Research. Nothing operated, nothing published.</span></div><div><b>Evidence strength</b><span>Structural. The artifacts exist; nothing was measured.</span></div><div><b>Record depth</b><span>Compact. It will become Full when there is more to say, at this same address.</span></div><div><b>Related work</b><span>CarePro, where a named human approval already gates a consequential action in a live product.</span></div></div>
-</section>
-
+<a class="skip" href="#main">Skip to content</a>
+<header class="fr-head"><div class="w">
+  <a class="mark" href="/">LESNAR <span>AI</span></a>
+  <span class="meta">Engineering company · Nairobi</span>
+  <nav class="site-nav" aria-label="Primary"><a href="/work/" aria-current="page">Work</a><a href="/capabilities/">Capabilities</a><a href="/engineering/">Engineering</a><a href="/company/">Company</a><a class="nav-start" href="/start/">Start</a></nav>
+</div></header>
+<main id="main">
+<div class="w case-open">
+  <p class="crumb"><a href="/work/">Work</a> / AI systems</p>
+  <h1 class="statement">Cypher</h1>
+  <p class="lede">Prospect research by an AI system that is only allowed to look inside its own tenant, and has to ask a person before anything leaves.</p>
+  <div class="facts"><span class="stage stage--prototype"><i></i>Prototype · internal</span><span class="data">private source</span><span class="data">synthetic tenant data only</span></div>
+</div><section class="w sec" aria-labelledby="perm-h"><div class="sec-head"><h2 class="h2" id="perm-h">The system that must ask permission</h2><span></span></div><ol class="steps"><li><div><b>Tenant check</b><span>Every retrieval needs a validated tenant. Without one, it fails closed.</span></div></li><li><div><b>Retrieval</b><span>Evidence comes only from that tenant; crossing tenants needs an explicit admin mode.</span></div></li><li><div><b>Guardrails</b><span>Prompt-injection and unsupported-claim checks are pinned as tests.</span></div></li><li><div><b>Policy</b><span>Policy and SHIELD runtimes decide what may be proposed.</span></div></li><li><div><b>A person</b><span>An operator approves. Live sending is gated and not enabled.</span></div></li></ol></section><section class="w sec" aria-labelledby="bench-h"><div class="sec-head"><h2 class="h2" id="bench-h">Measured, not asserted</h2><p class="lede">The phase-3 retrieval benchmark, reviewed by a person and audited claim by claim.</p></div><div class="readings"><div class="reading"><div class="reading__v">30</div><div class="reading__u">Hazina cases</div><h3>Tenant A</h3><span class="stage stage--prototype"><i></i>Benchmark</span></div><div class="reading"><div class="reading__v">30</div><div class="reading__u">Jamii cases</div><h3>Tenant B</h3><span class="stage stage--prototype"><i></i>Benchmark</span></div><div class="reading"><div class="reading__v">20</div><div class="reading__u">cross-tenant cases, where leaking is the failure</div><h3>Boundary</h3><span class="stage stage--prototype"><i></i>Benchmark</span></div></div></section><section class="w sec" aria-labelledby="lim-h"><div class="limits"><h2 id="lim-h">What this page does not show</h2><ul><li>Production use: nothing is operated, and no message is sent to anyone.</li><li>Real customer data: tenants are synthetic.</li><li>A single score: the benchmark is reviewed case by case, not reduced to one number here.</li></ul></div></section><section class="w" aria-labelledby="next-h"><div class="next">
+  <h2 class="h2" id="next-h">Putting AI near customer data, with a person in charge?</h2>
+  <div class="acts"><a class="act" href="/start/">Start a conversation</a><a class="act act--quiet" href="/work/">All work</a></div>
+</div></section>
 </main>
-<footer class="site-foot"><div class="w">
-  <div><p class="foot-h">LESNAR AI</p><p>Nairobi, Kenya.</p>
-    <p>Software, AI, security and connected systems.</p></div>
-  <div><p class="foot-h">Go</p><ul>
-    <li><a href="/work/">Work</a></li><li><a href="/capabilities/">Capabilities</a></li>
-    <li><a href="/engineering/">Engineering</a></li><li><a href="/company/">Company</a></li>
-    <li><a href="/start/">Start</a></li></ul></div>
-  <div><p class="foot-h">Direct</p>
-    <p>hello@lesnarai.co.ke</p><p>WhatsApp +254 715 540 653</p></div>
-</div>
-</footer>
+<footer class="fr-foot"><div class="w">
+  <div><h2>LESNAR AI</h2><p>An engineering company in Nairobi, Kenya.</p><p>Software, AI and autonomous systems.</p></div>
+  <div><p class="k">Go</p><ul><li><a href="/work/">Work</a></li><li><a href="/capabilities/">Capabilities</a></li><li><a href="/engineering/">Engineering</a></li><li><a href="/company/">Company</a></li><li><a href="/start/">Start</a></li></ul></div>
+  <div><p class="k">Direct</p><p>hello@lesnarai.co.ke</p><p>WhatsApp +254 715 540 653</p></div>
+</div></footer>
 </body>
 </html>

@@ -31,7 +31,7 @@
  },
  "lesnartv": {
   "w": 1400,
-  "h": 614,
+  "h": 551,
   "source": "~/Documents/LesnarTV-private-evidence/emulator-20261027/v03-journeys/glass-v3-home.png",
   "provenance": "LESNAR TV 0.3 Glass home in the Android TV emulator, fixture apps, 1920x1080, cropped above third-party tiles."
  },
@@ -40,6 +40,120 @@
   "h": 788,
   "source": "~/Documents/LesnarTV-private-evidence/tcl-20261028/tcl-play-0.4.0-coop-wave1.png",
   "provenance": "LESNAR PLAY 0.4.0 on the real TCL television, co-op wave 1, adb capture, 28 Oct 2026."
+ },
+ "medimatch-detect": {
+  "w": 1400,
+  "h": 875,
+  "source": "~/Documents/ai model/experience-lab/source-media/medimatch/mm-detect-1440@3x.png",
+  "provenance": "MediMatch detect stage, national view, running locally. Synthetic inventory."
+ },
+ "medimatch-rank": {
+  "w": 1400,
+  "h": 875,
+  "source": "~/Documents/ai model/experience-lab/source-media/medimatch/mm-rank-1440@3x.png",
+  "provenance": "MediMatch rank stage, running locally. Synthetic inventory."
+ },
+ "medimatch-impact": {
+  "w": 1400,
+  "h": 875,
+  "source": "~/Documents/ai model/experience-lab/source-media/medimatch/mm-impact-1440@3x.png",
+  "provenance": "MediMatch impact stage, running locally. Synthetic inventory."
+ },
+ "medimatch-phone": {
+  "w": 600,
+  "h": 1200,
+  "source": "~/Documents/ai model/experience-lab/source-media/medimatch/mm-route-390@3x.png",
+  "provenance": "MediMatch route view at 390 px, running locally. Synthetic inventory."
+ },
+ "zygos-search": {
+  "w": 600,
+  "h": 1140,
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/zygos-demo/02-search-q-NovaCart.png",
+  "provenance": "Zygos search for a fictional business, demonstration build, Oct 2026."
+ },
+ "zygos-claim": {
+  "w": 600,
+  "h": 1140,
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/zygos-demo-2/01-claims-ZC-2026-01000.png",
+  "provenance": "Zygos claim record, demonstration build, fictional records."
+ },
+ "zygos-compare": {
+  "w": 600,
+  "h": 1140,
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/zygos-demo-2/02-compare-a-novacart-b-novacart-deals-ke.png",
+  "provenance": "Zygos comparing two fictional businesses, demonstration build."
+ },
+ "zygos-method": {
+  "w": 600,
+  "h": 1140,
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/zygos-demo-2/03-methodology.png",
+  "provenance": "Zygos methodology page, demonstration build."
+ },
+ "biz-villager": {
+  "w": 600,
+  "h": 1140,
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/bizmtaani-live/03-venues-villager.png",
+  "provenance": "The Villager on BizMtaani, live, Oct 2026."
+ },
+ "biz-floor": {
+  "w": 600,
+  "h": 1140,
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/bizmtaani-demo/04-admin-floor.png",
+  "provenance": "BizMtaani merchant floor view, demonstration console, sample data."
+ },
+ "biz-daybook": {
+  "w": 600,
+  "h": 1140,
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/bizmtaani-demo/05-admin-daybook.png",
+  "provenance": "BizMtaani daybook, demonstration console, sample data."
+ },
+ "carepro-nurse": {
+  "w": 600,
+  "h": 1140,
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/carepro-live/02-register-role-NURSE.png",
+  "provenance": "CarePro public nurse registration page, Oct 2026."
+ },
+ "jamii-home": {
+  "w": 600,
+  "h": 1140,
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/jamii-live/01-home.png",
+  "provenance": "Jamii Projects Hub public home page, Oct 2026."
+ },
+ "jamii-projects": {
+  "w": 600,
+  "h": 1140,
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/jamii-live/02-community-projects.png",
+  "provenance": "Jamii public community projects list, Oct 2026."
+ },
+ "geneat-flow": {
+  "w": 1400,
+  "h": 837,
+  "source": "~/Documents/ai model/project-assets/gen-eat-whatsapp-automation/01-whatsapp-flow.png",
+  "provenance": "Gen-Eat portal, demonstration: stock caf\u00e9 photo, synthetic till number."
+ },
+ "tv-ink": {
+  "w": 1400,
+  "h": 551,
+  "source": "~/Documents/LesnarTV-private-evidence/emulator-20261027/v03-journeys/6-ink-home.png",
+  "provenance": "LESNAR TV Ink theme, emulator, fixture apps, cropped above third-party tiles."
+ },
+ "tv-spaces": {
+  "w": 1400,
+  "h": 551,
+  "source": "~/Documents/LesnarTV-private-evidence/emulator-20261027/v03-journeys/3-spaces-watch.png",
+  "provenance": "LESNAR TV Spaces, emulator, fixture apps."
+ },
+ "play-phone": {
+  "w": 844,
+  "h": 390,
+  "source": "~/Documents/Lesnar Play/artifacts/v2/phone-pad.png",
+  "provenance": "LESNAR PLAY phone controller, desktop-browser capture."
+ },
+ "play-lobby": {
+  "w": 1280,
+  "h": 720,
+  "source": "~/Documents/Lesnar Play/artifacts/v2/tv-crew-joined.png",
+  "provenance": "LESNAR PLAY lobby with players joined, desktop-browser capture."
  },
  "kenya": {
   "source": "MediMatch kenya.ts (Natural Earth 50m, public domain) + road-routes.json (OSRM on OpenStreetMap, ODbL)",

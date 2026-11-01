@@ -120,18 +120,18 @@
   },
   {
    "claim_id": "C-GOLD-MATURITY",
-   "route": "/work/",
+   "route": null,
    "system": "Gold Trader",
    "claim": "Research into automated gold trading, tested only on paper — it places no real orders with anyone's money.",
    "evidence_ids": [
     "EV-GOLD-GATE-01"
    ],
    "strongest": "Structural",
-   "status": "SUPPORTED",
-   "note": "SUPPORTED by the project's own status table: 'Live | Paper yes, live no — until 20+ forward Grade-A trades confirm edge', and 'Grade | A only — B paper-only, C/D blocked'. No executed trade records exist anywhere in the repository. Qualification worth knowing internally: a live broker path is implemented (mt5_broker.py alongside paper_broker.py) and the code carries LIVE_RISK_USD = 30.0, so the capability exists and is gated off rather than absent. The site's present-tense claim is accurate as the system is currently gated and operated.",
+   "status": "WITHDRAWN 2026-11-01",
+   "note": "Phase 2 rebuild, 2026-11-01: page copy now owns this; the figure or stage it carried is dated or moved to its system's own page. Previously: SUPPORTED by the project's own status table: 'Live | Paper yes, live no — until 20+ forward Grade-A trades confirm edge', and 'Grade | A only — B paper-only, C/D blocked'. No executed trade records exist anywhere in the repository. Qualification worth knowing internally: a live broker path is implemented (mt5_broker.py alongside paper_broker.py) and the code carries LIVE_RISK_USD = 30.0, so the capability exists and is gated off rather than absent. The site's present-tense claim is accurate as the system is currently gated and operated.",
    "phase9_action": "NO ACTION — MY ERROR CORRECTED",
    "phase9_action_note": "First flagged CONTRADICTED from the README headline. The project's own status table says 'Paper yes, live no'. The site claim is accurate.",
-   "public_status": "SUPPORTED"
+   "public_status": "WITHDRAWN 2026-11-01"
   },
   {
    "claim_id": "C-AERIAL-MATURITY",
@@ -175,16 +175,16 @@
   },
   {
    "claim_id": "C-CYPHER-MATURITY",
-   "route": "/work/",
+   "route": null,
    "system": "Cypher",
    "claim": "Research — rules about what an AI system is allowed to do, and a person who has to approve it before anything happens.",
    "evidence_ids": [],
    "strongest": "Structural",
-   "status": "SUPPORTED WITH QUALIFICATION",
-   "note": "A real artifact set exists (cypher_governance_spine, sprints to 024) and its own sprint notes describe a 'sandbox channel contract without live sending' — consistent with Research. It exists as delivered bundles rather than an operated repository, which is weaker than the other systems' structural evidence but not contradictory.",
+   "status": "WITHDRAWN 2026-11-01",
+   "note": "Phase 2 rebuild, 2026-11-01: page copy now owns this; the figure or stage it carried is dated or moved to its system's own page. Previously: A real artifact set exists (cypher_governance_spine, sprints to 024) and its own sprint notes describe a 'sandbox channel contract without live sending' — consistent with Research. It exists as delivered bundles rather than an operated repository, which is weaker than the other systems' structural evidence but not contradictory.",
    "phase9_action": "NO ACTION",
    "phase9_action_note": "Research is the weakest maturity that still asserts existence; evidence is consistent.",
-   "public_status": "SUPPORTED WITH QUALIFICATION"
+   "public_status": "WITHDRAWN 2026-11-01"
   },
   {
    "claim_id": "C-CAREPRO-VERIFY",
@@ -202,18 +202,18 @@
   },
   {
    "claim_id": "C-CAREPRO-COUNTS",
-   "route": "/work/carepro/",
+   "route": null,
    "system": "CarePro",
    "claim": "20 nurses joined, 0 approved for assignments — the live values on the day of capture.",
    "evidence_ids": [
     "EV-CAREPRO-VERIFY-01"
    ],
    "strongest": "Published",
-   "status": "STALE",
-   "note": "Same refresh as C-HOME-CAREPRO-QUAL: now 20 / 0.",
+   "status": "WITHDRAWN 2026-11-01",
+   "note": "Phase 2 rebuild, 2026-11-01: page copy now owns this; the figure or stage it carried is dated or moved to its system's own page. Previously: Same refresh as C-HOME-CAREPRO-QUAL: now 20 / 0.",
    "phase9_action": "CORRECTED",
    "phase9_action_note": "Same refresh, plus a new dated capture and a Limit line on the record.",
-   "public_status": "CORRECTED — now supported as written"
+   "public_status": "WITHDRAWN 2026-11-01"
   },
   {
    "claim_id": "C-CAREPRO-PAYMENT",
@@ -373,7 +373,7 @@
   },
   {
    "claim_id": "C-CAP-SENTINEL-TESTS",
-   "route": "/capabilities/",
+   "route": null,
    "system": "SentinelCore",
    "claim": "Hardening and watching on Linux servers: an orchestrator and five modules, with 133 tests passing at a recorded commit.",
    "evidence_ids": [
@@ -381,10 +381,10 @@
     "EV-SENTINEL-STRUCT-01"
    ],
    "strongest": "Measured",
-   "status": "SUPPORTED",
-   "note": "The capabilities page repeats the SentinelCore test figure. The evidence already existed and was bound only to /work/sentinelcore/ and /engineering/; registering it here makes the route that publishes it answerable for it.",
+   "status": "WITHDRAWN 2026-11-01",
+   "note": "Phase 2 rebuild, 2026-11-01: page copy now owns this; the figure or stage it carried is dated or moved to its system's own page. Previously: The capabilities page repeats the SentinelCore test figure. The evidence already existed and was bound only to /work/sentinelcore/ and /engineering/; registering it here makes the route that publishes it answerable for it.",
    "phase9_action": "REGISTERED LATER — route binding added, no new evidence",
-   "public_status": "SUPPORTED"
+   "public_status": "WITHDRAWN 2026-11-01"
   },
   {
    "claim_id": "C-HOME-SENTINEL-RECORD",
