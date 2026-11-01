@@ -234,6 +234,33 @@ def box_corners(o: Obstacle) -> list[tuple[float, float]]:
             for px, py in ((-hx, -hy), (hx, -hy), (hx, hy), (-hx, hy))]
 
 
+def circle_points(o: Obstacle, sides: int = 32) -> list[tuple[float, float]]:
+    return [(o.x + o.radius * math.cos(2 * math.pi * k / sides),
+             o.y + o.radius * math.sin(2 * math.pi * k / sides)) for k in range(sides)]
+
+
+def clip_to_extent(pts: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    """Sutherland-Hodgman against the plan extent, so nothing drawn lies outside the view."""
+    xmin, xmax, ymin, ymax = PLAN_EXTENT
+    edges = [(lambda p: p[0] >= xmin, lambda a, b: (xmin, a[1] + (b[1] - a[1]) * (xmin - a[0]) / (b[0] - a[0]))),
+             (lambda p: p[0] <= xmax, lambda a, b: (xmax, a[1] + (b[1] - a[1]) * (xmax - a[0]) / (b[0] - a[0]))),
+             (lambda p: p[1] >= ymin, lambda a, b: (a[0] + (b[0] - a[0]) * (ymin - a[1]) / (b[1] - a[1]), ymin)),
+             (lambda p: p[1] <= ymax, lambda a, b: (a[0] + (b[0] - a[0]) * (ymax - a[1]) / (b[1] - a[1]), ymax))]
+    for inside, cross in edges:
+        if not pts:
+            break
+        src, pts = pts, []
+        for i, cur in enumerate(src):
+            prev = src[i - 1]
+            if inside(cur):
+                if not inside(prev):
+                    pts.append(cross(prev, cur))
+                pts.append(cur)
+            elif inside(prev):
+                pts.append(cross(prev, cur))
+    return pts
+
+
 def thinned(samples: list[Sample], every: int) -> list[Sample]:
     return samples[::every] + [samples[-1]]
 
@@ -245,11 +272,6 @@ def plan_figure(phantom: Run, recovered: Run) -> str:
     wall = next(o for o in phantom.obstacles if o.name == PHANTOM_OBSTACLE)
     phantom_r = max(wall.dx, wall.dy) / 2   # the pre-fix model: every box a disc
     hits = [r for r in at.scan if r < LIDAR_RANGE_M]
-
-    def visible(o: Obstacle) -> bool:
-        reach = max(o.dx, o.dy, o.radius * 2)
-        xmin, xmax, ymin, ymax = PLAN_EXTENT
-        return xmin - reach < o.x < xmax + reach and ymin - reach < o.y < ymax + reach
 
     out = [f'<svg class="plan" viewBox="0 0 {f1(view.w)} {f1(view.h)}" role="img" '
            f'aria-labelledby="plan-t plan-d">',
@@ -264,13 +286,11 @@ def plan_figure(phantom: Run, recovered: Run) -> str:
 
     out.append('<g class="plan__world">')
     for o in phantom.obstacles:
-        if not visible(o) or o.name == PHANTOM_OBSTACLE:
+        if o.name == PHANTOM_OBSTACLE:
             continue
-        if o.is_box:
-            out.append(f'<path d="{view.path(box_corners(o))} Z"/>')
-        else:
-            out.append(f'<circle cx="{view.p(o.x, o.y).split(",")[0]}" '
-                       f'cy="{view.p(o.x, o.y).split(",")[1]}" r="{f1(o.radius * view.s)}"/>')
+        shape = clip_to_extent(box_corners(o) if o.is_box else circle_points(o))
+        if len(shape) >= 3:
+            out.append(f'<path d="{view.path(shape)} Z"/>')
     out.append('</g>')
 
     cx, cy = view.p(wall.x, wall.y).split(",")
