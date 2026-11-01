@@ -112,6 +112,58 @@ Taken from primary sources (see the inventory for citations):
 7. Qualify: static gate, browser gate in three engines, performance, reduced motion, no-JS,
    390/1440 frames in both themes.
 
+**Phase 1 status (2026-11-01): done on this branch, not deployed.** Commits after `e50f207`:
+docs, hotfix merge, `/work/sentinel`, `/work`, Home moment, record stage corrections, and the
+Sentinel Assurance rename. Qualification:
+
+- `static-gate` and `claims-gate` pass. The static gate passed on this branch for the first
+  time: v5 shipped with Home's inline script unpinned in the CSP, so deploying v5 would have
+  blocked that script in production.
+- `behaviour-gate` (new) passes in Chromium and Firefox: no-JS player and figures, reduced
+  motion, keyboard order and skip link, Home network, Work links. Before it was trusted it was
+  run against a deliberately broken copy and failed on each injected defect.
+- `perf` (local, cold, 4G): LCP under 1 s and CLS at most 0.019 on `/`, `/work/` and
+  `/work/sentinel/`. Local TTFB is about 2 ms, so these are not production timings.
+- `gate` (runtime): all 17 routes at 1440 and 390 pass in Chromium, Firefox and WebKit, with axe,
+  contrast, overflow, broken-media and console checks.
+  WebKit's own player icons fail under the gate's request interception. That is filtered
+  narrowly, the filter still fails on a real 404, and Safari itself is unverified here.
+
+Found during qualification, left for the phase that owns them:
+- Home transfers 1.9 MB at desktop width (production 375 KB), mostly v5's MediMatch video loop.
+  That breaks the 700 KB initial-media budget and belongs to the Home rebuild.
+- Home's inline script still carries the Sentinel instrument and the wire diagram as inert,
+  guarded code, and the style block keeps their rules. Both go when Home is rebuilt.
+- One existing MediMatch capture shows a "field study" line inside the product UI.
+  Re-capture or crop it before the MediMatch page uses it.
+- `assets/home/mm-national.{jpg,webp}` are now unreferenced.
+- Canonicals still name the apex `.co.ke` host, which redirects to `www`. This is fixed once
+  for every page in Phase 5.
+
+### Owner direction, 2026-11-01 (added after phase 1)
+
+**A. MediMatch as one seamless live capture, not stills.** A finger swipe turns the globe, a tap
+on Kenya zooms the national map, and the camera zooms into Nairobi when the story reaches it.
+Transfers are drawn along roads, and as arcs only when a transfer is by air.
+- The arcs in existing captures are a fallback, not the design: the server draws road geometry
+  only when the public OSRM demo router answers live (`?roads=1`), and arcs otherwise.
+- Fix in the product: compute road routes once, store them with the product, and mark air
+  transfers explicitly, so every demo and capture is deterministic.
+- The journey exists already: `GlobeIntro` → `NationalMap` → `NairobiMap`.
+- Capture: Playwright with touch emulation and a visible touch indicator, deterministic time,
+  then `encode_master.sh` (commit its VBV-cap fix first) and the decode gate.
+- Blocker: the product's Nairobi panel carries a field-study line that is withdrawn pending its
+  source. It must change before any capture of that view.
+
+**B. Light mode that survives forced dark.** Chrome's auto-dark is stopped by `only light`.
+Samsung Internet's default ignores it. BizMtaani's device probe (Aug 2026) found that an
+opaque image background survives Samsung, and text survives only where the element declares its
+own colour. This site has no third-party content, so complete coverage is possible here:
+"enamel" white surfaces, with an explicit colour on every text element.
+- Chromium's force-dark is not a faithful stand-in: it keeps raster backgrounds but inverts
+  text regardless. So the deciding test is a device probe, published to the owner as
+  *LESNAR AI · force-dark probe* (`experience-lab/force-dark-probe/`).
+
 ### Phase 2 — Home
 Rebuild Home to its one job: proposition, three or four systems, entry routes. Render the
 5–8 s Sentinel moment from the MC2 harness through `encode_master.sh` (with the VBV-cap fix

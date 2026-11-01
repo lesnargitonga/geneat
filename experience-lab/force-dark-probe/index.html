@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="only light">
+<title>LESNAR AI · force-dark probe</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  /* Which white surface survives a browser that repaints sites dark and
+     ignores color-scheme (Samsung Internet's default "Force Dark Only")?
+     Every card is the same LESNAR light card; only the painting technique
+     changes. The page is deliberately light-only: it is the thing measured. */
+  :root{color-scheme:only light}
+  *{box-sizing:border-box}
+  body{margin:0;background:#E7E9EA;color:#14171A;font:16px/1.5 Archivo,system-ui,sans-serif}
+  .wrap{max-width:30rem;margin:0 auto;padding:22px 16px 60px}
+  h1{font-size:26px;line-height:1.1;letter-spacing:-.02em;margin:0 0 10px}
+  .steps{margin:0 0 20px;padding-left:1.2em;color:#4D5358}
+  .card{margin:14px 0;padding:18px 18px 16px;border:1px solid #C3C7C9}
+  .tag{display:inline-block;font:500 11px "IBM Plex Mono",monospace;letter-spacing:.14em;text-transform:uppercase}
+  .card h2{margin:6px 0 4px;font-size:22px;letter-spacing:-.02em}
+  .card p{margin:0 0 6px;font-size:15px}
+  .card a{font-weight:600}
+  .how{font:500 11.5px "IBM Plex Mono",monospace}
+
+  /* A · control: plain colour; children inherit */
+  .A{background-color:#ffffff;color:#14171A}
+
+  /* B · opaque SVG background; colour written on every element */
+  .B{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4'><rect width='4' height='4' fill='%23ffffff'/></svg>")}
+
+  /* C · opaque PNG background; colour written on every element */
+  .C{background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAYElEQVR4nO3PQQ0AIBDAMMC/50MEj4ZkVbDtmVk/OzrgVQNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgPaBXKqA31N0fbGAAAAAElFTkSuQmCC");background-size:64px}
+
+  /* D · opaque SVG background; colour from one shared rule, the way a site would write it */
+  .D{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4'><rect width='4' height='4' fill='%23ffffff'/></svg>")}
+  .D,.D *{color:#14171A}.D a{color:#1D4E89}.D .tag,.D .how{color:#565C60}
+
+  /* E · opaque PNG background; colour from one shared rule */
+  .E{background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAYElEQVR4nO3PQQ0AIBDAMMC/50MEj4ZkVbDtmVk/OzrgVQNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgPaBXKqA31N0fbGAAAAAElFTkSuQmCC");background-size:64px}
+  .E,.E *{color:#14171A}.E a{color:#1D4E89}.E .tag,.E .how{color:#565C60}
+
+  /* F · as E, plus -webkit-text-fill-color on the same elements */
+  .F{background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAYElEQVR4nO3PQQ0AIBDAMMC/50MEj4ZkVbDtmVk/OzrgVQNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgPaBXKqA31N0fbGAAAAAElFTkSuQmCC");background-size:64px}
+  .F,.F *{color:#14171A;-webkit-text-fill-color:#14171A}
+  .F a{color:#1D4E89;-webkit-text-fill-color:#1D4E89}
+  .F .tag,.F .how{color:#565C60;-webkit-text-fill-color:#565C60}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Which LESNAR cards stayed white?</h1>
+  <ol class="steps">
+    <li>Open this in <b>Samsung Internet</b> with its dark mode <b>on</b>.</li>
+    <li>For each letter, say whether the card is <b>white</b>, and whether its heading, text, blue link and small grey label are all <b>readable</b>.</li>
+    <li>A white card with vanished text is a different answer: say so.</li>
+  </ol>
+
+  <div class="card A"><span class="tag">A · control</span><h2>Plain white</h2>
+    <p>Background colour only; text inherits.</p><a href="#A">A blue link</a><p class="how">background-color: #fff</p></div>
+
+  <div class="card B"><span class="tag" style="color:#565C60">B · svg + colour on each</span>
+    <h2 style="color:#14171A">SVG paper</h2><p style="color:#14171A">Opaque SVG background, colour written on every element.</p>
+    <a href="#B" style="color:#1D4E89">A blue link</a><p class="how" style="color:#565C60">background-image: svg</p></div>
+
+  <div class="card C"><span class="tag" style="color:#565C60">C · png + colour on each</span>
+    <h2 style="color:#14171A">PNG paper</h2><p style="color:#14171A">Opaque raster background, colour written on every element.</p>
+    <a href="#C" style="color:#1D4E89">A blue link</a><p class="how" style="color:#565C60">background-image: png</p></div>
+
+  <div class="card D"><span class="tag">D · svg + shared rule</span><h2>SVG, site-style CSS</h2>
+    <p>Opaque SVG background, colour from one shared rule.</p><a href="#D">A blue link</a><p class="how">.card, .card * { color }</p></div>
+
+  <div class="card E"><span class="tag">E · png + shared rule</span><h2>PNG, site-style CSS</h2>
+    <p>Opaque raster background, colour from one shared rule.</p><a href="#E">A blue link</a><p class="how">.card, .card * { color }</p></div>
+
+  <div class="card F"><span class="tag">F · png + text-fill</span><h2>PNG, text-fill too</h2>
+    <p>As E, plus -webkit-text-fill-color.</p><a href="#F">A blue link</a><p class="how">-webkit-text-fill-color</p></div>
+</div>
+</body>
+</html>
