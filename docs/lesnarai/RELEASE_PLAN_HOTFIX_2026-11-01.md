@@ -1,6 +1,6 @@
 # Release plan — site-truth hotfix (prepared 2026-11-01, not deployed)
 
-**Status:** prepared and gated; all five commits are in the release (owner decision, 2026-11-01). The deploy needs separate owner authorisation after the Vercel mapping is verified.
+**Status:** prepared, gated, mapping verified, preview built and checked (2026-11-01). The production deploy waits on owner authorisation.
 **Source:** branch `hotfix/site-truth-2026-11-01`, cut from production revision `18a73f3`.
 
 ## 1. What ships
@@ -32,28 +32,28 @@ runtime gate passes on all routes in Chromium, Firefox and WebKit at 1440 and 39
 | `www.lesnarai.com` → 308 → `lesnarai.com`; `lesnarai.co.ke` → 308 → `www.lesnarai.co.ke` | HTTP headers |
 | Both zones on Cloudflare DNS, different nameserver pairs; each `www` has its own `*.vercel-dns-017.com` target | `dig` |
 | `lesnarai-landing/.vercel/project.json` links project `lesnarai-v2` (team-owned) | local file |
-| Which Vercel project(s) each domain is assigned to | **not verified: CLI not authenticated** |
-| Current production deployment ID per project (the rollback target) | **not verified: CLI not authenticated** |
+| `lesnarai.co.ke` and `www.lesnarai.co.ke` are project domains of `lesnarai-v2` (team `lesnar`) | `vercel domains inspect`, CLI as `lesnargitonga` |
+| `lesnarai.com` and `www.lesnarai.com` are **not** project domains: they are manual aliases pinned to one deployment (set 2026-10-08) | `vercel domains inspect` (no project), `vercel alias ls` |
+| Current production deployment, serving all four hosts: `lesnarai-v2-jfalf37v5-lesnar.vercel.app` (`dpl_768K4h2M6pMSq5ALYnBAK8mKJ8my`, 18 Sep 2026). **This is the rollback target.** | `vercel inspect` on both domains |
+| The `www.lesnarai.com` → `lesnarai.com` 308 is a platform redirect (no CSP, path kept), independent of the deployment | response headers |
 
-Before any deploy, with the Vercel CLI logged in:
+**Consequence:** a production deploy or promote moves only the two `.co.ke` hosts. `lesnarai.com`
+keeps serving the old text until its alias is moved by hand (§3, step 2). Making `lesnarai.com` a
+project domain is part of the domain migration, not this release.
 
-1. `vercel whoami`, then `vercel teams ls` to confirm the owning team.
-2. `vercel inspect https://lesnarai.com` and `vercel inspect https://www.lesnarai.co.ke` to record
-   the deployment and project behind each domain.
-3. `vercel ls <project> --prod` for each project, recording the current production deployment URL
-   as the rollback target.
-4. `vercel domains inspect lesnarai.com` and `vercel domains inspect lesnarai.co.ke` to confirm
-   the domain assignment and redirect configuration.
-
-If both domains belong to one project, one deploy covers both. If they belong to two, the same
-tree is deployed to each, in an order the owner chooses. Domain policy (lesnarai.com as primary
-canonical) is a separate migration and is not part of this release.
+**Preview of the release tree:** `https://lesnarai-v2-264wb38hx-lesnar.vercel.app` (project
+`lesnarai-v2`, target preview, built from `5d9fb4b`). Read with `vercel curl`, Company and the
+aerial page are byte-identical to the branch. Home differs only by Vercel's preview toolbar
+script, which production deployments don't get. The §4 checks pass on the preview.
 
 ## 3. Deploy
 
-From a clean checkout of the approved commit, not from the main working tree:
-`lesnarai-landing/` with the project link copied into `.vercel/`. Then run `vercel deploy --prod`
-for each target project.
+From the clean hotfix worktree at `5d9fb4b` (`lesnarai-landing/`, with the project link in `.vercel/`),
+never from the main working tree:
+
+1. `vercel deploy --prod --scope lesnar`. This moves `lesnarai.co.ke` and `www.lesnarai.co.ke`.
+2. `vercel alias set <new deployment URL> lesnarai.com --scope lesnar`. This moves the apex `.com`.
+   `www.lesnarai.com` needs no change: it redirects to the apex.
 
 ## 4. Verify live, on both domains
 
@@ -66,7 +66,7 @@ for each target project.
 
 ## 5. Rollback
 
-Promote the recorded previous production deployment (`vercel rollback <url>`, or Instant Rollback
-in the dashboard) for each affected project, then re-run the checks in §4 against the restored
-text. Nothing in this release changes routes, redirects or headers, so rollback has no data or
+1. `vercel rollback lesnarai-v2-jfalf37v5-lesnar.vercel.app --scope lesnar` (the `.co.ke` hosts).
+2. `vercel alias set lesnarai-v2-jfalf37v5-lesnar.vercel.app lesnarai.com --scope lesnar` (the `.com` apex).
+3. Re-run the checks in §4 against the restored text. Nothing in this release changes routes, redirects or headers, so rollback has no data or
 DNS consequences.
