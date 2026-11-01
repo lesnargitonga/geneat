@@ -42,6 +42,14 @@
 .rv.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
 .mmloop{display:block;width:100%;height:auto;background:#0b0f14}
+/* the Sentinel moment: one frame and a route to the case, nothing explained here */
+.moment{display:block;margin-top:24px;aspect-ratio:16/9;overflow:hidden;background:#0A0C0E}
+.moment img{display:block;width:100%;height:100%;object-fit:cover;
+  transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.moment:hover img{transform:scale(1.02)}
+.moment:focus-visible{outline:3px solid var(--sig);outline-offset:4px}
+@media (prefers-reduced-motion:reduce){.moment img{transition:none}.moment:hover img{transform:none}}
+.moment__src{font-family:var(--mono);font-size:11.5px;color:var(--fg-3);margin:10px 0 0}
 .film{margin:26px 0 0}
 .film figure{margin:0}
 .film .frame{position:relative;background:#0c0c0c;border:1px solid rgba(231,231,243,.14);
@@ -222,11 +230,8 @@
   <p class="define">LESNAR AI is a technology company in Nairobi. We build software, AI and
     autonomous systems for operational problems that are hard in the field: some for
     institutions, some that we run ourselves.</p>
-  <p class="proof">National-scale health logistics. Offline-capable autonomy for GPS-denied
-    airspace. A security operations control plane. And products running in Kenya.</p>
-  <p class="srcline">Behind the record below: 71,813 obstacle and proximity detections recorded
-    across 87 diagnostic runs of our own perception stack, 13 to 16 April 2026. Thirty-four runs
-    recorded detections; fifty-three recorded none.</p>
+  <p class="proof">National-scale health logistics. Autonomous flight, proven in simulation. A
+    security operations control plane. And products running in Kenya.</p>
 </div>
 
 <!-- health and geospatial research -->
@@ -242,8 +247,11 @@
            aria-label="The MediMatch national view: an urgent signal in Mandera resolving into a ranked transfer route over road geometry.">
       <source src="media/medimatch-command.webm" type="video/webm">
       <source src="media/medimatch-command.mp4" type="video/mp4">
-      <img src="/assets/home/mm-national.jpg" width="1600" height="900" loading="lazy"
-           alt="The MediMatch national view: facilities across Kenya with transfer routes drawn over road geometry.">
+      <picture>
+        <source type="image/webp" srcset="/assets/home/mm-national.webp">
+        <img src="/assets/home/mm-national.jpg" width="1600" height="900" loading="lazy"
+             alt="The MediMatch national view: facilities across Kenya with transfer routes drawn over road geometry.">
+      </picture>
     </video>
     <figcaption>National view &middot; an urgent signal resolving into a ranked transfer,
       recorded from the running product</figcaption>
@@ -268,63 +276,18 @@
 
 <!-- autonomous systems -->
 <section class="rv" id="sentinel" aria-labelledby="uav-h">
-  <span class="k">Operation Sentinel</span>
-  <h2 id="uav-h">A drone that has to keep flying when the satellites go quiet.</h2>
-  <p class="lede">An offline-capable command-and-control and training stack for GPS-degraded and
-    GPS-denied conditions, built so that no critical function depends on cloud assets while a
-    mission is running.</p>
-
-  <div class="film" id="sentinel-film">
-    <figure>
-      <div class="frame">
-        <img class="poster" src="media/sentinel-film-poster@960.jpg" alt="" width="1920" height="1080" loading="lazy" decoding="async">
-        <video id="sentinel-film-v" width="1920" height="1080" preload="none" playsinline
-               controls poster="media/sentinel-film-poster@960.jpg">
-          <source src="media/sentinel-film-001.webm" type="video/webm">
-          <source src="media/sentinel-film-001.mp4" type="video/mp4">
-        </video>
-        <button class="play" type="button" aria-controls="sentinel-film-v">
-          <span class="lg">Play the flight architecture film</span><span class="sm">Play film · 28 s</span>
-        </button>
-      </div>
-      <figcaption class="rcap">Twenty-eight seconds from the aircraft to the stack a mission
-        actually runs on: Gazebo world, PX4 SITL, MAVSDK teacher, telemetry, operator system. It
-        opens on a reconstruction, PX4's own x500 model in the sealed run's world, flown on the
-        recorded descent, that resolves into the simulation's real frame; every figure shown is
-        read from that one sealed run. <b>The reconstruction and the layered space are explanatory
-        renderings, not flight evidence, and the operator surface is a recorded mission
-        replay.</b> Sound is designed; no audio of any kind was recorded.</figcaption>
-    </figure>
-  </div>
-
-  <div class="record">
-    <div class="scrub-wrap" id="scrub-wrap">
-      <canvas id="runs" aria-hidden="true"></canvas>
-      <div id="run-hud" aria-hidden="true"></div>
-      <input type="range" id="run-scrub" min="0" max="86" step="1" value="0"
-             aria-label="Inspect an individual diagnostic run">
-    </div>
-    <p class="rcap">Eighty-seven diagnostic runs of the perception stack, 13 to 16 April 2026,
-      laid out at the time each one started. <b>Thirty-four recorded detections; fifty-three
-      recorded none, and those are the short ticks along the base.</b> The solid foot of each
-      column is proximity alerts, the lighter body obstacles: 17,842 of 71,813.</p>
-  </div>
-
-  <div class="envelope">
-    <div>
-      <p class="lbl">How the GPS-denied case is configured</p>
-      <ul>
-        <li><b>EKF2_GPS_CTRL</b> GPS fusion disabled</li>
-        <li><b>EKF2_AID_MASK</b> optical-flow aiding</li>
-        <li><b>EKF2_HGT_MODE</b> range sensor for height</li>
-      </ul>
-    </div>
-    <p class="note">Those are the estimator parameters the stack carries for flying without GPS.
-      LESNAR AI built the autonomy bridge, mission logic, telemetry pipeline and operator system,
-      and integrated the PX4, Gazebo and AirSim projects, which are the work of their own upstream
-      maintainers. <b>Simulation only. No physical airframe has been flown.</b>
-      The record above is recorded detection diagnostics, not logged flight.</p>
-  </div>
+  <span class="k">Autonomous systems</span>
+  <h2 id="uav-h">Operation Sentinel</h2>
+  <p class="lede">Autonomous systems research and operator infrastructure.</p>
+  <a class="moment" href="/work/sentinel/">
+    <img src="/media/sentinel-film-poster@960.jpg"
+         srcset="/media/sentinel-film-poster@960.jpg 960w, /media/sentinel-film-poster.jpg 1920w"
+         sizes="(max-width:1180px) 100vw, 1100px" width="1920" height="1080" loading="lazy"
+         decoding="async"
+         alt="A reconstruction: PX4's x500 model in the world of a sealed simulation run.">
+  </a>
+  <p class="moment__src">PX4/Gazebo simulation &middot; deterministic reconstruction</p>
+  <a class="act" href="/work/sentinel/">View the system</a>
 </section>
 
 <!-- security and assurance -->

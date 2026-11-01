@@ -388,7 +388,7 @@
   },
   {
    "claim_id": "C-HOME-SENTINEL-RECORD",
-   "route": "/",
+   "route": "/work/sentinel/",
    "system": "Operation Sentinel",
    "claim": "Eighty-seven diagnostic runs of the perception stack, 13 to 16 April 2026. Thirty-four recorded detections; fifty-three recorded none. Proximity alerts 17,842 of 71,813 total detections.",
    "evidence_ids": [
@@ -396,7 +396,7 @@
    ],
    "strongest": "Measured",
    "status": "SUPPORTED",
-   "note": "Every figure is a direct tally of the 87 CSV exports. The record is detection diagnostics; no flight log of any kind exists, which is why the page says so beside it.",
+   "note": "Moved from Home to the Sentinel case page on 2026-11-01, which now owns the record. Previously: Every figure is a direct tally of the 87 CSV exports. The record is detection diagnostics; no flight log of any kind exists, which is why the page says so beside it.",
    "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
    "public_status": "SUPPORTED"
   },
