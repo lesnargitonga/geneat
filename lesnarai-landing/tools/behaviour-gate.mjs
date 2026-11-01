@@ -93,7 +93,7 @@ try {
     await ctx.close();
   }
 
-  /* 4 · Home: Sentinel is a moment and a link; nothing of the case is fetched */
+  /* 4 · Home: no film and nothing heavy fetched; the Sentinel channel and frame route to the case */
   {
     const [ctx, p] = await open();
     const fetched = [];
@@ -102,14 +102,13 @@ try {
     await p.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 500) { scrollTo(0, y); await new Promise(r => setTimeout(r, 80)); } });
     await p.waitForTimeout(600);
     const s = await p.evaluate(() => ({
-      film: !!document.querySelector('#sentinel video'),
-      link: [...document.querySelectorAll('#sentinel a')].every(a => a.getAttribute('href') === '/work/sentinel/'),
-      links: document.querySelectorAll('#sentinel a').length,
+      video: document.querySelectorAll('video').length,
+      toSentinel: document.querySelectorAll('main a[href="/work/sentinel/"]').length,
     }));
-    check(!s.film, 'Home: no Sentinel video element remains');
-    check(s.links === 2 && s.link, 'Home: the moment and its action both link to /work/sentinel/');
-    check(!fetched.some(u => /sentinel-detections\.json|sentinel-film-001\./.test(u)),
-      'Home: neither the detections record nor the film is requested');
+    check(s.video === 0, 'Home: no video element on the page');
+    check(s.toSentinel >= 2, 'Home: the Sentinel channel and its frame both link to /work/sentinel/');
+    check(!fetched.some(u => /sentinel-detections\.json|sentinel-film-001\.|medimatch-command/.test(u)),
+      'Home: no film, loop or detections record is requested');
     await ctx.close();
   }
 
