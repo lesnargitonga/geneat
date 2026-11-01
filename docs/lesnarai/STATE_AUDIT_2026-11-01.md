@@ -77,7 +77,7 @@ both domains.
 | Home carries the full Sentinel film and its disclosure | Rejected 2026-10-12: Home gets a short moment and a link; `/work/sentinel` owns the film |
 | Teardown build order (all project pages first) | `/work` + `/work/sentinel` together, then Home, then distinct project pages |
 | `/work/simy` and a Simy Home section | Never feature (2026-10-14) |
-| "SentinelCore" for the Linux security tool | "Sentinel Assurance"; "SentinelCore" reserved for a design-stage foundation |
+| Linux tool renamed "Sentinel Assurance" (chat ruling 2026-10-12) | **Corrected by D-19:** SentinelCore is the foundation and Sentinel Assurance is its proof and qualification layer; the rename was reverted |
 | Greenhouse controller and Sensing/Radar pages | Removed; do not restore |
 | `/menu` as a page | 301 → `/capabilities/` |
 | Production served by `experience-lab/lesnarai-site-v1` | `lesnarai-landing/` (v5 static); site-v1 link renamed `.vercel.unlinked` on 2026-09-18 |
@@ -94,7 +94,7 @@ Taken from primary sources (see the inventory for citations):
   code-enforced live-order lock).
 - **Sentinel:** the sealed runs fly with simulated GPS and compass. GPS-denied operation is
   configured in the estimator, not demonstrated. The Home headline implies more.
-- **Naming:** public "SentinelCore" → "Sentinel Assurance".
+- **Naming:** SentinelCore names the system; Sentinel Assurance names its proof and qualification layer (D-19).
 
 ## 6. Plan
 
@@ -113,8 +113,8 @@ Taken from primary sources (see the inventory for citations):
    390/1440 frames in both themes.
 
 **Phase 1 status (2026-11-01): done on this branch, not deployed.** Commits after `e50f207`:
-docs, hotfix merge, `/work/sentinel`, `/work`, Home moment, record stage corrections, and the
-Sentinel Assurance rename. Qualification:
+docs, hotfix merge, `/work/sentinel`, `/work`, Home moment and record stage corrections. A
+Sentinel Assurance rename was made and then reverted under D-19. Qualification:
 
 - `static-gate` and `claims-gate` pass. The static gate passed on this branch for the first
   time: v5 shipped with Home's inline script unpinned in the CSP, so deploying v5 would have
@@ -172,7 +172,7 @@ committed first), not by re-encoding the delivered MP4.
 ### Phase 3 — distinct project pages
 MediMatch (map-led, synthetic-data disclosure on screen), Zygos (evidence lineage), CarePro
 (trust gate), BizMtaani (one order's journey), LESNAR TV and LESNAR PLAY (device evidence,
-honest alpha), Cypher, Gold Trader, Sentinel Assurance. Each blocked item waits on its
+honest alpha), Cypher, Gold Trader, SentinelCore. Each blocked item waits on its
 permission or provenance decision.
 
 ### Phase 4 — Capabilities, Engineering, Company, Start
@@ -180,17 +180,22 @@ Engineering gains the Model foundry, the Motion Pipeline and failure-led method 
 (the Sentinel phantom wall is one). `/menu` redirect, forms, SEO, navigation.
 
 ### Phase 5 — domains and release
-Choose one canonical host, redirect the other domain to it, fix canonicals/sitemap/robots,
-then qualify and release on explicit approval.
+Migrate to lesnarai.com as the primary canonical domain (D-20). First audit both Vercel projects
+and DNS with authentication, keep both current deployments as they are, then change
+canonicals, sitemap, robots and redirects only on an approved migration plan. Mail stays on
+`lesnarai.co.ke` (the only zone with MX routing) unless `.com` mail is set up first.
 
 ## 7. Decisions waiting on the owner
 
+The running record is `DECISIONS.md`.
+
+
 1. Deploy the hotfix: which of the four commits ship, after Vercel login.
-2. Domain policy: which host is canonical, and whether the other redirects.
-3. MediMatch survey: source confirmation before any survey figure is published again.
+2. ~~Domain policy~~ decided: lesnarai.com is primary (D-20); the migration plan waits on the Vercel audit.
+3. ~~MediMatch survey~~ decided: synthetic, shown only as such (D-18). Any erratum to externally published figures is the author's decision.
 4. Client work (security operations, optical retail, non-profit records): no showcase
    consent is recorded. Anonymised capability lines only, or nothing, until permission.
-5. CarePro: confirm LESNAR AI's role before it is presented as company work.
+5. ~~CarePro~~ decided: engineering work, no ownership claim (D-16).
 6. TV Militia: needs a trademark check before its name appears anywhere public.
 7. LESNAR TV / PLAY media: real-TV captures show third-party app branding and private
    household material; only emulator stills and clean gameplay frames are candidates.
