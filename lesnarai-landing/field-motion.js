@@ -3,8 +3,7 @@
    - turns [data-odo] numbers into rolling digit columns (the real number stays for assistive tech);
    - gives bars, roads, marks, frames and gazetteer rows their stagger index;
    - plays [data-loop] videos only while on screen, never under reduced motion or Save-Data;
-   - counts frames on the phone film roll;
-   - runs the two rows of [data-reel] against each other as the band crosses the viewport.
+   - counts frames on the phone film roll.
    If anything here fails, every section is revealed, so content is never left hidden. */
 (function () {
   "use strict";
@@ -61,6 +60,7 @@
       index(s, ".gaz__row");
       index(s, ".kmtab__bar i");
       index(s, ".sel__i");
+      index(s, ".flag__i");
       index(s, ".cp-d");
       index(s, ".sc-q__bars li");
       index(s, ".hm-steps li");
@@ -108,7 +108,7 @@
 
   // A roll that actually scrolls is a named region you can reach and move with the keyboard.
   function scrollRegions() {
-    var els = document.querySelectorAll(".strip--roll, .readings--roll, .reel");
+    var els = document.querySelectorAll(".strip--roll, .readings--roll");
     function check() {
       for (var i = 0; i < els.length; i++) {
         var el = els[i], scrolls = el.scrollWidth > el.clientWidth + 1 && getComputedStyle(el).overflowX !== "hidden";
@@ -146,41 +146,6 @@
     })(rolls[r]);
   }
 
-  // The reel: each row travels its spare width as the band crosses the viewport, rows opposed.
-  function reels() {
-    var bands = document.querySelectorAll("[data-reel]");
-    if (!bands.length || reduce.matches || !("IntersectionObserver" in window)) return;
-    var live = [];
-    var ticking = false;
-    function frame() {
-      ticking = false;
-      var vh = window.innerHeight, vw = document.documentElement.clientWidth;
-      live.forEach(function (band) {
-        var r = band.getBoundingClientRect();
-        var p = Math.min(1, Math.max(0, (vh - r.top) / (vh + r.height)));
-        var rows = band.querySelectorAll(".reel__row");
-        for (var i = 0; i < rows.length; i++) {
-          var spare = Math.max(0, rows[i].scrollWidth - vw);
-          var dir = rows[i].getAttribute("data-dir") === "1" ? 1 : -1;
-          var x = dir < 0 ? -spare * p : -spare * (1 - p);
-          rows[i].style.setProperty("--x", x.toFixed(1) + "px");
-        }
-      });
-    }
-    function request() { if (!ticking) { ticking = true; window.requestAnimationFrame(frame); } }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        var i = live.indexOf(e.target);
-        if (e.isIntersecting && i < 0) live.push(e.target);
-        if (!e.isIntersecting && i >= 0) live.splice(i, 1);
-      });
-      request();
-    });
-    for (var b = 0; b < bands.length; b++) io.observe(bands[b]);
-    window.addEventListener("scroll", request, { passive: true });
-    window.addEventListener("resize", request);
-  }
-
   function revealAll() {
     var sections = document.querySelectorAll("[data-reveal]");
     for (var i = 0; i < sections.length; i++) sections[i].classList.add("is-in");
@@ -192,7 +157,6 @@
     rollCount();
     reveal();
     loops();
-    reels();
     reduce.addEventListener && reduce.addEventListener("change", function () {
       if (!reduce.matches) return;
       var vids = document.querySelectorAll("video[data-loop]");

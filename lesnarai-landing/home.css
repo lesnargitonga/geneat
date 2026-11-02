@@ -37,28 +37,22 @@
 .hx__inner{position:relative;z-index:1;padding-block:clamp(90px,14vh,170px) clamp(28px,5vw,64px)}
 .hx__h{color:#FFFFFF;font-size:clamp(46px,12.4vw,150px)}
 .hx__lede{margin:20px 0 0;max-width:52ch;font-size:clamp(17px,1.55vw,21px);line-height:1.5;color:#F2F2F2}
+.hx__strengths{list-style:none;margin:28px 0 0;padding:0;display:grid;gap:0;border-top:1px solid rgba(255,255,255,.28)}
+.hx__strengths a{display:block;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.18);color:#FFFFFF;text-decoration:none}
+.hx__strengths b{display:block;font:800 clamp(18px,1.7vw,22px)/1.15 var(--sans);font-stretch:var(--cond);text-transform:uppercase;letter-spacing:.02em}
+.hx__strengths span{display:none;margin-top:4px;font-size:14.5px;line-height:1.4;color:#E2E2E2}
+.hx__strengths a:hover b,.hx__strengths a:focus-visible b{text-decoration:underline;text-underline-offset:4px}
 @media (min-width:861px){
-  .hx--photo::after{background:linear-gradient(90deg,rgba(0,0,0,.88) 0%,rgba(0,0,0,.66) 42%,rgba(0,0,0,.18) 100%)}
-  .hx__h{font-size:clamp(56px,7.6vw,128px)}
+  .hx__strengths{grid-template-columns:repeat(3,minmax(0,1fr));gap:0 28px;border-top:0;margin-top:40px}
+  .hx__strengths a{border-bottom:0;border-top:2px solid rgba(255,255,255,.55);padding:14px 0 0}
+  .hx__strengths span{display:block}
 }
-
-/* ── The stack: six layers, organisation to machine ───────────────── */
-.stk-head p{margin:0 0 22px;max-width:56ch;color:var(--ink-2);font-size:16.5px;line-height:1.5}
-.stk{list-style:none;margin:0;padding:0;border-top:2px solid var(--rule)}
-.stk__a{display:grid;grid-template-columns:34px minmax(0,1fr);gap:2px 10px;padding:13px 0 13px calc(var(--n) * 6px);
-  border-bottom:1px solid var(--hair);text-decoration:none;color:inherit;transition:padding-left .35s var(--spring,ease)}
-.stk__no{grid-row:span 2;font:500 11px var(--mono);letter-spacing:.06em;color:var(--ink-3);padding-top:6px}
-.stk__name{font:800 23px/1 var(--sans);font-stretch:var(--cond);text-transform:uppercase;letter-spacing:.01em;transition:color .2s}
-.stk__d{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:14.5px;line-height:1.35;color:var(--ink-2)}
-.stk__d li{display:inline-flex;align-items:baseline}
-.stk__a:hover .stk__name,.stk__a:focus-visible .stk__name{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:5px}
-.stk__a:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.sel-lede{margin:-6px 0 22px;color:var(--ink-2);font-size:15.5px}
+.sel-lede a{color:var(--ink)}
 @media (min-width:861px){
-  .stk__a{grid-template-columns:44px 250px minmax(0,1fr);align-items:baseline;gap:24px;padding:22px 0 22px calc(var(--n) * 2.4%)}
-  .stk__no{grid-row:auto;padding-top:0}
-  .stk__name{font-size:34px}
-  .stk__d{margin:0;font-size:16px}
-  .stk__a:hover{padding-left:calc(var(--n) * 2.4% + 10px)}
+  .hx--photo::after{background:linear-gradient(0deg,rgba(0,0,0,.9) 0%,rgba(0,0,0,.55) 30%,rgba(0,0,0,0) 58%),
+    linear-gradient(90deg,rgba(0,0,0,.86) 0%,rgba(0,0,0,.62) 42%,rgba(0,0,0,.2) 100%)}
+  .hx__h{font-size:clamp(56px,7.6vw,128px)}
 }
 
 /* ── Selected systems: one per discipline, each once ──────────────── */
@@ -131,39 +125,30 @@
 @media (max-width:380px){
   .hm-sec{padding-block:30px}
   .hm-h2{margin-bottom:12px}
-  .stk__a{padding-block:10px}
-  .stk__name{font-size:21px}
-  .stk__d{font-size:13.5px}
   .sel__i a{grid-template-columns:96px minmax(0,1fr)}
 }
 
 /* ── Motion: layers step into place, systems are dealt, steps arrive ─ */
 @media (prefers-reduced-motion:no-preference){
-  :root[data-js="on"] [data-reveal] .stk__layer{opacity:0;transform:translateX(-28px)}
-  :root[data-js="on"] [data-reveal].is-in .stk__layer{transition:opacity .35s calc(var(--n) * 80ms),transform .65s var(--spring) calc(var(--n) * 80ms);opacity:1;transform:none}
   :root[data-js="on"] [data-reveal] .sel__i,:root[data-js="on"] [data-reveal] .hm-steps li{opacity:0;transform:translateY(28px)}
   :root[data-js="on"] [data-reveal].is-in .sel__i,:root[data-js="on"] [data-reveal].is-in .hm-steps li{transition:opacity .35s calc(var(--i,0) * 90ms),transform .6s var(--spring) calc(var(--i,0) * 90ms);opacity:1;transform:none}
 }
 
 /* Phone: disciplines run as one flowing line per layer, and the legend keeps only its labels. */
 @media (max-width:860px){
-  .stk__d{display:block}
-  .stk__d li{display:inline-block;margin-right:12px;white-space:nowrap}
-  .stk__d li .mk{vertical-align:0}
-  .stk__legend li{font-size:0}
-  .stk__legend li b{font-size:12.5px}
-  .stk-head p{margin-bottom:16px;font-size:15.5px}
   .sel__pic--loop{grid-template-columns:1fr 1fr;gap:3px 6px;padding:8px 7px;font-size:8px;letter-spacing:0}
-  .stk-sec{padding-block:32px}
-  .stk__a{padding-block:10px}
-  .stk__name{font-size:21px}
-  .stk__d{font-size:14px;margin-top:4px}
 }
 @media (max-width:380px){
-  .stk-sec .hm-h2{font-size:28px}
-  .stk-head p{font-size:14.5px;margin-bottom:12px}
-  .stk__a{padding-block:8px}
-  .stk__name{font-size:19px}
-  .stk__d{font-size:13px}
-  .stk-sec .hm-more{margin-top:14px}
+}
+@media (max-width:860px){.hx--photo{min-height:calc(100svh - 124px)}.hx__inner{padding-top:72px}}
+@media (max-width:380px){
+  .hx__inner{padding-top:48px;padding-bottom:22px}
+  .hx__h{font-size:41px}
+  .hx__lede{font-size:16px;margin-top:14px}
+  .hx .hm-cta{margin-top:18px;gap:10px}
+  .hx .btn{min-height:48px}
+  .hx__strengths{margin-top:18px}
+  .hx__strengths a{padding:8px 0}
+  .hx__strengths b{font-size:16.5px}
+  .hx .ph-credit{margin-top:12px}
 }

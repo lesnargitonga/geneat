@@ -96,18 +96,3 @@
 }
 
 
-/* ── The reel: real frames running through the page ─────────────────── */
-.reel{position:relative;background:var(--film);padding:26px 0;overflow:hidden;contain:paint}
-.reel::before,.reel::after{content:"";position:absolute;left:0;right:0;height:9px;
-  background:repeating-linear-gradient(90deg,transparent 0 10px,#383838 10px 22px)}
-.reel::before{top:8px}.reel::after{bottom:8px}
-.reel__row{display:flex;gap:12px;width:max-content;padding-inline:12px}
-.reel__row+.reel__row{margin-top:14px}
-.reel__f{margin:0;flex:none}
-.reel__f img{display:block;height:clamp(118px,15vw,210px);width:auto;background:#000}
-.reel__f figcaption{font:500 9.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--edge);margin-top:7px}
-.reel__note{margin:16px 0 0;padding-inline:var(--pad);font:500 10.5px var(--mono);letter-spacing:.08em;color:#B8B8B8}
-@media (prefers-reduced-motion:reduce){.reel{overflow-x:auto}}
-@media (prefers-reduced-motion:no-preference){
-  :root[data-js="on"] .reel__row{transform:translateX(var(--x,0px));will-change:transform}
-}

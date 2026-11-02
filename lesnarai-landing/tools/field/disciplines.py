@@ -100,7 +100,7 @@ LAYERS = [
    "disciplines": [
      {"id": "cyber", "short": "Cybersecurity", "name": "Cybersecurity and assurance", "mark": "demo",
       "what": "Authorised assessment, findings fingerprinted and retested before they close, governed and "
-              "reversible containment, and decision engines qualified blind before they are trusted. "
+              "reversible containment, and decision engines tested blind before they are trusted. "
               "Offensive testing only against owned, authorised targets.",
       "proof": [P("SentinelCore and Sentinel Assurance", "/work/sentinelcore/", "Internal")],
       "limit": None},

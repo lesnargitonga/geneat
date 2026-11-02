@@ -487,13 +487,17 @@ def sc_waves():
 
 PAGES["/work/sentinelcore/"] = ("SentinelCore",
   "SentinelCore is LESNAR AI's self-hostable security operations platform: owned-source observation, real pinned scanning engines, unified incidents, "
-  "governed reversible containment, independent recovery verification and decisions qualified blind.",
+  "governed reversible containment, independent recovery verification and decisions tested blind.",
   "sentinel", "/work/",
   opening("Security", "SentinelCore",
     "A self-hostable security operations platform. It observes what you own, joins signals into incidents, acts only under governance, "
     "proves recovery independently and keeps the lessons. It holds every claim to evidence, its own included.",
     stage("internal", "Internal"), ["development candidate · no customer deployment", "Python · FastAPI · PostgreSQL · tenant-scoped",
                                     "Sentinel Assurance is its assurance and qualification layer"])
+  + sec("sc-plain-h", "In plain terms", "What it does for an organisation, before the machinery.",
+        steps([("Finds what is exposed", "It maps what you own and runs real scanners against it, only where you have authorised it."),
+               ("Decides what is an incident", "It joins many signals into one incident, and decides with an engine that is tested blind before it gets authority."),
+               ("Contains, then proves recovery", "It proposes reversible containment for a person to approve, then verifies recovery independently and keeps the lesson.")]))
   + sec("sc-loop-h", "One protection loop", "Twelve capabilities, each with one role in a single loop. Engine, alert and incident outputs feed the unified incident as evidence instead of running as parallel systems.",
         sc_loop(), attrs=" data-reveal")
   + f"""<section class="w sec" aria-labelledby="sc-eng-h" data-reveal><div class="two">
@@ -518,7 +522,7 @@ PAGES["/work/sentinelcore/"] = ("SentinelCore",
                ("Durable leases", "Every action holds a lease and a hash-chained state, from proposed to contained to recovered."),
                ("Reversible actions", "A synthetic identity session revoked and restored; a labelled workload disconnected and reconnected, with unrelated resources unchanged."),
                ("Failure gates", "Stale, duplicate, replayed, concurrent, partial-failure, restart, cross-tenant and emergency-stop cases all pass.")]), attrs=" data-reveal")
-  + sec("sc-qual-h", "Decisions qualified blind", "The decision engine is deterministic and auditable. Language models may enrich evidence for a person; they do not decide.",
+  + sec("sc-qual-h", "Decisions tested blind", "The decision engine is deterministic and auditable. Language models may enrich evidence for a person; they do not decide.",
         sc_qual()
         + '<p class="body sc-note">Its first blind qualification failed. The record keeps that failure, and retracts the "generalisation proven" claims made by test packs the same process had written. '
           'Independent packs moved accuracy from 0.867 to 0.967. Detection precision (0.933, one suspicious case escalated to an incident) is still under its 0.95 gate, so the engine has no production authority. '
@@ -631,6 +635,17 @@ PAGES["/company/"] = ("Company",
       the company takes on, and for the evidence behind every claim on this site.</p>
     <p class="body">Work is scoped before it is priced, built with its tests and gates, and run after launch. Where a project needs more than we
       can responsibly carry, we say so and bring in partners.</p></div>
+</section>
+<section class="w sec" aria-labelledby="eng-h" data-reveal><div class="sec-head"><h2 class="h2" id="eng-h">How an engagement works</h2>
+  <p class="lede">One accountable lead, a written scope, and a system that keeps running after launch.</p></div>
+  <ol class="steps">
+    <li><div><b>Scope before price</b><span>We start with the problem, the failure that would matter most, and how you would know it worked. The price follows the scope; there is no rate card.</span></div></li>
+    <li><div><b>Written acceptance</b><span>Scope, acceptance criteria and who is responsible for what are written down before work starts.</span></div></li>
+    <li><div><b>Built with its evidence</b><span>Working software early, with its tests, release gates and security checks built alongside it.</span></div></li>
+    <li><div><b>Secure deployment and handover</b><span>Deployed with access control and secrets kept out of code, and handed over with its documentation.</span></div></li>
+    <li><div><b>Run after launch</b><span>Monitoring, maintenance and fixes continue under a support arrangement agreed with you.</span></div></li>
+    <li><div><b>Specialists when needed</b><span>Where a project needs capacity or expertise beyond our own, we say so at scoping and bring in partners.</span></div></li>
+  </ol>
 </section>
 <section class="co-city" aria-labelledby="city-h">
   <picture class="ph-bg"><source type="image/webp" srcset="/assets/photos/nairobi@900.webp 900w, /assets/photos/nairobi@1400.webp 1400w, /assets/photos/nairobi.webp 2000w" sizes="100vw"><img src="/assets/photos/nairobi.jpg" srcset="/assets/photos/nairobi@900.jpg 900w, /assets/photos/nairobi@1400.jpg 1400w, /assets/photos/nairobi.jpg 2000w" sizes="100vw" width="2000" height="1500" loading="lazy" alt=""></picture>

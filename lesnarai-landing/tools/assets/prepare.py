@@ -94,29 +94,10 @@ def kenya(manifest):
     manifest["kenya"] = {"source": "MediMatch kenya.ts (Natural Earth 50m, public domain) + road-routes.json (OSRM on OpenStreetMap, ODbL)",
                          "routes": len(roads)}
 
-# The scroll reel: two rows of real frames, small enough to move cheaply. Gen-Eat is left out
-# because its portal capture contains a stock photograph.
-REEL = [["mm-globe", "biz-villager", "lesnarplay", "zygos", "mm-roads", "carepro", "tv-ink"],
-        ["jamii-projects", "sentinel", "biz-floor", "play-lobby", "zygos-compare", "mm-nairobi", "tv-spaces"]]
-REEL_H = 360
-
-def reel(manifest):
-    (OUT / "reel").mkdir(exist_ok=True)
-    rows = []
-    for row in REEL:
-        out = []
-        for name in row:
-            im = Image.open(OUT / f"{name}.webp").convert("RGB")
-            im = im.resize((round(im.width * REEL_H / im.height), REEL_H), Image.LANCZOS)
-            im.save(OUT / "reel" / f"{name}.webp", quality=72, method=6)
-            out.append({"name": name, "w": im.width, "h": im.height})
-        rows.append(out)
-    manifest["reel"] = rows
-
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
     manifest = {}
-    frames(manifest); kenya(manifest); reel(manifest)
+    frames(manifest); kenya(manifest)
     (TOOLS / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n")
     for k, v in manifest.items():
         if isinstance(v, dict):

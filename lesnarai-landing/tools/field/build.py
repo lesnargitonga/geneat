@@ -13,15 +13,12 @@ Markers (<!-- gen:NAME --> ... <!-- /gen:NAME -->), usable on any page:
   medimatch-map     MediMatch's own map: every road route between counties, Nairobi to Mandera picked out
   medimatch-nairobi Nairobi County at street scale, where 43 of the transfers stay
   kenya-map         Kenya outline, all stored road routes, and the places our systems run
-  reel              two rows of real frames that run against each other as the page scrolls
-  stack             Home's six-layer engineering stack, from tools/field/disciplines.py
 Also, on every page: <span class="avail" data-avail="KEY"></span> is filled from availability.json.
 Idempotent: re-running on unchanged inputs changes nothing.
 """
 import json, re, sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from disciplines import LAYERS, MARKS
 
 SITE = Path(__file__).resolve().parents[2]
 KENYA = json.loads((SITE / "tools/assets/kenya.json").read_text())
@@ -126,7 +123,6 @@ def mm_nairobi():
         "".join(f'<rect class="hub" x="{x(lo) - 5:.1f}" y="{y(la) - 5:.1f}" width="10" height="10"/>' for la, lo in sorted(hubs)),
         "</svg>"])
 
-MANIFEST = json.loads((SITE / "tools/assets/manifest.json").read_text())
 AVAIL = json.loads((SITE / "tools/field/availability.json").read_text())
 
 def fill_avail(html):
@@ -140,34 +136,6 @@ def fill_avail(html):
         text = f'{"Online" if up else "Offline"} when checked {AVAIL["date"]}'
         return f'<span class="avail avail--{"up" if up else "down"}" data-avail="{key}">{text}</span>'
     return re.sub(r'<span class="avail[^"]*" data-avail="([a-z]+)">[^<]*</span>', one, html)
-
-REEL_LABEL = {"mm": "MediMatch", "biz": "BizMtaani", "lesnarplay": "LESNAR PLAY", "play": "LESNAR PLAY", "zygos": "Zygos",
-              "carepro": "CarePro", "tv": "LESNAR TV", "jamii": "Jamii", "sentinel": "Operation Sentinel"}
-
-def reel():
-    rows = []
-    for r, row in enumerate(MANIFEST["reel"]):
-        figs = []
-        for k, f in enumerate(row):
-            label = REEL_LABEL.get(f["name"].split("-")[0], f["name"])
-            figs.append(f'<figure class="reel__f"><img src="/assets/field/reel/{f["name"]}.webp" width="{f["w"]}" height="{f["h"]}" '
-                        f'alt="" loading="lazy" decoding="async"><figcaption>{r * len(row) + k + 1:02d} · {label}</figcaption></figure>')
-        rows.append(f'<div class="reel__row" data-dir="{"-1" if r % 2 == 0 else "1"}">' + "".join(figs) + "</div>")
-    return "\n".join(rows)
-
-def stack():
-    """Six layers, organisation at the top and machine at the base. Disciplines carry their maturity
-    mark; each layer links to its section on Capabilities. No project names: Home's proof is in
-    Selected systems, so nothing repeats."""
-    rows = []
-    for n, layer in enumerate(LAYERS):
-        items = "".join(f'<li><i class="mk mk--{d["mark"]}" aria-hidden="true"></i>{d["short"]}'
-                        f'<span class="sr"> ({MARKS[d["mark"]][0]})</span></li>' for d in layer["disciplines"])
-        rows.append(f'<li class="stk__layer" style="--n:{n}"><a class="stk__a" href="/capabilities/#{layer["id"]}">'
-                    f'<span class="stk__no">L{len(LAYERS) - n}</span><span class="stk__name">{layer["name"]}</span>'
-                    f'<ul class="stk__d">{items}</ul></a></li>')
-    legend = "".join(f'<li><i class="mk mk--{k}" aria-hidden="true"></i><b>{v[0]}</b> {v[1]}</li>' for k, v in MARKS.items())
-    return (f'<ol class="stk">{"".join(rows)}</ol>\n<ul class="stk__legend" aria-label="What the marks mean">{legend}</ul>')
 
 MARKS_MAP = [  # key, label, sub, dx, dy, anchor
     ("embu", "EMBU", "BizMtaani · live", 120, -60, "start"),
@@ -201,8 +169,6 @@ FILL = {
     "medimatch-map": mm_map,
     "medimatch-nairobi": mm_nairobi,
     "kenya-map": kenya_map,
-    "reel": reel,
-    "stack": stack,
 }
 
 def fill(path: Path) -> bool:

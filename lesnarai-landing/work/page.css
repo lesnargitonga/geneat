@@ -1,0 +1,21 @@
+/* Work: four flagship cases, each from a different discipline, then the full catalogue. */
+.flag{list-style:none;margin:0;padding:0;display:grid;gap:30px}
+.flag__i a{display:grid;gap:14px;text-decoration:none;color:inherit}
+.flag__pic{display:block;aspect-ratio:16/10;overflow:hidden;background:var(--film)}
+.flag__pic img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .6s var(--snap,ease)}
+.flag__pic--loop{display:grid;align-content:center;gap:10px;padding:clamp(18px,3vw,32px);color:#FFFFFF;box-shadow:inset 0 0 0 1px #3A3A3A;
+  font:800 clamp(22px,2.6vw,34px)/1 var(--sans);font-stretch:var(--cond);text-transform:uppercase;letter-spacing:.02em}
+.flag__pic--loop span::after{content:" \2192";color:#8A8A8A}
+.flag__pic--loop span:last-child::after{content:" \21BA"}
+.flag__t{display:flex;flex-direction:column;gap:6px}
+.flag__k{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.flag__t b{font-size:clamp(22px,2.2vw,30px);line-height:1.15}
+.flag__p{font-size:15.5px;line-height:1.45;color:var(--ink-2);max-width:52ch}
+.flag__p i{display:block;font:500 10.5px var(--mono);font-style:normal;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:2px}
+.flag__i a:hover b{text-decoration:underline;text-underline-offset:4px}
+@media (hover:hover){.flag__i a:hover .flag__pic img{transform:scale(1.03)}}
+@media (min-width:861px){.flag{grid-template-columns:1fr 1fr;gap:52px 40px}}
+@media (prefers-reduced-motion:no-preference){
+  :root[data-js="on"] [data-reveal] .flag__i{opacity:0;transform:translateY(28px)}
+  :root[data-js="on"] [data-reveal].is-in .flag__i{transition:opacity .35s calc(var(--i,0) * 90ms),transform .6s var(--spring) calc(var(--i,0) * 90ms);opacity:1;transform:none}
+}
