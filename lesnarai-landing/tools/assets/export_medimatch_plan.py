@@ -5,8 +5,9 @@
     python3 tools/assets/export_medimatch_plan.py [http://localhost:4000]
 
 Writes tools/assets/medimatch-plan.json (build-time data; tools/ is never deployed):
-  transfers  every transfer in the plan: origin and destination county, item, road km, minutes,
-             and the key of its stored road geometry in MediMatch's server/data/road-routes.json
+  transfers  every transfer in the plan: origin and destination county, item, and the key of its
+             stored road geometry; road km and minutes are read from that stored route
+             (MediMatch's server/data/road-routes.json, the routing authority), never from the plan
   meta       when and from where it was exported, plus the router metadata of the stored routes
 Facilities are named only by county. The inventory behind each transfer is synthetic, so the
 site never pairs a real hospital's name with a need it does not have.
@@ -32,8 +33,12 @@ for r in plan["routes"]:
     k = key(r["from"], r["to"])
     if not r["routed"] or k not in stored["routes"]:
         sys.exit(f"transfer {r['id']} has no stored road route ({k})")
+    route = stored["routes"][k]
+    # Distances and times come from the stored routing data, the authority; the plan must agree with it.
+    if round(route["distance_km"]) != round(r["distance_km"]):
+        sys.exit(f"transfer {r['id']}: plan says {r['distance_km']} km, stored route says {route['distance_km']} km")
     transfers.append({"id": r["id"], "from": r["from"]["county"], "to": r["to"]["county"],
-                      "item": r["item"], "km": r["distance_km"], "min": r["eta_min"], "route": k})
+                      "item": r["item"], "km": round(route["distance_km"]), "min": round(route["duration_min"]), "route": k})
 transfers.sort(key=lambda t: -t["km"])
 
 # Towns a route passes, so copy can name the corridor the router chose (it optimises driving time,
