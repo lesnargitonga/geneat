@@ -6,12 +6,13 @@
      python3 -m http.server 8911 --bind 127.0.0.1    # serve first, from this dir
      node tools/behaviour-gate.mjs
      BASE=http://127.0.0.1:8913 node tools/behaviour-gate.mjs   another server
+     PORT=8912 node tools/behaviour-gate.mjs                    same, by port
      ENGINE=firefox node tools/behaviour-gate.mjs
 
    Exits non-zero on any failure.                                            */
 import * as pw from '/home/lesnar/Documents/ai model/experience-lab/study-b-webgl/node_modules/playwright/index.mjs';
 
-const BASE = process.env.BASE || 'http://127.0.0.1:8911';
+const BASE = process.env.BASE || 'http://127.0.0.1:' + (process.env.PORT || 8911);
 const ENGINE = process.env.ENGINE || 'chromium';
 const FAIL = [];
 const check = (ok, what) => { console.log(`${ok ? 'ok  ' : 'FAIL'} ${what}`); if (!ok) FAIL.push(what); };

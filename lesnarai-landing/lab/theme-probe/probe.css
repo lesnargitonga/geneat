@@ -1,0 +1,52 @@
+/* Theme probe geometry. Fixed pixel sizes on purpose: tools/theme-matrix reads the
+   same layout back out of screenshots, so nothing here may scale with the viewport.
+   Grid 320 px wide (fits a 360 px phone), cells 156 x 52, swatches 64 x 44. */
+.pg-steps{margin:18px 0 0;padding-left:1.2em}
+.pg-steps li{margin:0 0 6px}
+.pg-info{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 14px;margin:22px 0 0;
+  font:500 11px/1.45 var(--mono);color:var(--ink-2);max-width:640px}
+.pg-info dt{color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em}
+.pg-info dd{margin:0;overflow-wrap:anywhere}
+.pg-wrap{margin-top:36px}
+.pg-h{font-size:22px;margin:0 0 10px}
+.pg-notes{margin-top:36px;margin-bottom:var(--s1)}
+
+.pg{position:relative;display:grid;grid-template-columns:156px 156px;gap:8px;width:320px;padding:30px 0}
+.fid{position:absolute;width:20px;height:20px}
+.fid--tl{top:0;left:0}.fid--br{bottom:0;right:0}
+.fid--magenta{background:#FF00FF}.fid--cyan{background:#00FFFF}.fid--green{background:#00FF00}
+
+.pc{display:flex;align-items:center;gap:8px;height:52px}
+.pc__sw{position:relative;flex:none;width:64px;height:44px}
+.pc__t{display:flex;flex-direction:column;min-width:0;font:500 9.5px/1.35 var(--mono);color:var(--ink-3)}
+.pc__t b{font:700 11px/1.2 var(--sans);color:var(--ink);margin-bottom:2px}
+.pc__fill{position:absolute;inset:0;display:block;width:64px;height:44px;margin:0;box-sizing:border-box}
+.pc__s{position:absolute;left:16px;top:12px;width:32px;height:20px;pointer-events:none}
+
+.pc__glyph{display:block;font:800 34px/44px var(--sans);letter-spacing:0;white-space:nowrap}
+.pc__glyph--ink{color:var(--ink)}.pc__glyph--ink-2{color:var(--ink-2)}
+.pc__glyph--ink-3{color:var(--ink-3)}.pc__glyph--signal{color:var(--signal)}
+.pc .act{margin:0;padding:0;border:0}
+.pc .act::after{content:none}
+.pc .stage i{width:44px;height:44px}
+.pc .form__act{display:block;padding:0}
+.pc button.pc__fill{padding:0 0 0 8px;text-align:left;font-size:14px}
+.pc button .pc__s{left:auto;right:3px;top:3px;width:10px;height:10px}
+.pc .fld input.pc__fill{height:44px}
+.pc__photo{object-fit:cover}
+.pc__scrim{background:rgba(0,0,0,.5)}
+.pc__focus{position:absolute;left:10px;top:10px;width:44px;height:24px;outline:3px solid var(--signal);outline-offset:2px}
+.pc__s--ring{left:6px;top:-5px;width:32px;height:3px}
+.pc__film{background:var(--film)}
+.pc .frame figcaption{margin:0}
+
+/* Candidates for the device test. Not used by the site. */
+.pc__cand-raster{background:url(/lab/theme-probe/white.png)}
+:root[data-theme="dark"] .pc__cand-raster{background:url(/lab/theme-probe/black.png)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pc__cand-raster{background:url(/lab/theme-probe/black.png)}}
+.pc__cand-gradient{background-image:linear-gradient(var(--paper),var(--paper))}
+
+/* Native controls: the browser's own colours under our color-scheme. */
+.pc__native{position:absolute;inset:0;width:64px;height:44px;font:13px var(--sans)}
+.pc__check{position:absolute;left:22px;top:12px;width:20px;height:20px;margin:0}
+.pc__s--check{left:28px;top:18px;width:8px;height:8px}

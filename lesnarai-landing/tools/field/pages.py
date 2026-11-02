@@ -14,7 +14,7 @@ from pathlib import Path
 SITE = Path(__file__).resolve().parents[2]
 HOME = (SITE / "index.html").read_text()
 TRANSFERS = json.loads((SITE / "tools/assets/medimatch-plan.json").read_text())["transfers"]
-BOOT = re.search(r"<script>document\.documentElement.*?</script>", HOME).group(0)
+BOOT = re.search(r'<meta name="color-scheme".*?</script>', HOME, re.S).group(0)
 FOOT = re.search(r'<footer class="fr-foot">.*?</footer>', HOME, re.S).group(0)
 FONTS = '<link rel="preload" href="/assets/fonts/archivo-400-800-latin.woff2" as="font" type="font/woff2" crossorigin>'
 NAV = [("/work/", "Work"), ("/capabilities/", "Capabilities"), ("/engineering/", "Engineering"), ("/company/", "Company")]

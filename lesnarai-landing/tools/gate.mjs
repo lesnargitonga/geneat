@@ -2,6 +2,7 @@
      node tools/gate.mjs                    chromium, all routes
      ENGINE=firefox|webkit node tools/gate.mjs
      ROUTES=/,/work/ node tools/gate.mjs    limit the sweep
+     PORT=8912 node tools/gate.mjs          a server on another port
    Serve first: python3 -m http.server 8911 --bind 127.0.0.1  (from this dir)
    Exits non-zero on any failure. */
 import fs from 'node:fs'; import path from 'node:path'; import os from 'node:os';
@@ -9,7 +10,7 @@ import crypto from 'node:crypto'; import { URL as NodeURL } from 'node:url';
 import * as pw from '/home/lesnar/Documents/ai model/experience-lab/study-b-webgl/node_modules/playwright/index.mjs';
 
 const ROOT=path.resolve(import.meta.dirname,'..');
-const BASE='http://127.0.0.1:8911';
+const BASE='http://127.0.0.1:'+(process.env.PORT||8911);
 const ENGINE=process.env.ENGINE||'chromium';
 if(!pw[ENGINE]){ console.error(`unknown engine "${ENGINE}"`); process.exit(2); }
 
@@ -166,7 +167,9 @@ async function check(route,w,h,theme){
 }
 
 console.log(`runtime gate · ${ENGINE}${DISK?' (disk)':''} · ${ROUTES.length} route(s)${AXE?' · axe':' · axe UNAVAILABLE'}\n`);
-for(const r of ROUTES){ await check(r,1440,900,null); await check(r,390,844,'light'); }
+/* system (the engine's default light scheme), explicit light on a phone, explicit dark.
+   System-dark uses the same tokens as explicit dark; the static gate enforces that. */
+for(const r of ROUTES){ await check(r,1440,900,null); await check(r,390,844,'light'); await check(r,390,844,'dark'); }
 await b.close();
 console.log(FAIL?`\n=== ${FAIL} CHECK(S) FAILED on ${ENGINE} ===`:`\n=== RUNTIME GATE PASSES on ${ENGINE} ===`);
 process.exit(FAIL?1:0);

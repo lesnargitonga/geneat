@@ -18,12 +18,17 @@
 
 :root{
   color-scheme:light dark;
-  --paper:#FFFFFF; --sheet:#F4F4F1; --ink:#0B0B0C; --ink-2:#45474B; --ink-3:#6A6D72;
-  --rule:#0B0B0C; --hair:#DADBD7; --grid:#EEEEEB;
+  /* Theme contract: light is #FFFFFF paper with #000000 ink, dark is #000000 paper with
+     #FFFFFF ink, and cards follow the paper. The secondary greys below are intended and
+     pass WCAG AA on both papers. Anything else on screen is a browser transformation
+     (docs/lesnarai/FORCED_DARK_MATRIX.md). */
+  --paper:#FFFFFF; --sheet:#FFFFFF; --ink:#000000; --ink-2:#45474B; --ink-3:#6A6D72;
+  --rule:#000000; --hair:#DADBD7; --grid:#EEEEEB;
   --signal:#D41F1A;          /* LESNAR signal: identity, primary action, the failure that matters */
   --ch-blue:#1F4FD8; --ch-green:#0B7F57;   /* secondary data channels */
   --place:#A8136A;           /* survey overprint: our marks on a map */
-  --film:#111111; --film-2:#1C1C1C; --edge:#E8902A; --select:#E3B505;
+  --map-land:#DCE5D3; --map-edge:#55634F; --map-road:#2B302C; --map-label:#000000; --map-sub:#3C473A;
+  --film:#000000; --film-2:#1C1C1C; --edge:#E8902A; --select:#E3B505;
   --ok:#0B7F57; --down:#D41F1A;
   --cond:62%; --wide:125%;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -31,16 +36,20 @@
   --w:1280px; --pad:clamp(18px,3.2vw,44px);
   --s1:clamp(40px,6vw,88px); --s2:clamp(64px,10vw,140px);
 }
+/* The dark tokens appear twice, once per way of asking for dark (device setting, explicit
+   choice). The static gate fails if the two blocks ever differ. */
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --paper:#0D0E0F; --sheet:#141517; --ink:#EDEDEA; --ink-2:#B4B6B9; --ink-3:#8F9296;
-  --rule:#EDEDEA; --hair:#2A2C2F; --grid:#17191B;
+  --paper:#000000; --sheet:#000000; --ink:#FFFFFF; --ink-2:#B4B6B9; --ink-3:#8F9296;
+  --rule:#FFFFFF; --hair:#2E3033; --grid:#141516;
   --signal:#FF4A3D; --ch-blue:#7CA2FF; --ch-green:#45C58F; --place:#F06AB4; --ok:#45C58F; --down:#FF4A3D;
+  --map-land:#1E2620; --map-edge:#6E7E67; --map-road:#C9D2C3; --map-label:#FFFFFF; --map-sub:#B4B6B9;
 }}
 :root[data-theme="light"]{color-scheme:only light}
 :root[data-theme="dark"]{color-scheme:only dark;
-  --paper:#0D0E0F; --sheet:#141517; --ink:#EDEDEA; --ink-2:#B4B6B9; --ink-3:#8F9296;
-  --rule:#EDEDEA; --hair:#2A2C2F; --grid:#17191B;
+  --paper:#000000; --sheet:#000000; --ink:#FFFFFF; --ink-2:#B4B6B9; --ink-3:#8F9296;
+  --rule:#FFFFFF; --hair:#2E3033; --grid:#141516;
   --signal:#FF4A3D; --ch-blue:#7CA2FF; --ch-green:#45C58F; --place:#F06AB4; --ok:#45C58F; --down:#FF4A3D;
+  --map-land:#1E2620; --map-edge:#6E7E67; --map-road:#C9D2C3; --map-label:#FFFFFF; --map-sub:#B4B6B9;
 }
 
 *{box-sizing:border-box}
@@ -167,17 +176,11 @@ a.reading:hover .reading__v{color:var(--signal)}
 /* ── TERRAIN · map and gazetteer ───────────────────────────────────────── */
 .sheet{background:var(--sheet);border:1px solid var(--hair)}
 .map svg{display:block;width:100%;height:auto}
-.map .land{fill:#DCE5D3;stroke:#55634F;stroke-width:1.2}
-.map .roads path{fill:none;stroke:#2B302C;stroke-width:.9;stroke-linecap:round;opacity:.7}
-.map .mk rect{fill:var(--place)}.map .mk line{stroke:#151A16;stroke-width:.8}
-.map .pl{font:700 13px var(--sans);font-stretch:var(--wide);letter-spacing:.2em;fill:#151A16}
-.map .ps{font:500 11px var(--mono);fill:#3C473A}
-:root[data-theme="dark"] .map .land{fill:#1E2620;stroke:#6E7E67}
-:root[data-theme="dark"] .map .roads path{stroke:#C9D2C3}
-:root[data-theme="dark"] .map .pl{fill:#EDEDEA}:root[data-theme="dark"] .map .ps{fill:#B4B6B9}:root[data-theme="dark"] .map .mk line{stroke:#EDEDEA}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .map .land{fill:#1E2620;stroke:#6E7E67}
-  :root:not([data-theme="light"]) .map .roads path{stroke:#C9D2C3}:root:not([data-theme="light"]) .map .pl{fill:#EDEDEA}
-  :root:not([data-theme="light"]) .map .ps{fill:#B4B6B9}:root:not([data-theme="light"]) .map .mk line{stroke:#EDEDEA}}
+.map .land{fill:var(--map-land);stroke:var(--map-edge);stroke-width:1.2}
+.map .roads path{fill:none;stroke:var(--map-road);stroke-width:.9;stroke-linecap:round;opacity:.7}
+.map .mk rect{fill:var(--place)}.map .mk line{stroke:var(--map-label);stroke-width:.8}
+.map .pl{font:700 13px var(--sans);font-stretch:var(--wide);letter-spacing:.2em;fill:var(--map-label)}
+.map .ps{font:500 11px var(--mono);fill:var(--map-sub)}
 .gaz{border-top:2px solid var(--rule)}
 .gaz__row{display:grid;grid-template-columns:200px 160px minmax(0,1fr) 170px;gap:20px;padding:15px 0;border-bottom:1px solid var(--hair);align-items:baseline;text-decoration:none;color:inherit}
 a.gaz__row:hover .gaz__sys b{color:var(--signal)}
@@ -195,7 +198,7 @@ a.gaz__row:hover .gaz__sys b{color:var(--signal)}
 /* ── case pages ────────────────────────────────────────────────────────── */
 .crumb{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:28px 0 22px}
 .crumb a{color:var(--ink-3)}
-.case-open{padding:0 0 var(--s1)}
+.case-open{padding-bottom:var(--s1)}
 .case-open .statement{font-size:clamp(52px,8.6vw,136px)}
 .facts{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:22px}
 .limits{border:2px solid var(--rule);padding:20px 22px;max-width:760px}

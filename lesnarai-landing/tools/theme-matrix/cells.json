@@ -1,0 +1,53 @@
+{
+  "about": "Theme probe cells: the one spec read by build_probe.py (the page), theme-matrix.mjs (desktop engines) and analyse_screenshot.py (phone screenshots). Expected values are sRGB hex per site theme. method: fill = median of the sample box; ink = the glyph colour farthest from the cell background; mean = mean of the box (images); observe = reported, never judged. Hues of the fiducials sit at 50% HSL lightness, so a lightness inversion leaves them where they are.",
+  "grids": [
+    {
+      "id": "g1",
+      "title": "Surfaces and text",
+      "fiducials": ["magenta", "cyan"],
+      "cells": [
+        {"id": "paper", "label": "Page", "method": "fill", "light": "#FFFFFF", "dark": "#000000"},
+        {"id": "sheet", "label": "Card", "method": "fill", "light": "#FFFFFF", "dark": "#000000"},
+        {"id": "ink", "label": "Text", "method": "ink", "light": "#000000", "dark": "#FFFFFF"},
+        {"id": "ink-2", "label": "Muted text", "method": "ink", "light": "#45474B", "dark": "#B4B6B9"},
+        {"id": "ink-3", "label": "Meta text", "method": "ink", "light": "#6A6D72", "dark": "#8F9296"},
+        {"id": "signal", "label": "Signal text", "method": "ink", "light": "#D41F1A", "dark": "#FF4A3D"},
+        {"id": "link", "label": "Link", "method": "ink", "light": "#D41F1A", "dark": "#FF4A3D"},
+        {"id": "stage", "label": "Stage icon", "method": "fill", "light": "#000000", "dark": "#FFFFFF"},
+        {"id": "svg-land", "label": "SVG map land", "method": "fill", "light": "#DCE5D3", "dark": "#1E2620"},
+        {"id": "svg-ink", "label": "SVG figure", "method": "fill", "light": "#000000", "dark": "#FFFFFF"}
+      ]
+    },
+    {
+      "id": "g2",
+      "title": "Media, forms and overlays",
+      "fiducials": ["cyan", "magenta"],
+      "cells": [
+        {"id": "photo-light", "label": "Capture, light UI", "method": "mean", "src": "/assets/field/carepro.webp"},
+        {"id": "photo-dark", "label": "Capture, dark UI", "method": "mean", "src": "/assets/field/mm-roads.webp"},
+        {"id": "raster-white", "label": "Raster white", "method": "fill", "light": "#FFFFFF", "dark": "#FFFFFF"},
+        {"id": "raster-black", "label": "Raster black", "method": "fill", "light": "#000000", "dark": "#000000"},
+        {"id": "input", "label": "Text field", "method": "fill", "light": "#FFFFFF", "dark": "#000000"},
+        {"id": "button", "label": "Button", "method": "fill", "light": "#000000", "dark": "#FFFFFF"},
+        {"id": "button-off", "label": "Button, disabled", "method": "fill", "light": "#DADBD7", "dark": "#2E3033"},
+        {"id": "scrim", "label": "Overlay 50%", "method": "fill", "light": "#808080", "dark": "#000000"},
+        {"id": "focus", "label": "Focus ring", "method": "fill", "light": "#D41F1A", "dark": "#FF4A3D"},
+        {"id": "film", "label": "Film strip", "method": "fill", "light": "#000000", "dark": "#000000"}
+      ]
+    },
+    {
+      "id": "g3",
+      "title": "Candidates and native controls (not site CSS)",
+      "fiducials": ["green", "cyan"],
+      "cells": [
+        {"id": "cand-raster", "label": "Cand.: raster paper", "method": "fill", "light": "#FFFFFF", "dark": "#000000"},
+        {"id": "cand-gradient", "label": "Cand.: gradient paper", "method": "fill", "light": "#FFFFFF", "dark": "#000000"},
+        {"id": "cand-text", "label": "Cand.: text on raster", "method": "ink", "light": "#000000", "dark": "#FFFFFF"},
+        {"id": "caption", "label": "Frame caption", "method": "ink", "light": "#B8B8B8", "dark": "#B8B8B8"},
+        {"id": "native-select", "label": "Native select", "method": "observe"},
+        {"id": "native-check", "label": "Native checkbox", "method": "observe"}
+      ]
+    }
+  ],
+  "tolerance": {"fill": 2, "ink": 6, "mean": 8}
+}

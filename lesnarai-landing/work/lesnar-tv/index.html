@@ -14,7 +14,10 @@
 <meta property="og:image" content="https://lesnarai.com/assets/field/lesnartv.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-<script>document.documentElement.dataset.js="on";try{var t=localStorage.getItem("lesnarai-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<script>(function(r){r.dataset.js="on";try{var t=localStorage.getItem("lesnarai-theme");if(t!=="light"&&t!=="dark")return;r.setAttribute("data-theme",t);document.querySelector('meta[name="color-scheme"]').content="only "+t;document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.content=t==="dark"?"#000000":"#FFFFFF"})}catch(e){}})(document.documentElement)</script>
 <link rel="preload" href="/assets/fonts/archivo-400-800-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/field.css">
 <link rel="stylesheet" href="/field-motion.css">
