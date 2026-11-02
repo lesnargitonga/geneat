@@ -32,8 +32,8 @@
  "zygos": {
   "w": 600,
   "h": 1140,
-  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/zygos-demo/01-home.png",
-  "provenance": "Zygos demonstration build, 390 px at 3x, Oct 2026. Records are fictional; the app says so."
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/zygos-2026-11-02/01-home.png",
+  "provenance": "Zygos, 390 px at 3x, 2 Nov 2026, demonstration banner off. Records are fictional and the app marks them so."
  },
  "bizmtaani": {
   "w": 600,
@@ -62,26 +62,26 @@
  "zygos-search": {
   "w": 600,
   "h": 1140,
-  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/zygos-demo/02-search-q-NovaCart.png",
-  "provenance": "Zygos search for a fictional business, demonstration build, Oct 2026."
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/zygos-2026-11-02/02-search-NovaCart.png",
+  "provenance": "Zygos search for a fictional business, 2 Nov 2026, demonstration banner off."
  },
  "zygos-claim": {
   "w": 600,
   "h": 1140,
-  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/zygos-demo-2/01-claims-ZC-2026-01000.png",
-  "provenance": "Zygos claim record, demonstration build, fictional records."
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/zygos-2026-11-02/03-claim.png",
+  "provenance": "Zygos claim record, 2 Nov 2026; fictional record, marked so in the app."
  },
  "zygos-compare": {
   "w": 600,
   "h": 1140,
-  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/zygos-demo-2/02-compare-a-novacart-b-novacart-deals-ke.png",
-  "provenance": "Zygos comparing two fictional businesses, demonstration build."
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/zygos-2026-11-02/04-compare.png",
+  "provenance": "Zygos comparing two fictional businesses, 2 Nov 2026."
  },
  "zygos-method": {
   "w": 600,
   "h": 1140,
-  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/zygos-demo-2/03-methodology.png",
-  "provenance": "Zygos methodology page, demonstration build."
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/zygos-2026-11-02/05-methodology.png",
+  "provenance": "Zygos methodology page, 2 Nov 2026."
  },
  "biz-villager": {
   "w": 600,
