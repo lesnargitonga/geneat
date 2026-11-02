@@ -128,12 +128,14 @@ try {
     }
   }
 
-  /* 5 · Work: every row link and the case card resolve; quiet rows are not links */
+  /* 5 · Work: every register row and every contact-sheet frame resolves; a row for a system with
+     no page is not a link. The selectors must find links, or the check would pass on nothing. */
   {
     const [ctx, p] = await open();
     await p.goto(BASE + '/work/', { waitUntil: 'networkidle' });
-    const hrefs = await p.evaluate(() => [...document.querySelectorAll('.case-card, a.sys')].map(a => a.getAttribute('href')));
-    const quiet = await p.evaluate(() => [...document.querySelectorAll('.sys--quiet')].every(el => el.tagName !== 'A'));
+    const hrefs = await p.evaluate(() => [...document.querySelectorAll('main a.gaz__row, main a.frame__pic')].map(a => a.getAttribute('href')));
+    const quiet = await p.evaluate(() => [...document.querySelectorAll('main .gaz__row')].every(el => el.tagName === 'A' || !el.querySelector('a[href]')));
+    check(hrefs.length >= 10, `Work: the register and contact sheet carry links (${hrefs.length} found)`);
     let broken = [];
     for (const h of [...new Set(hrefs)]) {
       const r = await p.request.get(BASE + h);
