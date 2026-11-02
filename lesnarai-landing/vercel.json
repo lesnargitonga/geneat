@@ -3,6 +3,15 @@
   "cleanUrls": true,
   "headers": [
     {
+      "source": "/lab/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {
