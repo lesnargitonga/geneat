@@ -3,6 +3,12 @@
 Newest first. Each entry says who decided, what, and what it changed. "Owner" is the founder of
 LESNAR AI. Entries marked **superseded** stay in the log so the reasoning is not lost.
 
+## 2026-11-02 — external critique (owner-forwarded): P0 facts and enquiries, P1 hierarchy
+
+| # | Decision | Consequence |
+|---|---|---|
+| D-42 | The site proves engineering activity better than ambition or business value. Fix facts and availability, and replace the mailto enquiry (P0). Then rework Home's hierarchy, simplify Work, give SentinelCore a first-level explanation, add an engagement model, and revisit `font-display: block` (P1). No wholesale redesign. | **Facts.** The critique held that 926 km came from our own OSRM; the committed geometry says otherwise. The stored self-hosted route is 1,141 km (re-measured at 1,142.3 km) via Thika, Isiolo and Marsabit: the fastest road, not the shortest. The sentence is now generated from the plan export and registered (C-MM-ROUTES). **Availability.** Separated from maturity: `check_availability.py` records reachability, and every availability marker is filled from it. On 2 Nov, BizMtaani and CarePro are offline (shared server refusing connections). **Enquiries.** `/api/enquiry` replaces the mailto handoff: validation, honeypot, fill-time check, same-origin check, best-effort throttle, Resend delivery and an honest 503 fallback. It is tested by 15 unit tests and the behaviour gate. Delivery goes live when the owner sets RESEND_API_KEY, ENQUIRY_FROM and ENQUIRY_TO in Vercel. **Home.** The first screen carries the proposition and three strengths (operational software; intelligent, secure systems; connected and autonomous machines). The 16-discipline stack moves to Capabilities only. Jamii replaces the offline BizMtaani in Selected systems. **Work.** It now opens on four flagship cases from different disciplines (problem, then what we built), then one catalogue. The contact sheet and the reel are removed, with their code and thumbnails. **SentinelCore** gets an "In plain terms" first level. **Company** gets an engagement model (to be confirmed by the owner). **Font.** Archivo moves to `font-display: optional`; worst CLS on throttled 4G is 0.040, worst LCP 444 ms. **Deferred:** deeper CarePro and BizMtaani workflow cases (both are offline; fresh captures wait for the server); the Samsung device test; Safari and production qualification. |
+
 ## 2026-11-02 — owner review: grids, background photographs, final corrections
 
 | # | Decision | Consequence |
