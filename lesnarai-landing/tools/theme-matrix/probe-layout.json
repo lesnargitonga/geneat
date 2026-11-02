@@ -1,0 +1,306 @@
+{
+ "about": "Written by tools/theme-matrix.mjs. CSS px relative to each grid's top-left fiducial centre; span is the vector to the bottom-right fiducial centre.",
+ "tolerance": {
+  "fill": 2,
+  "ink": 6,
+  "mean": 8
+ },
+ "grids": [
+  {
+   "id": "g1",
+   "fid_tl": "magenta",
+   "fid_br": "cyan",
+   "span": [
+    300,
+    332
+   ],
+   "fid_size": 20,
+   "cells": [
+    {
+     "id": "paper",
+     "method": "fill",
+     "light": "#FFFFFF",
+     "dark": "#000000",
+     "x": 22,
+     "y": 46,
+     "w": 32,
+     "h": 20
+    },
+    {
+     "id": "sheet",
+     "method": "fill",
+     "light": "#FFFFFF",
+     "dark": "#000000",
+     "x": 187,
+     "y": 47,
+     "w": 32,
+     "h": 20
+    },
+    {
+     "id": "ink",
+     "method": "ink",
+     "light": "#000000",
+     "dark": "#FFFFFF",
+     "x": 22,
+     "y": 106,
+     "w": 64,
+     "h": 44
+    },
+    {
+     "id": "ink-2",
+     "method": "ink",
+     "light": "#45474B",
+     "dark": "#B4B6B9",
+     "x": 186,
+     "y": 106,
+     "w": 64,
+     "h": 44
+    },
+    {
+     "id": "ink-3",
+     "method": "ink",
+     "light": "#6A6D72",
+     "dark": "#8F9296",
+     "x": 22,
+     "y": 166,
+     "w": 64,
+     "h": 44
+    },
+    {
+     "id": "signal",
+     "method": "ink",
+     "light": "#D41F1A",
+     "dark": "#FF4A3D",
+     "x": 186,
+     "y": 166,
+     "w": 64,
+     "h": 44
+    },
+    {
+     "id": "link",
+     "method": "ink",
+     "light": "#D41F1A",
+     "dark": "#FF4A3D",
+     "x": 17,
+     "y": 225.5,
+     "w": 54,
+     "h": 37
+    },
+    {
+     "id": "stage",
+     "method": "fill",
+     "light": "#000000",
+     "dark": "#FFFFFF",
+     "x": 176,
+     "y": 226,
+     "w": 44,
+     "h": 44
+    },
+    {
+     "id": "svg-land",
+     "method": "fill",
+     "light": "#DCE5D3",
+     "dark": "#1E2620",
+     "x": 22,
+     "y": 286,
+     "w": 32,
+     "h": 20
+    },
+    {
+     "id": "svg-ink",
+     "method": "fill",
+     "light": "#000000",
+     "dark": "#FFFFFF",
+     "x": 186,
+     "y": 286,
+     "w": 32,
+     "h": 20
+    }
+   ]
+  },
+  {
+   "id": "g2",
+   "fid_tl": "cyan",
+   "fid_br": "magenta",
+   "span": [
+    300,
+    332
+   ],
+   "fid_size": 20,
+   "cells": [
+    {
+     "id": "photo-light",
+     "method": "mean",
+     "light": "#E4E3E1",
+     "dark": "#E4E3E1",
+     "x": 22,
+     "y": 46,
+     "w": 64,
+     "h": 44
+    },
+    {
+     "id": "photo-dark",
+     "method": "mean",
+     "light": "#1E2023",
+     "dark": "#1E2023",
+     "x": 186,
+     "y": 46,
+     "w": 64,
+     "h": 44
+    },
+    {
+     "id": "raster-white",
+     "method": "fill",
+     "light": "#FFFFFF",
+     "dark": "#FFFFFF",
+     "x": 22,
+     "y": 106,
+     "w": 32,
+     "h": 20
+    },
+    {
+     "id": "raster-black",
+     "method": "fill",
+     "light": "#000000",
+     "dark": "#000000",
+     "x": 186,
+     "y": 106,
+     "w": 32,
+     "h": 20
+    },
+    {
+     "id": "input",
+     "method": "fill",
+     "light": "#FFFFFF",
+     "dark": "#000000",
+     "x": 22,
+     "y": 166,
+     "w": 32,
+     "h": 20
+    },
+    {
+     "id": "button",
+     "method": "fill",
+     "light": "#000000",
+     "dark": "#FFFFFF",
+     "x": 210,
+     "y": 152,
+     "w": 10,
+     "h": 10
+    },
+    {
+     "id": "button-off",
+     "method": "fill",
+     "light": "#DADBD7",
+     "dark": "#2E3033",
+     "x": 46,
+     "y": 212,
+     "w": 10,
+     "h": 10
+    },
+    {
+     "id": "scrim",
+     "method": "fill",
+     "light": "#808080",
+     "dark": "#000000",
+     "x": 186,
+     "y": 226,
+     "w": 32,
+     "h": 20
+    },
+    {
+     "id": "focus",
+     "method": "fill",
+     "light": "#D41F1A",
+     "dark": "#FF4A3D",
+     "x": 22,
+     "y": 270.5,
+     "w": 32,
+     "h": 3
+    },
+    {
+     "id": "film",
+     "method": "fill",
+     "light": "#000000",
+     "dark": "#000000",
+     "x": 186,
+     "y": 286,
+     "w": 32,
+     "h": 20
+    }
+   ]
+  },
+  {
+   "id": "g3",
+   "fid_tl": "green",
+   "fid_br": "cyan",
+   "span": [
+    300,
+    212
+   ],
+   "fid_size": 20,
+   "cells": [
+    {
+     "id": "cand-raster",
+     "method": "fill",
+     "light": "#FFFFFF",
+     "dark": "#000000",
+     "x": 22,
+     "y": 46,
+     "w": 32,
+     "h": 20
+    },
+    {
+     "id": "cand-gradient",
+     "method": "fill",
+     "light": "#FFFFFF",
+     "dark": "#000000",
+     "x": 186,
+     "y": 46,
+     "w": 32,
+     "h": 20
+    },
+    {
+     "id": "cand-text",
+     "method": "ink",
+     "light": "#000000",
+     "dark": "#FFFFFF",
+     "x": 22,
+     "y": 106,
+     "w": 64,
+     "h": 44
+    },
+    {
+     "id": "caption",
+     "method": "ink",
+     "light": "#B8B8B8",
+     "dark": "#B8B8B8",
+     "x": 186,
+     "y": 106,
+     "w": 64,
+     "h": 44
+    },
+    {
+     "id": "native-select",
+     "method": "observe",
+     "light": null,
+     "dark": null,
+     "x": 22,
+     "y": 166,
+     "w": 32,
+     "h": 20
+    },
+    {
+     "id": "native-check",
+     "method": "observe",
+     "light": null,
+     "dark": null,
+     "x": 186,
+     "y": 166,
+     "w": 8,
+     "h": 8
+    }
+   ]
+  }
+ ]
+}
