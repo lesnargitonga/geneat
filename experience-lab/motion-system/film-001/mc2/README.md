@@ -39,3 +39,24 @@ spatial system journey → operator replay → spatial collapse → 0321 → 032
 contrast edits, the grade, the assembly and the sound. The operator frames are
 `tools/sample_frames.mjs` on `operator-replay/video/op-sealed-run-through-operator-surface-1920x1080.webm`
 at 99.50–103.75 s (102 frames) and 103.7917–104.4583 s (17 frames).
+
+## Site encode, 1280×720 (2026-11-01)
+
+The site served the 1920×1080 master (WebM 3,966,071 B, MP4 4,282,823 B, audio at 192 kb/s). It
+now serves a 720p cut of the same picture and sound:
+
+```bash
+C=/srv/ai/cache/film001-720; T=experience-lab/motion-system/tools; M=experience-lab/motion-system/film-001/mc2/master
+node $T/sample_frames.mjs $M/sentinel-film-001-mc2.webm $C/src 0.0208333 27.7291667 666 f   # every frame, at its centre
+SIZE=1280x720 MAXRATE=600000 AUDIO=$M/sentinel-film-001-mc2-sound-48k.wav ABITRATE=96000 bash $T/encode_master.sh $C/src $C/film001-720 24 32
+ONLY=mp4 SIZE=1280x720 MAXRATE=800000 AUDIO=$M/sentinel-film-001-mc2-sound-48k.wav ABITRATE=96000 bash $T/encode_master.sh $C/src $C/film001-720 24 27
+```
+
+| File | Size | Decode gate (Chromium and Firefox; reference = master frames, Lanczos to 1280×720) |
+|---|---|---|
+| `sentinel-film-001.webm` | 1,173,085 B | 666/666 frames; 0 doubled, 0 skipped, 0 off timeline; PSNR min 37.8 / median 41.5 dB |
+| `sentinel-film-001.mp4` | 1,389,236 B | 666/666; 0 / 0 / 0; PSNR min 37.0 / median 41.0 dB |
+
+Sound: Opus and AAC at 96 kb/s from the same 48 kHz WAV master (was 192 kb/s). The frames come
+from the lossy master, not the original sequence, so this is a second generation. At this size and
+bitrate the decoded PSNR against the master stays at 37 dB or higher.
