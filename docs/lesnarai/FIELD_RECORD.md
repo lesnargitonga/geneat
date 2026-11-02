@@ -40,6 +40,13 @@ founder-led engineering; one ask. Every section fits one 390×844 and one 360×7
 generated from the same register, so Home and Capabilities can never disagree about a discipline's maturity.
 Records, terrain and contact sheets carry the proof on case pages, Work and Engineering.
 
+## Photographs (D-41)
+Real photographs carry the company: the workstation (Home hero), the founder at work (Home band), the
+founder (Company), and Nairobi (Home's closing ask, Company). Each sits full-bleed with a dark scrim, so
+text keeps contrast in both themes, and each carries a small credit line. Product screens stay
+screens; photographs are never used to suggest a team, an office or hardware we do not have.
+Licences: `experience-lab/source-media/photos/CREDITS.md`.
+
 ## Motion (`field-motion.css`, `field-motion.js`)
 The record is being made in front of the visitor. Each motion belongs to one of the three sources:
 

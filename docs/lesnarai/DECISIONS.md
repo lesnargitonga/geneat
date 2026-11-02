@@ -3,6 +3,12 @@
 Newest first. Each entry says who decided, what, and what it changed. "Owner" is the founder of
 LESNAR AI. Entries marked **superseded** stay in the log so the reasoning is not lost.
 
+## 2026-11-02 — owner review: grids, background photographs, final corrections
+
+| # | Decision | Consequence |
+|---|---|---|
+| D-41 | Remove the grids. Use background photographs, starting with the owner's own photos of himself and the workstation from earlier work. Licensed online photos may fill places that read like a storybook. Make final corrections and send the site for review. | **Grids.** The graph-paper background is removed everywhere. **Owner's photographs.** Three come from the first site (`experience-lab/lesnarai-site-v1/media/`): the workstation is now Home's full-bleed hero background; Lesnar at work is the founder-led band; the portrait sits in Company's new founder section. **Licensed photograph.** One, chosen for context rather than decoration: Nairobi with KICC, photo by Kenny Murgor on Unsplash (Unsplash License, credited on the page), behind Home's closing ask and Company's "Based in Nairobi" band. Generic stock was declined as template filler. **Pipeline.** Sources and licences are in `experience-lab/source-media/photos/CREDITS.md`; `tools/assets/photos.py` writes the sizes with metadata dropped. The placeholders are retired. Personal images found in Downloads (screenshots, chats) were not used. **Copy.** Company is rewritten to the multidisciplinary positioning, with founder-led accountability rather than headcount. Start's "Bring us this" follows the six engineering layers, and "We are not a staffing agency" is gone. |
+
 ## 2026-11-02 — owner review: colour, pictures, the drone film, SentinelCore
 
 | # | Decision | Consequence |
