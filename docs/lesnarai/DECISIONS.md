@@ -3,6 +3,12 @@
 Newest first. Each entry says who decided, what, and what it changed. "Owner" is the founder of
 LESNAR AI. Entries marked **superseded** stay in the log so the reasoning is not lost.
 
+## 2026-11-02 — owner: deploy the new site to production
+
+| # | Decision | Consequence |
+|---|---|---|
+| D-46 | "Deploy new site … now please, I'll review the site when it's live." | **Released 2 Nov 2026, about 19:45 EAT.** Built from `998badc` in a clean worktree linked to `lesnarai-v2`: `vercel deploy --prod` → `lesnarai-v2-6uryajod8-lesnar.vercel.app`, then `vercel alias set … lesnarai.com`. **Verified live.** lesnarai.com and www.lesnarai.co.ke return 200; www.lesnarai.com and lesnarai.co.ke return 308 with the path kept. All 19 sitemap routes on both hosts are byte-identical to the tree, with the `vercel.json` CSP, HSTS, nosniff, DENY, referrer and permissions headers. The legacy paths return 308. Canonicals are lesnarai.com (D-28). No client names, no Simy, no pending markers. `/api/enquiry` returns 405 to GET and 400 to invalid input. **Enquiries are not operational yet:** `lesnarai-v2` has no Resend or Upstash variables, so the endpoint fails closed (503) and the page offers email and WhatsApp with the message kept. **Rollback target:** `lesnarai-v2-lab7a68rq-lesnar.vercel.app` (`vercel rollback` plus `vercel alias set … lesnarai.com`). No DNS, redirect or email change. |
+
 ## 2026-11-02 — owner: final release stage
 
 | # | Decision | Consequence |
