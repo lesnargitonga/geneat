@@ -312,11 +312,11 @@ PAGES["/work/carepro/"] = ("CarePro",
 
 # ── BIZMTAANI ────────────────────────────────────────────────────────────────
 PAGES["/work/bizmtaani/"] = ("BizMtaani",
-  "BizMtaani is a neighbourhood marketplace: shops list what they sell and customers order and pay from a phone. Live, with one merchant trading in Embu.",
+  "BizMtaani is a neighbourhood marketplace: shops list what they sell and customers order and pay from a phone. It reached live release with its founding merchant in Embu.",
   "bizmtaani", "/work/",
   opening("Commerce", "BizMtaani",
     "A neighbourhood marketplace. Shops list what they actually sell, and customers order and pay from a phone.",
-    stage("live", "Live"), ["one merchant trading: The Villager, Embu", "built and operated by LESNAR AI"])
+    stage("live", "Live"), ["founding merchant: The Villager, Embu", "built and operated by LESNAR AI"])
   + sec("order-h", "One order, start to finish", "Live storefront frames, then the merchant's side in the demonstration console, which runs on sample data and says so.",
     '<div class="w" style="padding:0">' + strip([
       frame("bizmtaani", 3, "FIND", "01", "Find", "live storefront · 12 Oct 2026", "BizMtaani storefront"),
@@ -327,10 +327,10 @@ PAGES["/work/bizmtaani/"] = ("BizMtaani",
   + sec("proof-h", "Proven before it carried money", "At the release of 27 October 2026.",
     readings([("2,066", "", "tests passing in 156 files, plus 37 database tests", "Tests", stage("live", "Release")),
               ("5/18", "", "orders accepted when 18 arrived at once for 5 in stock: exactly the stock", "Contention", stage("live", "In testing")),
-              ("1", "", "merchant trading today", "Merchants", stage("live", "Live"))]))
+              ("1", "", "merchant at live release: The Villager", "Merchants", stage("live", "Live"))]))
   + '<section class="w sec" aria-labelledby="pl-h"><h2 class="h2" id="pl-h">Where it runs</h2><div class="gaz">'
     '<div class="gaz__row"><span class="place">Embu</span><span class="data">0°32′S 37°27′E</span><span class="gaz__sys"><b>The Villager</b>: bar and kitchen, the founding merchant.</span>'
-    + stage("live", "Trading") + "</div></div></section>"
+    + stage("live", "Founding merchant") + "</div></div></section>"
   + limits(["Riders: delivery riders are simulated.", "An enterprise offering: not built.",
             "Merchant-side screens with real data: those frames come from the demonstration console."])
   + nxt("Selling or ordering through phones in Kenya?"))
@@ -556,7 +556,8 @@ def proof_html(pr):
         return f'<li><a href="{pr["href"]}">{pr["name"]}</a>{stage_chip}</li>'
     if pr.get("client") is None:
         return f'<li><span>{pr["name"]}</span>{stage_chip}</li>'
-    who = "Client work" if pr["client"] == "named" else "Client, unnamed"
+    who = ('Client work</span><span class="pending" data-pending="publicity">Publicity approval pending'
+           if pr["client"] == "named" else "Client, unnamed")
     return f'<li class="cp-proof--client"><span>{pr["name"]}</span><span class="cp-proof__who">{who}</span>{stage_chip}</li>'
 
 def discipline_html(d):
@@ -636,17 +637,17 @@ PAGES["/company/"] = ("Company",
   <div class="co-fdr__copy"><h2 class="h2" id="fdr-h">Founder-led</h2>
     <p class="lede">Lesnar Gitonga founded LESNAR AI and leads its engineering: accountable for the design, security and operation of every system
       the company takes on, and for the evidence behind every claim on this site.</p>
-    <p class="body">Work is scoped before it is priced, built with its tests and gates, and run after launch. Where a project needs more than we
+    <p class="body">Work is scoped before it is priced, built with its tests and gates, and supported after launch on terms agreed with you. Where a project needs more than we
       can responsibly carry, we say so and bring in partners.</p></div>
 </section>
 <section class="w sec" aria-labelledby="eng-h" data-reveal><div class="sec-head"><h2 class="h2" id="eng-h">How an engagement works</h2>
-  <p class="lede">One accountable lead, a written scope, and a system that keeps running after launch.</p></div>
+  <p class="lede">One accountable lead, a written scope with acceptance criteria, a proper handover, and support on terms you agree.</p></div>
   <ol class="steps">
     <li><div><b>Scope before price</b><span>We start with the problem, the failure that would matter most, and how you would know it worked. The price follows the scope; there is no rate card.</span></div></li>
     <li><div><b>Written acceptance</b><span>Scope, acceptance criteria and who is responsible for what are written down before work starts.</span></div></li>
     <li><div><b>Built with its evidence</b><span>Working software early, with its tests, release gates and security checks built alongside it.</span></div></li>
     <li><div><b>Secure deployment and handover</b><span>Deployed with access control and secrets kept out of code, and handed over with its documentation.</span></div></li>
-    <li><div><b>Run after launch</b><span>Monitoring, maintenance and fixes continue under a support arrangement agreed with you.</span></div></li>
+    <li><div><b>Agreed support</b><span>Monitoring, maintenance and fixes after launch, where a support arrangement is agreed with you.</span></div></li>
     <li><div><b>Specialists when needed</b><span>Where a project needs capacity or expertise beyond our own, we say so at scoping and bring in partners.</span></div></li>
   </ol>
 </section>
@@ -655,14 +656,14 @@ PAGES["/company/"] = ("Company",
   <div class="w co-city__inner"><h2 class="statement co-city__h" id="city-h">Based in Nairobi</h2></div>
 </section>'''
   + f"""<section class="w sec" aria-labelledby="where-h"><div class="two">
-  <div><h2 class="h2" id="where-h">Where we<br><em>work</em></h2><p class="body">The places our systems run, are being prepared, or are modelled. Simulation work has no place on a map.</p></div>
+  <div><h2 class="h2" id="where-h">Where we<br><em>work</em></h2><p class="body">The places our systems have run, are being prepared, or are modelled. Simulation work has no place on a map.</p></div>
   <div class="map sheet" style="padding:10px">
 <!-- gen:kenya-map -->
 <!-- /gen:kenya-map -->
   </div></div></section>"""
-  + sec("st-h", "How we describe our work", "Stage is how far a system has got, not how good it is. Every page on this site uses the same six.",
+  + sec("st-h", "How we describe our work", "Stage is how far a system has got, not how good it is. Every page on this site uses the same six. Whether a system can be reached today is a separate fact: where one was offline when we last checked, its page says so.",
     '<div class="gaz">' + "".join(f'<div class="gaz__row"><span class="place">{p}</span><span class="data">{d}</span><span class="gaz__sys">{s}</span>{stage(k, p)}</div>' for p, d, s, k in [
-      ("Live", "in use", "People use it now.", "live"), ("Pilot", "in trial", "Running with real users under agreed limits.", "pilot"),
+      ("Live", "public", "Released to real users, beyond a trial.", "live"), ("Pilot", "in trial", "Run with real users under agreed limits.", "pilot"),
       ("Prototype", "it works", "It runs; nobody depends on it yet.", "prototype"), ("Internal", "our own", "We run it on ourselves.", "internal"),
       ("Research", "nothing operated", "Investigation and evaluation only.", "research"), ("Simulation", "not the field", "Proven in a simulated world.", "sim")]) + "</div>")
   + sec("who-h", "Reach us", "",
@@ -696,7 +697,7 @@ PAGES["/start/"] = ("Start",
   + steps([("How many kinds of user", "A customer, a merchant and an administrator are three experiences sharing a database."), ("Whether money moves", "Payments and refunds change the architecture more than any feature list."),
            ("What it has to talk to", "Existing systems, provider APIs, WhatsApp, hardware. Each integration is real work."), ("Offline and mobile", "Working without a connection is a different system.")]) + "</section>"
   + '<section class="w sec" id="engagements" aria-labelledby="after-h"><div class="sec-head"><h2 class="h2" id="after-h">After you send</h2><span></span></div>'
-  + steps([("You send it", "A paragraph about the problem is enough."), ("We reply", "Within two working days, usually with a question or two first."),
+  + steps([("You send it", "A paragraph about the problem is enough."), ("We reply", "Usually with a question or two first."),
            ("We agree a time", "Nothing is booked until a person has agreed it with you."), ("A written scope", "What has to exist and what it must never get wrong, then a price.")]) + "</section>",
   )
 

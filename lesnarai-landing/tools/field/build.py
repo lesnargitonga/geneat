@@ -126,16 +126,19 @@ def mm_nairobi():
 AVAIL = json.loads((SITE / "tools/field/availability.json").read_text())
 
 def fill_avail(html):
-    """<span class="avail" data-avail="KEY">…</span>: today's reachability, from check_availability.py."""
+    """<span class="avail" data-avail="KEY">…</span>: an outage note from check_availability.py. A system that
+    answered is not annotated; one that did not says so, beside the claims that would otherwise imply it runs."""
+    noted = set()          # once per page, at the first mention: a note, not an outage board
     def one(m):
         key = m.group(1)
         sysd = AVAIL["systems"].get(key)
         if sysd is None:
             sys.exit(f"no availability record for {key}; add it to check_availability.py")
-        up = sysd["up"]
-        text = f'{"Online" if up else "Offline"} when checked {AVAIL["date"]}'
-        return f'<span class="avail avail--{"up" if up else "down"}" data-avail="{key}">{text}</span>'
-    return re.sub(r'<span class="avail[^"]*" data-avail="([a-z]+)">[^<]*</span>', one, html)
+        if sysd["up"] or key in noted:     # say nothing when it answers: maturity speaks for itself
+            return f'<span class="avail" data-avail="{key}" hidden></span>'
+        noted.add(key)
+        return f'<span class="avail avail--down" data-avail="{key}">Offline when last checked, {AVAIL["date"]}</span>'
+    return re.sub(r'<span class="avail[^"]*" data-avail="([a-z]+)"(?: hidden)?>[^<]*</span>', one, html)
 
 MARKS_MAP = [  # key, label, sub, dx, dy, anchor
     ("embu", "EMBU", "BizMtaani · live", 120, -60, "start"),
@@ -171,9 +174,17 @@ FILL = {
     "kenya-map": kenya_map,
 }
 
+def fill_counts(html):
+    """<!-- gen:count -->N<!-- /gen:count --> in a Work stage group: the rows that group really holds."""
+    def group(m):
+        body = m.group(0)
+        n = len(re.findall(r'class="gaz__row"', body))
+        return re.sub(r'<!-- gen:count -->\d+<!-- /gen:count -->', f'<!-- gen:count -->{n}<!-- /gen:count -->', body, count=1)
+    return re.sub(r'<div class="stage-group">.*?(?=<div class="stage-group">|</section>)', group, html, flags=re.S)
+
 def fill(path: Path) -> bool:
     html = path.read_text()
-    new = fill_avail(html)
+    new = fill_counts(fill_avail(html))
     for name, make in FILL.items():
         pat = re.compile(rf"(<!-- gen:{name} -->)(.*?)(<!-- /gen:{name} -->)", re.S)
         if pat.search(new):

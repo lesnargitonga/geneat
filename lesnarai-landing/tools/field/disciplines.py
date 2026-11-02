@@ -27,7 +27,7 @@ def C(text, stage, avail=None):     # client work, described without the client'
 def S(text, stage):                 # a statement about our own operations, not tied to one project
     return {"name": text, "href": None, "stage": stage, "avail": None, "client": None}
 
-def N(text, stage, avail=None):     # client work the owner has cleared for naming (D-43), no page yet
+def N(text, stage, avail=None):     # named client work (D-43), no page yet; shown as pending publicity approval (D-44)
     return {"name": text, "href": None, "stage": stage, "avail": avail, "client": "named"}
 
 LAYERS = [
@@ -123,7 +123,7 @@ LAYERS = [
      {"id": "infra", "short": "Infrastructure and databases", "name": "Infrastructure, databases and reliability", "mark": "use",
       "what": "PostgreSQL and PostGIS data models, migrations that check themselves, Linux server hardening, "
               "cloud and VPS deployment, CI and the release gates that keep running systems up.",
-      "proof": [S("The live and pilot systems on this page run on infrastructure we deploy and operate", "Live"),
+      "proof": [S("We deployed the live and pilot systems on this page, on servers we set up and administer", "Live and pilot"),
                 P("Checksum-guarded migrations in SentinelCore", "/work/sentinelcore/", "Internal")],
       "limit": None},
      {"id": "geo", "short": "Geospatial and logistics", "name": "Geospatial and logistics", "mark": "demo",
