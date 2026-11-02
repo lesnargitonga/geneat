@@ -12,7 +12,7 @@
         {"id": "ink-2", "label": "Muted text", "method": "ink", "light": "#45474B", "dark": "#B4B6B9"},
         {"id": "ink-3", "label": "Meta text", "method": "ink", "light": "#6A6D72", "dark": "#8F9296"},
         {"id": "signal", "label": "Signal text", "method": "ink", "light": "#D41F1A", "dark": "#FF4A3D"},
-        {"id": "link", "label": "Link", "method": "ink", "light": "#D41F1A", "dark": "#FF4A3D"},
+        {"id": "link", "label": "Link", "method": "ink", "light": "#000000", "dark": "#FFFFFF"},
         {"id": "stage", "label": "Stage icon", "method": "fill", "light": "#000000", "dark": "#FFFFFF"},
         {"id": "svg-land", "label": "SVG map land", "method": "fill", "light": "#DCE5D3", "dark": "#1E2620"},
         {"id": "svg-ink", "label": "SVG figure", "method": "fill", "light": "#000000", "dark": "#FFFFFF"}

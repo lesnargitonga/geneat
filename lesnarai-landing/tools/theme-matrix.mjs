@@ -108,11 +108,13 @@ const PROBE_REGIONS = () => [...document.querySelectorAll('[data-cell]')].map(el
   return { id: el.dataset.cell, method: el.dataset.method, light: el.dataset.light, dark: el.dataset.dark,
            x: r.x + scrollX, y: r.y + scrollY, w: r.width, h: r.height };
 });
-/* Real pages: blank paper in the gutter, the h1's glyphs, and the page's own
-   surfaces where present. The Start button is enabled by script, so its state is read. */
+/* Real pages: blank paper in the gutter, the first heading's glyphs, and the page's own
+   surfaces where present. Headings on photo bands (class "…--photo", e.g. Home's hero) sit on
+   a photograph, not on paper, so the first heading outside them is used. The Start button is
+   enabled by script, so its state is read. */
 const PAGE_REGIONS = () => {
   const out = [], box = (el, f) => { if (!el) return; const r = el.getBoundingClientRect(); out.push(f(r.x + scrollX, r.y + scrollY, r.width, r.height)); };
-  const h1 = document.querySelector('main h1');
+  const h1 = [...document.querySelectorAll('main h1, main h2')].find((h) => !h.closest('[class*="--photo"]'));
   /* the page gutter (18 px at 390) beside the h1: never covered by content */
   box(h1, (x, y, w, h) => ({ id: 'paper', method: 'fill', x: 2, y: y + h / 2 - 10, w: 12, h: 20 }));
   box(h1, (x, y, w, h) => ({ id: 'ink', method: 'ink', x, y, w, h }));

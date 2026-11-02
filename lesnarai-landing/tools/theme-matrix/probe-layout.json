@@ -79,8 +79,8 @@
     {
      "id": "link",
      "method": "ink",
-     "light": "#D41F1A",
-     "dark": "#FF4A3D",
+     "light": "#000000",
+     "dark": "#FFFFFF",
      "x": 17,
      "y": 225.5,
      "w": 54,
@@ -141,8 +141,8 @@
     {
      "id": "photo-dark",
      "method": "mean",
-     "light": "#1B1E20",
-     "dark": "#1B1E20",
+     "light": "#1A1B1D",
+     "dark": "#1A1B1D",
      "x": 186,
      "y": 46,
      "w": 64,
