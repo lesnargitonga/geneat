@@ -3,6 +3,12 @@
 Newest first. Each entry says who decided, what, and what it changed. "Owner" is the founder of
 LESNAR AI. Entries marked **superseded** stay in the log so the reasoning is not lost.
 
+## 2026-11-02 — owner: final release stage
+
+| # | Decision | Consequence |
+|---|---|---|
+| D-45 | Final release stage, no new scope. Anonymise the client systems that lack documented publicity approval, and keep their full material privately. Complete the Preview configuration for Resend and Upstash; an enquiry counts as delivered only when inbox receipt is confirmed. Refresh availability immediately before deployment. Keep the pure light and dark themes, and prepare the Samsung Internet device test. No production deployment or domain migration without authorisation. | **Clients.** The two client systems named under D-43 appear on Capabilities and Work as "a security company's" and "an optician's" systems, labelled "Client, unnamed" or "Client work, shown without the client's name". Their availability key is now `security`. The named material and its restore steps are held outside every repository, in the owner's private client-cases folder. The `N()` helper and the pending marker are removed; `release-check.mjs` still refuses any `data-pending` marker. The names remain in this log (D-43, D-44) and in git history; neither is deployed. **Upstash** is connected through the Vercel integration (`KV_REST_API_URL`, `KV_REST_API_TOKEN`; Preview and Production on `lesnarai-landing`). **Availability** re-checked 2 Nov, 19:19 EAT. |
+
 ## 2026-11-02 — owner: release corrections, no new scope
 
 | # | Decision | Consequence |
