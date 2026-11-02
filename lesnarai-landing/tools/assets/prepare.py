@@ -16,15 +16,21 @@ OUT = SITE / "assets" / "field"
 TOOLS = Path(__file__).resolve().parent   # build-time data stays out of the deployed site
 MM = Path("/home/lesnar/publish-stage/MediMatch-wt-truth")
 CAP = Path("/home/lesnar/Productions/LESNAR-Episode-001/07-assets/captures")
-SRC_MM = Path("/home/lesnar/Documents/ai model/experience-lab/source-media/medimatch")
+SRC_MM = SITE.parent / "experience-lab/source-media/medimatch"
 TVE = Path("/home/lesnar/Documents/LesnarTV-private-evidence")
 
 # name: (source, width, crop(im)->box or None, provenance)
 FRAMES = {
     "sentinel":   (SITE / "media/sentinel-film-poster.jpg", 1200, None,
                    "Film 001 MC2 frame: a reconstruction of PX4's x500 in a sealed SITL run's world. Not flight evidence."),
-    "medimatch":  (SRC_MM / "mm-route-1440@3x.png", 1400, None,
-                   "MediMatch running locally, national view, Nairobi to Mandera transfer. Synthetic inventory."),
+    "mm-globe":   (SRC_MM / "roads-2026-11-01/mm-globe-flick.jpg", 1400, None,
+                   "MediMatch intro, frame-exact capture 2026-11-01: the product's own hand flicks the globe."),
+    "mm-kenya":   (SRC_MM / "roads-2026-11-01/mm-kenya-tap.jpg", 1400, None,
+                   "MediMatch intro, same capture: the globe settles on Kenya and the tap lands."),
+    "mm-roads":   (SRC_MM / "roads-2026-11-01/mm-roads-national.jpg", 1400, None,
+                   "MediMatch national command view, same capture: transfers on stored road routes. Synthetic inventory."),
+    "mm-nairobi": (SRC_MM / "roads-2026-11-01/mm-roads-nairobi.jpg", 1400, None,
+                   "MediMatch Nairobi County close-up, same capture, cropped above the panel's survey strip."),
     "zygos":      (CAP / "zygos-demo/01-home.png", 600, lambda im: (0, 0, im.width, int(im.width * 1.9)),
                    "Zygos demonstration build, 390 px at 3x, Oct 2026. Records are fictional; the app says so."),
     "bizmtaani":  (CAP / "bizmtaani/01-home.png", 600, lambda im: (0, 0, im.width, int(im.width * 1.9)),
@@ -36,10 +42,6 @@ FRAMES = {
     "lesnarplay": (TVE / "tcl-20261028/tcl-play-0.4.0-coop-wave1.png", 1400, None,
                    "LESNAR PLAY 0.4.0 on the real TCL television, co-op wave 1, adb capture, 28 Oct 2026."),
     # ── case-page frames (Phase 2) ──
-    "medimatch-detect": (SRC_MM / "mm-detect-1440@3x.png", 1400, None, "MediMatch detect stage, national view, running locally. Synthetic inventory."),
-    "medimatch-rank":   (SRC_MM / "mm-rank-1440@3x.png", 1400, None, "MediMatch rank stage, running locally. Synthetic inventory."),
-    "medimatch-impact": (SRC_MM / "mm-impact-1440@3x.png", 1400, None, "MediMatch impact stage, running locally. Synthetic inventory."),
-    "medimatch-phone":  (SRC_MM / "mm-route-390@3x.png", 600, lambda im: (0, 0, im.width, int(im.width * 2.0)), "MediMatch route view at 390 px, running locally. Synthetic inventory."),
     "zygos-search":     (CAP / "zygos-demo/02-search-q-NovaCart.png", 600, lambda im: (0, 0, im.width, int(im.width * 1.9)), "Zygos search for a fictional business, demonstration build, Oct 2026."),
     "zygos-claim":      (CAP / "zygos-demo-2/01-claims-ZC-2026-01000.png", 600, lambda im: (0, 0, im.width, int(im.width * 1.9)), "Zygos claim record, demonstration build, fictional records."),
     "zygos-compare":    (CAP / "zygos-demo-2/02-compare-a-novacart-b-novacart-deals-ke.png", 600, lambda im: (0, 0, im.width, int(im.width * 1.9)), "Zygos comparing two fictional businesses, demonstration build."),
@@ -57,6 +59,13 @@ FRAMES = {
     "play-lobby":       (Path("/home/lesnar/Documents/Lesnar Play/artifacts/v2/tv-crew-joined.png"), 1280, None, "LESNAR PLAY lobby with players joined, desktop-browser capture."),
 }
 
+def shown(src):
+    """Repo-relative for sources inside this repository, home-relative otherwise."""
+    try:
+        return str(Path(src).relative_to(SITE.parent))
+    except ValueError:
+        return str(src).replace(str(Path.home()), "~")
+
 def frames(manifest):
     for name, (src, width, crop, prov) in FRAMES.items():
         im = Image.open(src).convert("RGB")
@@ -65,7 +74,7 @@ def frames(manifest):
         im = im.resize((width, round(im.height * width / im.width)), Image.LANCZOS)
         im.save(OUT / f"{name}.webp", quality=80, method=6)
         im.save(OUT / f"{name}.jpg", quality=80, optimize=True, progressive=True)
-        manifest[name] = {"w": im.width, "h": im.height, "source": str(src).replace(str(Path.home()), "~"), "provenance": prov}
+        manifest[name] = {"w": im.width, "h": im.height, "source": shown(src), "provenance": prov}
 
 def kenya(manifest):
     ts = (MM / "client/src/data/kenya.ts").read_text()
@@ -85,10 +94,30 @@ def kenya(manifest):
     manifest["kenya"] = {"source": "MediMatch kenya.ts (Natural Earth 50m, public domain) + road-routes.json (OSRM on OpenStreetMap, ODbL)",
                          "routes": len(roads)}
 
+# The scroll reel: two rows of real frames, small enough to move cheaply. Gen-Eat is left out
+# because its portal capture contains a stock photograph.
+REEL = [["mm-globe", "biz-villager", "lesnarplay", "zygos", "mm-roads", "carepro", "tv-ink"],
+        ["jamii-projects", "sentinel", "biz-floor", "play-lobby", "zygos-compare", "mm-nairobi", "tv-spaces"]]
+REEL_H = 360
+
+def reel(manifest):
+    (OUT / "reel").mkdir(exist_ok=True)
+    rows = []
+    for row in REEL:
+        out = []
+        for name in row:
+            im = Image.open(OUT / f"{name}.webp").convert("RGB")
+            im = im.resize((round(im.width * REEL_H / im.height), REEL_H), Image.LANCZOS)
+            im.save(OUT / "reel" / f"{name}.webp", quality=72, method=6)
+            out.append({"name": name, "w": im.width, "h": im.height})
+        rows.append(out)
+    manifest["reel"] = rows
+
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
     manifest = {}
-    frames(manifest); kenya(manifest)
+    frames(manifest); kenya(manifest); reel(manifest)
     (TOOLS / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n")
     for k, v in manifest.items():
-        print(k, v.get("w", ""), v.get("h", ""))
+        if isinstance(v, dict):
+            print(k, v.get("w", ""), v.get("h", ""))

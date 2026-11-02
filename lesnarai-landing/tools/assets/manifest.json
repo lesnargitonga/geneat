@@ -2,14 +2,32 @@
  "sentinel": {
   "w": 1200,
   "h": 675,
-  "source": "~/Documents/ai-model-worktrees/portfolio/lesnarai-landing/media/sentinel-film-poster.jpg",
+  "source": "lesnarai-landing/media/sentinel-film-poster.jpg",
   "provenance": "Film 001 MC2 frame: a reconstruction of PX4's x500 in a sealed SITL run's world. Not flight evidence."
  },
- "medimatch": {
+ "mm-globe": {
   "w": 1400,
-  "h": 875,
-  "source": "~/Documents/ai model/experience-lab/source-media/medimatch/mm-route-1440@3x.png",
-  "provenance": "MediMatch running locally, national view, Nairobi to Mandera transfer. Synthetic inventory."
+  "h": 788,
+  "source": "experience-lab/source-media/medimatch/roads-2026-11-01/mm-globe-flick.jpg",
+  "provenance": "MediMatch intro, frame-exact capture 2026-11-01: the product's own hand flicks the globe."
+ },
+ "mm-kenya": {
+  "w": 1400,
+  "h": 788,
+  "source": "experience-lab/source-media/medimatch/roads-2026-11-01/mm-kenya-tap.jpg",
+  "provenance": "MediMatch intro, same capture: the globe settles on Kenya and the tap lands."
+ },
+ "mm-roads": {
+  "w": 1400,
+  "h": 788,
+  "source": "experience-lab/source-media/medimatch/roads-2026-11-01/mm-roads-national.jpg",
+  "provenance": "MediMatch national command view, same capture: transfers on stored road routes. Synthetic inventory."
+ },
+ "mm-nairobi": {
+  "w": 1400,
+  "h": 787,
+  "source": "experience-lab/source-media/medimatch/roads-2026-11-01/mm-roads-nairobi.jpg",
+  "provenance": "MediMatch Nairobi County close-up, same capture, cropped above the panel's survey strip."
  },
  "zygos": {
   "w": 600,
@@ -40,30 +58,6 @@
   "h": 788,
   "source": "~/Documents/LesnarTV-private-evidence/tcl-20261028/tcl-play-0.4.0-coop-wave1.png",
   "provenance": "LESNAR PLAY 0.4.0 on the real TCL television, co-op wave 1, adb capture, 28 Oct 2026."
- },
- "medimatch-detect": {
-  "w": 1400,
-  "h": 875,
-  "source": "~/Documents/ai model/experience-lab/source-media/medimatch/mm-detect-1440@3x.png",
-  "provenance": "MediMatch detect stage, national view, running locally. Synthetic inventory."
- },
- "medimatch-rank": {
-  "w": 1400,
-  "h": 875,
-  "source": "~/Documents/ai model/experience-lab/source-media/medimatch/mm-rank-1440@3x.png",
-  "provenance": "MediMatch rank stage, running locally. Synthetic inventory."
- },
- "medimatch-impact": {
-  "w": 1400,
-  "h": 875,
-  "source": "~/Documents/ai model/experience-lab/source-media/medimatch/mm-impact-1440@3x.png",
-  "provenance": "MediMatch impact stage, running locally. Synthetic inventory."
- },
- "medimatch-phone": {
-  "w": 600,
-  "h": 1200,
-  "source": "~/Documents/ai model/experience-lab/source-media/medimatch/mm-route-390@3x.png",
-  "provenance": "MediMatch route view at 390 px, running locally. Synthetic inventory."
  },
  "zygos-search": {
   "w": 600,
@@ -158,5 +152,81 @@
  "kenya": {
   "source": "MediMatch kenya.ts (Natural Earth 50m, public domain) + road-routes.json (OSRM on OpenStreetMap, ODbL)",
   "routes": 54
- }
+ },
+ "reel": [
+  [
+   {
+    "name": "mm-globe",
+    "w": 640,
+    "h": 360
+   },
+   {
+    "name": "biz-villager",
+    "w": 189,
+    "h": 360
+   },
+   {
+    "name": "lesnarplay",
+    "w": 640,
+    "h": 360
+   },
+   {
+    "name": "zygos",
+    "w": 189,
+    "h": 360
+   },
+   {
+    "name": "mm-roads",
+    "w": 640,
+    "h": 360
+   },
+   {
+    "name": "carepro",
+    "w": 189,
+    "h": 360
+   },
+   {
+    "name": "tv-ink",
+    "w": 915,
+    "h": 360
+   }
+  ],
+  [
+   {
+    "name": "jamii-projects",
+    "w": 189,
+    "h": 360
+   },
+   {
+    "name": "sentinel",
+    "w": 640,
+    "h": 360
+   },
+   {
+    "name": "biz-floor",
+    "w": 189,
+    "h": 360
+   },
+   {
+    "name": "play-lobby",
+    "w": 640,
+    "h": 360
+   },
+   {
+    "name": "zygos-compare",
+    "w": 189,
+    "h": 360
+   },
+   {
+    "name": "mm-nairobi",
+    "w": 640,
+    "h": 360
+   },
+   {
+    "name": "tv-spaces",
+    "w": 915,
+    "h": 360
+   }
+  ]
+ ]
 }

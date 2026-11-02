@@ -1,0 +1,514 @@
+{
+ "meta": {
+  "exported": "2026-11-01",
+  "source": "http://localhost:4000/api/redistribution/plan?roads=1",
+  "data": "MediMatch mock database: synthetic inventory, public facility locations",
+  "routes": {
+   "description": "Road geometry for every transfer in the MediMatch demonstration plan.",
+   "router": "self-hosted OSRM (local), car profile",
+   "osm_extract": "Geofabrik africa/kenya-latest.osm.pbf (downloaded 2026-11-01)",
+   "osm_extract_md5": "e0407a073682244871fbb512c51f0827",
+   "simplification": "Ramer-Douglas-Peucker, 0.00014 degrees (about 15 m)",
+   "licence": "ODbL 1.0 \u2014 derivative of OpenStreetMap data",
+   "attribution": "\u00a9 OpenStreetMap contributors",
+   "generated": "2026-11-01"
+  }
+ },
+ "transfers": [
+  {
+   "id": 1,
+   "from": "Nairobi",
+   "to": "Mandera",
+   "item": "Insulin",
+   "km": 1141,
+   "min": 1072,
+   "route": "-1.26250,36.81720>3.93660,41.86700"
+  },
+  {
+   "id": 9,
+   "from": "Nairobi",
+   "to": "Wajir",
+   "item": "Oxygen concentrators",
+   "km": 678,
+   "min": 609,
+   "route": "-1.26250,36.81720>1.74710,40.05730"
+  },
+  {
+   "id": 49,
+   "from": "Nairobi",
+   "to": "Kilifi",
+   "item": "Surgical masks",
+   "km": 568,
+   "min": 469,
+   "route": "-1.26100,36.81200>-3.21750,40.11910"
+  },
+  {
+   "id": 15,
+   "from": "Nairobi",
+   "to": "Marsabit",
+   "item": "Portable ventilator",
+   "km": 522,
+   "min": 393,
+   "route": "-1.30130,36.80640>2.33440,37.98990"
+  },
+  {
+   "id": 26,
+   "from": "Nyeri",
+   "to": "Garissa",
+   "item": "IV fluids",
+   "km": 404,
+   "min": 312,
+   "route": "-0.41970,36.94890>-0.45690,39.65830"
+  },
+  {
+   "id": 3,
+   "from": "Uasin Gishu",
+   "to": "Turkana",
+   "item": "Oxygen concentrators",
+   "km": 370,
+   "min": 265,
+   "route": "0.51430,35.26980>3.11910,35.59730"
+  },
+  {
+   "id": 23,
+   "from": "Uasin Gishu",
+   "to": "Turkana",
+   "item": "Surgical kits",
+   "km": 370,
+   "min": 265,
+   "route": "0.51430,35.26980>3.11910,35.59730"
+  },
+  {
+   "id": 2,
+   "from": "Nairobi",
+   "to": "Garissa",
+   "item": "Blood bags (O-negative)",
+   "km": 368,
+   "min": 265,
+   "route": "-1.26250,36.81720>-0.45690,39.65830"
+  },
+  {
+   "id": 28,
+   "from": "Nakuru",
+   "to": "West Pokot",
+   "item": "Vaccine cold-chain carriers",
+   "km": 264,
+   "min": 222,
+   "route": "-0.29160,36.06640>1.23890,35.11190"
+  },
+  {
+   "id": 20,
+   "from": "Nairobi",
+   "to": "Narok",
+   "item": "Antimalarials",
+   "km": 138,
+   "min": 109,
+   "route": "-1.32700,36.71100>-1.08330,35.86670"
+  },
+  {
+   "id": 31,
+   "from": "Kisumu",
+   "to": "Homa Bay",
+   "item": "Amoxicillin",
+   "km": 107,
+   "min": 81,
+   "route": "-0.09170,34.76800>-0.52730,34.45710"
+  },
+  {
+   "id": 55,
+   "from": "Nairobi",
+   "to": "Machakos",
+   "item": "IV fluids (saline)",
+   "km": 60,
+   "min": 47,
+   "route": "-1.30600,36.83300>-1.51670,37.26340"
+  },
+  {
+   "id": 50,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Amoxicillin",
+   "km": 26,
+   "min": 27,
+   "route": "-1.18100,36.92700>-1.28900,36.85900"
+  },
+  {
+   "id": 48,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Antimalarials",
+   "km": 23,
+   "min": 24,
+   "route": "-1.32700,36.71100>-1.30200,36.86500"
+  },
+  {
+   "id": 54,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Amoxicillin",
+   "km": 23,
+   "min": 24,
+   "route": "-1.18100,36.92700>-1.24800,36.95600"
+  },
+  {
+   "id": 53,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "IV fluids",
+   "km": 22,
+   "min": 25,
+   "route": "-1.30600,36.83300>-1.22000,36.94200"
+  },
+  {
+   "id": 37,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Antimalarials",
+   "km": 20,
+   "min": 20,
+   "route": "-1.30600,36.83300>-1.19600,36.92300"
+  },
+  {
+   "id": 47,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Amoxicillin",
+   "km": 19,
+   "min": 20,
+   "route": "-1.18100,36.92700>-1.24400,36.87700"
+  },
+  {
+   "id": 41,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Insulin",
+   "km": 18,
+   "min": 19,
+   "route": "-1.26100,36.81200>-1.19000,36.91800"
+  },
+  {
+   "id": 51,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Oxygen concentrators",
+   "km": 17,
+   "min": 23,
+   "route": "-1.30130,36.80640>-1.27300,36.90800"
+  },
+  {
+   "id": 22,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Oxygen concentrators",
+   "km": 16,
+   "min": 16,
+   "route": "-1.30600,36.83300>-1.22000,36.89800"
+  },
+  {
+   "id": 46,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Amoxicillin",
+   "km": 16,
+   "min": 24,
+   "route": "-1.26100,36.81200>-1.33400,36.76100"
+  },
+  {
+   "id": 4,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "IV fluids",
+   "km": 14,
+   "min": 17,
+   "route": "-1.30600,36.83300>-1.24800,36.88300"
+  },
+  {
+   "id": 33,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Insulin",
+   "km": 14,
+   "min": 13,
+   "route": "-1.26250,36.81720>-1.23600,36.87200"
+  },
+  {
+   "id": 8,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "IV fluids",
+   "km": 13,
+   "min": 16,
+   "route": "-1.30600,36.83300>-1.25800,36.89700"
+  },
+  {
+   "id": 12,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Insulin",
+   "km": 12,
+   "min": 16,
+   "route": "-1.26250,36.81720>-1.28200,36.89300"
+  },
+  {
+   "id": 21,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Oxygen concentrators",
+   "km": 12,
+   "min": 11,
+   "route": "-1.26250,36.81720>-1.22000,36.89600"
+  },
+  {
+   "id": 25,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Oxygen concentrators",
+   "km": 12,
+   "min": 17,
+   "route": "-1.30600,36.83300>-1.27420,36.91350"
+  },
+  {
+   "id": 35,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Insulin",
+   "km": 12,
+   "min": 20,
+   "route": "-1.30130,36.80640>-1.33700,36.74400"
+  },
+  {
+   "id": 52,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Surgical masks",
+   "km": 12,
+   "min": 13,
+   "route": "-1.26100,36.81200>-1.21700,36.89300"
+  },
+  {
+   "id": 14,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Oxygen concentrators",
+   "km": 11,
+   "min": 12,
+   "route": "-1.26250,36.81720>-1.25700,36.88000"
+  },
+  {
+   "id": 40,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Amoxicillin",
+   "km": 11,
+   "min": 16,
+   "route": "-1.26100,36.81200>-1.29300,36.75300"
+  },
+  {
+   "id": 6,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "IV fluids",
+   "km": 10,
+   "min": 15,
+   "route": "-1.30600,36.83300>-1.31700,36.88700"
+  },
+  {
+   "id": 13,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Amoxicillin",
+   "km": 10,
+   "min": 17,
+   "route": "-1.26100,36.81200>-1.30500,36.85900"
+  },
+  {
+   "id": 17,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Oxygen concentrators",
+   "km": 10,
+   "min": 14,
+   "route": "-1.30600,36.83300>-1.28410,36.89900"
+  },
+  {
+   "id": 36,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Antimalarials",
+   "km": 10,
+   "min": 13,
+   "route": "-1.30600,36.83300>-1.25800,36.86500"
+  },
+  {
+   "id": 10,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Amoxicillin",
+   "km": 9,
+   "min": 10,
+   "route": "-1.26100,36.81200>-1.26600,36.74300"
+  },
+  {
+   "id": 34,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Insulin",
+   "km": 9,
+   "min": 16,
+   "route": "-1.30130,36.80640>-1.30470,36.73610"
+  },
+  {
+   "id": 18,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Oxygen concentrators",
+   "km": 8,
+   "min": 15,
+   "route": "-1.30130,36.80640>-1.28800,36.74700"
+  },
+  {
+   "id": 19,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Blood bags (O-negative)",
+   "km": 8,
+   "min": 13,
+   "route": "-1.26250,36.81720>-1.31700,36.82900"
+  },
+  {
+   "id": 44,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Surgical masks",
+   "km": 8,
+   "min": 12,
+   "route": "-1.26100,36.81200>-1.29700,36.86500"
+  },
+  {
+   "id": 24,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Oxygen concentrators",
+   "km": 7,
+   "min": 11,
+   "route": "-1.30600,36.83300>-1.29200,36.87700"
+  },
+  {
+   "id": 27,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Oxygen concentrators",
+   "km": 7,
+   "min": 12,
+   "route": "-1.30130,36.80640>-1.28060,36.84720"
+  },
+  {
+   "id": 38,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Surgical kits",
+   "km": 7,
+   "min": 11,
+   "route": "-1.30600,36.83300>-1.29400,36.88200"
+  },
+  {
+   "id": 32,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "IV fluids",
+   "km": 6,
+   "min": 7,
+   "route": "-1.29660,36.80760>-1.26800,36.80500"
+  },
+  {
+   "id": 39,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Antimalarials",
+   "km": 6,
+   "min": 10,
+   "route": "-1.30600,36.83300>-1.29200,36.87000"
+  },
+  {
+   "id": 42,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Insulin",
+   "km": 6,
+   "min": 8,
+   "route": "-1.26100,36.81200>-1.27300,36.84800"
+  },
+  {
+   "id": 7,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "IV fluids",
+   "km": 5,
+   "min": 8,
+   "route": "-1.29660,36.80760>-1.31200,36.78200"
+  },
+  {
+   "id": 43,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Oxygen concentrators",
+   "km": 5,
+   "min": 10,
+   "route": "-1.30130,36.80640>-1.31080,36.79570"
+  },
+  {
+   "id": 45,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Surgical kits",
+   "km": 5,
+   "min": 8,
+   "route": "-1.30600,36.83300>-1.30800,36.87300"
+  },
+  {
+   "id": 16,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Oxygen concentrators",
+   "km": 4,
+   "min": 9,
+   "route": "-1.30130,36.80640>-1.31300,36.79200"
+  },
+  {
+   "id": 29,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Insulin",
+   "km": 4,
+   "min": 6,
+   "route": "-1.26250,36.81720>-1.26360,36.83470"
+  },
+  {
+   "id": 30,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "IV fluids",
+   "km": 3,
+   "min": 5,
+   "route": "-1.29660,36.80760>-1.30000,36.78200"
+  },
+  {
+   "id": 5,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Insulin",
+   "km": 2,
+   "min": 4,
+   "route": "-1.26100,36.81200>-1.25560,36.80860"
+  },
+  {
+   "id": 11,
+   "from": "Nairobi",
+   "to": "Nairobi",
+   "item": "Oxygen concentrators",
+   "km": 1,
+   "min": 1,
+   "route": "-1.26250,36.81720>-1.26200,36.81550"
+  }
+ ]
+}
