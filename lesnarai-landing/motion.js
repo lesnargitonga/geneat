@@ -218,10 +218,11 @@
     }
   }());
 
-  /* ── 3 · START · REQUIRED-FIELD VALIDATION ─────────────────────────────
-     The only genuinely required field is the one that lets us reply. The
-     check is real. The outcome is not: there is no server behind this study,
-     so a valid message reports exactly that and never shows a success.     */
+  /* ── 3 · START · ENQUIRY ───────────────────────────────────────────────
+     The form posts to /api/enquiry, which emails LESNAR AI and stores nothing. Without script the
+     browser posts the form and the server answers with a page. With script we validate the one
+     required field, send in place, and say "sent" only when the server says it was delivered.
+     Anything else keeps the message on screen and offers email or WhatsApp with it prefilled. */
 
   (function () {
     var form = document.querySelector(".form");
@@ -230,16 +231,17 @@
     var state = form.querySelector(".form__state");
     var reply = form.querySelector("#f-reply");
     var fld   = reply && reply.closest(".fld");
+    var stamp = form.querySelector('input[name="t"]');
     if (!btn || !state || !reply || !fld) return;
-
-    btn.disabled = false;
-    btn.removeAttribute("aria-disabled");
-    btn.textContent = "Open email";
+    if (stamp) stamp.value = String(Date.now());
     state.setAttribute("aria-live", "polite");
     state.setAttribute("aria-atomic", "true");
 
-    function bad() { return reply.value.trim() === ""; }
-
+    var FIELDS = [["reply", "Reach me at"], ["wrong", "What is going wrong now, and for whom"],
+                  ["fail", "The one failure that would matter most"], ["exists", "What already exists"],
+                  ["known", "How I would know it had worked"]];
+    function get(name) { var el = form.elements[name]; return el ? el.value.trim() : ""; }
+    function bad() { return get("reply") === ""; }
     function clear() {
       if (fld.hasAttribute("data-err") && !bad()) {
         fld.removeAttribute("data-err");
@@ -250,29 +252,25 @@
     }
     reply.addEventListener("input", clear);
 
-    /* Composes the message into the person's own email client. No server, no
-       storage, no tracking — and no control that pretends to do more. */
-    function compose() {
-      var get = function (id) {
-        var el = form.querySelector("#" + id);
-        return el ? el.value.trim() : "";
-      };
-      var parts = [
-        ["Reach me at", get("f-reply")],
-        ["What is going wrong now, and for whom", get("f-wrong")],
-        ["The one failure that would matter most", get("f-fail")],
-        ["What already exists", get("f-exists")],
-        ["How I would know it had worked", get("f-known")]
-      ];
-      var body = parts.filter(function (p) { return p[1]; })
-                      .map(function (p) { return p[0] + ":\n" + p[1]; })
-                      .join("\n\n");
-      return "mailto:hello@lesnarai.co.ke?subject=" +
-             encodeURIComponent("Project enquiry") +
-             "&body=" + encodeURIComponent(body);
+    function body() {
+      return FIELDS.filter(function (f) { return get(f[0]); })
+                   .map(function (f) { return f[1] + ":\n" + get(f[0]); }).join("\n\n");
+    }
+    function fallback() {
+      var mail = "mailto:hello@lesnarai.co.ke?subject=" + encodeURIComponent("Project enquiry") +
+                 "&body=" + encodeURIComponent(body());
+      var wa = "https://wa.me/254715540653?text=" + encodeURIComponent(body());
+      state.innerHTML = "";
+      var p = document.createElement("span");
+      p.textContent = "Your message could not be sent from this page, and it is still here. Send it another way: ";
+      var a1 = document.createElement("a"); a1.href = mail; a1.textContent = "by email";
+      var a2 = document.createElement("a"); a2.href = wa; a2.textContent = "on WhatsApp";
+      state.appendChild(p); state.appendChild(a1); state.appendChild(document.createTextNode(" or ")); state.appendChild(a2);
+      state.appendChild(document.createTextNode("."));
     }
 
-    btn.addEventListener("click", function () {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
       if (bad()) {
         fld.setAttribute("data-err", "");
         reply.setAttribute("aria-invalid", "true");
@@ -281,11 +279,28 @@
         reply.focus();
         return;
       }
-      fld.removeAttribute("data-err");
-      reply.removeAttribute("aria-invalid");
-      state.innerHTML = "<b>Opening your email app.</b> If nothing happens, write to " +
-        "hello@lesnarai.co.ke directly \u2014 it reaches the same place.";
-      window.location.href = compose();
+      var payload = { website: get("website"), t: stamp ? Number(stamp.value) : 0 };
+      FIELDS.forEach(function (f) { payload[f[0]] = get(f[0]); });
+      btn.disabled = true;
+      state.textContent = "Sending\u2026";
+      fetch(form.action, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, j: j }; }); })
+        .then(function (x) {
+          btn.disabled = false;
+          if (x.status === 200 && x.j.ok) {
+            form.reset();
+            if (stamp) stamp.value = String(Date.now());
+            state.textContent = "Sent. Your message reached LESNAR AI, and we will reply to the address you gave.";
+          } else if (x.status === 400 && x.j.detail && /reply/.test(x.j.detail)) {
+            fld.setAttribute("data-err", "");
+            reply.setAttribute("aria-invalid", "true");
+            state.textContent = "Please give an email address or a phone number we can reply to.";
+            reply.focus();
+          } else {
+            fallback();
+          }
+        })
+        .catch(function () { btn.disabled = false; fallback(); });
     });
   }());
 }());

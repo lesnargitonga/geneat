@@ -133,6 +133,31 @@ try {
     check(quiet, 'Work: systems with no page are not rendered as links');
     await ctx.close();
   }
+  /* 6 · Start: the enquiry form validates its one required field, says "sent" only when the
+     endpoint confirms delivery, and keeps the message with email and WhatsApp when it does not.
+     The endpoint is answered in the browser here; api/enquiry.js has its own tests. */
+  {
+    for (const [status, body, expect] of [[200, { ok: true }, 'sent'], [503, { ok: false, error: 'delivery_unavailable' }, 'fallback']]) {
+      const [ctx, p] = await open();
+      let posted = null;
+      await p.route('**/api/enquiry', r => { posted = JSON.parse(r.request().postData() || '{}'); r.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) }); });
+      await p.goto(BASE + '/start/', { waitUntil: 'networkidle' });
+      await p.click('.form__act button');
+      const empty = await p.evaluate(() => ({ err: document.querySelector('#f-reply').getAttribute('aria-invalid'), focus: document.activeElement && document.activeElement.id }));
+      if (status === 200) check(empty.err === 'true' && empty.focus === 'f-reply' && posted === null, 'Start: an empty reply is refused, focused, and nothing is sent');
+      await p.fill('#f-reply', 'client@example.org');
+      await p.fill('#f-wrong', 'Stock counts drift every week.');
+      await p.waitForTimeout(2600);
+      await p.click('.form__act button');
+      await p.waitForFunction(() => !/Sending/.test(document.querySelector('.form__state').textContent));
+      const s = await p.evaluate(() => ({ text: document.querySelector('.form__state').textContent,
+        links: [...document.querySelectorAll('.form__state a')].map(a => a.href), kept: document.querySelector('#f-wrong').value }));
+      if (expect === 'sent') check(/^Sent\./.test(s.text) && posted && posted.reply === 'client@example.org' && posted.website === '', 'Start: a delivered enquiry says sent, and posted the fields with an empty honeypot');
+      else check(!/^Sent/.test(s.text) && s.kept === 'Stock counts drift every week.' && s.links.some(h => h.startsWith('mailto:') && h.includes('Stock%20counts')) && s.links.some(h => h.startsWith('https://wa.me/')),
+        'Start: an undelivered enquiry keeps the message and offers email and WhatsApp with it');
+      await ctx.close();
+    }
+  }
 } finally {
   await browser.close();
 }
