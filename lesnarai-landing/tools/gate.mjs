@@ -3,6 +3,7 @@
      ENGINE=firefox|webkit node tools/gate.mjs
      ROUTES=/,/work/ node tools/gate.mjs    limit the sweep
      PORT=8912 node tools/gate.mjs          a server on another port
+     SIZES=768x1024,1024x768 node tools/gate.mjs   tablets or other viewports
    Serve first: python3 -m http.server 8911 --bind 127.0.0.1  (from this dir)
    Exits non-zero on any failure. */
 import fs from 'node:fs'; import path from 'node:path'; import os from 'node:os';
@@ -168,8 +169,13 @@ async function check(route,w,h,theme){
 
 console.log(`runtime gate · ${ENGINE}${DISK?' (disk)':''} · ${ROUTES.length} route(s)${AXE?' · axe':' · axe UNAVAILABLE'}\n`);
 /* system (the engine's default light scheme), explicit light on a phone, explicit dark.
-   System-dark uses the same tokens as explicit dark; the static gate enforces that. */
-for(const r of ROUTES){ await check(r,1440,900,null); await check(r,390,844,'light'); await check(r,390,844,'dark'); }
+   System-dark uses the same tokens as explicit dark; the static gate enforces that.
+   SIZES=768x1024,1024x768,320x640 sweeps those viewports instead, in the system scheme. */
+const SIZES=process.env.SIZES?process.env.SIZES.split(',').map(s=>s.split('x').map(Number)):null;
+if(SIZES&&SIZES.some(([w,h])=>!(w>0&&h>0))){ console.error('SIZES must look like 768x1024,1024x768'); process.exit(2); }
+for(const r of ROUTES){
+  if(SIZES){ for(const [w,h] of SIZES) await check(r,w,h,null); continue; }
+  await check(r,1440,900,null); await check(r,390,844,'light'); await check(r,390,844,'dark'); }
 await b.close();
 console.log(FAIL?`\n=== ${FAIL} CHECK(S) FAILED on ${ENGINE} ===`:`\n=== RUNTIME GATE PASSES on ${ENGINE} ===`);
 process.exit(FAIL?1:0);
