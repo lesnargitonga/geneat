@@ -3,6 +3,12 @@
 Newest first. Each entry says who decided, what, and what it changed. "Owner" is the founder of
 LESNAR AI. Entries marked **superseded** stay in the log so the reasoning is not lost.
 
+## 2026-11-02 — owner: Red Sky and Olive Optical may be named; no photo credits
+
+| # | Decision | Consequence |
+|---|---|---|
+| D-43 | "Red Sky and Olive are our making too and we can use them." Photo credit lines are not needed. | **Naming.** Red Sky Security (public site and operations portal; staging, in validation; offline on 2 Nov with the shared server) and Olive Optical Supplies (public website, staff operations and owner management; a demonstration on fictional data) are named in the Capabilities register and listed in the Work catalogue. Neither has a case page yet. The non-profit platform and the hospitality pilot stay unnamed (supersedes D-16 for Red Sky and Olive only). **Photographs.** The credit lines are removed from Home and Company; licences stay recorded in `experience-lab/source-media/photos/CREDITS.md`. |
+
 ## 2026-11-02 — external critique (owner-forwarded): P0 facts and enquiries, P1 hierarchy
 
 | # | Decision | Consequence |
