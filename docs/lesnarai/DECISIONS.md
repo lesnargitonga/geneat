@@ -3,6 +3,12 @@
 Newest first. Each entry says who decided, what, and what it changed. "Owner" is the founder of
 LESNAR AI. Entries marked **superseded** stay in the log so the reasoning is not lost.
 
+## 2026-11-02 — owner correction: present the full engineering company
+
+| # | Decision | Consequence |
+|---|---|---|
+| D-39 | The client-plain Home (D-38) undersold LESNAR AI as a small-business web, booking and payments shop. LESNAR AI is a multidisciplinary technology and engineering company serving businesses, organisations and institutions. Home carries positioning and selected proof only; Capabilities explains the disciplines; Work, the project pages, Engineering and Company each keep their role. Separate what is built from what we can engineer, from what is experimental, from what needs partners. No invented headcount, credentials, deployments or capacity; founder-led accountability, without leading on headcount. Placeholder photographs until the owner's arrive. | **Register.** One discipline register, `tools/field/disciplines.py`: 16 disciplines in six layers (Organisations, Products, Intelligence, Security, Infrastructure, Machines and research). Each has a maturity mark (In use, Demonstrated, Experimental), its evidence, and its limits or partner needs. Client systems are described without names. **Home.** It now shows: a company proposition; the six-layer stack, with no project names, so nothing repeats; five selected systems across five disciplines (Operation Sentinel, MediMatch, SentinelCore, LESNAR TV and PLAY, BizMtaani), each once; how we engineer; founder-led engineering; one ask. **Capabilities.** Generated from the same register, and it keeps the unnamed client descriptions. The security company's operations platform counts as enterprise systems, not cybersecurity, so cybersecurity is marked Demonstrated. **Photographs.** Labelled placeholders sit at final sizes in `assets/photos/` (`tools/assets/placeholders.py`); real photographs replace them by overwriting the same files. Every section fits one 390×844 and one 360×780 screen. |
+
 ## 2026-11-02 — owner review of the Phase 2 preview (scored −5/10)
 
 | # | Decision | Consequence |

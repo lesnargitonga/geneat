@@ -32,11 +32,13 @@ Shared pieces: `.statement` (condensed uppercase display), `.h2`, `.lede`, `.bod
    - frames at 390 and 1440 in both themes;
    - the static, claims, runtime (three engines) and behaviour gates pass.
 
-## Home speaks to clients (D-38)
-Home is the one page written for someone who has never heard of us: an organisation that needs software
-built. Plain words, no telemetry, no stage jargon beyond Live / In beta / Prototype, every project at most
-once, every section inside one phone screen (390×844 and 360×780). It uses its own `home.css`. Records,
-terrain and contact sheets carry the proof on case pages, Work and Engineering.
+## Home positions the company (D-39)
+Home introduces LESNAR AI as a multidisciplinary engineering company. It carries positioning and selected proof
+only, in plain words: the proposition; the six-layer stack from `tools/field/disciplines.py` (short names,
+maturity marks, no project names); five selected systems across disciplines, each at most once; how we engineer;
+founder-led engineering; one ask. Every section fits one 390×844 and one 360×780 screen. Capabilities is
+generated from the same register, so Home and Capabilities can never disagree about a discipline's maturity.
+Records, terrain and contact sheets carry the proof on case pages, Work and Engineering.
 
 ## Motion (`field-motion.css`, `field-motion.js`)
 The record is being made in front of the visitor. Each motion belongs to one of the three sources:
