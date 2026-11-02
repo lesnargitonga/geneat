@@ -15,6 +15,7 @@ Markers (<!-- gen:NAME --> ... <!-- /gen:NAME -->), usable on any page:
   kenya-map         Kenya outline, all stored road routes, and the places our systems run
   reel              two rows of real frames that run against each other as the page scrolls
   stack             Home's six-layer engineering stack, from tools/field/disciplines.py
+Also, on every page: <span class="avail" data-avail="KEY"></span> is filled from availability.json.
 Idempotent: re-running on unchanged inputs changes nothing.
 """
 import json, re, sys
@@ -126,6 +127,20 @@ def mm_nairobi():
         "</svg>"])
 
 MANIFEST = json.loads((SITE / "tools/assets/manifest.json").read_text())
+AVAIL = json.loads((SITE / "tools/field/availability.json").read_text())
+
+def fill_avail(html):
+    """<span class="avail" data-avail="KEY">…</span>: today's reachability, from check_availability.py."""
+    def one(m):
+        key = m.group(1)
+        sysd = AVAIL["systems"].get(key)
+        if sysd is None:
+            sys.exit(f"no availability record for {key}; add it to check_availability.py")
+        up = sysd["up"]
+        text = f'{"Online" if up else "Offline"} when checked {AVAIL["date"]}'
+        return f'<span class="avail avail--{"up" if up else "down"}" data-avail="{key}">{text}</span>'
+    return re.sub(r'<span class="avail[^"]*" data-avail="([a-z]+)">[^<]*</span>', one, html)
+
 REEL_LABEL = {"mm": "MediMatch", "biz": "BizMtaani", "lesnarplay": "LESNAR PLAY", "play": "LESNAR PLAY", "zygos": "Zygos",
               "carepro": "CarePro", "tv": "LESNAR TV", "jamii": "Jamii", "sentinel": "Operation Sentinel"}
 
@@ -192,7 +207,7 @@ FILL = {
 
 def fill(path: Path) -> bool:
     html = path.read_text()
-    new = html
+    new = fill_avail(html)
     for name, make in FILL.items():
         pat = re.compile(rf"(<!-- gen:{name} -->)(.*?)(<!-- /gen:{name} -->)", re.S)
         if pat.search(new):

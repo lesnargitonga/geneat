@@ -509,6 +509,28 @@
    "asset_path": "evidence/originals/sentinelcore-apex/purple-team-coverage-baseline.md",
    "freshness_note": "Regenerable with scripts/coverage_baseline.py.",
    "captured_at": "2026-08-06"
+  },
+  {
+   "evidence_id": "EV-MEDIMATCH-ROUTES-01",
+   "system": "MediMatch",
+   "claim_ids": [
+    "C-MM-ROUTES"
+   ],
+   "maturity_at_capture": "Prototype",
+   "evidence_strength": "Measured",
+   "source_type": "stored routing data",
+   "source_location": "MediMatch server/data/road-routes.json (fix/synthetic-survey-truth, fbd6c69) and the plan export lesnarai-landing/tools/assets/medimatch-plan.json",
+   "public_safe": true,
+   "route_or_artifact": "stored road geometry for every transfer",
+   "source_commit": "fbd6c69",
+   "measurement_method": "Routes computed once with a self-hosted OSRM (car profile) on the Geofabrik Kenya extract of 2026-11-01 and stored with the product. The Nairobi to Mandera polyline was re-measured independently (haversine sum over 2,091 points: 1,142.3 km) on 2026-11-02, and the towns within 3 km of it recorded.",
+   "shows": "55 transfers on 54 stored routes; Nairobi to Mandera 1,141 km, 1,072 minutes, via Thika, Isiolo and Marsabit (the router's fastest road, not the shortest).",
+   "does_not_show": "Real transport times or costs. Inventory and transfers are synthetic.",
+   "privacy_notes": "Counties only; no facility needs are attributed to real hospitals on the site.",
+   "limitations": "One router, one extract date, car profile.",
+   "asset_path": null,
+   "freshness_note": "Regenerate with export_medimatch_plan.py.",
+   "captured_at": "2026-11-02"
   }
  ]
 }

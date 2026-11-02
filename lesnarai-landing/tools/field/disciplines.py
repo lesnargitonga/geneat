@@ -21,8 +21,8 @@ MARKS = {
 def P(name, href, stage):           # a proof with its own page
     return {"name": name, "href": href, "stage": stage}
 
-def C(text, stage):                 # client work, described without the client's name
-    return {"name": text, "href": None, "stage": stage}
+def C(text, stage, avail=None):     # client work, described without the client's name
+    return {"name": text, "href": None, "stage": stage, "avail": avail}
 
 LAYERS = [
   {"id": "organisations", "name": "Organisations", "line": "Enterprise systems, ERP and the platforms an institution runs on.",
@@ -34,7 +34,7 @@ LAYERS = [
               "off-the-shelf package bent out of shape.",
       "proof": [C("A security company's operations platform: rostering, an occurrence book whose entries can be corrected "
                   "but not overwritten, an incident workflow and a client portal", "Pilot"),
-                C("A hospitality operations platform, in pilot with real orders and mobile-money payments", "Pilot"),
+                C("A hospitality operations platform, in pilot with real orders and mobile-money payments", "Pilot", "hospitality"),
                 C("An optician's retail and workshop platform: prescription to collection, mobile-money reconciliation "
                   "and a tamper-evident audit trail", "Demonstrated")],
       "limit": "Statutory integrations such as KRA eTIMS are scoped per engagement; we have not shipped one yet."},

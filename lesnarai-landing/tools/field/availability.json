@@ -1,0 +1,30 @@
+{
+ "checked": "2026-11-02 11:26 EAT",
+ "date": "2 Nov 2026",
+ "systems": {
+  "bizmtaani": {
+   "up": false,
+   "result": "URLError"
+  },
+  "carepro": {
+   "up": false,
+   "result": "URLError"
+  },
+  "jamii": {
+   "up": true,
+   "result": 200
+  },
+  "hazina": {
+   "up": true,
+   "result": 200
+  },
+  "geneat": {
+   "up": true,
+   "result": 200
+  },
+  "hospitality": {
+   "up": true,
+   "result": 200
+  }
+ }
+}

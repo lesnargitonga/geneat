@@ -264,3 +264,14 @@ svg.plan,svg.speed,svg.det{display:block;width:100%;height:auto}
 .stk__legend{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px 20px;font-size:13px;color:var(--ink-3)}
 .stk__legend li{display:inline-flex;align-items:baseline}
 .stk__legend b{color:var(--ink);font-weight:600;margin-right:5px}
+.form__hp{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
+.form__state a{color:var(--ink);font-weight:700}
+
+/* Availability: whether a system answered when last checked (tools/field/check_availability.py).
+   It sits beside the stage, which says how far the system got; the two are different facts. */
+.avail{display:inline-flex;align-items:center;gap:6px;font:500 11px var(--mono);letter-spacing:.04em;color:var(--ink-2);white-space:nowrap}
+.avail::before{content:"";width:7px;height:7px;border-radius:50%;box-shadow:inset 0 0 0 1.5px currentColor}
+.avail--up::before{background:currentColor}
+.sel__t .avail{margin-top:4px}
+.cp-proof .avail{margin-left:2px}
+.gaz__sys .avail{display:flex;margin-top:5px}

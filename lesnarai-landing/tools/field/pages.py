@@ -14,6 +14,7 @@ from pathlib import Path
 SITE = Path(__file__).resolve().parents[2]
 HOME = (SITE / "index.html").read_text()
 TRANSFERS = json.loads((SITE / "tools/assets/medimatch-plan.json").read_text())["transfers"]
+LONGEST = TRANSFERS[0]   # sorted longest first by export_medimatch_plan.py
 BOOT = re.search(r'<meta name="color-scheme".*?</script>', HOME, re.S).group(0)
 FOOT = re.search(r'<footer class="fr-foot">.*?</footer>', HOME, re.S).group(0)
 FONTS = '<link rel="preload" href="/assets/fonts/archivo-400-800-latin.woff2" as="font" type="font/woff2" crossorigin>'
@@ -155,8 +156,9 @@ PAGES["/work/medimatch/"] = ("MediMatch",
   <div><h2 class="h2" id="roads-h">Every line<br>is a <em>road</em></h2>
     <p class="body">Transfers move by truck, not by air, so every route is drawn along the road network.
       The routes are computed once, with our own instance of the OSRM routing engine on OpenStreetMap,
-      and stored with the product. Nairobi to Mandera is 1,141 km by road, about 18 hours of driving. The
-      public OSRM demo server is not used.</p>
+      and stored with the product. Nairobi to Mandera is {LONGEST["km"]:,} km on the route the router chose, via
+      {", ".join(LONGEST["via"][:-1])} and {LONGEST["via"][-1]}: about {round(LONGEST["min"] / 60)} hours of driving. The router
+      picks the fastest road, not the shortest. The public OSRM demo server is not used.</p>
     <p class="data">Roads © OpenStreetMap contributors · ODbL · {len(TRANSFERS)} transfers on {len({t["route"] for t in TRANSFERS})} stored routes</p>
     <figure class="mm-nai sheet">
 <!-- gen:medimatch-nairobi -->
@@ -540,8 +542,12 @@ PAGES["/work/sentinelcore/"] = ("SentinelCore",
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from disciplines import LAYERS, MARKS, INDUSTRIES
 
+AVAIL_KEY = {"/work/bizmtaani/": "bizmtaani", "/work/carepro/": "carepro", "/work/jamii-projects-hub/": "jamii",
+             "/work/hazina-nomads/": "hazina", "/work/gen-eat/": "geneat"}
+
 def proof_html(pr):
-    stage_chip = f'<span class="cp-proof__s">{pr["stage"]}</span>'
+    key = AVAIL_KEY.get(pr["href"]) if pr["href"] else pr.get("avail")
+    stage_chip = f'<span class="cp-proof__s">{pr["stage"]}</span>' + (f'<span class="avail" data-avail="{key}"></span>' if key else "")
     if pr["href"]:
         return f'<li><a href="{pr["href"]}">{pr["name"]}</a>{stage_chip}</li>'
     return f'<li class="cp-proof--client"><span>{pr["name"]}</span><span class="cp-proof__who">Client, unnamed</span>{stage_chip}</li>'
@@ -649,7 +655,7 @@ PAGES["/company/"] = ("Company",
 
 # ── START ────────────────────────────────────────────────────────────────────
 START_FORM = (SITE / "start/index.html").read_text()
-form = re.search(r'<form class="form" novalidate>.*?</form>', START_FORM, re.S).group(0)
+form = re.search(r'<form class="form"[^>]*>.*?</form>', START_FORM, re.S).group(0)
 PAGES["/start/"] = ("Start",
   "Start a project with LESNAR AI: what to bring, what makes a first message useful, what changes the price, and what happens after you send it.",
   "sentinel", "/start/",
@@ -665,7 +671,7 @@ PAGES["/start/"] = ("Start",
   + '<div><h3 class="h3">Not this</h3>' + steps([("A rate card before a scope", "We price after we understand the work."), ("A specification to implement blind", "We discuss what it must never get wrong first."),
         ("Flattering evidence", "Our evidence says what is true.")]) + "</div></div></section>"
   + '<section class="w sec" aria-labelledby="msg-h"><div class="two"><div><h2 class="h2" id="msg-h">A useful first message</h2>'
-    '<p class="body">Answer what you can. Only a way to reply is required. The button opens your own email app with the message composed; nothing is stored here.</p></div>'
+    '<p class="body">Answer what you can. Only a way to reply is required. The message comes straight to us; nothing is kept on this site.</p></div>'
     f'<div>{form}<div class="form__alt" id="write-directly"><p>Writing directly is equally valid, and often faster: '
     '<a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a> · WhatsApp +254 715 540 653.</p></div></div></div></section>'
   + '<section class="w sec" id="cost" aria-labelledby="cost-h"><div class="sec-head"><h2 class="h2" id="cost-h">What changes the price</h2>'
@@ -686,6 +692,10 @@ NOT_FOUND = ("Page not found", "This page is not on the LESNAR AI record. See th
 def write():
     for path, spec in PAGES.items():
         title, desc, image, current, body = spec[:5]
+        if path in AVAIL_KEY:   # today's reachability sits beside the stage it reached
+            body, n = re.subn(r'(<div class="facts"><span class="stage[^"]*"><i></i>[^<]*</span>)',
+                              rf'\1<span class="avail" data-avail="{AVAIL_KEY[path]}"></span>', body, count=1)
+            assert n == 1, f"no stage chip in the opening of {path}"
         extra = '\n<script src="/motion.js" defer></script>' if path == "/start/" else ""
         if (SITE / path.strip("/") / "page.css").exists():
             extra += f'\n<link rel="stylesheet" href="{path}page.css">'

@@ -11,7 +11,7 @@ Writes tools/assets/medimatch-plan.json (build-time data; tools/ is never deploy
 Facilities are named only by county. The inventory behind each transfer is synthetic, so the
 site never pairs a real hospital's name with a need it does not have.
 """
-import json, sys, urllib.request
+import json, math, sys, urllib.request
 from datetime import date
 from pathlib import Path
 
@@ -35,6 +35,29 @@ for r in plan["routes"]:
     transfers.append({"id": r["id"], "from": r["from"]["county"], "to": r["to"]["county"],
                       "item": r["item"], "km": r["distance_km"], "min": r["eta_min"], "route": k})
 transfers.sort(key=lambda t: -t["km"])
+
+# Towns a route passes, so copy can name the corridor the router chose (it optimises driving time,
+# not distance). A town counts when the stored geometry comes within 3 km of it.
+TOWNS = {"Thika": (-1.033, 37.069), "Murang'a": (-0.721, 37.153), "Nyeri": (-0.42, 36.947), "Isiolo": (0.354, 37.582),
+         "Marsabit": (2.334, 37.99), "Moyale": (3.527, 39.056), "Garissa": (-0.453, 39.646), "Wajir": (1.747, 40.057),
+         "Machakos": (-1.517, 37.263), "Mtito Andei": (-2.69, 38.167), "Voi": (-3.396, 38.556), "Mombasa": (-4.043, 39.668),
+         "Nakuru": (-0.303, 36.08), "Eldoret": (0.514, 35.27), "Kitale": (1.015, 35.006), "Lodwar": (3.119, 35.597),
+         "Kisumu": (-0.092, 34.768), "Narok": (-1.08, 35.871), "Kericho": (-0.369, 35.283)}
+def hav(a, b):
+    la1, lo1, la2, lo2 = map(math.radians, (a[0], a[1], b[0], b[1]))
+    h = math.sin((la2 - la1) / 2) ** 2 + math.cos(la1) * math.cos(la2) * math.sin((lo2 - lo1) / 2) ** 2
+    return 2 * 6371.0088 * math.asin(math.sqrt(h))
+for t in transfers:
+    if t["from"] == t["to"]:
+        continue
+    coords = stored["routes"][t["route"]]["coords"]
+    passed = []
+    for name, c in TOWNS.items():
+        d = [(hav(c, p), i) for i, p in enumerate(coords)]
+        dist, idx = min(d)
+        if dist <= 3 and name not in (t["from"], t["to"]):
+            passed.append((idx, name))
+    t["via"] = [n for _, n in sorted(passed)]
 
 out = {"meta": {"exported": date.today().isoformat(), "source": f"{base}/api/redistribution/plan?roads=1",
                 "data": "MediMatch mock database: synthetic inventory, public facility locations",

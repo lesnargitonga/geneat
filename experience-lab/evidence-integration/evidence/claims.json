@@ -541,6 +541,20 @@
    "note": "SentinelCore page rewritten from the APEX program record (D-40).",
    "phase9_action": "NO ACTION",
    "public_status": "SUPPORTED"
+  },
+  {
+   "claim_id": "C-MM-ROUTES",
+   "route": "/work/medimatch/",
+   "system": "MediMatch",
+   "claim": "Nairobi to Mandera is 1,141 km on the route the router chose, via Thika, Isiolo and Marsabit; 55 transfers on 54 stored routes.",
+   "evidence_ids": [
+    "EV-MEDIMATCH-ROUTES-01"
+   ],
+   "strongest": "Measured",
+   "status": "SUPPORTED",
+   "note": "Generated from the plan export; the critique's 926 km was not in the stored data (D-42).",
+   "phase9_action": "NO ACTION",
+   "public_status": "SUPPORTED"
   }
  ]
 }
