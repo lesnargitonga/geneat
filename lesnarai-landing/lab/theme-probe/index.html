@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theme probe · LESNAR AI</title>
+<meta name="description" content="A test instrument for LESNAR AI's light and dark themes: fixed colour swatches, measured from screenshots, that show when a browser repaints the page.">
+<link rel="canonical" href="https://lesnarai.com/lab/theme-probe/">
+<meta property="og:url" content="https://lesnarai.com/lab/theme-probe/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LESNAR AI">
+<meta property="og:title" content="Theme probe · LESNAR AI">
+<meta property="og:description" content="A test instrument for LESNAR AI's light and dark themes: fixed colour swatches, measured from screenshots, that show when a browser repaints the page.">
+<meta property="og:image" content="https://lesnarai.com/assets/field/sentinel.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<script>(function(r){r.dataset.js="on";try{var t=localStorage.getItem("lesnarai-theme");if(t!=="light"&&t!=="dark")return;r.setAttribute("data-theme",t);document.querySelector('meta[name="color-scheme"]').content="only "+t;document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.content=t==="dark"?"#000000":"#FFFFFF"})}catch(e){}})(document.documentElement)</script>
+<link rel="preload" href="/assets/fonts/archivo-400-800-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/field.css">
+<script src="/theme.js" defer></script>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/lab/theme-probe/probe.css">
+<script src="/lab/theme-probe/probe.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="fr-head"><div class="w">
+  <a class="mark" href="/">LESNAR <span>AI</span></a>
+  <span class="meta">Engineering company · Nairobi</span>
+  <nav class="site-nav" aria-label="Primary"><a href="/work/">Work</a><a href="/capabilities/">Capabilities</a><a href="/engineering/">Engineering</a><a href="/company/">Company</a><a class="nav-start" href="/start/">Start</a></nav>
+</div></header>
+<main id="main">
+<div class="w"><div class="case-open">
+<p class="crumb">Lab · test instrument · not part of the site</p>
+<h1 class="statement">Theme <em>probe</em></h1>
+<p class="lede">Every square below has an exact expected colour for the light and the dark theme.
+If a browser repaints this page on its own, the squares show it.</p>
+<ol class="body pg-steps">
+<li>Choose a theme with the switch at the top (System, Light or Dark).</li>
+<li>Take one screenshot per grid, with both coloured corner marks on screen.</li>
+<li>Send the screenshots with the browser's dark-mode setting noted. They are measured by
+<code>tools/theme-matrix/analyse_screenshot.py</code>.</li>
+</ol>
+<dl class="pg-info" id="probe-info"><dt>Readout</dt><dd>Needs JavaScript.</dd></dl>
+</div></div>
+<section class="pg-wrap w" aria-labelledby="g1-h">
+<h2 class="h2 pg-h" id="g1-h">G1 · Surfaces and text</h2>
+<div class="pg" id="g1" data-grid="g1" data-fid="magenta,cyan">
+<i class="fid fid--magenta fid--tl" aria-hidden="true"></i><i class="fid fid--cyan fid--br" aria-hidden="true"></i>
+<div class="pc" data-cell="paper" data-method="fill" data-light="#FFFFFF" data-dark="#000000"><div class="pc__sw"><span class="pc__s" data-sample></span></div><div class="pc__t"><b>Page</b><span>L #FFFFFF</span><span>D #000000</span></div></div>
+<div class="pc" data-cell="sheet" data-method="fill" data-light="#FFFFFF" data-dark="#000000"><div class="pc__sw"><div class="sheet pc__fill"><span class="pc__s" data-sample></span></div></div><div class="pc__t"><b>Card</b><span>L #FFFFFF</span><span>D #000000</span></div></div>
+<div class="pc" data-cell="ink" data-method="ink" data-light="#000000" data-dark="#FFFFFF"><div class="pc__sw"><span class="pc__glyph pc__glyph--ink" data-sample>HH</span></div><div class="pc__t"><b>Text</b><span>L #000000</span><span>D #FFFFFF</span></div></div>
+<div class="pc" data-cell="ink-2" data-method="ink" data-light="#45474B" data-dark="#B4B6B9"><div class="pc__sw"><span class="pc__glyph pc__glyph--ink-2" data-sample>HH</span></div><div class="pc__t"><b>Muted text</b><span>L #45474B</span><span>D #B4B6B9</span></div></div>
+<div class="pc" data-cell="ink-3" data-method="ink" data-light="#6A6D72" data-dark="#8F9296"><div class="pc__sw"><span class="pc__glyph pc__glyph--ink-3" data-sample>HH</span></div><div class="pc__t"><b>Meta text</b><span>L #6A6D72</span><span>D #8F9296</span></div></div>
+<div class="pc" data-cell="signal" data-method="ink" data-light="#D41F1A" data-dark="#FF4A3D"><div class="pc__sw"><span class="pc__glyph pc__glyph--signal" data-sample>HH</span></div><div class="pc__t"><b>Signal text</b><span>L #D41F1A</span><span>D #FF4A3D</span></div></div>
+<div class="pc" data-cell="link" data-method="ink" data-light="#D41F1A" data-dark="#FF4A3D"><div class="pc__sw"><a class="act pc__glyph" href="#g1-h"><span data-sample>HH</span></a></div><div class="pc__t"><b>Link</b><span>L #D41F1A</span><span>D #FF4A3D</span></div></div>
+<div class="pc" data-cell="stage" data-method="fill" data-light="#000000" data-dark="#FFFFFF"><div class="pc__sw"><span class="stage stage--live"><i data-sample></i></span></div><div class="pc__t"><b>Stage icon</b><span>L #000000</span><span>D #FFFFFF</span></div></div>
+<div class="pc" data-cell="svg-land" data-method="fill" data-light="#DCE5D3" data-dark="#1E2620"><div class="pc__sw"><div class="map pc__fill"><svg viewBox="0 0 64 44" width="64" height="44" aria-hidden="true"><rect class="land" x="2" y="2" width="60" height="40"/></svg><span class="pc__s" data-sample></span></div></div><div class="pc__t"><b>SVG map land</b><span>L #DCE5D3</span><span>D #1E2620</span></div></div>
+<div class="pc" data-cell="svg-ink" data-method="fill" data-light="#000000" data-dark="#FFFFFF"><div class="pc__sw"><div class="pc__fill"><svg viewBox="0 0 64 44" width="64" height="44" aria-hidden="true"><rect class="plan__wall" x="0" y="0" width="64" height="44"/></svg><span class="pc__s" data-sample></span></div></div><div class="pc__t"><b>SVG figure</b><span>L #000000</span><span>D #FFFFFF</span></div></div>
+</div>
+</section>
+<section class="pg-wrap w" aria-labelledby="g2-h">
+<h2 class="h2 pg-h" id="g2-h">G2 · Media, forms and overlays</h2>
+<div class="pg" id="g2" data-grid="g2" data-fid="cyan,magenta">
+<i class="fid fid--cyan fid--tl" aria-hidden="true"></i><i class="fid fid--magenta fid--br" aria-hidden="true"></i>
+<div class="pc" data-cell="photo-light" data-method="mean" data-light="#E4E3E1" data-dark="#E4E3E1"><div class="pc__sw"><img class="pc__fill pc__photo" src="/assets/field/carepro.webp" width="64" height="44" alt="Capture, light UI (test image)" data-sample></div><div class="pc__t"><b>Capture, light UI</b><span>L #E4E3E1</span><span>D #E4E3E1</span></div></div>
+<div class="pc" data-cell="photo-dark" data-method="mean" data-light="#1E2023" data-dark="#1E2023"><div class="pc__sw"><img class="pc__fill pc__photo" src="/assets/field/medimatch-detect.webp" width="64" height="44" alt="Capture, dark UI (test image)" data-sample></div><div class="pc__t"><b>Capture, dark UI</b><span>L #1E2023</span><span>D #1E2023</span></div></div>
+<div class="pc" data-cell="raster-white" data-method="fill" data-light="#FFFFFF" data-dark="#FFFFFF"><div class="pc__sw"><img class="pc__fill" src="/lab/theme-probe/white.png" width="64" height="44" alt="White raster tile"><span class="pc__s" data-sample></span></div><div class="pc__t"><b>Raster white</b><span>L #FFFFFF</span><span>D #FFFFFF</span></div></div>
+<div class="pc" data-cell="raster-black" data-method="fill" data-light="#000000" data-dark="#000000"><div class="pc__sw"><img class="pc__fill" src="/lab/theme-probe/black.png" width="64" height="44" alt="Black raster tile"><span class="pc__s" data-sample></span></div><div class="pc__t"><b>Raster black</b><span>L #000000</span><span>D #000000</span></div></div>
+<div class="pc" data-cell="input" data-method="fill" data-light="#FFFFFF" data-dark="#000000"><div class="pc__sw"><span class="fld"><input class="pc__fill" type="text" aria-label="Test text field"></span><span class="pc__s" data-sample></span></div><div class="pc__t"><b>Text field</b><span>L #FFFFFF</span><span>D #000000</span></div></div>
+<div class="pc" data-cell="button" data-method="fill" data-light="#000000" data-dark="#FFFFFF"><div class="pc__sw"><span class="form__act"><button class="pc__fill" type="button">Go<span class="pc__s" data-sample></span></button></span></div><div class="pc__t"><b>Button</b><span>L #000000</span><span>D #FFFFFF</span></div></div>
+<div class="pc" data-cell="button-off" data-method="fill" data-light="#DADBD7" data-dark="#2E3033"><div class="pc__sw"><span class="form__act"><button class="pc__fill" type="button" disabled aria-disabled="true" aria-label="Disabled button"><span class="pc__s" data-sample></span></button></span></div><div class="pc__t"><b>Button, disabled</b><span>L #DADBD7</span><span>D #2E3033</span></div></div>
+<div class="pc" data-cell="scrim" data-method="fill" data-light="#808080" data-dark="#000000"><div class="pc__sw"><div class="pc__fill pc__scrim"><span class="pc__s" data-sample></span></div></div><div class="pc__t"><b>Overlay 50%</b><span>L #808080</span><span>D #000000</span></div></div>
+<div class="pc" data-cell="focus" data-method="fill" data-light="#D41F1A" data-dark="#FF4A3D"><div class="pc__sw"><span class="pc__focus"><span class="pc__s pc__s--ring" data-sample></span></span></div><div class="pc__t"><b>Focus ring</b><span>L #D41F1A</span><span>D #FF4A3D</span></div></div>
+<div class="pc" data-cell="film" data-method="fill" data-light="#000000" data-dark="#000000"><div class="pc__sw"><div class="pc__fill pc__film"><span class="pc__s" data-sample></span></div></div><div class="pc__t"><b>Film strip</b><span>L #000000</span><span>D #000000</span></div></div>
+</div>
+</section>
+<section class="pg-wrap w" aria-labelledby="g3-h">
+<h2 class="h2 pg-h" id="g3-h">G3 · Candidates and native controls (not site CSS)</h2>
+<div class="pg" id="g3" data-grid="g3" data-fid="green,cyan">
+<i class="fid fid--green fid--tl" aria-hidden="true"></i><i class="fid fid--cyan fid--br" aria-hidden="true"></i>
+<div class="pc" data-cell="cand-raster" data-method="fill" data-light="#FFFFFF" data-dark="#000000"><div class="pc__sw"><div class="pc__fill pc__cand-raster"><span class="pc__s" data-sample></span></div></div><div class="pc__t"><b>Cand.: raster paper</b><span>L #FFFFFF</span><span>D #000000</span></div></div>
+<div class="pc" data-cell="cand-gradient" data-method="fill" data-light="#FFFFFF" data-dark="#000000"><div class="pc__sw"><div class="pc__fill pc__cand-gradient"><span class="pc__s" data-sample></span></div></div><div class="pc__t"><b>Cand.: gradient paper</b><span>L #FFFFFF</span><span>D #000000</span></div></div>
+<div class="pc" data-cell="cand-text" data-method="ink" data-light="#000000" data-dark="#FFFFFF"><div class="pc__sw"><div class="pc__fill pc__cand-raster"><span class="pc__glyph pc__glyph--ink" data-sample>HH</span></div></div><div class="pc__t"><b>Cand.: text on raster</b><span>L #000000</span><span>D #FFFFFF</span></div></div>
+<div class="pc" data-cell="caption" data-method="ink" data-light="#B8B8B8" data-dark="#B8B8B8"><div class="pc__sw"><figure class="frame pc__fill pc__film"><figcaption><span class="pc__glyph" data-sample>HH</span></figcaption></figure></div><div class="pc__t"><b>Frame caption</b><span>L #B8B8B8</span><span>D #B8B8B8</span></div></div>
+<div class="pc" data-cell="native-select" data-method="observe"><div class="pc__sw"><select class="pc__native" aria-label="Native select"><option>Option</option></select><span class="pc__s" data-sample></span></div><div class="pc__t"><b>Native select</b><span>observed only</span></div></div>
+<div class="pc" data-cell="native-check" data-method="observe"><div class="pc__sw"><input class="pc__check" type="checkbox" aria-label="Native checkbox"><span class="pc__s pc__s--check" data-sample></span></div><div class="pc__t"><b>Native checkbox</b><span>observed only</span></div></div>
+</div>
+</section>
+<div class="w pg-notes body">
+<p>G3's candidates are not in the site's CSS. They are measured here so a device test can
+decide whether any is worth using: a raster tile as the page background, a gradient as the page
+background, and text over the raster tile. Native controls are reported, never judged: their
+colours come from the browser.</p>
+</div>
+</main>
+<footer class="fr-foot"><div class="w">
+  <div><h2>LESNAR AI</h2><p>An engineering company in Nairobi, Kenya.</p><p>Software, AI and autonomous systems.</p></div>
+  <div><p class="k">Go</p><ul><li><a href="/work/">Work</a></li><li><a href="/capabilities/">Capabilities</a></li><li><a href="/engineering/">Engineering</a></li><li><a href="/company/">Company</a></li><li><a href="/start/">Start</a></li></ul></div>
+  <div><p class="k">Direct</p><p>hello@lesnarai.co.ke</p><p>WhatsApp +254 715 540 653</p></div>
+</div></footer>
+</body>
+</html>
