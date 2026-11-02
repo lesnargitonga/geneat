@@ -94,38 +94,26 @@ try {
     await ctx.close();
   }
 
-  /* 4 · Home: one hero loop, earned by being on screen; nothing else heavy; the Sentinel channel
-     and frame route to the case. The loop must be muted and inline, carry no src and no autoplay in
-     markup, and fetch its sources only with motion allowed. Under reduced motion it never loads. */
+  /* 4 · Home introduces the company to a client: no video and nothing heavy at rest, and every
+     project it points to (each once) resolves. */
   {
-    for (const motion of ['reduce', 'no-preference']) {
-      const [ctx, p] = await open({ reducedMotion: motion });
-      const fetched = [];
-      p.on('request', r => fetched.push(r.url()));
-      await p.goto(BASE + '/', { waitUntil: 'networkidle' });
-      await p.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 500) { scrollTo(0, y); await new Promise(r => setTimeout(r, 80)); } });
-      await p.waitForTimeout(600);
-      const s = await p.evaluate(() => {
-        const v = [...document.querySelectorAll('video')];
-        const loop = v[0];
-        return { videos: v.length, loop: !!loop && loop.hasAttribute('data-loop'), muted: !!loop && loop.muted && loop.hasAttribute('playsinline'),
-                 markup: !!loop && !loop.hasAttribute('autoplay') && !loop.getAttribute('src') && loop.getAttribute('preload') === 'none'
-                   && [...loop.querySelectorAll('source')].every(x => !x.getAttribute('src') || x.dataset.src),
-                 toSentinel: document.querySelectorAll('main a[href="/work/sentinel/"]').length };
-      });
-      const loopFetched = fetched.some(u => /mm-roads-loop\.(webm|mp4)/.test(u));
-      if (motion === 'reduce') {
-        check(s.videos === 1 && s.loop, 'Home: exactly one video, the hero loop');
-        check(s.muted && s.markup, 'Home: the loop is muted and inline, with no src, autoplay or preload in markup');
-        check(!loopFetched, 'Home, reduced motion: the loop is never fetched');
-        check(s.toSentinel >= 2, 'Home: the Sentinel channel and its frame both link to /work/sentinel/');
-      } else {
-        check(loopFetched, 'Home, motion allowed: the loop is fetched once it is on screen');
-      }
-      check(!fetched.some(u => /sentinel-detections\.json|sentinel-film-001\.|mm-roads-film\./.test(u)),
-        `Home (${motion}): no film or detections record is requested`);
-      await ctx.close();
-    }
+    const [ctx, p] = await open();
+    const fetched = [];
+    p.on('request', r => fetched.push(r.url()));
+    await p.goto(BASE + '/', { waitUntil: 'networkidle' });
+    await p.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 500) { scrollTo(0, y); await new Promise(r => setTimeout(r, 80)); } });
+    await p.waitForTimeout(600);
+    const s = await p.evaluate(() => {
+      const work = [...document.querySelectorAll('main a[href^="/work/"]')].map(a => a.getAttribute('href'));
+      return { videos: document.querySelectorAll('video').length, work, unique: new Set(work).size };
+    });
+    check(s.videos === 0, 'Home: no video element');
+    check(!fetched.some(u => /\.(webm|mp4)(\?|$)|sentinel-detections\.json/.test(u)), 'Home: no film, loop or detections record is requested');
+    check(s.work.length >= 6 && s.unique === s.work.length, `Home: ${s.work.length} project links, each project once`);
+    const bad = [];
+    for (const h of new Set(s.work)) { const r = await p.request.get(BASE + h); if (r.status() !== 200) bad.push(`${h} ${r.status()}`); }
+    check(bad.length === 0, `Home: every project link returns 200${bad.length ? ' — ' + bad.join(', ') : ''}`);
+    await ctx.close();
   }
 
   /* 5 · Work: every register row and every contact-sheet frame resolves; a row for a system with

@@ -8,21 +8,6 @@
 :root{--spring:cubic-bezier(.2,1.45,.35,1);--snap:cubic-bezier(.16,1,.3,1);--write:cubic-bezier(.45,.05,.55,.95)}
 
 /* ── Layout (always) ─────────────────────────────────────────────────── */
-.hero__grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:center}
-.hero__reel{position:relative;margin:0;background:var(--film);padding:22px 12px 12px;box-shadow:0 30px 80px -40px rgba(0,0,0,.6)}
-.hero__reel::before{content:"";position:absolute;left:10px;right:10px;top:7px;height:8px;
-  background:repeating-linear-gradient(90deg,#383838 0 12px,transparent 12px 22px)}
-.hero__reel .frame__pic{display:block;aspect-ratio:4/3;overflow:hidden;background:#000}
-.hero__reel video,.hero__reel img{display:block;width:100%;height:100%;object-fit:cover}
-.hero__reel figcaption{font:500 10.5px/1.45 var(--mono);color:#B8B8B8;margin-top:9px}
-.hero__reel figcaption b{color:#fff;font-weight:500}
-.hero__tc{position:absolute;right:12px;top:22px;z-index:2;font:500 10px var(--mono);letter-spacing:.12em;color:#fff;background:rgba(0,0,0,.6);padding:4px 7px}
-.hero__tc i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--signal);margin-right:6px;vertical-align:0}
-@media (max-width:860px){
-  .hero__grid{grid-template-columns:1fr}
-  .hero__reel{order:-1;margin-inline:calc(var(--pad) * -1)}
-}
-
 .channel__trace{position:relative}
 .odo{display:inline-flex;height:.82em;overflow:hidden;vertical-align:top}
 .odo__c{display:flex;flex-direction:column;line-height:.82;transform:translateY(calc(var(--d) * -.82em))}
@@ -73,11 +58,9 @@
   @keyframes vt-out{to{opacity:0;transform:translateY(-14px)}}
   @keyframes vt-in{from{opacity:0;transform:translateY(22px)}}
 
-  /* "REAL." lands like a stamp on paper, once. The capture's record light blinks. */
+  /* "REAL." lands like a stamp on paper, once. */
   .statement em{display:inline-block;animation:stamp .62s var(--spring) .25s both}
   @keyframes stamp{0%{opacity:0;transform:scale(1.9) rotate(-7deg)}55%{opacity:1;transform:scale(.94) rotate(1.5deg)}100%{transform:none}}
-  .hero__tc i{animation:rec 1.2s steps(1,end) infinite}
-  @keyframes rec{50%{opacity:.15}}
 
   /* Record: the trace writes behind a playhead, the hold fills, the note arrives. */
   :root[data-js="on"] [data-reveal] .speed__ok,:root[data-js="on"] [data-reveal] .speed__bad{stroke-dasharray:1;stroke-dashoffset:1}
@@ -110,15 +93,8 @@
   :root[data-js="on"] [data-reveal] .gaz__row{opacity:0;transform:translateX(-18px)}
   :root[data-js="on"] [data-reveal].is-in .gaz__row{transition:opacity .3s calc(min(var(--i,0), 8) * 80ms + .3s),transform .5s var(--snap) calc(min(var(--i,0), 8) * 80ms + .3s);opacity:1;transform:none}
 
-  /* Scroll-linked where supported: the capture drifts against the page as you leave the hero. */
-  @supports (animation-timeline:view()){
-    .hero__reel .frame__pic video,.hero__reel .frame__pic img{animation:drift linear both;animation-timeline:view();animation-range:exit 0% exit 100%}
-    @keyframes drift{to{transform:translateY(12%) scale(1.08)}}
-  }
 }
 
-/* The statement shares the hero with the capture on wide screens. */
-@media (min-width:861px){.hero .statement{font-size:clamp(52px,6.3vw,104px)}}
 
 /* ── The reel: real frames running through the page ─────────────────── */
 .reel{position:relative;background:var(--film);padding:26px 0;overflow:hidden;contain:paint}

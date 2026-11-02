@@ -1,0 +1,116 @@
+/* Home: an introduction for an organisation that has never heard of us.
+   Phone first: every section is designed to sit inside one 390×844 screen. */
+
+/* Buttons. The primary keeps the light signal red in both themes, so white text holds 5:1. */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 24px;
+  font:700 16px/1.1 var(--sans);text-decoration:none;color:var(--ink);border:2px solid var(--ink);background:transparent;
+  transition:transform .3s var(--spring,ease),background-color .2s,color .2s}
+.btn:hover{transform:translateY(-3px)}
+.btn:active{transform:translateY(1px)}
+.btn:focus-visible{outline:3px solid var(--signal);outline-offset:3px}
+.btn--primary{background:#D41F1A;border-color:#D41F1A;color:#FFFFFF}
+.btn--primary:hover{background:#B5130F;border-color:#B5130F}
+.btn--onfilm{color:#FFFFFF;border-color:#FFFFFF}
+.btn--onfilm.btn--primary{border-color:#D41F1A}
+.hm-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+@media (max-width:520px){.hm-cta{flex-direction:column}.hm-cta .btn{width:100%}
+  .hm-cta--quiet{flex-direction:row}.hm-cta--quiet .btn{flex:1;width:auto;padding:0 10px;font-size:15px}}
+
+.hm-h2{margin:0 0 22px;font:800 clamp(32px,4.6vw,60px)/.92 var(--sans);font-stretch:var(--cond);text-transform:uppercase;letter-spacing:.005em}
+.hm-h2 em{font-style:normal;color:var(--signal)}
+.hm-sec{padding-block:clamp(40px,8vw,112px)}
+.hm-more{display:inline-block;margin-top:22px;font-weight:700;color:var(--ink);text-decoration:none;border-bottom:2px solid var(--signal);padding-bottom:2px}
+.hm-more::after{content:" \2192"}
+.hm-kicker{margin:0 0 10px;font:500 12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--signal)}
+
+/* ── Hero ─────────────────────────────────────────────────────────── */
+.hm-hero .w{padding-block:clamp(28px,7vw,110px) clamp(36px,6vw,96px)}
+.hm-hero__h{font-size:clamp(46px,12.4vw,168px)}
+.hm-hero__lede{margin:22px 0 0;max-width:54ch;font-size:clamp(17px,1.6vw,21px);line-height:1.5;color:var(--ink)}
+.hm-hero__note{margin:18px 0 0;font-size:14px;color:var(--ink-2)}
+
+/* ── What we build: four offers, each with its proof ─────────────── */
+.hm-offers{list-style:none;margin:0;padding:0;counter-reset:offer;display:grid;gap:0}
+.hm-offer{counter-increment:offer;position:relative;padding:16px 0 18px 52px;border-top:1px solid var(--hair)}
+.hm-offer::before{content:counter(offer,decimal-leading-zero);position:absolute;left:0;top:14px;
+  font:800 34px/1 var(--sans);font-stretch:var(--cond);color:var(--signal)}
+.hm-offer h3{margin:0 0 6px;font-size:20px;line-height:1.2;font-weight:700}
+.hm-offer p{margin:0;color:var(--ink-2);font-size:16px;line-height:1.45;max-width:46ch}
+.hm-proof{display:inline-flex;align-items:center;gap:8px;margin-top:8px;font-size:14.5px;font-weight:600;color:var(--ink);text-decoration:none;white-space:nowrap}
+.hm-proof:hover{color:var(--signal)}
+.hm-proof::after{content:"\2192";transition:transform .25s var(--spring,ease)}
+.hm-proof:hover::after{transform:translateX(4px)}
+.hm-proof__s{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;border:1px solid currentColor;padding:2px 6px;color:var(--ink-2)}
+@media (min-width:861px){
+  .hm-offers{grid-template-columns:1fr 1fr;column-gap:56px}
+  .hm-offer{padding:28px 0 30px 72px}
+  .hm-offer::before{font-size:46px;top:24px}
+  .hm-offer h3{font-size:23px}
+}
+
+/* ── Our own products: the television ─────────────────────────────── */
+.hm-tv{background:var(--film);color:#FFFFFF;padding-block:clamp(40px,8vw,120px);overflow:hidden}
+.hm-tv .hm-h2{color:#FFFFFF}
+.hm-tv .hm-h2 em{color:#FF4A3D}
+.hm-tv .hm-kicker{color:#FF4A3D}
+.hm-tv p{color:#D2D2D2;font-size:16.5px;line-height:1.55;max-width:50ch;margin:0 0 14px}
+.hm-tv p b{color:#FFFFFF}
+.hm-tv__fact{font:500 13px var(--mono)!important;letter-spacing:.04em;color:#B8B8B8!important}
+.hm-tv__fact b{font:800 28px/1 var(--sans);font-stretch:var(--cond);color:#FFFFFF;margin-right:6px;vertical-align:-3px}
+.hm-tv__stage{font-size:14px!important;color:#B8B8B8!important}
+.hm-tv .btn{color:#FFFFFF;border-color:#FFFFFF}
+.hm-tv__grid{display:grid;gap:28px;align-items:center}
+@media (min-width:861px){.hm-tv__grid{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:64px}}
+
+.hm-tv__stage-art{position:relative;margin:0;padding:0 0 64px}
+.tvset{position:relative;background:#0A0A0A;border:9px solid #1B1B1B;border-radius:10px;
+  box-shadow:0 0 0 1px #2A2A2A,0 40px 90px -30px rgba(70,120,255,.45)}
+.tvset::after{content:"";position:absolute;left:50%;bottom:-30px;width:34%;height:22px;transform:translateX(-50%);
+  background:linear-gradient(#1B1B1B,#0E0E0E);clip-path:polygon(18% 0,82% 0,100% 100%,0 100%)}
+.tvset__screen{overflow:hidden;aspect-ratio:16/9;background:#000}
+.tvset__screen img{display:block;width:100%;height:100%;object-fit:cover}
+.phoneset{position:absolute;right:-2px;bottom:6px;width:40%;background:#111;border:6px solid #222;border-radius:16px;
+  transform:rotate(-6deg);box-shadow:0 24px 50px -18px rgba(0,0,0,.8)}
+.phoneset img{display:block;width:100%;height:auto;border-radius:9px}
+.hm-tv__stage-art figcaption{position:absolute;left:0;bottom:0;font:500 11px/1.45 var(--mono);color:#B8B8B8;max-width:54%}
+
+/* ── How it goes ──────────────────────────────────────────────────── */
+.hm-steps{list-style:none;margin:0;padding:0;counter-reset:step;display:grid;gap:0}
+.hm-steps li{counter-increment:step;display:grid;grid-template-columns:44px 1fr;gap:4px 12px;padding:18px 0;border-top:1px solid var(--hair)}
+.hm-steps li::before{content:counter(step);grid-row:span 2;font:800 30px/1 var(--sans);font-stretch:var(--cond);color:var(--signal)}
+.hm-steps b{font-size:19px}
+.hm-steps span{color:var(--ink-2);font-size:16px;line-height:1.45;max-width:52ch}
+@media (min-width:861px){.hm-steps{grid-template-columns:repeat(3,1fr);column-gap:40px}.hm-steps li{grid-template-columns:1fr;padding-top:24px}.hm-steps li::before{font-size:44px;margin-bottom:10px}}
+
+/* ── Who ──────────────────────────────────────────────────────────── */
+.hm-who{padding-top:0}
+.hm-who p{max-width:56ch;font-size:clamp(17px,1.6vw,20px);line-height:1.5;margin:0}
+
+/* ── The ask ──────────────────────────────────────────────────────── */
+.hm-end{background:var(--film);color:#FFFFFF;padding-block:clamp(56px,9vw,128px)}
+.hm-end__h{color:#FFFFFF;font-size:clamp(44px,10vw,132px)}
+.hm-end__h em{color:#FF4A3D}
+.hm-end__mail{margin:18px 0 0;color:#B8B8B8;font-size:15px}
+.hm-end__mail a{color:#FFFFFF}
+
+/* ── Motion: the TV powers on, the phone lands, offers step in ────── */
+@media (prefers-reduced-motion:no-preference){
+  :root[data-js="on"] .hm-tv[data-reveal] .tvset__screen img{transform:scaleY(.006) scaleX(.55);filter:brightness(4)}
+  :root[data-js="on"] .hm-tv[data-reveal].is-in .tvset__screen img{transition:transform .6s var(--snap) .25s,filter .9s ease .3s;transform:none;filter:none}
+  :root[data-js="on"] .hm-tv[data-reveal] .phoneset{opacity:0;transform:translateY(60px) rotate(-16deg)}
+  :root[data-js="on"] .hm-tv[data-reveal].is-in .phoneset{transition:opacity .3s .8s,transform .8s var(--spring) .8s;opacity:1;transform:rotate(-6deg)}
+  :root[data-js="on"] [data-reveal] .hm-offer,:root[data-js="on"] [data-reveal] .hm-steps li{opacity:0;transform:translateY(26px)}
+  :root[data-js="on"] [data-reveal].is-in .hm-offer,:root[data-js="on"] [data-reveal].is-in .hm-steps li{transition:opacity .35s calc(var(--i,0) * 90ms),transform .6s var(--spring) calc(var(--i,0) * 90ms);opacity:1;transform:none}
+}
+
+/* Small phones (360 wide, ~780 tall): tighter rhythm so each section still fits one screen. */
+@media (max-width:380px){
+  .hm-sec{padding-block:30px}
+  .hm-tv{padding-block:32px}
+  .hm-h2{margin-bottom:14px}
+  .hm-offer{padding:12px 0 14px 46px}
+  .hm-offer::before{font-size:30px;top:11px}
+  .hm-offer h3{font-size:18.5px}
+  .hm-offer p{font-size:15px}
+  .hm-tv p{font-size:15.5px}
+}
