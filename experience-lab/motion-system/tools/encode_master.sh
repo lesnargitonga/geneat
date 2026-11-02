@@ -18,7 +18,8 @@
 #            improving browser-decoded PSNR (the residual gap to VP9 is decoder colour handling)
 # env:
 #   SIZE=WxH        Lanczos scale before encoding (default: source size)
-#   AUDIO=file.wav  audio master; Opus 192 kb/s in WebM, AAC 192 kb/s in MP4
+#   AUDIO=file.wav  audio master; Opus in WebM, AAC in MP4, both at ABITRATE
+#   ABITRATE=bps    audio bitrate for both containers (default 192000)
 #   MAXRATE=bps     bitrate ceiling for both encoders: VP9 constrained quality, x264 VBV (default 20 Mb/s)
 #   ONLY=webm|mp4   produce just one container
 #
@@ -34,6 +35,7 @@ fps=${3:-24}
 q=${4:-18}
 maxrate=${MAXRATE:-20000000}
 only=${ONLY:-}
+abitrate=${ABITRATE:-192000}
 
 # a sorted glob, not find|sort|head: under pipefail, head closing the pipe early
 # can SIGPIPE sort and make set -e quit silently before anything is encoded
@@ -62,7 +64,7 @@ source_audio=(filesrc location="${AUDIO:-}" ! wavparse ! audioconvert ! audiores
 
 if [[ $only != mp4 ]]; then
   out="$base.webm"; rm -f "$out"   # a failed encode must never leave an older file behind
-  audio=(); [[ -n ${AUDIO:-} ]] && audio=("${source_audio[@]}" ! opusenc bitrate=192000 ! queue ! mux.)
+  audio=(); [[ -n ${AUDIO:-} ]] && audio=("${source_audio[@]}" ! opusenc bitrate="$abitrate" ! queue ! mux.)
   gst-launch-1.0 -q -e webmmux name=mux ! filesink location="$out" \
     "${source_video[@]}" \
     ! vp9enc end-usage=cq cq-level="$q" target-bitrate="$maxrate" min-quantizer=0 max-quantizer=48 \
@@ -76,7 +78,7 @@ fi
 
 if [[ $only != webm ]]; then
   out="$base.mp4"; rm -f "$out"
-  audio=(); [[ -n ${AUDIO:-} ]] && audio=("${source_audio[@]}" ! avenc_aac bitrate=192000 ! aacparse ! queue ! mux.)
+  audio=(); [[ -n ${AUDIO:-} ]] && audio=("${source_audio[@]}" ! avenc_aac bitrate="$abitrate" ! aacparse ! queue ! mux.)
   gst-launch-1.0 -q -e mp4mux name=mux faststart=true ! filesink location="$out" \
     "${source_video[@]}" \
     ! x264enc pass=qual quantizer=$((q - 2)) bitrate=$((maxrate / 1000)) speed-preset=slower psy-tune=film \
