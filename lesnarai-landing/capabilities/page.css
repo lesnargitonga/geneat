@@ -9,7 +9,7 @@
 
 .cp-l{border-top:2px solid var(--rule);padding-block:clamp(32px,6vw,84px)}
 .cp-l__grid{display:grid;gap:18px}
-.cp-l__no{font:500 11px var(--mono);letter-spacing:.08em;color:var(--signal)}
+.cp-l__no{font:500 11px var(--mono);letter-spacing:.08em;color:var(--ink-3)}
 .cp-l__name{margin:4px 0 8px;font:800 clamp(34px,5vw,64px)/.92 var(--sans);font-stretch:var(--cond);text-transform:uppercase}
 .cp-l__head p{margin:0;color:var(--ink-2);max-width:40ch;font-size:16px;line-height:1.45}
 .cp-l__head .cp-l__partners{margin-top:12px;font-size:14px;color:var(--ink-2);border-left:3px dashed var(--ink-3);padding-left:10px}
@@ -23,12 +23,12 @@
 .cp-d__what{margin:8px 0 0;color:var(--ink-2);font-size:16px;line-height:1.5;max-width:62ch}
 .cp-proof{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:6px}
 .cp-proof li{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font-size:15px;line-height:1.4}
-.cp-proof a{font-weight:700;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--signal)}
-.cp-proof a:hover{color:var(--signal)}
+.cp-proof a{font-weight:700;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--ink-3)}
+.cp-proof a:hover{border-bottom-color:var(--ink)}
 .cp-proof--client span:first-child{color:var(--ink)}
 .cp-proof__who{font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
 .cp-proof__s{font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--ink-3);color:var(--ink-2);padding:0 5px}
-.cp-d__limit{margin:12px 0 0;font-size:14px;color:var(--ink-2);border-left:3px solid var(--signal);padding-left:10px;max-width:62ch}
+.cp-d__limit{margin:12px 0 0;font-size:14px;color:var(--ink-2);border-left:3px solid var(--ink-3);padding-left:10px;max-width:62ch}
 
 .cp-ind ul{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
 .cp-ind li{padding:10px 14px;border:1px solid var(--hair);font-weight:600}

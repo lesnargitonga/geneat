@@ -20,7 +20,7 @@
   .strip .frame:hover{transform:translateY(-8px) rotate(-.5deg)}
   .strip .frame:nth-child(even):hover{transform:translateY(-8px) rotate(.5deg)}
   .strip .frame:hover .frame__pic img{transform:scale(1.035)}
-  .strip .frame:hover .frame__edge span:last-child{color:var(--signal)}
+  .strip .frame:hover .frame__edge span:last-child{color:#FFFFFF}
 }
 
 /* On a phone the contact sheet becomes a roll you swipe through, one frame at a time. */

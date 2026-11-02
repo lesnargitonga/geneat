@@ -28,7 +28,7 @@
   --ch-blue:#1F4FD8; --ch-green:#0B7F57;   /* secondary data channels */
   --place:#A8136A;           /* survey overprint: our marks on a map */
   --map-land:#DCE5D3; --map-edge:#55634F; --map-road:#2B302C; --map-label:#000000; --map-sub:#3C473A;
-  --film:#000000; --film-2:#1C1C1C; --edge:#E8902A; --select:#E3B505;
+  --film:#000000; --film-2:#1C1C1C; --edge:#9A9A9A; --select:#E3B505;
   --ok:#0B7F57; --down:#D41F1A;
   --cond:62%; --wide:125%;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -74,7 +74,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--signal);outline-off
 .site-nav a{font-weight:600;font-size:15px;text-decoration:none;padding:6px 0;border-bottom:2px solid transparent}
 .site-nav a:hover{border-bottom-color:var(--ink)}
 .site-nav a[aria-current]{border-bottom-color:var(--signal)}
-.site-nav a.nav-start{color:var(--signal)}
+.site-nav a.nav-start{color:var(--ink)}
 .theme__l{display:none}
 .theme{display:none;gap:2px}
 html[data-js="on"] .theme{display:inline-flex}
@@ -94,10 +94,10 @@ html[data-js="on"] .theme{display:inline-flex}
 /* ── type ──────────────────────────────────────────────────────────────── */
 .statement{margin:0;font-weight:800;font-stretch:var(--cond);text-transform:uppercase;
   font-size:clamp(52px,9.6vw,158px);line-height:.86;letter-spacing:-.005em}
-.statement em{font-style:normal;color:var(--signal)}
+.statement em{font-style:normal;color:inherit}
 .h2{margin:0 0 18px;font-weight:800;font-stretch:var(--cond);text-transform:uppercase;
   font-size:clamp(34px,5vw,70px);line-height:.9;letter-spacing:0}
-.h2 em{font-style:normal;color:var(--signal)}
+.h2 em{font-style:normal;color:inherit}
 .h3{margin:0 0 8px;font-weight:700;font-size:20px;line-height:1.2}
 .lede{font-size:clamp(18px,1.7vw,21px);line-height:1.45;max-width:46ch;color:var(--ink);margin:20px 0 0}
 .body{max-width:62ch;color:var(--ink-2)}
@@ -147,7 +147,7 @@ section{scroll-margin-top:24px}
 .readings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:2px solid var(--rule)}
 .reading{display:block;padding:24px 22px 28px 0;border-bottom:1px solid var(--rule);text-decoration:none;color:inherit}
 .reading:not(:nth-child(3n+1)){padding-left:22px;border-left:1px solid var(--rule)}
-a.reading:hover .reading__v{color:var(--signal)}
+a.reading:hover .reading__v{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:6px}
 .reading__v{font:800 clamp(64px,7vw,96px)/.82 var(--sans);font-stretch:var(--cond);transition:color .2s}
 .reading__v small{font-size:.38em;margin-left:4px}
 .reading__u{font:500 12px/1.45 var(--mono);letter-spacing:.04em;text-transform:uppercase;margin-top:10px;color:var(--ink-2);max-width:32ch}
@@ -167,7 +167,6 @@ a.reading:hover .reading__v{color:var(--signal)}
 .frame__pic img,.frame__pic video{display:block;width:100%;height:auto}
 .frame figcaption{font:500 10.5px/1.45 var(--mono);margin-top:8px;color:#B8B8B8}
 .frame figcaption b{display:block;color:#fff;font:700 14px/1.25 var(--sans);margin-bottom:3px}
-.frame--select .frame__pic::after{content:"";position:absolute;inset:-6px;border:2px solid var(--select);border-radius:46% 54% 50% 50% / 52% 46% 54% 48%;pointer-events:none}
 .frame a{color:#fff}
 @media (max-width:860px){.strip{grid-template-columns:repeat(2,minmax(0,1fr))}.frame--4,.frame--6,.frame--8,.frame--9,.frame--12{grid-column:span 2}.frame--3,.frame--2{grid-column:span 1}}
 /* a single frame outside a strip, on paper */
@@ -183,13 +182,13 @@ a.reading:hover .reading__v{color:var(--signal)}
 .map .ps{font:500 11px var(--mono);fill:var(--map-sub)}
 .gaz{border-top:2px solid var(--rule)}
 .gaz__row{display:grid;grid-template-columns:200px 160px minmax(0,1fr) 170px;gap:20px;padding:15px 0;border-bottom:1px solid var(--hair);align-items:baseline;text-decoration:none;color:inherit}
-a.gaz__row:hover .gaz__sys b{color:var(--signal)}
+a.gaz__row:hover .gaz__sys b{text-decoration:underline;text-underline-offset:3px}
 .gaz__sys{font-size:17px}.gaz__sys b{font-weight:700;transition:color .2s}
 .gaz__row .stage{justify-self:end}
 @media (max-width:860px){.gaz__row{grid-template-columns:1fr;gap:4px}.gaz__row .stage{justify-self:start}}
 
 /* ── actions ───────────────────────────────────────────────────────────── */
-.act{display:inline-flex;align-items:center;gap:10px;margin-top:22px;font-weight:700;font-size:16px;color:var(--signal);text-decoration:none;border-bottom:2px solid currentColor;padding-bottom:3px}
+.act{display:inline-flex;align-items:center;gap:10px;margin-top:22px;font-weight:700;font-size:16px;color:var(--ink);text-decoration:none;border-bottom:2px solid currentColor;padding-bottom:3px}
 .act::after{content:"\2192";transition:transform .2s}
 .act:hover::after{transform:translateX(4px)}
 .act--quiet{color:var(--ink);border-bottom-color:var(--hair)}
@@ -256,7 +255,7 @@ svg.plan,svg.speed,svg.det{display:block;width:100%;height:auto}
 .form__note{font:500 11px/1.5 var(--mono);color:var(--ink-3);max-width:46ch}
 .form__state{font-weight:600;margin-top:10px}
 .form__alt{margin-top:24px;padding-top:18px;border-top:1px solid var(--hair)}
-.form__alt a{color:var(--signal);font-weight:700}
+.form__alt a{color:var(--ink);font-weight:700}
 
 /* ── Maturity marks: how far our own work in a discipline has gone (tools/field/disciplines.py) ── */
 .mk{display:inline-block;flex:none;width:9px;height:9px;margin-right:7px;box-shadow:inset 0 0 0 1.5px var(--ink)}
