@@ -1,9 +1,9 @@
 {
  "sentinel": {
-  "w": 1200,
-  "h": 675,
-  "source": "lesnarai-landing/media/sentinel-film-poster.jpg",
-  "provenance": "Film 001 MC2 frame: a reconstruction of PX4's x500 in a sealed SITL run's world. Not flight evidence."
+  "w": 1080,
+  "h": 648,
+  "source": "experience-lab/source-media/sentinel/flight-2026-10-31/sentinel-flight-70s.jpg",
+  "provenance": "Operation Sentinel in PX4 SITL + Gazebo, 31 Oct 2026: the corrected autonomy stack flying Run 2's mission between obstacles. Simulation, not flight evidence."
  },
  "mm-globe": {
   "w": 1400,
@@ -19,7 +19,7 @@
  },
  "mm-roads": {
   "w": 1400,
-  "h": 788,
+  "h": 720,
   "source": "experience-lab/source-media/medimatch/roads-2026-11-01/mm-roads-national.jpg",
   "provenance": "MediMatch national command view, same capture: transfers on stored road routes. Synthetic inventory."
  },
@@ -177,7 +177,7 @@
    },
    {
     "name": "mm-roads",
-    "w": 640,
+    "w": 700,
     "h": 360
    },
    {
@@ -199,7 +199,7 @@
    },
    {
     "name": "sentinel",
-    "w": 640,
+    "w": 600,
     "h": 360
    },
    {

@@ -11,7 +11,7 @@
 <meta property="og:title" content="Operation Sentinel · LESNAR AI">
 <meta property="og:description" content="An autonomy stack proven in PX4/Gazebo simulation: seven sealed runs, one phantom wall, no physical flight.">
 <meta property="og:url" content="https://lesnarai.com/work/sentinel/">
-<meta property="og:image" content="https://lesnarai.com/media/sentinel-film-poster.jpg">
+<meta property="og:image" content="https://lesnarai.com/assets/field/sentinel.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <meta name="color-scheme" content="light dark">
@@ -22,7 +22,7 @@
 <link rel="stylesheet" href="/field.css">
 <link rel="stylesheet" href="/field-motion.css">
 <link rel="stylesheet" href="/work/sentinel/sentinel.css">
-<link rel="preload" as="image" href="/media/sentinel-film-poster@960.jpg" imagesrcset="/media/sentinel-film-poster@960.jpg 960w, /media/sentinel-film-poster.jpg 1920w" imagesizes="(max-width:1180px) 100vw, 1100px">
+<link rel="preload" as="image" href="/media/sentinel-flight-poster.jpg">
 <script src="/theme.js" defer></script>
 <script src="/field-motion.js" defer></script>
 <script src="/work/sentinel/film.js" defer></script>
@@ -47,37 +47,36 @@
     <p class="stage"><span class="stage__chip">Prototype</span> PX4/Gazebo software-in-the-loop
       &middot; no physical flight</p>
 
-    <div class="film" id="sentinel-film">
+    <div class="film film--flight" id="sentinel-film">
       <figure>
         <div class="frame">
-          <img class="poster" src="/media/sentinel-film-poster@960.jpg"
-               srcset="/media/sentinel-film-poster@960.jpg 960w, /media/sentinel-film-poster.jpg 1920w"
-               sizes="(max-width:1180px) 100vw, 1100px" alt="" width="1920" height="1080"
+          <img class="poster" src="/media/sentinel-flight-poster.jpg" alt="" width="720" height="1280"
                fetchpriority="high" decoding="async">
-          <video id="sentinel-film-v" width="1920" height="1080" preload="none" playsinline controls
-                 poster="/media/sentinel-film-poster@960.jpg"
+          <video id="sentinel-film-v" width="720" height="1280" preload="none" playsinline controls muted
+                 poster="/media/sentinel-flight-poster.jpg"
                  aria-describedby="film-shows">
-            <source src="/media/sentinel-film-001.webm" type="video/webm">
-            <source src="/media/sentinel-film-001.mp4" type="video/mp4">
+            <source src="/media/sentinel-flight.webm" type="video/webm">
+            <source src="/media/sentinel-flight.mp4" type="video/mp4">
           </video>
           <button class="play" type="button" aria-controls="sentinel-film-v">
-            <span class="lg">Play Film 001 &middot; 28 s, with sound</span><span class="sm">Play &middot; 28 s</span>
+            <span class="lg">Play the flight &middot; 29 s</span><span class="sm">Play &middot; 29 s</span>
           </button>
         </div>
-        <figcaption>Film 001. It opens on PX4's x500 model in the world a sealed run flew, moving
-          along that run's recorded descent, then resolves into the simulation's own frame. Every
-          figure on screen is read from the run. Sound is designed; nothing was recorded.</figcaption>
       </figure>
-      <details class="shows" id="film-shows">
-        <summary>What the film shows, shot by shot</summary>
-        <ol>
-          <li><b>0&ndash;6 s</b> A reconstruction: the x500 model, the run's world, the recorded descent. An explanatory rendering, not flight evidence.</li>
-          <li><b>6&ndash;10 s</b> The real simulation frame separates into the layers it is made of.</li>
-          <li><b>10&ndash;17 s</b> The stack a mission runs on: Gazebo world, PX4 SITL, the bridge, telemetry, the operator system.</li>
-          <li><b>17&ndash;21 s</b> The operator surface, replaying the sealed run's telemetry.</li>
-          <li><b>21&ndash;28 s</b> The explanation collapses back into the real frame, then black.</li>
+      <div class="film__log">
+        <p class="film__k">The corrected stack flies the mission it once froze on</p>
+        <p class="film__cap">A follow camera in Gazebo tracks the x500 as our autonomy stack flies Run 2's sealed mission:
+          a 25 m box at 10 m, between buildings, walls and poles. Recorded on 31 October 2026 from the corrected code,
+          in real PX4 software-in-the-loop. Simulation, not flight evidence.</p>
+        <ol class="film__events" id="film-shows">
+          <li><b>0:01</b>Takeoff and climb to cruise</li>
+          <li><b>0:07</b>Turn at the first waypoint</li>
+          <li><b>0:15</b>Passes the exact spot where the original code held the aircraft still for 8.8 minutes, within 0.15 m</li>
+          <li><b>0:22</b>Turn at the second waypoint, about 9.5 m from the wall</li>
+          <li><b>0:29</b>Back over home, and touchdown</li>
         </ol>
-      </details>
+        <p class="film__note">Three spans of one recording, joined by short dissolves; nothing else added. 100.4 m flown.</p>
+      </div>
     </div>
   </div>
 </section>

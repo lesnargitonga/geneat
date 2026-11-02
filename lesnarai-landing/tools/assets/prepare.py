@@ -21,13 +21,13 @@ TVE = Path("/home/lesnar/Documents/LesnarTV-private-evidence")
 
 # name: (source, width, crop(im)->box or None, provenance)
 FRAMES = {
-    "sentinel":   (SITE / "media/sentinel-film-poster.jpg", 1200, None,
-                   "Film 001 MC2 frame: a reconstruction of PX4's x500 in a sealed SITL run's world. Not flight evidence."),
+    "sentinel":   (SITE.parent / "experience-lab/source-media/sentinel/flight-2026-10-31/sentinel-flight-70s.jpg", 1080, None,
+                   "Operation Sentinel in PX4 SITL + Gazebo, 31 Oct 2026: the corrected autonomy stack flying Run 2's mission between obstacles. Simulation, not flight evidence."),
     "mm-globe":   (SRC_MM / "roads-2026-11-01/mm-globe-flick.jpg", 1400, None,
                    "MediMatch intro, frame-exact capture 2026-11-01: the product's own hand flicks the globe."),
     "mm-kenya":   (SRC_MM / "roads-2026-11-01/mm-kenya-tap.jpg", 1400, None,
                    "MediMatch intro, same capture: the globe settles on Kenya and the tap lands."),
-    "mm-roads":   (SRC_MM / "roads-2026-11-01/mm-roads-national.jpg", 1400, None,
+    "mm-roads":   (SRC_MM / "roads-2026-11-01/mm-roads-national.jpg", 1400, lambda im: (0, 0, im.width, round(im.height * 0.915)),
                    "MediMatch national command view, same capture: transfers on stored road routes. Synthetic inventory."),
     "mm-nairobi": (SRC_MM / "roads-2026-11-01/mm-roads-nairobi.jpg", 1400, None,
                    "MediMatch Nairobi County close-up, same capture, cropped above the panel's survey strip."),

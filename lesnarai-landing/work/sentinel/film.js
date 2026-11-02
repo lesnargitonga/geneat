@@ -1,4 +1,4 @@
-/* Film 001 on the Sentinel case page.
+/* The flight film on the Sentinel case page.
    Without this file the native <video controls> is the whole player: the poster
    overlay and the designed play button are hidden by CSS until the theme
    bootstrap marks the document as scripted. Nothing loads until asked for. */

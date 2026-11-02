@@ -199,3 +199,16 @@ svg.plan,svg.speed,svg.det{display:block;width:100%;height:auto}
 .next p{color:var(--fg-2)}
 .next .back{display:inline-block;margin:20px 0 0 22px;font-size:16px;color:var(--fg-2);
   text-underline-offset:3px}
+
+/* The flight film: a portrait recording beside its timed log. */
+.film--flight{display:grid;gap:22px;align-items:start}
+.film--flight .frame{aspect-ratio:9/16;max-height:min(82vh,760px);width:auto;margin-inline:auto}
+.film--flight figure{display:flex;justify-content:center}
+.film__k{margin:0 0 10px;font-weight:700;font-size:clamp(19px,1.8vw,24px);line-height:1.25}
+.film__cap{margin:0;font-size:15.5px;line-height:1.5;color:var(--fg-2);max-width:56ch}
+.film__events{list-style:none;margin:18px 0 14px;padding:0;border-top:1px solid var(--hair, rgba(127,127,127,.35))}
+.film__events li{display:grid;grid-template-columns:3.6rem minmax(0,1fr);gap:0 12px;padding:10px 0;border-bottom:1px solid var(--hair, rgba(127,127,127,.35));font-size:15px;line-height:1.4}
+.film__events b{font:500 13px var(--mono);color:var(--fg-3);padding-top:1px}
+@media (min-width:900px){.film--flight{grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:48px}.film--flight figure{justify-content:flex-start}}
+@media (max-width:899px){.film--flight .frame{max-height:72vh}}
+.film__note{margin:0;font:500 12.5px/1.5 var(--mono);color:var(--fg-2)}
