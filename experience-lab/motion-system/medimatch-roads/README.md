@@ -45,7 +45,6 @@ node $T/decode_frames.mjs $C/mm-roads-film.webm $C/dec 433 24 chromium && python
 
 **On the site:**
 - The film is click-to-play (`preload="none"`) on `/work/medimatch/`.
-- The loop is Home's hero reel. Its sources are attached by `field-motion.js` only when the reel is
-  on screen. It never plays under reduced motion or Save-Data, and it pauses off screen. Without
-  script it is the poster, a real frame of the national view.
+- The loop was Home's hero reel until the 2026-11-02 review (D-38) removed it from the site. The files
+  remain in history at `4eef9d9`.
 - Stills from the same capture are in `experience-lab/source-media/medimatch/roads-2026-11-01/`.

@@ -32,6 +32,12 @@ Shared pieces: `.statement` (condensed uppercase display), `.h2`, `.lede`, `.bod
    - frames at 390 and 1440 in both themes;
    - the static, claims, runtime (three engines) and behaviour gates pass.
 
+## Home speaks to clients (D-38)
+Home is the one page written for someone who has never heard of us: an organisation that needs software
+built. Plain words, no telemetry, no stage jargon beyond Live / In beta / Prototype, every project at most
+once, every section inside one phone screen (390×844 and 360×780). It uses its own `home.css`. Records,
+terrain and contact sheets carry the proof on case pages, Work and Engineering.
+
 ## Motion (`field-motion.css`, `field-motion.js`)
 The record is being made in front of the visitor. Each motion belongs to one of the three sources:
 
@@ -41,9 +47,10 @@ The record is being made in front of the visitor. Each motion belongs to one of 
 | Terrain | roads draw along their length, then the places land on them; gazetteer rows follow | `[data-reveal]` on the section |
 | Contact Sheet | frames are dealt onto the sheet and jump when reached for; on phones the sheet is a roll you swipe, with a frame counter; the reel of real frames runs against the scroll, rows opposed | `.strip--roll` + `.roll-count`; `[data-reel]` with `gen:reel` |
 
-The hero carries a live capture in a film gate (`.hero__reel`, `video[data-loop]`). It plays only on
-screen, never under reduced motion or Save-Data. Pages hand over with cross-document view
-transitions.
+Home's own motion is small: "REAL." lands like a stamp, the television powers on and the phone lands
+beside it, offers and steps step in. `video[data-loop]` support remains in `field-motion.js` for a
+loop that plays only on screen and never under reduced motion or Save-Data. No page uses it now.
+Pages hand over with cross-document view transitions.
 
 Rules:
 1. **No generic text slides or fades for their own sake.** Motion shows a record being made, a

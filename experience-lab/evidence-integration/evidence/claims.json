@@ -402,7 +402,7 @@
   },
   {
    "claim_id": "C-HOME-SENTINEL-GPSDENIED",
-   "route": "/",
+   "route": null,
    "system": "Operation Sentinel",
    "claim": "An offline-capable command-and-control and training stack for GPS-degraded and GPS-denied conditions, built so no critical function depends on cloud assets while a mission is running.",
    "evidence_ids": [
@@ -412,7 +412,7 @@
    "status": "SUPPORTED",
    "note": "A GPS-denied PX4 parameter set exists. Architecture claim; nothing has been flown.",
    "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
-   "public_status": "SUPPORTED"
+   "public_status": "NO LONGER ON THE SITE — Home was rebuilt on 2026-11-02 as a plain introduction for client organisations and does not carry this claim; the project page carries its own claims"
   },
   {
    "claim_id": "C-HOME-SENTINELCORE",
@@ -445,7 +445,7 @@
   },
   {
    "claim_id": "C-HOME-MEDIMATCH-BUILT",
-   "route": "/",
+   "route": null,
    "system": "MediMatch",
    "claim": "The platform is built and publicly demonstrated, and has not been deployed inside a health system. Facility inventory shown is synthetic and no patient records are used.",
    "evidence_ids": [
@@ -455,11 +455,11 @@
    "status": "SUPPORTED",
    "note": "",
    "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
-   "public_status": "SUPPORTED"
+   "public_status": "NO LONGER ON THE SITE — Home was rebuilt on 2026-11-02 as a plain introduction for client organisations and does not carry this claim; the project page carries its own claims"
   },
   {
    "claim_id": "C-HOME-SIMY-CORE",
-   "route": "/",
+   "route": null,
    "system": "Simy",
    "claim": "The relay and the cryptographic core are built; the end-user messenger is not finished yet. The relay carries sealed envelopes, verifies a published prekey bundle signature, and performs no decryption of its own.",
    "evidence_ids": [
@@ -469,7 +469,7 @@
    "status": "SUPPORTED",
    "note": "X3DH and double-ratchet code is present and the client is a scaffold. Not independently audited.",
    "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
-   "public_status": "SUPPORTED"
+   "public_status": "NO LONGER ON THE SITE — Home was rebuilt on 2026-11-02 as a plain introduction for client organisations and does not carry this claim; the project page carries its own claims"
   },
   {
    "claim_id": "C-HOME-FOUNDRY-BASELINE",

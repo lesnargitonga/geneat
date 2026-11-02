@@ -3,6 +3,12 @@
 Newest first. Each entry says who decided, what, and what it changed. "Owner" is the founder of
 LESNAR AI. Entries marked **superseded** stay in the log so the reasoning is not lost.
 
+## 2026-11-02 — owner review of the Phase 2 preview (scored −5/10)
+
+| # | Decision | Consequence |
+|---|---|---|
+| D-38 | The review: no repetition (MediMatch appeared six times on Home); a stranger must learn who we are before seeing a project; the site read as an engineer's dashboard talking to itself; nothing fit a phone screen. Home's audience is **organisations that need software built**. Feature **LESNAR TV and PLAY** once. The owner supplies real photographs. | Home is rewritten in plain language, phone first, each section inside one 390×844 screen (and 360×780). It gives a clear promise; four offers, each linking once to its proof; LESNAR TV and PLAY as our own products; how working with us goes; who you work with; one ask. Telemetry channels, odometers, the reel, the map and the hero capture leave Home; the engineering detail stays on case pages, Work and Engineering. The hero loop leaves the site. The three Home-bound registry claims are unbound with a reason. The TCL screen recordings stay off the site: they show third-party apps (including CricFy TV), so publishing them is the owner's call. |
+
 ## 2026-11-01 — owner direction, fourth round (release, then soul)
 
 | # | Decision | Consequence |
