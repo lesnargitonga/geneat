@@ -554,7 +554,10 @@ def proof_html(pr):
     stage_chip = f'<span class="cp-proof__s">{pr["stage"]}</span>' + (f'<span class="avail" data-avail="{key}"></span>' if key else "")
     if pr["href"]:
         return f'<li><a href="{pr["href"]}">{pr["name"]}</a>{stage_chip}</li>'
-    return f'<li class="cp-proof--client"><span>{pr["name"]}</span><span class="cp-proof__who">Client, unnamed</span>{stage_chip}</li>'
+    if pr.get("client") is None:
+        return f'<li><span>{pr["name"]}</span>{stage_chip}</li>'
+    who = "Client work" if pr["client"] == "named" else "Client, unnamed"
+    return f'<li class="cp-proof--client"><span>{pr["name"]}</span><span class="cp-proof__who">{who}</span>{stage_chip}</li>'
 
 def discipline_html(d):
     label = MARKS[d["mark"]][0]
@@ -649,8 +652,7 @@ PAGES["/company/"] = ("Company",
 </section>
 <section class="co-city" aria-labelledby="city-h">
   <picture class="ph-bg"><source type="image/webp" srcset="/assets/photos/nairobi@900.webp 900w, /assets/photos/nairobi@1400.webp 1400w, /assets/photos/nairobi.webp 2000w" sizes="100vw"><img src="/assets/photos/nairobi.jpg" srcset="/assets/photos/nairobi@900.jpg 900w, /assets/photos/nairobi@1400.jpg 1400w, /assets/photos/nairobi.jpg 2000w" sizes="100vw" width="2000" height="1500" loading="lazy" alt=""></picture>
-  <div class="w co-city__inner"><h2 class="statement co-city__h" id="city-h">Based in Nairobi</h2>
-    <p class="ph-credit">Photo: <a href="https://unsplash.com/photos/vyagy6HJpVE">Kenny Murgor</a> on Unsplash</p></div>
+  <div class="w co-city__inner"><h2 class="statement co-city__h" id="city-h">Based in Nairobi</h2></div>
 </section>'''
   + f"""<section class="w sec" aria-labelledby="where-h"><div class="two">
   <div><h2 class="h2" id="where-h">Where we<br><em>work</em></h2><p class="body">The places our systems run, are being prepared, or are modelled. Simulation work has no place on a map.</p></div>

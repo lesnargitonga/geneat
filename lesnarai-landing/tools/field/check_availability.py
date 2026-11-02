@@ -21,6 +21,7 @@ SYSTEMS = {
     "hazina": "https://hazina.lesnarai.co.ke/",
     "geneat": "https://geneat.lesnarai.co.ke/",
     "hospitality": "https://elixirs.lesnarai.co.ke/",   # client pilot, shown unnamed
+    "redsky": "https://redsky.lesnarai.com/",           # Red Sky Security staging
 }
 
 def probe(url):

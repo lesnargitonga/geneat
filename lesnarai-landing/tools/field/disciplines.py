@@ -7,9 +7,9 @@ says how far our own work in it has gone:
   exp     Experimental  research or simulation only
 Each layer may name what it would take partners or resources to go further.
 
-Proof lines either link a project page (name, href, stage) or describe client work without the
-client's name: no client has given showcase consent (CONTENT_INVENTORY, D-16). Elixirs is
-"capability evidence only" by ruling, so it appears here unnamed.
+Proof lines either link a project page (name, href, stage) or describe client work. Red Sky and
+Olive Optical are cleared for naming by the owner (D-43). The non-profit and the hospitality pilot
+stay unnamed (D-16; Elixirs is "capability evidence only" by ruling).
 """
 
 MARKS = {
@@ -22,7 +22,13 @@ def P(name, href, stage):           # a proof with its own page
     return {"name": name, "href": href, "stage": stage}
 
 def C(text, stage, avail=None):     # client work, described without the client's name
-    return {"name": text, "href": None, "stage": stage, "avail": avail}
+    return {"name": text, "href": None, "stage": stage, "avail": avail, "client": "unnamed"}
+
+def S(text, stage):                 # a statement about our own operations, not tied to one project
+    return {"name": text, "href": None, "stage": stage, "avail": None, "client": None}
+
+def N(text, stage, avail=None):     # client work the owner has cleared for naming (D-43), no page yet
+    return {"name": text, "href": None, "stage": stage, "avail": avail, "client": "named"}
 
 LAYERS = [
   {"id": "organisations", "name": "Organisations", "line": "Enterprise systems, ERP and the platforms an institution runs on.",
@@ -32,11 +38,12 @@ LAYERS = [
       "what": "Operations software shaped around how an organisation actually works: stock and procurement, point of sale, "
               "day books and reconciliation, staff roles, approvals and an append-only audit trail, instead of an "
               "off-the-shelf package bent out of shape.",
-      "proof": [C("A security company's operations platform: rostering, an occurrence book whose entries can be corrected "
-                  "but not overwritten, an incident workflow and a client portal", "Pilot"),
+      "proof": [N("Red Sky Security: public site and operations portal: assessment requests to clients and sites, rosters, "
+                  "post instructions, an occurrence book that can be corrected but not overwritten, incidents, inspections, "
+                  "and a client portal that sees only released reports", "Staging, in validation", "redsky"),
                 C("A hospitality operations platform, in pilot with real orders and mobile-money payments", "Pilot", "hospitality"),
-                C("An optician's retail and workshop platform: prescription to collection, mobile-money reconciliation "
-                  "and a tamper-evident audit trail", "Demonstrated")],
+                N("Olive Optical Supplies: public website, staff operations and owner management: prescription to collection, "
+                  "mobile-money reconciliation and a tamper-evident audit trail", "Demonstration")],
       "limit": "Statutory integrations such as KRA eTIMS are scoped per engagement; we have not shipped one yet."},
      {"id": "platforms", "short": "Organisational platforms", "name": "Organisational and community platforms", "mark": "use",
       "what": "Members, bookings, vetting, votes and records, with every decision leaving a trail that survives "
@@ -116,7 +123,7 @@ LAYERS = [
      {"id": "infra", "short": "Infrastructure and databases", "name": "Infrastructure, databases and reliability", "mark": "use",
       "what": "PostgreSQL and PostGIS data models, migrations that check themselves, Linux server hardening, "
               "cloud and VPS deployment, CI and the release gates that keep running systems up.",
-      "proof": [C("The live and pilot systems on this page run on infrastructure we deploy and operate", "Live"),
+      "proof": [S("The live and pilot systems on this page run on infrastructure we deploy and operate", "Live"),
                 P("Checksum-guarded migrations in SentinelCore", "/work/sentinelcore/", "Internal")],
       "limit": None},
      {"id": "geo", "short": "Geospatial and logistics", "name": "Geospatial and logistics", "mark": "demo",
