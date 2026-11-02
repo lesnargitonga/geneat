@@ -556,9 +556,7 @@ def proof_html(pr):
         return f'<li><a href="{pr["href"]}">{pr["name"]}</a>{stage_chip}</li>'
     if pr.get("client") is None:
         return f'<li><span>{pr["name"]}</span>{stage_chip}</li>'
-    who = ('Client work</span><span class="pending" data-pending="publicity">Publicity approval pending'
-           if pr["client"] == "named" else "Client, unnamed")
-    return f'<li class="cp-proof--client"><span>{pr["name"]}</span><span class="cp-proof__who">{who}</span>{stage_chip}</li>'
+    return f'<li class="cp-proof--client"><span>{pr["name"]}</span><span class="cp-proof__who">Client, unnamed</span>{stage_chip}</li>'
 
 def discipline_html(d):
     label = MARKS[d["mark"]][0]

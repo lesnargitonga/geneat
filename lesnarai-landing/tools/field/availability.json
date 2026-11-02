@@ -1,5 +1,5 @@
 {
- "checked": "2026-11-02 11:55 EAT",
+ "checked": "2026-11-02 19:19 EAT",
  "date": "2 Nov 2026",
  "systems": {
   "bizmtaani": {
@@ -26,7 +26,7 @@
    "up": true,
    "result": 200
   },
-  "redsky": {
+  "security": {
    "up": false,
    "result": "URLError"
   }

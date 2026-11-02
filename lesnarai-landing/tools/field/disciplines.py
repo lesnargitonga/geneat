@@ -7,9 +7,9 @@ says how far our own work in it has gone:
   exp     Experimental  research or simulation only
 Each layer may name what it would take partners or resources to go further.
 
-Proof lines either link a project page (name, href, stage) or describe client work. Red Sky and
-Olive Optical are cleared for naming by the owner (D-43). The non-profit and the hospitality pilot
-stay unnamed (D-16; Elixirs is "capability evidence only" by ruling).
+Proof lines either link a project page (name, href, stage) or describe client work. Client work is
+shown without the client's name until publicity approval is documented (D-16, D-45); the named
+material for the two systems withdrawn under D-45 is held privately, outside this repository.
 """
 
 MARKS = {
@@ -27,9 +27,6 @@ def C(text, stage, avail=None):     # client work, described without the client'
 def S(text, stage):                 # a statement about our own operations, not tied to one project
     return {"name": text, "href": None, "stage": stage, "avail": None, "client": None}
 
-def N(text, stage, avail=None):     # named client work (D-43), no page yet; shown as pending publicity approval (D-44)
-    return {"name": text, "href": None, "stage": stage, "avail": avail, "client": "named"}
-
 LAYERS = [
   {"id": "organisations", "name": "Organisations", "line": "Enterprise systems, ERP and the platforms an institution runs on.",
    "partners": None,
@@ -38,11 +35,11 @@ LAYERS = [
       "what": "Operations software shaped around how an organisation actually works: stock and procurement, point of sale, "
               "day books and reconciliation, staff roles, approvals and an append-only audit trail, instead of an "
               "off-the-shelf package bent out of shape.",
-      "proof": [N("Red Sky Security: public site and operations portal: assessment requests to clients and sites, rosters, "
+      "proof": [C("A security company's public site and operations portal: assessment requests to clients and sites, rosters, "
                   "post instructions, an occurrence book that can be corrected but not overwritten, incidents, inspections, "
-                  "and a client portal that sees only released reports", "Staging, in validation", "redsky"),
+                  "and a client portal that sees only released reports", "Staging, in validation", "security"),
                 C("A hospitality operations platform, in pilot with real orders and mobile-money payments", "Pilot", "hospitality"),
-                N("Olive Optical Supplies: public website, staff operations and owner management: prescription to collection, "
+                C("An optician's public website, staff operations and owner management: prescription to collection, "
                   "mobile-money reconciliation and a tamper-evident audit trail", "Demonstration")],
       "limit": "Statutory integrations such as KRA eTIMS are scoped per engagement; we have not shipped one yet."},
      {"id": "platforms", "short": "Organisational platforms", "name": "Organisational and community platforms", "mark": "use",
