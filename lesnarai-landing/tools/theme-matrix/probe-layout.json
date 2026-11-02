@@ -141,8 +141,8 @@
     {
      "id": "photo-dark",
      "method": "mean",
-     "light": "#1E2023",
-     "dark": "#1E2023",
+     "light": "#1B1E20",
+     "dark": "#1B1E20",
      "x": 186,
      "y": 46,
      "w": 64,
