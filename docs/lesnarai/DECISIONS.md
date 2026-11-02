@@ -3,6 +3,17 @@
 Newest first. Each entry says who decided, what, and what it changed. "Owner" is the founder of
 LESNAR AI. Entries marked **superseded** stay in the log so the reasoning is not lost.
 
+## 2026-11-01 — owner direction, fourth round (release, then soul)
+
+| # | Decision | Consequence |
+|---|---|---|
+| D-37 | Video optimisation covers Film 001 too: the site served its 1080p master (4.28 MB MP4, 3.97 MB WebM). | Re-cut at 1280×720, with sound at 96 kb/s: WebM 1.17 MB, MP4 1.39 MB. All four decode-gate runs pass (PSNR ≥ 37 dB against the master). Same filenames, still click-to-play. |
+| D-36 | Nairobi to Mandera is 1,141 km by road, and MediMatch holds 55 transfers on 54 stored routes. The 926 km and "54 transfers" figures had no source. | Corrected on Home and the MediMatch page from MediMatch's stored OSRM route and the plan export (`tools/assets/medimatch-plan.json`). |
+| D-35 | The MediMatch seamless live capture (D-12) is delivered. | A frame-exact virtual-clock capture of the running product: globe, tap on Kenya, roads, Nairobi. The site gets an 18 s film (click-to-play) and a 12 s hero loop. The Nairobi panel is cropped above its survey strip, because survey figures stay withdrawn. All eight decode-gate runs pass. Recipe: `experience-lab/motion-system/medimatch-roads/`. |
+| D-34 | The site needs soul: photos, video, motion with character, not generic text slides. | Home leads with a live capture in a film gate. A reel of real frames runs against the scroll. Traces write behind a playhead, readings roll like odometers, roads draw before places land, frames jump on hover, and pages hand over with view transitions. On phones the contact sheet and readings become swipe rolls. All of it is off under reduced motion and without script. No stock or generated imagery. Real photographs (workstation, hardware, field use) must come from the owner; the project holds none. |
+| D-33 | Forced dark mode preservation is mandatory: light is #FFFFFF on #000000 text, dark is #000000 with #FFFFFF text, preserved under Samsung Internet's forced dark and Chrome's auto-darkening. It needs a controlled test matrix, and it is not releasable on desktop emulation alone. | Built on branch `portfolio/force-dark`: strict tokens, explicit `color-scheme`, a probe page and a pixel-sampling matrix. The Samsung rows stay untested until the owner's device run. |
+| D-32 | Deploy the five-commit factual hotfix to production, move the `lesnarai.com` alias explicitly, keep `jfalf37v5` as the rollback target, verify all four addresses. | Released as `lesnarai-v2-lab7a68rq` and verified live (release plan §6). No rollback needed. |
+
 ## 2026-11-01 — owner direction, third round (execution)
 
 | # | Decision | Consequence |
