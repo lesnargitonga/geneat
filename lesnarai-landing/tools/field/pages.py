@@ -75,10 +75,10 @@ def pic(name, alt, eager=False):
             f'<img src="/assets/field/{name}.jpg" width="{m["w"]}" height="{m["h"]}" {load} alt="{alt}"></picture>')
 
 
-def frame(name, span, edge, num, title, cap, alt, select=False, href=None, eager=False):
+def frame(name, span, edge, num, title, cap, alt, href=None, eager=False):
     inner = pic(name, alt, eager)
     inner = f'<a class="frame__pic" href="{href}">{inner}</a>' if href else f'<div class="frame__pic">{inner}</div>'
-    return (f'<figure class="frame frame--{span}{" frame--select" if select else ""}">'
+    return (f'<figure class="frame frame--{span}">'
             f'<div class="frame__edge"><span>{edge}</span><span>{num}</span></div>{inner}'
             f'<figcaption><b>{title}</b>{cap}</figcaption></figure>')
 
@@ -148,7 +148,7 @@ PAGES["/work/medimatch/"] = ("MediMatch",
     '<div class="w" style="padding:0">' + strip([
       frame("mm-globe", 6, "INTRO", "01", "The globe", "the product's own hand flicks the globe toward Africa", "MediMatch intro: a hand flicks a dark globe"),
       frame("mm-kenya", 6, "INTRO", "02", "Kenya", "the globe settles and the tap lands on Kenya", "MediMatch intro: Kenya highlighted on the globe as the tap lands"),
-      frame("mm-roads", 6, "NATIONAL", "03", "On the roads", "Nairobi to Mandera selected; every transfer follows the road network", "MediMatch national view with transfers drawn along roads, Nairobi to Mandera highlighted", select=True),
+      frame("mm-roads", 6, "NATIONAL", "03", "On the roads", "Nairobi to Mandera selected; every transfer follows the road network", "MediMatch national view with transfers drawn along roads, Nairobi to Mandera highlighted"),
       frame("mm-nairobi", 6, "NAIROBI COUNTY", "04", "Street scale", "43 transfers inside the county, ranked by distance, urgency and fit", "MediMatch Nairobi County close-up: transfers on city roads"),
     ], roll="roll-mm") + "</div>", attrs=" data-reveal")
   + f"""<section class="w sec" aria-labelledby="roads-h" data-reveal><div class="two">
@@ -208,7 +208,7 @@ PAGES["/work/zygos/"] = ("Zygos",
   + sec("line-h", "One fictional claim, traced", "A demonstration business, NovaCart, from search to the published record. These are fictional records, and the app says so on every screen.",
     '<div class="w" style="padding:0">' + strip([
       frame("zygos-search", 3, "SEARCH", "01", "Search", "a buyer checks a name before paying · fictional", "Zygos search results for NovaCart"),
-      frame("zygos-claim", 3, "CLAIM", "02", "Claim", "the reporter's account, disputed by the business · fictional", "A reported claim about NovaCart, marked disputed", select=True),
+      frame("zygos-claim", 3, "CLAIM", "02", "Claim", "the reporter's account, disputed by the business · fictional", "A reported claim about NovaCart, marked disputed"),
       frame("zygos-compare", 3, "COMPARE", "03", "Compare", "two identities side by side; no score is invented · fictional", "Zygos comparing NovaCart and NovaCart Deals KE"),
       frame("zygos-method", 3, "METHOD", "04", "Method", "the rules, published to the people they apply to", "Zygos methodology page"),
     ]) + "</div>")
@@ -229,7 +229,7 @@ PAGES["/work/lesnar-tv/"] = ("LESNAR TV",
     "A fast, ad-free home screen for a 2 GB television. It learns which apps you use, on the TV itself.",
     stage("internal", "Internal alpha"), ["Kotlin · Android TV", "used daily on one television; not distributed"])
   + '<section class="sec" aria-labelledby="scr-h"><div class="w"><h2 class="h2" id="scr-h">Three homes, ten feet away</h2></div><div class="w">'
-  + strip([frame("lesnartv", 12, "GLASS", "01", "Glass", "emulator · fictional fixture apps · 1920×1080", "LESNAR TV Glass home screen", select=True),
+  + strip([frame("lesnartv", 12, "GLASS", "01", "Glass", "emulator · fictional fixture apps · 1920×1080", "LESNAR TV Glass home screen"),
            frame("tv-ink", 6, "INK", "02", "Ink", "emulator · fictional fixture apps", "LESNAR TV Ink theme"),
            frame("tv-spaces", 6, "SPACES", "03", "Spaces", "emulator · fictional fixture apps", "LESNAR TV Spaces view")])
   + "</div></section>"
@@ -259,7 +259,7 @@ PAGES["/work/lesnar-play/"] = ("LESNAR PLAY",
     "Couch co-op without a console. The television runs the game and its own local relay, and phones join as controllers by scanning a code.",
     stage("prototype", "Prototype"), ["game: Comet Circuit", "no app · no account · LAN only"])
   + '<section class="sec" aria-labelledby="pair-h"><div class="w"><h2 class="h2" id="pair-h">The phone is the controller</h2></div><div class="w">'
-  + strip([frame("lesnarplay", 8, "TCL TV", "01", "On the television", "real TCL television · co-op wave 1 · adb capture, 28 Oct 2026", "Comet Circuit running on a television", select=True),
+  + strip([frame("lesnarplay", 8, "TCL TV", "01", "On the television", "real TCL television · co-op wave 1 · adb capture, 28 Oct 2026", "Comet Circuit running on a television"),
            frame("play-phone", 4, "PHONE", "02", "The pad", "desktop-browser capture of the phone controller", "LESNAR PLAY phone controller"),
            frame("play-lobby", 12, "LOBBY", "03", "Join by code", "desktop-browser capture · QR code and four-digit join code", "Comet Circuit lobby with a QR code and players joined")])
   + "</div></section>"
@@ -318,7 +318,7 @@ PAGES["/work/bizmtaani/"] = ("BizMtaani",
   + sec("order-h", "One order, start to finish", "Live storefront frames, then the merchant's side in the demonstration console, which runs on sample data and says so.",
     '<div class="w" style="padding:0">' + strip([
       frame("bizmtaani", 3, "FIND", "01", "Find", "live storefront · 12 Oct 2026", "BizMtaani storefront"),
-      frame("biz-villager", 3, "ORDER", "02", "Order", "The Villager's live menu · Oct 2026", "The Villager on BizMtaani, open for orders", select=True),
+      frame("biz-villager", 3, "ORDER", "02", "Order", "The Villager's live menu · Oct 2026", "The Villager on BizMtaani, open for orders"),
       frame("biz-floor", 3, "STATIONS", "03", "Station tickets", "demonstration console · sample data", "BizMtaani station board"),
       frame("biz-daybook", 3, "DAYBOOK", "04", "Close the day", "demonstration console · sample data", "BizMtaani daybook"),
     ]) + "</div>")
@@ -351,7 +351,7 @@ PAGES["/work/jamii-projects-hub/"] = ("Jamii Projects Hub",
                 ("Report", "The outcome stays on the record.")])}</div></div></section>"""
   + '<section class="sec" aria-labelledby="js-h"><div class="w"><h2 class="h2" id="js-h">The public surface</h2></div><div class="w">'
   + strip([frame("jamii-home", 3, "HOME", "01", "Home", "public page · Oct 2026", "Jamii Projects Hub home page"),
-           frame("jamii-projects", 3, "PROJECTS", "02", "Projects", "public project list · Oct 2026", "Jamii community projects list", select=True)])
+           frame("jamii-projects", 3, "PROJECTS", "02", "Projects", "public project list · Oct 2026", "Jamii community projects list")])
   + "</div></section>"
   + '<section class="w sec" aria-labelledby="jp-h"><h2 class="h2" id="jp-h">Where the pilot is being prepared</h2><div class="gaz">'
     '<div class="gaz__row"><span class="place">Mbeere North</span><span class="data">Evurore · Muminji · Nthawa</span><span class="gaz__sys"><b>Controlled pilot</b>, as the product itself states.</span>'
@@ -369,7 +369,7 @@ PAGES["/work/gen-eat/"] = ("Gen-Eat",
   + f"""<section class="w sec" aria-labelledby="walk-h"><div class="two">
   <div><h2 class="h2" id="walk-h">The walk between<br>lectures</h2>{steps([("Lecture ends", "A student has minutes, not a queue's worth of time."),
        ("Order", "The order goes to the café over WhatsApp."), ("Ready", "The café marks it ready."), ("Collect", "The student collects and walks on.")])}</div>
-  <div>{frame("geneat-flow", 12, "PORTAL", "01", "The portal", "demonstration · stock café photo · synthetic till number", "Gen-Eat portal showing a café and the WhatsApp order flow", select=True).replace('<figure class="frame', '<figure style="background:var(--film);padding:14px" class="frame')}</div>
+  <div>{frame("geneat-flow", 12, "PORTAL", "01", "The portal", "demonstration · stock café photo · synthetic till number", "Gen-Eat portal showing a café and the WhatsApp order flow").replace('<figure class="frame', '<figure style="background:var(--film);padding:14px" class="frame')}</div>
 </div></section>"""
   + limits(["A live café: the four cafés are demonstration tenants.", "Working payments: the WhatsApp ordering and payment route is not active.",
             "A pilot: one at USIU is planned, not run.", "Its own platform: Gen-Eat ran as a tenant on Hazina Nomads' service."])
@@ -433,25 +433,108 @@ PAGES["/work/gold-trader/"] = ("Gold Trader",
             "Advice: nothing here is a recommendation to trade."])
   + nxt("Need research that is allowed to say no?"))
 
-# ── SENTINELCORE ─────────────────────────────────────────────────────────────
+# ── SENTINELCORE ── facts from the SentinelCore APEX program (Cyber-apex, baseline e4d87eb, reports/ and docs/apex/)
+SC_LOOP = [
+  ("Observe", [("Telemetry and owned-source collection", "normalises authorised observations"),
+               ("Assessment and engine adapters", "bounded findings, kept as evidence")]),
+  ("Understand", [("Asset, exposure and identity context", "who owns what, and what is exposed"),
+                  ("Intelligence, correlation and attribution", "relationships, with their confidence"),
+                  ("Unified incidents and protection graph", "many signals joined into one incident"),
+                  ("SOC workflow and reporting", "evidence-backed operator workflows")]),
+  ("Act", [("Governed response", "a graduated policy ladder; live actions are recommendations"),
+           ("Authorised adversary validation", "scoped testing, isolated from protection authority"),
+           ("Control plane and runtime", "coordinates bounded work; orchestration is not authority")]),
+  ("Recover", [("Recovery verification", "restoration proven independently, not assumed")]),
+  ("Learn", [("Assurance evidence and institutional learning", "timelines, outcomes and lessons retained"),
+             ("Reality Lab", "controlled scenarios, kept apart from observed evidence")]),
+]
+SC_ENGINES = [("Gitleaks", "8.18.4", "secrets in repositories"), ("Trivy", "0.72.0", "images, filesystems and configuration"),
+              ("Nuclei", "3.9.0", "known exposures on services"), ("Checkov", "3.2.23", "infrastructure as code"),
+              ("testssl.sh", "3.2.1", "TLS configuration"), ("osquery", "5.12.1", "host state")]
+SC_QUAL = [("Pack 1", 52, 60, "0.867"), ("Pack 2", 55, 61, "0.902"), ("Pack 3", 58, 60, "0.967")]
+SC_WAVES = [("0", "Recovery, integrity and inventory", None), ("1", "Offensive security and investigation operations", None),
+            ("2", "Attacker tracking and threat intelligence", None), ("3", "Defensive security and SOC operations", None),
+            ("4", "Asset, exposure and attack-surface intelligence", None), ("5", "Unified security assessment and remediation", None),
+            ("5.6", "Controlled Reality Lab", None), ("5.7", "Owned-environment canary", None),
+            ("5.8", "Real owned canaries and consolidation", 353), ("6.0", "Unified protection spine", 408),
+            ("6.1", "Shadow operations and false-positive control", 422), ("6.2", "Governed reversible containment", 438),
+            ("6.3", "Protection operations plane and runtime trust boundary", 458), ("B", "Multi-family blind assurance baseline", 842)]
+
+def sc_loop():
+    cols = "".join(f'<li class="sc-loop__s"><h3>{stage}</h3><ul>' + "".join(f"<li><b>{n}</b>{d}</li>" for n, d in caps) + "</ul></li>"
+                   for stage, caps in SC_LOOP)
+    return f'<ol class="sc-loop">{cols}</ol>'
+
+def sc_engines():
+    rows = "".join(f'<tr><th scope="row">{n}</th><td class="data">{v}</td><td>{w}</td></tr>' for n, v, w in SC_ENGINES)
+    return ('<table class="sc-eng"><caption class="sr">Security engines SentinelCore runs, pinned to these versions</caption>'
+            f'<thead class="sr"><tr><th>Engine</th><th>Pinned version</th><th>What it checks</th></tr></thead><tbody>{rows}</tbody></table>')
+
+def sc_qual():
+    gate = 0.95
+    bars = "".join(f'<li><span class="sc-q__k">{k}</span><span class="sc-q__bar"><i style="--v:{c / t:.4f}"></i></span>'
+                   f'<span class="sc-q__v data">{c}/{t} = {v}</span></li>' for k, c, t, v in SC_QUAL)
+    return (f'<figure class="sc-q" aria-labelledby="scq-c"><ul class="sc-q__bars" style="--gate:{gate}">{bars}</ul>'
+            f'<figcaption id="scq-c" class="data">Final-decision accuracy on three independent blind packs, written by a separate agent that never saw the engine; '
+            f'the engine ran unchanged and labels stayed sealed until execution finished. Dashed line: the 0.95 gate. Every pack: recall 14/14, both safety gates at zero.</figcaption></figure>')
+
+def sc_waves():
+    items = "".join(f'<li><span class="sc-w__n data">{"Wave " + n if n != "B" else "Baseline"}</span><span class="sc-w__t">{t}</span>'
+                    + (f'<span class="sc-w__c data">{c} tests</span>' if c else '<span class="sc-w__c"></span>') + "</li>" for n, t, c in SC_WAVES)
+    return f'<ol class="sc-w">{items}</ol>'
+
 PAGES["/work/sentinelcore/"] = ("SentinelCore",
-  "SentinelCore is the evidence, event and identity foundation for LESNAR AI's security work. Sentinel Assurance, its qualification layer, runs authorised assessment and retest.",
+  "SentinelCore is LESNAR AI's self-hostable security operations platform: owned-source observation, real pinned scanning engines, unified incidents, "
+  "governed reversible containment, independent recovery verification and decisions qualified blind.",
   "sentinel", "/work/",
   opening("Security", "SentinelCore",
-    "The evidence, event and identity foundation for our own security work, with Sentinel Assurance as its proof and qualification layer.",
-    stage("internal", "Internal"), ["not Operation Sentinel, the <a href=\"/work/sentinel/\">aerial simulation</a>", "no customer deployment"])
-  + sec("loop-h", "The assurance loop", "Sentinel Assurance: every step is authorised, recorded and retested before anything is closed.",
-    steps([("Asset", "A tenant asset with a stable, canonical identity."), ("Policy and authorisation", "Nothing is assessed without an explicit, recorded permission."),
-           ("Assessment", "An assessment cycle produces raw evidence, kept as evidence."), ("Finding", "Findings are fingerprinted so a recurrence is recognised."),
-           ("Remediation and retest", "A remediation case, then an authorised retest."), ("Closure or reopen", "Closed only on a passing retest; reopened if it recurs.")]))
-  + sec("m-h", "Measured, not marketed", "",
-    readings([("142", "", "tests passing in the qualified assurance vertical slice", "Sentinel Assurance", stage("internal", "Qualified slice")),
-              ("133", "", "tests passing in 21 files at one commit, 16 September 2026", "v1.0 baseline", stage("internal", "Baseline")),
-              ("242", "", "tracked files: an orchestrator and five modules", "v1.0 baseline", stage("internal", "Baseline"))]))
-  + limits(["External use: it is ready for an internal pilot on owned or synthetic assets only.",
-            "Clearance for an external pilot: a reality audit found two high-severity issues that block one.",
+    "A self-hostable security operations platform. It observes what you own, joins signals into incidents, acts only under governance, "
+    "proves recovery independently and keeps the lessons. It holds every claim to evidence, its own included.",
+    stage("internal", "Internal"), ["development candidate · no customer deployment", "Python · FastAPI · PostgreSQL · tenant-scoped",
+                                    "Sentinel Assurance is its assurance and qualification layer"])
+  + sec("sc-loop-h", "One protection loop", "Twelve capabilities, each with one role in a single loop. Engine, alert and incident outputs feed the unified incident as evidence instead of running as parallel systems.",
+        sc_loop(), attrs=" data-reveal")
+  + f"""<section class="w sec" aria-labelledby="sc-eng-h" data-reveal><div class="two">
+  <div><h2 class="h2" id="sc-eng-h">Real engines, pinned and verified</h2>
+    <p class="body">SentinelCore drives established scanners rather than imitating them. Each engine is pinned to a version and
+      SHA-verified before it runs, under bounded runtime controls. Every engine has run against owned canaries in five categories:
+      DNS and TLS, repositories, container images, infrastructure as code, and hosts.</p>
+    <p class="data">Container-image scanning runs without a Docker socket: OCI archive in, real vulnerabilities out.</p></div>
+  <div>{sc_engines()}</div></div></section>"""
+  + f"""<section class="w sec" aria-labelledby="sc-cov-h" data-reveal><div class="two">
+  <div><h2 class="h2" id="sc-cov-h">Detection, measured honestly</h2>
+    <p class="body">A purple-team baseline catalogues 28 techniques across 10 ATT&amp;CK tactics, including deserialisation, XXE, dependency
+      confusion, prompt injection, OAuth pre-account hijack and TLS downgrade. Every one fires a detection. Only the ones that show an active
+      intrusion are correlated into an incident. Posture findings such as missing headers stay visible as findings, and are never relabelled as attacks.</p></div>
+  <div class="sc-cov">
+    <div class="sc-cov__n"><b>28/28</b><span>techniques detected</span></div>
+    <div class="sc-cov__n"><b>20/28</b><span>correlated as active intrusion; the rest are posture, kept as findings</span></div>
+    <div class="sc-cov__n"><b>10</b><span>ATT&amp;CK tactics covered</span></div>
+  </div></div></section>"""
+  + sec("sc-cont-h", "Containment that can be undone", "Live response is recommendation-only. Containment is rehearsed on synthetic and canary targets under a governed lifecycle.",
+        steps([("Exact authorisation", "Single-use, exact-target permission, enforced again by a separate authenticated action broker."),
+               ("Durable leases", "Every action holds a lease and a hash-chained state, from proposed to contained to recovered."),
+               ("Reversible actions", "A synthetic identity session revoked and restored; a labelled workload disconnected and reconnected, with unrelated resources unchanged."),
+               ("Failure gates", "Stale, duplicate, replayed, concurrent, partial-failure, restart, cross-tenant and emergency-stop cases all pass.")]), attrs=" data-reveal")
+  + sec("sc-qual-h", "Decisions qualified blind", "The decision engine is deterministic and auditable. Language models may enrich evidence for a person; they do not decide.",
+        sc_qual()
+        + '<p class="body sc-note">Its first blind qualification failed. The record keeps that failure, and retracts the "generalisation proven" claims made by test packs the same process had written. '
+          'Independent packs moved accuracy from 0.867 to 0.967. Detection precision (0.933, one suspicious case escalated to an incident) is still under its 0.95 gate, so the engine has no production authority. '
+          'A fine-tuned language model failed the same kind of test (accuracy 0.917, 21 grounding failures). That is why it enriches evidence and never makes the call.</p>', attrs=" data-reveal")
+  + sec("sc-pt-h", "Attack, detect, decide, contain", "A governed purple-team lab attacks owned loopback clones only, never a live deployment.",
+        steps([("Seven techniques", "Path traversal, SQL injection, command injection, IDOR, SSRF, template injection and authentication bypass, each confirmed by the response it produced."),
+               ("Into the loop", "Each confirmed exploit becomes a protection signal, then a governed incident, then a contained and recovered target, findings and an open remediation case."),
+               ("Campaigns", "Three multi-stage campaigns, all three contained before data left."),
+               ("A gap it found", "Exploitation chains that reached data were only rated suspicious. A principled exfiltration trigger now makes them incidents, while approved bulk access stays benign.")]), attrs=" data-reveal")
+  + sec("sc-w-h", "Built in waves", "Each wave ends on qualification evidence, and a pass is recorded with its gaps. Test counts are the full suite at the end of each measured wave.",
+        sc_waves(), attrs=" data-reveal")
+  + limits(["A customer deployment: there is none. Deployment readiness is recorded with gaps still open.",
+            "Scale: it is a single-node, self-hostable platform, not a distributed EDR or SIEM.",
+            "A malware sandbox: isolation today is container-based, not a microVM.",
+            "Live response: actions on real systems are recommendations a person approves.",
+            "Offensive testing outside the lab: only against owned or written-authorised targets.",
             "Targets, findings or clients: never published."])
-  + nxt("Need security work that is authorised and evidenced?"))
+  + nxt("Need security engineering that is authorised and evidenced?"))
 
 # ── CAPABILITIES ── generated from tools/field/disciplines.py, the register Home's stack also reads
 sys.path.insert(0, str(Path(__file__).resolve().parent))

@@ -62,6 +62,7 @@
       index(s, ".kmtab__bar i");
       index(s, ".sel__i");
       index(s, ".cp-d");
+      index(s, ".sc-q__bars li");
       index(s, ".hm-steps li");
       index(s, ".mm-nai .roads path");
       var paths = s.querySelectorAll(".map .roads path, .mm-nai .roads path, .speed__ok, .speed__bad");

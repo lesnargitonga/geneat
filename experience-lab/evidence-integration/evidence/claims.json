@@ -247,7 +247,7 @@
   },
   {
    "claim_id": "C-SENTINEL-DESC",
-   "route": "/work/sentinelcore/",
+   "route": null,
    "system": "SentinelCore",
    "claim": "The studio's own tool for checking a Linux server is safe: it scans for open doors, watches the logs for trouble and tightens the settings that matter.",
    "evidence_ids": [
@@ -258,11 +258,11 @@
    "status": "SUPPORTED",
    "note": "scanner / monitor / firewall+remediator map to scanning, log watching and hardening.",
    "phase9_action": "NO ACTION",
-   "public_status": "SUPPORTED"
+   "public_status": "NO LONGER ON THE SITE: on 2026-11-02 the SentinelCore page was rewritten from the APEX program record (D-40). This claim describes the earlier v1.0 release lineage (an orchestrator and five modules), which understated the platform."
   },
   {
    "claim_id": "C-SENTINEL-STRUCTURE",
-   "route": "/work/sentinelcore/",
+   "route": null,
    "system": "SentinelCore",
    "claim": "Five modules and one orchestrator, named as the repository names them.",
    "evidence_ids": [
@@ -272,7 +272,7 @@
    "status": "SUPPORTED",
    "note": "cli.py orchestrator + scanner, monitor, firewall, remediator, telemetry.",
    "phase9_action": "NO ACTION",
-   "public_status": "SUPPORTED"
+   "public_status": "NO LONGER ON THE SITE: on 2026-11-02 the SentinelCore page was rewritten from the APEX program record (D-40). This claim describes the earlier v1.0 release lineage (an orchestrator and five modules), which understated the platform."
   },
   {
    "claim_id": "C-ENG-SEPARATE-RUNTIME",
@@ -416,7 +416,7 @@
   },
   {
    "claim_id": "C-HOME-SENTINELCORE",
-   "route": "/work/sentinelcore/",
+   "route": null,
    "system": "SentinelCore",
    "claim": "An orchestrator and five modules across 242 tracked files, with 133 tests passing and none failing across 21 test files at one commit.",
    "evidence_ids": [
@@ -427,7 +427,7 @@
    "status": "SUPPORTED",
    "note": "Moved from Home to the SentinelCore record on 2026-11-01 (Phase 2 Home). Previously: Same evidence already bound to /work/sentinelcore/; registered here because the homepage repeats the figures and must answer for them.",
    "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
-   "public_status": "SUPPORTED"
+   "public_status": "NO LONGER ON THE SITE: on 2026-11-02 the SentinelCore page was rewritten from the APEX program record (D-40). This claim describes the earlier v1.0 release lineage (an orchestrator and five modules), which understated the platform."
   },
   {
    "claim_id": "C-HOME-MEDIMATCH-SURVEY",
@@ -499,6 +499,48 @@
    "note": "Withdrawn from Home on 2026-11-01 under the publication ruling of 2026-10-12: category line only, no mechanics or value. Previously: The affected protocol, the proof-of-concept and the exploit path are confidential and are not recorded in the registry. Only the rounded figure and the test count are public-safe.",
    "phase9_action": "REGISTERED 2026-09-18 from source artifacts",
    "public_status": "WITHDRAWN 2026-11-01"
+  },
+  {
+   "claim_id": "C-SC-SUITE",
+   "route": "/work/sentinelcore/",
+   "system": "SentinelCore",
+   "claim": "842 tests passing at the multi-family blind assurance baseline.",
+   "evidence_ids": [
+    "EV-SENTINELCORE-SUITE-02"
+   ],
+   "strongest": "Measured",
+   "status": "SUPPORTED",
+   "note": "SentinelCore page rewritten from the APEX program record (D-40).",
+   "phase9_action": "NO ACTION",
+   "public_status": "SUPPORTED"
+  },
+  {
+   "claim_id": "C-SC-QUAL",
+   "route": "/work/sentinelcore/",
+   "system": "SentinelCore",
+   "claim": "Independent blind packs: accuracy 52/60 = 0.867, 55/61 = 0.902, 58/60 = 0.967; recall 14/14; safety gates at zero; no production authority.",
+   "evidence_ids": [
+    "EV-SENTINELCORE-QUAL-01"
+   ],
+   "strongest": "Measured",
+   "status": "SUPPORTED",
+   "note": "SentinelCore page rewritten from the APEX program record (D-40).",
+   "phase9_action": "NO ACTION",
+   "public_status": "SUPPORTED"
+  },
+  {
+   "claim_id": "C-SC-COV",
+   "route": "/work/sentinelcore/",
+   "system": "SentinelCore",
+   "claim": "28 techniques across 10 ATT&CK tactics; 28/28 detected; 20/28 correlated as active intrusion.",
+   "evidence_ids": [
+    "EV-SENTINELCORE-COV-01"
+   ],
+   "strongest": "Measured",
+   "status": "SUPPORTED",
+   "note": "SentinelCore page rewritten from the APEX program record (D-40).",
+   "phase9_action": "NO ACTION",
+   "public_status": "SUPPORTED"
   }
  ]
 }

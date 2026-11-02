@@ -1,0 +1,97 @@
+{
+  "pack_id": "sentinel-independent-operational-qualification-v2",
+  "candidate_commit": "67248a3",
+  "scenarios": 61,
+  "label_distribution": {
+    "INCIDENT": 14,
+    "SUSPICIOUS": 12,
+    "OBSERVE": 11,
+    "BENIGN": 12,
+    "ABSTAIN": 12
+  },
+  "metrics": {
+    "final_decision_accuracy": {
+      "n": 55,
+      "d": 61,
+      "value": 0.9016
+    },
+    "detection_precision": {
+      "n": 14,
+      "d": 15,
+      "value": 0.9333
+    },
+    "detection_recall": {
+      "n": 14,
+      "d": 14,
+      "value": 1.0
+    },
+    "evidence_accountability": {
+      "n": 61,
+      "d": 61,
+      "value": 1.0
+    },
+    "reconstruction_success": {
+      "n": 61,
+      "d": 61,
+      "value": 1.0
+    }
+  },
+  "thresholds": {
+    "final_decision_accuracy": 0.95,
+    "detection_precision": 0.95,
+    "detection_recall": 0.95,
+    "evidence_accountability": 1.0,
+    "reconstruction_success": 1.0
+  },
+  "performance_gates": {
+    "final_decision_accuracy": false,
+    "detection_precision": false,
+    "detection_recall": true,
+    "evidence_accountability": true,
+    "reconstruction_success": true
+  },
+  "safety_gates": {
+    "unsafe_benign": 0,
+    "unsupported_incident": 0
+  },
+  "safety_gates_pass": true,
+  "per_class_accuracy": {
+    "BENIGN": {
+      "correct": 11,
+      "total": 12,
+      "accuracy": 0.9167
+    },
+    "OBSERVE": {
+      "correct": 11,
+      "total": 11,
+      "accuracy": 1.0
+    },
+    "SUSPICIOUS": {
+      "correct": 8,
+      "total": 12,
+      "accuracy": 0.6667
+    },
+    "INCIDENT": {
+      "correct": 14,
+      "total": 14,
+      "accuracy": 1.0
+    },
+    "ABSTAIN": {
+      "correct": 11,
+      "total": 12,
+      "accuracy": 0.9167
+    }
+  },
+  "confusion": {
+    "ABSTAIN->ABSTAIN": 11,
+    "ABSTAIN->SUSPICIOUS": 1,
+    "BENIGN->BENIGN": 11,
+    "BENIGN->OBSERVE": 1,
+    "INCIDENT->INCIDENT": 14,
+    "OBSERVE->OBSERVE": 11,
+    "SUSPICIOUS->INCIDENT": 1,
+    "SUSPICIOUS->OBSERVE": 3,
+    "SUSPICIOUS->SUSPICIOUS": 8
+  },
+  "overall": "FAIL"
+}

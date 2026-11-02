@@ -443,6 +443,72 @@
    "limitations": "Our own document. Reproducibility is our own claim about our own harness, and no third party has confirmed it here.",
    "captured_at": "2026-09-18",
    "timezone": "+03:00 Africa/Nairobi"
+  },
+  {
+   "evidence_id": "EV-SENTINELCORE-SUITE-02",
+   "system": "SentinelCore",
+   "claim_ids": [
+    "C-SC-SUITE"
+   ],
+   "maturity_at_capture": "Internal",
+   "evidence_strength": "Measured",
+   "source_type": "controlled measurement",
+   "source_location": "local deployment-readiness report, not published",
+   "public_safe": true,
+   "route_or_artifact": "full pytest suite in the SentinelCore APEX worktree",
+   "source_commit": "e4d87eb3",
+   "measurement_method": "Full test suite run on the canonical APEX baseline during the deployment-readiness review of 2026-09-07, on a local Linux workstation.",
+   "shows": "842 passed, 0 failed, in 3 m 37 s.",
+   "does_not_show": "Operational use, deployment or protection of any real system. A passing suite shows the implementation meets its own tests.",
+   "privacy_notes": "Only the pass/fail count is published. The readiness report itself describes infrastructure and stays private.",
+   "limitations": "One run on one machine at one commit.",
+   "asset_path": null,
+   "freshness_note": "Tied to commit e4d87eb3.",
+   "captured_at": "2026-09-07"
+  },
+  {
+   "evidence_id": "EV-SENTINELCORE-QUAL-01",
+   "system": "SentinelCore",
+   "claim_ids": [
+    "C-SC-QUAL"
+   ],
+   "maturity_at_capture": "Internal",
+   "evidence_strength": "Measured",
+   "source_type": "independent blind qualification",
+   "source_location": "SentinelCore APEX reports/blind-operational-qualification/independent*/run/metrics.json",
+   "public_safe": true,
+   "route_or_artifact": "three sealed metrics files",
+   "source_commit": "e4d87eb3",
+   "measurement_method": "Each pack was authored by a separate agent blind to the engine; labels were sealed and hashed before execution; the candidate ran unchanged.",
+   "shows": "Final-decision accuracy 52/60, 55/61 and 58/60; INCIDENT recall 14/14 in every pack; unsafe-benign and unsupported-incident safety gates at 0 in every pack.",
+   "does_not_show": "Qualification. Detection precision remains under its 0.95 gate, so the engine has no production authority. Packs are synthetic scenarios, not field incidents.",
+   "privacy_notes": "Aggregate metrics only; no case content.",
+   "limitations": "Three packs of about 60 cases each.",
+   "asset_path": "evidence/originals/sentinelcore-apex/",
+   "freshness_note": "Re-runnable from the sealed packs.",
+   "captured_at": "2026-08-06"
+  },
+  {
+   "evidence_id": "EV-SENTINELCORE-COV-01",
+   "system": "SentinelCore",
+   "claim_ids": [
+    "C-SC-COV"
+   ],
+   "maturity_at_capture": "Internal",
+   "evidence_strength": "Measured",
+   "source_type": "controlled measurement",
+   "source_location": "SentinelCore APEX reports/purple-team/COVERAGE_BASELINE.md",
+   "public_safe": true,
+   "route_or_artifact": "purple-team coverage baseline",
+   "source_commit": null,
+   "measurement_method": "scripts/coverage_baseline.py exercising the offensive technique catalog against owned loopback targets and recording detections and correlation.",
+   "shows": "28 techniques across 10 ATT&CK tactics; 28/28 detected; 20/28 correlated as active intrusion; posture findings kept as findings.",
+   "does_not_show": "Detection of real-world attacks on production systems.",
+   "privacy_notes": "Technique names only; no targets.",
+   "limitations": "Lab measurement on owned loopback targets.",
+   "asset_path": "evidence/originals/sentinelcore-apex/purple-team-coverage-baseline.md",
+   "freshness_note": "Regenerable with scripts/coverage_baseline.py.",
+   "captured_at": "2026-08-06"
   }
  ]
 }

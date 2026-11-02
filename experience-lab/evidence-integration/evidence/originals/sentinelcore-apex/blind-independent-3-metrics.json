@@ -1,0 +1,95 @@
+{
+  "pack_id": "sentinel-independent-operational-qualification-v3",
+  "candidate_commit": "efd8159",
+  "scenarios": 60,
+  "label_distribution": {
+    "INCIDENT": 14,
+    "SUSPICIOUS": 13,
+    "OBSERVE": 11,
+    "BENIGN": 11,
+    "ABSTAIN": 11
+  },
+  "metrics": {
+    "final_decision_accuracy": {
+      "n": 58,
+      "d": 60,
+      "value": 0.9667
+    },
+    "detection_precision": {
+      "n": 14,
+      "d": 15,
+      "value": 0.9333
+    },
+    "detection_recall": {
+      "n": 14,
+      "d": 14,
+      "value": 1.0
+    },
+    "evidence_accountability": {
+      "n": 60,
+      "d": 60,
+      "value": 1.0
+    },
+    "reconstruction_success": {
+      "n": 60,
+      "d": 60,
+      "value": 1.0
+    }
+  },
+  "thresholds": {
+    "final_decision_accuracy": 0.95,
+    "detection_precision": 0.95,
+    "detection_recall": 0.95,
+    "evidence_accountability": 1.0,
+    "reconstruction_success": 1.0
+  },
+  "performance_gates": {
+    "final_decision_accuracy": true,
+    "detection_precision": false,
+    "detection_recall": true,
+    "evidence_accountability": true,
+    "reconstruction_success": true
+  },
+  "safety_gates": {
+    "unsafe_benign": 0,
+    "unsupported_incident": 0
+  },
+  "safety_gates_pass": true,
+  "per_class_accuracy": {
+    "BENIGN": {
+      "correct": 10,
+      "total": 11,
+      "accuracy": 0.9091
+    },
+    "OBSERVE": {
+      "correct": 11,
+      "total": 11,
+      "accuracy": 1.0
+    },
+    "SUSPICIOUS": {
+      "correct": 12,
+      "total": 13,
+      "accuracy": 0.9231
+    },
+    "INCIDENT": {
+      "correct": 14,
+      "total": 14,
+      "accuracy": 1.0
+    },
+    "ABSTAIN": {
+      "correct": 11,
+      "total": 11,
+      "accuracy": 1.0
+    }
+  },
+  "confusion": {
+    "ABSTAIN->ABSTAIN": 11,
+    "BENIGN->BENIGN": 10,
+    "BENIGN->OBSERVE": 1,
+    "INCIDENT->INCIDENT": 14,
+    "OBSERVE->OBSERVE": 11,
+    "SUSPICIOUS->INCIDENT": 1,
+    "SUSPICIOUS->SUSPICIOUS": 12
+  },
+  "overall": "FAIL"
+}

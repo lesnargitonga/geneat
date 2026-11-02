@@ -3,6 +3,12 @@
 Newest first. Each entry says who decided, what, and what it changed. "Owner" is the founder of
 LESNAR AI. Entries marked **superseded** stay in the log so the reasoning is not lost.
 
+## 2026-11-02 — owner review: colour, pictures, the drone film, SentinelCore
+
+| # | Decision | Consequence |
+|---|---|---|
+| D-40 | Two-tone accent headlines and orange or red text are AI-template styling; remove them. Pictures are the biggest weakness: take fresh screenshots of the systems, use them only where they earn a place, and drop annotation circles and in-app demo or disclaimer messages from screenshots (provenance stays in captions). Film 001 is the weakest Sentinel media; use a real recording. SentinelCore was shown as a few steps when it is a large system: give it its full truth. | **Colour.** Headlines are one colour. Orange frame labels became neutral grey. Numerals, kickers and hovers are ink, with underlines for hover. Red remains only for the primary action button, focus outlines and data marks that mean failure. The logo's red "AI" is unchanged pending the owner. **Pictures.** The yellow selection circles are gone everywhere. MediMatch's national still is cropped above the app's disclaimer bar. **Film.** The Sentinel film is the 31 Oct follow-camera recording of the corrected stack flying Run 2's mission (`experience-lab/motion-system/sentinel-follow/`), with a timed flight log; Film 001's media leave the site. **SentinelCore.** Its page is rewritten from the APEX program: the 12-capability protection loop, six pinned engines, ATT&CK coverage, governed reversible containment, blind qualification (0.867, 0.902, 0.967; precision still under its gate), the purple-team lab, 14 waves with test counts, and honest limits. New evidence objects and claims are registered; the v1.0 claims are unbound with a reason. **Still to do:** fresh screenshots of the other systems, starting with Zygos without its demo banner (`DEMO_MODE`). |
+
 ## 2026-11-02 — owner correction: present the full engineering company
 
 | # | Decision | Consequence |
