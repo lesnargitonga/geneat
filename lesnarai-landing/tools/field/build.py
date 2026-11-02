@@ -14,10 +14,13 @@ Markers (<!-- gen:NAME --> ... <!-- /gen:NAME -->), usable on any page:
   medimatch-nairobi Nairobi County at street scale, where 43 of the transfers stay
   kenya-map         Kenya outline, all stored road routes, and the places our systems run
   reel              two rows of real frames that run against each other as the page scrolls
+  stack             Home's six-layer engineering stack, from tools/field/disciplines.py
 Idempotent: re-running on unchanged inputs changes nothing.
 """
 import json, re, sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from disciplines import LAYERS, MARKS
 
 SITE = Path(__file__).resolve().parents[2]
 KENYA = json.loads((SITE / "tools/assets/kenya.json").read_text())
@@ -137,7 +140,21 @@ def reel():
         rows.append(f'<div class="reel__row" data-dir="{"-1" if r % 2 == 0 else "1"}">' + "".join(figs) + "</div>")
     return "\n".join(rows)
 
-MARKS = [  # key, label, sub, dx, dy, anchor
+def stack():
+    """Six layers, organisation at the top and machine at the base. Disciplines carry their maturity
+    mark; each layer links to its section on Capabilities. No project names: Home's proof is in
+    Selected systems, so nothing repeats."""
+    rows = []
+    for n, layer in enumerate(LAYERS):
+        items = "".join(f'<li><i class="mk mk--{d["mark"]}" aria-hidden="true"></i>{d["short"]}'
+                        f'<span class="sr"> ({MARKS[d["mark"]][0]})</span></li>' for d in layer["disciplines"])
+        rows.append(f'<li class="stk__layer" style="--n:{n}"><a class="stk__a" href="/capabilities/#{layer["id"]}">'
+                    f'<span class="stk__no">L{len(LAYERS) - n}</span><span class="stk__name">{layer["name"]}</span>'
+                    f'<ul class="stk__d">{items}</ul></a></li>')
+    legend = "".join(f'<li><i class="mk mk--{k}" aria-hidden="true"></i><b>{v[0]}</b> {v[1]}</li>' for k, v in MARKS.items())
+    return (f'<ol class="stk">{"".join(rows)}</ol>\n<ul class="stk__legend" aria-label="What the marks mean">{legend}</ul>')
+
+MARKS_MAP = [  # key, label, sub, dx, dy, anchor
     ("embu", "EMBU", "BizMtaani · live", 120, -60, "start"),
     ("mbeere", "MBEERE NORTH", "Jamii · pilot in preparation", 150, 30, "start"),
     ("nairobi", "NAIROBI", "CarePro · controlled beta", -96, 52, "end"),
@@ -151,7 +168,7 @@ def kenya_map():
            'BizMtaani in Embu, Jamii Projects Hub in Mbeere North, CarePro in Nairobi, and a modelled MediMatch route to Mandera.</title>',
            f'<path class="land" d="{KENYA["land"]}"/>',
            '<g class="roads">' + "".join(f'<path d="{d}"/>' for d in KENYA["roads"]) + "</g>"]
-    for key, label, sub, dx, dy, anchor in MARKS:
+    for key, label, sub, dx, dy, anchor in MARKS_MAP:
         x, y = P[key]; tx = x + dx + (6 if anchor == "start" else -6)
         out.append(f'<g class="mk"><rect x="{x - 5}" y="{y - 5}" width="10" height="10"/>'
                    f'<line x1="{x}" y1="{y}" x2="{x + dx}" y2="{y + dy}"/>'
@@ -170,6 +187,7 @@ FILL = {
     "medimatch-nairobi": mm_nairobi,
     "kenya-map": kenya_map,
     "reel": reel,
+    "stack": stack,
 }
 
 def fill(path: Path) -> bool:

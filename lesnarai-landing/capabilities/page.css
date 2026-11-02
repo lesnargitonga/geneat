@@ -1,0 +1,44 @@
+/* Capabilities: the discipline ledger. Six layers; each discipline states what we engineer, the
+   systems that prove it, its maturity, and its limits. Generated from tools/field/disciplines.py. */
+.cp-open .statement{margin-top:8px}
+.cp-legend{margin-top:22px}
+.cp-nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.cp-nav a{display:inline-flex;align-items:baseline;gap:6px;padding:8px 12px;border:1px solid var(--hair);text-decoration:none;color:var(--ink);font-weight:600;font-size:14.5px;transition:border-color .2s,transform .25s var(--spring,ease)}
+.cp-nav a span{font:500 10.5px var(--mono);color:var(--ink-3)}
+.cp-nav a:hover{border-color:var(--ink);transform:translateY(-2px)}
+
+.cp-l{border-top:2px solid var(--rule);padding-block:clamp(32px,6vw,84px)}
+.cp-l__grid{display:grid;gap:18px}
+.cp-l__no{font:500 11px var(--mono);letter-spacing:.08em;color:var(--signal)}
+.cp-l__name{margin:4px 0 8px;font:800 clamp(34px,5vw,64px)/.92 var(--sans);font-stretch:var(--cond);text-transform:uppercase}
+.cp-l__head p{margin:0;color:var(--ink-2);max-width:40ch;font-size:16px;line-height:1.45}
+.cp-l__head .cp-l__partners{margin-top:12px;font-size:14px;color:var(--ink-2);border-left:3px dashed var(--ink-3);padding-left:10px}
+.cp-l__partners b,.cp-d__limit b{display:block;font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin-bottom:2px}
+
+.cp-d{padding:18px 0 20px;border-top:1px solid var(--hair)}
+.cp-d:first-child{border-top:0;padding-top:4px}
+.cp-d__head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 14px}
+.cp-d__head h3{margin:0;font-size:clamp(19px,1.7vw,23px);line-height:1.2}
+.cp-d__mark{display:inline-flex;align-items:baseline;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap}
+.cp-d__what{margin:8px 0 0;color:var(--ink-2);font-size:16px;line-height:1.5;max-width:62ch}
+.cp-proof{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:6px}
+.cp-proof li{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font-size:15px;line-height:1.4}
+.cp-proof a{font-weight:700;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--signal)}
+.cp-proof a:hover{color:var(--signal)}
+.cp-proof--client span:first-child{color:var(--ink)}
+.cp-proof__who{font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.cp-proof__s{font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--ink-3);color:var(--ink-2);padding:0 5px}
+.cp-d__limit{margin:12px 0 0;font-size:14px;color:var(--ink-2);border-left:3px solid var(--signal);padding-left:10px;max-width:62ch}
+
+.cp-ind ul{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
+.cp-ind li{padding:10px 14px;border:1px solid var(--hair);font-weight:600}
+
+@media (min-width:961px){
+  .cp-l__grid{grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:56px;align-items:start}
+  .cp-l__head{position:sticky;top:24px}
+  .cp-d{display:grid;grid-template-columns:minmax(0,1fr);padding:22px 0 26px}
+}
+@media (prefers-reduced-motion:no-preference){
+  :root[data-js="on"] .cp-l[data-reveal] .cp-d{opacity:0;transform:translateY(22px)}
+  :root[data-js="on"] .cp-l[data-reveal].is-in .cp-d{transition:opacity .35s calc(min(var(--i,0), 4) * 90ms),transform .55s var(--spring) calc(min(var(--i,0), 4) * 90ms);opacity:1;transform:none}
+}

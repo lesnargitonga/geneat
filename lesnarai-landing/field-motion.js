@@ -60,7 +60,8 @@
       index(s, ".strip .frame");
       index(s, ".gaz__row");
       index(s, ".kmtab__bar i");
-      index(s, ".hm-offer");
+      index(s, ".sel__i");
+      index(s, ".cp-d");
       index(s, ".hm-steps li");
       index(s, ".mm-nai .roads path");
       var paths = s.querySelectorAll(".map .roads path, .mm-nai .roads path, .speed__ok, .speed__bad");

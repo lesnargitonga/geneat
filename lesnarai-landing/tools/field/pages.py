@@ -8,7 +8,7 @@ cannot drift, and the CSP hash of the inline bootstrap stays valid. Each page bo
 is written by hand below; facts come from docs/lesnarai/CONTENT_INVENTORY_2026-11-01.md
 and the project repositories. Output is plain static HTML.
 """
-import json, re
+import json, re, sys
 from pathlib import Path
 
 SITE = Path(__file__).resolve().parents[2]
@@ -453,47 +453,50 @@ PAGES["/work/sentinelcore/"] = ("SentinelCore",
             "Targets, findings or clients: never published."])
   + nxt("Need security work that is authorised and evidenced?"))
 
-# ── CAPABILITIES ─────────────────────────────────────────────────────────────
-def cap(cid, title, problem, scope, deliver, proofs):
-    links = " · ".join(f'<a href="{h}">{t}</a>' for t, h in proofs)
-    return (f'<section class="w sec" id="{cid}" aria-labelledby="{cid}-h"><div class="two">'
-            f'<h2 class="h2" id="{cid}-h">{title}</h2><div>'
-            + steps([("The problem", problem), ("What we build", scope), ("What you get", deliver)])
-            + f'<p class="data" style="margin-top:14px">Evidence: {links}</p></div></div></section>')
+# ── CAPABILITIES ── generated from tools/field/disciplines.py, the register Home's stack also reads
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from disciplines import LAYERS, MARKS, INDUSTRIES
+
+def proof_html(pr):
+    stage_chip = f'<span class="cp-proof__s">{pr["stage"]}</span>'
+    if pr["href"]:
+        return f'<li><a href="{pr["href"]}">{pr["name"]}</a>{stage_chip}</li>'
+    return f'<li class="cp-proof--client"><span>{pr["name"]}</span><span class="cp-proof__who">Client, unnamed</span>{stage_chip}</li>'
+
+def discipline_html(d):
+    label = MARKS[d["mark"]][0]
+    limit = f'<p class="cp-d__limit"><b>Limit</b> {d["limit"]}</p>' if d["limit"] else ""
+    return (f'<article class="cp-d" id="{d["id"]}" aria-labelledby="{d["id"]}-h">'
+            f'<header class="cp-d__head"><h3 id="{d["id"]}-h">{d["name"]}</h3>'
+            f'<span class="cp-d__mark"><i class="mk mk--{d["mark"]}" aria-hidden="true"></i>{label}</span></header>'
+            f'<div class="cp-d__body"><p class="cp-d__what">{d["what"]}</p>'
+            f'<ul class="cp-proof" aria-label="Evidence">{"".join(proof_html(x) for x in d["proof"])}</ul>{limit}</div></article>')
+
+def layer_html(n, layer):
+    partners = f'<p class="cp-l__partners"><b>With partners</b> {layer["partners"]}</p>' if layer["partners"] else ""
+    return (f'<section class="cp-l" id="{layer["id"]}" aria-labelledby="{layer["id"]}-h" data-reveal>'
+            f'<div class="w cp-l__grid"><header class="cp-l__head"><span class="cp-l__no">L{len(LAYERS) - n}</span>'
+            f'<h2 class="cp-l__name" id="{layer["id"]}-h">{layer["name"]}</h2><p>{layer["line"]}</p>{partners}</header>'
+            f'<div class="cp-l__ds">{"".join(discipline_html(d) for d in layer["disciplines"])}</div></div></section>')
+
+N_DISC = sum(len(l["disciplines"]) for l in LAYERS)
+CAP_LEGEND = "".join(f'<li><i class="mk mk--{k}" aria-hidden="true"></i><b>{v[0]}</b> {v[1]}</li>' for k, v in MARKS.items())
+CAP_NAV = "".join(f'<a href="#{l["id"]}"><span>L{len(LAYERS) - n}</span>{l["name"]}</a>' for n, l in enumerate(LAYERS))
 
 PAGES["/capabilities/"] = ("Capabilities",
-  "What LESNAR AI builds for clients: payments, trust and verification, autonomy and simulation, geospatial logistics, devices, and AI with a person in the loop.",
+  "The engineering disciplines of LESNAR AI: enterprise systems and custom ERP, organisational platforms, full-stack software, "
+  "process automation, AI and agents, cybersecurity, infrastructure, integrations, commerce, health technology, embedded "
+  "software, robotics, autonomous systems and research, each with its evidence and its limits.",
   "mm-roads", "/capabilities/",
-  '<div class="w case-open"><h1 class="statement" style="margin-top:40px">What we<br>take <em>on</em></h1>'
-  '<p class="lede">Six kinds of work, each with a system you can inspect. Where the proof belongs to a client, we describe it without their name.</p></div>'
-  + cap("payments", "Payments and reconciliation", "Money that has to move through the instruments people actually use, and add up at the end of the day.",
-        "Ordering, booking and payment flows on mobile money and WhatsApp, with merchant and staff back offices.",
-        "A working product, its reconciliation and its daybook, tested under contention.",
-        [("BizMtaani", "/work/bizmtaani/"), ("CarePro", "/work/carepro/"), ("Gen-Eat demo", "/work/gen-eat/")])
-  + cap("trust", "Trust and verification", "Decisions where a wrong answer costs someone money or safety.",
-        "Evidence models, verification gates, audit chains and authorised security assessment.",
-        "A system whose every decision can be traced and re-checked.",
-        [("Zygos", "/work/zygos/"), ("SentinelCore", "/work/sentinelcore/")])
-  + cap("autonomy", "Autonomy and simulation", "Machines that must be proven before they are trusted in the field.",
-        "Control bridges, mission logic, telemetry and sealed simulation runs.",
-        "A stack proven in simulation, with the failures it found and fixed.",
-        [("Operation Sentinel", "/work/sentinel/")])
-  + cap("geospatial", "Geospatial and logistics", "Supply and demand that sit in different places and cannot see each other.",
-        "Maps, matching and routing on real roads, from your data or open data.",
-        "A map-led product with the routing stored and licensed properly.",
-        [("MediMatch", "/work/medimatch/")])
-  + cap("devices", "Devices and television", "Low-cost devices people already own, made to do more.",
-        "Native Android TV software and local multiplayer, measured on the real hardware.",
-        "Software tuned to the device, with its measurements on record.",
-        [("LESNAR TV", "/work/lesnar-tv/"), ("LESNAR PLAY", "/work/lesnar-play/")])
-  + cap("ai", "AI with a person in the loop", "AI near customers, money or code, where errors are expensive.",
-        "Tenant-bounded retrieval, pinned guardrails, model evaluation before adoption, and human approval.",
-        "An AI system that fails closed and asks before it acts.",
-        [("Cypher", "/work/cypher/"), ("The Model foundry", "/engineering/#foundry")])
-  + sec("client-h", "Client work, described without names", "Shown here with details withheld until each client agrees to more.",
-    steps([("A security company", "An operations platform: rostering, an occurrence book whose entries can be corrected but not overwritten, an incident workflow, and a client portal that shows only the reports the company has released."),
-           ("An optician", "A retail and workshop platform: prescription-to-collection workflow, mobile-money reconciliation and a tamper-evident audit trail."),
-           ("A non-profit", "A records and fundraising platform: role-restricted records, consent, and traceable donations and receipts.")]))
+  '<div class="w case-open cp-open"><p class="crumb">Capabilities</p><h1 class="statement">What we <em>engineer</em></h1>'
+  f'<p class="lede">{N_DISC} disciplines in six layers, from an organisation\'s workflows down to the machine. For each: what we build, '
+  'the systems that prove it, how far that proof goes, and where we would bring in partners. Where the proof belongs to a client, '
+  'we describe it without their name.</p>'
+  f'<ul class="stk__legend cp-legend" aria-label="What the marks mean">{CAP_LEGEND}</ul>'
+  f'<nav class="cp-nav" aria-label="Layers">{CAP_NAV}</nav></div>'
+  + "".join(layer_html(n, l) for n, l in enumerate(LAYERS))
+  + '<section class="w sec cp-ind" aria-labelledby="ind-h"><h2 class="h2" id="ind-h">Industries we have built for</h2>'
+  + '<ul>' + "".join(f"<li>{i}</li>" for i in INDUSTRIES) + '</ul></section>'
   + nxt("Bring us the problem, not the specification.", "Start a project"))
 
 # ── ENGINEERING ──────────────────────────────────────────────────────────────

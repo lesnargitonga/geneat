@@ -94,8 +94,8 @@ try {
     await ctx.close();
   }
 
-  /* 4 · Home introduces the company to a client: no video and nothing heavy at rest, and every
-     project it points to (each once) resolves. */
+  /* 4 · Home positions the company and shows selected proof: no video and nothing heavy at rest;
+     at least five selected systems, each linked once, each resolving. */
   {
     const [ctx, p] = await open();
     const fetched = [];
@@ -104,12 +104,12 @@ try {
     await p.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 500) { scrollTo(0, y); await new Promise(r => setTimeout(r, 80)); } });
     await p.waitForTimeout(600);
     const s = await p.evaluate(() => {
-      const work = [...document.querySelectorAll('main a[href^="/work/"]')].map(a => a.getAttribute('href'));
+      const work = [...document.querySelectorAll('main a[href^="/work/"]')].map(a => a.getAttribute('href')).filter(h => h !== '/work/');
       return { videos: document.querySelectorAll('video').length, work, unique: new Set(work).size };
     });
     check(s.videos === 0, 'Home: no video element');
     check(!fetched.some(u => /\.(webm|mp4)(\?|$)|sentinel-detections\.json/.test(u)), 'Home: no film, loop or detections record is requested');
-    check(s.work.length >= 6 && s.unique === s.work.length, `Home: ${s.work.length} project links, each project once`);
+    check(s.work.length >= 5 && s.unique === s.work.length, `Home: ${s.work.length} project links, each project once`);
     const bad = [];
     for (const h of new Set(s.work)) { const r = await p.request.get(BASE + h); if (r.status() !== 200) bad.push(`${h} ${r.status()}`); }
     check(bad.length === 0, `Home: every project link returns 200${bad.length ? ' — ' + bad.join(', ') : ''}`);
