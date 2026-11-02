@@ -616,7 +616,21 @@ PAGES["/company/"] = ("Company",
   "LESNAR AI LTD is an engineering company in Nairobi, Kenya, building software, AI and autonomous systems, and showing each at its real stage.",
   "sentinel", "/company/",
   '<div class="w case-open"><h1 class="statement" style="margin-top:40px">LESNAR AI</h1>'
-  '<p class="lede">LESNAR AI LTD is an engineering company in Nairobi, Kenya. We make ambitious ideas real: we build software, AI and autonomous systems, and where a system is meant to run, we run it rather than hand over a repository.</p></div>'
+  '<p class="lede">LESNAR AI LTD is a multidisciplinary technology and engineering company in Nairobi, Kenya. We design, build, secure and run '
+  'software, AI, security and autonomous systems for businesses, organisations and institutions, and we describe each system at the stage it has really reached.</p></div>'
+  + '''<section class="w sec co-fdr" aria-labelledby="fdr-h" data-reveal>
+  <figure class="co-fdr__photo"><picture><source type="image/webp" srcset="/assets/photos/founder.webp"><img src="/assets/photos/founder.jpg" width="900" height="1129" loading="lazy" alt="Lesnar Gitonga at the workstation in Nairobi"></picture></figure>
+  <div class="co-fdr__copy"><h2 class="h2" id="fdr-h">Founder-led</h2>
+    <p class="lede">Lesnar Gitonga founded LESNAR AI and leads its engineering: accountable for the design, security and operation of every system
+      the company takes on, and for the evidence behind every claim on this site.</p>
+    <p class="body">Work is scoped before it is priced, built with its tests and gates, and run after launch. Where a project needs more than we
+      can responsibly carry, we say so and bring in partners.</p></div>
+</section>
+<section class="co-city" aria-labelledby="city-h">
+  <picture class="ph-bg"><source type="image/webp" srcset="/assets/photos/nairobi@900.webp 900w, /assets/photos/nairobi@1400.webp 1400w, /assets/photos/nairobi.webp 2000w" sizes="100vw"><img src="/assets/photos/nairobi.jpg" srcset="/assets/photos/nairobi@900.jpg 900w, /assets/photos/nairobi@1400.jpg 1400w, /assets/photos/nairobi.jpg 2000w" sizes="100vw" width="2000" height="1500" loading="lazy" alt=""></picture>
+  <div class="w co-city__inner"><h2 class="statement co-city__h" id="city-h">Based in Nairobi</h2>
+    <p class="ph-credit">Photo: <a href="https://unsplash.com/photos/vyagy6HJpVE">Kenny Murgor</a> on Unsplash</p></div>
+</section>'''
   + f"""<section class="w sec" aria-labelledby="where-h"><div class="two">
   <div><h2 class="h2" id="where-h">Where we<br><em>work</em></h2><p class="body">The places our systems run, are being prepared, or are modelled. Simulation work has no place on a map.</p></div>
   <div class="map sheet" style="padding:10px">
@@ -628,10 +642,9 @@ PAGES["/company/"] = ("Company",
       ("Live", "in use", "People use it now.", "live"), ("Pilot", "in trial", "Running with real users under agreed limits.", "pilot"),
       ("Prototype", "it works", "It runs; nobody depends on it yet.", "prototype"), ("Internal", "our own", "We run it on ourselves.", "internal"),
       ("Research", "nothing operated", "Investigation and evaluation only.", "research"), ("Simulation", "not the field", "Proven in a simulated world.", "sim")]) + "</div>")
-  + sec("who-h", "Who you work with", "",
-    steps([("Lesnar Gitonga", "Founder and engineer. You work with the engineer who builds the system; there is no account layer between the problem and the person solving it."),
-           ("Nairobi, Kenya", "Software, AI, security and connected systems."),
-           ("Direct", "hello@lesnarai.co.ke · WhatsApp +254 715 540 653")]))
+  + sec("who-h", "Reach us", "",
+    steps([("Direct", "hello@lesnarai.co.ke · WhatsApp +254 715 540 653"),
+           ("Where", "Nairobi, Kenya")]))
   + nxt("Bring us the problem.", "Start a project"))
 
 # ── START ────────────────────────────────────────────────────────────────────
@@ -643,11 +656,14 @@ PAGES["/start/"] = ("Start",
   '<div class="w case-open"><h1 class="statement" style="margin-top:40px">Bring us<br>the <em>problem</em></h1>'
   '<p class="lede">Before anything else, whether we are the right people.</p></div>'
   + '<section class="w" aria-labelledby="fit-h"><h2 class="sr" id="fit-h">Fit</h2><div class="two">'
-  + '<div><h3 class="h3">Bring us this</h3>' + steps([("Products people buy from", "Marketplaces, storefronts, ordering, payments."), ("Software that runs an organisation", "Members, approvals, records, scheduling."),
-        ("AI you can inspect", "Held as structure rather than instructions in a prompt."), ("Infrastructure", "Hardening and reliability work on Linux servers."),
-        ("Machines and devices", "Autonomy, simulation and device software, proven before it is trusted.")]) + "</div>"
+  + '<div><h3 class="h3">Bring us this</h3>' + steps([("Systems an organisation runs on", "Enterprise systems, custom ERP, organisational platforms and process automation."),
+        ("Products and commerce", "Full-stack products, payments, health technology and the integrations between systems."),
+        ("AI and intelligent agents", "Agents inside hard boundaries, and models measured before they are trusted."),
+        ("Security and assurance", "Authorised assessment, verification and governed response."),
+        ("Infrastructure and data", "Databases, servers, geospatial data and reliability."),
+        ("Machines, devices and research", "Embedded software, robotics and autonomy, proven before it is trusted.")]) + "</div>"
   + '<div><h3 class="h3">Not this</h3>' + steps([("A rate card before a scope", "We price after we understand the work."), ("A specification to implement blind", "We discuss what it must never get wrong first."),
-        ("A team of ten next week", "We are not a staffing agency."), ("Flattering evidence", "Our evidence says what is true.")]) + "</div></div></section>"
+        ("Flattering evidence", "Our evidence says what is true.")]) + "</div></div></section>"
   + '<section class="w sec" aria-labelledby="msg-h"><div class="two"><div><h2 class="h2" id="msg-h">A useful first message</h2>'
     '<p class="body">Answer what you can. Only a way to reply is required. The button opens your own email app with the message composed; nothing is stored here.</p></div>'
     f'<div>{form}<div class="form__alt" id="write-directly"><p>Writing directly is equally valid, and often faster: '

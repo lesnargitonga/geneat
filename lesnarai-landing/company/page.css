@@ -1,0 +1,17 @@
+/* Company: the founder, and the city. Real photographs (experience-lab/source-media/photos/CREDITS.md). */
+.co-fdr{display:grid;gap:22px;align-items:center}
+.co-fdr__photo{margin:0}
+.co-fdr__photo img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover}
+.co-fdr .lede{max-width:46ch}
+.co-fdr .body{margin-top:14px}
+@media (min-width:861px){.co-fdr{grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:64px}}
+
+.co-city{position:relative;isolation:isolate;overflow:hidden;background:#000;color:#FFFFFF;min-height:min(70svh,620px);display:flex;align-items:flex-end}
+.co-city .ph-bg{position:absolute;inset:0;z-index:0}
+.co-city .ph-bg img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 40%}
+.co-city::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(0deg,rgba(0,0,0,.85) 0%,rgba(0,0,0,.35) 60%,rgba(0,0,0,.15) 100%)}
+.co-city__inner{position:relative;z-index:1;padding-block:clamp(40px,7vw,80px)}
+.co-city__h{color:#FFFFFF;font-size:clamp(48px,9vw,128px)}
+.co-city .ph-credit{position:relative;margin:16px 0 0;font:500 11px var(--mono);letter-spacing:.06em;color:rgba(255,255,255,.75)}
+.co-city .ph-credit a{color:inherit}
+.co-fdr{padding-bottom:clamp(48px,8vw,110px)}

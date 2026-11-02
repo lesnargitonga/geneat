@@ -22,17 +22,24 @@
 .hm-more{display:inline-block;margin-top:22px;font-weight:700;color:var(--ink);text-decoration:none;border-bottom:2px solid var(--ink);padding-bottom:2px}
 .hm-more::after{content:" \2192"}
 
-/* ── Hero: the proposition, beside the workstation ────────────────── */
-.hx .w{padding-block:clamp(26px,6vw,96px) clamp(30px,5vw,80px)}
-.hx__grid{display:grid;gap:28px;align-items:center}
-.hx__h{font-size:clamp(46px,12.4vw,150px)}
-.hx__lede{margin:20px 0 0;max-width:52ch;font-size:clamp(17px,1.55vw,21px);line-height:1.5;color:var(--ink)}
-.hx__photo{margin:0 calc(var(--pad) * -1);position:relative}
-.hx__photo img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover}
+/* ── Photographs as backgrounds: real pictures, with a scrim so text holds ────── */
+.ph-bg{position:absolute;inset:0;z-index:0}
+.ph-bg img{display:block;width:100%;height:100%;object-fit:cover}
+.ph-credit{position:relative;margin:22px 0 0;font:500 11px var(--mono);letter-spacing:.06em;color:rgba(255,255,255,.72)}
+.ph-credit a{color:inherit}
+
+/* ── Hero: the proposition over the workstation ───────────────────── */
+.hx--photo{position:relative;isolation:isolate;overflow:hidden;background:#000;color:#FFFFFF;
+  min-height:min(100svh - 60px,900px);display:flex;align-items:flex-end}
+.hx--photo .ph-bg img{object-position:62% 40%}
+.hx--photo::after{content:"";position:absolute;inset:0;z-index:0;
+  background:linear-gradient(0deg,rgba(0,0,0,.9) 0%,rgba(0,0,0,.66) 46%,rgba(0,0,0,.34) 100%)}
+.hx__inner{position:relative;z-index:1;padding-block:clamp(90px,14vh,170px) clamp(28px,5vw,64px)}
+.hx__h{color:#FFFFFF;font-size:clamp(46px,12.4vw,150px)}
+.hx__lede{margin:20px 0 0;max-width:52ch;font-size:clamp(17px,1.55vw,21px);line-height:1.5;color:#F2F2F2}
 @media (min-width:861px){
-  .hx__grid{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:56px}
-  .hx__photo{margin:0 0 -120px;box-shadow:0 40px 80px -40px rgba(0,0,0,.55)}
-  .hx__h{font-size:clamp(52px,7.4vw,124px)}
+  .hx--photo::after{background:linear-gradient(90deg,rgba(0,0,0,.88) 0%,rgba(0,0,0,.66) 42%,rgba(0,0,0,.18) 100%)}
+  .hx__h{font-size:clamp(56px,7.6vw,128px)}
 }
 
 /* ── The stack: six layers, organisation to machine ───────────────── */
@@ -94,16 +101,27 @@
 .hm-steps span{color:var(--ink-2);font-size:15.5px;line-height:1.45;max-width:52ch}
 @media (min-width:861px){.hm-steps{grid-template-columns:repeat(3,1fr);column-gap:40px}.hm-steps li{grid-template-columns:1fr;padding-top:24px}.hm-steps li::before{font-size:44px;margin-bottom:10px}}
 
-/* ── Founder-led ──────────────────────────────────────────────────── */
-.fdr{display:grid;grid-template-columns:112px minmax(0,1fr);gap:18px;align-items:start;padding-top:0}
-.fdr__photo{margin:0}
-.fdr__photo img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover}
-.fdr__copy p{margin:0;max-width:56ch;font-size:clamp(16.5px,1.5vw,20px);line-height:1.5}
-.fdr .hm-h2{font-size:clamp(28px,4vw,54px)}
-@media (min-width:861px){.fdr{grid-template-columns:300px minmax(0,1fr);gap:56px;align-items:end}}
+/* ── Founder-led: a band over a photograph of the founder at work ─ */
+.fdr--photo{position:relative;isolation:isolate;overflow:hidden;background:#000;color:#FFFFFF;min-height:min(86svh,760px);display:flex;align-items:flex-end}
+.fdr--photo .ph-bg img{object-position:28% 30%}
+.fdr--photo::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(0deg,rgba(0,0,0,.92) 0%,rgba(0,0,0,.7) 38%,rgba(0,0,0,.1) 72%)}
+.fdr__inner{position:relative;z-index:1;width:100%;padding-block:clamp(48px,8vw,96px)}
+.fdr__copy p{margin:0;max-width:52ch;font-size:clamp(16.5px,1.5vw,20px);line-height:1.5;color:#F2F2F2}
+.fdr .hm-h2{color:#FFFFFF;font-size:clamp(30px,4.4vw,58px)}
+.hm-more--onfilm{color:#FFFFFF;border-bottom-color:#FFFFFF}
+@media (min-width:861px){
+  .fdr--photo{align-items:center}
+  .fdr--photo::after{background:linear-gradient(270deg,rgba(0,0,0,.9) 0%,rgba(0,0,0,.72) 40%,rgba(0,0,0,.05) 70%)}
+  .fdr__inner{display:flex;flex-direction:column;align-items:flex-end}
+  .fdr__copy{max-width:520px}
+}
 
 /* ── The ask ──────────────────────────────────────────────────────── */
 .hm-end{background:var(--film);color:#FFFFFF;padding-block:clamp(56px,9vw,128px)}
+.hm-end--photo{position:relative;isolation:isolate;overflow:hidden;padding-block:clamp(110px,18vw,240px) clamp(40px,6vw,72px)}
+.hm-end--photo .ph-bg img{object-position:50% 38%}
+.hm-end--photo::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(0deg,rgba(0,0,0,.9) 0%,rgba(0,0,0,.62) 55%,rgba(0,0,0,.4) 100%)}
+.hm-end__inner{position:relative;z-index:1}
 .hm-end__h{color:#FFFFFF;font-size:clamp(44px,10vw,132px)}
 .hm-end__h em{color:inherit}
 .hm-end__mail{margin:18px 0 0;color:#B8B8B8;font-size:15px}

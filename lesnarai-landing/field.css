@@ -112,8 +112,7 @@ section{scroll-margin-top:24px}
 @media (max-width:860px){.sec-head{grid-template-columns:1fr}}
 
 /* ── paper: the recorder grid, used only where data is plotted ────────── */
-.paper{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
-  background-size:100% 40px,40px 100%;background-position:-1px -1px}
+.paper{background:var(--paper)}
 
 /* ── stage glyphs: how far a system has actually got ──────────────────── */
 .stage{display:inline-flex;align-items:center;gap:8px;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink)}
