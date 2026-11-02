@@ -1,5 +1,7 @@
 # MediMatch command moment, 1280×720 (2026-11-01)
 
+**Superseded on 2026-11-01 by `../medimatch-roads/`.** The files below were removed from the site; this recipe is kept as a record.
+
 The site's MediMatch recording, re-cut from the original product recording and encoded through
 the LESNAR Motion Pipeline at 1280×720. It replaces the 1600×900 loop (1.49 MB WebM, 1.02 MB MP4).
 
