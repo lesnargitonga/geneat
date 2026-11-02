@@ -1,0 +1,7740 @@
+{
+ "generated": "2026-11-01T19:31:56.448Z",
+ "base": "http://127.0.0.1:8912",
+ "dpr": 2.625,
+ "tolerance": {
+  "fill": 2,
+  "ink": 6,
+  "mean": 8
+ },
+ "results": [
+  {
+   "engine": "chromium",
+   "scheme": "light",
+   "theme": "system",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#45474B",
+      "expect": "#45474B",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#6A6D72",
+      "expect": "#6A6D72",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#DCE5D3",
+      "expect": "#DCE5D3",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E3E2E0",
+      "expect": "#E4E3E1",
+      "delta": 1.2116161616161492,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 0.8634118967452302,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#DADBD7",
+      "expect": "#DADBD7",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#7F7F7F",
+      "expect": "#808080",
+      "delta": 1,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "chromium",
+   "scheme": "light",
+   "theme": "light",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#45474B",
+      "expect": "#45474B",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#6A6D72",
+      "expect": "#6A6D72",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#DCE5D3",
+      "expect": "#DCE5D3",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E3E2E0",
+      "expect": "#E4E3E1",
+      "delta": 1.2116161616161492,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 0.8634118967452302,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#DADBD7",
+      "expect": "#DADBD7",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#7F7F7F",
+      "expect": "#808080",
+      "delta": 1,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "chromium",
+   "scheme": "light",
+   "theme": "dark",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#B4B6B9",
+      "expect": "#B4B6B9",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#8F9296",
+      "expect": "#8F9296",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#1E2620",
+      "expect": "#1E2620",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E3E2E0",
+      "expect": "#E4E3E1",
+      "delta": 1.2116161616161492,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 0.8634118967452302,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#2E3033",
+      "expect": "#2E3033",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#3B3B3B",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#3B3B3B",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "chromium",
+   "scheme": "dark",
+   "theme": "system",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#B4B6B9",
+      "expect": "#B4B6B9",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#8F9296",
+      "expect": "#8F9296",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#1E2620",
+      "expect": "#1E2620",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E3E2E0",
+      "expect": "#E4E3E1",
+      "delta": 1.2116161616161492,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 0.8634118967452302,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#2E3033",
+      "expect": "#2E3033",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#3B3B3B",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#3B3B3B",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "chromium",
+   "scheme": "dark",
+   "theme": "light",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#45474B",
+      "expect": "#45474B",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#6A6D72",
+      "expect": "#6A6D72",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#DCE5D3",
+      "expect": "#DCE5D3",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E3E2E0",
+      "expect": "#E4E3E1",
+      "delta": 1.2116161616161492,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 0.8634118967452302,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#DADBD7",
+      "expect": "#DADBD7",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#7F7F7F",
+      "expect": "#808080",
+      "delta": 1,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "chromium",
+   "scheme": "dark",
+   "theme": "dark",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#B4B6B9",
+      "expect": "#B4B6B9",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#8F9296",
+      "expect": "#8F9296",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#1E2620",
+      "expect": "#1E2620",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E3E2E0",
+      "expect": "#E4E3E1",
+      "delta": 1.2116161616161492,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 0.8634118967452302,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#2E3033",
+      "expect": "#2E3033",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#3B3B3B",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#3B3B3B",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "firefox",
+   "scheme": "light",
+   "theme": "system",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#45474B",
+      "expect": "#45474B",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#6A6D72",
+      "expect": "#6A6D72",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#DCE5D3",
+      "expect": "#DCE5D3",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E2E1DF",
+      "expect": "#E4E3E1",
+      "delta": 2.1462793068297685,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 1.4596783327670195,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#DADBD7",
+      "expect": "#DADBD7",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#7F7F7F",
+      "expect": "#808080",
+      "delta": 1,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#E9E9ED",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "firefox",
+   "scheme": "light",
+   "theme": "light",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#45474B",
+      "expect": "#45474B",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#6A6D72",
+      "expect": "#6A6D72",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#DCE5D3",
+      "expect": "#DCE5D3",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E2E1DF",
+      "expect": "#E4E3E1",
+      "delta": 2.1462793068297685,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 1.4596783327670195,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#DADBD7",
+      "expect": "#DADBD7",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#7F7F7F",
+      "expect": "#808080",
+      "delta": 1,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#E9E9ED",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "firefox",
+   "scheme": "light",
+   "theme": "dark",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#B4B6B9",
+      "expect": "#B4B6B9",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#8F9296",
+      "expect": "#8F9296",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#1E2620",
+      "expect": "#1E2620",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E2E1DF",
+      "expect": "#E4E3E1",
+      "delta": 2.1462793068297685,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 1.4596783327670195,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#2E3033",
+      "expect": "#2E3033",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#2B2A33",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#2B2A33",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "firefox",
+   "scheme": "dark",
+   "theme": "system",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#B4B6B9",
+      "expect": "#B4B6B9",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#8F9296",
+      "expect": "#8F9296",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#1E2620",
+      "expect": "#1E2620",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E2E1DF",
+      "expect": "#E4E3E1",
+      "delta": 2.1462793068297685,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 1.4596783327670195,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#2E3033",
+      "expect": "#2E3033",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#2B2A33",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#2B2A33",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "firefox",
+   "scheme": "dark",
+   "theme": "light",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#45474B",
+      "expect": "#45474B",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#6A6D72",
+      "expect": "#6A6D72",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#DCE5D3",
+      "expect": "#DCE5D3",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E2E1DF",
+      "expect": "#E4E3E1",
+      "delta": 2.1462793068297685,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 1.4596783327670195,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#DADBD7",
+      "expect": "#DADBD7",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#7F7F7F",
+      "expect": "#808080",
+      "delta": 1,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#E9E9ED",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "firefox",
+   "scheme": "dark",
+   "theme": "dark",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#B4B6B9",
+      "expect": "#B4B6B9",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#8F9296",
+      "expect": "#8F9296",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#1E2620",
+      "expect": "#1E2620",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E2E1DF",
+      "expect": "#E4E3E1",
+      "delta": 2.1462793068297685,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 1.4596783327670195,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#2E3033",
+      "expect": "#2E3033",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#2B2A33",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#2B2A33",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "webkit",
+   "scheme": "light",
+   "theme": "system",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#45474B",
+      "expect": "#45474B",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#6A6D72",
+      "expect": "#6A6D72",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#DCE5D3",
+      "expect": "#DCE5D3",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E3E2E0",
+      "expect": "#E4E3E1",
+      "delta": 1.3732323232323154,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 1.113973063973063,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#DADBD7",
+      "expect": "#DADBD7",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#7F7F7F",
+      "expect": "#808080",
+      "delta": 1,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#F4F4F4",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "webkit",
+   "scheme": "light",
+   "theme": "light",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#45474B",
+      "expect": "#45474B",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#6A6D72",
+      "expect": "#6A6D72",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#DCE5D3",
+      "expect": "#DCE5D3",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E3E2E0",
+      "expect": "#E4E3E1",
+      "delta": 1.3732323232323154,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 1.113973063973063,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#DADBD7",
+      "expect": "#DADBD7",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#7F7F7F",
+      "expect": "#808080",
+      "delta": 1,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#F4F4F4",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "webkit",
+   "scheme": "light",
+   "theme": "dark",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#B4B6B9",
+      "expect": "#B4B6B9",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#8F9296",
+      "expect": "#8F9296",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#1E2620",
+      "expect": "#1E2620",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E3E2E0",
+      "expect": "#E4E3E1",
+      "delta": 1.3732323232323154,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 1.113973063973063,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#2E3033",
+      "expect": "#2E3033",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#343434",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "webkit",
+   "scheme": "dark",
+   "theme": "system",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#B4B6B9",
+      "expect": "#B4B6B9",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#8F9296",
+      "expect": "#8F9296",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#1E2620",
+      "expect": "#1E2620",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E3E2E0",
+      "expect": "#E4E3E1",
+      "delta": 1.3732323232323154,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 1.113973063973063,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#2E3033",
+      "expect": "#2E3033",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#343434",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "webkit",
+   "scheme": "dark",
+   "theme": "light",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#45474B",
+      "expect": "#45474B",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#6A6D72",
+      "expect": "#6A6D72",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#DCE5D3",
+      "expect": "#DCE5D3",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E3E2E0",
+      "expect": "#E4E3E1",
+      "delta": 1.3732323232323154,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 1.113973063973063,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#DADBD7",
+      "expect": "#DADBD7",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#7F7F7F",
+      "expect": "#808080",
+      "delta": 1,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#F4F4F4",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "webkit",
+   "scheme": "dark",
+   "theme": "dark",
+   "control": null,
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#B4B6B9",
+      "expect": "#B4B6B9",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#8F9296",
+      "expect": "#8F9296",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#1E2620",
+      "expect": "#1E2620",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E3E2E0",
+      "expect": "#E4E3E1",
+      "delta": 1.3732323232323154,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 1.113973063973063,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#2E3033",
+      "expect": "#2E3033",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#343434",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "chromium-fd",
+   "scheme": "light",
+   "theme": "system",
+   "control": "#121212",
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#C4C6CB",
+      "expect": "#45474B",
+      "delta": 128,
+      "pass": false
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#999CA1",
+      "expect": "#6A6D72",
+      "delta": 47,
+      "pass": false
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#FF593F",
+      "expect": "#D41F1A",
+      "delta": 58,
+      "pass": false
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#FF593F",
+      "expect": "#D41F1A",
+      "delta": 58,
+      "pass": false
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#DCE5D3",
+      "expect": "#DCE5D3",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#79776D",
+      "expect": "#E4E3E1",
+      "delta": 115.53417508417509,
+      "pass": false
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 0.8634118967452302,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#FFFFFF",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#363734",
+      "expect": "#DADBD7",
+      "delta": 164,
+      "pass": false
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#090909",
+      "expect": "#808080",
+      "delta": 119,
+      "pass": false
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#FFFFFF",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#3B3B3B",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#3B3B3B",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": false,
+   "fails": 26
+  },
+  {
+   "engine": "chromium-fd",
+   "scheme": "light",
+   "theme": "light",
+   "control": "#121212",
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#C4C6CB",
+      "expect": "#45474B",
+      "delta": 128,
+      "pass": false
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#999CA1",
+      "expect": "#6A6D72",
+      "delta": 47,
+      "pass": false
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#FF593F",
+      "expect": "#D41F1A",
+      "delta": 58,
+      "pass": false
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#FF593F",
+      "expect": "#D41F1A",
+      "delta": 58,
+      "pass": false
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#DCE5D3",
+      "expect": "#DCE5D3",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#79776D",
+      "expect": "#E4E3E1",
+      "delta": 115.53417508417509,
+      "pass": false
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 0.8634118967452302,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#FFFFFF",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#363734",
+      "expect": "#DADBD7",
+      "delta": 164,
+      "pass": false
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#090909",
+      "expect": "#808080",
+      "delta": 119,
+      "pass": false
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#FFFFFF",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#3B3B3B",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#3B3B3B",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": false,
+   "fails": 26
+  },
+  {
+   "engine": "chromium-fd",
+   "scheme": "light",
+   "theme": "dark",
+   "control": "#121212",
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#B4B6B9",
+      "expect": "#B4B6B9",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#73767A",
+      "expect": "#8F9296",
+      "delta": 28,
+      "pass": false
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#E32C2A",
+      "expect": "#FF4A3D",
+      "delta": 30,
+      "pass": false
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#E32C2A",
+      "expect": "#FF4A3D",
+      "delta": 30,
+      "pass": false
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#EBF6ED",
+      "expect": "#1E2620",
+      "delta": 208,
+      "pass": false
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#79776D",
+      "expect": "#E4E3E1",
+      "delta": 115.53417508417509,
+      "pass": false
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 0.8634118967452302,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#FFFFFF",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#2E3033",
+      "expect": "#2E3033",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
+      "pass": false
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#3B3B3B",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#3B3B3B",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#121212",
+      "expect": "#FFFFFF",
+      "delta": 237,
+      "pass": false
+     }
+    ]
+   },
+   "expected_to_pass": false,
+   "fails": 11
+  },
+  {
+   "engine": "chromium-fd",
+   "scheme": "dark",
+   "theme": "system",
+   "control": "#121212",
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#B4B6B9",
+      "expect": "#B4B6B9",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#8F9296",
+      "expect": "#8F9296",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#1E2620",
+      "expect": "#1E2620",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E3E2E0",
+      "expect": "#E4E3E1",
+      "delta": 1.2116161616161492,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 0.8634118967452302,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#2E3033",
+      "expect": "#2E3033",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#3B3B3B",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#3B3B3B",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "chromium-fd",
+   "scheme": "dark",
+   "theme": "light",
+   "control": "#121212",
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#45474B",
+      "expect": "#45474B",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#6A6D72",
+      "expect": "#6A6D72",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#DCE5D3",
+      "expect": "#DCE5D3",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E3E2E0",
+      "expect": "#E4E3E1",
+      "delta": 1.2116161616161492,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 0.8634118967452302,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#DADBD7",
+      "expect": "#DADBD7",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#7F7F7F",
+      "expect": "#808080",
+      "delta": 1,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#D41F1A",
+      "expect": "#D41F1A",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#FFFFFF",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  },
+  {
+   "engine": "chromium-fd",
+   "scheme": "dark",
+   "theme": "dark",
+   "control": "#121212",
+   "pages": {
+    "/lab/theme-probe/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-2",
+      "method": "ink",
+      "got": "#B4B6B9",
+      "expect": "#B4B6B9",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink-3",
+      "method": "ink",
+      "got": "#8F9296",
+      "expect": "#8F9296",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "signal",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "link",
+      "method": "ink",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "stage",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-land",
+      "method": "fill",
+      "got": "#1E2620",
+      "expect": "#1E2620",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "svg-ink",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "photo-light",
+      "method": "mean",
+      "got": "#E3E2E0",
+      "expect": "#E4E3E1",
+      "delta": 1.2116161616161492,
+      "pass": true
+     },
+     {
+      "id": "photo-dark",
+      "method": "mean",
+      "got": "#1D1F22",
+      "expect": "#1E2023",
+      "delta": 0.8634118967452302,
+      "pass": true
+     },
+     {
+      "id": "raster-white",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "raster-black",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button-off",
+      "method": "fill",
+      "got": "#2E3033",
+      "expect": "#2E3033",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "scrim",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "focus",
+      "method": "fill",
+      "got": "#FF4A3D",
+      "expect": "#FF4A3D",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-raster",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-gradient",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "cand-text",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "caption",
+      "method": "ink",
+      "got": "#B8B8B8",
+      "expect": "#B8B8B8",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "native-select",
+      "method": "observe",
+      "got": "#3B3B3B",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     },
+     {
+      "id": "native-check",
+      "method": "observe",
+      "got": "#3B3B3B",
+      "expect": null,
+      "delta": null,
+      "pass": null
+     }
+    ],
+    "/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/work/medimatch/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "sheet",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "film",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     }
+    ],
+    "/start/": [
+     {
+      "id": "paper",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "ink",
+      "method": "ink",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "input",
+      "method": "fill",
+      "got": "#000000",
+      "expect": "#000000",
+      "delta": 0,
+      "pass": true
+     },
+     {
+      "id": "button",
+      "method": "fill",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
+     }
+    ]
+   },
+   "expected_to_pass": true,
+   "fails": 0
+  }
+ ]
+}
