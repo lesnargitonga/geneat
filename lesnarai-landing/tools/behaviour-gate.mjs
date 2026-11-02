@@ -93,23 +93,38 @@ try {
     await ctx.close();
   }
 
-  /* 4 · Home: no film and nothing heavy fetched; the Sentinel channel and frame route to the case */
+  /* 4 · Home: one hero loop, earned by being on screen; nothing else heavy; the Sentinel channel
+     and frame route to the case. The loop must be muted and inline, carry no src and no autoplay in
+     markup, and fetch its sources only with motion allowed. Under reduced motion it never loads. */
   {
-    const [ctx, p] = await open();
-    const fetched = [];
-    p.on('request', r => fetched.push(r.url()));
-    await p.goto(BASE + '/', { waitUntil: 'networkidle' });
-    await p.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 500) { scrollTo(0, y); await new Promise(r => setTimeout(r, 80)); } });
-    await p.waitForTimeout(600);
-    const s = await p.evaluate(() => ({
-      video: document.querySelectorAll('video').length,
-      toSentinel: document.querySelectorAll('main a[href="/work/sentinel/"]').length,
-    }));
-    check(s.video === 0, 'Home: no video element on the page');
-    check(s.toSentinel >= 2, 'Home: the Sentinel channel and its frame both link to /work/sentinel/');
-    check(!fetched.some(u => /sentinel-detections\.json|sentinel-film-001\.|medimatch-command/.test(u)),
-      'Home: no film, loop or detections record is requested');
-    await ctx.close();
+    for (const motion of ['reduce', 'no-preference']) {
+      const [ctx, p] = await open({ reducedMotion: motion });
+      const fetched = [];
+      p.on('request', r => fetched.push(r.url()));
+      await p.goto(BASE + '/', { waitUntil: 'networkidle' });
+      await p.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 500) { scrollTo(0, y); await new Promise(r => setTimeout(r, 80)); } });
+      await p.waitForTimeout(600);
+      const s = await p.evaluate(() => {
+        const v = [...document.querySelectorAll('video')];
+        const loop = v[0];
+        return { videos: v.length, loop: !!loop && loop.hasAttribute('data-loop'), muted: !!loop && loop.muted && loop.hasAttribute('playsinline'),
+                 markup: !!loop && !loop.hasAttribute('autoplay') && !loop.getAttribute('src') && loop.getAttribute('preload') === 'none'
+                   && [...loop.querySelectorAll('source')].every(x => !x.getAttribute('src') || x.dataset.src),
+                 toSentinel: document.querySelectorAll('main a[href="/work/sentinel/"]').length };
+      });
+      const loopFetched = fetched.some(u => /mm-roads-loop\.(webm|mp4)/.test(u));
+      if (motion === 'reduce') {
+        check(s.videos === 1 && s.loop, 'Home: exactly one video, the hero loop');
+        check(s.muted && s.markup, 'Home: the loop is muted and inline, with no src, autoplay or preload in markup');
+        check(!loopFetched, 'Home, reduced motion: the loop is never fetched');
+        check(s.toSentinel >= 2, 'Home: the Sentinel channel and its frame both link to /work/sentinel/');
+      } else {
+        check(loopFetched, 'Home, motion allowed: the loop is fetched once it is on screen');
+      }
+      check(!fetched.some(u => /sentinel-detections\.json|sentinel-film-001\.|mm-roads-film\./.test(u)),
+        `Home (${motion}): no film or detections record is requested`);
+      await ctx.close();
+    }
   }
 
   /* 5 · Work: every row link and the case card resolve; quiet rows are not links */

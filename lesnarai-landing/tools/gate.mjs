@@ -93,9 +93,13 @@ const CONTRAST=()=>{
   });
   return bad.slice(0,6);
 };
+/* Page overflow only. An element inside an ancestor that clips or scrolls horizontally (a swipe
+   roll, a clipped band) cannot widen the page; that ancestor is itself checked like any other. */
 const OVERFLOW=()=>{ const lim=document.documentElement.clientWidth+1,bad=[];
+  const contained=el=>{ for(let a=el.parentElement;a&&a!==document.body;a=a.parentElement)
+    if(getComputedStyle(a).overflowX!=='visible') return true; return false; };
   document.querySelectorAll('body *').forEach(el=>{ const r=el.getBoundingClientRect();
-    if(r.width>0&&(r.right>lim+8||r.left<-8)) bad.push(el.tagName+'.'+String(el.className).slice(0,20)); });
+    if(r.width>0&&(r.right>lim+8||r.left<-8)&&!contained(el)) bad.push(el.tagName+'.'+String(el.className).slice(0,20)); });
   return [...new Set(bad)].slice(0,5); };
 
 const b=await pw[ENGINE].launch();
@@ -132,6 +136,12 @@ async function check(route,w,h,theme){
   await p.evaluate(async()=>{ const H=document.body.scrollHeight;
     for(let y=0;y<H;y+=420){scrollTo(0,y);await new Promise(r=>setTimeout(r,25));} scrollTo(0,0); });
   await p.waitForTimeout(400);
+  /* Measure the settled page: wait for every finite animation and transition (reveals) to finish. */
+  await p.evaluate(()=>Promise.race([new Promise(r=>setTimeout(r,6000)),
+    Promise.all(document.getAnimations().filter(a=>isFinite(a.effect?.getComputedTiming().endTime)).map(a=>a.finished.catch(()=>0)))]));
+  /* Lazy images inside a swipe roll never enter the viewport here; load every image, then test them all. */
+  await p.evaluate(async()=>{ document.querySelectorAll('img[loading="lazy"]').forEach(i=>{i.loading='eager';});
+    await Promise.all([...document.images].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r;setTimeout(r,4000);}))); });
   const overflow=await p.evaluate(OVERFLOW);
   const contrast=await p.evaluate(CONTRAST);
   const media=await p.evaluate(()=>({
