@@ -8,11 +8,12 @@ cannot drift, and the CSP hash of the inline bootstrap stays valid. Each page bo
 is written by hand below; facts come from docs/lesnarai/CONTENT_INVENTORY_2026-11-01.md
 and the project repositories. Output is plain static HTML.
 """
-import re
+import json, re
 from pathlib import Path
 
 SITE = Path(__file__).resolve().parents[2]
 HOME = (SITE / "index.html").read_text()
+TRANSFERS = json.loads((SITE / "tools/assets/medimatch-plan.json").read_text())["transfers"]
 BOOT = re.search(r"<script>document\.documentElement.*?</script>", HOME).group(0)
 FOOT = re.search(r'<footer class="fr-foot">.*?</footer>', HOME, re.S).group(0)
 FONTS = '<link rel="preload" href="/assets/fonts/archivo-400-800-latin.woff2" as="font" type="font/woff2" crossorigin>'
@@ -47,7 +48,9 @@ def shell(path, title, desc, current, body, image="sentinel", extra=""):
 {BOOT}
 {FONTS}
 <link rel="stylesheet" href="/field.css">
-<script src="/theme.js" defer></script>{extra}
+<link rel="stylesheet" href="/field-motion.css">
+<script src="/theme.js" defer></script>
+<script src="/field-motion.js" defer></script>{extra}
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -62,9 +65,6 @@ def shell(path, title, desc, current, body, image="sentinel", extra=""):
 
 
 DIMS = {}
-for line in (SITE / "tools/assets/manifest.json").read_text().splitlines():
-    pass
-import json
 MAN = json.loads((SITE / "tools/assets/manifest.json").read_text())
 
 
@@ -122,13 +122,16 @@ def readings(items):
     return '<div class="readings">' + "".join(out) + "</div>"
 
 
-def sec(hid, title, lede, inner, cls="w sec"):
+def sec(hid, title, lede, inner, cls="w sec", attrs=""):
     head = f'<div class="sec-head"><h2 class="h2" id="{hid}">{title}</h2>' + (f'<p class="lede">{lede}</p>' if lede else "<span></span>") + "</div>"
-    return f'<section class="{cls}" aria-labelledby="{hid}">{head}{inner}</section>'
+    return f'<section class="{cls}" aria-labelledby="{hid}"{attrs}>{head}{inner}</section>'
 
 
-def strip(frames):
-    return '<div class="strip">' + "".join(frames) + "</div>"
+def strip(frames, roll=None):
+    if not roll:
+        return '<div class="strip">' + "".join(frames) + "</div>"
+    return (f'<div class="strip strip--roll" id="{roll}" data-label="Frames: swipe through the roll">' + "".join(frames) + "</div>"
+            f'<p class="roll-count" data-roll-for="{roll}" aria-hidden="true"><span>Swipe the roll</span><span><b>01</b> / {len(frames):02d}</span></p>')
 
 
 PAGES = {}
@@ -136,41 +139,45 @@ PAGES = {}
 # ── MEDIMATCH ────────────────────────────────────────────────────────────────
 PAGES["/work/medimatch/"] = ("MediMatch",
   "MediMatch makes medical-supply surplus and shortage visible across Kenyan facilities and routes transfers on real roads. A research prototype on synthetic inventory.",
-  "medimatch", "/work/",
+  "mm-roads", "/work/",
   opening("Health · geospatial", "MediMatch",
     "Hospitals let surplus medical stock expire while county facilities run out, and neither can see the other. "
     "MediMatch makes the gap visible and routes surplus across it, on real roads.",
     stage("prototype", "Prototype"), ["synthetic inventory · no patient records", "never deployed in a health system"])
-  + sec("j-h", "Detect, rank, route, impact", "One pass through the running product, at national scale. Every frame is real UI on synthetic inventory.",
+  + sec("j-h", "From the globe to the street", "Four frames from one recording of the running product, on synthetic inventory.",
     '<div class="w" style="padding:0">' + strip([
-      frame("medimatch-detect", 6, "DETECT", "01", "Detect", "a shortage surfaces in the national view · synthetic inventory", "MediMatch detect stage on the national map"),
-      frame("medimatch-rank", 6, "RANK", "02", "Rank", "candidate hubs weighed by distance, urgency, verification and fit", "MediMatch rank stage"),
-      frame("medimatch", 6, "ROUTE", "03", "Route", "Nairobi to Mandera, drawn along the road network", "MediMatch route stage, Nairobi to Mandera", select=True),
-      frame("medimatch-impact", 6, "IMPACT", "04", "Impact", "facilities reached and units moved, from the same synthetic run", "MediMatch impact stage"),
-    ]) + "</div>")
-  + f"""<section class="w sec" aria-labelledby="roads-h"><div class="two">
+      frame("mm-globe", 6, "INTRO", "01", "The globe", "the product's own hand flicks the globe toward Africa", "MediMatch intro: a hand flicks a dark globe"),
+      frame("mm-kenya", 6, "INTRO", "02", "Kenya", "the globe settles and the tap lands on Kenya", "MediMatch intro: Kenya highlighted on the globe as the tap lands"),
+      frame("mm-roads", 6, "NATIONAL", "03", "On the roads", "Nairobi to Mandera selected; every transfer follows the road network", "MediMatch national view with transfers drawn along roads, Nairobi to Mandera highlighted", select=True),
+      frame("mm-nairobi", 6, "NAIROBI COUNTY", "04", "Street scale", "43 transfers inside the county, ranked by distance, urgency and fit", "MediMatch Nairobi County close-up: transfers on city roads"),
+    ], roll="roll-mm") + "</div>", attrs=" data-reveal")
+  + f"""<section class="w sec" aria-labelledby="roads-h" data-reveal><div class="two">
   <div><h2 class="h2" id="roads-h">Every line<br>is a <em>road</em></h2>
     <p class="body">Transfers move by truck, not by air, so every route is drawn along the road network.
       The routes are computed once, with our own instance of the OSRM routing engine on OpenStreetMap,
-      and stored with the product. Nairobi to Mandera is 926 km by road. The public OSRM demo server is
-      not used.</p>
-    <p class="data">Roads © OpenStreetMap contributors · ODbL · 54 stored routes</p></div>
-  <div class="map sheet" style="padding:10px">
-<!-- gen:kenya-map -->
-<!-- /gen:kenya-map -->
+      and stored with the product. Nairobi to Mandera is 1,141 km by road, about 18 hours of driving. The
+      public OSRM demo server is not used.</p>
+    <p class="data">Roads © OpenStreetMap contributors · ODbL · {len(TRANSFERS)} transfers on {len({t["route"] for t in TRANSFERS})} stored routes</p>
+    <figure class="mm-nai sheet">
+<!-- gen:medimatch-nairobi -->
+<!-- /gen:medimatch-nairobi -->
+      <figcaption class="data">Nairobi County at street scale. The squares are the seven hubs; each dot is a facility that receives stock.</figcaption>
+    </figure></div>
+  <div class="map map--mm sheet" style="padding:10px">
+<!-- gen:medimatch-map -->
+<!-- /gen:medimatch-map -->
   </div></div>
-  <div class="channels" style="margin-top:28px"><div class="channel" style="--c:var(--ch-green)">
-    <div class="channel__tag"><b>Road km</b><span class="data"><i></i>distance of each of the<br>54 stored transfers</span></div>
-    <div class="channel__trace">
-<!-- gen:medimatch-km -->
-<!-- /gen:medimatch-km -->
-    </div></div></div>
+  <div class="kmfig"><h3 class="kmfig__h">Road km, every transfer</h3>
+<!-- gen:medimatch-routes -->
+<!-- /gen:medimatch-routes -->
+  </div>
 </section>"""
-  + sec("vid-h", "The product, moving", "A recording of the running product. It plays only if you ask it to.",
-    '<figure class="frame frame--paper" style="max-width:960px"><div class="frame__edge"><span>MEDIMATCH · SCREEN RECORDING</span><span>06 s</span></div>'
-    '<div class="frame__pic"><video controls muted playsinline preload="none" width="1280" height="720" poster="/media/medimatch-command-720-poster.jpg">'
-    '<source src="/media/medimatch-command-720.webm" type="video/webm"><source src="/media/medimatch-command-720.mp4" type="video/mp4"></video></div>'
-    '<figcaption><b>Detect to route, recorded</b>running product · synthetic inventory · frame-exact encode</figcaption></figure>')
+  + sec("vid-h", "The product, moving", "The whole journey in one take: globe, Kenya, the roads, then Nairobi. It plays only if you ask it to.",
+    '<figure class="frame frame--paper" style="max-width:1100px"><div class="frame__edge"><span>MEDIMATCH · SCREEN RECORDING</span><span>18 s</span></div>'
+    '<div class="frame__pic"><video controls muted playsinline preload="none" width="1280" height="720" poster="/media/mm-roads-film-poster.jpg">'
+    '<source src="/media/mm-roads-film.webm" type="video/webm"><source src="/media/mm-roads-film.mp4" type="video/mp4"></video></div>'
+    '<figcaption><b>Globe to street, recorded</b>running product · synthetic inventory · captured frame by frame on a virtual clock · '
+    'one scripted tap, shown as a ring · the Nairobi panel is cropped above its survey strip</figcaption></figure>')
   + sec("data-h", "What is real, and what is not", "",
     steps([("Real", "Facility names and locations are public and real. Road geometry is real, from OpenStreetMap."),
            ("Synthetic", "Every inventory quantity is demonstration data. No patient record is used anywhere."),
@@ -456,7 +463,7 @@ def cap(cid, title, problem, scope, deliver, proofs):
 
 PAGES["/capabilities/"] = ("Capabilities",
   "What LESNAR AI builds for clients: payments, trust and verification, autonomy and simulation, geospatial logistics, devices, and AI with a person in the loop.",
-  "medimatch", "/capabilities/",
+  "mm-roads", "/capabilities/",
   '<div class="w case-open"><h1 class="statement" style="margin-top:40px">What we<br>take <em>on</em></h1>'
   '<p class="lede">Six kinds of work, each with a system you can inspect. Where the proof belongs to a client, we describe it without their name.</p></div>'
   + cap("payments", "Payments and reconciliation", "Money that has to move through the instruments people actually use, and add up at the end of the day.",
@@ -578,6 +585,8 @@ def write():
     for path, spec in PAGES.items():
         title, desc, image, current, body = spec[:5]
         extra = '\n<script src="/motion.js" defer></script>' if path == "/start/" else ""
+        if (SITE / path.strip("/") / "page.css").exists():
+            extra += f'\n<link rel="stylesheet" href="{path}page.css">'
         out = SITE / path.strip("/") / "index.html"
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(shell(path, title, desc, current, body, image if image in MAN else "sentinel", extra))

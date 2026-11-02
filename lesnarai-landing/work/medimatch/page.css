@@ -1,0 +1,37 @@
+/* MediMatch: the road figures. Green is the data channel; the picked route is ink, because it is
+   the one the copy talks about, not a failure. */
+/* :root raises these to the specificity of field.css's dark-theme map rules; this file loads later */
+:root .map.map--mm .roads path{stroke:var(--ch-green);stroke-width:1.6;opacity:.9}
+:root .map.map--mm .roads--pick path{stroke:var(--ink);stroke-width:2.6;opacity:1}
+:root .map.map--mm .end,.mm-nai .end{fill:var(--paper);stroke:var(--ch-green);stroke-width:1.6}
+.map--mm .ps{font-size:10.5px}
+:root .map.map--mm .pl{font-size:12px;fill:var(--ink)}
+.mm-nai{margin:26px 0 0;padding:10px}
+.mm-nai svg{display:block;width:100%;height:auto}
+.mm-nai .roads path{fill:none;stroke:var(--ch-green);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
+.mm-nai .hub{fill:var(--place)}
+.mm-nai figcaption{margin-top:8px}
+
+.kmfig{margin-top:34px;border-top:2px solid var(--rule);padding-top:14px}
+.kmfig__h{margin:0 0 10px;font:800 22px/1 var(--sans);font-stretch:var(--cond);text-transform:uppercase;letter-spacing:.02em}
+.kmtab{width:100%;border-collapse:collapse}
+.kmtab th{text-align:left;font:600 15px/1.25 var(--sans);padding:7px 14px 7px 0;width:34%;vertical-align:middle}
+.kmtab th span{display:block;font:500 11px/1.4 var(--mono);color:var(--ink-3);letter-spacing:.03em;margin-top:2px}
+.kmtab td{padding:7px 0;border-top:1px solid var(--hair);vertical-align:middle}
+.kmtab th{border-top:1px solid var(--hair)}
+.kmtab__bar i{display:block;height:14px;width:calc(var(--v) * 100%);min-width:3px;background:var(--ch-green);border-radius:0 4px 4px 0}
+.kmtab__pick .kmtab__bar i{background:var(--ink)}
+.kmtab__local .kmtab__bar i{background:repeating-linear-gradient(90deg,var(--ch-green) 0 2px,transparent 2px 4px);min-width:6px}
+.kmtab__v{width:9ch;text-align:right;font:500 13px var(--mono);white-space:nowrap;padding-left:12px}
+.kmtab__v small{color:var(--ink-3);font-size:11px}
+@media (max-width:640px){
+  .kmtab th{width:46%;font-size:14px}
+  .kmtab__v{width:8ch}
+}
+
+@media (prefers-reduced-motion:no-preference){
+  :root[data-js="on"] [data-reveal] .kmtab__bar i{transform:scaleX(0);transform-origin:left}
+  :root[data-js="on"] [data-reveal].is-in .kmtab__bar i{transition:transform .8s var(--spring) calc(var(--i,0) * 55ms + .3s);transform:none}
+  :root[data-js="on"] [data-reveal] .mm-nai .roads path{stroke-dasharray:1;stroke-dashoffset:1}
+  :root[data-js="on"] [data-reveal].is-in .mm-nai .roads path{transition:stroke-dashoffset 1.4s var(--write) calc(var(--i,0) * 30ms + .2s);stroke-dashoffset:0}
+}

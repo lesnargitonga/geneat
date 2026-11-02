@@ -1,0 +1,137 @@
+/* Field Record motion. The record is being made in front of you:
+   traces write, readings roll into place, routes travel their roads, frames jump off the sheet.
+   Animated rules sit inside prefers-reduced-motion: no-preference. Hidden starting states also
+   require :root[data-js="on"], which the inline bootstrap sets before first paint, so nothing
+   flashes; field-motion.js then adds .is-in as sections arrive. Without script, or with reduced
+   motion, every element rests in its final state. */
+
+:root{--spring:cubic-bezier(.2,1.45,.35,1);--snap:cubic-bezier(.16,1,.3,1);--write:cubic-bezier(.45,.05,.55,.95)}
+
+/* ── Layout (always) ─────────────────────────────────────────────────── */
+.hero__grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:center}
+.hero__reel{position:relative;margin:0;background:var(--film);padding:22px 12px 12px;box-shadow:0 30px 80px -40px rgba(0,0,0,.6)}
+.hero__reel::before{content:"";position:absolute;left:10px;right:10px;top:7px;height:8px;
+  background:repeating-linear-gradient(90deg,#383838 0 12px,transparent 12px 22px)}
+.hero__reel .frame__pic{display:block;aspect-ratio:4/3;overflow:hidden;background:#000}
+.hero__reel video,.hero__reel img{display:block;width:100%;height:100%;object-fit:cover}
+.hero__reel figcaption{font:500 10.5px/1.45 var(--mono);color:#B8B8B8;margin-top:9px}
+.hero__reel figcaption b{color:#fff;font-weight:500}
+.hero__tc{position:absolute;right:12px;top:22px;z-index:2;font:500 10px var(--mono);letter-spacing:.12em;color:#fff;background:rgba(0,0,0,.6);padding:4px 7px}
+.hero__tc i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--signal);margin-right:6px;vertical-align:0}
+@media (max-width:860px){
+  .hero__grid{grid-template-columns:1fr}
+  .hero__reel{order:-1;margin-inline:calc(var(--pad) * -1)}
+}
+
+.channel__trace{position:relative}
+.odo{display:inline-flex;height:.82em;overflow:hidden;vertical-align:top}
+.odo__c{display:flex;flex-direction:column;line-height:.82;transform:translateY(calc(var(--d) * -.82em))}
+.odo__c span{display:block;height:.82em}
+
+.frame__pic{overflow:hidden}
+@media (hover:hover){
+  .strip .frame{transition:transform .38s var(--spring)}
+  .strip .frame__pic img{transition:transform .6s var(--snap)}
+  .strip .frame:hover{transform:translateY(-8px) rotate(-.5deg)}
+  .strip .frame:nth-child(even):hover{transform:translateY(-8px) rotate(.5deg)}
+  .strip .frame:hover .frame__pic img{transform:scale(1.035)}
+  .strip .frame:hover .frame__edge span:last-child{color:var(--signal)}
+}
+
+/* On a phone the contact sheet becomes a roll you swipe through, one frame at a time. */
+@media (max-width:700px){
+  .strip--roll{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;padding-inline:9vw;
+    margin-inline:calc(var(--pad) * -1);scrollbar-width:none;overscroll-behavior-x:contain}
+  .strip--roll::-webkit-scrollbar{display:none}
+  .strip--roll::before,.strip--roll::after{right:auto;width:var(--roll-w,100%)}
+  .strip--roll .frame{flex:0 0 82vw;scroll-snap-align:center;scroll-snap-stop:always}
+  .strip--roll{align-items:center}
+  .strip--roll .frame--3,.strip--roll .frame--2{flex-basis:42vw}
+  .strip--roll .frame--3 .frame__pic,.strip--roll .frame--2 .frame__pic{aspect-ratio:3/4}
+  .strip--roll .frame--3 .frame__pic img,.strip--roll .frame--2 .frame__pic img{height:100%;object-fit:cover;object-position:top}
+  .roll-count{display:flex;justify-content:space-between;font:500 10.5px var(--mono);letter-spacing:.1em;color:var(--ink-3);margin-top:10px}
+  .roll-count b{color:var(--ink);font-weight:500}
+}
+@media (min-width:701px){.roll-count{display:none}}
+
+/* Readings: a strip of instruments on a phone, swiped like the film. */
+@media (max-width:700px){
+  .readings--roll{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
+    margin-inline:calc(var(--pad) * -1);padding-inline:var(--pad);scroll-padding-inline:var(--pad)}
+  .readings--roll::-webkit-scrollbar{display:none}
+  .readings--roll .reading{flex:0 0 78vw;scroll-snap-align:start;padding:22px 18px 26px 0}
+  .readings--roll .reading+.reading{padding-left:18px;border-left:1px solid var(--rule)}
+}
+
+/* ── Motion (only when the visitor allows it) ───────────────────────── */
+@media (prefers-reduced-motion:no-preference){
+  /* Pages hand over to each other instead of blinking (cross-document view transitions). */
+  @view-transition{navigation:auto}
+  .fr-head{view-transition-name:site-head}
+  ::view-transition-old(root){animation:.18s var(--snap) both vt-out}
+  ::view-transition-new(root){animation:.32s var(--snap) both vt-in}
+  @keyframes vt-out{to{opacity:0;transform:translateY(-14px)}}
+  @keyframes vt-in{from{opacity:0;transform:translateY(22px)}}
+
+  /* "REAL." lands like a stamp on paper, once. The capture's record light blinks. */
+  .statement em{display:inline-block;animation:stamp .62s var(--spring) .25s both}
+  @keyframes stamp{0%{opacity:0;transform:scale(1.9) rotate(-7deg)}55%{opacity:1;transform:scale(.94) rotate(1.5deg)}100%{transform:none}}
+  .hero__tc i{animation:rec 1.2s steps(1,end) infinite}
+  @keyframes rec{50%{opacity:.15}}
+
+  /* Record: the trace writes behind a playhead, the hold fills, the note arrives. */
+  :root[data-js="on"] [data-reveal] .speed__ok,:root[data-js="on"] [data-reveal] .speed__bad{stroke-dasharray:1;stroke-dashoffset:1}
+  :root[data-js="on"] [data-reveal].is-in .speed__ok,:root[data-js="on"] [data-reveal].is-in .speed__bad{transition:stroke-dashoffset 2.6s var(--write) .15s;stroke-dashoffset:0}
+  :root[data-js="on"] [data-reveal] .speed__hold{transform:scaleX(0);transform-origin:left;transform-box:fill-box}
+  :root[data-js="on"] [data-reveal].is-in .speed__hold{transition:transform 2.1s var(--write) .55s;transform:none}
+  :root[data-js="on"] [data-reveal] .speed__note{opacity:0}
+  :root[data-js="on"] [data-reveal].is-in .speed__note{transition:opacity .4s 2.5s;opacity:1}
+  :root[data-js="on"] [data-reveal] .channel__trace--speed::after{content:"";position:absolute;top:10px;bottom:30px;left:calc(14px + 5.3%);width:2px;background:var(--signal);opacity:0;pointer-events:none}
+  :root[data-js="on"] [data-reveal].is-in .channel__trace--speed::after{animation:playhead 2.75s var(--write) .1s both}
+  @keyframes playhead{0%{opacity:1;transform:translateX(0)}90%{opacity:1}100%{opacity:0;transform:translateX(min(56vw,780px))}}
+
+  /* Bars jump up in order; readings roll like odometers; counts pop. */
+  :root[data-js="on"] [data-reveal] .bars i{transform:scaleY(0);transform-origin:bottom}
+  :root[data-js="on"] [data-reveal].is-in .bars i{transition:transform .7s var(--spring) calc(var(--i,0) * 22ms + .2s);transform:none}
+  :root[data-js="on"] [data-reveal] .odo__c{transform:translateY(0)}
+  :root[data-js="on"] [data-reveal].is-in .odo__c{transition:transform 1.25s var(--spring) calc(var(--k,0) * 90ms + .1s);transform:translateY(calc(var(--d) * -.82em))}
+  :root[data-js="on"] [data-reveal] .counts b{display:inline-block;transform:translateY(.6em);opacity:0}
+  :root[data-js="on"] [data-reveal].is-in .counts b{transition:transform .6s var(--spring),opacity .3s;transform:none;opacity:1}
+
+  /* Contact sheet: frames are dealt onto the sheet, then jump when you reach for them. */
+  :root[data-js="on"] [data-reveal] .strip .frame{opacity:0;transform:translateY(46px)}
+  :root[data-js="on"] [data-reveal].is-in .strip .frame{transition:opacity .35s calc(min(var(--i,0), 8) * 70ms),transform .7s var(--spring) calc(min(var(--i,0), 8) * 70ms);opacity:1;transform:none}
+
+  /* Terrain: roads are travelled, then the places land on them. */
+  :root[data-js="on"] [data-reveal] .map .roads path{stroke-dasharray:1;stroke-dashoffset:1}
+  :root[data-js="on"] [data-reveal].is-in .map .roads path{transition:stroke-dashoffset 1.6s var(--write) calc(var(--i,0) * 25ms);stroke-dashoffset:0}
+  :root[data-js="on"] [data-reveal] .map .mk{opacity:0;transform:translateY(-26px)}
+  :root[data-js="on"] [data-reveal].is-in .map .mk{transition:opacity .2s calc(1.2s + min(var(--i,0), 8) * 160ms),transform .55s var(--spring) calc(1.2s + min(var(--i,0), 8) * 160ms);opacity:1;transform:none}
+  :root[data-js="on"] [data-reveal] .gaz__row{opacity:0;transform:translateX(-18px)}
+  :root[data-js="on"] [data-reveal].is-in .gaz__row{transition:opacity .3s calc(min(var(--i,0), 8) * 80ms + .3s),transform .5s var(--snap) calc(min(var(--i,0), 8) * 80ms + .3s);opacity:1;transform:none}
+
+  /* Scroll-linked where supported: the capture drifts against the page as you leave the hero. */
+  @supports (animation-timeline:view()){
+    .hero__reel .frame__pic video,.hero__reel .frame__pic img{animation:drift linear both;animation-timeline:view();animation-range:exit 0% exit 100%}
+    @keyframes drift{to{transform:translateY(12%) scale(1.08)}}
+  }
+}
+
+/* The statement shares the hero with the capture on wide screens. */
+@media (min-width:861px){.hero .statement{font-size:clamp(52px,6.3vw,104px)}}
+
+/* ── The reel: real frames running through the page ─────────────────── */
+.reel{position:relative;background:var(--film);padding:26px 0;overflow:hidden;contain:paint}
+.reel::before,.reel::after{content:"";position:absolute;left:0;right:0;height:9px;
+  background:repeating-linear-gradient(90deg,transparent 0 10px,#383838 10px 22px)}
+.reel::before{top:8px}.reel::after{bottom:8px}
+.reel__row{display:flex;gap:12px;width:max-content;padding-inline:12px}
+.reel__row+.reel__row{margin-top:14px}
+.reel__f{margin:0;flex:none}
+.reel__f img{display:block;height:clamp(118px,15vw,210px);width:auto;background:#000}
+.reel__f figcaption{font:500 9.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--edge);margin-top:7px}
+.reel__note{margin:16px 0 0;padding-inline:var(--pad);font:500 10.5px var(--mono);letter-spacing:.08em;color:#B8B8B8}
+@media (prefers-reduced-motion:reduce){.reel{overflow-x:auto}}
+@media (prefers-reduced-motion:no-preference){
+  :root[data-js="on"] .reel__row{transform:translateX(var(--x,0px));will-change:transform}
+}

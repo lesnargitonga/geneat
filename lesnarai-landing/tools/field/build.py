@@ -8,8 +8,12 @@
 Markers (<!-- gen:NAME --> ... <!-- /gen:NAME -->), usable on any page:
   sentinel-speed, sentinel-detections, sentinel-plan
       copied from /work/sentinel/, which owns the sealed-run figures
-  medimatch-km   road distance of every MediMatch transfer, as bars
-  kenya-map      Kenya outline, all stored road routes, and the places our systems run
+  medimatch-km      road km of the transfers that cross a county line, as channel bars
+  medimatch-routes  every transfer's road km as a ranked table-chart (the table is the chart)
+  medimatch-map     MediMatch's own map: every road route between counties, Nairobi to Mandera picked out
+  medimatch-nairobi Nairobi County at street scale, where 43 of the transfers stay
+  kenya-map         Kenya outline, all stored road routes, and the places our systems run
+  reel              two rows of real frames that run against each other as the page scrolls
 Idempotent: re-running on unchanged inputs changes nothing.
 """
 import json, re, sys
@@ -18,6 +22,11 @@ from pathlib import Path
 SITE = Path(__file__).resolve().parents[2]
 KENYA = json.loads((SITE / "tools/assets/kenya.json").read_text())
 SENTINEL = (SITE / "work/sentinel/index.html").read_text()
+PLAN = json.loads((SITE / "tools/assets/medimatch-plan.json").read_text())
+MM_ROUTES = Path("/home/lesnar/publish-stage/MediMatch-wt-truth/server/data/road-routes.json")
+TRANSFERS = PLAN["transfers"]                                   # sorted, longest first
+INTER = [t for t in TRANSFERS if t["from"] != t["to"]]
+LOCAL = [t for t in TRANSFERS if t["from"] == t["to"]]
 
 def block(html, name):
     m = re.search(rf"<!-- gen:{name} -->\n?(.*?)\n?<!-- /gen:{name} -->", html, re.S)
@@ -26,15 +35,112 @@ def block(html, name):
     return m.group(1).strip()
 
 def km_bars():
-    top = KENYA["km"][0]
-    bars = "".join(f'<i style="--h:{k / top:.3f}"></i>' for k in KENYA["km"])
-    return (f'<div class="bars" role="img" aria-label="Road distance of each of {len(KENYA["km"])} MediMatch transfers, '
-            f'longest {top} km, shortest {KENYA["km"][-1]} km">{bars}</div>')
+    top = INTER[0]["km"]
+    bars = "".join(f'<i style="--h:{t["km"] / top:.3f}" title="{t["from"]} to {t["to"]}: {t["km"]:,} km"></i>' for t in INTER)
+    return (f'<div class="bars" role="img" aria-label="Road distance of the {len(INTER)} MediMatch transfers that cross a county line, '
+            f'longest {top:,} km (Nairobi to Mandera), shortest {INTER[-1]["km"]} km">{bars}</div>')
+
+def item_name(t):
+    return t["item"].split(" (")[0].lower().replace("iv ", "IV ")
+
+def km_routes():
+    top = INTER[0]["km"]
+    lo, hi = min(t["km"] for t in LOCAL), max(t["km"] for t in LOCAL)
+    med = sorted(t["km"] for t in LOCAL)[len(LOCAL) // 2]
+    rows = []
+    for t in INTER:
+        rows.append(f'<tr{" class=\"kmtab__pick\"" if t is INTER[0] else ""}><th scope="row">{t["from"]} → {t["to"]}<span>{item_name(t)}</span></th>'
+                    f'<td class="kmtab__bar"><i style="--v:{t["km"] / top:.4f}"></i></td>'
+                    f'<td class="kmtab__v">{t["km"]:,}<small> km</small></td></tr>')
+    rows.append(f'<tr class="kmtab__local"><th scope="row">Within Nairobi County<span>{len(LOCAL)} transfers, median {med} km</span></th>'
+                f'<td class="kmtab__bar"><i style="--v:{hi / top:.4f}"></i></td>'
+                f'<td class="kmtab__v">{lo}–{hi}<small> km</small></td></tr>')
+    return ('<table class="kmtab"><caption class="sr">Road distance of each MediMatch transfer, longest first. '
+            f'{len(INTER)} cross a county line; the other {len(LOCAL)} stay inside Nairobi County.</caption>'
+            '<thead class="sr"><tr><th scope="col">Transfer</th><th scope="col">Bar</th><th scope="col">Road distance</th></tr></thead><tbody>'
+            + "".join(rows) + "</tbody></table>")
+
+def mm_map():
+    stored = json.loads(MM_ROUTES.read_text())["routes"]
+    lon0, lon1, lat0, lat1 = 33.7, 42.2, -4.9, 5.2                # the projection prepare.py uses for kenya.json
+    W, H = KENYA["w"], KENYA["h"]
+    px = lambda lon: (lon - lon0) / (lon1 - lon0) * W
+    py = lambda lat: (lat1 - lat) / (lat1 - lat0) * H
+    path = lambda pts, fx, fy: "M" + " L".join(f"{fx(lo):.1f},{fy(la):.1f}" for la, lo in pts)
+    thin = lambda c: c[::2] + [c[-1]]
+    pick = INTER[0]
+    seen = set(); inter_paths = []
+    for t in INTER:
+        if t["route"] in seen or t is pick: continue
+        seen.add(t["route"]); inter_paths.append(path(thin(stored[t["route"]]["coords"]), px, py))
+    pick_path = path(thin(stored[pick["route"]]["coords"]), px, py)
+    ends = {}
+    for t in INTER:
+        c = stored[t["route"]]["coords"][-1]
+        ends.setdefault(t["to"], (px(c[1]), py(c[0])))
+    labels = []
+    mx, my = ends[pick["to"]]
+    for name, (x, y) in ends.items():
+        anchor, dx = ("end", -8) if x > W * .72 else ("start", 8)
+        ty = y - 12 if name == pick["to"] else y + 4             # the picked end carries its distance below
+        labels.append(f'<circle class="end" cx="{x:.1f}" cy="{y:.1f}" r="4"/><text class="ps" x="{x + dx:.1f}" y="{ty:.1f}" text-anchor="{anchor}">{name.upper()}</text>')
+    out = [f'<svg viewBox="0 0 {W} {H}" role="img" aria-labelledby="mmmap-t mmmap-d">',
+           '<title id="mmmap-t">MediMatch transfers on Kenyan roads</title>',
+           f'<desc id="mmmap-d">{len(TRANSFERS)} transfers on stored road routes. {len(INTER)} cross a county line, the longest Nairobi to Mandera at '
+           f'{pick["km"]:,} km. The inset shows Nairobi County, where the other {len(LOCAL)} transfers run, 1 to 26 km each.</desc>',
+           f'<path class="land" d="{KENYA["land"]}"/>',
+           '<g class="roads">' + "".join(f'<path d="{d}"/>' for d in inter_paths) + "</g>",
+           f'<g class="roads roads--pick"><path d="{pick_path}"/></g>',
+           '<g class="ends">' + "".join(labels) + "</g>",
+           f'<text class="pl" x="{mx - 8:.1f}" y="{my + 24:.1f}" text-anchor="end">{pick["km"]:,} KM BY ROAD</text>',
+           "</svg>"]
+    return "\n".join(out)
+
+def mm_nairobi():
+    """Nairobi County at street scale: the 43 transfers that never leave it."""
+    stored = json.loads(MM_ROUTES.read_text())["routes"]
+    pts = [p for t in LOCAL for p in stored[t["route"]]["coords"]]
+    la0, la1 = min(p[0] for p in pts) - .015, max(p[0] for p in pts) + .015
+    lo0, lo1 = min(p[1] for p in pts) - .015, max(p[1] for p in pts) + .015
+    W = 600; s = W / (lo1 - lo0); H = round((la1 - la0) * s, 1)
+    x = lambda lon: (lon - lo0) * s
+    y = lambda lat: (la1 - lat) * s
+    seen = set(); paths = []; ends = []
+    for t in LOCAL:
+        if t["route"] in seen: continue
+        seen.add(t["route"]); c = stored[t["route"]]["coords"]
+        paths.append("M" + " L".join(f"{x(lo):.1f},{y(la):.1f}" for la, lo in c))
+        ends.append(c[-1])
+    hubs = {tuple(stored[t["route"]]["coords"][0]) for t in LOCAL}
+    km = sorted(t["km"] for t in LOCAL)
+    return "\n".join([f'<svg viewBox="0 0 {W} {H}" role="img" aria-labelledby="mmnai-t mmnai-d">',
+        '<title id="mmnai-t">Nairobi County: transfers inside the county</title>',
+        f'<desc id="mmnai-d">{len(LOCAL)} transfers from Nairobi hubs to facilities in the county, on {len(paths)} stored road routes, '
+        f'{km[0]} to {km[-1]} km each, median {km[len(km) // 2]} km.</desc>',
+        '<g class="roads roads--local">' + "".join(f'<path d="{d}"/>' for d in paths) + "</g>",
+        '<g class="ends">' + "".join(f'<circle class="end" cx="{x(lo):.1f}" cy="{y(la):.1f}" r="3"/>' for la, lo in ends) + "</g>",
+        "".join(f'<rect class="hub" x="{x(lo) - 5:.1f}" y="{y(la) - 5:.1f}" width="10" height="10"/>' for la, lo in sorted(hubs)),
+        "</svg>"])
+
+MANIFEST = json.loads((SITE / "tools/assets/manifest.json").read_text())
+REEL_LABEL = {"mm": "MediMatch", "biz": "BizMtaani", "lesnarplay": "LESNAR PLAY", "play": "LESNAR PLAY", "zygos": "Zygos",
+              "carepro": "CarePro", "tv": "LESNAR TV", "jamii": "Jamii", "sentinel": "Operation Sentinel"}
+
+def reel():
+    rows = []
+    for r, row in enumerate(MANIFEST["reel"]):
+        figs = []
+        for k, f in enumerate(row):
+            label = REEL_LABEL.get(f["name"].split("-")[0], f["name"])
+            figs.append(f'<figure class="reel__f"><img src="/assets/field/reel/{f["name"]}.webp" width="{f["w"]}" height="{f["h"]}" '
+                        f'alt="" loading="lazy" decoding="async"><figcaption>{r * len(row) + k + 1:02d} · {label}</figcaption></figure>')
+        rows.append(f'<div class="reel__row" data-dir="{"-1" if r % 2 == 0 else "1"}">' + "".join(figs) + "</div>")
+    return "\n".join(rows)
 
 MARKS = [  # key, label, sub, dx, dy, anchor
     ("embu", "EMBU", "BizMtaani · live", 120, -60, "start"),
     ("mbeere", "MBEERE NORTH", "Jamii · pilot in preparation", 150, 30, "start"),
-    ("nairobi", "NAIROBI", "CarePro · controlled beta", -150, 40, "end"),
+    ("nairobi", "NAIROBI", "CarePro · controlled beta", -96, 52, "end"),
     ("mandera", "MANDERA", "MediMatch · modelled route", -40, 60, "end"),
 ]
 
@@ -59,7 +165,11 @@ FILL = {
     "sentinel-detections": lambda: block(SENTINEL, "detections"),
     "sentinel-plan": lambda: block(SENTINEL, "plan"),
     "medimatch-km": km_bars,
+    "medimatch-routes": km_routes,
+    "medimatch-map": mm_map,
+    "medimatch-nairobi": mm_nairobi,
     "kenya-map": kenya_map,
+    "reel": reel,
 }
 
 def fill(path: Path) -> bool:
