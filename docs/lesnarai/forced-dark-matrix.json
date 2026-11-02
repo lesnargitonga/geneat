@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-02T04:49:57.746Z",
+ "generated": "2026-11-02T16:28:50.133Z",
  "base": "http://127.0.0.1:8911",
  "dpr": 2.625,
  "tolerance": {
@@ -66,8 +66,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#D41F1A",
-      "expect": "#D41F1A",
+      "got": "#000000",
+      "expect": "#000000",
       "delta": 0,
       "pass": true
      },
@@ -106,9 +106,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1B1D1F",
-      "expect": "#1B1E20",
-      "delta": 0.9368686868686886,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 0.8750841750841758,
       "pass": true
      },
      {
@@ -236,22 +236,6 @@
      {
       "id": "ink",
       "method": "ink",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#FFFFFF",
-      "expect": "#FFFFFF",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
       "got": "#000000",
       "expect": "#000000",
       "delta": 0,
@@ -388,8 +372,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#D41F1A",
-      "expect": "#D41F1A",
+      "got": "#000000",
+      "expect": "#000000",
       "delta": 0,
       "pass": true
      },
@@ -428,9 +412,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1B1D1F",
-      "expect": "#1B1E20",
-      "delta": 0.9368686868686886,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 0.8750841750841758,
       "pass": true
      },
      {
@@ -558,22 +542,6 @@
      {
       "id": "ink",
       "method": "ink",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#FFFFFF",
-      "expect": "#FFFFFF",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
       "got": "#000000",
       "expect": "#000000",
       "delta": 0,
@@ -710,8 +678,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#FF4A3D",
-      "expect": "#FF4A3D",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
       "delta": 0,
       "pass": true
      },
@@ -750,9 +718,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1B1D1F",
-      "expect": "#1B1E20",
-      "delta": 0.9368686868686886,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 0.8750841750841758,
       "pass": true
      },
      {
@@ -880,24 +848,8 @@
      {
       "id": "ink",
       "method": "ink",
-      "got": "#FEFEFE",
+      "got": "#FFFFFF",
       "expect": "#FFFFFF",
-      "delta": 1,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
       "delta": 0,
       "pass": true
      }
@@ -1032,8 +984,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#FF4A3D",
-      "expect": "#FF4A3D",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
       "delta": 0,
       "pass": true
      },
@@ -1072,9 +1024,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1B1D1F",
-      "expect": "#1B1E20",
-      "delta": 0.9368686868686886,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 0.8750841750841758,
       "pass": true
      },
      {
@@ -1202,24 +1154,8 @@
      {
       "id": "ink",
       "method": "ink",
-      "got": "#FEFEFE",
+      "got": "#FFFFFF",
       "expect": "#FFFFFF",
-      "delta": 1,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
       "delta": 0,
       "pass": true
      }
@@ -1354,8 +1290,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#D41F1A",
-      "expect": "#D41F1A",
+      "got": "#000000",
+      "expect": "#000000",
       "delta": 0,
       "pass": true
      },
@@ -1394,9 +1330,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1B1D1F",
-      "expect": "#1B1E20",
-      "delta": 0.9368686868686886,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 0.8750841750841758,
       "pass": true
      },
      {
@@ -1524,22 +1460,6 @@
      {
       "id": "ink",
       "method": "ink",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#FFFFFF",
-      "expect": "#FFFFFF",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
       "got": "#000000",
       "expect": "#000000",
       "delta": 0,
@@ -1676,8 +1596,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#FF4A3D",
-      "expect": "#FF4A3D",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
       "delta": 0,
       "pass": true
      },
@@ -1716,9 +1636,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1B1D1F",
-      "expect": "#1B1E20",
-      "delta": 0.9368686868686886,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 0.8750841750841758,
       "pass": true
      },
      {
@@ -1846,24 +1766,8 @@
      {
       "id": "ink",
       "method": "ink",
-      "got": "#FEFEFE",
+      "got": "#FFFFFF",
       "expect": "#FFFFFF",
-      "delta": 1,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
       "delta": 0,
       "pass": true
      }
@@ -1998,8 +1902,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#D41F1A",
-      "expect": "#D41F1A",
+      "got": "#000000",
+      "expect": "#000000",
       "delta": 0,
       "pass": true
      },
@@ -2038,9 +1942,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1A1C1F",
-      "expect": "#1B1E20",
-      "delta": 1.5216898856042604,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 1.2067618076792392,
       "pass": true
      },
      {
@@ -2172,22 +2076,6 @@
       "expect": "#000000",
       "delta": 0,
       "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#FFFFFF",
-      "expect": "#FFFFFF",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
      }
     ],
     "/work/medimatch/": [
@@ -2320,8 +2208,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#D41F1A",
-      "expect": "#D41F1A",
+      "got": "#000000",
+      "expect": "#000000",
       "delta": 0,
       "pass": true
      },
@@ -2360,9 +2248,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1A1C1F",
-      "expect": "#1B1E20",
-      "delta": 1.5216898856042604,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 1.2067618076792392,
       "pass": true
      },
      {
@@ -2494,22 +2382,6 @@
       "expect": "#000000",
       "delta": 0,
       "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#FFFFFF",
-      "expect": "#FFFFFF",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
      }
     ],
     "/work/medimatch/": [
@@ -2642,8 +2514,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#FF4A3D",
-      "expect": "#FF4A3D",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
       "delta": 0,
       "pass": true
      },
@@ -2682,9 +2554,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1A1C1F",
-      "expect": "#1B1E20",
-      "delta": 1.5216898856042604,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 1.2067618076792392,
       "pass": true
      },
      {
@@ -2814,22 +2686,6 @@
       "method": "ink",
       "got": "#FFFFFF",
       "expect": "#FFFFFF",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
       "delta": 0,
       "pass": true
      }
@@ -2964,8 +2820,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#FF4A3D",
-      "expect": "#FF4A3D",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
       "delta": 0,
       "pass": true
      },
@@ -3004,9 +2860,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1A1C1F",
-      "expect": "#1B1E20",
-      "delta": 1.5216898856042604,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 1.2067618076792392,
       "pass": true
      },
      {
@@ -3136,22 +2992,6 @@
       "method": "ink",
       "got": "#FFFFFF",
       "expect": "#FFFFFF",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
       "delta": 0,
       "pass": true
      }
@@ -3286,8 +3126,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#D41F1A",
-      "expect": "#D41F1A",
+      "got": "#000000",
+      "expect": "#000000",
       "delta": 0,
       "pass": true
      },
@@ -3326,9 +3166,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1A1C1F",
-      "expect": "#1B1E20",
-      "delta": 1.5216898856042604,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 1.2067618076792392,
       "pass": true
      },
      {
@@ -3460,22 +3300,6 @@
       "expect": "#000000",
       "delta": 0,
       "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#FFFFFF",
-      "expect": "#FFFFFF",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
      }
     ],
     "/work/medimatch/": [
@@ -3608,8 +3432,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#FF4A3D",
-      "expect": "#FF4A3D",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
       "delta": 0,
       "pass": true
      },
@@ -3648,9 +3472,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1A1C1F",
-      "expect": "#1B1E20",
-      "delta": 1.5216898856042604,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 1.2067618076792392,
       "pass": true
      },
      {
@@ -3780,22 +3604,6 @@
       "method": "ink",
       "got": "#FFFFFF",
       "expect": "#FFFFFF",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
       "delta": 0,
       "pass": true
      }
@@ -3930,8 +3738,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#D41F1A",
-      "expect": "#D41F1A",
+      "got": "#000000",
+      "expect": "#000000",
       "delta": 0,
       "pass": true
      },
@@ -3970,9 +3778,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1B1D1F",
-      "expect": "#1B1E20",
-      "delta": 1.1253647586980904,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 0.7632435465768808,
       "pass": true
      },
      {
@@ -4100,22 +3908,6 @@
      {
       "id": "ink",
       "method": "ink",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#FFFFFF",
-      "expect": "#FFFFFF",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
       "got": "#000000",
       "expect": "#000000",
       "delta": 0,
@@ -4252,8 +4044,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#D41F1A",
-      "expect": "#D41F1A",
+      "got": "#000000",
+      "expect": "#000000",
       "delta": 0,
       "pass": true
      },
@@ -4292,9 +4084,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1B1D1F",
-      "expect": "#1B1E20",
-      "delta": 1.1253647586980904,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 0.7632435465768808,
       "pass": true
      },
      {
@@ -4422,22 +4214,6 @@
      {
       "id": "ink",
       "method": "ink",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#FFFFFF",
-      "expect": "#FFFFFF",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
       "got": "#000000",
       "expect": "#000000",
       "delta": 0,
@@ -4574,8 +4350,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#FF4A3D",
-      "expect": "#FF4A3D",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
       "delta": 0,
       "pass": true
      },
@@ -4614,9 +4390,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1B1D1F",
-      "expect": "#1B1E20",
-      "delta": 1.1253647586980904,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 0.7632435465768808,
       "pass": true
      },
      {
@@ -4746,22 +4522,6 @@
       "method": "ink",
       "got": "#FFFFFF",
       "expect": "#FFFFFF",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
       "delta": 0,
       "pass": true
      }
@@ -4896,8 +4656,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#FF4A3D",
-      "expect": "#FF4A3D",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
       "delta": 0,
       "pass": true
      },
@@ -4936,9 +4696,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1B1D1F",
-      "expect": "#1B1E20",
-      "delta": 1.1253647586980904,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 0.7632435465768808,
       "pass": true
      },
      {
@@ -5068,22 +4828,6 @@
       "method": "ink",
       "got": "#FFFFFF",
       "expect": "#FFFFFF",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
       "delta": 0,
       "pass": true
      }
@@ -5218,8 +4962,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#D41F1A",
-      "expect": "#D41F1A",
+      "got": "#000000",
+      "expect": "#000000",
       "delta": 0,
       "pass": true
      },
@@ -5258,9 +5002,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1B1D1F",
-      "expect": "#1B1E20",
-      "delta": 1.1253647586980904,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 0.7632435465768808,
       "pass": true
      },
      {
@@ -5388,22 +5132,6 @@
      {
       "id": "ink",
       "method": "ink",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#FFFFFF",
-      "expect": "#FFFFFF",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
       "got": "#000000",
       "expect": "#000000",
       "delta": 0,
@@ -5540,8 +5268,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#FF4A3D",
-      "expect": "#FF4A3D",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
       "delta": 0,
       "pass": true
      },
@@ -5580,9 +5308,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1B1D1F",
-      "expect": "#1B1E20",
-      "delta": 1.1253647586980904,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 0.7632435465768808,
       "pass": true
      },
      {
@@ -5712,22 +5440,6 @@
       "method": "ink",
       "got": "#FFFFFF",
       "expect": "#FFFFFF",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
       "delta": 0,
       "pass": true
      }
@@ -5862,9 +5574,9 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#FF593F",
-      "expect": "#D41F1A",
-      "delta": 58,
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
       "pass": false
      },
      {
@@ -5902,9 +5614,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#FDFDFD",
-      "expect": "#1B1E20",
-      "delta": 225.80319865319865,
+      "got": "#FDFDFE",
+      "expect": "#1A1B1D",
+      "delta": 227.28737373737374,
       "pass": false
      },
      {
@@ -6032,26 +5744,10 @@
      {
       "id": "ink",
       "method": "ink",
-      "got": "#FEFEFE",
+      "got": "#FFFFFF",
       "expect": "#000000",
-      "delta": 254,
+      "delta": 255,
       "pass": false
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#121212",
-      "expect": "#FFFFFF",
-      "delta": 237,
-      "pass": false
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
      }
     ],
     "/work/medimatch/": [
@@ -6124,7 +5820,7 @@
     ]
    },
    "expected_to_pass": false,
-   "fails": 27
+   "fails": 26
   },
   {
    "engine": "chromium-fd",
@@ -6184,9 +5880,9 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#FF593F",
-      "expect": "#D41F1A",
-      "delta": 58,
+      "got": "#FFFFFF",
+      "expect": "#000000",
+      "delta": 255,
       "pass": false
      },
      {
@@ -6224,9 +5920,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#FDFDFD",
-      "expect": "#1B1E20",
-      "delta": 225.80319865319865,
+      "got": "#FDFDFE",
+      "expect": "#1A1B1D",
+      "delta": 227.28737373737374,
       "pass": false
      },
      {
@@ -6354,26 +6050,10 @@
      {
       "id": "ink",
       "method": "ink",
-      "got": "#FEFEFE",
+      "got": "#FFFFFF",
       "expect": "#000000",
-      "delta": 254,
+      "delta": 255,
       "pass": false
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#121212",
-      "expect": "#FFFFFF",
-      "delta": 237,
-      "pass": false
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
      }
     ],
     "/work/medimatch/": [
@@ -6446,7 +6126,7 @@
     ]
    },
    "expected_to_pass": false,
-   "fails": 27
+   "fails": 26
   },
   {
    "engine": "chromium-fd",
@@ -6506,10 +6186,10 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#E32C2A",
-      "expect": "#FF4A3D",
-      "delta": 30,
-      "pass": false
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
+      "delta": 0,
+      "pass": true
      },
      {
       "id": "stage",
@@ -6546,9 +6226,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#FDFDFD",
-      "expect": "#1B1E20",
-      "delta": 225.80319865319865,
+      "got": "#FDFDFE",
+      "expect": "#1A1B1D",
+      "delta": 227.28737373737374,
       "pass": false
      },
      {
@@ -6676,24 +6356,8 @@
      {
       "id": "ink",
       "method": "ink",
-      "got": "#FEFEFE",
+      "got": "#FFFFFF",
       "expect": "#FFFFFF",
-      "delta": 1,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
       "delta": 0,
       "pass": true
      }
@@ -6768,7 +6432,7 @@
     ]
    },
    "expected_to_pass": false,
-   "fails": 12
+   "fails": 11
   },
   {
    "engine": "chromium-fd",
@@ -6828,8 +6492,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#FF4A3D",
-      "expect": "#FF4A3D",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
       "delta": 0,
       "pass": true
      },
@@ -6868,9 +6532,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1B1D1F",
-      "expect": "#1B1E20",
-      "delta": 0.9372615039281698,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 0.8750841750841758,
       "pass": true
      },
      {
@@ -6998,24 +6662,8 @@
      {
       "id": "ink",
       "method": "ink",
-      "got": "#FEFEFE",
+      "got": "#FFFFFF",
       "expect": "#FFFFFF",
-      "delta": 1,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
       "delta": 0,
       "pass": true
      }
@@ -7150,8 +6798,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#D41F1A",
-      "expect": "#D41F1A",
+      "got": "#000000",
+      "expect": "#000000",
       "delta": 0,
       "pass": true
      },
@@ -7190,9 +6838,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1B1D1F",
-      "expect": "#1B1E20",
-      "delta": 0.9372615039281698,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 0.8750841750841758,
       "pass": true
      },
      {
@@ -7320,22 +6968,6 @@
      {
       "id": "ink",
       "method": "ink",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#FFFFFF",
-      "expect": "#FFFFFF",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
       "got": "#000000",
       "expect": "#000000",
       "delta": 0,
@@ -7472,8 +7104,8 @@
      {
       "id": "link",
       "method": "ink",
-      "got": "#FF4A3D",
-      "expect": "#FF4A3D",
+      "got": "#FFFFFF",
+      "expect": "#FFFFFF",
       "delta": 0,
       "pass": true
      },
@@ -7512,9 +7144,9 @@
      {
       "id": "photo-dark",
       "method": "mean",
-      "got": "#1B1D1F",
-      "expect": "#1B1E20",
-      "delta": 0.9372615039281698,
+      "got": "#191B1C",
+      "expect": "#1A1B1D",
+      "delta": 0.8750841750841758,
       "pass": true
      },
      {
@@ -7642,24 +7274,8 @@
      {
       "id": "ink",
       "method": "ink",
-      "got": "#FEFEFE",
+      "got": "#FFFFFF",
       "expect": "#FFFFFF",
-      "delta": 1,
-      "pass": true
-     },
-     {
-      "id": "sheet",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
-      "delta": 0,
-      "pass": true
-     },
-     {
-      "id": "film",
-      "method": "fill",
-      "got": "#000000",
-      "expect": "#000000",
       "delta": 0,
       "pass": true
      }
