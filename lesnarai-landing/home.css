@@ -72,7 +72,8 @@
 .sel__s{align-self:flex-start;margin-top:4px;font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--ink-3);color:var(--ink-2);padding:1px 6px}
 .sel__s--live{border-color:var(--ink);color:var(--ink)}
 .sel__i a:hover b{text-decoration:underline;text-underline-offset:4px}
-@media (max-width:860px){.sel__l{display:none}}
+/* Phones keep a two-line description, so a visitor understands each system without opening it. */
+@media (max-width:860px){.sel__l{font-size:13.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}}
 @media (min-width:861px){
   .sel{grid-template-columns:repeat(12,minmax(0,1fr));gap:40px 28px;border-top:0}
   .sel__i--a{grid-column:span 7}.sel__i--b{grid-column:span 5}

@@ -279,7 +279,7 @@ PAGES["/work/lesnar-play/"] = ("LESNAR PLAY",
   + nxt("Turning everyday devices into something new?"))
 
 # ── CAREPRO ──────────────────────────────────────────────────────────────────
-PAGES["/work/carepro/"] = ("CarePro",
+PAGES["/work/carepro/"] = ("CarePro, a home nursing platform",
   "CarePro matches families in Nairobi with verified home nurses and arranges payment. LESNAR AI engineered the platform; it is a controlled public beta.",
   "carepro", "/work/",
   opening("Health", "CarePro",
@@ -320,7 +320,7 @@ PAGES["/work/carepro/"] = ("CarePro",
   + nxt("Need a service where trust has to be earned before work starts?"))
 
 # ── BIZMTAANI ────────────────────────────────────────────────────────────────
-PAGES["/work/bizmtaani/"] = ("BizMtaani",
+PAGES["/work/bizmtaani/"] = ("BizMtaani, an ordering and operations platform",
   "BizMtaani is a neighbourhood marketplace: shops list what they sell and customers order and pay from a phone. It reached live release with its founding merchant in Embu.",
   "bizmtaani", "/work/",
   opening("Commerce", "BizMtaani",
@@ -601,7 +601,7 @@ N_DISC = sum(len(l["disciplines"]) for l in LAYERS)
 CAP_LEGEND = "".join(f'<li><i class="mk mk--{k}" aria-hidden="true"></i><b>{v[0]}</b> {v[1]}</li>' for k, v in MARKS.items())
 CAP_NAV = "".join(f'<a href="#{l["id"]}"><span>L{len(LAYERS) - n}</span>{l["name"]}</a>' for n, l in enumerate(LAYERS))
 
-PAGES["/capabilities/"] = ("Capabilities",
+PAGES["/capabilities/"] = ("Custom ERP, software, AI and security engineering",
   "The engineering disciplines of LESNAR AI: enterprise systems and custom ERP, organisational platforms, full-stack software, "
   "process automation, AI and agents, cybersecurity, infrastructure, integrations, commerce, health technology, embedded "
   "software, robotics, autonomous systems and research, each with its evidence and its limits.",
@@ -647,7 +647,7 @@ PAGES["/engineering/"] = ("Engineering",
   + nxt("Want this discipline on your system?"))
 
 # ── COMPANY ──────────────────────────────────────────────────────────────────
-PAGES["/company/"] = ("Company",
+PAGES["/company/"] = ("About LESNAR AI, a Nairobi engineering company",
   "LESNAR AI LTD is an engineering company in Nairobi, Kenya, building software, AI and autonomous systems, and showing each at its real stage.",
   "sentinel", "/company/",
   '<div class="w case-open"><h1 class="statement" style="margin-top:40px">LESNAR AI</h1>'
@@ -710,7 +710,7 @@ DIRECT = ('<div class="form__alt" id="write-directly"><p><b>Write to us directly
           '<p><a class="act" href="mailto:hello@lesnarai.co.ke">Email hello@lesnarai.co.ke</a>'
           '<a class="act" href="https://wa.me/254715540653">WhatsApp +254 715 540 653</a></p></div>')
 form = re.search(r'<form class="form"[^>]*>.*?</form>', START_FORM, re.S).group(0)
-PAGES["/start/"] = ("Start",
+PAGES["/start/"] = ("Start a software project",
   "Start a project with LESNAR AI: what to bring, what makes a first message useful, what changes the price, and what happens after you send it.",
   "sentinel", "/start/",
   '<div class="w case-open"><h1 class="statement" style="margin-top:40px">Bring us<br>the <em>problem</em></h1>'

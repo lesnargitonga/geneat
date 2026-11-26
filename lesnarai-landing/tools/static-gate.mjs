@@ -163,8 +163,10 @@ if(fs.existsSync(vjPath)){
     const seen=new Set();
     for(const f of pages){
       const s=fs.readFileSync(f,'utf8');
-      for(const m of s.matchAll(/<script(?![^>]*\ssrc=)[^>]*>([\s\S]*?)<\/script>/g)){
-        const h=crypto.createHash('sha256').update(m[1]).digest('base64');
+      for(const m of s.matchAll(/<script(?![^>]*\ssrc=)([^>]*)>([\s\S]*?)<\/script>/g)){
+        /* Structured data is a data block, never executed, so the CSP does not govern it; it must parse. */
+        if(/type="application\/ld\+json"/.test(m[1])){ try{ JSON.parse(m[2]); }catch(e){ fail(f,'structured data is not valid JSON'); } continue; }
+        const h=crypto.createHash('sha256').update(m[2]).digest('base64');
         seen.add(h);
         if(!pinned.has(h)) fail(f,`inline script is not pinned in the CSP (sha256-${h})`);
       }
