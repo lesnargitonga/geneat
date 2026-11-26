@@ -2258,3 +2258,8 @@
   border-color: rgb(var(--color-bronze) / 0.55);
   color: rgb(var(--color-night-on-dark));
 }
+
+/* No dead WhatsApp links: lib/format.ts points any link to an unreachable number here. */
+a[href="#whatsapp-unavailable"] {
+  display: none !important;
+}
