@@ -157,6 +157,20 @@ try {
         'Start: an undelivered enquiry keeps the message and offers email and WhatsApp with it');
       await ctx.close();
     }
+    /* Direct contact must work without the form: email and WhatsApp links before the form on Start,
+       and in the footer every page shares. */
+    const [ctx, p] = await open();
+    await p.goto(BASE + '/start/', { waitUntil: 'networkidle' });
+    const d = await p.evaluate(() => {
+      const form = document.querySelector('form.form');
+      const before = (a) => !!(form && (a.compareDocumentPosition(form) & Node.DOCUMENT_POSITION_FOLLOWING));
+      const pick = (sel) => [...document.querySelectorAll(sel)].map(a => ({ href: a.getAttribute('href'), before: before(a) }));
+      return { direct: pick('#write-directly a'), foot: pick('footer a[href^="mailto:"], footer a[href^="https://wa.me/"]') };
+    });
+    const both = (list) => list.some(a => a.href === 'mailto:hello@lesnarai.co.ke') && list.some(a => a.href === 'https://wa.me/254715540653');
+    check(both(d.direct) && d.direct.every(a => a.before), 'Start: email and WhatsApp links sit before the form');
+    check(both(d.foot), 'Start: the footer links email and WhatsApp');
+    await ctx.close();
   }
 } finally {
   await browser.close();

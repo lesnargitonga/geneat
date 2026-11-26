@@ -257,6 +257,7 @@ svg.plan,svg.speed,svg.det{display:block;width:100%;height:auto}
 .form__state{font-weight:600;margin-top:10px}
 .form__alt{margin-top:24px;padding-top:18px;border-top:1px solid var(--hair)}
 .form__alt a{color:var(--ink);font-weight:700}
+.form__alt .act{margin:6px 22px 0 0}
 
 /* ── Maturity marks: how far our own work in a discipline has gone (tools/field/disciplines.py) ── */
 .mk{display:inline-block;flex:none;width:9px;height:9px;margin-right:7px;box-shadow:inset 0 0 0 1.5px var(--ink)}

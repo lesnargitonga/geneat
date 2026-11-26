@@ -665,18 +665,33 @@ PAGES["/company/"] = ("Company",
       ("Prototype", "it works", "It runs; nobody depends on it yet.", "prototype"), ("Internal", "our own", "We run it on ourselves.", "internal"),
       ("Research", "nothing operated", "Investigation and evaluation only.", "research"), ("Simulation", "not the field", "Proven in a simulated world.", "sim")]) + "</div>")
   + sec("who-h", "Reach us", "",
-    steps([("Direct", "hello@lesnarai.co.ke · WhatsApp +254 715 540 653"),
+    steps([("Direct", '<a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a> · '
+                      '<a href="https://wa.me/254715540653">WhatsApp +254 715 540 653</a>'),
            ("Where", "Nairobi, Kenya")]))
   + nxt("Bring us the problem.", "Start a project"))
 
 # ── START ────────────────────────────────────────────────────────────────────
 START_FORM = (SITE / "start/index.html").read_text()
+# Whether /api/enquiry can deliver in production. Set True only after a real enquiry has reached the
+# inbox from the live site (D-48); while False, Start says plainly that the form is not sending.
+FORM_DELIVERS = False
+DIRECT_NOTE = ("Often the quickest way to reach us." if FORM_DELIVERS else
+               "The form below is not sending messages at the moment. Email or WhatsApp us instead. "
+               "If you use the form, it keeps what you wrote and offers both.")
+# While the form cannot deliver, the first screen says so and gives both direct channels.
+OUTAGE = ('' if FORM_DELIVERS else
+          '<p class="body"><b>Our enquiry form is not sending messages at the moment.</b> Write to us at '
+          '<a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a> or on '
+          '<a href="https://wa.me/254715540653">WhatsApp +254&nbsp;715&nbsp;540&nbsp;653</a>.</p>')
+DIRECT = ('<div class="form__alt" id="write-directly"><p><b>Write to us directly.</b> ' + DIRECT_NOTE + '</p>'
+          '<p><a class="act" href="mailto:hello@lesnarai.co.ke">Email hello@lesnarai.co.ke</a>'
+          '<a class="act" href="https://wa.me/254715540653">WhatsApp +254 715 540 653</a></p></div>')
 form = re.search(r'<form class="form"[^>]*>.*?</form>', START_FORM, re.S).group(0)
 PAGES["/start/"] = ("Start",
   "Start a project with LESNAR AI: what to bring, what makes a first message useful, what changes the price, and what happens after you send it.",
   "sentinel", "/start/",
   '<div class="w case-open"><h1 class="statement" style="margin-top:40px">Bring us<br>the <em>problem</em></h1>'
-  '<p class="lede">Before anything else, whether we are the right people.</p></div>'
+  '<p class="lede">Before anything else, whether we are the right people.</p>' + OUTAGE + '</div>'
   + '<section class="w" aria-labelledby="fit-h"><h2 class="sr" id="fit-h">Fit</h2><div class="two">'
   + '<div><h3 class="h3">Bring us this</h3>' + steps([("Systems an organisation runs on", "Enterprise systems, custom ERP, organisational platforms and process automation."),
         ("Products and commerce", "Full-stack products, payments, health technology and the integrations between systems."),
@@ -687,9 +702,8 @@ PAGES["/start/"] = ("Start",
   + '<div><h3 class="h3">Not this</h3>' + steps([("A rate card before a scope", "We price after we understand the work."), ("A specification to implement blind", "We discuss what it must never get wrong first."),
         ("Flattering evidence", "Our evidence says what is true.")]) + "</div></div></section>"
   + '<section class="w sec" aria-labelledby="msg-h"><div class="two"><div><h2 class="h2" id="msg-h">A useful first message</h2>'
-    '<p class="body">Answer what you can. Only a way to reply is required. The message comes straight to us; nothing is kept on this site.</p></div>'
-    f'<div>{form}<div class="form__alt" id="write-directly"><p>Writing directly is equally valid, and often faster: '
-    '<a href="mailto:hello@lesnarai.co.ke">hello@lesnarai.co.ke</a> · WhatsApp +254 715 540 653.</p></div></div></div></section>'
+    '<p class="body">Answer what you can. Only a way to reply is required. Nothing is kept on this site.</p>'
+    f'{DIRECT}</div><div>{form}</div></div></section>'
   + '<section class="w sec" id="cost" aria-labelledby="cost-h"><div class="sec-head"><h2 class="h2" id="cost-h">What changes the price</h2>'
     '<p class="lede">Priced per project, after scope. There is no rate card.</p></div>'
   + steps([("How many kinds of user", "A customer, a merchant and an administrator are three experiences sharing a database."), ("Whether money moves", "Payments and refunds change the architecture more than any feature list."),

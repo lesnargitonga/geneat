@@ -150,7 +150,7 @@ function recovery(fields, why) {
 function reply(req, res, status, payload, fields) {
   const wantsHtml = String(req.headers["content-type"] || "").includes("application/x-www-form-urlencoded");
   if (wantsHtml) {
-    if (payload.ok) return page(res, 200, "Message sent", "<p>Thank you. Your message reached LESNAR AI, and we will reply to the address you gave.</p>");
+    if (payload.ok) return page(res, 200, "Message sent", "<p>Thank you. Your message has been sent, and we will reply to the address you gave.</p>");
     const why = payload.error === "invalid" ? "Please give an email address or a phone number we can reply to."
       : payload.error === "too_many" ? "Too many messages have been sent from here in the last hour. Please try again later."
       : "Your message could not be sent from this page just now.";

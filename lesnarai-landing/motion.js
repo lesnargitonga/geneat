@@ -290,7 +290,7 @@
           if (x.status === 200 && x.j.ok) {
             form.reset();
             if (stamp) stamp.value = String(Date.now());
-            state.textContent = "Sent. Your message reached LESNAR AI, and we will reply to the address you gave.";
+            state.textContent = "Sent. We will reply to the address you gave.";
           } else if (x.status === 400 && x.j.detail && /reply/.test(x.j.detail)) {
             fld.setAttribute("data-err", "");
             reply.setAttribute("aria-invalid", "true");
