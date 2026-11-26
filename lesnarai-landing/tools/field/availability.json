@@ -1,14 +1,14 @@
 {
- "checked": "2026-11-02 19:39 EAT",
- "date": "2 Nov 2026",
+ "checked": "2026-11-26 13:15 EAT",
+ "date": "26 Nov 2026",
  "systems": {
   "bizmtaani": {
-   "up": false,
-   "result": "URLError"
+   "up": true,
+   "result": 200
   },
   "carepro": {
-   "up": false,
-   "result": "URLError"
+   "up": true,
+   "result": 200
   },
   "jamii": {
    "up": true,
@@ -27,8 +27,8 @@
    "result": 200
   },
   "security": {
-   "up": false,
-   "result": "URLError"
+   "up": true,
+   "result": 200
   }
  }
 }
