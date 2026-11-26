@@ -29,6 +29,13 @@ export const BRAND_IMAGES = {
   safariSunset: "/brand/safari-sunset.webp",
 } as const;
 
+/**
+ * Whether ordering is open: the order desk, the concierge chat and its buttons. Off unless the
+ * owner sets NEXT_PUBLIC_HAZINA_ORDERING_OPEN=true after a real order has passed end to end;
+ * until then the site shows prices and lead times for reference only.
+ */
+export const ORDERING_OPEN = process.env.NEXT_PUBLIC_HAZINA_ORDERING_OPEN === "true";
+
 export const BRAND = {
   name: "Hazina Nomads",
   tagline: "Bespoke Kenyan treasures, curated for your journey.",

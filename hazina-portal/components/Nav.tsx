@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { openConciergeChat } from "@/components/ChatWidget";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { WhatsAppGlyph } from "@/components/WhatsAppGlyph";
-import { BRAND } from "@/lib/products";
+import { BRAND, ORDERING_OPEN } from "@/lib/products";
 import { whatsappLink } from "@/lib/format";
 
 const NAV = [
@@ -130,17 +130,19 @@ export function Nav() {
             >
               Continue on WhatsApp
             </a>
-            <button
-              type="button"
-              className="btn-outline w-full"
-              data-cursor="native"
-              onClick={() => {
-                setOpen(false);
-                openConciergeChat();
-              }}
-            >
-              Open guided chat
-            </button>
+            {ORDERING_OPEN ? (
+              <button
+                type="button"
+                className="btn-outline w-full"
+                data-cursor="native"
+                onClick={() => {
+                  setOpen(false);
+                  openConciergeChat();
+                }}
+              >
+                Open guided chat
+              </button>
+            ) : null}
           </nav>
         </div>
       )}

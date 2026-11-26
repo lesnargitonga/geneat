@@ -19,7 +19,7 @@ import {
   type Treasure,
   type TreasureCategory,
 } from "@/lib/treasures";
-import { BRAND } from "@/lib/products";
+import { BRAND, ORDERING_OPEN } from "@/lib/products";
 import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
 
 type DeliveryMode = "hotel" | "jkia" | "international";
@@ -498,11 +498,11 @@ export function PackBuilder({
 
               <button
                 type="button"
-                disabled={!canOrder}
+                disabled={!canOrder || !ORDERING_OPEN}
                 onClick={() => setCheckoutStep("delivery")}
                 className="btn-dark w-full disabled:opacity-40"
               >
-                {canOrder ? "Prepare Handoff" : `Select ${MIN_CUSTOM_ITEMS}+ treasures`}
+                {!ORDERING_OPEN ? "Ordering is not open yet" : canOrder ? "Prepare Handoff" : `Select ${MIN_CUSTOM_ITEMS}+ treasures`}
               </button>
 
               {canOrder && (

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { CatalogImage } from "@/components/CatalogImage";
 import { CollectionQuickView } from "@/components/CollectionQuickView";
 import type { GiftBox } from "@/lib/products";
-import { BRAND, getCollectionPackaging, getCollectionTreasureItems } from "@/lib/products";
+import { BRAND, getCollectionPackaging, getCollectionTreasureItems, ORDERING_OPEN } from "@/lib/products";
 import { TREASURES, type Treasure } from "@/lib/treasures";
 import { formatKES, formatUSD, whatsappLink } from "@/lib/format";
 
@@ -115,7 +115,7 @@ export function CollectionCard({ box, className = "", priority, brandPhone = BRA
             className="btn-outline w-full !px-4 !py-2.5"
             data-cursor="magnetic"
           >
-            Add to box
+            {ORDERING_OPEN ? "Add to box" : "See this box"}
           </Link>
           <a
             href={waUrl}

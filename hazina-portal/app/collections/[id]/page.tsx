@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { GIFT_BOXES, getGiftBox } from "@/lib/products";
+import { GIFT_BOXES, getGiftBox, ORDERING_OPEN } from "@/lib/products";
 import { collectionTreasureItems, getStorefrontCatalog } from "@/lib/catalog";
 import { CollectionItemsPreview } from "@/components/CollectionCard";
 import { CollectionCheckout } from "@/components/CollectionCheckout";
@@ -126,7 +126,7 @@ export default async function CollectionDetailPage({ params }: Props) {
             <MotionSafe delay={0.16}>
               <div className="flex flex-wrap gap-4">
                 <a href="#checkout" className="btn-dark" data-cursor="magnetic">
-                  Order this box
+                  {ORDERING_OPEN ? "Order this box" : "Ordering status"}
                 </a>
                 <Link href="/build" className="btn-outline" data-cursor="magnetic">
                   Pick individual items

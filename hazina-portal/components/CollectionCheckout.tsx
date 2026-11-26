@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { openConciergeChat } from "@/components/ChatWidget";
 import type { GiftBox } from "@/lib/products";
-import { BRAND } from "@/lib/products";
+import { BRAND, ORDERING_OPEN } from "@/lib/products";
 import { formatDualPrice, whatsappLink } from "@/lib/format";
 
 type Props = {
@@ -45,6 +45,19 @@ export function CollectionCheckout({ box }: Props) {
       }),
     );
   };
+
+  if (!ORDERING_OPEN) {
+    return (
+      <section id="checkout" className="collection-order-desk spatial-panel depth-shadow-soft p-5 md:p-6 space-y-3">
+        <span className="label-mono text-bronze">Ordering</span>
+        <h2 className="font-serif text-2xl md:text-3xl text-obsidian mt-2">Not open yet</h2>
+        <p className="text-sm text-ink-mute leading-relaxed">
+          The price, contents and lead time of {box.name} are shown for reference. Online ordering is
+          not open yet.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section id="checkout" className="collection-order-desk spatial-panel depth-shadow-soft p-5 md:p-6 space-y-5 lg:max-h-[80vh] lg:overflow-y-auto local-scroll local-scroll--subtle">

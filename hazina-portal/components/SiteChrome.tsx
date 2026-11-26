@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { Nav } from "@/components/Nav";
 import { MagneticCursor } from "@/components/three-d/MagneticCursor";
 import { ShowroomShell } from "@/components/three-d/ShowroomShell";
+import { ORDERING_OPEN } from "@/lib/products";
 
 /** Magic-link order pages ship without main marketing chrome. */
 export function SiteChrome({ children }: { children: React.ReactNode }) {
@@ -21,7 +22,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
       <ShowroomShell />
       <Nav />
       <main className="showroom-main flex-1">{children}</main>
-      <ChatWidget />
+      {ORDERING_OPEN ? <ChatWidget /> : null}
       <MagneticCursor />
       <Footer />
     </>
