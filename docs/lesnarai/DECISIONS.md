@@ -3,6 +3,12 @@
 Newest first. Each entry says who decided, what, and what it changed. "Owner" is the founder of
 LESNAR AI. Entries marked **superseded** stay in the log so the reasoning is not lost.
 
+## 2026-11-26 — owner: update the site; the systems are back
+
+| # | Decision | Consequence |
+|---|---|---|
+| D-47 | "We need to update lesnarai website, we've been so down." | **Availability.** Re-checked 26 Nov 2026, 13:15 EAT: all seven systems answer, including BizMtaani, CarePro and the security client's staging site, which the live pages had called offline since 2 Nov. The notes are gone (`f2d1084`). **Deployed** as `lesnarai-v2-de0ar70jh-lesnar.vercel.app`, with lesnarai.com re-aliased. Verified live: 19 routes on both hosts byte-identical to the tree with full headers; the 308s and legacy redirects unchanged. **Rollback target:** `lesnarai-v2-6uryajod8-lesnar.vercel.app` (the 2 Nov release). **Still open:** `lesnarai-v2` has no Resend or Upstash variables, so enquiries have failed closed since 2 Nov. |
+
 ## 2026-11-02 — owner: deploy the new site to production
 
 | # | Decision | Consequence |
