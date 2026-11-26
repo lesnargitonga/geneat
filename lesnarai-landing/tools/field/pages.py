@@ -280,11 +280,11 @@ PAGES["/work/lesnar-play/"] = ("LESNAR PLAY",
 
 # ── CAREPRO ──────────────────────────────────────────────────────────────────
 PAGES["/work/carepro/"] = ("CarePro, a home nursing platform",
-  "CarePro matches families in Nairobi with verified home nurses and arranges payment. LESNAR AI engineered the platform; it is a controlled public beta.",
+  "CarePro is a home-nursing platform for Nairobi: nurse verification, booking and payment held until care is delivered. LESNAR AI engineered it; it is a public beta, and no nurse has yet been approved.",
   "carepro", "/work/",
   opening("Health", "CarePro",
-    "Home nursing for families in Nairobi. A family is matched to a verified nurse, and payment is arranged through the platform.",
-    stage("live", "Controlled public beta"), ["LESNAR AI engineered the platform", "no claim about who owns or runs the service"])
+    "A home-nursing platform for Nairobi. It is built to match a family to a nurse only after verification, and to hold payment until care is delivered.",
+    stage("live", "Public beta · no nurse approved yet"), ["LESNAR AI engineered the platform", "no claim about who owns or runs the service"])
   + f"""<section class="w sec" aria-labelledby="gate-h"><div class="two">
   <div><h2 class="h2" id="gate-h">The gate before<br>a nurse is sent</h2>
     <p class="body">A family is letting a stranger into their home to care for someone vulnerable. CarePro's job is to
@@ -300,7 +300,7 @@ PAGES["/work/carepro/"] = ("CarePro, a home nursing platform",
            frame("carepro-nurse", 3, "APPLY", "02", "Nurse sign-up", "public registration page · 26 Nov 2026", "CarePro nurse registration form"),
            frame("carepro-verify", 3, "VERIFICATION", "03", "The published gate", "the product's own panel · 26 Nov 2026", "CarePro's verification panel: four stages ending in clinical sign-off, with 24 nurses joined and none yet approved")])
   + "</div></section>"
-  + sec("book-h", "From request to visit", "",
+  + sec("book-h", "From request to visit", "How a booking runs, as built and tested. None can be fulfilled until the first nurse is approved.",
     steps([("Request", "Care at home, while travelling, at an event or for a company, with any equipment and a preferred nurse nearby."),
            ("Match", "Staff assign a ranked candidate, or the best match in one step. Only an approved nurse with a current licence can be assigned."),
            ("A redacted offer", "The nurse sees the visit without the patient's details until accepting; every read of medical details is logged."),
@@ -402,18 +402,18 @@ PAGES["/work/gen-eat/"] = ("Gen-Eat",
 
 # ── HAZINA ───────────────────────────────────────────────────────────────────
 PAGES["/work/hazina-nomads/"] = ("Hazina Nomads",
-  "Hazina Nomads sources Kenyan heritage pieces privately for travellers, diaspora families and companies. The storefront is online; ordering is paused.",
+  "Hazina Nomads sources Kenyan heritage pieces privately for travellers, diaspora families and companies. A priced storefront is online; its concierge checkout is a prototype.",
   "sentinel", "/work/",
   opening("Commerce", "Hazina Nomads",
     "Kenyan gifts and heritage pieces, sourced privately for travellers, diaspora families and corporate buyers.",
-    stage("prototype", "Prototype"), ["storefront online", "ordering service paused"])
-  + sec("brief-h", "A brief, not a checkout", "Buying starts with a private sourcing brief and continues on WhatsApp.",
+    stage("prototype", "Prototype"), ["priced storefront online", "concierge checkout in prototype"])
+  + sec("brief-h", "A brief, not a checkout", "As designed, buying starts with a private sourcing brief and continues in a conversation with a concierge, before any payment.",
     steps([("The brief", "The buyer describes the occasion, the person and the budget."), ("Sourcing", "Pieces are found and curated against the brief."),
-           ("The conversation", "Choices are confirmed on WhatsApp, with a person."), ("Handoff", "Delivery to a hotel, the airport or for export.")]))
+           ("The conversation", "Choices are confirmed with a concierge before any payment is taken."), ("Handoff", "Delivery to a hotel, the airport or for export.")]))
   + sec("svc-h", "Built as its own service", "",
-    steps([("A dedicated API", "Its own service and database, separate from the shared platform. Paused."),
+    steps([("A dedicated API", "Its own service and database, separate from the shared platform."),
            ("A tenant inside it", "Gen-Eat ran inside this service as a separate tenant.")]))
-  + limits(["Orders, clients or revenue: none is evidenced.", "A working order flow today: the service is paused."])
+  + limits(["Orders, clients or revenue: none is evidenced.", "A verified order flow: the concierge checkout has not been tested end to end, and its WhatsApp line is not yet a public number."])
   + nxt("Selling something rare, to people far away?"))
 
 # ── CYPHER ───────────────────────────────────────────────────────────────────

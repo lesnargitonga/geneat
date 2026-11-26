@@ -42,10 +42,10 @@ LAYERS = [
                 C("An optician's public website, staff operations and owner management: prescription to collection, "
                   "mobile-money reconciliation and a tamper-evident audit trail", "Demonstration")],
       "limit": "Statutory integrations such as KRA eTIMS are scoped per engagement; we have not shipped one yet."},
-     {"id": "platforms", "short": "Organisational platforms", "name": "Organisational and community platforms", "mark": "use",
+     {"id": "platforms", "short": "Organisational platforms", "name": "Organisational and community platforms", "mark": "demo",
       "what": "Members, bookings, vetting, votes and records, with every decision leaving a trail that survives "
               "later scrutiny, and room for people without a smartphone.",
-      "proof": [P("CarePro", "/work/carepro/", "Controlled beta"), P("Jamii Projects Hub", "/work/jamii-projects-hub/", "Pilot in preparation"),
+      "proof": [P("CarePro", "/work/carepro/", "Public beta, no nurse approved yet"), P("Jamii Projects Hub", "/work/jamii-projects-hub/", "Pilot in preparation"),
                 C("A non-profit's records and fundraising platform: role-restricted records, consent, traceable "
                   "donations and receipts", "Prototype")],
       "limit": None},
@@ -69,13 +69,13 @@ LAYERS = [
      {"id": "commerce", "short": "Commerce and payments", "name": "Commerce and payments", "mark": "use",
       "what": "Storefronts, ordering and payment flows on the instruments people in Kenya use (M-Pesa, WhatsApp, "
               "cards), with reconciliation at the end of the day.",
-      "proof": [P("BizMtaani", "/work/bizmtaani/", "Live"), P("Hazina Nomads", "/work/hazina-nomads/", "Storefront, paused"),
+      "proof": [P("BizMtaani", "/work/bizmtaani/", "Live"), P("Hazina Nomads", "/work/hazina-nomads/", "Prototype"),
                 C("Live mobile-money payments in the hospitality pilot", "Pilot")],
       "limit": None},
-     {"id": "health", "short": "Health technology", "name": "Health technology", "mark": "use",
+     {"id": "health", "short": "Health technology", "name": "Health technology", "mark": "demo",
       "what": "Supply visibility, care coordination and verification for health services, built on synthetic or "
               "consented data, with a person verifying every consequential step.",
-      "proof": [P("CarePro", "/work/carepro/", "Controlled beta"), P("MediMatch", "/work/medimatch/", "Prototype")],
+      "proof": [P("CarePro", "/work/carepro/", "Public beta, no nurse approved yet"), P("MediMatch", "/work/medimatch/", "Prototype")],
       "limit": "Deployment inside a public health system needs clinical partners and regulatory work; none has happened."},
      {"id": "integrations", "short": "Integrations and APIs", "name": "Integrations and APIs", "mark": "use",
       "what": "Connecting systems that were never designed to talk: mobile money, messaging, routing engines, "

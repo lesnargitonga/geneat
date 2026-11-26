@@ -6,7 +6,7 @@ the owner's approval. No thin keyword pages, invented testimonials or claims ahe
 
 ## 1. What is in place (26 Nov 2026)
 
-- `lesnarai.com` is canonical; the Google Business Profile is categorised as a software company.
+- `lesnarai.com` is canonical, Search Console is configured, and the Google Business Profile is categorised as a software company.
 - Structured data on Home (Organization and WebSite: Nairobi, contact, founder, fields of work).
 - Page titles carry the terms buyers search for: custom ERP, software, AI and security engineering.
 - Home leads with systems running for real users (BizMtaani, CarePro), then security, health data
@@ -28,9 +28,9 @@ Deepen these pages rather than adding new ones.
 
 ## 3. The next 30 days (owner actions marked ●)
 
-1. ● **Search Console.** Verify `lesnarai.com` (a DNS TXT record, or an HTML file the site can
-   serve; send the token and it ships the same day). Submit `sitemap.xml`, then request indexing
-   for Home, Capabilities, Work and the two refreshed case pages.
+1. ● **Search Console** is already configured; no further verification or DNS changes. After the
+   next release, submit `sitemap.xml` and request indexing for Home, Capabilities, Work and the
+   two refreshed case pages.
 2. ● **Google Business Profile.** Website `https://lesnarai.com/`; services named as on
    Capabilities. Each month, post one case-page link with one engineering decision explained.
    Ask real clients for reviews, with no incentives.
