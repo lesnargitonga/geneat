@@ -298,7 +298,7 @@ PAGES["/work/carepro/"] = ("CarePro, a home nursing platform",
   + '<section class="sec" aria-labelledby="pub-h"><div class="w"><h2 class="h2" id="pub-h">What the public sees</h2></div><div class="w">'
   + strip([frame("carepro", 3, "HOME", "01", "Booking", "public home page · 26 Nov 2026", "CarePro public home page"),
            frame("carepro-nurse", 3, "APPLY", "02", "Nurse sign-up", "public registration page · 26 Nov 2026", "CarePro nurse registration form"),
-           frame("carepro-verify", 3, "VERIFICATION", "03", "The published gate", "the product's own panel · 26 Nov 2026", "CarePro's verification panel: four stages ending in clinical sign-off, with 24 nurses joined and none yet approved")])
+           frame("carepro-verify", 3, "VERIFICATION", "03", "The published gate", "the product's own panel · 26 Nov 2026", "CarePro's verification panel: four stages ending in clinical sign-off, with 24 registered nurses and zero approved")])
   + "</div></section>"
   + sec("book-h", "From request to visit", "How a booking runs, as built and tested. None can be fulfilled until the first nurse is approved.",
     steps([("Request", "Care at home, while travelling, at an event or for a company, with any equipment and a preferred nurse nearby."),
@@ -314,7 +314,7 @@ PAGES["/work/carepro/"] = ("CarePro, a home nursing platform",
            ("Money", "Whole minor units, with fee plus nurse payout always equal to the booking total."),
            ("Automation", "Every 30 minutes: notices by email, SMS and WhatsApp, unpaid bookings cancelled, unanswered offers released, expiring licences warned, then suspended."),
            ("Audit", "An append-only trail of staff actions, with its own browser.")]))
-  + limits(["Nurses approved for assignments: none yet. On 26 Nov 2026 the product's own panel showed 24 nurses joined and 0 approved.",
+  + limits(["Nursing fulfilment: not operational. On 26 Nov 2026 the product's own panel showed 24 registered nurses and zero approved, so no booking can be fulfilled yet.",
             "Any patient, nurse or booking screen: only public pages are shown.", "Automated refunds or payout runs: not built. A refund is a manual finance step.",
             "Ownership of the service: this page describes our engineering only."])
   + nxt("Need a service where trust has to be earned before work starts?"))
