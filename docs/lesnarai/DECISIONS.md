@@ -3,6 +3,12 @@
 Newest first. Each entry says who decided, what, and what it changed. "Owner" is the founder of
 LESNAR AI. Entries marked **superseded** stay in the log so the reasoning is not lost.
 
+## 2026-11-26 — owner: finish P0; correct readiness claims; separate BizMtaani releases
+
+| # | Decision | Consequence |
+|---|---|---|
+| D-49 | Finish P0 before anything else; review the key script; check the sending domain. Do not imply CarePro can serve families without approved nurses; correct BizMtaani's rider claims; confirm Hazina's ordering before calling it paused; prepare the Next.js update as its own tested release; keep publicity restrictions; Search Console is already configured. The broader site release waits for approval. | **Sending domain.** Public DNS shows no Resend records for lesnarai.com or lesnarai.co.ke. The only Resend-verified domain on record is carepro.co.ke, which must not send LESNAR AI mail. Until a lesnarai domain is verified (three DNS records, owner approval), the sender is `onboarding@resend.dev`, which delivers only to the Resend account owner's address. **Key script**, reviewed and dry-run with a fake key and a stub CLI: no echo, never in arguments, child environments or output, no files; it refuses a key Resend rejects and an unverified sender domain. **CarePro**: described as built, "no nurse approved yet" wherever it appears; Health technology and Organisational platforms are Demonstrated, not In use. **Hazina**: its WhatsApp line is a Meta test number, so it cannot take public orders; the site says a priced storefront with its concierge checkout in prototype (`342688c`). **BizMtaani**, private repo, not deployed: `security/next-16.4.6` (`4d1562a`; audit clean, 2,089/2,089 tests, 37/37 database tests on a throwaway PostgreSQL 16, build) and `fix/rider-claims` (`d6bf35f`, stacked on it). Next.js 16.4.3 now refuses to build, so no BizMtaani release can ship until the upgrade does. |
+
 ## 2026-11-26 — owner: production enquiries first, then evidence, positioning and search
 
 | # | Decision | Consequence |
