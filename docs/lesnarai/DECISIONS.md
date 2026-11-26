@@ -3,6 +3,12 @@
 Newest first. Each entry says who decided, what, and what it changed. "Owner" is the founder of
 LESNAR AI. Entries marked **superseded** stay in the log so the reasoning is not lost.
 
+## 2026-11-26 — owner: approved releases (Hazina, BizMtaani), email via owner, website audit
+
+| # | Decision | Consequence |
+|---|---|---|
+| D-51 | Get Resend's records and add them if access allows; audit the website against the corporate mandate before releasing `ce4c68d`; deploy Hazina's fixes and investigate its backend; ship BizMtaani's security and rider releases with backups and rollback; make every public system state its status accurately; leave Zygos untouched. | **BizMtaani, live.** A fresh backup was taken and verified before each deploy (`pg_restore --list`: 29 entries; 45 records and 5 documents). `deploy.sh security/next-16.4.6` ran: `4d1562af`, git == /api/version == serving, health ok, Node 24.18, 0 restarts. Then `deploy.sh fix/rider-claims`: `d6bf35f5`, verified the same way. Five releases are kept. Smoke after each (GET only): venue open, 13 menu prices, search, anonymous session none; merchant pages redirect to /signin with no data; station-board API 401; rider page 307. The corrected rider copy is live. **Hazina, live** (`hazina-portal-ss1oxkqt4`; previously `h345rok8c`): no WhatsApp link without a reachable number; build on Node 22; ordering closed behind `NEXT_PUBLIC_HAZINA_ORDERING_OPEN` until an end-to-end order passes (no chat, no checkout, "Not open yet" on collections, "Ordering status" / "See this box"). Eleven pages return 200 with prices. **Hazina backend**: Render's edge completes TLS and accepts the request, but the service never answers. A suspended service returns 503 at once and a deleted one 404, so this is a non-healthy instance (failed boot, crash loop or exhausted free hours); the Render dashboard decides. **Email**: no Cloudflare DNS credentials on this workstation (only `cloudflared`), so the owner adds the records. **Links**: every external link on lesnarai.com resolves; `wa.me` fails only on this workstation's DNS (no A record, no IPv6 route) and redirects correctly through 1.1.1.1. **Website audit**: screenshots of 11 pages at 1440 and 390 px in `~/Documents/lesnarai-review/2026-11-26/`. |
+
 ## 2026-11-26 — owner: close the blockers and ship the verified improvements
 
 | # | Decision | Consequence |
