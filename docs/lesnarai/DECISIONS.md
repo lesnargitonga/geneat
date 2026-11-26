@@ -3,6 +3,12 @@
 Newest first. Each entry says who decided, what, and what it changed. "Owner" is the founder of
 LESNAR AI. Entries marked **superseded** stay in the log so the reasoning is not lost.
 
+## 2026-11-26 — owner: close the blockers and ship the verified improvements
+
+| # | Decision | Consequence |
+|---|---|---|
+| D-50 | Verify `lesnarai.co.ke` in Resend for a LESNAR AI sender, with no DNS change until the exact records are approved; then configure and test delivery. Prepare the website release for authorisation. Prepare BizMtaani's security and rider releases; disable Hazina's dead WhatsApp links; keep CarePro explicit. | **DNS** (lesnarai.co.ke, Cloudflare): mail comes in through Cloudflare Email Routing (route1/2/3 MX, root SPF, `cf2024-1` DKIM). `resend._domainkey`, `send` and `_dmarc` are empty and there is no wildcard, so Resend's records collide with nothing. The key script's `records` mode adds the domain to Resend (eu-west-1) and saves its exact records. Its `configure` mode accepts only `LESNAR AI <enquiries@lesnarai.co.ke>`, and only once Resend reports the domain verified; both modes were dry-run with stubs and a fake key. **Website release candidate** `ce4c68d` (preview `lesnarai-landing-qo9zymatw`) is byte-identical to the tree apart from Vercel's preview toolbar; CarePro reads "Nursing fulfilment: not operational … 24 registered nurses and zero approved". **Hazina**: `fix/hazina-whatsapp-links` (`8fabe69` hides links to unreachable numbers; `9cd8b43` moves Node 20 to 22, because Vercel no longer builds Node 20). The preview `hazina-portal-jh3zsij3s` has 0 WhatsApp links on five pages. The production deploy was blocked by the session's permission policy and awaits the owner. Hazina's checkout backend (`hazina-api-dg9o.onrender.com`) did not answer in 100 s. **BizMtaani**: `security/next-16.4.6` and `fix/rider-claims`, ready for its release script (fetch, build, health check, atomic symlink, five releases kept, automatic rollback). |
+
 ## 2026-11-26 — owner: finish P0; correct readiness claims; separate BizMtaani releases
 
 | # | Decision | Consequence |
