@@ -38,14 +38,14 @@
  "bizmtaani": {
   "w": 600,
   "h": 1140,
-  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/bizmtaani/01-home.png",
-  "provenance": "BizMtaani live storefront, 12 Oct 2026, phone layout. Real merchant listing."
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/bizmtaani-2026-11-26/01-home.png",
+  "provenance": "BizMtaani live storefront, 26 Nov 2026, 390 px at 3x: search and the founding merchant's listing."
  },
  "carepro": {
   "w": 600,
   "h": 1140,
-  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/carepro-live/01-home.png",
-  "provenance": "CarePro public home page, Oct 2026. Public surface only; no patient or nurse screens."
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/carepro-2026-11-26/01-home.png",
+  "provenance": "CarePro public home page, 26 Nov 2026, 390 px at 3x. Public surface only; no patient or nurse screens."
  },
  "lesnartv": {
   "w": 1400,
@@ -86,8 +86,14 @@
  "biz-villager": {
   "w": 600,
   "h": 1140,
-  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/bizmtaani-live/03-venues-villager.png",
-  "provenance": "The Villager on BizMtaani, live, Oct 2026."
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/bizmtaani-2026-11-26/02-villager-menu.png",
+  "provenance": "The Villager on BizMtaani, live and open for orders, 26 Nov 2026."
+ },
+ "biz-order": {
+  "w": 600,
+  "h": 1140,
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/bizmtaani-2026-11-26/03-order-panel.png",
+  "provenance": "An order being built on The Villager's live menu, 26 Nov 2026; not placed (the capture blocked every write)."
  },
  "biz-floor": {
   "w": 600,
@@ -101,11 +107,17 @@
   "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/bizmtaani-demo/05-admin-daybook.png",
   "provenance": "BizMtaani daybook, demonstration console, sample data."
  },
+ "carepro-verify": {
+  "w": 600,
+  "h": 999,
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/carepro-2026-11-26/04-verification-panel.png",
+  "provenance": "CarePro's own public verification panel on its home page, 26 Nov 2026, with its live counters."
+ },
  "carepro-nurse": {
   "w": 600,
   "h": 1140,
-  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/carepro-live/02-register-role-NURSE.png",
-  "provenance": "CarePro public nurse registration page, Oct 2026."
+  "source": "~/Productions/LESNAR-Episode-001/07-assets/captures/carepro-2026-11-26/03-register-nurse.png",
+  "provenance": "CarePro public nurse registration page, 26 Nov 2026, empty form."
  },
  "jamii-home": {
   "w": 600,

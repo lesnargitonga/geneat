@@ -287,26 +287,35 @@ PAGES["/work/carepro/"] = ("CarePro",
     stage("live", "Controlled public beta"), ["LESNAR AI engineered the platform", "no claim about who owns or runs the service"])
   + f"""<section class="w sec" aria-labelledby="gate-h"><div class="two">
   <div><h2 class="h2" id="gate-h">The gate before<br>a nurse is sent</h2>
-    <p class="body">No nurse reaches a family until every check has passed, and the last check is a registered nurse
-      reading the whole file.</p></div>
+    <p class="body">A family is letting a stranger into their home to care for someone vulnerable. CarePro's job is to
+      make that trust earned: no nurse reaches a family until every check has passed, and the last check is a
+      registered nurse reading the whole file.</p></div>
   <div>{steps([("Documents", "The applicant submits identity and professional documents."),
                 ("Licence", "The licence is checked against the Nursing Council register."),
                 ("Interview", "A structured interview is scored against a clinical rubric."),
                 ("Clinical review", "A registered nurse reviews the whole file and signs off."),
                 ("Approval", "Only then can the nurse be offered work.")])}</div></div></section>"""
   + '<section class="sec" aria-labelledby="pub-h"><div class="w"><h2 class="h2" id="pub-h">What the public sees</h2></div><div class="w">'
-  + strip([frame("carepro", 3, "HOME", "01", "Booking", "public home page · Oct 2026", "CarePro public home page"),
-           frame("carepro-nurse", 3, "APPLY", "02", "Nurse sign-up", "public registration page · Oct 2026", "CarePro nurse registration form"),
-           '<figure class="frame frame--6"><div class="frame__edge"><span>VERIFICATION</span><span>03</span></div><div class="frame__pic">'
-           '<picture><source type="image/webp" srcset="/carepro-verification-2026-09-16.webp"><img src="/carepro-verification-2026-09-16.png" width="958" height="1086" loading="lazy" alt="CarePro published verification panel with four stages ending in clinical sign-off"></picture></div>'
-           '<figcaption><b>The published gate</b>the product\'s own verification panel · captured 16 Sep 2026</figcaption></figure>'])
+  + strip([frame("carepro", 3, "HOME", "01", "Booking", "public home page · 26 Nov 2026", "CarePro public home page"),
+           frame("carepro-nurse", 3, "APPLY", "02", "Nurse sign-up", "public registration page · 26 Nov 2026", "CarePro nurse registration form"),
+           frame("carepro-verify", 3, "VERIFICATION", "03", "The published gate", "the product's own panel · 26 Nov 2026", "CarePro's verification panel: four stages ending in clinical sign-off, with 24 nurses joined and none yet approved")])
   + "</div></section>"
-  + sec("book-h", "After the gate", "",
-    steps([("A redacted offer", "The nurse sees the visit without the patient's details."),
-           ("Acceptance", "Patient details are revealed only after the nurse accepts."),
-           ("Payment", "Payment is confirmed through the platform before the visit."),
-           ("Staff access", "Every staff account signs in with two factors; an audit browser records what was done.")]))
-  + limits(["Any patient, nurse or booking screen: only public pages are shown.", "Automated refunds or payout runs: not built.",
+  + sec("book-h", "From request to visit", "",
+    steps([("Request", "Care at home, while travelling, at an event or for a company, with any equipment and a preferred nurse nearby."),
+           ("Match", "Staff assign a ranked candidate, or the best match in one step. Only an approved nurse with a current licence can be assigned."),
+           ("A redacted offer", "The nurse sees the visit without the patient's details until accepting; every read of medical details is logged."),
+           ("Payment held", "Paid by M-Pesa in the app and held until care is delivered; never cash to a caregiver."),
+           ("The visit", "Check-in and check-out by location, with care notes."),
+           ("Afterwards", "A review, an updated nurse score, and earnings accrued.")]))
+  + sec("arch-h", "How it is built", "",
+    steps([("Documents kept private", "Checked by content, not name; stored privately; opened only through short-lived, logged links."),
+           ("Accounts", "Revocable sessions, mandatory two-factor sign-in for staff, and lockout after repeated failures."),
+           ("Requests", "Forgery checks on every change; rate limits kept in the database so they survive restarts."),
+           ("Money", "Whole minor units, with fee plus nurse payout always equal to the booking total."),
+           ("Automation", "Every 30 minutes: notices by email, SMS and WhatsApp, unpaid bookings cancelled, unanswered offers released, expiring licences warned, then suspended."),
+           ("Audit", "An append-only trail of staff actions, with its own browser.")]))
+  + limits(["Nurses approved for assignments: none yet. On 26 Nov 2026 the product's own panel showed 24 nurses joined and 0 approved.",
+            "Any patient, nurse or booking screen: only public pages are shown.", "Automated refunds or payout runs: not built. A refund is a manual finance step.",
             "Ownership of the service: this page describes our engineering only."])
   + nxt("Need a service where trust has to be earned before work starts?"))
 
@@ -317,14 +326,28 @@ PAGES["/work/bizmtaani/"] = ("BizMtaani",
   opening("Commerce", "BizMtaani",
     "A neighbourhood marketplace. Shops list what they actually sell, and customers order and pay from a phone.",
     stage("live", "Live"), ["founding merchant: The Villager, Embu", "built and operated by LESNAR AI"])
-  + sec("order-h", "One order, start to finish", "Live storefront frames, then the merchant's side in the demonstration console, which runs on sample data and says so.",
+  + sec("hold-h", "What has to hold on a busy night", "Orders arrive from tables, the counter and phones at once. Each rule is enforced in code and covered by tests.",
+    steps([("One order path", "Table QR orders and online orders go through the same engine; there is no second path to drift."),
+           ("The server sets the price", "Each line is priced on the server and frozen as submitted; a menu edit never rewrites an order."),
+           ("Sent once", "A double tap or a dropped connection cannot create a second order."),
+           ("The right station", "Each line carries its route: one order, separate bar and kitchen tickets, one bill."),
+           ("No open money at close", "A tab totals from its own ledger and cannot close with payment or station work outstanding.")]))
+  + sec("order-h", "One order, start to finish", "The live storefront on 26 November 2026, then the merchant's side in the demonstration console, which runs on sample data and says so.",
     '<div class="w" style="padding:0">' + strip([
-      frame("bizmtaani", 3, "FIND", "01", "Find", "live storefront · 12 Oct 2026", "BizMtaani storefront"),
-      frame("biz-villager", 3, "ORDER", "02", "Order", "The Villager's live menu · Oct 2026", "The Villager on BizMtaani, open for orders"),
-      frame("biz-floor", 3, "STATIONS", "03", "Station tickets", "demonstration console · sample data", "BizMtaani station board"),
-      frame("biz-daybook", 3, "DAYBOOK", "04", "Close the day", "demonstration console · sample data", "BizMtaani daybook"),
+      frame("bizmtaani", 3, "FIND", "01", "Find", "live storefront · 26 Nov 2026", "BizMtaani search and the founding merchant's listing"),
+      frame("biz-villager", 3, "MENU", "02", "Menu", "The Villager's live menu · 26 Nov 2026", "The Villager on BizMtaani, open for orders"),
+      frame("biz-order", 3, "ORDER", "03", "Order", "built on the live menu, not placed · 26 Nov 2026", "Two items in an order on The Villager's menu"),
+      frame("biz-floor", 3, "STATIONS", "04", "Station tickets", "demonstration console · sample data", "BizMtaani station board"),
+      frame("biz-daybook", 3, "DAYBOOK", "05", "Close the day", "demonstration console · sample data", "BizMtaani daybook"),
     ]) + "</div>")
-  + sec("proof-h", "Proven before it carried money", "At the release of 27 October 2026.",
+  + sec("arch-h", "How it is built", "",
+    steps([("Two channels, one engine", "Online ordering and in-venue QR enter one order function, then station routing, fulfilment and payment."),
+           ("Payment as its own state", "Pending, paid, failed, expired, refunded. Paystack, IntaSend and manual M-Pesa are adapters into those states; nothing else knows the provider."),
+           ("Every business separate", "Each request is bound to one business and fails closed if it is missing or wrong."),
+           ("Input checked at the edge", "External input is checked against a schema where it enters, in strict TypeScript."),
+           ("Releases off the live data", "Release candidates run on a throwaway database, deleted afterwards; the live database is never touched."),
+           ("Photos without location", "Location and other metadata are stripped from uploaded images.")]))
+  + sec("proof-h", "Proven before release", "At the release of 27 October 2026.",
     readings([("2,066", "", "tests passing in 156 files, plus 37 database tests", "Tests", stage("live", "Release")),
               ("5/18", "", "orders accepted when 18 arrived at once for 5 in stock: exactly the stock", "Contention", stage("live", "In testing")),
               ("1", "", "merchant at live release: The Villager", "Merchants", stage("live", "Live"))]))
