@@ -3,6 +3,12 @@
 Newest first. Each entry says who decided, what, and what it changed. "Owner" is the founder of
 LESNAR AI. Entries marked **superseded** stay in the log so the reasoning is not lost.
 
+## 2026-11-26 — owner: "go on" (the three recommended pre-release fixes)
+
+| # | Decision | Consequence |
+|---|---|---|
+| D-52 | Continue with the recommended small pre-release fixes; the broader release still waits for explicit authorisation. | `87346a4`: Work's flagship cases are BizMtaani, CarePro, SentinelCore and MediMatch; portrait captures sit on a `--grid` panel instead of between black bars, on Home and Work; Home's sharing card (1200x630, rendered in the site's fonts) replaces the drone still. Gates pass in three engines and at 320, 768 and 1024 px, the behaviour gate passes, and all required theme configurations pass. Preview `lesnarai-landing-dpaw6weuk` matches the branch. Fresh Home and Work captures are in `~/Documents/lesnarai-review/2026-11-26b/`. |
+
 ## 2026-11-26 — owner: approved releases (Hazina, BizMtaani), email via owner, website audit
 
 | # | Decision | Consequence |
